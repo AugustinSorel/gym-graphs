@@ -7,16 +7,16 @@ export default function Home() {
   return (
     <main>
       <section className="mx-auto flex h-[calc(100vh-32px-25px)] max-w-3xl flex-col items-center justify-center gap-14 text-center">
-        <h1 className="text-7xl font-bold">
+        <h1 className="text-4xl font-bold sm:text-7xl">
           Monitor your gym progress{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
             with ease
           </strong>
         </h1>
 
-        <p className="px-36 text-2xl">
+        <p className="w-3/5 sm:text-2xl">
           Gym-tracker is a simple modular and free monitoring application with
-          features like{" "}
+          features like
           <strong className="font-normal text-accent">graphs</strong>,{" "}
           <strong className="font-normal text-accent">heat maps</strong> and{" "}
           <strong className="font-normal text-accent">dashboard</strong>, for
@@ -25,7 +25,7 @@ export default function Home() {
 
         <Button asChild size="lg">
           <Link href="/login">
-            <span className="text-xl">get started</span>
+            <span className="sm:text-xl">get started</span>
             <ArrowRight className="ml-2" />
           </Link>
         </Button>
