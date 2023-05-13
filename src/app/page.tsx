@@ -2,7 +2,6 @@ import { Button } from "@/components/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-//TODO: remove dependencies to devdep
 export default function Home() {
   return (
     <main>
