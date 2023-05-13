@@ -199,7 +199,7 @@ export default function Home() {
               y2="1687.58"
               gradientUnits="userSpaceOnUse"
             >
-              <stop />
+              <stop offset="0" />
               <stop offset="1" />
             </linearGradient>
             <radialGradient
