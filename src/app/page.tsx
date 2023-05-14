@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main>
-      <section className="mx-auto flex h-[calc(100vh-32px-25px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
+      <section className="mx-auto flex min-h-[calc(100vh-32px-25px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
         <h1 className="text-4xl font-bold sm:text-7xl">
           Monitor your gym progress{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -176,7 +176,7 @@ export default function Home() {
               y2="1855.81"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0" stopColor="#6070FF" />
+              <stop offset="0" stopColor="hsl(var(--brand-color-one))" />
               <stop offset="1" stopColor="#4D1B5F" />
             </linearGradient>
             <linearGradient
@@ -210,7 +210,11 @@ export default function Home() {
               gradientTransform="translate(2189.46 600.563) rotate(-144.199) scale(735.231 715.392)"
             >
               <stop offset="0" stopColor="#5BDCC6" />
-              <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
+              <stop
+                offset="1"
+                stopColor="hsl(var(--brand-color-two))"
+                stopOpacity="0"
+              />
             </radialGradient>
             <radialGradient
               id="paint4_radial_9_46"
@@ -221,7 +225,11 @@ export default function Home() {
               gradientTransform="translate(-116.431 825.821) rotate(-144.199) scale(735.231 715.392)"
             >
               <stop offset="0" stopColor="#5BDCC6" />
-              <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
+              <stop
+                offset="1"
+                stopColor="hsl(var(--brand-color-two))"
+                stopOpacity="0"
+              />
             </radialGradient>
             <clipPath id="clip0_9_46">
               <rect

@@ -47,7 +47,7 @@ export const theme = {
     },
     backgroundImage: {
       "brand-gradient":
-        "linear-gradient(to right bottom, hsl(var(--brand-color-one)), hsl(var(--brand-color-two)))",
+        "linear-gradient(to right, hsl(var(--brand-color-one)), hsl(var(--brand-color-two)))",
     },
     borderRadius: {
       lg: "var(--radius)",
