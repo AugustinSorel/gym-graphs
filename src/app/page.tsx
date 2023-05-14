@@ -30,18 +30,12 @@ export default function Home() {
         </Button>
 
         <svg
-          xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1890 1027"
-          className="absolute inset-0 left-0 top-0 -z-10 h-full w-full"
+          xmlns="http://www.w3.org/2000/svg"
+          className="absolute inset-0 left-0 top-0 -z-10 h-full w-full min-w-[1000px]"
           preserveAspectRatio="none"
         >
-          <rect
-            width="100%"
-            height="100%"
-            filter="url(#noise)"
-            className="opacity-30"
-          />
-          <g clipPath="url(#clip0_9_46)" className="opacity-50">
+          <g opacity="0.5" clipPath="url(#clip0_9_46)">
             <rect
               width="1027"
               height="1890"
@@ -60,30 +54,25 @@ export default function Home() {
                 fill="url(#paint2_linear_9_46)"
               />
             </g>
-            <g className="mix-blend-screen" filter="url(#filter2_f_9_46)">
+            <g className="mix-blend-color-dodge" filter="url(#filter2_f_9_46)">
               <path
-                d="M2586.52 1122.76C2789.82 1175.61 3035.45 1068.57 3135.15 883.684L3430.62 335.752C3530.32 150.866 3446.34 -41.8539 3243.04 -94.7009L2289.51 -342.569C2086.21 -395.416 1840.59 -288.378 1740.89 -103.492L1445.41 444.44C1345.72 629.326 1429.7 822.046 1633 874.893L2586.52 1122.76Z"
+                d="M2586.52 1122.76C2789.82 1175.61 3035.45 1068.57 3135.15 883.684L3430.62 335.752C3530.32 150.866 3446.34 -41.854 3243.04 -94.7009L2289.51 -342.569C2086.21 -395.416 1840.59 -288.378 1740.89 -103.492L1445.41 444.44C1345.72 629.326 1429.7 822.046 1633 874.893L2586.52 1122.76Z"
                 fill="url(#paint3_radial_9_46)"
               />
             </g>
-            <g className="mix-blend-screen" filter="url(#filter3_f_9_46)">
+            <g className="mix-blend-color-dodge" filter="url(#filter3_f_9_46)">
               <path
                 d="M280.632 1348.02C483.929 1400.87 729.557 1293.83 829.256 1108.94L1124.73 561.009C1224.43 376.123 1140.44 183.403 937.147 130.556L-16.3819 -117.312C-219.679 -170.159 -465.307 -63.1206 -565.007 121.765L-860.478 669.697C-960.178 854.583 -876.195 1047.3 -672.897 1100.15L280.632 1348.02Z"
                 fill="url(#paint4_radial_9_46)"
               />
             </g>
-          </g>
 
+            <rect filter="url(#noise)" className="h-full w-full opacity-75" />
+          </g>
           <defs>
             <filter id="noise">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="1"
-                numOctaves="6"
-                stitchTiles="stitch"
-              />
+              <feTurbulence type="turbulence" baseFrequency="0.65" />
             </filter>
-
             <filter
               id="filter0_f_9_46"
               x="-874.389"
@@ -176,7 +165,7 @@ export default function Home() {
               y2="1855.81"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0" stopColor="hsl(var(--brand-color-one))" />
+              <stop stopColor="#6070FF" />
               <stop offset="1" stopColor="#4D1B5F" />
             </linearGradient>
             <linearGradient
@@ -187,7 +176,7 @@ export default function Home() {
               y2="1369.69"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0" stopColor="#5E31BD" />
+              <stop stopColor="#5E31BD" />
               <stop offset="1" />
             </linearGradient>
             <linearGradient
@@ -198,7 +187,7 @@ export default function Home() {
               y2="1687.58"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0" />
+              <stop />
               <stop offset="1" />
             </linearGradient>
             <radialGradient
@@ -209,12 +198,8 @@ export default function Home() {
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(2189.46 600.563) rotate(-144.199) scale(735.231 715.392)"
             >
-              <stop offset="0" stopColor="#5BDCC6" />
-              <stop
-                offset="1"
-                stopColor="hsl(var(--brand-color-two))"
-                stopOpacity="0"
-              />
+              <stop stopColor="#5BDCC6" />
+              <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
             </radialGradient>
             <radialGradient
               id="paint4_radial_9_46"
@@ -224,12 +209,8 @@ export default function Home() {
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(-116.431 825.821) rotate(-144.199) scale(735.231 715.392)"
             >
-              <stop offset="0" stopColor="#5BDCC6" />
-              <stop
-                offset="1"
-                stopColor="hsl(var(--brand-color-two))"
-                stopOpacity="0"
-              />
+              <stop stopColor="#5BDCC6" />
+              <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
             </radialGradient>
             <clipPath id="clip0_9_46">
               <rect
@@ -241,6 +222,9 @@ export default function Home() {
             </clipPath>
           </defs>
         </svg>
+      </section>
+      <section className="min-h-screen">
+        <h1>hello</h1>
       </section>
     </main>
   );
