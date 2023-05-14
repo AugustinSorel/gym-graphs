@@ -68,13 +68,48 @@ export default function Home() {
             </g>
             <rect
               filter="url(#noise)"
-              className="h-full w-full mix-blend-overlay"
+              fill="white"
+              className="h-full w-full opacity-30 mix-blend-overlay"
             />
           </g>
 
           <defs>
-            <filter id="noise">
-              <feTurbulence type="fractalNoise" baseFrequency="0.65" />
+            <filter
+              id="noise"
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              filterUnits="objectBoundingBox"
+              primitiveUnits="userSpaceOnUse"
+              colorInterpolationFilters="linearRGB"
+            >
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.081"
+                numOctaves="4"
+                seed="15"
+                stitchTiles="stitch"
+                x="0%"
+                y="0%"
+                width="100%"
+                height="100%"
+                result="turbulence"
+              ></feTurbulence>
+              <feSpecularLighting
+                surfaceScale="4"
+                specularConstant="3"
+                specularExponent="20"
+                lightingColor="#ffffff"
+                x="0%"
+                y="0%"
+                width="100%"
+                height="100%"
+                in="turbulence"
+                result="specularLighting"
+              >
+                <feDistantLight azimuth="3" elevation="200"></feDistantLight>
+              </feSpecularLighting>
             </filter>
             <filter
               id="filter0_f_9_46"
