@@ -23,7 +23,7 @@ export default function Home() {
         </p>
 
         <Button asChild size="lg">
-          <Link href="/login">
+          <Link href="/sign-in">
             <span className="sm:text-xl">get started</span>
             <ArrowRight className="ml-2" />
           </Link>
