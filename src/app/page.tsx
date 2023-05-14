@@ -35,7 +35,7 @@ export default function Home() {
           className="absolute inset-0 left-0 top-0 -z-10 h-full w-full min-w-[1000px]"
           preserveAspectRatio="none"
         >
-          <g opacity="0.5" clipPath="url(#clip0_9_46)">
+          <g clipPath="url(#clip0_9_46)" className="opacity-50 contrast-150">
             <rect
               width="1027"
               height="1890"
@@ -66,12 +66,15 @@ export default function Home() {
                 fill="url(#paint4_radial_9_46)"
               />
             </g>
-
-            <rect filter="url(#noise)" className="h-full w-full opacity-75" />
+            <rect
+              filter="url(#noise)"
+              className="h-full w-full mix-blend-overlay"
+            />
           </g>
+
           <defs>
             <filter id="noise">
-              <feTurbulence type="turbulence" baseFrequency="0.65" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.65" />
             </filter>
             <filter
               id="filter0_f_9_46"
