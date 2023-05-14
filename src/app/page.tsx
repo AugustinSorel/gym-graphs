@@ -1,11 +1,11 @@
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <main>
-      <section className="mx-auto flex min-h-[calc(100vh-32px-25px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
+    <main className="scrollbar-none">
+      <section className="mx-auto flex min-h-[calc(100vh-67px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
         <h1 className="text-4xl font-bold sm:text-7xl">
           Monitor your gym progress{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -66,51 +66,9 @@ export default function Home() {
                 fill="url(#paint4_radial_9_46)"
               />
             </g>
-            <rect
-              filter="url(#noise)"
-              fill="white"
-              className="h-full w-full opacity-30 mix-blend-overlay"
-            />
           </g>
 
           <defs>
-            <filter
-              id="noise"
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              filterUnits="objectBoundingBox"
-              primitiveUnits="userSpaceOnUse"
-              colorInterpolationFilters="linearRGB"
-            >
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.081"
-                numOctaves="4"
-                seed="15"
-                stitchTiles="stitch"
-                x="0%"
-                y="0%"
-                width="100%"
-                height="100%"
-                result="turbulence"
-              ></feTurbulence>
-              <feSpecularLighting
-                surfaceScale="4"
-                specularConstant="3"
-                specularExponent="20"
-                lightingColor="#ffffff"
-                x="0%"
-                y="0%"
-                width="100%"
-                height="100%"
-                in="turbulence"
-                result="specularLighting"
-              >
-                <feDistantLight azimuth="3" elevation="200"></feDistantLight>
-              </feSpecularLighting>
-            </filter>
             <filter
               id="filter0_f_9_46"
               x="-874.389"
