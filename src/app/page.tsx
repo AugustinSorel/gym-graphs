@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main>
-      <section className="mx-auto flex h-[calc(100vh-32px-25px)] max-w-3xl flex-col items-center justify-center gap-14 text-center">
+      <section className="mx-auto flex h-[calc(100vh-32px-25px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
         <h1 className="text-4xl font-bold sm:text-7xl">
           Monitor your gym progress{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -13,9 +13,9 @@ export default function Home() {
           </strong>
         </h1>
 
-        <p className="w-3/5 sm:text-2xl">
+        <p className="px-4 sm:px-20 sm:text-2xl">
           Gym-tracker is a simple modular and free monitoring application with
-          features like
+          features like{" "}
           <strong className="font-normal text-accent">graphs</strong>,{" "}
           <strong className="font-normal text-accent">heat maps</strong> and{" "}
           <strong className="font-normal text-accent">dashboard</strong>, for
@@ -39,7 +39,7 @@ export default function Home() {
             width="100%"
             height="100%"
             filter="url(#noise)"
-            className="opacity-20"
+            className="opacity-30"
           />
           <g clipPath="url(#clip0_9_46)" className="opacity-50">
             <rect
@@ -78,7 +78,7 @@ export default function Home() {
             <filter id="noise">
               <feTurbulence
                 type="fractalNoise"
-                baseFrequency="6"
+                baseFrequency="1"
                 numOctaves="6"
                 stitchTiles="stitch"
               />
