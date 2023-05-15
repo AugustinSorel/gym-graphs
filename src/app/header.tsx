@@ -20,18 +20,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
+//TODO: add project icon
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon">
-          <Menu className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" aria-label="menu">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">menu</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent className="mr-4 w-56">
         <DropdownMenuLabel>Settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -93,15 +109,34 @@ const DropDownMenu = () => {
   );
 };
 
+const HomeIcon = () => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            asChild
+            variant="link"
+            aria-label="home"
+            className="h-max rounded-full p-0"
+          >
+            <Link href="/">
+              <Icon />
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">go home</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between overflow-hidden border-b border-border bg-primary px-4 backdrop-blur-md">
-      <Button asChild variant="link" className="h-max rounded-full p-0">
-        <Link href="/">
-          <Icon />
-        </Link>
-      </Button>
-
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary px-4 backdrop-blur-md">
+      <HomeIcon />
       <DropDownMenu />
     </header>
   );
