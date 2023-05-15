@@ -57,7 +57,7 @@ export default function Home() {
                 />
               </g>
               <g
-                className="dark:mix-blend-color-dodge"
+                className="mix-blend-color-burn dark:mix-blend-color-dodge"
                 filter="url(#filter2_f_9_46)"
               >
                 <path
@@ -66,7 +66,7 @@ export default function Home() {
                 />
               </g>
               <g
-                className="dark:mix-blend-color-dodge"
+                className="mix-blend-color-burn dark:mix-blend-color-dodge"
                 filter="url(#filter3_f_9_46)"
               >
                 <path
