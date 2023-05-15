@@ -10,6 +10,9 @@ export const theme = {
     },
   },
   extend: {
+    height: {
+      header: "var(--header-height)",
+    },
     colors: {
       border: "hsl(var(--border))",
       input: "hsl(var(--input))",
@@ -45,9 +48,10 @@ export const theme = {
         foreground: "hsl(var(--card-foreground))",
       },
     },
+
     backgroundImage: {
       "brand-gradient":
-        "linear-gradient(to right bottom, hsl(var(--brand-color-one)), hsl(var(--brand-color-two)))",
+        "linear-gradient(to right, hsl(var(--brand-color-one)), hsl(var(--brand-color-two)))",
     },
     borderRadius: {
       lg: "var(--radius)",
