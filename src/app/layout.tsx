@@ -9,7 +9,6 @@ export const metadata = {
   description: "Monitor your gym progress with the help of powerfull graphs",
 };
 
-//TODO: html validator check
 export default function RootLayout({
   children,
 }: {
