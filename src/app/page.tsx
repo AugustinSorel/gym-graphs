@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="scrollbar-none">
       <section className="relative">
-        <div className="mx-auto flex min-h-[calc(100vh-theme(height.header))] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
+        <div className="mx-auto flex min-h-[calc(100vh-theme(height.header))] max-w-md flex-col items-center justify-center gap-14 py-5 text-center sm:max-w-3xl">
           <h1 className="text-4xl font-bold sm:text-7xl">
             Monitor your gym progress{" "}
             <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
