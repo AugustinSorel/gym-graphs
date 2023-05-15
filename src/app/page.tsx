@@ -5,43 +5,40 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="scrollbar-none">
-      <section className="mx-auto flex min-h-[calc(100vh-67px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
-        <h1 className="text-4xl font-bold sm:text-7xl">
-          Monitor your gym progress{" "}
-          <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
-            with ease
-          </strong>
-        </h1>
+      <section className="relative ">
+        <div className="mx-auto flex min-h-[calc(100vh-67px)] max-w-md flex-col items-center justify-center gap-14 text-center sm:max-w-3xl">
+          <h1 className="text-4xl font-bold sm:text-7xl">
+            Monitor your gym progress{" "}
+            <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
+              with ease
+            </strong>
+          </h1>
 
-        <p className="px-4 sm:px-20 sm:text-2xl">
-          Gym-tracker is a simple modular and free monitoring application with
-          features like{" "}
-          <strong className="font-normal text-accent">graphs</strong>,{" "}
-          <strong className="font-normal text-accent">heat maps</strong> and{" "}
-          <strong className="font-normal text-accent">dashboard</strong>, for
-          you for free.
-        </p>
+          <p className="px-4 sm:px-20 sm:text-2xl">
+            Gym-tracker is a simple modular and free monitoring application with
+            features like{" "}
+            <strong className="font-normal text-accent">graphs</strong>,{" "}
+            <strong className="font-normal text-accent">heat maps</strong> and{" "}
+            <strong className="font-normal text-accent">dashboard</strong>, for
+            you for free.
+          </p>
 
-        <Button asChild size="lg">
-          <Link href="/sign-in">
-            <span className="sm:text-xl">get started</span>
-            <ArrowRight className="ml-2" />
-          </Link>
-        </Button>
+          <Button asChild size="lg">
+            <Link href="/sign-in">
+              <span className="sm:text-xl">get started</span>
+              <ArrowRight className="ml-2" />
+            </Link>
+          </Button>
+        </div>
 
         <svg
-          viewBox="0 0 1890 1027"
+          viewBox="0 0 1920 1080"
           xmlns="http://www.w3.org/2000/svg"
-          className="absolute inset-0 left-0 top-0 -z-10 h-full w-full min-w-[1000px]"
+          className="absolute inset-0 -z-10 h-full w-full min-w-[1000px]"
           preserveAspectRatio="none"
         >
-          <g clipPath="url(#clip0_9_46)" className="opacity-50 contrast-150">
-            <rect
-              width="1027"
-              height="1890"
-              transform="matrix(-6.88803e-08 -1 -1 2.77392e-08 1890 1027)"
-              fill="url(#paint0_linear_9_46)"
-            />
+          <g className="opacity-50 contrast-150">
+            <rect width="100%" height="100%" fill="url(#paint0_linear_9_46)" />
             <g filter="url(#filter0_f_9_46)">
               <path
                 d="M1028.61 1087.75C811.445 356.138 44.283 293.866 -312.153 354.182C-847.442 407.977 -882.959 -105.523 -458.026 -169.099C-33.0929 -232.675 314.464 -161.763 956.303 406.754C1598.14 975.272 1865 966 1934.28 999.724C2324.96 1189.89 1300.05 2002.27 1028.61 1087.75Z"
@@ -208,14 +205,6 @@ export default function Home() {
               <stop stopColor="#5BDCC6" />
               <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
             </radialGradient>
-            <clipPath id="clip0_9_46">
-              <rect
-                width="1027"
-                height="1890"
-                fill="white"
-                transform="matrix(-6.88803e-08 -1 -1 2.77392e-08 1890 1027)"
-              />
-            </clipPath>
           </defs>
         </svg>
       </section>

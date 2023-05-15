@@ -27,7 +27,6 @@ export const metadata = {
 };
 
 //TODO: fix svg scaling bug
-//TODO: fix svg scrolling bug
 //TODO: fix keyboad navigation drop down
 //TODO: create header component
 //TODO: html validator check
