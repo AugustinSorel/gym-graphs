@@ -35,10 +35,10 @@ export default function Home() {
           <svg
             viewBox="0 0 1920 1080"
             xmlns="http://www.w3.org/2000/svg"
-            className="h-full w-full"
+            className="h-full w-full opacity-50"
             preserveAspectRatio="none"
           >
-            <g className="opacity-50 contrast-150">
+            <g className="contrast-150">
               <rect
                 width="100%"
                 height="100%"
@@ -181,7 +181,10 @@ export default function Home() {
                 gradientUnits="userSpaceOnUse"
               >
                 <stop offset="0" stopColor="#5E31BD" />
-                <stop offset="1" />
+                <stop
+                  offset="1"
+                  className="[stop-color:hsl(var(--background))]"
+                />
               </linearGradient>
               <linearGradient
                 id="paint2_linear_9_46"
@@ -191,8 +194,14 @@ export default function Home() {
                 y2="1687.58"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop offset="0" />
-                <stop offset="1" />
+                <stop
+                  offset="0"
+                  className="[stop-color:hsl(var(--background))]"
+                />
+                <stop
+                  offset="1"
+                  className="[stop-color:hsl(var(--background))]"
+                />
               </linearGradient>
               <radialGradient
                 id="paint3_radial_9_46"

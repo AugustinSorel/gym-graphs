@@ -1,4 +1,5 @@
 "use client";
+
 import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
-  const [theme, setTheme] = useState<string>("dark");
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>

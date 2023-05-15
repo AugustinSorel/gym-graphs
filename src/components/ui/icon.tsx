@@ -4,7 +4,7 @@ export const Icon = () => {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 50 50"
       fill="none"
-      className="h-6 w-6 rounded-full drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] duration-300 hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]"
+      className="h-6 w-6 rounded-full drop-shadow-[0_0_10px_rgba(0,0,0,0.25)] duration-300 hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]"
     >
       <circle cx="25" cy="25" r="25" fill="url(#gradient)" />
       <path
