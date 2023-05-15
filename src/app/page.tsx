@@ -169,7 +169,7 @@ export default function Home() {
                 y2="1855.81"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#6070FF" />
+                <stop offset="0" stopColor="#6070FF" />
                 <stop offset="1" stopColor="#4D1B5F" />
               </linearGradient>
               <linearGradient
@@ -180,7 +180,7 @@ export default function Home() {
                 y2="1369.69"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#5E31BD" />
+                <stop offset="0" stopColor="#5E31BD" />
                 <stop offset="1" />
               </linearGradient>
               <linearGradient
@@ -191,7 +191,7 @@ export default function Home() {
                 y2="1687.58"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop />
+                <stop offset="0" />
                 <stop offset="1" />
               </linearGradient>
               <radialGradient
@@ -202,7 +202,7 @@ export default function Home() {
                 gradientUnits="userSpaceOnUse"
                 gradientTransform="translate(2189.46 600.563) rotate(-144.199) scale(735.231 715.392)"
               >
-                <stop stopColor="#5BDCC6" />
+                <stop offset="0" stopColor="#5BDCC6" />
                 <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
               </radialGradient>
               <radialGradient
@@ -213,7 +213,7 @@ export default function Home() {
                 gradientUnits="userSpaceOnUse"
                 gradientTransform="translate(-116.431 825.821) rotate(-144.199) scale(735.231 715.392)"
               >
-                <stop stopColor="#5BDCC6" />
+                <stop offset="0" stopColor="#5BDCC6" />
                 <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
               </radialGradient>
             </defs>
