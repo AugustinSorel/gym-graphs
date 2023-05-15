@@ -26,7 +26,6 @@ export const metadata = {
   description: "Monitor your gym progress with the help of powerfull graphs",
 };
 
-//TODO: fix svg scaling bug
 //TODO: fix keyboad navigation drop down
 //TODO: create header component
 //TODO: html validator check
@@ -38,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <header className="sticky top-0 z-20 flex items-center justify-between overflow-hidden border-b border-border bg-primary p-4 backdrop-blur-md">
+        <header className="sticky top-0 z-20 flex h-header items-center justify-between overflow-hidden border-b border-border bg-primary px-4 backdrop-blur-md">
           <Button asChild variant="link" className="h-max rounded-full p-0">
             <Link href="/">
               <Icon />

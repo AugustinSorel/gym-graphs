@@ -37,6 +37,8 @@
 
     --brand-color-one: 236 82% 70%;
     --brand-color-two: 291 100% 75%;
+
+    --header-height: 4rem;
   }
 
   .dark {
@@ -73,6 +75,8 @@
 
     --brand-color-one: 236 82% 70%;
     --brand-color-two: 291 100% 75%;
+
+    --header-height: 4rem;
   }
 }
 
