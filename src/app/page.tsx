@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="scrollbar-none">
       <section className="relative">
-        <div className="mx-auto flex min-h-[calc(100vh-theme(height.header))] max-w-md flex-col items-center justify-center gap-14 py-5 text-center sm:max-w-3xl">
+        <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 py-5 text-center sm:max-w-3xl">
           <h1 className="text-4xl font-bold sm:text-7xl">
             Monitor your gym progress{" "}
             <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -31,7 +31,7 @@ export default function Home() {
           </Button>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 top-[calc(theme(height.header)*-1)] -z-10">
+        <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
           <svg
             viewBox="0 0 1920 1080"
             xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +57,7 @@ export default function Home() {
                 />
               </g>
               <g
-                className="mix-blend-color-dodge"
+                className="dark:mix-blend-color-dodge"
                 filter="url(#filter2_f_9_46)"
               >
                 <path
@@ -66,7 +66,7 @@ export default function Home() {
                 />
               </g>
               <g
-                className="mix-blend-color-dodge"
+                className="dark:mix-blend-color-dodge"
                 filter="url(#filter3_f_9_46)"
               >
                 <path
