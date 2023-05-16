@@ -35,7 +35,7 @@ export default function Home() {
           <svg
             viewBox="0 0 1920 1080"
             xmlns="http://www.w3.org/2000/svg"
-            className="h-full w-full opacity-50"
+            className="h-full w-full min-w-[1000px] opacity-50"
             preserveAspectRatio="none"
           >
             <g className="contrast-150">
