@@ -251,12 +251,38 @@ export default function Home() {
 
         <div className="relative xl:col-start-2 xl:row-span-2 xl:row-start-1">
           <Image
-            src="/test.png"
+            src="/dashboard.png"
             priority
             alt="dashboard of gym graphs"
             width={700}
             height={2000}
             className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)] "
+          />
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+        <h1 className="max-w-xl text-4xl font-bold sm:text-7xl">
+          Our system will adapt{" "}
+          <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
+            to you
+          </strong>
+        </h1>
+
+        <p className="max-w-xl sm:text-2xl">
+          Our system will adapt to your accordingly to your need. Giving you{" "}
+          <strong className="font-normal text-accent">the best</strong> user
+          experience possible.
+        </p>
+
+        <div className="relative xl:col-start-1 xl:row-span-2 xl:row-start-1">
+          <Image
+            src="/exercisePage.png"
+            priority
+            alt="dashboard of gym graphs"
+            width={700}
+            height={2000}
+            className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)] "
           />
         </div>
       </section>
