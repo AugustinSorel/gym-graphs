@@ -1,20 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="scrollbar-none">
+    <main className="scrollbar-none relative overflow-x-clip">
       <section className="relative">
-        <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 py-5 text-center sm:max-w-3xl">
-          <h1 className="text-4xl font-bold sm:text-7xl">
+        <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
+          <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
             Monitor your gym progress{" "}
             <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
               with ease
             </strong>
           </h1>
 
-          <p className="px-4 sm:px-20 sm:text-2xl">
+          <p className="max-w-xl sm:text-2xl">
             Gym-tracker is a simple modular and free monitoring application with
             features like{" "}
             <strong className="font-normal text-accent">graphs</strong>,{" "}
@@ -35,7 +36,7 @@ export default function Home() {
           <svg
             viewBox="0 0 1920 1080"
             xmlns="http://www.w3.org/2000/svg"
-            className="h-full w-full opacity-50"
+            className="h-full w-full min-w-[1000px] opacity-50"
             preserveAspectRatio="none"
           >
             <g className="contrast-150">
@@ -229,8 +230,35 @@ export default function Home() {
           </svg>
         </div>
       </section>
-      <section className="min-h-screen">
-        <h1>hello</h1>
+
+      <hr className="absolute left-1/2 top-[calc(100vh-4vmax-var(--header-height))] h-[8vmax] w-[125%] -translate-x-1/2 rounded-[50%] bg-background blur-md" />
+
+      <section className="grid min-h-screen grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+        <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
+          Let&apos;s get your gym progress to{" "}
+          <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
+            the moon
+          </strong>
+        </h1>
+
+        <p className="max-w-xl sm:text-2xl">
+          Thanks to our{" "}
+          <strong className="font-normal text-accent">dashboard</strong>, you
+          are in control of what exercises go to your routine. Our powerful{" "}
+          <strong className="font-normal text-accent">graphs</strong> will also
+          help you monitoring your progress
+        </p>
+
+        <div className="relative xl:col-start-2 xl:row-span-2 xl:row-start-1">
+          <Image
+            src="/test.png"
+            priority
+            alt="dashboard of gym graphs"
+            width={700}
+            height={2000}
+            className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)] "
+          />
+        </div>
       </section>
     </main>
   );
