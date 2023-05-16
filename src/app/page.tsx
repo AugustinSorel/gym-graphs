@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="scrollbar-none">
+    <main className="scrollbar-none relative overflow-x-clip">
       <section className="relative">
         <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
           <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
@@ -32,7 +32,7 @@ export default function Home() {
           </Button>
         </div>
 
-        <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10 overflow-hidden">
+        <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
           <svg
             viewBox="0 0 1920 1080"
             xmlns="http://www.w3.org/2000/svg"
@@ -230,6 +230,9 @@ export default function Home() {
           </svg>
         </div>
       </section>
+
+      <hr className="absolute left-1/2 top-[calc(100vh-4vmax-var(--header-height))] h-[8vmax] w-[125%] -translate-x-1/2 rounded-[50%] bg-background blur-md" />
+
       <section className="grid min-h-screen grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
         <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
           Let&apos;s get your gym progress to{" "}
