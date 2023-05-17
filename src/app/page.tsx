@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Brush, Github, LineChart, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -261,7 +261,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+      <section className="grid min-h-screen grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
         <h1 className="max-w-xl text-4xl font-bold sm:text-7xl">
           Our system will adapt{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -285,6 +285,55 @@ export default function Home() {
             className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)] "
           />
         </div>
+      </section>
+
+      <section className="flex min-h-screen flex-col items-center justify-center gap-10 p-5 text-center">
+        <h1 className=" text-4xl sm:text-5xl">What we offer</h1>
+
+        <ul className="grid w-full max-w-3xl grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-pink-500/10 p-10">
+            <LineChart className="h-12 w-12 stroke-pink-500 stroke-1 opacity-50" />
+            <h2 className="text-2xl font-semibold capitalize">graphs</h2>
+            <p className="text-neutral-500">
+              Keep track of your progress every session and watch your results
+              soar! Get ready to see amazing results!
+            </p>
+          </li>
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-blue-500/10 p-10">
+            <Wallet className="h-12 w-12 stroke-blue-500 stroke-1 opacity-50" />
+            <h2 className="text-2xl font-semibold capitalize">100% free</h2>
+            <p className="text-neutral-500">
+              Great news! Our project is completely free to use, with no hidden
+              fees or charges. We value your privacy and do not collect any
+              personal information.
+            </p>
+          </li>
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-green-500/10 p-10">
+            <Github className="h-12 w-12 stroke-green-500 stroke-1 opacity-50" />
+            <h2 className="text-2xl font-semibold capitalize ">open source</h2>
+            <p className="text-neutral-500">
+              Curious about how this was built? You can check out the code on
+              our Github page! We welcome feedback and contributions from our
+              community,
+            </p>
+          </li>
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-yellow-500/10 p-10">
+            <Brush className="h-12 w-12 stroke-yellow-500 stroke-1 opacity-50" />
+            <h2 className="text-2xl font-semibold capitalize">customizable</h2>
+            <p className="text-neutral-500">
+              With our modular dashboards, you&apos;re in charge of your
+              exercises! Customize your workout experience to fit your
+              preferences and needs.
+            </p>
+          </li>
+        </ul>
+
+        <Button asChild size="lg">
+          <Link href="/sign-in">
+            <span className="sm:text-xl">get started</span>
+            <ArrowRight className="ml-2" />
+          </Link>
+        </Button>
       </section>
     </main>
   );
