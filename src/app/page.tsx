@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="scrollbar-none relative overflow-x-clip">
+    <main className="scrollbar-none relative flex flex-col gap-56 overflow-x-clip">
       <section className="relative">
         <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
           <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
@@ -233,7 +233,7 @@ export default function Home() {
 
       <hr className="absolute left-1/2 top-[calc(100vh-4vmax-var(--header-height))] h-[8vmax] w-[125%] -translate-x-1/2 rounded-[50%] bg-background blur-md" />
 
-      <section className="grid min-h-screen grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+      <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
         <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
           Let&apos;s get your gym progress to{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -261,7 +261,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid min-h-screen grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+      <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
         <h1 className="max-w-xl text-4xl font-bold sm:text-7xl">
           Our system will adapt{" "}
           <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
@@ -287,7 +287,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="flex min-h-screen flex-col items-center justify-center gap-10 p-5 text-center">
+      <section className="relative flex flex-col items-center justify-center gap-10 overflow-hidden overflow-hidden p-5 pb-24 text-center after:absolute after:-bottom-1/4 after:left-0 after:right-0 after:-z-10 after:h-1/2 after:rounded-[50%] after:bg-brand-color-two/40 after:blur-[150px] dark:after:bg-brand-color-two/[0.15]">
         <h1 className=" text-4xl sm:text-5xl">What we offer</h1>
 
         <ul className="grid w-full max-w-3xl grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
