@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="scrollbar-none relative flex flex-col gap-56 overflow-x-clip">
+    <main className="scrollbar-none relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
       <section className="relative">
         <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
           <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">
@@ -287,20 +287,20 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative flex flex-col items-center justify-center gap-10 overflow-hidden overflow-hidden p-5 pb-24 text-center after:absolute after:-bottom-1/4 after:left-0 after:right-0 after:-z-10 after:h-1/2 after:rounded-[50%] after:bg-brand-color-two/40 after:blur-[150px] dark:after:bg-brand-color-two/[0.15]">
+      <section className="flex flex-col items-center justify-center gap-10 overflow-hidden p-5 pb-12 text-center">
         <h1 className=" text-4xl sm:text-5xl">What we offer</h1>
 
         <ul className="grid w-full max-w-3xl grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
-          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-pink-500/10 p-10">
-            <LineChart className="h-12 w-12 stroke-pink-500 stroke-1 opacity-50" />
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border p-10 shadow-md">
+            <LineChart className="h-16 w-16 rounded-md bg-pink-500/20 stroke-pink-500 stroke-1 p-2 opacity-50" />
             <h2 className="text-2xl font-semibold capitalize">graphs</h2>
             <p className="text-neutral-500">
               Keep track of your progress every session and watch your results
               soar! Get ready to see amazing results!
             </p>
           </li>
-          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-blue-500/10 p-10">
-            <Wallet className="h-12 w-12 stroke-blue-500 stroke-1 opacity-50" />
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border p-10 shadow-md">
+            <Wallet className="h-16 w-16 rounded-md bg-blue-500/20 stroke-blue-500 stroke-1 p-2 opacity-50" />
             <h2 className="text-2xl font-semibold capitalize">100% free</h2>
             <p className="text-neutral-500">
               Great news! Our project is completely free to use, with no hidden
@@ -308,8 +308,8 @@ export default function Home() {
               personal information.
             </p>
           </li>
-          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-green-500/10 p-10">
-            <Github className="h-12 w-12 stroke-green-500 stroke-1 opacity-50" />
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border p-10 shadow-md">
+            <Github className="h-16 w-16 rounded-md bg-green-500/20 stroke-green-500 stroke-1 p-2 opacity-50" />
             <h2 className="text-2xl font-semibold capitalize ">open source</h2>
             <p className="text-neutral-500">
               Curious about how this was built? You can check out the code on
@@ -317,8 +317,8 @@ export default function Home() {
               community,
             </p>
           </li>
-          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border bg-yellow-500/10 p-10">
-            <Brush className="h-12 w-12 stroke-yellow-500 stroke-1 opacity-50" />
+          <li className="flex flex-col items-center gap-2.5 rounded-md border border-border p-10 shadow-md">
+            <Brush className="h-16 w-16 rounded-md bg-yellow-500/20 stroke-yellow-500 stroke-1 p-2 opacity-50" />
             <h2 className="text-2xl font-semibold capitalize">customizable</h2>
             <p className="text-neutral-500">
               With our modular dashboards, you&apos;re in charge of your
