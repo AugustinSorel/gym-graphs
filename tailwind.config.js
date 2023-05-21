@@ -19,6 +19,8 @@ export const theme = {
       ring: "hsl(var(--ring))",
       background: "hsl(var(--background))",
       foreground: "hsl(var(--foreground))",
+      "brand-color-one": "hsl(var(--brand-color-one))",
+      "brand-color-two": "hsl(var(--brand-color-two))",
       primary: {
         DEFAULT: "hsl(var(--primary))",
         foreground: "hsl(var(--primary-foreground))",
