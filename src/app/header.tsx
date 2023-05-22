@@ -125,7 +125,7 @@ const HomeIcon = () => {
             className="h-max rounded-full p-0"
           >
             <Link href="/">
-              <Icon />
+              <Icon className="hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]" />
             </Link>
           </Button>
         </TooltipTrigger>

@@ -147,7 +147,7 @@ const CardIcon = ({ children }: { children: JSX.Element }) => {
 };
 
 const CardText = ({ children }: PropsWithChildren) => {
-  return <p className="text-primary-foreground">{children}</p>;
+  return <p className="text-muted-foreground">{children}</p>;
 };
 
 const CardTitle = ({ children }: PropsWithChildren) => {
