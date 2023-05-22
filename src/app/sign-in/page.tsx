@@ -17,7 +17,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <div className="flex grow">
+      <div className="relative flex grow">
         <div className="m-auto flex min-w-[min(500px,60%)] flex-col gap-10">
           <div className="space-y-1">
             <h2 className="text-center text-3xl font-bold capitalize">
@@ -86,6 +86,39 @@ const LoginPage = () => {
             </Button>
           </div>
         </div>
+
+        <svg
+          width="100%"
+          height="100%"
+          className="absolute left-0 top-0 -z-10 opacity-20"
+        >
+          <pattern
+            id="pattern-circles"
+            x="0"
+            y="0"
+            width="30"
+            height="30"
+            patternUnits="userSpaceOnUse"
+            patternContentUnits="userSpaceOnUse"
+          >
+            <circle
+              id="pattern-circle"
+              cx="10"
+              cy="10"
+              r="1.5"
+              className="fill-current"
+            />
+          </pattern>
+
+          <rect
+            id="rect"
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill="url(#pattern-circles)"
+          />
+        </svg>
       </div>
     </main>
   );
