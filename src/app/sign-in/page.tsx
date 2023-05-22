@@ -40,7 +40,7 @@ const LoginPage = () => {
           </p>
 
           <div className="space-y-2">
-            <Button className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-white">
+            <Button className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-white dark:focus-visible:ring-red-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 186.69 190.5"
@@ -68,7 +68,7 @@ const LoginPage = () => {
               google
             </Button>
 
-            <Button className="flex w-full items-center gap-2 border-border bg-black text-sm font-bold uppercase text-white hover:bg-black">
+            <Button className="ring- flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white focus-visible:ring-red-500 dark:focus-visible:ring-ring">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4"
