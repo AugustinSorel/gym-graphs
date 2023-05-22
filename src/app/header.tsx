@@ -51,20 +51,25 @@ const DropDownMenu = () => {
         <DropdownMenuLabel>Settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <ArrowLeftRight className="mr-2 h-4 w-4" />
-            <span>Unit</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup value={weight} onValueChange={setWeight}>
-                <DropdownMenuRadioItem value="kg">Kg</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="lbs">Lbs</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
+        {false && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              <span>Unit</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup
+                  value={weight}
+                  onValueChange={setWeight}
+                >
+                  <DropdownMenuRadioItem value="kg">Kg</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="lbs">Lbs</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        )}
 
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
