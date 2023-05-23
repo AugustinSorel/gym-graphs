@@ -1,10 +1,32 @@
-export const Icon = () => {
+import { type VariantProps, cva } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import type { SVGProps } from "react";
+
+const iconVariants = cva(
+  "rounded-full drop-shadow-[0_0_10px_rgba(0,0,0,0.25)] duration-300 dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]",
+  {
+    variants: {
+      size: {
+        default: "h-6 w-6 ",
+        sm: "h-4 w-4",
+        lg: "h-8 w-8",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  }
+);
+
+type IconProps = VariantProps<typeof iconVariants> & SVGProps<SVGSVGElement>;
+
+export const Icon = ({ size, className }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 50 50"
       fill="none"
-      className="h-6 w-6 rounded-full drop-shadow-[0_0_10px_rgba(0,0,0,0.25)] duration-300 hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]"
+      className={cn(iconVariants({ size, className }))}
     >
       <circle cx="25" cy="25" r="25" fill="url(#gradient)" />
       <path
