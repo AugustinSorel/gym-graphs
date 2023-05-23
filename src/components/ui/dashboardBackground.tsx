@@ -26,23 +26,23 @@ export const DashboardBackground = () => {
         width="100%"
         height="100%"
         fill="url(#pattern-circles)"
-        className="opacity-10"
+        className="opacity-10 dark:opacity-[0.15]"
       />
 
       <ellipse
         cx="0"
         cy="0"
-        rx="40%"
-        ry="40%"
-        className="fill-brand-color-one opacity-70 blur-[200px] dark:opacity-40"
+        rx="60%"
+        ry="60%"
+        className="fill-brand-color-one opacity-50 blur-[200px] dark:opacity-20"
       />
 
       <ellipse
         cx="100%"
         cy="100%"
-        rx="40%"
-        ry="40%"
-        className="fill-brand-color-two opacity-70 blur-[200px] dark:opacity-30"
+        rx="60%"
+        ry="60%"
+        className="fill-brand-color-two opacity-50 blur-[200px] dark:opacity-20"
       />
     </svg>
   );
