@@ -4,14 +4,13 @@ import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
 //TODO: add shadcn form component
 const LoginPage = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (session) {
     redirect("/dashboard");

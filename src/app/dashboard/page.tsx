@@ -1,10 +1,9 @@
 import { SignOutButton } from "@/components/auth/authButtons";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 const DashboardPage = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (!session) {
     redirect("/sign-in");
