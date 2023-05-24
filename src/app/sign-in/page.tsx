@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
 //TODO: add shadcn form component
+//TODO: facade pattern
 const LoginPage = async () => {
   const session = await getSession();
 

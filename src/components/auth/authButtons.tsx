@@ -91,7 +91,7 @@ export const SignOutButton = () => {
 
   return (
     <Button onClick={() => void clickHandler()}>
-      {isLoading && <Loader />}
+      {isLoading && <Loader className="mr-2" />}
       sign out
     </Button>
   );
