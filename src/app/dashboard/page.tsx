@@ -1,4 +1,3 @@
-import { SignOutButton } from "@/components/auth/authButtons";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -12,7 +11,6 @@ const DashboardPage = async () => {
   return (
     <div>
       <h1>hello</h1>
-      <SignOutButton />
     </div>
   );
 };

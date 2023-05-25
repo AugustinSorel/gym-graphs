@@ -3,10 +3,19 @@
 import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftRight, Menu, Palette, Github, User } from "lucide-react";
+import {
+  ArrowLeftRight,
+  Menu,
+  Palette,
+  Github,
+  User,
+  LogOut,
+  Trash,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
@@ -26,13 +35,44 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { signOut, useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { Loader } from "@/components/ui/loader";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const signOutHandler = async () => {
+    try {
+      setIsLoading(() => true);
+      await signOut({ callbackUrl: "/" });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you out from your account",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void signOutHandler()}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(() => false);
+    }
+  };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -48,14 +88,14 @@ const DropDownMenu = () => {
         </Tooltip>
       </TooltipProvider>
       <DropdownMenuContent className="mr-4 w-56">
-        <DropdownMenuLabel>Settings</DropdownMenuLabel>
+        <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        {false && (
+        {session && (
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <ArrowLeftRight className="mr-2 h-4 w-4" />
-              <span>Unit</span>
+              <span className="capitalize">unit</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
@@ -63,8 +103,12 @@ const DropDownMenu = () => {
                   value={weight}
                   onValueChange={setWeight}
                 >
-                  <DropdownMenuRadioItem value="kg">Kg</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="lbs">Lbs</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="kg" className="capitalize">
+                    kg
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="lbs" className="capitalize">
+                    lbs
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
@@ -74,17 +118,19 @@ const DropDownMenu = () => {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Palette className="mr-2 h-4 w-4" />
-            <span>Theme</span>
+            <span className="capitalize">theme</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                <DropdownMenuRadioItem value="light">
-                  Light
+                <DropdownMenuRadioItem value="light" className="capitalize">
+                  light
                 </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">
-                  System
+                <DropdownMenuRadioItem value="dark" className="capitalize">
+                  dark
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="system" className="capitalize">
+                  system
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
@@ -98,16 +144,42 @@ const DropDownMenu = () => {
             className="flex w-full items-center"
           >
             <Github className="mr-2 h-4 w-4" />
-            <span>GitHub</span>
+            <span className="capitalize">gitHub</span>
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
-          <Link href="/sign-in" className="flex w-full items-center">
-            <User className="mr-2 h-4 w-4" />
-            <span>Sign In</span>
-          </Link>
-        </DropdownMenuItem>
+        {!session && (
+          <DropdownMenuItem asChild>
+            <Link href="/sign-in" className="flex w-full items-center">
+              <User className="mr-2 h-4 w-4" />
+              <span className="capitalize">sign in</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
+
+        {session && (
+          <DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="capitalize">
+              danger zone
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              className="space-x-2"
+              onClick={(e) => {
+                e.preventDefault();
+                void signOutHandler();
+              }}
+            >
+              {isLoading && <Loader />}
+              <LogOut className="h-4 w-4" />
+              <span className="capitalize">sign out</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
+              <Trash className="mr-2 h-4 w-4" />
+              <span className="capitalize">delete account</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

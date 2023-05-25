@@ -1,19 +1,31 @@
 "use client";
 
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Loader } from "../ui/loader";
+import { useToast } from "../ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 export const GoogleSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const clickHandler = async () => {
     try {
       setIsLoading(() => true);
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch (e) {
-      console.log(e);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you up with your google account",
+        action: (
+          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
+            Try again
+          </ToastAction>
+        ),
+      });
     } finally {
       setIsLoading(() => false);
     }
@@ -71,28 +83,6 @@ export const GithubSignIn = () => {
         />
       </svg>
       github
-    </Button>
-  );
-};
-
-export const SignOutButton = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const clickHandler = async () => {
-    try {
-      setIsLoading(() => true);
-      await signOut({ callbackUrl: "/" });
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
-
-  return (
-    <Button onClick={() => void clickHandler()}>
-      {isLoading && <Loader className="mr-2" />}
-      sign out
     </Button>
   );
 };
