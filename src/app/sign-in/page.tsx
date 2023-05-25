@@ -10,6 +10,7 @@ import type { PropsWithChildren } from "react";
 
 //TODO: add shadcn form component
 //TODO: facade pattern
+//TODO: auth middleware
 const LoginPage = async () => {
   const session = await getSession();
 
