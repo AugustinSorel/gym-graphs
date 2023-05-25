@@ -38,32 +38,41 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { Loader } from "@/components/ui/loader";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const signOutHandler = () => {
+  const signOutHandler = async () => {
     try {
-      void signOut({ callbackUrl: "/" });
+      setIsLoading(() => true);
+      await signOut({ callbackUrl: "/" });
     } catch (e) {
       toast({
         variant: "destructive",
         title: "Something went wrong",
         description: "We could not sign you out from your account",
         action: (
-          <ToastAction altText="Try again" onClick={signOutHandler}>
+          <ToastAction
+            altText="Try again"
+            onClick={() => void signOutHandler()}
+          >
             Try again
           </ToastAction>
         ),
       });
+    } finally {
+      setIsLoading(() => false);
     }
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -154,8 +163,15 @@ const DropDownMenu = () => {
             <DropdownMenuLabel className="capitalize">
               danger zone
             </DropdownMenuLabel>
-            <DropdownMenuItem onClick={signOutHandler}>
-              <LogOut className="mr-2 h-4 w-4" />
+            <DropdownMenuItem
+              className="space-x-2"
+              onClick={(e) => {
+                e.preventDefault();
+                void signOutHandler();
+              }}
+            >
+              {isLoading && <Loader />}
+              <LogOut className="h-4 w-4" />
               <span className="capitalize">sign out</span>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
