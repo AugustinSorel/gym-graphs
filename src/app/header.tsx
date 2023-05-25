@@ -35,16 +35,35 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 const DropDownMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const { toast } = useToast();
+
+  const signOutHandler = () => {
+    try {
+      void signOut({ callbackUrl: "/" });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you out from your account",
+        action: (
+          <ToastAction altText="Try again" onClick={signOutHandler}>
+            Try again
+          </ToastAction>
+        ),
+      });
+    }
+  };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -135,7 +154,7 @@ const DropDownMenu = () => {
             <DropdownMenuLabel className="capitalize">
               danger zone
             </DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => console.log("hello")}>
+            <DropdownMenuItem onClick={signOutHandler}>
               <LogOut className="mr-2 h-4 w-4" />
               <span className="capitalize">sign out</span>
             </DropdownMenuItem>
