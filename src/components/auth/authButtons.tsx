@@ -67,8 +67,35 @@ export const GoogleSignIn = () => {
 };
 
 export const GithubSignIn = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const clickHandler = async () => {
+    try {
+      setIsLoading(() => true);
+      await signIn("github", { callbackUrl: "/dashboard" });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you up with your github account",
+        action: (
+          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(() => false);
+    }
+  };
+
   return (
-    <Button className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring">
+    <Button
+      onClick={() => void clickHandler()}
+      className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
+    >
+      {isLoading && <Loader />}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4"
