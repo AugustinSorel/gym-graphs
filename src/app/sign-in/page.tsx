@@ -1,4 +1,8 @@
-import { EmailSignInForm, GithubSignIn, GoogleSignIn } from "./authControllers";
+import {
+  EmailSignInForm,
+  GithubSignIn,
+  GoogleSignIn,
+} from "@/components/auth/authControllers";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";

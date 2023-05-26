@@ -3,7 +3,15 @@
 import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftRight, Menu, Palette, Github, User, LogOut, Trash } from "lucide-react";
+import {
+  ArrowLeftRight,
+  Menu,
+  Palette,
+  Github,
+  User,
+  Trash,
+  LogOut,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,43 +36,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { signOut, useSession } from "next-auth/react";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import { useAuthAction } from "@/components/auth/authControllers";
 import { Loader } from "@/components/ui/loader";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
-  const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const signOutHandler = async () => {
-    try {
-      setIsLoading(() => true);
-      await signOut({ callbackUrl: "/" });
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "We could not sign you out from your account",
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void signOutHandler()}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
+  const signOutAction = useAuthAction(() => signOut({ callbackUrl: "/" }));
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -159,10 +142,10 @@ const DropDownMenu = () => {
               className="space-x-2"
               onClick={(e) => {
                 e.preventDefault();
-                void signOutHandler();
+                void signOutAction.handler();
               }}
             >
-              {isLoading && <Loader />}
+              {signOutAction.isLoading && <Loader />}
               <LogOut className="h-4 w-4" />
               <span className="capitalize">sign out</span>
             </DropdownMenuItem>
