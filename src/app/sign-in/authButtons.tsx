@@ -2,10 +2,10 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Loader } from "../ui/loader";
-import { useToast } from "../ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/ui/loader";
 
 export const GoogleSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
