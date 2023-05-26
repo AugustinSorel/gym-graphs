@@ -4,12 +4,6 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 
-console.log({
-  clientId: env.GITHUB_CLIENT_ID,
-  clientSecret: env.GITHUB_CLIENT_SECRET,
-  allowDangerousEmailAccountLinking: true,
-});
-
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({

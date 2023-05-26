@@ -1,4 +1,4 @@
-import { GithubSignIn, GoogleSignIn } from "@/components/auth/authButtons";
+import { GithubSignIn, GoogleSignIn } from "./authButtons";
 import { Button } from "@/components/ui/button";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import { HeroBackground } from "@/components/ui/heroBackground";
@@ -10,7 +10,6 @@ import type { PropsWithChildren } from "react";
 
 //TODO: add shadcn form component
 //TODO: facade pattern
-//TODO: auth middleware
 const LoginPage = async () => {
   const session = await getSession();
 
