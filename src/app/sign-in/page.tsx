@@ -1,14 +1,11 @@
-import { GithubSignIn, GoogleSignIn } from "./authButtons";
-import { Button } from "@/components/ui/button";
+import { EmailSignInForm, GithubSignIn, GoogleSignIn } from "./authButtons";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
-//TODO: add shadcn form component
 const LoginPage = async () => {
   const session = await getSession();
 
@@ -38,12 +35,7 @@ const LoginPage = async () => {
             </p>
           </div>
 
-          <form className="space-y-2">
-            <Input type="text" placeholder="name@example.com" />
-            <Button className=" w-full font-medium lowercase">
-              sign in with email
-            </Button>
-          </form>
+          <EmailSignInForm />
 
           <p className="flex flex-row text-sm uppercase text-muted-foreground before:my-auto before:mr-3 before:h-px before:grow before:bg-current after:my-auto after:ml-3 after:h-px after:grow after:bg-current">
             or continue with
