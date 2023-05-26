@@ -1,11 +1,14 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
+import { z } from "zod";
 
 export const GoogleSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -111,5 +114,71 @@ export const GithubSignIn = () => {
       </svg>
       github
     </Button>
+  );
+};
+
+//TODO: add shadcn form component
+//FIXME: add db provider to use email auth
+export const EmailSignInForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const { toast } = useToast();
+  const schema = z.object({
+    email: z
+      .string({ required_error: "email is required" })
+      .email({ message: "email must be valid" })
+      .min(1, { message: "email must be at leat one charater" })
+      .max(255, { message: "email must be at most 255 charaters" }),
+  });
+
+  const submitHandler = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const data = schema.safeParse({ email });
+
+    if (!data.success && data.error.issues[0]) {
+      return setError(data.error.issues[0].message);
+    }
+
+    try {
+      setIsLoading(() => true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // await signIn("email", { callbackUrl: "/dashboard", email });
+      setEmail("");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you up with your email",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void submitHandler(e)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(() => false);
+    }
+  };
+
+  return (
+    <form className="space-y-2" onSubmit={(e) => void submitHandler(e)}>
+      {error && <p className="text-destructive">{error}</p>}
+      <Input
+        type="text"
+        placeholder="name@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <Button className="w-full space-x-2 font-medium lowercase">
+        {isLoading && <Loader />}
+        <span>sign in with email</span>
+      </Button>
+    </form>
   );
 };
