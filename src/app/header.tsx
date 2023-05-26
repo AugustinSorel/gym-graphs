@@ -3,15 +3,7 @@
 import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeftRight,
-  Menu,
-  Palette,
-  Github,
-  User,
-  LogOut,
-  Trash,
-} from "lucide-react";
+import { ArrowLeftRight, Menu, Palette, Github, User, LogOut, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

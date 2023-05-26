@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
+//FIXME: waiting on next auth to add middlware
 const LoginPage = async () => {
   const session = await getSession();
 
