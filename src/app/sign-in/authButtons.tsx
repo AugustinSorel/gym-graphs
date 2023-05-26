@@ -2,12 +2,13 @@
 
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { ZodError, z } from "zod";
+import { z } from "zod";
 
 export const GoogleSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -117,6 +118,7 @@ export const GithubSignIn = () => {
 };
 
 //TODO: add shadcn form component
+//FIXME: add db provider to use email auth
 export const EmailSignInForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -124,7 +126,7 @@ export const EmailSignInForm = () => {
   const { toast } = useToast();
   const schema = z.object({
     email: z
-      .string()
+      .string({ required_error: "email is required" })
       .email({ message: "email must be valid" })
       .min(1, { message: "email must be at leat one charater" })
       .max(255, { message: "email must be at most 255 charaters" }),
@@ -133,16 +135,19 @@ export const EmailSignInForm = () => {
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      schema.parse({ email });
-      setIsLoading(() => true);
-      await signIn("email", { callbackUrl: "/dashboard", email });
-    } catch (error) {
-      if (error instanceof ZodError && error.issues[0]) {
-        setError(error.issues[0]?.message);
-        return;
-      }
 
+    const data = schema.safeParse({ email });
+
+    if (!data.success && data.error.issues[0]) {
+      return setError(data.error.issues[0].message);
+    }
+
+    try {
+      setIsLoading(() => true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // await signIn("email", { callbackUrl: "/dashboard", email });
+      setEmail("");
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Something went wrong",
