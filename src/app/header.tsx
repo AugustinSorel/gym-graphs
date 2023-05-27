@@ -188,13 +188,15 @@ const HomeIcon = () => {
 
 const Separator = () => {
   return (
-    <svg className="min-w-10 h-8 stroke-foreground/50" viewBox="0 0 24 24">
+    <svg
+      className="max-h-[32px] min-h-[32px] min-w-[32px] max-w-[32px] stroke-foreground/50"
+      viewBox="0 0 24 24"
+    >
       <path d="M16.88 3.549L7.12 20.451" />
     </svg>
   );
 };
 
-//TODO: truncate
 const DashboardLink = () => {
   const { data: session } = useSession();
 
@@ -206,17 +208,7 @@ const DashboardLink = () => {
             href="/dashboard"
             className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
           >
-            Lorem ipsum dolor sit amet, officia excepteur ex fugiat
-            reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit
-            ex esse exercitation amet. Nisi anim cupidatat excepteur officia.
-            Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
-            voluptate dolor minim nulla est proident. Nostrud officia pariatur
-            ut officia. Sit irure elit esse ea nulla sunt ex occaecat
-            reprehenderit commodo officia dolor Lorem duis laboris cupidatat
-            officia voluptate. Culpa proident adipisicing id nulla nisi laboris
-            ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo
-            ex non excepteur duis sunt velit enim. Voluptate laboris sint
-            cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
+            {session?.user?.name}
           </Link>
         </TooltipTrigger>
         <TooltipContent>
@@ -227,7 +219,6 @@ const DashboardLink = () => {
   );
 };
 
-//TODO: truncate
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
   return (
     <TooltipProvider>
@@ -255,8 +246,8 @@ export const Header = () => {
   const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
 
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary px-4 backdrop-blur-md">
-      <nav className="flex w-min max-w-full items-center">
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
+      <nav className="flex h-full items-center overflow-hidden pl-4">
         <HomeIcon />
 
         {showDashboardPath && (
@@ -269,12 +260,7 @@ export const Header = () => {
         {showExecisesPath && (
           <>
             <Separator />
-            <CurrentExeciseLink>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Laborumdead lift nostrum distinctio neque aspernatur, optio
-              aliquam voluptas nihil, ut nulla dolores quae eum dignissimos
-              explicabo? Illum vel eum alias obcaecati cumque.
-            </CurrentExeciseLink>
+            <CurrentExeciseLink>dead lift</CurrentExeciseLink>
           </>
         )}
       </nav>
