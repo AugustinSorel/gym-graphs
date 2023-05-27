@@ -12,6 +12,7 @@ export const theme = {
   extend: {
     height: {
       header: "var(--header-height)",
+      "exercise-card": "var(--exercise-card-height)",
     },
     colors: {
       border: "hsl(var(--border))",
