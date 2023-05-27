@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import type { PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -38,6 +39,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useAuthAction } from "@/components/auth/authControllers";
 import { Loader } from "@/components/ui/loader";
+import { usePathname } from "next/navigation";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
@@ -177,7 +179,69 @@ const HomeIcon = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="capitalize">go home</p>
+          <p className="capitalize">home</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+const Separator = () => {
+  return (
+    <svg className="min-w-10 h-8 stroke-foreground/50" viewBox="0 0 24 24">
+      <path d="M16.88 3.549L7.12 20.451" />
+    </svg>
+  );
+};
+
+//TODO: truncate
+const DashboardLink = () => {
+  const { data: session } = useSession();
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href="/dashboard"
+            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
+          >
+            Lorem ipsum dolor sit amet, officia excepteur ex fugiat
+            reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit
+            ex esse exercitation amet. Nisi anim cupidatat excepteur officia.
+            Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate
+            voluptate dolor minim nulla est proident. Nostrud officia pariatur
+            ut officia. Sit irure elit esse ea nulla sunt ex occaecat
+            reprehenderit commodo officia dolor Lorem duis laboris cupidatat
+            officia voluptate. Culpa proident adipisicing id nulla nisi laboris
+            ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo
+            ex non excepteur duis sunt velit enim. Voluptate laboris sint
+            cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">dashboard</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+//TODO: truncate
+const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href={"/exercises/1"}
+            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
+          >
+            {children}
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">{children}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -185,9 +249,35 @@ const HomeIcon = () => {
 };
 
 export const Header = () => {
+  const pathname = usePathname().split("/");
+
+  const showExecisesPath = pathname[1] === "exercises";
+  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary px-4 backdrop-blur-md">
-      <HomeIcon />
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary px-4 backdrop-blur-md">
+      <nav className="flex w-min max-w-full items-center">
+        <HomeIcon />
+
+        {showDashboardPath && (
+          <>
+            <Separator />
+            <DashboardLink />
+          </>
+        )}
+
+        {showExecisesPath && (
+          <>
+            <Separator />
+            <CurrentExeciseLink>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Laborumdead lift nostrum distinctio neque aspernatur, optio
+              aliquam voluptas nihil, ut nulla dolores quae eum dignissimos
+              explicabo? Illum vel eum alias obcaecati cumque.
+            </CurrentExeciseLink>
+          </>
+        )}
+      </nav>
       <DropDownMenu />
     </header>
   );
