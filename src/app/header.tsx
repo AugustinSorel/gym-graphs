@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import type { PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -38,6 +39,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useAuthAction } from "@/components/auth/authControllers";
 import { Loader } from "@/components/ui/loader";
+import { usePathname } from "next/navigation";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
@@ -177,7 +179,60 @@ const HomeIcon = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="capitalize">go home</p>
+          <p className="capitalize">home</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+const Separator = () => {
+  return (
+    <svg
+      className="max-h-[32px] min-h-[32px] min-w-[32px] max-w-[32px] stroke-foreground/50"
+      viewBox="0 0 24 24"
+    >
+      <path d="M16.88 3.549L7.12 20.451" />
+    </svg>
+  );
+};
+
+const DashboardLink = () => {
+  const { data: session } = useSession();
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href="/dashboard"
+            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
+          >
+            {session?.user?.name}
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">dashboard</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            href={"/exercises/1"}
+            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
+          >
+            {children}
+          </Link>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">{children}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -185,9 +240,30 @@ const HomeIcon = () => {
 };
 
 export const Header = () => {
+  const pathname = usePathname().split("/");
+
+  const showExecisesPath = pathname[1] === "exercises";
+  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary px-4 backdrop-blur-md">
-      <HomeIcon />
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
+      <nav className="flex h-full items-center overflow-hidden pl-4">
+        <HomeIcon />
+
+        {showDashboardPath && (
+          <>
+            <Separator />
+            <DashboardLink />
+          </>
+        )}
+
+        {showExecisesPath && (
+          <>
+            <Separator />
+            <CurrentExeciseLink>dead lift</CurrentExeciseLink>
+          </>
+        )}
+      </nav>
       <DropDownMenu />
     </header>
   );
