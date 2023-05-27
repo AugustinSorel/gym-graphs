@@ -43,8 +43,9 @@ export const GoogleSignIn = () => {
 
   return (
     <Button
-      className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-neutral-100 dark:hover:bg-neutral-300 dark:focus-visible:ring-red-500"
+      className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-neutral-100 disabled:opacity-50 dark:hover:bg-neutral-300 dark:focus-visible:ring-red-500"
       onClick={() => void authAction.handler()}
+      disabled={authAction.isLoading}
     >
       {authAction.isLoading && <Loader />}
       <svg
@@ -84,7 +85,8 @@ export const GithubSignIn = () => {
   return (
     <Button
       onClick={() => void authAction.handler()}
-      className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
+      className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 disabled:opacity-50 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
+      disabled={authAction.isLoading}
     >
       {authAction.isLoading && <Loader />}
       <svg
@@ -144,7 +146,10 @@ export const EmailSignInForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Button className="w-full space-x-2 font-medium lowercase">
+      <Button
+        disabled={authAction.isLoading}
+        className="w-full space-x-2 font-medium lowercase"
+      >
         {authAction.isLoading && <Loader />}
         <span>sign in with email</span>
       </Button>
