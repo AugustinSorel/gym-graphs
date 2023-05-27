@@ -110,12 +110,12 @@ export const GithubSignIn = () => {
 //TODO: add shadcn form component
 //FIXME: add db provider to use email auth
 export const EmailSignInForm = () => {
+  const { toast } = useToast();
   const authAction = useAuthAction(
     () => new Promise((resolve) => setTimeout(resolve, 1000))
     // signIn("email", { callbackUrl: "/dashboard", email });
   );
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
   const schema = z.object({
     email: z
       .string({ required_error: "email is required" })
@@ -126,12 +126,20 @@ export const EmailSignInForm = () => {
 
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
-    setError("");
 
     const data = schema.safeParse({ email });
 
-    if (!data.success && data.error.issues[0]) {
-      return setError(data.error.issues[0].message);
+    if (!data.success) {
+      return toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: data.error.issues[0]?.message ?? "try again",
+        action: (
+          <ToastAction altText="Try again" onClick={submitHandler}>
+            Try again
+          </ToastAction>
+        ),
+      });
     }
 
     void authAction.handler();
@@ -139,7 +147,6 @@ export const EmailSignInForm = () => {
 
   return (
     <form className="space-y-2" onSubmit={submitHandler}>
-      {error && <p className="text-destructive">{error}</p>}
       <Input
         type="text"
         placeholder="name@example.com"
