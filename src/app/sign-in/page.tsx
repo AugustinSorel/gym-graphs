@@ -8,7 +8,6 @@ import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
 import type { PropsWithChildren } from "react";
 
-//FIXME: waiting on next auth to add middlware
 const LoginPage = () => {
   return (
     <main className="flex min-h-[calc(100vh-var(--header-height))]">
