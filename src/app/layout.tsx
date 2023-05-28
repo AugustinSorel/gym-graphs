@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// FIXME: REMOVE suppressHydrationWarning, next-theme is causing warning, wainting on a fix
 export const metadata = {
   title: "Gym Graphs",
   description: "Monitor your gym progress with the help of powerfull graphs",

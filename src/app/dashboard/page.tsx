@@ -1,7 +1,7 @@
 import { NewExerciseNameForm } from "./newExerciseNameForm";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 
-const DashboardPage = async () => {
+const DashboardPage = () => {
   const action = async (formData: FormData) => {
     "use server";
     const data = newExerciseNameSchema.safeParse({
