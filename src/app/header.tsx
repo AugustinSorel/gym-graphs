@@ -246,8 +246,8 @@ export const Header = () => {
   const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
 
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
-      <nav className="flex h-full items-center overflow-hidden pl-4">
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary pr-4 backdrop-blur-md">
+      <nav className="flex h-full items-center overflow-hidden p-4">
         <HomeIcon />
 
         {showDashboardPath && (
