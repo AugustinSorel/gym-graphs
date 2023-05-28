@@ -7,7 +7,7 @@ import { cloneElement } from "react";
 import type { PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function Home() {
+const HomePage = () => {
   return (
     <main className="scrollbar-none relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
       <section className="relative">
@@ -133,7 +133,9 @@ export default function Home() {
       </section>
     </main>
   );
-}
+};
+
+export default HomePage;
 
 const CardIcon = ({ children }: { children: JSX.Element }) => {
   const className = (children.props as { className: string }).className;
@@ -187,7 +189,7 @@ const StrongText = ({ children }: PropsWithChildren) => {
 const GetStartedAction = () => {
   return (
     <Button asChild size="lg">
-      <Link href="/sign-in">
+      <Link href="/dashboard">
         <span className="sm:text-xl">get started</span>
         <ArrowRight className="ml-2" />
       </Link>

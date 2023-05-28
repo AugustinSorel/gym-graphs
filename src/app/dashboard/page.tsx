@@ -1,15 +1,7 @@
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { NewExerciseNameForm } from "./newExerciseNameForm";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 
 const DashboardPage = async () => {
-  const session = await getSession();
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
   const action = async (formData: FormData) => {
     "use server";
     const data = newExerciseNameSchema.safeParse({

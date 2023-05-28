@@ -6,18 +6,10 @@ import {
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
 //FIXME: waiting on next auth to add middlware
-const LoginPage = async () => {
-  const session = await getSession();
-
-  if (session) {
-    redirect("/dashboard");
-  }
-
+const LoginPage = () => {
   return (
     <main className="flex min-h-[calc(100vh-var(--header-height))]">
       <div className="relative hidden grow items-center justify-center gap-5 overflow-x-clip lg:flex">
