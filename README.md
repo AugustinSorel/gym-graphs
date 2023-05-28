@@ -1,34 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Gym Graphs
 
-## Getting Started
+Gym Graphs allows users to track their gym progress with the help of graphs. The app allows users to add new exercises, organize their exercises with a dashboard and add new data for each exercises. The hosting for this project is on Vercel and the database is hosted in a digital ocean droplet
 
-First, run the development server:
+## Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+- live website: https://gym-graphs.vercel.app
+- youtube viedo:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Images
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Home Page
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Sign in page
 
-## Learn More
+### Dashboard Page
 
-To learn more about Next.js, take a look at the following resources:
+### Exercise Page
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Light theme
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
+- **Authentication**: Users can sign up and log in to the app using their Google account Github account or email.
+- **Dashboard**: Users have a dashboard that gives an overview of all of their exercises and can track their progress with graphs
+- **Heatmap**: Users can view a heatmap of all their exercises per month or other timeframe
+- **Exercises**: Users can add new data for each of their exercises
+- **Dark theme**: Users can select their favorite theme.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Next.js](https://nextjs.org)
+- [Typescript](https://www.typescriptlang.org/docs/)
+- [Radix-UI](https://www.radix-ui.com/)
+- [NextAuth.js](https://next-auth.js.org)
+- [Drizzle](https://orm.drizzle.team/)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Postgres](https://www.postgresql.org/docs/)
+- [Zod](https://zod.dev/)
