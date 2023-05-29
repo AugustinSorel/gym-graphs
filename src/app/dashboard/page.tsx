@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { NewExerciseNameForm } from "./newExerciseNameForm";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
+import { Skeleton } from "@/components/ui/skeleton";
 
 //TODO: https://codesandbox.io/s/react-grid-dnd-example-ph8cqs https://codesandbox.io/s/react-drag-drop-rpe04?file=/src/App.js
 const DashboardPage = () => {
@@ -26,10 +28,26 @@ const DashboardPage = () => {
         {[...Array<unknown>(10)].map((_, i) => (
           <li
             key={i}
-            className="h-exercise-card rounded-md border border-border bg-primary p-1 backdrop-blur-md"
+            className="relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border"
           >
-            super
+            <header className="border-b border-border bg-primary p-2">
+              <p className="truncate capitalize">bench press</p>
+            </header>
+
+            <Link
+              href="/exercises/1"
+              className="absolute inset-0 -z-10 duration-300"
+            />
           </li>
+        ))}
+
+        {[...Array<unknown>(10)].map((_, i) => (
+          <Skeleton
+            key={i}
+            className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md"
+          >
+            <header className="h-11 border-b border-border bg-primary" />
+          </Skeleton>
         ))}
       </ul>
     </div>
