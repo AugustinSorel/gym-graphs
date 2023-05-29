@@ -18,6 +18,7 @@ import { useState } from "react";
 
 type Props = { action: (formData: FormData) => Promise<void> };
 
+//FIXME: remove warning
 export const NewExerciseNameForm = ({ action }: Props) => {
   const [name, setName] = useState("");
   const { toast } = useToast();
@@ -65,10 +66,8 @@ export const NewExerciseNameForm = ({ action }: Props) => {
 
   return (
     <form
-      action={(e) => {
-        void actionHandler(e);
-      }}
-      className="mx-auto grid max-w-2xl grid-cols-[1fr_auto] items-stretch gap-2"
+      action={(e) => void actionHandler(e)}
+      className="mx-auto flex max-w-2xl gap-2"
     >
       <Input
         name="newExerciseName"
@@ -80,9 +79,9 @@ export const NewExerciseNameForm = ({ action }: Props) => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <>
-              <AddButton />
-            </>
+            <div>
+              <SubmitButton />
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p className="capitalize">add</p>
@@ -93,9 +92,8 @@ export const NewExerciseNameForm = ({ action }: Props) => {
   );
 };
 
-const AddButton = () => {
+const SubmitButton = () => {
   const formStatus = useFormStatus();
-
   return (
     <Button size="icon" aria-label="add" disabled={formStatus.pending}>
       {formStatus.pending ? (
