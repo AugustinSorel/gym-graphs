@@ -36,7 +36,7 @@ const DashboardPage = () => {
 
       <ul className="mx-auto grid max-w-[calc(var(--exercise-card-height)*4+20px*3)] grid-cols-[repeat(auto-fill,minmax(min(100%,var(--exercise-card-height)),1fr))] gap-5">
         {[...Array<unknown>(10)].map((_, i) => (
-          <div
+          <li
             className="group relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border"
             key={i}
           >
@@ -44,6 +44,7 @@ const DashboardPage = () => {
               <Link
                 href="/exercises/1"
                 className="absolute inset-0 -z-10 duration-300"
+                aria-label="go to exercise bench press"
               />
 
               <p className="truncate capitalize">bench press</p>
@@ -54,6 +55,7 @@ const DashboardPage = () => {
                     className="h-8 p-1 opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100"
                     size="icon"
                     variant="ghost"
+                    aria-label="view more about the exercise bench press"
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -76,16 +78,15 @@ const DashboardPage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </header>
-          </div>
+          </li>
         ))}
 
         {[...Array<unknown>(10)].map((_, i) => (
-          <Skeleton
-            key={i}
-            className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md"
-          >
-            <header className="h-11 border-b border-border bg-primary" />
-          </Skeleton>
+          <li key={i}>
+            <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
+              <header className="h-11 border-b border-border bg-primary" />
+            </Skeleton>
+          </li>
         ))}
       </ul>
     </div>
