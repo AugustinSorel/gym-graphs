@@ -97,7 +97,7 @@ export const GithubSignIn = () => {
   return (
     <Button
       onClick={() => void clickHandler()}
-      className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 disabled:opacity-50 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
+      className="flex w-full items-center gap-2 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 focus-visible:ring-red-500 disabled:opacity-50 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
       disabled={isLoading}
     >
       {isLoading && <Loader />}
