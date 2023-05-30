@@ -37,7 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { signOut, useSession } from "next-auth/react";
-import { useAuthAction } from "@/components/auth/authControllers";
+import { useAuthAction } from "@/app/sign-in/@authForm/authControllers";
 import { Loader } from "@/components/ui/loader";
 import { usePathname } from "next/navigation";
 

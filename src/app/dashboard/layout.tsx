@@ -1,10 +1,19 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { PropsWithChildren } from "react";
+import type { ReactNode } from "react";
 
-const Layout = ({ children }: PropsWithChildren) => {
+type Props = {
+  newExerciseNameForm: ReactNode;
+  exercisesGrid: ReactNode;
+};
+
+const Layout = (props: Props) => {
   return (
     <main className="relative min-h-[calc(100vh-var(--header-height))]">
-      {children}
+      <div className="space-y-5 p-5">
+        {props.newExerciseNameForm}
+        {props.exercisesGrid}
+      </div>
+
       <div className="absolute inset-0 -top-[var(--header-height)] -z-10">
         <DashboardBackground />
       </div>

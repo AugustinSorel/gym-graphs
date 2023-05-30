@@ -109,7 +109,7 @@ export const GithubSignIn = () => {
 
 //TODO: add shadcn form component
 //FIXME: add db provider to use email auth
-export const EmailSignInForm = () => {
+export const EmailSignIn = () => {
   const { toast } = useToast();
   const authAction = useAuthAction(
     () => new Promise((resolve) => setTimeout(resolve, 1000))
