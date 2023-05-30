@@ -10,20 +10,21 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { z } from "zod";
 
-export const useAuthAction = <T,>(method: () => Promise<T>) => {
+export const GoogleSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handler = async () => {
+  const clickHandler = async () => {
     try {
       setIsLoading(() => true);
-      await method();
+      await signIn("google", { callbackUrl: "/dashboard" });
     } catch (e) {
       toast({
         variant: "destructive",
         title: "Something went wrong",
+        description: "We could not sign you in with your Google account",
         action: (
-          <ToastAction altText="Try again" onClick={() => void handler()}>
+          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
             Try again
           </ToastAction>
         ),
@@ -33,21 +34,13 @@ export const useAuthAction = <T,>(method: () => Promise<T>) => {
     }
   };
 
-  return { isLoading, handler };
-};
-
-export const GoogleSignIn = () => {
-  const authAction = useAuthAction(() =>
-    signIn("google", { callbackUrl: "/dashboard" })
-  );
-
   return (
     <Button
       className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-neutral-100 disabled:opacity-50 dark:hover:bg-neutral-300 dark:focus-visible:ring-red-500"
-      onClick={() => void authAction.handler()}
-      disabled={authAction.isLoading}
+      onClick={() => void clickHandler()}
+      disabled={isLoading}
     >
-      {authAction.isLoading && <Loader />}
+      {isLoading && <Loader />}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 186.69 190.5"
@@ -78,17 +71,36 @@ export const GoogleSignIn = () => {
 };
 
 export const GithubSignIn = () => {
-  const authAction = useAuthAction(() =>
-    signIn("github", { callbackUrl: "/dashboard" })
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const clickHandler = async () => {
+    try {
+      setIsLoading(() => true);
+      await signIn("github", { callbackUrl: "/dashboard" });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you in with your Github account",
+        action: (
+          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(() => false);
+    }
+  };
 
   return (
     <Button
-      onClick={() => void authAction.handler()}
+      onClick={() => void clickHandler()}
       className="ring- ocus-visible:ring-red-500 flex w-full items-center gap-1 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 disabled:opacity-50 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
-      disabled={authAction.isLoading}
+      disabled={isLoading}
     >
-      {authAction.isLoading && <Loader />}
+      {isLoading && <Loader />}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4"
@@ -110,11 +122,8 @@ export const GithubSignIn = () => {
 //TODO: add shadcn form component
 //FIXME: add db provider to use email auth
 export const EmailSignIn = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const authAction = useAuthAction(
-    () => new Promise((resolve) => setTimeout(resolve, 1000))
-    // signIn("email", { callbackUrl: "/dashboard", email });
-  );
   const [email, setEmail] = useState("");
   const schema = z.object({
     email: z
@@ -123,6 +132,31 @@ export const EmailSignIn = () => {
       .min(1, { message: "email must be at leat one charater" })
       .max(255, { message: "email must be at most 255 charaters" }),
   });
+
+  const emailSignInHandler = async () => {
+    try {
+      setIsLoading(() => true);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // signIn("email", { callbackUrl: "/dashboard", email });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: `We could not sign you in with ${email}`,
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void emailSignInHandler()}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(() => false);
+    }
+  };
 
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
@@ -142,7 +176,7 @@ export const EmailSignIn = () => {
       });
     }
 
-    void authAction.handler();
+    void emailSignInHandler();
   };
 
   return (
@@ -154,10 +188,10 @@ export const EmailSignIn = () => {
         onChange={(e) => setEmail(e.target.value)}
       />
       <Button
-        disabled={authAction.isLoading}
+        disabled={isLoading}
         className="w-full space-x-2 font-medium lowercase"
       >
-        {authAction.isLoading && <Loader />}
+        {isLoading && <Loader />}
         <span>sign in with email</span>
       </Button>
     </form>

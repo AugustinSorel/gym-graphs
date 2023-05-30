@@ -37,16 +37,41 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { signOut, useSession } from "next-auth/react";
-import { useAuthAction } from "@/app/sign-in/@authForm/authControllers";
 import { Loader } from "@/components/ui/loader";
 import { usePathname } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
 
-  const signOutAction = useAuthAction(() => signOut({ callbackUrl: "/" }));
+  const [isSignOutLoading, setIsSignOutLoading] = useState(false);
+  const { toast } = useToast();
+
+  const signOutHandler = async () => {
+    try {
+      setIsSignOutLoading(() => true);
+      await signOut({ callbackUrl: "/" });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not sign you out,",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void signOutHandler()}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsSignOutLoading(() => false);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -144,10 +169,10 @@ const DropDownMenu = () => {
               className="space-x-2"
               onClick={(e) => {
                 e.preventDefault();
-                void signOutAction.handler();
+                void signOutHandler();
               }}
             >
-              {signOutAction.isLoading && <Loader />}
+              {isSignOutLoading && <Loader />}
               <LogOut className="h-4 w-4" />
               <span className="capitalize">sign out</span>
             </DropdownMenuItem>
