@@ -151,7 +151,7 @@ const DropDownMenu = () => {
               <LogOut className="h-4 w-4" />
               <span className="capitalize">sign out</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500 focus:bg-red-500/10 focus:text-red-500">
+            <DropdownMenuItem className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive">
               <Trash className="mr-2 h-4 w-4" />
               <span className="capitalize">delete account</span>
             </DropdownMenuItem>

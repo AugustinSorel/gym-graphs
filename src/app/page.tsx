@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
+import { Slot } from "@radix-ui/react-slot";
 import { ArrowRight, Brush, Github, LineChart, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { cloneElement } from "react";
 import type { PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -140,12 +140,16 @@ export default HomePage;
 const CardIcon = ({ children }: { children: JSX.Element }) => {
   const className = (children.props as { className: string }).className;
 
-  return cloneElement(children, {
-    className: twMerge(
-      "h-16 w-16 rounded-md stroke-1 p-2 opacity-50",
-      className
-    ),
-  });
+  return (
+    <Slot
+      className={twMerge(
+        "h-16 w-16 rounded-md stroke-1 p-2 opacity-50",
+        className
+      )}
+    >
+      {children}
+    </Slot>
+  );
 };
 
 const CardText = ({ children }: PropsWithChildren) => {
