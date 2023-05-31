@@ -20,13 +20,13 @@ const ExercisesGrid = () => {
           className="group relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border"
           key={i}
         >
-          <header className="flex items-center justify-between border-b border-border bg-primary p-2">
-            <Link
-              href="/exercises/1"
-              className="absolute inset-0 -z-10 duration-300"
-              aria-label="go to exercise bench press"
-            />
+          <Link
+            href="/exercises/1"
+            className="absolute inset-0 -z-10 duration-300"
+            aria-label="go to exercise bench press"
+          />
 
+          <header className="flex items-center justify-between border-b border-border bg-primary p-2">
             <p className="truncate capitalize">bench press</p>
 
             <DropdownMenu>
