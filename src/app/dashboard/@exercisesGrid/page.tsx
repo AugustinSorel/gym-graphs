@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Edit2, MoreHorizontal, Trash } from "lucide-react";
+import { Check, Edit2, MoreHorizontal, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 const ExercisesGrid = () => {
   return (
@@ -27,7 +28,22 @@ const ExercisesGrid = () => {
           />
 
           <header className="flex items-center justify-between border-b border-border bg-primary p-2">
-            <p className="truncate capitalize">bench press</p>
+            {true ? (
+              <p className="truncate capitalize">
+                <span>bench press</span>
+              </p>
+            ) : (
+              <form action="" className="flex items-center gap-2">
+                <Input
+                  placeholder="bench press"
+                  value="bench press"
+                  className="border-none bg-transparent"
+                />
+                <Button size="icon" variant="ghost" aria-label="update ">
+                  <Check className="h-4 w-4" />
+                </Button>
+              </form>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
