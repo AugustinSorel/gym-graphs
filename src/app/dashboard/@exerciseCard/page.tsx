@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Check, Edit2, MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 
-export const ExerciseCard = () => {
-  const [isRenameFormVisisble, setIsRenameFormVisible] = useState(false);
+const ExerciseCard = () => {
   const [exerciseName, setExerciseName] = useState("bench press");
 
-  const showRenameForm = () => setIsRenameFormVisible(() => true);
-  const closeRenameForm = () => setIsRenameFormVisible(() => false);
+  const updateExerciseNameAction = async (e: FormData) => {
+    await new Promise((res) => setTimeout(res, 1_000));
+  };
+
   return (
     <li className="group relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
       <Link
@@ -30,26 +31,7 @@ export const ExerciseCard = () => {
       />
 
       <header className="flex items-center justify-between gap-2 border-b border-border bg-primary p-2">
-        {isRenameFormVisisble ? (
-          <form
-            action=""
-            className="flex items-center gap-2"
-            onBlur={closeRenameForm}
-          >
-            <Input
-              ref={(e) => e?.focus()}
-              placeholder="bench press"
-              value={exerciseName}
-              onChange={(e) => setExerciseName(e.target.value)}
-              className="border-none bg-transparent backdrop-blur-none"
-            />
-            <Button size="icon" variant="ghost" aria-label="update">
-              <Check className="h-4 w-4" />
-            </Button>
-          </form>
-        ) : (
-          <p className="truncate capitalize">{exerciseName}</p>
-        )}
+        <p className="truncate capitalize">{exerciseName}</p>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -68,10 +50,7 @@ export const ExerciseCard = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={showRenameForm}>
-                <Edit2 className="mr-2 h-4 w-4" />
-                <span className="capitalize">rename</span>
-              </DropdownMenuItem>
+              <UpdateExerciseNameDialog action={updateExerciseNameAction} />
               <DropdownMenuItem className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive">
                 <Trash className="mr-2 h-4 w-4" />
                 <span className="capitalize">delete exercise</span>
@@ -83,3 +62,5 @@ export const ExerciseCard = () => {
     </li>
   );
 };
+
+export default ExerciseCard;
