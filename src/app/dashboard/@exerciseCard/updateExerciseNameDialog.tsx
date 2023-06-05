@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
 
 type Props = { action: (formData: FormData) => Promise<void> };
 
 //FIXME: remove warning
 export const UpdateExerciseNameDialog = ({ action }: Props) => {
   const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
-  const [isLoading, setIsLoading] = useState(false);
 
   const actionHandler = async (e: FormData) => {
     const data = newExerciseNameSchema.safeParse({ name: updatedExerciseName });
@@ -41,7 +41,6 @@ export const UpdateExerciseNameDialog = ({ action }: Props) => {
     }
 
     try {
-      setIsLoading(() => true);
       await action(e);
       setUpdatedExerciseName("");
     } catch (error) {
@@ -58,8 +57,6 @@ export const UpdateExerciseNameDialog = ({ action }: Props) => {
           </ToastAction>
         ),
       });
-    } finally {
-      setIsLoading(() => false);
     }
   };
 
@@ -81,11 +78,18 @@ export const UpdateExerciseNameDialog = ({ action }: Props) => {
           onChange={(e) => setUpdatedExerciseName(e.target.value)}
         />
 
-        <Button className="ml-auto space-x-2" disabled={isLoading}>
-          {isLoading && <Loader />}
-          <span className="capitalize">save change</span>
-        </Button>
+        <SubmitButton />
       </form>
     </DialogContent>
+  );
+};
+
+const SubmitButton = () => {
+  const formStatus = useFormStatus();
+  return (
+    <Button className="ml-auto space-x-2" disabled={formStatus.pending}>
+      {formStatus.pending && <Loader />}
+      <span className="capitalize">save change</span>
+    </Button>
   );
 };
