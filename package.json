@@ -26,7 +26,7 @@
     "nodemailer": "^6.9.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwind-merge": "^1.12.0",
+    "tailwind-merge": "^1.13.0",
     "tailwindcss-animate": "^1.0.5",
     "zod": "^3.21.4"
   },
@@ -34,7 +34,7 @@
     "@types/eslint": "^8.40.0",
     "@types/node": "20.1.3",
     "@types/nodemailer": "^6.4.8",
-    "@types/prettier": "^2.7.2",
+    "@types/prettier": "^2.7.3",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
     "@typescript-eslint/eslint-plugin": "^5.59.8",
