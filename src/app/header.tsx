@@ -41,6 +41,17 @@ import { Loader } from "@/components/ui/loader";
 import { usePathname } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const DropDownMenu = () => {
   const [weight, setWeight] = useState<string>("kg");
@@ -48,6 +59,8 @@ const DropDownMenu = () => {
   const { data: session } = useSession();
 
   const [isSignOutLoading, setIsSignOutLoading] = useState(false);
+  const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { toast } = useToast();
 
   const signOutHandler = async () => {
@@ -73,117 +86,166 @@ const DropDownMenu = () => {
     }
   };
 
-  return (
-    <DropdownMenu>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" aria-label="menu">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="capitalize">menu</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <DropdownMenuContent className="mr-4 w-56">
-        <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+  const deleteHandler = async () => {
+    try {
+      setIsDeleteAccountLoading(() => true);
+      await new Promise((res) => setTimeout(res, 1_000));
+      setIsAlertOpen(() => false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "We could not delete your account",
+        action: (
+          <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsDeleteAccountLoading(() => false);
+    }
+  };
 
-        {session && (
+  return (
+    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+      <DropdownMenu>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" aria-label="menu">
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="capitalize">menu</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <DropdownMenuContent className="mr-4 w-56">
+          <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          {session && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <ArrowLeftRight className="mr-2 h-4 w-4" />
+                <span className="capitalize">unit</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuRadioGroup
+                    value={weight}
+                    onValueChange={setWeight}
+                  >
+                    <DropdownMenuRadioItem value="kg" className="capitalize">
+                      kg
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="lbs" className="capitalize">
+                      lbs
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          )}
+
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <ArrowLeftRight className="mr-2 h-4 w-4" />
-              <span className="capitalize">unit</span>
+              <Palette className="mr-2 h-4 w-4" />
+              <span className="capitalize">theme</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={weight}
-                  onValueChange={setWeight}
-                >
-                  <DropdownMenuRadioItem value="kg" className="capitalize">
-                    kg
+                <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+                  <DropdownMenuRadioItem value="light" className="capitalize">
+                    light
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="lbs" className="capitalize">
-                    lbs
+                  <DropdownMenuRadioItem value="dark" className="capitalize">
+                    dark
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system" className="capitalize">
+                    system
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-        )}
 
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <Palette className="mr-2 h-4 w-4" />
-            <span className="capitalize">theme</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                <DropdownMenuRadioItem value="light" className="capitalize">
-                  light
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark" className="capitalize">
-                  dark
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system" className="capitalize">
-                  system
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-
-        <DropdownMenuItem asChild>
-          <Link
-            href="https://github.com/augustinsorel/gym-graphs"
-            target="_blank"
-            className="flex w-full items-center"
-          >
-            <Github className="mr-2 h-4 w-4" />
-            <span className="capitalize">gitHub</span>
-          </Link>
-        </DropdownMenuItem>
-
-        {!session && (
           <DropdownMenuItem asChild>
-            <Link href="/sign-in" className="flex w-full items-center">
-              <User className="mr-2 h-4 w-4" />
-              <span className="capitalize">sign in</span>
+            <Link
+              href="https://github.com/augustinsorel/gym-graphs"
+              target="_blank"
+              className="flex w-full items-center"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              <span className="capitalize">gitHub</span>
             </Link>
           </DropdownMenuItem>
-        )}
 
-        {session && (
-          <DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="capitalize">
-              danger zone
-            </DropdownMenuLabel>
-            <DropdownMenuItem
-              className="space-x-2"
-              onClick={(e) => {
-                e.preventDefault();
-                void signOutHandler();
-              }}
-            >
-              {isSignOutLoading && <Loader />}
-              <LogOut className="h-4 w-4" />
-              <span className="capitalize">sign out</span>
+          {!session && (
+            <DropdownMenuItem asChild>
+              <Link href="/sign-in" className="flex w-full items-center">
+                <User className="mr-2 h-4 w-4" />
+                <span className="capitalize">sign in</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive">
-              <Trash className="mr-2 h-4 w-4" />
-              <span className="capitalize">delete account</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          )}
+
+          {session && (
+            <DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="capitalize">
+                danger zone
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                className="space-x-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  void signOutHandler();
+                }}
+              >
+                {isSignOutLoading && <Loader />}
+                <LogOut className="h-4 w-4" />
+                <span className="capitalize">sign out</span>
+              </DropdownMenuItem>
+
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive">
+                  <Trash className="mr-2 h-4 w-4" />
+                  <span className="capitalize">delete account</span>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+            </DropdownMenuGroup>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            onClick={(e) => {
+              e.preventDefault();
+              void deleteHandler();
+            }}
+          >
+            {isDeleteAccountLoading && <Loader />}
+            <span className="capitalize">delete</span>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
