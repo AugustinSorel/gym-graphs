@@ -6,19 +6,17 @@ import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/components/ui/use-toast";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
-import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 
-type Props = { action: (formData: FormData) => Promise<void> };
+type Props = {
+  onAction: (formData: FormData) => Promise<void>;
+  onSuccesss: () => void;
+};
 
 //FIXME: remove warning
-export const UpdateExerciseNameDialog = ({ action }: Props) => {
+export const UpdateExerciseNameForm = ({ onAction, onSuccesss }: Props) => {
   const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
 
   const actionHandler = async (e: FormData) => {
@@ -41,8 +39,9 @@ export const UpdateExerciseNameDialog = ({ action }: Props) => {
     }
 
     try {
-      await action(e);
+      await onAction(e);
       setUpdatedExerciseName("");
+      onSuccesss();
     } catch (error) {
       return toast({
         variant: "destructive",
@@ -61,26 +60,18 @@ export const UpdateExerciseNameDialog = ({ action }: Props) => {
   };
 
   return (
-    <DialogContent className="space-y-5 sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle className="capitalize">change exercise name</DialogTitle>
-      </DialogHeader>
-      <form
-        className="flex flex-col gap-2"
-        action={(e) => void actionHandler(e)}
-      >
-        <Label htmlFor="name" className="capitalize">
-          exercise name
-        </Label>
-        <Input
-          id="name"
-          value={updatedExerciseName}
-          onChange={(e) => setUpdatedExerciseName(e.target.value)}
-        />
+    <form className="flex flex-col gap-2" action={(e) => void actionHandler(e)}>
+      <Label htmlFor="name" className="capitalize">
+        exercise name
+      </Label>
+      <Input
+        id="name"
+        value={updatedExerciseName}
+        onChange={(e) => setUpdatedExerciseName(e.target.value)}
+      />
 
-        <SubmitButton />
-      </form>
-    </DialogContent>
+      <SubmitButton />
+    </form>
   );
 };
 
