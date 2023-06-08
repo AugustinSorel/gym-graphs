@@ -3,7 +3,6 @@
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 
 export const addNewExerciseAction = async (formData: FormData) => {
-  "use server";
   const data = newExerciseNameSchema.safeParse({
     name: formData.get("newExerciseName"),
   });

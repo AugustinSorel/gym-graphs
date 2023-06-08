@@ -1,31 +1,32 @@
 "use client";
 
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ToastAction } from "@/components/ui/toast";
+import { Loader } from "@/components/ui/loader";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import { Loader } from "@/components/ui/loader";
-import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 
 type Props = { action: (formData: FormData) => Promise<void> };
 
-//FIXME: remove warning
-export const NewExerciseNameForm = ({ action }: Props) => {
-  const [name, setName] = useState("");
+export const NewExerciseDataForm = ({ action }: Props) => {
+  const [numberOfRepetitions, setNumberofRepetitions] = useState("");
+  const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = newExerciseNameSchema.safeParse({
-      name,
+    const data = addExerciseDataSchema.safeParse({
+      numberOfRepetitions: parseInt(numberOfRepetitions),
+      weightLifted: parseInt(weightLifted),
     });
 
     if (!data.success) {
@@ -46,7 +47,8 @@ export const NewExerciseNameForm = ({ action }: Props) => {
 
     try {
       await action(e);
-      setName("");
+      setNumberofRepetitions("");
+      setWeightLifted("");
     } catch (error) {
       return toast({
         variant: "destructive",
@@ -66,16 +68,21 @@ export const NewExerciseNameForm = ({ action }: Props) => {
 
   return (
     <form
-      action={(e) => void actionHandler(e)}
       className="mx-auto flex max-w-2xl gap-2"
+      action={(e) => void actionHandler(e)}
     >
       <Input
-        name="newExerciseName"
-        placeholder="new exercise name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        placeholder="№ of reps..."
+        value={numberOfRepetitions}
+        onChange={(e) => setNumberofRepetitions(e.target.value)}
+        name="numberOfRepetitions"
       />
-
+      <Input
+        placeholder="Weight"
+        value={weightLifted}
+        onChange={(e) => setWeightLifted(e.target.value)}
+        name="weightLifted"
+      />
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>

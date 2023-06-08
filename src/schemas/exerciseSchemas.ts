@@ -6,3 +6,20 @@ export const newExerciseNameSchema = z.object({
     .min(3, "exercise name must be at least 3 characters long")
     .max(255, "exercise name must be at most 255 characters long"),
 });
+
+export const addExerciseDataSchema = z.object({
+  numberOfRepetitions: z
+    .number({
+      required_error: "number of repetitions is required",
+      invalid_type_error: "number of repetitions must be a number",
+    })
+    .min(1, "number of repetitions must be at least 1")
+    .max(200, "number of repetitions must at most 200"),
+  weightLifted: z
+    .number({
+      required_error: "weight lifted is required",
+      invalid_type_error: "weight lifted must be a number",
+    })
+    .min(1, "weight lifted must be at least 1kg")
+    .max(1000, "weight lifted must be at most 1000 kg"),
+});
