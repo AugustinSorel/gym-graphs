@@ -15,8 +15,9 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
+import type { addNewExerciseAction } from "./actions";
 
-type Props = { action: (formData: FormData) => Promise<void> };
+type Props = { action: typeof addNewExerciseAction };
 
 //FIXME: remove warning
 export const NewExerciseNameForm = ({ action }: Props) => {

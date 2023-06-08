@@ -15,13 +15,17 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
+import type { addExerciseDataAction } from "./actions";
+import { useParams } from "next/navigation";
 
-type Props = { action: (formData: FormData) => Promise<void> };
+type Props = { action: typeof addExerciseDataAction };
 
 export const NewExerciseDataForm = ({ action }: Props) => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
+  const params = useParams();
+  const exerciseId = params["id"] ?? "";
 
   const actionHandler = async (e: FormData) => {
     const data = addExerciseDataSchema.safeParse({
@@ -46,7 +50,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
     }
 
     try {
-      await action(e);
+      await action(e, exerciseId);
       setNumberofRepetitions("");
       setWeightLifted("");
     } catch (error) {

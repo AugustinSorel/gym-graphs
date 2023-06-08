@@ -2,7 +2,8 @@
 
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 
-export const addExerciseDataAction = async (e: FormData) => {
+//FIXME: infer data type of id
+export const addExerciseDataAction = async (e: FormData, id: string) => {
   const data = addExerciseDataSchema.safeParse({
     numberOfRepetitions: parseInt(
       (e.get("numberOfRepetitions") as string) ?? "0"
@@ -17,6 +18,6 @@ export const addExerciseDataAction = async (e: FormData) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   //TODO: inset data in db
   console.log(
-    `data: ${data.data.weightLifted} and ${data.data.numberOfRepetitions}`
+    `data: ${data.data.weightLifted} and ${data.data.numberOfRepetitions} to id: ${id}`
   );
 };
