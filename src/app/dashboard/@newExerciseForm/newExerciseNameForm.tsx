@@ -20,20 +20,20 @@ import type { addNewExerciseAction } from "./actions";
 type Props = { action: typeof addNewExerciseAction };
 
 //FIXME: remove warning
-export const NewExerciseNameForm = ({ action }: Props) => {
+export const NewExerciseForm = ({ action }: Props) => {
   const [name, setName] = useState("");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = newExerciseNameSchema.safeParse({
+    const newExercise = newExerciseNameSchema.safeParse({
       name,
     });
 
-    if (!data.success) {
+    if (!newExercise.success) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: data.error.issues[0]?.message,
+        description: newExercise.error.issues[0]?.message,
         action: (
           <ToastAction
             altText="Try again"
@@ -46,7 +46,7 @@ export const NewExerciseNameForm = ({ action }: Props) => {
     }
 
     try {
-      await action(e);
+      await action(newExercise.data);
       setName("");
     } catch (error) {
       return toast({

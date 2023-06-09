@@ -16,7 +16,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 import type { addExerciseDataAction } from "./actions";
-import { useParams } from "next/navigation";
 
 type Props = { action: typeof addExerciseDataAction };
 
@@ -24,20 +23,19 @@ export const NewExerciseDataForm = ({ action }: Props) => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
-  const params = useParams();
-  const exerciseId = params["id"] ?? "";
 
   const actionHandler = async (e: FormData) => {
-    const data = addExerciseDataSchema.safeParse({
+    const addExerciseData = addExerciseDataSchema.safeParse({
       numberOfRepetitions: parseInt(numberOfRepetitions),
       weightLifted: parseInt(weightLifted),
+      id: "3c68ebd4-49e4-44e0-b4be-ea2d9ded51d4",
     });
 
-    if (!data.success) {
+    if (!addExerciseData.success) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: data.error.issues[0]?.message,
+        description: addExerciseData.error.issues[0]?.message,
         action: (
           <ToastAction
             altText="Try again"
@@ -50,7 +48,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
     }
 
     try {
-      await action(e, exerciseId);
+      await action(addExerciseData.data);
       setNumberofRepetitions("");
       setWeightLifted("");
     } catch (error) {

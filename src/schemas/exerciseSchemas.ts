@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
+
 export const newExerciseNameSchema = z.object({
   name: z
     .string({ required_error: "exercise name is required" })
@@ -7,7 +9,15 @@ export const newExerciseNameSchema = z.object({
     .max(255, "exercise name must be at most 255 characters long"),
 });
 
+export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
+
 export const addExerciseDataSchema = z.object({
+  id: z
+    .string({
+      required_error: "id is required",
+      invalid_type_error: "id must be a uuid",
+    })
+    .uuid("uuid is not valid"),
   numberOfRepetitions: z
     .number({
       required_error: "number of repetitions is required",
