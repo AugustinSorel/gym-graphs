@@ -25,7 +25,7 @@ const ExerciseCard = () => {
   return (
     <li className="group relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
       <Link
-        href="/exercises/1"
+        href="/exercises/bench-press?timeframe=1m"
         className="absolute inset-0 -z-10 duration-300"
         aria-label={`go to exercise ${exerciseName}`}
       />
