@@ -36,13 +36,13 @@ const TIMEFRAMES = [
 const ExerciseGraph = () => {
   return (
     <div className="rounded-md border border-border bg-primary backdrop-blur-md">
-      <header className="bg-primary p-4">
+      <header className="border-b border-border bg-primary p-3">
         <h2 className="truncate font-medium capitalize">bench press</h2>
       </header>
 
       <div className="h-[500px]"></div>
 
-      <footer className="flex items-center justify-center bg-primary text-xl">
+      <footer className="flex items-center justify-center border-t border-border bg-primary text-xl">
         {TIMEFRAMES.map((timeframe) => (
           <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
         ))}
