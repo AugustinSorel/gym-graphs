@@ -352,7 +352,7 @@ export const Header = () => {
         {showExecisesPath && (
           <>
             <Separator />
-            <CurrentExeciseLink>dead lift</CurrentExeciseLink>
+            <CurrentExeciseLink>{pathname[2]}</CurrentExeciseLink>
           </>
         )}
       </nav>

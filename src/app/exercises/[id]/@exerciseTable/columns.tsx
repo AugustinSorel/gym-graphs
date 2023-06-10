@@ -5,8 +5,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -35,13 +33,14 @@ export const columns: ColumnDef<ExerciseData>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="ghost"
-                className="truncate"
+                variant="link"
+                className="px-2 md:px-4"
                 onClick={() =>
                   column.toggleSorting(column.getIsSorted() === "asc")
                 }
               >
-                Estimated PR - (kg)
+                <span className="hidden md:block">estimated pr - (kg)</span>
+                <span className="md:hidden">pr</span>
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -61,13 +60,14 @@ export const columns: ColumnDef<ExerciseData>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="ghost"
-                className="truncate"
+                variant="link"
+                className="px-2 md:px-4"
                 onClick={() =>
                   column.toggleSorting(column.getIsSorted() === "asc")
                 }
               >
-                № of reps
+                <span className="hidden md:block">№ of reps</span>
+                <span className="md:hidden">reps</span>
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -87,13 +87,15 @@ export const columns: ColumnDef<ExerciseData>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="ghost"
-                className="truncate"
+                variant="link"
+                className="px-2 md:px-4"
                 onClick={() =>
                   column.toggleSorting(column.getIsSorted() === "asc")
                 }
               >
-                Weight - (kg)
+                <span className="hidden md:block">weight - (kg)</span>
+                <span className="md:hidden">kg</span>
+
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -113,8 +115,8 @@ export const columns: ColumnDef<ExerciseData>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="ghost"
-                className="truncate"
+                variant="link"
+                className="px-2 md:px-4"
                 onClick={() =>
                   column.toggleSorting(column.getIsSorted() === "asc")
                 }
