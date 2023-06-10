@@ -42,10 +42,12 @@ const ExerciseGraph = () => {
 
       <div className="h-[500px]"></div>
 
-      <footer className="flex max-w-full grid-flow-col items-center overflow-auto border-t border-border bg-primary px-4 text-xl [&>*:first-child]:ml-auto [&>*:last-child]:mr-auto">
-        {TIMEFRAMES.map((timeframe) => (
-          <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
-        ))}
+      <footer className="flex overflow-auto border-t border-border bg-primary px-4 text-xl">
+        <nav className="mx-auto flex items-center">
+          {TIMEFRAMES.map((timeframe) => (
+            <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
+          ))}
+        </nav>
       </footer>
     </div>
   );
@@ -80,7 +82,7 @@ const TimeframeLink = ({ timeframe }: TimeframeLinkProps) => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{timeframe.tooltipText}</p>
+          <p className="capitalize">{timeframe.tooltipText}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
