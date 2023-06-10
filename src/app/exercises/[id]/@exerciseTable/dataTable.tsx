@@ -45,7 +45,7 @@ export function DataTable<TData, TValue>({
     <>
       <>
         <Table>
-          <TableHeader className="bg-primary">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {

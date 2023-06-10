@@ -86,7 +86,7 @@ const Page = () => {
   const data = getData();
 
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-primary backdrop-blur-md">
+    <div className="overflow-auto rounded-md border border-border bg-primary backdrop-blur-md">
       <DataTable columns={columns} data={data} />
     </div>
   );
