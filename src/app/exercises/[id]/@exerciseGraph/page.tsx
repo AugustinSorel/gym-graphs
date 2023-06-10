@@ -42,7 +42,7 @@ const ExerciseGraph = () => {
 
       <div className="h-[500px]"></div>
 
-      <footer className="flex items-center justify-center overflow-x-auto border-t border-border bg-primary text-xl">
+      <footer className="flex max-w-full grid-flow-col items-center overflow-auto border-t border-border bg-primary px-4 text-xl [&>*:first-child]:ml-auto [&>*:last-child]:mr-auto">
         {TIMEFRAMES.map((timeframe) => (
           <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
         ))}
@@ -70,6 +70,7 @@ const TimeframeLink = ({ timeframe }: TimeframeLinkProps) => {
           >
             <Link
               href={`${pathname}?timeframe=${timeframe.abbreviation}`}
+              scroll={false}
               aria-current={
                 searchParams.get("timeframe") === timeframe.abbreviation
               }

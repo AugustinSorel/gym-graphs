@@ -29,26 +29,15 @@ export const columns: ColumnDef<ExerciseData>[] = [
     accessorKey: "estimatedPR",
     header: ({ column }) => {
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="link"
-                className="px-2 md:px-4"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-              >
-                <span className="hidden md:block">estimated pr - (kg)</span>
-                <span className="md:hidden">pr</span>
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="capitalize">estimated personal record in kg</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="link"
+          className="px-2 md:px-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <span className="hidden md:block">estimated pr - (kg)</span>
+          <span className="md:hidden">pr</span>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
   },
@@ -56,26 +45,15 @@ export const columns: ColumnDef<ExerciseData>[] = [
     accessorKey: "numberOfReps",
     header: ({ column }) => {
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="link"
-                className="px-2 md:px-4"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-              >
-                <span className="hidden md:block">№ of reps</span>
-                <span className="md:hidden">reps</span>
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="capitalize">number of repetitions</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="link"
+          className="px-2 md:px-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <span className="hidden md:block">№ of reps</span>
+          <span className="md:hidden">reps</span>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
   },
@@ -83,27 +61,16 @@ export const columns: ColumnDef<ExerciseData>[] = [
     accessorKey: "weightLifted",
     header: ({ column }) => {
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="link"
-                className="px-2 md:px-4"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-              >
-                <span className="hidden md:block">weight - (kg)</span>
-                <span className="md:hidden">kg</span>
+        <Button
+          variant="link"
+          className="px-2 md:px-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          <span className="hidden md:block">weight - (kg)</span>
+          <span className="md:hidden">kg</span>
 
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="capitalize">weight lifted in kg</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
   },
@@ -111,25 +78,14 @@ export const columns: ColumnDef<ExerciseData>[] = [
     accessorKey: "date",
     header: ({ column }) => {
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="link"
-                className="px-2 md:px-4"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-              >
-                date
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="capitalize">date</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="link"
+          className="px-2 md:px-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          date
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
     cell: ({ row }) => {
