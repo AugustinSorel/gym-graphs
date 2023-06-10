@@ -300,7 +300,7 @@ const DashboardLink = () => {
             href="/dashboard"
             className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
           >
-            {session?.user?.name}
+            {session?.user?.name ?? session?.user?.email?.split("@").at(0)}
           </Link>
         </TooltipTrigger>
         <TooltipContent>
