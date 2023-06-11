@@ -15,22 +15,22 @@ import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import type { updateWeightLiftedAction } from "./actions";
+import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
-import type { updateNumberOfRepsAction } from "./actions";
 
-type Props = { onAction: typeof updateNumberOfRepsAction };
+type Props = { onAction: typeof updateWeightLiftedAction };
 
-export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
+export const UpdateWeightLifted = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState("10");
+  const [updatedWeightLifted, setUpdatedWeightLifted] = useState("");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateNumberOfRepsSchema.safeParse({
+    const data = updateWeightLiftedSchema.safeParse({
       id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
-      numberOfReps: +updatedNumberOfReps,
+      weightLifted: +updatedWeightLifted,
     });
 
     if (!data.success) {
@@ -51,7 +51,7 @@ export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedNumberOfReps("");
+      setUpdatedWeightLifted("");
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
@@ -75,7 +75,7 @@ export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <Edit2 className="mr-2 h-4 w-4" />
-          <span className="capitalize">change number of reps</span>
+          <span className="capitalize">change weight lifted</span>
         </DropdownMenuItem>
       </DialogTrigger>
 
@@ -94,8 +94,8 @@ export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
           </Label>
           <Input
             id="name"
-            value={updatedNumberOfReps}
-            onChange={(e) => setUpdatedNumberOfReps(e.target.value)}
+            value={updatedWeightLifted}
+            onChange={(e) => setUpdatedWeightLifted(e.target.value)}
             autoComplete="off"
           />
 
