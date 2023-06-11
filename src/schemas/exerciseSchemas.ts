@@ -30,6 +30,8 @@ const weightLifted = z
 
 export const newExerciseNameSchema = z.object({ name });
 
+export const deleteExerciseSchema = z.object({ id });
+
 export const updateExerciseNameSchema = z.object({ id, name });
 
 export const addExerciseDataSchema = z.object({
@@ -48,6 +50,7 @@ export const updateWeightLiftedSchema = z.object({
   weightLifted,
 });
 
+export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
 export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
 export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
 export type UpdateExerciseNameSchema = z.infer<typeof updateExerciseNameSchema>;

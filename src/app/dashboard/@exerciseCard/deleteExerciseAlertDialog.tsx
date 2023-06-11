@@ -17,8 +17,13 @@ import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
+import type { deleteExerciseAction } from "./actions";
 
-export const DeleteExerciseAlertDialog = () => {
+type Props = {
+  onAction: typeof deleteExerciseAction;
+};
+
+export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
   const { toast } = useToast();
@@ -27,7 +32,7 @@ export const DeleteExerciseAlertDialog = () => {
   const deleteHandler = async () => {
     try {
       setIsDeleteExerciseLoading(() => true);
-      await new Promise((res) => setTimeout(res, 1_000));
+      await onAction({ id: "" });
       setIsAlertDialogOpen(() => false);
     } catch (error) {
       return toast({

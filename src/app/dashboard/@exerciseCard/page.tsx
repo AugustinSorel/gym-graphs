@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
-import { updateExerciseNameAction } from "./actions";
+import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
 
 const ExerciseCard = () => {
   const exerciseName = "bench press";
@@ -45,7 +45,7 @@ const ExerciseCard = () => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <UpdateExerciseNameDialog onAction={updateExerciseNameAction} />
-              <DeleteExerciseAlertDialog />
+              <DeleteExerciseAlertDialog onAction={deleteExerciseAction} />
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
