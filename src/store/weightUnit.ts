@@ -13,11 +13,11 @@ const WEIGHT_KEY = "weightUnit";
 
 export const useWeightUnit = create<WeightUnitStore>((set) => ({
   value: (() => {
-    const weightUnitRaw = weightUnitSchema.safeParse(
-      localStorage && localStorage.getItem(WEIGHT_KEY)
-    );
-
-    return weightUnitRaw.success ? weightUnitRaw.data : "kg";
+    try {
+      return weightUnitSchema.parse(localStorage.getItem(WEIGHT_KEY));
+    } catch (error) {
+      return "kg";
+    }
   })(),
 
   setValue: (newValue) => {
