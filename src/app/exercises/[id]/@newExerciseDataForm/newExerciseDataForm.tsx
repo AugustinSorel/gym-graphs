@@ -78,12 +78,14 @@ export const NewExerciseDataForm = ({ action }: Props) => {
         value={numberOfRepetitions}
         onChange={(e) => setNumberofRepetitions(e.target.value)}
         name="numberOfRepetitions"
+        autoComplete="off"
       />
       <Input
         placeholder="Weight"
         value={weightLifted}
         onChange={(e) => setWeightLifted(e.target.value)}
         name="weightLifted"
+        autoComplete="off"
       />
       <TooltipProvider>
         <Tooltip>

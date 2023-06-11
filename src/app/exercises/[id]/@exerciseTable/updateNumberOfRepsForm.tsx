@@ -96,6 +96,7 @@ const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
             id="name"
             value={updatedNumberOfReps}
             onChange={(e) => setUpdatedNumberOfReps(e.target.value)}
+            autoComplete="off"
           />
 
           <SubmitButton />
