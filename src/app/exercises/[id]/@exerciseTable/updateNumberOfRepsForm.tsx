@@ -15,16 +15,23 @@ import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
+import type { updateNumberOfRepsAction } from "./actions";
 
-const UpdateNumberOfRepsForm = () => {
+type Props = { onAction: typeof updateNumberOfRepsAction };
+
+const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState("10");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = newExerciseNameSchema.safeParse({ name: updatedExerciseName });
+    const data = updateNumberOfRepsSchema.safeParse({
+      id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
+      numberOfReps: parseInt(updatedNumberOfReps),
+    });
 
     if (!data.success) {
       return toast({
@@ -43,7 +50,7 @@ const UpdateNumberOfRepsForm = () => {
     }
 
     try {
-      await onAction(e);
+      await onAction(data.data);
       setUpdatedNumberOfReps("");
       setIsDialogOpen(() => false);
     } catch (error) {

@@ -26,7 +26,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
 
   const actionHandler = async (e: FormData) => {
     const addExerciseData = addExerciseDataSchema.safeParse({
-      numberOfRepetitions: parseInt(numberOfRepetitions),
+      numberOfReps: parseInt(numberOfRepetitions),
       weightLifted: parseInt(weightLifted),
       id: "3c68ebd4-49e4-44e0-b4be-ea2d9ded51d4",
     });

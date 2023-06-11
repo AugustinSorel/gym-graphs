@@ -9,6 +9,6 @@ export const addExerciseDataAction = async (
 
   //TODO: inset data in db
   console.log(
-    `data: ${exerciseData.weightLifted} and ${exerciseData.numberOfRepetitions} to id: ${exerciseData.id}`
+    `data: ${exerciseData.weightLifted} and ${exerciseData.numberOfReps} to id: ${exerciseData.id}`
   );
 };
