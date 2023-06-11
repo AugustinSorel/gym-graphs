@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { z } from "zod";
 
@@ -16,7 +14,7 @@ const WEIGHT_KEY = "weightUnit";
 export const useWeightUnit = create<WeightUnitStore>((set) => ({
   value: (() => {
     const weightUnitRaw = weightUnitSchema.safeParse(
-      localStorage.getItem(WEIGHT_KEY)
+      localStorage && localStorage.getItem(WEIGHT_KEY)
     );
 
     return weightUnitRaw.success ? weightUnitRaw.data : "kg";
