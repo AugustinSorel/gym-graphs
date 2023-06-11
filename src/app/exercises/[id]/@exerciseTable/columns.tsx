@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Edit2, MoreHorizontal, Trash } from "lucide-react";
+import UpdateNumberOfRepsForm from "./updateNumberOfRepsForm";
 
 //FIXME: infer type from drizzle
 export type ExerciseData = {
@@ -120,10 +121,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
         </TooltipProvider>
 
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <Edit2 className="mr-2 h-4 w-4" />
-            <span className="capitalize">change number of reps</span>
-          </DropdownMenuItem>
+          <UpdateNumberOfRepsForm />
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <Edit2 className="mr-2 h-4 w-4" />
             <span className="capitalize">change weight lifted</span>

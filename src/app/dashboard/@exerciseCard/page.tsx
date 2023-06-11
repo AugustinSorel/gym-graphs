@@ -11,16 +11,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
+import { updateExerciseNameAction } from "./actions";
 
 const ExerciseCard = () => {
   const exerciseName = "bench press";
-
-  const updateExerciseNameAction = async (e: FormData) => {
-    "use server";
-
-    await new Promise((res) => setTimeout(res, 1_000));
-    console.log("e: ", e);
-  };
 
   return (
     <li className="group relative h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
