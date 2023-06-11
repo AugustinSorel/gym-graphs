@@ -52,11 +52,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useWeightUnit } from "@/store/weightUnit";
 
 const DropDownMenu = () => {
-  const [weight, setWeight] = useState<string>("kg");
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const weightUnit = useWeightUnit();
 
   const [isSignOutLoading, setIsSignOutLoading] = useState(false);
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
@@ -131,13 +132,17 @@ const DropDownMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <ArrowLeftRight className="mr-2 h-4 w-4" />
-              <span className="capitalize">unit</span>
+              <span className="capitalize">unit - ({weightUnit.value})</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
                 <DropdownMenuRadioGroup
-                  value={weight}
-                  onValueChange={setWeight}
+                  value={weightUnit.value}
+                  onValueChange={(e) =>
+                    weightUnit.setValue(
+                      e as Parameters<typeof weightUnit.setValue>[0]
+                    )
+                  }
                 >
                   <DropdownMenuRadioItem value="kg" className="capitalize">
                     kg

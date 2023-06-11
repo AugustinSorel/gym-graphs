@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -13,8 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Edit2, MoreHorizontal, Trash } from "lucide-react";
+import type { ColumnDef, HeaderContext } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { UpdateNumberOfRepsForm } from "./updateNumberOfRepsForm";
 import {
   deleteDataAction,
@@ -23,6 +22,7 @@ import {
 } from "./actions";
 import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
+import { useWeightUnit } from "@/store/weightUnit";
 
 //FIXME: infer type from drizzle
 export type ExerciseData = {
@@ -32,22 +32,48 @@ export type ExerciseData = {
   date: Date;
 };
 
+const EstimatedPrHeader = ({
+  column,
+}: HeaderContext<ExerciseData, unknown>) => {
+  const weightUnit = useWeightUnit();
+  return (
+    <Button
+      variant="link"
+      className="px-2 md:px-4"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      <span className="hidden md:block">
+        estimated pr - ({weightUnit.value})
+      </span>
+      <span className="md:hidden">pr</span>
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  );
+};
+
+const WeightLiftedHeader = ({
+  column,
+}: HeaderContext<ExerciseData, unknown>) => {
+  const weightUnit = useWeightUnit();
+
+  return (
+    <Button
+      variant="link"
+      className="px-2 md:px-4"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      <span className="hidden md:block">weight - ({weightUnit.value})</span>
+      <span className="md:hidden">{weightUnit.value}</span>
+
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  );
+};
+
 export const columns: ColumnDef<ExerciseData>[] = [
   {
     accessorKey: "estimatedPR",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="link"
-          className="px-2 md:px-4"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          <span className="hidden md:block">estimated pr - (kg)</span>
-          <span className="md:hidden">pr</span>
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: EstimatedPrHeader,
   },
   {
     accessorKey: "numberOfReps",
@@ -67,20 +93,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
   },
   {
     accessorKey: "weightLifted",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="link"
-          className="px-2 md:px-4"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          <span className="hidden md:block">weight - (kg)</span>
-          <span className="md:hidden">kg</span>
-
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: WeightLiftedHeader,
   },
   {
     accessorKey: "date",
