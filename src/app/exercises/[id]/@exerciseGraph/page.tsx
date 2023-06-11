@@ -42,7 +42,7 @@ const ExerciseGraph = () => {
 
       <div className="h-[500px]"></div>
 
-      <footer className="flex overflow-auto border-t border-border bg-primary px-4 text-xl">
+      <footer className="flex overflow-auto border-t border-border bg-primary px-4 py-1 text-xl">
         <nav className="mx-auto flex items-center">
           {TIMEFRAMES.map((timeframe) => (
             <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
