@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { z } from "zod";
-import { useEffect } from "react";
 
 const weightUnitSchema = z.enum(["kg", "lbs"]);
 type WeightUnit = z.infer<typeof weightUnitSchema>;
@@ -25,11 +24,9 @@ export const useWeightUnit = create<WeightUnitStore>((set) => ({
 export const useSetWeightUnit = () => {
   const setValue = useWeightUnit((state) => state.setValue);
 
-  useEffect(() => {
-    try {
-      setValue(weightUnitSchema.parse(localStorage.getItem(WEIGHT_KEY)));
-    } catch (error) {
-      setValue("kg");
-    }
-  }, [setValue]);
+  try {
+    setValue(weightUnitSchema.parse(localStorage.getItem(WEIGHT_KEY)));
+  } catch (error) {
+    setValue("kg");
+  }
 };
