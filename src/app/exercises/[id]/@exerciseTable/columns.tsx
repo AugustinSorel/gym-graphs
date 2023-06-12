@@ -42,9 +42,7 @@ const EstimatedPrHeader = ({
       className="px-2 md:px-4"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      <span className="hidden md:block">
-        estimated pr - ({weightUnit.value})
-      </span>
+      <span className="hidden md:block">estimated pr - ({weightUnit.get})</span>
       <span className="md:hidden">pr</span>
       <ArrowUpDown className="ml-2 h-4 w-4" />
     </Button>
@@ -62,8 +60,8 @@ const WeightLiftedHeader = ({
       className="px-2 md:px-4"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      <span className="hidden md:block">weight - ({weightUnit.value})</span>
-      <span className="md:hidden">{weightUnit.value}</span>
+      <span className="hidden md:block">weight - ({weightUnit.get})</span>
+      <span className="md:hidden">{weightUnit.get}</span>
 
       <ArrowUpDown className="ml-2 h-4 w-4" />
     </Button>

@@ -132,16 +132,14 @@ const DropDownMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <ArrowLeftRight className="mr-2 h-4 w-4" />
-              <span className="capitalize">unit - ({weightUnit.value})</span>
+              <span className="capitalize">unit - ({weightUnit.get})</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
                 <DropdownMenuRadioGroup
-                  value={weightUnit.value}
+                  value={weightUnit.get}
                   onValueChange={(e) =>
-                    weightUnit.setValue(
-                      e as Parameters<typeof weightUnit.setValue>[0]
-                    )
+                    weightUnit.set(e as Parameters<typeof weightUnit.set>[0])
                   }
                 >
                   <DropdownMenuRadioItem value="kg" className="capitalize">
