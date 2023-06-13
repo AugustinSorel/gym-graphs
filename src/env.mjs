@@ -23,6 +23,7 @@ const server = z.object({
   GITHUB_CLIENT_SECRET: z.string().min(1),
   EMAIL_SERVER: z.string().min(1),
   EMAIL_FROM: z.string().min(1),
+  DB_URL: z.string().url(),
 });
 
 /**
@@ -49,6 +50,7 @@ const processEnv = {
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
   EMAIL_SERVER: process.env.EMAIL_SERVER,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  DB_URL: process.env.DB_URL,
 };
 
 // Don't touch the part below
