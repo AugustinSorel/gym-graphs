@@ -5,13 +5,10 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 const migrationClient = postgres(env.DB_URL, { max: 1 });
 
-try {
-  await migrate(drizzle(migrationClient), {
-    migrationsFolder: "./migration-folder",
-  });
-} catch (error) {
-  console.log("error in migration", error);
-}
+void migrate(drizzle(migrationClient), {
+  migrationsFolder: "./migration-folder",
+});
 
 const client = postgres(env.DB_URL);
-const db = drizzle(client);
+export const db = drizzle(client);
+
