@@ -19,7 +19,6 @@ import type { addNewExerciseAction } from "./actions";
 
 type Props = { action: typeof addNewExerciseAction };
 
-//FIXME: remove warning
 export const NewExerciseForm = ({ action }: Props) => {
   const [name, setName] = useState("");
   const { toast } = useToast();

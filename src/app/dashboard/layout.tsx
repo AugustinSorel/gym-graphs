@@ -1,5 +1,6 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import type { ReactNode } from "react";
+import { db } from "@/db";
 
 type Props = {
   newExerciseForm: ReactNode;
@@ -16,6 +17,8 @@ const Layout = (props: Props) => {
           {[...Array<unknown>(10)].map(() => props.exerciseCard)}
         </ul>
       </div>
+
+      <div>{JSON.stringify(db)}</div>
 
       <div className="absolute inset-0 -top-[var(--header-height)] -z-10">
         <DashboardBackground />

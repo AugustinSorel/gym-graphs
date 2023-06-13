@@ -119,7 +119,6 @@ export const GithubSignIn = () => {
   );
 };
 
-//TODO: add shadcn form component
 //FIXME: add db provider to use email auth
 export const EmailSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);

@@ -24,7 +24,6 @@ type Props = {
   onAction: typeof updateExerciseNameAction;
 };
 
-//FIXME: remove warning
 export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
