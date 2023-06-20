@@ -22,7 +22,7 @@
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
     "drizzle-orm": "^0.26.5",
-    "lucide-react": "^0.216.0",
+    "lucide-react": "^0.246.0",
     "next": "13.4.2",
     "next-auth": "^4.22.1",
     "next-themes": "^0.2.1",
