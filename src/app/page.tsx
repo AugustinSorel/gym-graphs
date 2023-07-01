@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
-import { Slot } from "@radix-ui/react-slot";
-import { ArrowRight, Brush, Github, LineChart, Wallet } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PropsWithChildren } from "react";
-import { twMerge } from "tailwind-merge";
+import { Featues } from "./features";
 
 const HomePage = () => {
   return (
@@ -80,93 +79,12 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-10 overflow-hidden p-5 pb-12 text-center">
-        <h1 className=" text-4xl sm:text-5xl">What we offer</h1>
-
-        <ul className="grid w-full max-w-3xl grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
-          <Card>
-            <CardIcon>
-              <LineChart className="bg-pink-500/20 stroke-pink-500" />
-            </CardIcon>
-            <CardTitle>graphs</CardTitle>
-            <CardText>
-              Keep track of your progress every session and watch your results
-              soar! Get ready to see amazing results!
-            </CardText>
-          </Card>
-          <Card>
-            <CardIcon>
-              <Wallet className="bg-blue-500/20 stroke-blue-500" />
-            </CardIcon>
-            <CardTitle>100% free</CardTitle>
-            <CardText>
-              Great news! Our project is completely free to use, with no hidden
-              fees or charges. We value your privacy and do not collect any
-              personal information.
-            </CardText>
-          </Card>
-          <Card>
-            <CardIcon>
-              <Github className="bg-green-500/20 stroke-green-500" />
-            </CardIcon>
-            <CardTitle>open source</CardTitle>
-            <CardText>
-              Curious about how this was built? You can check out the code on
-              our Github page! We welcome feedback and contributions from our
-              community,
-            </CardText>
-          </Card>
-          <Card>
-            <CardIcon>
-              <Brush className="bg-yellow-500/20 stroke-yellow-500" />
-            </CardIcon>
-            <CardTitle>customizable</CardTitle>
-            <CardText>
-              With our modular dashboards, you&apos;re in charge of your
-              exercises! Customize your workout experience to fit your
-              preferences and needs.
-            </CardText>
-          </Card>
-        </ul>
-
-        <GetStartedAction />
-      </section>
+      <Featues />
     </main>
   );
 };
 
 export default HomePage;
-
-const CardIcon = ({ children }: { children: JSX.Element }) => {
-  const className = (children.props as { className: string }).className;
-
-  return (
-    <Slot
-      className={twMerge(
-        "h-16 w-16 rounded-md stroke-1 p-2 opacity-50",
-        className
-      )}
-    >
-      {children}
-    </Slot>
-  );
-};
-
-const CardText = ({ children }: PropsWithChildren) => {
-  return <p className="text-muted-foreground">{children}</p>;
-};
-
-const CardTitle = ({ children }: PropsWithChildren) => {
-  return <h2 className="text-2xl font-semibold capitalize">{children}</h2>;
-};
-
-const Card = ({ children }: PropsWithChildren) => {
-  return (
-    <li className="flex flex-col items-center gap-2.5 rounded-md border border-border p-10 shadow-md">
-      {children}
-    </li>
-  );
-};
 
 const Text = ({ children }: PropsWithChildren) => {
   return <p className="max-w-xl sm:text-2xl">{children}</p>;
