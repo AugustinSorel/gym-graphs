@@ -11,7 +11,12 @@ const getPrices = async () => {
     prices: DataPoint[];
   };
 
-  return data.prices;
+  return [
+    [new Date(2019, 11, 1).getTime(), 100],
+    [new Date(2019, 11, 2).getTime(), 105],
+    [new Date(2019, 11, 3).getTime(), 110],
+    [new Date(2019, 11, 10).getTime(), 120],
+  ];
 };
 
 const Page = async () => {

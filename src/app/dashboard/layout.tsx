@@ -6,6 +6,7 @@ type Props = {
   exerciseCard: ReactNode;
 };
 
+//TODO: mock data
 const Layout = (props: Props) => {
   return (
     <main className="relative min-h-[calc(100vh-var(--header-height))]">

@@ -1,90 +1,17 @@
-"use client";
+import { ExerciseGraph } from "./exerciseGraph";
 
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-
-const TIMEFRAMES = [
-  {
-    abbreviation: "all",
-    tooltipText: "view all data",
-  },
-  {
-    abbreviation: "1y",
-    tooltipText: "view this year data",
-  },
-  {
-    abbreviation: "6m",
-    tooltipText: "view this 6 months data",
-  },
-  {
-    abbreviation: "1m",
-    tooltipText: "view this month data",
-  },
-  {
-    abbreviation: "1w",
-    tooltipText: "view this week data",
-  },
-] as const;
-
-const ExerciseGraph = () => {
+const Page = () => {
   return (
     <div className="rounded-md border border-border bg-primary backdrop-blur-md">
       <header className="border-b border-border bg-primary p-3">
         <h2 className="truncate font-medium capitalize">bench press</h2>
       </header>
 
-      <div className="h-[500px]"></div>
-
-      <footer className="flex overflow-auto border-t border-border bg-primary px-4 py-1 text-xl">
-        <nav className="mx-auto flex items-center">
-          {TIMEFRAMES.map((timeframe) => (
-            <TimeframeLink timeframe={timeframe} key={timeframe.abbreviation} />
-          ))}
-        </nav>
-      </footer>
+      <div className="h-[500px]">
+        <ExerciseGraph />
+      </div>
     </div>
   );
 };
 
-export default ExerciseGraph;
-
-type TimeframeLinkProps = { timeframe: (typeof TIMEFRAMES)[number] };
-
-const TimeframeLink = ({ timeframe }: TimeframeLinkProps) => {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="link"
-            className="uppercase aria-[current=true]:underline"
-            asChild
-          >
-            <Link
-              href={`${pathname}?timeframe=${timeframe.abbreviation}`}
-              scroll={false}
-              aria-current={
-                searchParams.get("timeframe") === timeframe.abbreviation
-              }
-            >
-              {timeframe.abbreviation}
-            </Link>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">{timeframe.tooltipText}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
+export default Page;

@@ -71,6 +71,18 @@ export const Chart = ({ data }: { data: Data[] }) => {
             strokeWidth={2}
             curve={curveMonotoneX}
           />
+          {data.map((d, i) => {
+            return (
+              <circle
+                key={`${getXValue(d).getTime()}-${getYValue(d)}-${i}`}
+                cx={xScale(getXValue(d))}
+                cy={yScale(getYValue(d))}
+                r={4}
+                fill="#23DBBD"
+                strokeWidth={2}
+              />
+            );
+          })}
         </Group>
 
         <Group>
@@ -96,7 +108,7 @@ export const Chart = ({ data }: { data: Data[] }) => {
               }
               showTooltip({
                 tooltipData: d,
-                tooltipLeft: x,
+                tooltipLeft: xScale(getXValue(d)),
                 tooltipTop: yScale(getYValue(d)),
               });
             }}
@@ -113,6 +125,7 @@ export const Chart = ({ data }: { data: Data[] }) => {
               strokeWidth={1}
               pointerEvents="none"
               strokeDasharray="5, 5"
+              className="transition-all"
             />
             <circle
               cx={tooltipLeft}
@@ -135,10 +148,10 @@ export const Chart = ({ data }: { data: Data[] }) => {
 
       {tooltipData ? (
         <TooltipWithBounds
-          key={Math.random()}
           top={tooltipTop}
           left={tooltipLeft}
           style={tooltipStyles}
+          className="transition-all"
         >
           {`${timeFormat("%b %d %H:%M ")(new Date(getXValue(tooltipData)))}`}:{" "}
           <b>{formatter.format(getYValue(tooltipData))}</b>
