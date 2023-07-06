@@ -5,10 +5,9 @@ import React, {
   useState,
   useMemo,
   useLayoutEffect,
-  type TouchEvent,
-  type MouseEvent,
   useCallback,
 } from "react";
+import type { TouchEvent, MouseEvent } from "react";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { Brush } from "@visx/brush";
 import type { Bounds } from "@visx/brush/lib/types";
@@ -20,7 +19,7 @@ import { AreaClosed, Bar, Line, LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
-import { TooltipWithBounds, defaultStyles, useTooltip } from "@visx/tooltip";
+import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 
 type Data = {
   date: string;
@@ -31,7 +30,7 @@ const data: Data[] = [
   { date: "2000/01/01", close: 117.5 },
   { date: "2000/01/02", close: 200 },
   { date: "2000/01/03", close: 150 },
-  { date: "2000/01/04", close: 250.5 },
+  { date: "2000/01/10", close: 250.5 },
 ];
 
 const brushMargin = { top: 10, bottom: 15, left: 50, right: 20 };
@@ -61,7 +60,10 @@ export const ExerciseGraph = () => {
   const [filteredData, setFilteredStock] = useState(data);
 
   const onBrushChange = (domain: Bounds | null) => {
-    if (!domain) return;
+    if (!domain) {
+      return;
+    }
+
     const { x0, x1, y0, y1 } = domain;
     const stockCopy = data.filter((s) => {
       const x = getDate(s).getTime();
@@ -174,6 +176,10 @@ export const ExerciseGraph = () => {
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
+      if (filteredData.length < 1) {
+        return;
+      }
+
       const { x } = localPoint(event) || { x: 0 };
       const x0 = dateScale.invert(x);
       const index = data.findIndex((d) => getDate(d).getTime() > x0.getTime());
@@ -196,7 +202,7 @@ export const ExerciseGraph = () => {
         tooltipTop: stockScale(getData(d)),
       });
     },
-    [dateScale, showTooltip, stockScale]
+    [dateScale, showTooltip, stockScale, filteredData.length]
   );
 
   return (
@@ -241,7 +247,7 @@ export const ExerciseGraph = () => {
           />
 
           <Group>
-            {data.map((d, i) => {
+            {filteredData.map((d, i) => {
               return (
                 <circle
                   key={`${getDate(d).getTime()}-${getData(d)}-${i}`}
@@ -313,7 +319,7 @@ export const ExerciseGraph = () => {
             y={(d) => brushStockScale(getData(d)) || 0}
             yScale={brushStockScale}
             strokeWidth={1}
-            className="fill-brand-color-two"
+            className="fill-brand-color-two/50"
             curve={curveMonotoneX}
           />
 
@@ -353,9 +359,21 @@ export const ExerciseGraph = () => {
           top={tooltipTop + margin.top}
           left={tooltipLeft + margin.left}
           style={{}}
-          className="absolute rounded-md border border-border bg-primary px-5 py-1 backdrop-blur-md pointer-events-none transition-all"
+          className="pointer-events-none absolute rounded-md border border-border bg-popover px-5 py-3 backdrop-blur-md transition-all"
         >
-          {getData(tooltipData)}
+          <p>
+            Date:{" "}
+            <strong>
+              {getDate(tooltipData).toLocaleString("fr-fr", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </strong>
+          </p>
+          <p>
+            One Rep Max: <strong>{getData(tooltipData)}</strong>
+          </p>
         </TooltipWithBounds>
       ) : null}
     </>

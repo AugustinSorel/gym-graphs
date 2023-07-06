@@ -5,17 +5,20 @@ import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
 import { useLayoutEffect, useRef, useState } from "react";
 
-type Data = [number, number];
+type Data = {
+  date: string;
+  close: number;
+};
 
 const data: Data[] = [
-  [new Date(2019, 11, 1).getTime(), 100],
-  [new Date(2019, 11, 2).getTime(), 105],
-  [new Date(2019, 11, 3).getTime(), 110],
-  [new Date(2019, 11, 10).getTime(), 120],
+  { date: "2000/01/01", close: 117.5 },
+  { date: "2000/01/02", close: 200 },
+  { date: "2000/01/03", close: 150 },
+  { date: "2000/01/04", close: 250.5 },
 ];
 
-const getXValue = (d: Data) => new Date(d[0]);
-const getYValue = (d: Data) => d[1];
+const getXValue = (d: Data) => new Date(d.date);
+const getYValue = (d: Data) => d.close;
 const DEFAULT_WIDTH = 300;
 const DEFAULT_HEIGHT = 250;
 
