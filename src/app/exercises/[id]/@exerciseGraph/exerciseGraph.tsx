@@ -57,7 +57,7 @@ export const ExerciseGraph = () => {
   });
 
   const brushRef = useRef<BaseBrush | null>(null);
-  const [filteredData, setFilteredStock] = useState(data);
+  const [filteredData, setFilteredData] = useState(data.slice(0, 3));
 
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) {
@@ -70,7 +70,8 @@ export const ExerciseGraph = () => {
       const y = getData(s);
       return x > x0 && x < x1 && y > y0 && y < y1;
     });
-    setFilteredStock(stockCopy);
+
+    setFilteredData(stockCopy);
   };
 
   const {
@@ -162,16 +163,18 @@ export const ExerciseGraph = () => {
     () => ({
       start: {
         x: brushDateScale(
-          getDate(data[0] ?? { date: new Date().toString(), close: 0 })
+          getDate(filteredData.at(0) ?? { date: new Date().toString(), close: 0 })
         ),
       },
       end: {
         x: brushDateScale(
-          getDate(data[2] ?? { date: new Date().toString(), close: 0 })
+          getDate(
+            filteredData.at(-1) ?? { date: new Date().toString(), close: 0 }
+          )
         ),
       },
     }),
-    [brushDateScale]
+    [brushDateScale, filteredData]
   );
 
   const handleTooltip = useCallback(
@@ -343,7 +346,7 @@ export const ExerciseGraph = () => {
             brushDirection="horizontal"
             initialBrushPosition={initialBrushPosition}
             onChange={onBrushChange}
-            onClick={() => setFilteredStock(data)}
+            onClick={() => setFilteredData(data)}
             selectedBoxStyle={{
               fill: "url(#lines)",
               stroke: "gray",
