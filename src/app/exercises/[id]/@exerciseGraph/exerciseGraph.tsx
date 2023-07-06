@@ -10,7 +10,6 @@ import React, {
   useCallback,
 } from "react";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import type { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
 import { Brush } from "@visx/brush";
 import type { Bounds } from "@visx/brush/lib/types";
 import type BaseBrush from "@visx/brush/lib/BaseBrush";
@@ -21,9 +20,14 @@ import { AreaClosed, Bar, Line, LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
-import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
+import { TooltipWithBounds, defaultStyles, useTooltip } from "@visx/tooltip";
 
-const stock: AppleStock[] = [
+type Data = {
+  date: string;
+  close: number;
+};
+
+const data: Data[] = [
   { date: "2000/01/01", close: 117.5 },
   { date: "2000/01/02", close: 200 },
   { date: "2000/01/03", close: 150 },
@@ -34,8 +38,8 @@ const brushMargin = { top: 10, bottom: 15, left: 50, right: 20 };
 const chartSeparation = 30;
 
 // accessors
-const getDate = (d: AppleStock) => new Date(d.date);
-const getStockValue = (d: AppleStock) => d.close;
+const getDate = (d: Data) => new Date(d.date);
+const getData = (d: Data) => d.close;
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
@@ -54,14 +58,14 @@ export const ExerciseGraph = () => {
   });
 
   const brushRef = useRef<BaseBrush | null>(null);
-  const [filteredStock, setFilteredStock] = useState(stock);
+  const [filteredData, setFilteredStock] = useState(data);
 
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) return;
     const { x0, x1, y0, y1 } = domain;
-    const stockCopy = stock.filter((s) => {
+    const stockCopy = data.filter((s) => {
       const x = getDate(s).getTime();
-      const y = getStockValue(s);
+      const y = getData(s);
       return x > x0 && x < x1 && y > y0 && y < y1;
     });
     setFilteredStock(stockCopy);
@@ -73,7 +77,7 @@ export const ExerciseGraph = () => {
     tooltipData,
     tooltipLeft = 0,
     tooltipTop = 0,
-  } = useTooltip<AppleStock>();
+  } = useTooltip<Data>();
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
   const topChartBottomMargin = chartSeparation + 10;
@@ -113,21 +117,21 @@ export const ExerciseGraph = () => {
       scaleTime<number>({
         range: [0, xMax],
         domain: [
-          Math.min(...filteredStock.map((p) => getDate(p).getTime())),
-          Math.max(...filteredStock.map((p) => getDate(p).getTime())),
+          Math.min(...filteredData.map((p) => getDate(p).getTime())),
+          Math.max(...filteredData.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xMax, filteredStock]
+    [xMax, filteredData]
   );
 
   const stockScale = useMemo(
     () =>
       scaleLinear<number>({
         range: [yMax, 0],
-        domain: [0, Math.max(...filteredStock.map(getStockValue))],
+        domain: [0, Math.max(...filteredData.map(getData))],
         nice: true,
       }),
-    [yMax, filteredStock]
+    [yMax, filteredData]
   );
 
   const brushDateScale = useMemo(
@@ -135,8 +139,8 @@ export const ExerciseGraph = () => {
       scaleTime<number>({
         range: [0, xBrushMax],
         domain: [
-          Math.min(...stock.map((p) => getDate(p).getTime())),
-          Math.max(...stock.map((p) => getDate(p).getTime())),
+          Math.min(...data.map((p) => getDate(p).getTime())),
+          Math.max(...data.map((p) => getDate(p).getTime())),
         ],
       }),
     [xBrushMax]
@@ -146,7 +150,7 @@ export const ExerciseGraph = () => {
     () =>
       scaleLinear({
         range: [yBrushMax, 0],
-        domain: [0, Math.max(...stock.map(getStockValue))],
+        domain: [0, Math.max(...data.map(getData))],
         nice: true,
       }),
     [yBrushMax]
@@ -156,12 +160,12 @@ export const ExerciseGraph = () => {
     () => ({
       start: {
         x: brushDateScale(
-          getDate(stock[0] ?? { date: new Date().toString(), close: 0 })
+          getDate(data[0] ?? { date: new Date().toString(), close: 0 })
         ),
       },
       end: {
         x: brushDateScale(
-          getDate(stock[2] ?? { date: new Date().toString(), close: 0 })
+          getDate(data[2] ?? { date: new Date().toString(), close: 0 })
         ),
       },
     }),
@@ -172,13 +176,12 @@ export const ExerciseGraph = () => {
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
       const { x } = localPoint(event) || { x: 0 };
       const x0 = dateScale.invert(x);
-      console.log(x0.getTime());
-      const index = stock.findIndex((d) => getDate(d).getTime() > x0.getTime());
-      const d0 = stock[index - 1] ?? {
+      const index = data.findIndex((d) => getDate(d).getTime() > x0.getTime());
+      const d0 = data[index - 1] ?? {
         date: new Date().toString(),
         close: 0,
       };
-      const d1 = stock[index];
+      const d1 = data[index];
       let d = d0;
       if (d1 && getDate(d1)) {
         d =
@@ -190,7 +193,7 @@ export const ExerciseGraph = () => {
       showTooltip({
         tooltipData: d,
         tooltipLeft: dateScale(getDate(d)),
-        tooltipTop: stockScale(getStockValue(d)),
+        tooltipTop: stockScale(getData(d)),
       });
     },
     [dateScale, showTooltip, stockScale]
@@ -203,13 +206,14 @@ export const ExerciseGraph = () => {
         width="100%"
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         ref={svgRef}
+        className="select-none"
       >
         <Group left={margin.left} top={margin.top}>
-          <LinePath<AppleStock>
-            data={filteredStock}
+          <LinePath<Data>
+            data={filteredData}
             x={(d) => dateScale(getDate(d)) || 0}
-            y={(d) => stockScale(getStockValue(d)) || 0}
-            stroke="#23DBBD"
+            y={(d) => stockScale(getData(d)) || 0}
+            className="stroke-brand-color-two"
             strokeWidth={2}
             curve={curveMonotoneX}
           />
@@ -217,39 +221,34 @@ export const ExerciseGraph = () => {
             top={yMax}
             scale={dateScale}
             numTicks={dimensions.width > 520 ? 10 : 5}
-            stroke="#fff"
-            tickStroke="#fff"
-            tickLabelProps={{
-              textAnchor: "middle" as const,
-              fontFamily: "Arial",
-              fontSize: 10,
-              fill: "#fff",
-            }}
+            tickStroke="gray"
+            stroke="gray"
+            tickLabelProps={{ textAnchor: "middle" as const, fill: "gray" }}
           />
           <AxisLeft
             scale={stockScale}
             numTicks={5}
-            stroke="#fff"
-            tickStroke="#fff"
+            tickStroke="gray"
+            stroke="gray"
             tickLabelProps={{
               dx: "-0.25em",
               dy: "0.25em",
               fontFamily: "Arial",
               fontSize: 10,
               textAnchor: "end" as const,
-              fill: "#fff",
+              fill: "gray",
             }}
           />
 
           <Group>
-            {stock.map((d, i) => {
+            {data.map((d, i) => {
               return (
                 <circle
-                  key={`${getDate(d).getTime()}-${getStockValue(d)}-${i}`}
+                  key={`${getDate(d).getTime()}-${getData(d)}-${i}`}
                   cx={dateScale(getDate(d))}
-                  cy={stockScale(getStockValue(d))}
+                  cy={stockScale(getData(d))}
                   r={4}
-                  fill="#23DBBD"
+                  className="fill-brand-color-two"
                   strokeWidth={2}
                 />
               );
@@ -273,25 +272,31 @@ export const ExerciseGraph = () => {
               <Line
                 from={{ x: tooltipLeft, y: 0 }}
                 to={{ x: tooltipLeft, y: yMax }}
-                stroke="#59588D"
                 strokeWidth={1}
                 pointerEvents="none"
                 strokeDasharray="5, 5"
-                className="transition-all"
+                className="stroke-neutral-500 transition-all"
+              />
+              <Line
+                from={{ x: 0, y: tooltipTop }}
+                to={{ x: xMax, y: tooltipTop }}
+                strokeWidth={1}
+                pointerEvents="none"
+                strokeDasharray="5, 5"
+                className="stroke-neutral-500 transition-all"
               />
               <circle
                 cx={tooltipLeft}
                 cy={tooltipTop}
                 r={8}
-                fill="#FF4DCA"
-                fillOpacity={0.5}
+                className="fill-brand-color-two/50"
                 pointerEvents="none"
               />
               <circle
                 cx={tooltipLeft}
                 cy={tooltipTop}
                 r={4}
-                fill="#FF4DCA"
+                className="fill-brand-color-two"
                 pointerEvents="none"
               />
             </Group>
@@ -302,13 +307,13 @@ export const ExerciseGraph = () => {
           left={margin.left}
           top={topChartHeight + topChartBottomMargin + margin.top}
         >
-          <AreaClosed<AppleStock>
-            data={stock}
+          <AreaClosed<Data>
+            data={data}
             x={(d) => brushDateScale(getDate(d)) || 0}
-            y={(d) => brushStockScale(getStockValue(d)) || 0}
+            y={(d) => brushStockScale(getData(d)) || 0}
             yScale={brushStockScale}
             strokeWidth={1}
-            fill="url(#gradient)"
+            className="fill-brand-color-two"
             curve={curveMonotoneX}
           />
 
@@ -316,7 +321,7 @@ export const ExerciseGraph = () => {
             id={"lines"}
             height={8}
             width={8}
-            stroke={"#fff"}
+            className="stroke-neutral-500"
             strokeWidth={1}
             orientation={["diagonal"]}
           />
@@ -332,10 +337,10 @@ export const ExerciseGraph = () => {
             brushDirection="horizontal"
             initialBrushPosition={initialBrushPosition}
             onChange={onBrushChange}
-            onClick={() => setFilteredStock(stock)}
+            onClick={() => setFilteredStock(data)}
             selectedBoxStyle={{
               fill: "url(#lines)",
-              stroke: "white",
+              stroke: "gray",
             }}
             useWindowMoveEvents
             renderBrushHandle={(props) => <BrushHandle {...props} />}
@@ -347,9 +352,10 @@ export const ExerciseGraph = () => {
         <TooltipWithBounds
           top={tooltipTop + margin.top}
           left={tooltipLeft + margin.left}
-          className="transition-all"
+          style={{}}
+          className="absolute rounded-md border border-border bg-primary px-5 py-1 backdrop-blur-md pointer-events-none transition-all"
         >
-          <b>{getStockValue(tooltipData)}</b>
+          {getData(tooltipData)}
         </TooltipWithBounds>
       ) : null}
     </>
