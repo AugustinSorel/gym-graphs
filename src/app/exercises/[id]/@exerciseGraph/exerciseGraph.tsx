@@ -5,26 +5,21 @@ import React, {
   useState,
   useMemo,
   useLayoutEffect,
-  TouchEvent,
-  MouseEvent,
+  type TouchEvent,
+  type MouseEvent,
 } from "react";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import appleStock, { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
+import type { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
 import { Brush } from "@visx/brush";
-import { Bounds } from "@visx/brush/lib/types";
-import BaseBrush, {
-  BaseBrushState,
-  UpdateBrush,
-} from "@visx/brush/lib/BaseBrush";
+import type { Bounds } from "@visx/brush/lib/types";
+import type BaseBrush from "@visx/brush/lib/BaseBrush";
 import { PatternLines } from "@visx/pattern";
 import { Group } from "@visx/group";
-import { LinearGradient } from "@visx/gradient";
 import { max, extent } from "@visx/vendor/d3-array";
-import { BrushHandleRenderProps } from "@visx/brush/lib/BrushHandle";
-import { ScaleLinear, ScaleTime } from "@visx/vendor/d3-scale";
+import type { BrushHandleRenderProps } from "@visx/brush/lib/BrushHandle";
 import { AreaClosed, Bar, Line, LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
-import { AxisLeft, AxisBottom, AxisScale } from "@visx/axis";
+import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { bisector } from "d3-array";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
@@ -38,15 +33,6 @@ const stock: AppleStock[] = [
 
 const brushMargin = { top: 10, bottom: 15, left: 50, right: 20 };
 const chartSeparation = 30;
-const PATTERN_ID = "brush_pattern";
-const GRADIENT_ID = "brush_gradient";
-export const accentColor = "#f6acc8";
-export const background = "#584153";
-export const background2 = "#af8baf";
-const selectedBrushStyle = {
-  fill: `url(#${PATTERN_ID})`,
-  stroke: "white",
-};
 
 // accessors
 const getDate = (d: AppleStock) => new Date(d.date);
@@ -135,6 +121,7 @@ export const ExerciseGraph = () => {
       }),
     [xMax, filteredStock]
   );
+
   const stockScale = useMemo(
     () =>
       scaleLinear<number>({
@@ -144,6 +131,7 @@ export const ExerciseGraph = () => {
       }),
     [yMax, filteredStock]
   );
+
   const brushDateScale = useMemo(
     () =>
       scaleTime<number>({
@@ -152,6 +140,7 @@ export const ExerciseGraph = () => {
       }),
     [xBrushMax]
   );
+
   const brushStockScale = useMemo(
     () =>
       scaleLinear({
@@ -164,8 +153,16 @@ export const ExerciseGraph = () => {
 
   const initialBrushPosition = useMemo(
     () => ({
-      start: { x: brushDateScale(getDate(stock[0]!)) },
-      end: { x: brushDateScale(getDate(stock[2]!)) },
+      start: {
+        x: brushDateScale(
+          getDate(stock[0] ?? { date: new Date().toString(), close: 0 })
+        ),
+      },
+      end: {
+        x: brushDateScale(
+          getDate(stock[2] ?? { date: new Date().toString(), close: 0 })
+        ),
+      },
     }),
     [brushDateScale]
   );
@@ -178,16 +175,58 @@ export const ExerciseGraph = () => {
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         ref={svgRef}
       >
-        <MainGraph
-          hideBottomAxis={compact}
-          data={filteredStock}
-          width={dimensions.width}
-          margin={{ ...margin, bottom: topChartBottomMargin }}
-          yMax={yMax}
-          xScale={dateScale}
-          yScale={stockScale}
-          gradientColor={background2}
-        >
+        <Group left={margin.left} top={margin.top}>
+          <LinePath<AppleStock>
+            data={filteredStock}
+            x={(d) => dateScale(getDate(d)) || 0}
+            y={(d) => stockScale(getStockValue(d)) || 0}
+            stroke="#23DBBD"
+            strokeWidth={2}
+            curve={curveMonotoneX}
+          />
+          <AxisBottom
+            top={yMax}
+            scale={dateScale}
+            numTicks={dimensions.width > 520 ? 10 : 5}
+            stroke="#fff"
+            tickStroke="#fff"
+            tickLabelProps={{
+              textAnchor: "middle" as const,
+              fontFamily: "Arial",
+              fontSize: 10,
+              fill: "#fff",
+            }}
+          />
+          <AxisLeft
+            scale={stockScale}
+            numTicks={5}
+            stroke="#fff"
+            tickStroke="#fff"
+            tickLabelProps={{
+              dx: "-0.25em",
+              dy: "0.25em",
+              fontFamily: "Arial",
+              fontSize: 10,
+              textAnchor: "end" as const,
+              fill: "#fff",
+            }}
+          />
+
+          <Group>
+            {stock.map((d, i) => {
+              return (
+                <circle
+                  key={`${getDate(d).getTime()}-${getStockValue(d)}-${i}`}
+                  cx={dateScale(getDate(d))}
+                  cy={stockScale(getStockValue(d))}
+                  r={4}
+                  fill="#23DBBD"
+                  strokeWidth={2}
+                />
+              );
+            })}
+          </Group>
+
           <Group>
             <Bar
               width={xMax}
@@ -199,7 +238,10 @@ export const ExerciseGraph = () => {
                 const { x } = localPoint(event) || { x: 0 };
                 const x0 = dateScale.invert(x);
                 const index = bisectDate(stock, x0, 1);
-                const d0 = stock[index - 1];
+                const d0 = stock[index - 1] ?? {
+                  date: new Date().toString(),
+                  close: 0,
+                };
                 const d1 = stock[index];
                 let d = d0;
                 if (d1 && getDate(d1)) {
@@ -247,24 +289,27 @@ export const ExerciseGraph = () => {
               />
             </Group>
           ) : null}
-        </MainGraph>
-        <AreaChart
-          hideBottomAxis
-          hideLeftAxis
-          data={stock}
-          width={dimensions.width}
-          yMax={yBrushMax}
-          xScale={brushDateScale}
-          yScale={brushStockScale}
-          margin={brushMargin}
+        </Group>
+
+        <Group
+          left={margin.left}
           top={topChartHeight + topChartBottomMargin + margin.top}
-          gradientColor={background2}
         >
+          <AreaClosed<AppleStock>
+            data={stock}
+            x={(d) => brushDateScale(getDate(d)) || 0}
+            y={(d) => brushStockScale(getStockValue(d)) || 0}
+            yScale={brushStockScale}
+            strokeWidth={1}
+            fill="url(#gradient)"
+            curve={curveMonotoneX}
+          />
+
           <PatternLines
-            id={PATTERN_ID}
+            id={"lines"}
             height={8}
             width={8}
-            stroke={accentColor}
+            stroke={"#fff"}
             strokeWidth={1}
             orientation={["diagonal"]}
           />
@@ -281,11 +326,14 @@ export const ExerciseGraph = () => {
             initialBrushPosition={initialBrushPosition}
             onChange={onBrushChange}
             onClick={() => setFilteredStock(stock)}
-            selectedBoxStyle={selectedBrushStyle}
+            selectedBoxStyle={{
+              fill: "url(#lines)",
+              stroke: "white",
+            }}
             useWindowMoveEvents
             renderBrushHandle={(props) => <BrushHandle {...props} />}
           />
-        </AreaChart>
+        </Group>
       </svg>
 
       {tooltipData ? (
@@ -301,9 +349,10 @@ export const ExerciseGraph = () => {
   );
 };
 
-function BrushHandle({ x, height, isBrushActive }: BrushHandleRenderProps) {
+const BrushHandle = ({ x, height, isBrushActive }: BrushHandleRenderProps) => {
   const pathWidth = 8;
   const pathHeight = 15;
+
   if (!isBrushActive) {
     return null;
   }
@@ -317,170 +366,5 @@ function BrushHandle({ x, height, isBrushActive }: BrushHandleRenderProps) {
         style={{ cursor: "ew-resize" }}
       />
     </Group>
-  );
-}
-
-const axisColor = "#fff";
-const axisBottomTickLabelProps = {
-  textAnchor: "middle" as const,
-  fontFamily: "Arial",
-  fontSize: 10,
-  fill: axisColor,
-};
-const axisLeftTickLabelProps = {
-  dx: "-0.25em",
-  dy: "0.25em",
-  fontFamily: "Arial",
-  fontSize: 10,
-  textAnchor: "end" as const,
-  fill: axisColor,
-};
-
-const AreaChart = ({
-  data,
-  gradientColor,
-  width,
-  yMax,
-  margin,
-  xScale,
-  yScale,
-  hideBottomAxis = false,
-  hideLeftAxis = false,
-  top,
-  left,
-  children,
-}: {
-  data: AppleStock[];
-  gradientColor: string;
-  xScale: ScaleTime<number, number>;
-  yScale: ScaleLinear<number, number>;
-  width: number;
-  yMax: number;
-  margin: { top: number; right: number; bottom: number; left: number };
-  hideBottomAxis?: boolean;
-  hideLeftAxis?: boolean;
-  top?: number;
-  left?: number;
-  children?: React.ReactNode;
-}) => {
-  return (
-    <Group left={left || margin.left} top={top || margin.top}>
-      <LinearGradient
-        id="gradient"
-        from={gradientColor}
-        fromOpacity={1}
-        to={gradientColor}
-        toOpacity={0.2}
-      />
-      <AreaClosed<AppleStock>
-        data={data}
-        x={(d) => xScale(getDate(d)) || 0}
-        y={(d) => yScale(getStockValue(d)) || 0}
-        yScale={yScale}
-        strokeWidth={1}
-        stroke="url(#gradient)"
-        fill="url(#gradient)"
-        curve={curveMonotoneX}
-      />
-      {!hideBottomAxis && (
-        <AxisBottom
-          top={yMax}
-          scale={xScale}
-          numTicks={width > 520 ? 10 : 5}
-          stroke={axisColor}
-          tickStroke={axisColor}
-          tickLabelProps={axisBottomTickLabelProps}
-        />
-      )}
-      {!hideLeftAxis && (
-        <AxisLeft
-          scale={yScale}
-          numTicks={5}
-          stroke={axisColor}
-          tickStroke={axisColor}
-          tickLabelProps={axisLeftTickLabelProps}
-        />
-      )}
-      {children}
-    </Group>
-  );
-};
-
-const MainGraph = ({
-  data,
-  gradientColor,
-  width,
-  yMax,
-  margin,
-  xScale,
-  yScale,
-  hideBottomAxis = false,
-  hideLeftAxis = false,
-  top,
-  left,
-  children,
-}: {
-  data: AppleStock[];
-  gradientColor: string;
-  xScale: ScaleTime<number, number>;
-  yScale: ScaleLinear<number, number>;
-  width: number;
-  yMax: number;
-  margin: { top: number; right: number; bottom: number; left: number };
-  hideBottomAxis?: boolean;
-  hideLeftAxis?: boolean;
-  top?: number;
-  left?: number;
-  children?: React.ReactNode;
-}) => {
-  return (
-    <>
-      <Group left={left || margin.left} top={top || margin.top}>
-        <LinePath<AppleStock>
-          data={data}
-          x={(d) => xScale(getDate(d)) || 0}
-          y={(d) => yScale(getStockValue(d)) || 0}
-          stroke="#23DBBD"
-          strokeWidth={2}
-          curve={curveMonotoneX}
-        />
-        {!hideBottomAxis && (
-          <AxisBottom
-            top={yMax}
-            scale={xScale}
-            numTicks={width > 520 ? 10 : 5}
-            stroke={axisColor}
-            tickStroke={axisColor}
-            tickLabelProps={axisBottomTickLabelProps}
-          />
-        )}
-        {!hideLeftAxis && (
-          <AxisLeft
-            scale={yScale}
-            numTicks={5}
-            stroke={axisColor}
-            tickStroke={axisColor}
-            tickLabelProps={axisLeftTickLabelProps}
-          />
-        )}
-
-        <Group>
-          {stock.map((d, i) => {
-            return (
-              <circle
-                key={`${getDate(d).getTime()}-${getStockValue(d)}-${i}`}
-                cx={xScale(getDate(d))}
-                cy={yScale(getStockValue(d))}
-                r={4}
-                fill="#23DBBD"
-                strokeWidth={2}
-              />
-            );
-          })}
-        </Group>
-
-        {children}
-      </Group>
-    </>
   );
 };
