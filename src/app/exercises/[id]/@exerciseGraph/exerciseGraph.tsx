@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
   type TouchEvent,
   type MouseEvent,
+  useCallback,
 } from "react";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import type { AppleStock } from "@visx/mock-data/lib/mocks/appleStock";
@@ -15,13 +16,11 @@ import type { Bounds } from "@visx/brush/lib/types";
 import type BaseBrush from "@visx/brush/lib/BaseBrush";
 import { PatternLines } from "@visx/pattern";
 import { Group } from "@visx/group";
-import { max, extent } from "@visx/vendor/d3-array";
 import type { BrushHandleRenderProps } from "@visx/brush/lib/BrushHandle";
 import { AreaClosed, Bar, Line, LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
-import { bisector } from "d3-array";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 
 const stock: AppleStock[] = [
@@ -37,11 +36,9 @@ const chartSeparation = 30;
 // accessors
 const getDate = (d: AppleStock) => new Date(d.date);
 const getStockValue = (d: AppleStock) => d.close;
-const bisectDate = bisector<AppleStock, Date>(getDate).left;
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
-const compact = false;
 const margin = {
   top: 20,
   left: 50,
@@ -79,9 +76,7 @@ export const ExerciseGraph = () => {
   } = useTooltip<AppleStock>();
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
-  const topChartBottomMargin = compact
-    ? chartSeparation / 2
-    : chartSeparation + 10;
+  const topChartBottomMargin = chartSeparation + 10;
   const topChartHeight = 0.8 * innerHeight - topChartBottomMargin;
   const bottomChartHeight = innerHeight - topChartHeight - chartSeparation;
 
@@ -117,7 +112,10 @@ export const ExerciseGraph = () => {
     () =>
       scaleTime<number>({
         range: [0, xMax],
-        domain: extent(filteredStock, getDate) as [Date, Date],
+        domain: [
+          Math.min(...filteredStock.map((p) => getDate(p).getTime())),
+          Math.max(...filteredStock.map((p) => getDate(p).getTime())),
+        ],
       }),
     [xMax, filteredStock]
   );
@@ -126,7 +124,7 @@ export const ExerciseGraph = () => {
     () =>
       scaleLinear<number>({
         range: [yMax, 0],
-        domain: [0, max(filteredStock, getStockValue) || 0],
+        domain: [0, Math.max(...filteredStock.map(getStockValue))],
         nice: true,
       }),
     [yMax, filteredStock]
@@ -136,7 +134,10 @@ export const ExerciseGraph = () => {
     () =>
       scaleTime<number>({
         range: [0, xBrushMax],
-        domain: extent(stock, getDate) as [Date, Date],
+        domain: [
+          Math.min(...stock.map((p) => getDate(p).getTime())),
+          Math.max(...stock.map((p) => getDate(p).getTime())),
+        ],
       }),
     [xBrushMax]
   );
@@ -145,7 +146,7 @@ export const ExerciseGraph = () => {
     () =>
       scaleLinear({
         range: [yBrushMax, 0],
-        domain: [0, max(stock, getStockValue) || 0],
+        domain: [0, Math.max(...stock.map(getStockValue))],
         nice: true,
       }),
     [yBrushMax]
@@ -165,6 +166,34 @@ export const ExerciseGraph = () => {
       },
     }),
     [brushDateScale]
+  );
+
+  const handleTooltip = useCallback(
+    (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
+      const { x } = localPoint(event) || { x: 0 };
+      const x0 = dateScale.invert(x);
+      console.log(x0.getTime());
+      const index = stock.findIndex((d) => getDate(d).getTime() > x0.getTime());
+      const d0 = stock[index - 1] ?? {
+        date: new Date().toString(),
+        close: 0,
+      };
+      const d1 = stock[index];
+      let d = d0;
+      if (d1 && getDate(d1)) {
+        d =
+          x0.valueOf() - getDate(d0).valueOf() >
+          getDate(d1).valueOf() - x0.valueOf()
+            ? d1
+            : d0;
+      }
+      showTooltip({
+        tooltipData: d,
+        tooltipLeft: dateScale(getDate(d)),
+        tooltipTop: stockScale(getStockValue(d)),
+      });
+    },
+    [dateScale, showTooltip, stockScale]
   );
 
   return (
@@ -232,31 +261,9 @@ export const ExerciseGraph = () => {
               width={xMax}
               height={yMax}
               fill="transparent"
-              onMouseMove={(
-                event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>
-              ) => {
-                const { x } = localPoint(event) || { x: 0 };
-                const x0 = dateScale.invert(x);
-                const index = bisectDate(stock, x0, 1);
-                const d0 = stock[index - 1] ?? {
-                  date: new Date().toString(),
-                  close: 0,
-                };
-                const d1 = stock[index];
-                let d = d0;
-                if (d1 && getDate(d1)) {
-                  d =
-                    x0.valueOf() - getDate(d0).valueOf() >
-                    getDate(d1).valueOf() - x0.valueOf()
-                      ? d1
-                      : d0;
-                }
-                showTooltip({
-                  tooltipData: d,
-                  tooltipLeft: dateScale(getDate(d)),
-                  tooltipTop: stockScale(getStockValue(d)),
-                });
-              }}
+              onMouseMove={handleTooltip}
+              onTouchStart={handleTooltip}
+              onTouchMove={handleTooltip}
               onMouseLeave={() => hideTooltip()}
             />
           </Group>
