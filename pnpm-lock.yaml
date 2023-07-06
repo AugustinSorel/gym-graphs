@@ -28,6 +28,12 @@ dependencies:
   '@tanstack/react-table':
     specifier: ^8.9.3
     version: 8.9.3(react-dom@18.2.0)(react@18.2.0)
+  '@visx/axis':
+    specifier: ^3.2.0
+    version: 3.2.0(react@18.2.0)
+  '@visx/brush':
+    specifier: ^3.2.0
+    version: 3.2.0(react@18.2.0)
   '@visx/curve':
     specifier: ^3.0.0
     version: 3.0.0
@@ -46,6 +52,9 @@ dependencies:
   '@visx/mock-data':
     specifier: ^3.0.0
     version: 3.0.0
+  '@visx/pattern':
+    specifier: ^3.0.0
+    version: 3.0.0(react@18.2.0)
   '@visx/scale':
     specifier: ^3.2.0
     version: 3.2.0
@@ -55,6 +64,9 @@ dependencies:
   '@visx/tooltip':
     specifier: ^3.1.2
     version: 3.1.2(react-dom@18.2.0)(react@18.2.0)
+  '@visx/vendor':
+    specifier: ^3.2.0
+    version: 3.2.0
   class-variance-authority:
     specifier: ^0.6.1
     version: 0.6.1
@@ -1358,6 +1370,22 @@ packages:
       eslint-visitor-keys: 3.4.1
     dev: true
 
+  /@visx/axis@3.2.0(react@18.2.0):
+    resolution: {integrity: sha512-EqRsJshvXDB2R2o9U8BHiWNLz+HtHsVcPF0PKNO6BN20okV5KogOl1KPb0wUB0xD4vbAzc94fIm+MBaijpEWQg==}
+    peerDependencies:
+      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.6
+      '@visx/group': 3.0.0(react@18.2.0)
+      '@visx/point': 3.0.1
+      '@visx/scale': 3.2.0
+      '@visx/shape': 3.2.0(react@18.2.0)
+      '@visx/text': 3.0.0(react@18.2.0)
+      classnames: 2.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/bounds@3.0.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-YQaSSER9erxlhppzRms6cvYdKqcIwk6eksrGdbJkBoHobhPo1JCIUXlmrA4qgrEnXInPJpueGE+PE5F+Dk12DA==}
     peerDependencies:
@@ -1371,11 +1399,38 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@visx/brush@3.2.0(react@18.2.0):
+    resolution: {integrity: sha512-DkwZo1dv+861LzsD1BhAOzD1vHIBYwDeghB9qKU4V5zNcwWcO+4wwX0iWlSQE3b40+LSN3tpUDUgpUkb0Z4O9g==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@visx/drag': 3.0.1(react@18.2.0)
+      '@visx/event': 3.0.1
+      '@visx/group': 3.0.0(react@18.2.0)
+      '@visx/scale': 3.2.0
+      '@visx/shape': 3.2.0(react@18.2.0)
+      classnames: 2.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/curve@3.0.0:
     resolution: {integrity: sha512-kvHJDLBeczTQ87ZExSTfRxej06l6o6UiQ0NHf9+xpAin06y6Qk1ThOHHWJTGM6KGzwlu7jEauJGHwZs6nMhDvA==}
     dependencies:
       '@types/d3-shape': 1.3.8
       d3-shape: 1.3.7
+    dev: false
+
+  /@visx/drag@3.0.1(react@18.2.0):
+    resolution: {integrity: sha512-yi2AB/unUfNYBRKS4pmUOuz8MjaAAYjsQGYcD/s4LqeQjd+lBZF7CuNcYZ/maGNQAEUfgLr2czIzADanOMtMaw==}
+    peerDependencies:
+      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.6
+      '@visx/event': 3.0.1
+      '@visx/point': 3.0.1
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /@visx/event@3.0.1:
@@ -1429,6 +1484,17 @@ packages:
       d3-random: 2.2.2
     dev: false
 
+  /@visx/pattern@3.0.0(react@18.2.0):
+    resolution: {integrity: sha512-ItvyKkvwFoPrJ+Iz09qwjPsvViGdJdElUpofIor60OhsBIT4/pN0MNRKwpTE/e64Womr0UDaZC85BvB4zxSB2A==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.6
+      classnames: 2.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/point@3.0.1:
     resolution: {integrity: sha512-S5WOBMgEP2xHcgs3A2BFB2vwzrk0tMmn3PGZAbQJ+lu4HlnalDP72klUnxLTH8xclNNvpUHtHM5eLIJXyHx6Pw==}
     dev: false
@@ -1457,6 +1523,20 @@ packages:
       lodash: 4.17.21
       prop-types: 15.8.1
       react: 18.2.0
+    dev: false
+
+  /@visx/text@3.0.0(react@18.2.0):
+    resolution: {integrity: sha512-LW6v5T/gpd9RGw83/ScXncYc6IlcfzXTpaN8WbbxLRI65gdvSqrykwAMR0cbpQmzoVFuZXljqOf0QslHGnBg1w==}
+    peerDependencies:
+      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/lodash': 4.14.195
+      '@types/react': 18.2.6
+      classnames: 2.3.2
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      reduce-css-calc: 1.3.0
     dev: false
 
   /@visx/tooltip@3.1.2(react-dom@18.2.0)(react@18.2.0):
@@ -1647,6 +1727,10 @@ packages:
     dependencies:
       dequal: 2.0.3
     dev: true
+
+  /balanced-match@0.4.2:
+    resolution: {integrity: sha512-STw03mQKnGUYtoNjmowo4F2cRmIIxYEGiMsjjwla/u5P1lxadj/05WkNaFjNiKTgJkj8KiXbgAiRTmcQRwQNtg==}
+    dev: false
 
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -3425,6 +3509,10 @@ packages:
       react: 18.2.0
     dev: false
 
+  /math-expression-evaluator@1.4.0:
+    resolution: {integrity: sha512-4vRUvPyxdO8cWULGTh9dZWL2tZK6LDBvj+OGHBER7poH9Qdt7kXEoj20wiz4lQUbUXQZFjPbe5mVDo9nutizCw==}
+    dev: false
+
   /memoizee@0.4.15:
     resolution: {integrity: sha512-UBWmJpLZd5STPm7PMUlOw/TSy972M+z8gcyQ5veOnSDRREz/0bmpyTfKt3/51DhEBqCZQn1udM/5flcSPYhkdQ==}
     dependencies:
@@ -4085,6 +4173,20 @@ packages:
     engines: {node: '>=8.10.0'}
     dependencies:
       picomatch: 2.3.1
+
+  /reduce-css-calc@1.3.0:
+    resolution: {integrity: sha512-0dVfwYVOlf/LBA2ec4OwQ6p3X9mYxn/wOl2xTcLwjnPYrkgEfPx3VI4eGCH3rQLlPISG5v9I9bkZosKsNRTRKA==}
+    dependencies:
+      balanced-match: 0.4.2
+      math-expression-evaluator: 1.4.0
+      reduce-function-call: 1.0.3
+    dev: false
+
+  /reduce-function-call@1.0.3:
+    resolution: {integrity: sha512-Hl/tuV2VDgWgCSEeWMLwxLZqX7OK59eU1guxXsRKTAyeYimivsKdtcV4fu3r710tpG5GmDKDhQ0HSZLExnNmyQ==}
+    dependencies:
+      balanced-match: 1.0.2
+    dev: false
 
   /regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}

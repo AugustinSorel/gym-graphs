@@ -7,7 +7,7 @@ const Page = () => {
         <h2 className="truncate font-medium capitalize">bench press</h2>
       </header>
 
-      <div className="h-[500px]">
+      <div className="relative h-[500px]">
         <ExerciseGraph />
       </div>
     </div>
