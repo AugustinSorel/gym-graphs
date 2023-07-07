@@ -13,25 +13,24 @@ import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
 import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
 import { CardGraph } from "./CardGraph";
+import type { Exercise } from "@/fakeData";
 
-const ExerciseCard = () => {
-  const exerciseName = "bench press";
-
+const ExerciseCard = ({ exercise }: { exercise: Exercise }) => {
   return (
     <li className="group relative flex h-exercise-card flex-col overflow-hidden rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
       <Link
         href="/exercises/bench-press"
         className="absolute inset-0 duration-300"
-        aria-label={`go to exercise ${exerciseName}`}
+        aria-label={`go to exercise ${exercise.name}`}
       />
 
       <header className="z-10 flex items-center justify-between gap-2 border-b border-border bg-primary p-2">
-        <p className="truncate capitalize">{exerciseName}</p>
+        <p className="truncate capitalize">{exercise.name}</p>
 
         <CardDropDown />
       </header>
 
-      <CardGraph />
+      <CardGraph data={exercise.data} />
     </li>
   );
 };
