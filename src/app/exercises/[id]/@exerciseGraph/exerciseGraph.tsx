@@ -33,21 +33,15 @@ const data: Data[] = [
   { date: "2000/01/10", close: 250.5 },
 ];
 
-const brushMargin = { top: 10, bottom: 0, left: 40, right: 20 };
-const chartSeparation = 30;
-
 // accessors
 const getDate = (d: Data) => new Date(d.date);
 const getData = (d: Data) => d.close;
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
-const margin = {
-  top: 20,
-  left: 40,
-  bottom: 20,
-  right: 20,
-};
+const margin = { top: 20, left: 40, bottom: 20, right: 20 };
+const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
+const chartSeparation = 30;
 
 export const ExerciseGraph = () => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -315,7 +309,7 @@ export const ExerciseGraph = () => {
         </Group>
 
         <Group
-          left={margin.left}
+          left={brushMargin.left}
           top={topChartHeight + topChartBottomMargin + margin.top}
         >
           <AreaClosed<Data>
