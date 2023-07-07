@@ -13,7 +13,7 @@ const Layout = (props: Props) => {
     <main className="relative min-h-[calc(100vh-var(--header-height))]">
       <div className="space-y-5 p-5">{props.newExerciseDataForm}</div>
 
-      <div className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-5 pb-5 pt-0 sm:p-5">
+      <div className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-5 pb-5 pt-0 sm:px-5">
         {props.exerciseGraph}
         {props.exerciseTable}
       </div>

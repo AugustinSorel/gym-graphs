@@ -33,7 +33,7 @@ const data: Data[] = [
   { date: "2000/01/10", close: 250.5 },
 ];
 
-const brushMargin = { top: 10, bottom: 15, left: 50, right: 20 };
+const brushMargin = { top: 10, bottom: 0, left: 40, right: 20 };
 const chartSeparation = 30;
 
 // accessors
@@ -44,7 +44,7 @@ const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
 const margin = {
   top: 20,
-  left: 50,
+  left: 40,
   bottom: 20,
   right: 20,
 };
@@ -163,7 +163,9 @@ export const ExerciseGraph = () => {
     () => ({
       start: {
         x: brushDateScale(
-          getDate(filteredData.at(0) ?? { date: new Date().toString(), close: 0 })
+          getDate(
+            filteredData.at(0) ?? { date: new Date().toString(), close: 0 }
+          )
         ),
       },
       end: {
