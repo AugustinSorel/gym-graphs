@@ -182,10 +182,11 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
       const { x } = localPoint(event) || { x: 0 };
       const x0 = dateScale.invert(x);
       const index = data.findIndex((d) => getDate(d).getTime() > x0.getTime());
-      const d0 = data[index - 1] ?? {
-        date: new Date().toString(),
-        oneRepMax: 0,
-      };
+      const d0 = data[index - 1] ??
+        data.at(-1) ?? {
+          date: new Date().toString(),
+          oneRepMax: -1,
+        };
       const d1 = data[index];
       let d = d0;
       if (d1 && getDate(d1)) {

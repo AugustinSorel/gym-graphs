@@ -8,7 +8,7 @@ const Page = ({ exercise }: { exercise: Exercise }) => {
         <h2 className="truncate font-medium capitalize">{exercise.name}</h2>
       </header>
 
-      <div className="relative h-[500px]">
+      <div className="relative h-[500px] overflow-hidden">
         <ExerciseGraph data={exercise.data} />
       </div>
     </div>

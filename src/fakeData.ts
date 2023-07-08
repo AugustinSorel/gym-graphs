@@ -81,14 +81,14 @@ const exercises: Exercise[] = [
       },
       {
         id: "2c2058-0dea-4940-a99a-ae6103ba512a-3a",
-        date: "2023-07-20",
+        date: "2023-07-05",
         weight: 140,
         numberOfReps: 6,
         oneRepMax: 175,
       },
       {
         id: "5b8e2c4e5c-d4c1a5f0-8f6f-4c7a-8e9b-5a",
-        date: "2023-07-21",
+        date: "2023-07-10",
         weight: 130,
         numberOfReps: 8,
         oneRepMax: 160,
