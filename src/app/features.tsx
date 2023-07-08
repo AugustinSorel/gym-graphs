@@ -123,7 +123,7 @@ const CardTitle = ({ children }: PropsWithChildren) => {
 
 const Card = ({ children }: PropsWithChildren) => {
   return (
-    <li className="relative z-[2] overflow-hidden rounded-md bg-foreground/25 before:absolute before:left-0 before:top-0 before:z-[3] before:h-full before:w-full before:opacity-0 before:transition-opacity before:duration-500 before:[background:radial-gradient(800px_circle_at_var(--mouse-x)_var(--mouse-y),_hsl(var(--border)),_transparent_40%)] after:absolute after:left-0 after:top-0 after:-z-[1] after:h-full after:w-full after:opacity-0 after:transition-opacity after:duration-500 after:[background:radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),_hsl(var(--foreground)/0.3),_transparent_40%)] hover:before:opacity-100 group-hover:after:opacity-100">
+    <li className="relative z-[2] overflow-hidden rounded-md bg-foreground/25 before:absolute before:left-0 before:top-0 before:z-[3] before:h-full before:w-full before:opacity-0 before:transition-opacity before:duration-500 before:[background:radial-gradient(800px_circle_at_var(--mouse-x)_var(--mouse-y),_hsl(var(--border)),_transparent_40%)] after:absolute after:left-0 after:top-0 after:-z-[1] after:h-full after:w-full after:opacity-0 after:transition-opacity after:duration-500 after:[background:radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),_hsl(var(--foreground)/0.5),_transparent_40%)] hover:before:opacity-100 group-hover:after:opacity-100">
       <div className=" m-px flex h-[calc(100%-2px)] w-[calc(100%-2px)] flex-col items-center gap-2.5 rounded-md bg-background p-10">
         {children}
       </div>

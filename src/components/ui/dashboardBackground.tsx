@@ -34,7 +34,7 @@ export const DashboardBackground = () => {
         cy="0"
         rx="60%"
         ry="60%"
-        className="fill-brand-color-one opacity-50 blur-[200px] dark:opacity-20"
+        className="fill-brand-color-one opacity-20 blur-[200px]"
       />
 
       <ellipse
@@ -42,7 +42,7 @@ export const DashboardBackground = () => {
         cy="100%"
         rx="60%"
         ry="60%"
-        className="fill-brand-color-two opacity-50 blur-[200px] dark:opacity-20"
+        className="fill-brand-color-two opacity-20 blur-[200px]"
       />
     </svg>
   );

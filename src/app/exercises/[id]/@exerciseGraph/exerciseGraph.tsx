@@ -231,7 +231,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             y={(d) => stockScale(getOneRepMax(d)) || 0}
             yScale={stockScale}
             strokeWidth={1}
-            className="fill-brand-color-two/10"
+            className="fill-brand-color-two/20"
             curve={curveMonotoneX}
           />
 

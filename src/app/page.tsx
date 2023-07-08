@@ -105,7 +105,11 @@ const GradientText = ({ children }: PropsWithChildren) => {
 };
 
 const StrongText = ({ children }: PropsWithChildren) => {
-  return <strong className="font-normal text-accent">{children}</strong>;
+  return (
+    <strong className="font-semibold text-brand-color-two">
+      {children}
+    </strong>
+  );
 };
 
 const GetStartedAction = () => {
