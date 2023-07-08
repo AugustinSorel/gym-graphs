@@ -222,6 +222,17 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             strokeWidth={2}
             curve={curveMonotoneX}
           />
+
+          <AreaClosed<GraphPoint>
+            data={filteredData}
+            x={(d) => dateScale(getDate(d)) || 0}
+            y={(d) => stockScale(getOneRepMax(d)) || 0}
+            yScale={stockScale}
+            strokeWidth={1}
+            className="fill-brand-color-two/10"
+            curve={curveMonotoneX}
+          />
+
           <AxisBottom
             top={yMax}
             scale={dateScale}
@@ -230,6 +241,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             stroke="gray"
             tickLabelProps={{ textAnchor: "middle" as const, fill: "gray" }}
           />
+
           <AxisLeft
             scale={stockScale}
             numTicks={5}
@@ -318,7 +330,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             y={(d) => brushStockScale(getOneRepMax(d)) || 0}
             yScale={brushStockScale}
             strokeWidth={1}
-            className="fill-brand-color-two/50"
+            className="fill-brand-color-two/20 stroke-brand-color-two"
             curve={curveMonotoneX}
           />
 
