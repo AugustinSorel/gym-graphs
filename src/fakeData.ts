@@ -214,32 +214,19 @@ const exercises: Exercise[] = [
   },
 ];
 
-export const getExercises = async () => {
-  return new Promise<Exercise[]>((resolve) => {
-    setTimeout(() => {
-      resolve(exercises);
-    }, 2_000);
-  });
+export const getExercises = () => {
+  return exercises;
 };
 
-export const getExercise = async (id: string) => {
-  return new Promise<Exercise | undefined>((resolve) => {
-    setTimeout(() => {
-      resolve(exercises.find((e) => e.id === id));
-    }, 2_000);
-  });
+export const getExercise = (id: string) => {
+  return exercises.find((e) => e.id === id);
 };
 
-export const addNewExercise = async (exercise: Pick<Exercise, "name">) => {
-  return new Promise<Exercise>((resolve) => {
-    setTimeout(() => {
-      const newExercise = {
-        ...exercise,
-        id: Math.random().toString(),
-        data: [],
-      };
-      exercises.push(newExercise);
-      resolve(newExercise);
-    }, 2_000);
-  });
+export const addNewExercise = (exercise: Pick<Exercise, "name">) => {
+  const newExercise = {
+    ...exercise,
+    id: Math.random().toString(),
+    data: [],
+  };
+  exercises.push(newExercise);
 };
