@@ -316,21 +316,9 @@ const DashboardLink = () => {
 
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link
-            href={"/exercises/1"}
-            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
-          >
-            {children}
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">{children}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <p className="max-w-sm truncate text-xl font-medium capitalize">
+      {children}
+    </p>
   );
 };
 

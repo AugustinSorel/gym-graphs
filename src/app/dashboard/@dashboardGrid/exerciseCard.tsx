@@ -12,19 +12,19 @@ import {
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
 import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
-import { CardGraph } from "./CardGraph";
+import { CardGraph } from "./cardGraph";
 import type { Exercise } from "@/fakeData";
 
 const ExerciseCard = ({ exercise }: { exercise: Exercise }) => {
   return (
-    <li className="group relative flex h-exercise-card flex-col overflow-hidden rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
+    <li className="group relative flex h-exercise-card flex-col  rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
       <Link
         href={`/exercises/${exercise.name}`}
         className="absolute inset-0 duration-300"
         aria-label={`go to exercise ${exercise.name}`}
       />
 
-      <header className="z-10 flex items-center justify-between gap-2 border-b border-border bg-primary p-2">
+      <header className="flex items-center justify-between gap-2 border-b border-border bg-primary p-2">
         <p className="truncate capitalize">{exercise.name}</p>
 
         <CardDropDown />
@@ -42,7 +42,7 @@ const CardDropDown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="h-8 p-1 opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100"
+          className="z-10 h-8 p-1 opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100"
           size="icon"
           variant="ghost"
           aria-label="view more about the exercise bench press"

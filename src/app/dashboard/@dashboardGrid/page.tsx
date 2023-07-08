@@ -1,6 +1,6 @@
 import { getExercises } from "@/fakeData";
-import { DashboardGrid } from "./grid";
-import ExerciseCard from "./card";
+import { DashboardGrid } from "./exercisesGrid";
+import ExerciseCard from "./exerciseCard";
 
 export default function Page() {
   const exercises = getExercises();

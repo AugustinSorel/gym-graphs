@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { DashboardGrid } from "./grid";
+import { DashboardGrid } from "./exercisesGrid";
 
 const Loader = () => {
   return (
