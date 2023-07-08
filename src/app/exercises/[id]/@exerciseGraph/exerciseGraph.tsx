@@ -20,22 +20,13 @@ import { curveMonotoneX } from "@visx/curve";
 import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
+import type { ExerciseData } from "@/fakeData";
 
-type Data = {
-  date: string;
-  close: number;
-};
-
-const data: Data[] = [
-  { date: "2000/01/01", close: 117.5 },
-  { date: "2000/01/02", close: 200 },
-  { date: "2000/01/03", close: 150 },
-  { date: "2000/01/10", close: 250.5 },
-];
+type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
 // accessors
-const getDate = (d: Data) => new Date(d.date);
-const getData = (d: Data) => d.close;
+const getDate = (d: GraphPoint) => new Date(d.date);
+const getOneRepMax = (d: GraphPoint) => d.oneRepMax;
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
@@ -43,7 +34,7 @@ const margin = { top: 20, left: 40, bottom: 20, right: 20 };
 const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
 const chartSeparation = 30;
 
-export const ExerciseGraph = () => {
+export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({
     width: DEFAULT_WIDTH,
@@ -51,7 +42,16 @@ export const ExerciseGraph = () => {
   });
 
   const brushRef = useRef<BaseBrush | null>(null);
-  const [filteredData, setFilteredData] = useState(data.slice(0, 3));
+  const [filteredData, setFilteredData] = useState(
+    data.filter((d) => {
+      const dataDate = new Date(d.date);
+      const currentDate = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      return dataDate >= thirtyDaysAgo && dataDate <= currentDate;
+    })
+  );
 
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) {
@@ -61,7 +61,7 @@ export const ExerciseGraph = () => {
     const { x0, x1, y0, y1 } = domain;
     const stockCopy = data.filter((s) => {
       const x = getDate(s).getTime();
-      const y = getData(s);
+      const y = getOneRepMax(s);
       return x > x0 && x < x1 && y > y0 && y < y1;
     });
 
@@ -74,7 +74,7 @@ export const ExerciseGraph = () => {
     tooltipData,
     tooltipLeft = 0,
     tooltipTop = 0,
-  } = useTooltip<Data>();
+  } = useTooltip<GraphPoint>();
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
   const topChartBottomMargin = chartSeparation + 10;
@@ -125,7 +125,7 @@ export const ExerciseGraph = () => {
     () =>
       scaleLinear<number>({
         range: [yMax, 0],
-        domain: [0, Math.max(...filteredData.map(getData))],
+        domain: [0, Math.max(...filteredData.map(getOneRepMax))],
         nice: true,
       }),
     [yMax, filteredData]
@@ -140,17 +140,17 @@ export const ExerciseGraph = () => {
           Math.max(...data.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xBrushMax]
+    [xBrushMax, data]
   );
 
   const brushStockScale = useMemo(
     () =>
       scaleLinear({
         range: [yBrushMax, 0],
-        domain: [0, Math.max(...data.map(getData))],
+        domain: [0, Math.max(...data.map(getOneRepMax))],
         nice: true,
       }),
-    [yBrushMax]
+    [yBrushMax, data]
   );
 
   const initialBrushPosition = useMemo(
@@ -158,14 +158,14 @@ export const ExerciseGraph = () => {
       start: {
         x: brushDateScale(
           getDate(
-            filteredData.at(0) ?? { date: new Date().toString(), close: 0 }
+            filteredData.at(0) ?? { date: new Date().toString(), oneRepMax: 0 }
           )
         ),
       },
       end: {
         x: brushDateScale(
           getDate(
-            filteredData.at(-1) ?? { date: new Date().toString(), close: 0 }
+            filteredData.at(-1) ?? { date: new Date().toString(), oneRepMax: 0 }
           )
         ),
       },
@@ -184,7 +184,7 @@ export const ExerciseGraph = () => {
       const index = data.findIndex((d) => getDate(d).getTime() > x0.getTime());
       const d0 = data[index - 1] ?? {
         date: new Date().toString(),
-        close: 0,
+        oneRepMax: 0,
       };
       const d1 = data[index];
       let d = d0;
@@ -198,10 +198,10 @@ export const ExerciseGraph = () => {
       showTooltip({
         tooltipData: d,
         tooltipLeft: dateScale(getDate(d)),
-        tooltipTop: stockScale(getData(d)),
+        tooltipTop: stockScale(getOneRepMax(d)),
       });
     },
-    [dateScale, showTooltip, stockScale, filteredData.length]
+    [dateScale, showTooltip, stockScale, filteredData.length, data]
   );
 
   return (
@@ -214,10 +214,10 @@ export const ExerciseGraph = () => {
         className="select-none"
       >
         <Group left={margin.left} top={margin.top}>
-          <LinePath<Data>
+          <LinePath<GraphPoint>
             data={filteredData}
             x={(d) => dateScale(getDate(d)) || 0}
-            y={(d) => stockScale(getData(d)) || 0}
+            y={(d) => stockScale(getOneRepMax(d)) || 0}
             className="stroke-brand-color-two"
             strokeWidth={2}
             curve={curveMonotoneX}
@@ -249,9 +249,9 @@ export const ExerciseGraph = () => {
             {filteredData.map((d, i) => {
               return (
                 <circle
-                  key={`${getDate(d).getTime()}-${getData(d)}-${i}`}
+                  key={`${getDate(d).getTime()}-${getOneRepMax(d)}-${i}`}
                   cx={dateScale(getDate(d))}
-                  cy={stockScale(getData(d))}
+                  cy={stockScale(getOneRepMax(d))}
                   r={4}
                   className="fill-brand-color-two"
                   strokeWidth={2}
@@ -312,10 +312,10 @@ export const ExerciseGraph = () => {
           left={brushMargin.left}
           top={topChartHeight + topChartBottomMargin + margin.top}
         >
-          <AreaClosed<Data>
+          <AreaClosed<GraphPoint>
             data={data}
             x={(d) => brushDateScale(getDate(d)) || 0}
-            y={(d) => brushStockScale(getData(d)) || 0}
+            y={(d) => brushStockScale(getOneRepMax(d)) || 0}
             yScale={brushStockScale}
             strokeWidth={1}
             className="fill-brand-color-two/50"
@@ -371,7 +371,7 @@ export const ExerciseGraph = () => {
             </strong>
           </p>
           <p>
-            One Rep Max: <strong>{getData(tooltipData)}</strong>
+            One Rep Max: <strong>{getOneRepMax(tooltipData)}</strong>
           </p>
         </TooltipWithBounds>
       ) : null}

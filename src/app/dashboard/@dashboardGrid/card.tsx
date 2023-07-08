@@ -19,7 +19,7 @@ const ExerciseCard = ({ exercise }: { exercise: Exercise }) => {
   return (
     <li className="group relative flex h-exercise-card flex-col overflow-hidden rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
       <Link
-        href="/exercises/bench-press"
+        href={`/exercises/${exercise.name}`}
         className="absolute inset-0 duration-300"
         aria-label={`go to exercise ${exercise.name}`}
       />

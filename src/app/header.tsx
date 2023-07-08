@@ -355,7 +355,9 @@ export const Header = () => {
         {showExecisesPath && (
           <>
             <Separator />
-            <CurrentExeciseLink>{pathname[2]}</CurrentExeciseLink>
+            <CurrentExeciseLink>
+              {pathname[2]?.replace(/%20/g, " ")}
+            </CurrentExeciseLink>
           </>
         )}
       </nav>

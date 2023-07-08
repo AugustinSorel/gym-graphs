@@ -23,14 +23,7 @@ import {
 import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/store/weightUnit";
-
-//FIXME: infer type from drizzle
-export type ExerciseData = {
-  estimatedPR: number;
-  numberOfReps: number;
-  weightLifted: number;
-  date: Date;
-};
+import type { ExerciseData } from "@/fakeData";
 
 const EstimatedPrHeader = ({
   column,
@@ -90,7 +83,7 @@ const WeightLiftedHeader = ({
 
 export const columns: ColumnDef<ExerciseData>[] = [
   {
-    accessorKey: "estimatedPR",
+    accessorKey: "oneRepMax",
     header: EstimatedPrHeader,
   },
   {
@@ -121,7 +114,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
     },
   },
   {
-    accessorKey: "weightLifted",
+    accessorKey: "weight",
     header: WeightLiftedHeader,
   },
   {

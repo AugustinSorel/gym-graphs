@@ -177,14 +177,14 @@ const exercises: Exercise[] = [
     data: [
       {
         id: "f4a39b9d-61c3-4f94-862a-79b968f3c73a",
-        date: "2023-06-27",
+        date: "2023-02-27",
         weight: 20,
         numberOfReps: 8,
         oneRepMax: 25,
       },
       {
         id: "83179c5b-4d13-44e4-9e19-35a06ff8e70b",
-        date: "2023-06-28",
+        date: "2023-02-28",
         weight: 15,
         numberOfReps: 10,
         oneRepMax: 20,
@@ -218,8 +218,8 @@ export const getExercises = () => {
   return exercises;
 };
 
-export const getExercise = (id: string) => {
-  return exercises.find((e) => e.id === id);
+export const getExercise = (name: string) => {
+  return exercises.find((e) => e.name === name);
 };
 
 export const addNewExercise = (exercise: Pick<Exercise, "name">) => {
