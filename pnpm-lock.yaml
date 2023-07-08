@@ -40,6 +40,9 @@ dependencies:
   '@visx/event':
     specifier: ^3.0.1
     version: 3.0.1
+  '@visx/grid':
+    specifier: ^3.2.0
+    version: 3.2.0(react@18.2.0)
   '@visx/group':
     specifier: ^3.0.0
     version: 3.0.0(react@18.2.0)
@@ -1402,6 +1405,22 @@ packages:
     dependencies:
       '@types/react': 18.2.6
       '@visx/point': 3.0.1
+    dev: false
+
+  /@visx/grid@3.2.0(react@18.2.0):
+    resolution: {integrity: sha512-f9EkYOB/acGVh4DwIzVZ39+uChvWiPRwO029L8Dlc6uTvG00sgnKttfZdDP2iYnGrAqyFTHsPLsuTQs4hKP9jA==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.6
+      '@visx/curve': 3.0.0
+      '@visx/group': 3.0.0(react@18.2.0)
+      '@visx/point': 3.0.1
+      '@visx/scale': 3.2.0
+      '@visx/shape': 3.2.0(react@18.2.0)
+      classnames: 2.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /@visx/group@3.0.0(react@18.2.0):

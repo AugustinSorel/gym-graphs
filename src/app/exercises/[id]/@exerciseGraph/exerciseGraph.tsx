@@ -21,6 +21,7 @@ import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import type { ExerciseData } from "@/fakeData";
+import { GridRows, GridColumns } from "@visx/grid";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
@@ -241,6 +242,15 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             tickStroke="gray"
             stroke="gray"
             tickLabelProps={{ textAnchor: "middle" as const, fill: "gray" }}
+          />
+
+          <GridRows
+            scale={stockScale}
+            width={xMax}
+            height={yMax}
+            stroke="gray"
+            numTicks={5}
+            opacity={0.2}
           />
 
           <AxisLeft
