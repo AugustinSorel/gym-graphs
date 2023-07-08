@@ -21,7 +21,7 @@ import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import type { ExerciseData } from "@/fakeData";
-import { GridRows, GridColumns } from "@visx/grid";
+import { GridRows } from "@visx/grid";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
