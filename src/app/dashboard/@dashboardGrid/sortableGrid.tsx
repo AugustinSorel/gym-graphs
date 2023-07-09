@@ -11,7 +11,7 @@ import {
   MouseSensor,
   DragOverlay,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
@@ -54,7 +54,7 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id);
+    setActiveId(event.active.id.toString());
   }, []);
 
   const handleDragCancel = useCallback(() => {
@@ -85,7 +85,14 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
       <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
         {activeId ? (
           <ExerciseCard
-            exercise={items.find((e) => e.id === activeId)}
+            exercise={
+              items.find((e) => e.id === activeId) ?? {
+                gridIndex: 0,
+                id: "",
+                data: [],
+                name: "",
+              }
+            }
             dragComponent={<DragComponent id={activeId} />}
           />
         ) : null}

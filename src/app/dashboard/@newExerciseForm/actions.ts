@@ -12,5 +12,5 @@ export const addNewExerciseAction = async (
     }, 1000);
   });
 
-  addNewExercise({ name: newExercise.name });
+  addNewExercise({ name: newExercise.name, gridIndex: 0 });
 };
