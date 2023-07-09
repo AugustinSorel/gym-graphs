@@ -174,9 +174,9 @@ const FeatuesGrid = () => {
 
         <svg className="absolute bottom-0 left-0 right-0 -z-10 h-full w-full">
           <ellipse
-            cx="30%"
+            cx="35%"
             cy="40%"
-            rx="30%"
+            rx="20%"
             ry="20%"
             className="fill-brand-color-one opacity-50 blur-[100px] dark:opacity-[15%]"
           />
