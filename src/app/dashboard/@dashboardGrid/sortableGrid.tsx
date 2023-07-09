@@ -134,6 +134,7 @@ const DragComponent = (props: { id: string } & PropsWithChildren) => {
       aria-label="drag exercise in the grid"
       {...listeners}
       {...attributes}
+      aria-describedby="DndDescribedBy-1"
     >
       <GripVertical className="h-4 w-4" />
     </Button>
