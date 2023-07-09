@@ -24,6 +24,12 @@ import type { Exercise } from "@/fakeData";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slot } from "@radix-ui/react-slot";
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  Tooltip
+} from "@/components/ui/tooltip";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [items, setItems] = useState(exercises);
@@ -127,16 +133,25 @@ const DragComponent = (props: { id: string } & PropsWithChildren) => {
   const { attributes, listeners } = useSortable({ id: props.id });
 
   return (
-    <Button
-      className="z-10 h-8 cursor-grab p-1 active:cursor-grabbing"
-      size="icon"
-      variant="ghost"
-      aria-label="drag exercise in the grid"
-      {...listeners}
-      {...attributes}
-      aria-describedby="DndDescribedBy-1"
-    >
-      <GripVertical className="h-4 w-4" />
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="z-10 h-8 cursor-grab p-1 active:cursor-grabbing"
+            size="icon"
+            variant="ghost"
+            aria-label="drag exercise in the grid"
+            {...listeners}
+            {...attributes}
+            aria-describedby="DndDescribedBy-1"
+          >
+            <GripVertical className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">drag exercise</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

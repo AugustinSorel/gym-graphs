@@ -54,6 +54,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
     })
   );
 
+  //TODO:Mobile responsive
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) {
       return;

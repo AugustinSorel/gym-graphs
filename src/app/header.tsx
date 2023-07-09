@@ -357,6 +357,7 @@ const DashboardLink = () => {
   );
 };
 
+//TODO: make this a list
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
   return (
     <p className="max-w-sm truncate text-xl font-medium capitalize">

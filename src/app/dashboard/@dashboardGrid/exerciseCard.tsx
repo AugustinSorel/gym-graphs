@@ -16,6 +16,12 @@ import { CardGraph } from "./cardGraph";
 import type { Exercise } from "@/fakeData";
 import type { ReactNode } from "react";
 import { forwardRef } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = {
   exercise: Exercise;
@@ -39,7 +45,7 @@ const ExerciseCard = forwardRef<HTMLLIElement, Props>(
         <header className="flex items-center gap-2 border-b border-border bg-primary p-2">
           <p className="mr-auto truncate capitalize">{exercise.name}</p>
 
-          <div className="z-10 transition-all duration-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
+          <div className="z-10 transition-all duration-100 focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
             {dragComponent}
             <CardDropDown />
           </div>
@@ -57,16 +63,25 @@ export default ExerciseCard;
 const CardDropDown = () => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          className="z-10 h-8 p-1"
-          size="icon"
-          variant="ghost"
-          aria-label="view more about the exercise"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="z-10 h-8 p-1"
+                size="icon"
+                variant="ghost"
+                aria-label="view more about the exercise"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">view more</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
