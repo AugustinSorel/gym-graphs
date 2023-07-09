@@ -110,7 +110,7 @@ const FeatuesGrid = () => {
       <div className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5">
         <HeroTitle>what we offer</HeroTitle>
 
-        <ul className='grid grid-cols-1 grid-rows-2 gap-5 lg:grid-cols-7 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'>
+        <ul className='grid grid-cols-1 gap-5 lg:grid-cols-7 lg:grid-rows-2 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'>
           <Card className="lg:[grid-area:card-one]">
             <CardIcon>📈</CardIcon>
             <CardTitle>insights & analytics</CardTitle>
