@@ -3,8 +3,8 @@ import { HeroBackground } from "@/components/ui/heroBackground";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { PropsWithChildren } from "react";
-import { Featues } from "./features";
+import type { HTMLAttributes } from "react";
+import { twMerge } from "tailwind-merge";
 
 const HomePage = () => {
   return (
@@ -17,7 +17,7 @@ const HomePage = () => {
 
       <FeatureTwo />
 
-      <Featues />
+      <FeatuesGrid />
     </main>
   );
 };
@@ -104,28 +104,144 @@ const FeatureTwo = () => {
   );
 };
 
-const Text = ({ children }: PropsWithChildren) => {
-  return <p className="max-w-xl sm:text-2xl">{children}</p>;
-};
-
-const HeroTitle = ({ children }: PropsWithChildren) => {
+const FeatuesGrid = () => {
   return (
-    <h1 className="max-w-3xl text-4xl font-bold sm:text-7xl">{children}</h1>
+    <section className="relative ">
+      <div className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5">
+        <HeroTitle>what we offer</HeroTitle>
+
+        <ul className='grid grid-cols-1 grid-rows-2 gap-5 lg:grid-cols-7 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'>
+          <Card className="lg:[grid-area:card-one]">
+            <CardIcon>📈</CardIcon>
+            <CardTitle>insights & analytics</CardTitle>
+            <CardText>
+              Keep track of your progress every session and watch your results
+              soar! Get ready to see amazing results!
+            </CardText>
+          </Card>
+          <Card className="lg:[grid-area:card-two]">
+            <CardIcon>💻</CardIcon>
+            <CardTitle>cross platform</CardTitle>
+            <CardText>
+              Seamlessly switch between devices and access your workout data
+              anytime, anywhere. Our platform is compatible with desktop,
+              mobile, and tablet devices, ensuring you can stay connected and
+              motivated on the go.
+            </CardText>
+          </Card>
+          <Card className="lg:[grid-area:card-three]">
+            <CardIcon>🤝</CardIcon>
+            <CardTitle>open source</CardTitle>
+            <CardText>
+              If you&apos;re interested in the behind-the-scenes development of
+              our platform, we invite you to explore the code on our{" "}
+              <Link
+                href="https://github.com/augustinsorel/gym-graphs"
+                className="underline decoration-wavy"
+                target="_blank"
+              >
+                Github
+              </Link>
+              ! We highly value feedback and contributions from our community.
+              <br />
+              <br />
+              Your input and ideas play a crucial role in shaping the future of
+              our platform, and we appreciate the collaborative spirit that
+              drives us forward.
+            </CardText>
+          </Card>
+          <Card className="lg:[grid-area:card-four]">
+            <CardIcon>🧩</CardIcon>
+            <CardTitle>customizable</CardTitle>
+            <CardText>
+              With our modular dashboards, you&apos;re in charge of your
+              exercises! Customize your workout experience to fit your
+              preferences and needs.
+            </CardText>
+          </Card>
+          <Card className="lg:[grid-area:card-five]">
+            <CardIcon>🎁</CardIcon>
+            <CardTitle>100% free</CardTitle>
+            <CardText>
+              Great news! Our project is completely free to use, with no hidden
+              fees or charges. We value your privacy and do not collect any
+              personal information.
+            </CardText>
+          </Card>
+        </ul>
+
+        <GetStartedAction />
+
+        <svg className="absolute bottom-0 left-0 right-0 -z-10 h-screen w-full">
+          <ellipse
+            cx="20%"
+            cy="60%"
+            rx="20%"
+            ry="20%"
+            className="fill-brand-color-one opacity-50 blur-[200px] dark:opacity-20"
+          />
+
+          <ellipse
+            cx="80%"
+            cy="70%"
+            rx="30%"
+            ry="30%"
+            className="fill-brand-color-two opacity-20 blur-[200px] dark:opacity-20"
+          />
+        </svg>
+      </div>
+    </section>
   );
 };
 
-const GradientText = ({ children }: PropsWithChildren) => {
+const Card = (props: HTMLAttributes<HTMLLIElement>) => {
   return (
-    <strong className="bg-brand-gradient bg-clip-text font-bold text-transparent">
-      {children}
-    </strong>
+    <li
+      {...props}
+      className={twMerge(
+        "space-y-3 rounded-md border border-border bg-primary p-7 text-2xl font-semibold backdrop-blur-md transition-colors hover:bg-border",
+        props.className
+      )}
+    />
   );
 };
 
-const StrongText = ({ children }: PropsWithChildren) => {
+const CardIcon = (props: HTMLAttributes<HTMLSpanElement>) => {
+  return <span className="" {...props} />;
+};
+
+const CardTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
+  return <h2 {...props} className="capitalize" />;
+};
+
+const CardText = (props: HTMLAttributes<HTMLParagraphElement>) => {
+  return <p className="text-lg font-normal text-muted-foreground" {...props} />;
+};
+
+const Text = (props: HTMLAttributes<HTMLParagraphElement>) => {
+  return <p className="max-w-xl sm:text-2xl" {...props} />;
+};
+
+const HeroTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
   return (
-    <strong className="font-semibold text-brand-color-two">{children}</strong>
+    <h1
+      className="max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl"
+      {...props}
+    />
   );
+};
+
+const GradientText = (props: HTMLAttributes<HTMLElement>) => {
+  return (
+    <strong
+      className="bg-brand-gradient bg-clip-text font-bold text-transparent"
+      {...props}
+    />
+  );
+};
+
+const StrongText = (props: HTMLAttributes<HTMLElement>) => {
+  return <strong className="font-semibold text-brand-color-two" {...props} />;
 };
 
 const GetStartedAction = () => {
