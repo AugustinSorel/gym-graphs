@@ -9,7 +9,7 @@ type Props = {
 const Layout = (props: Props) => {
   return (
     <main className="relative min-h-[calc(100vh-var(--header-height))]">
-      <div className="space-y-5 p-5">
+      <div className="flex flex-col gap-5 p-5">
         {props.newExerciseForm}
         {props.dashboardGrid}
       </div>

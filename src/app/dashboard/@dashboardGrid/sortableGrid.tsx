@@ -9,6 +9,7 @@ import {
   DndContext,
   TouchSensor,
   MouseSensor,
+  DragOverlay,
 } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
@@ -26,6 +27,7 @@ import { Slot } from "@radix-ui/react-slot";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [items, setItems] = useState(exercises);
+  const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -44,16 +46,28 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
 
           return arrayMove(prev, oldIndex, newIndex);
         });
+
+        setActiveId(null);
       }
     },
     [items]
   );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id);
+  }, []);
+
+  const handleDragCancel = useCallback(() => {
+    setActiveId(null);
+  }, []);
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+      onDragStart={handleDragStart}
     >
       <SortableContext items={items} strategy={rectSortingStrategy}>
         <DashboardGrid>
@@ -67,6 +81,15 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
           ))}
         </DashboardGrid>
       </SortableContext>
+
+      <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
+        {activeId ? (
+          <ExerciseCard
+            exercise={items.find((e) => e.id === activeId)}
+            dragComponent={<DragComponent id={activeId} />}
+          />
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 };
@@ -81,6 +104,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
       ref={setNodeRef}
       style={{
         zIndex: isDragging ? "20" : "0",
+        opacity: isDragging ? "0.5" : "1",
         transition,
         transform: transform
           ? `translate3d(${transform?.x}px, ${transform?.y}px, 0) scaleX(${transform?.scaleX})  scaleY(${transform?.scaleY})`

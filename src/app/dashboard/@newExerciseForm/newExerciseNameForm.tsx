@@ -67,7 +67,7 @@ export const NewExerciseForm = ({ action }: Props) => {
   return (
     <form
       action={(e) => void actionHandler(e)}
-      className="mx-auto flex max-w-2xl gap-2"
+      className="mx-auto flex w-full max-w-2xl gap-2"
     >
       <Input
         name="newExerciseName"

@@ -2,6 +2,7 @@ export type Exercise = {
   id: string;
   name: string;
   data: ExerciseData[];
+  gridIndex: number;
 };
 
 export type ExerciseData = {
@@ -16,6 +17,7 @@ const exercises: Exercise[] = [
   {
     id: "1",
     name: "bench press",
+    gridIndex: 0,
     data: [
       {
         id: "3a2c2058-0dea-4940-a99a-ae6103ba512a",
@@ -57,6 +59,7 @@ const exercises: Exercise[] = [
   {
     id: "2",
     name: "squat",
+    gridIndex: 1,
     data: [
       {
         id: "83ba512a-3a2c2058-0dea-4940-a99a-ae61",
@@ -98,6 +101,7 @@ const exercises: Exercise[] = [
   {
     id: "3",
     name: "deadlift",
+    gridIndex: 2,
     data: [
       {
         id: "5a512a-3a2c2058-0dea-4940-a99a-ae6103b",
@@ -139,6 +143,7 @@ const exercises: Exercise[] = [
   {
     id: "4",
     name: "shoulder press",
+    gridIndex: 3,
     data: [
       {
         id: "5b8e2c4e5c-d4c1a5f0-8f6f-4c7a-8e9b-5a5b8",
@@ -174,6 +179,7 @@ const exercises: Exercise[] = [
   {
     id: "5",
     name: "dumbbell curls",
+    gridIndex: 4,
     data: [
       {
         id: "f4a39b9d-61c3-4f94-862a-79b968f3c73a",
@@ -222,7 +228,9 @@ export const getExercise = (name: string) => {
   return exercises.find((e) => e.name === name);
 };
 
-export const addNewExercise = (exercise: Pick<Exercise, "name">) => {
+export const addNewExercise = (
+  exercise: Pick<Exercise, "name" | "gridIndex">
+) => {
   const newExercise = {
     ...exercise,
     id: Math.random().toString(),
