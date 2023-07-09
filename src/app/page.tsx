@@ -106,7 +106,7 @@ const FeatureTwo = () => {
 
 const FeatuesGrid = () => {
   return (
-    <section className="relative ">
+    <section className="relative">
       <div className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5">
         <HeroTitle>what we offer</HeroTitle>
 
@@ -172,13 +172,13 @@ const FeatuesGrid = () => {
 
         <GetStartedAction />
 
-        <svg className="absolute bottom-0 left-0 right-0 -z-10 h-screen w-full">
+        <svg className="absolute bottom-0 left-0 right-0 -z-10 h-full w-full">
           <ellipse
-            cx="20%"
-            cy="60%"
-            rx="20%"
+            cx="30%"
+            cy="40%"
+            rx="30%"
             ry="20%"
-            className="fill-brand-color-one opacity-50 blur-[200px] dark:opacity-20"
+            className="fill-brand-color-one opacity-50 blur-[100px] dark:opacity-[15%]"
           />
 
           <ellipse
@@ -186,7 +186,7 @@ const FeatuesGrid = () => {
             cy="70%"
             rx="30%"
             ry="30%"
-            className="fill-brand-color-two opacity-20 blur-[200px] dark:opacity-20"
+            className="fill-brand-color-two opacity-20 blur-[100px] dark:opacity-10"
           />
         </svg>
       </div>
