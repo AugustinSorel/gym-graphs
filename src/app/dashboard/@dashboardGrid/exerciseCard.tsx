@@ -14,26 +14,43 @@ import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
 import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
 import { CardGraph } from "./cardGraph";
 import type { Exercise } from "@/fakeData";
+import type { ReactNode } from "react";
+import { forwardRef } from "react";
 
-const ExerciseCard = ({ exercise }: { exercise: Exercise }) => {
-  return (
-    <li className="group relative flex h-exercise-card flex-col  rounded-md border border-border bg-primary backdrop-blur-md duration-300 hover:scale-[1.02] hover:bg-border">
-      <Link
-        href={`/exercises/${exercise.name}`}
-        className="absolute inset-0 duration-300"
-        aria-label={`go to exercise ${exercise.name}`}
-      />
-
-      <header className="flex items-center justify-between gap-2 border-b border-border bg-primary p-2">
-        <p className="truncate capitalize">{exercise.name}</p>
-
-        <CardDropDown />
-      </header>
-
-      <CardGraph data={exercise.data} />
-    </li>
-  );
+type Props = {
+  exercise: Exercise;
+  dragComponent: ReactNode;
 };
+
+const ExerciseCard = forwardRef<HTMLLIElement, Props>(
+  ({ exercise, dragComponent, ...props }, ref) => {
+    return (
+      <li
+        ref={ref}
+        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+        {...props}
+      >
+        <Link
+          href={`/exercises/${exercise.name}`}
+          className="absolute inset-0 duration-300"
+          aria-label={`go to exercise ${exercise.name}`}
+        />
+
+        <header className="flex items-center gap-2 border-b border-border bg-primary p-2">
+          <p className="mr-auto truncate capitalize">{exercise.name}</p>
+
+          <div className="z-10 transition-all duration-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
+            {dragComponent}
+            <CardDropDown />
+          </div>
+        </header>
+
+        <CardGraph data={exercise.data} />
+      </li>
+    );
+  }
+);
+ExerciseCard.displayName = "exerciseCard";
 
 export default ExerciseCard;
 
@@ -42,10 +59,10 @@ const CardDropDown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="z-10 h-8 p-1 opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100"
+          className="z-10 h-8 p-1"
           size="icon"
           variant="ghost"
-          aria-label="view more about the exercise bench press"
+          aria-label="view more about the exercise"
         >
           <MoreHorizontal className="h-4 w-4" />
         </Button>
