@@ -178,7 +178,7 @@ const FeatuesGrid = () => {
             cy="40%"
             rx="20%"
             ry="20%"
-            className="fill-brand-color-one opacity-50 blur-[100px] dark:opacity-10"
+            className="fill-brand-color-one opacity-20 blur-[100px] dark:opacity-10"
           />
 
           <ellipse
