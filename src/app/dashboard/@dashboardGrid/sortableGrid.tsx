@@ -28,13 +28,14 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  Tooltip
+  Tooltip,
 } from "@/components/ui/tooltip";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [items, setItems] = useState(exercises);
   const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
 
+  //TODO:keyboard navigation
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   const handleDragEnd = useCallback(
@@ -129,6 +130,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
   );
 };
 
+//TODO:remove hover when drags
 const DragComponent = (props: { id: string } & PropsWithChildren) => {
   const { attributes, listeners } = useSortable({ id: props.id });
 

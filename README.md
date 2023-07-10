@@ -41,3 +41,5 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 - [Tailwind CSS](https://tailwindcss.com)
 - [Postgres](https://www.postgresql.org/docs/)
 - [Zod](https://zod.dev/)
+- [visx](https://airbnb.io/visx)
+- [dnd-kit](https://dndkit.com/)
