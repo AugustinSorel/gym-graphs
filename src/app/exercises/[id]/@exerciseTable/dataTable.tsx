@@ -18,19 +18,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type { ExerciseData } from "@/fakeData";
+import { useExercise } from "../exerciseContext";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TValue> {
+  columns: ColumnDef<ExerciseData, TValue>[];
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TValue>({ columns }: DataTableProps<TValue>) {
+  const exercise = useExercise();
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
-    data,
+    data: exercise.filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

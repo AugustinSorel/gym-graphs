@@ -1,7 +1,11 @@
-import type { Exercise } from "@/fakeData";
-import { ExerciseGraph } from "./exerciseGraph";
+"use client";
 
-const Page = ({ exercise }: { exercise: Exercise }) => {
+import { ExerciseGraph } from "./exerciseGraph";
+import { useExercise } from "../exerciseContext";
+
+const Page = () => {
+  const exercise = useExercise();
+
   return (
     <div className="border-y border-border bg-primary backdrop-blur-md sm:rounded-md sm:border">
       <header className="border-b border-border bg-primary p-3">
@@ -9,7 +13,7 @@ const Page = ({ exercise }: { exercise: Exercise }) => {
       </header>
 
       <div className="relative h-[500px] overflow-hidden">
-        <ExerciseGraph data={exercise.data} />
+        <ExerciseGraph />
       </div>
     </div>
   );

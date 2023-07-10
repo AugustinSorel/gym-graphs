@@ -22,6 +22,7 @@ import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import type { ExerciseData } from "@/fakeData";
 import { GridRows } from "@visx/grid";
+import { useExercise } from "../exerciseContext";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
@@ -35,24 +36,10 @@ const margin = { top: 20, left: 40, bottom: 20, right: 20 };
 const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
 const chartSeparation = 30;
 
-export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [dimensions, setDimensions] = useState({
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT,
-  });
-
+export const ExerciseGraph = () => {
+  const exercise = useExercise();
+  const dimensions = useDimensions();
   const brushRef = useRef<BaseBrush | null>(null);
-  const [filteredData, setFilteredData] = useState(
-    data.filter((d) => {
-      const dataDate = new Date(d.date);
-      const currentDate = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      return dataDate >= thirtyDaysAgo && dataDate <= currentDate;
-    })
-  );
 
   //TODO:Mobile responsive
   const onBrushChange = (domain: Bounds | null) => {
@@ -61,13 +48,13 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
     }
 
     const { x0, x1, y0, y1 } = domain;
-    const stockCopy = data.filter((s) => {
+    const oneRepMaxCopy = exercise.data.filter((s) => {
       const x = getDate(s).getTime();
       const y = getOneRepMax(s);
       return x > x0 && x < x1 && y > y0 && y < y1;
     });
 
-    setFilteredData(stockCopy);
+    exercise.setFilteredData(oneRepMaxCopy);
   };
 
   const {
@@ -95,42 +82,27 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
     0
   );
 
-  useLayoutEffect(() => {
-    const updateSize = () => {
-      setDimensions({
-        width: svgRef.current?.clientWidth ?? DEFAULT_WIDTH,
-        height: svgRef.current?.clientHeight ?? DEFAULT_HEIGHT,
-      });
-    };
-
-    window.addEventListener("resize", updateSize);
-
-    updateSize();
-
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
   // scales
   const dateScale = useMemo(
     () =>
       scaleTime<number>({
         range: [0, xMax],
         domain: [
-          Math.min(...filteredData.map((p) => getDate(p).getTime())),
-          Math.max(...filteredData.map((p) => getDate(p).getTime())),
+          Math.min(...exercise.filteredData.map((p) => getDate(p).getTime())),
+          Math.max(...exercise.filteredData.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xMax, filteredData]
+    [xMax, exercise.filteredData]
   );
 
-  const stockScale = useMemo(
+  const oneRepMaxScale = useMemo(
     () =>
       scaleLinear<number>({
         range: [yMax, 0],
-        domain: [0, Math.max(...filteredData.map(getOneRepMax))],
+        domain: [0, Math.max(...exercise.filteredData.map(getOneRepMax))],
         nice: true,
       }),
-    [yMax, filteredData]
+    [yMax, exercise.filteredData]
   );
 
   const brushDateScale = useMemo(
@@ -138,21 +110,21 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
       scaleTime<number>({
         range: [0, xBrushMax],
         domain: [
-          Math.min(...data.map((p) => getDate(p).getTime())),
-          Math.max(...data.map((p) => getDate(p).getTime())),
+          Math.min(...exercise.data.map((p) => getDate(p).getTime())),
+          Math.max(...exercise.data.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xBrushMax, data]
+    [xBrushMax, exercise.data]
   );
 
-  const brushStockScale = useMemo(
+  const brushOneRepMaxScale = useMemo(
     () =>
       scaleLinear({
         range: [yBrushMax, 0],
-        domain: [0, Math.max(...data.map(getOneRepMax))],
+        domain: [0, Math.max(...exercise.data.map(getOneRepMax))],
         nice: true,
       }),
-    [yBrushMax, data]
+    [yBrushMax, exercise.data]
   );
 
   const initialBrushPosition = useMemo(
@@ -160,36 +132,44 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
       start: {
         x: brushDateScale(
           getDate(
-            filteredData.at(0) ?? { date: new Date().toString(), oneRepMax: 0 }
+            exercise.filteredData.at(0) ?? {
+              date: new Date().toString(),
+              oneRepMax: 0,
+            }
           )
         ),
       },
       end: {
         x: brushDateScale(
           getDate(
-            filteredData.at(-1) ?? { date: new Date().toString(), oneRepMax: 0 }
+            exercise.filteredData.at(-1) ?? {
+              date: new Date().toString(),
+              oneRepMax: 0,
+            }
           )
         ),
       },
     }),
-    [brushDateScale, filteredData]
+    [brushDateScale, exercise.filteredData]
   );
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
-      if (filteredData.length < 1) {
+      if (exercise.filteredData.length < 1) {
         return;
       }
 
       const { x } = localPoint(event) || { x: 0 };
       const x0 = dateScale.invert(x);
-      const index = data.findIndex((d) => getDate(d).getTime() > x0.getTime());
-      const d0 = data[index - 1] ??
-        data.at(-1) ?? {
+      const index = exercise.data.findIndex(
+        (d) => getDate(d).getTime() > x0.getTime()
+      );
+      const d0 = exercise.data[index - 1] ??
+        exercise.data.at(-1) ?? {
           date: new Date().toString(),
           oneRepMax: -1,
         };
-      const d1 = data[index];
+      const d1 = exercise.data[index];
       let d = d0;
       if (d1 && getDate(d1)) {
         d =
@@ -201,10 +181,16 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
       showTooltip({
         tooltipData: d,
         tooltipLeft: dateScale(getDate(d)),
-        tooltipTop: stockScale(getOneRepMax(d)),
+        tooltipTop: oneRepMaxScale(getOneRepMax(d)),
       });
     },
-    [dateScale, showTooltip, stockScale, filteredData.length, data]
+    [
+      dateScale,
+      showTooltip,
+      oneRepMaxScale,
+      exercise.filteredData.length,
+      exercise.data,
+    ]
   );
 
   return (
@@ -213,24 +199,24 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
         height="100%"
         width="100%"
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-        ref={svgRef}
+        ref={dimensions.ref}
         className="select-none"
       >
         <Group left={margin.left} top={margin.top}>
           <LinePath<GraphPoint>
-            data={filteredData}
+            data={exercise.filteredData}
             x={(d) => dateScale(getDate(d)) || 0}
-            y={(d) => stockScale(getOneRepMax(d)) || 0}
+            y={(d) => oneRepMaxScale(getOneRepMax(d)) || 0}
             className="stroke-brand-color-two"
             strokeWidth={2}
             curve={curveMonotoneX}
           />
 
           <AreaClosed<GraphPoint>
-            data={filteredData}
+            data={exercise.filteredData}
             x={(d) => dateScale(getDate(d)) || 0}
-            y={(d) => stockScale(getOneRepMax(d)) || 0}
-            yScale={stockScale}
+            y={(d) => oneRepMaxScale(getOneRepMax(d)) || 0}
+            yScale={oneRepMaxScale}
             strokeWidth={1}
             className="fill-brand-color-two/20"
             curve={curveMonotoneX}
@@ -246,7 +232,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
           />
 
           <GridRows
-            scale={stockScale}
+            scale={oneRepMaxScale}
             width={xMax}
             height={yMax}
             stroke="gray"
@@ -255,7 +241,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
           />
 
           <AxisLeft
-            scale={stockScale}
+            scale={oneRepMaxScale}
             numTicks={5}
             tickStroke="gray"
             stroke="gray"
@@ -270,12 +256,12 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
           />
 
           <Group>
-            {filteredData.map((d, i) => {
+            {exercise.filteredData.map((d, i) => {
               return (
                 <circle
                   key={`${getDate(d).getTime()}-${getOneRepMax(d)}-${i}`}
                   cx={dateScale(getDate(d))}
-                  cy={stockScale(getOneRepMax(d))}
+                  cy={oneRepMaxScale(getOneRepMax(d))}
                   r={4}
                   className="fill-brand-color-two"
                   strokeWidth={2}
@@ -292,7 +278,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
               onMouseMove={handleTooltip}
               onTouchStart={handleTooltip}
               onTouchMove={handleTooltip}
-              onMouseLeave={() => hideTooltip()}
+              onMouseLeave={hideTooltip}
             />
           </Group>
 
@@ -337,10 +323,10 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
           top={topChartHeight + topChartBottomMargin + margin.top}
         >
           <AreaClosed<GraphPoint>
-            data={data}
+            data={exercise.data}
             x={(d) => brushDateScale(getDate(d)) || 0}
-            y={(d) => brushStockScale(getOneRepMax(d)) || 0}
-            yScale={brushStockScale}
+            y={(d) => brushOneRepMaxScale(getOneRepMax(d)) || 0}
+            yScale={brushOneRepMaxScale}
             strokeWidth={1}
             className="fill-brand-color-two/20 stroke-brand-color-two"
             curve={curveMonotoneX}
@@ -356,7 +342,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
           />
           <Brush
             xScale={brushDateScale}
-            yScale={brushStockScale}
+            yScale={brushOneRepMaxScale}
             width={xBrushMax}
             height={yBrushMax}
             margin={brushMargin}
@@ -366,7 +352,7 @@ export const ExerciseGraph = ({ data }: { data: GraphPoint[] }) => {
             brushDirection="horizontal"
             initialBrushPosition={initialBrushPosition}
             onChange={onBrushChange}
-            onClick={() => setFilteredData(data)}
+            onClick={() => exercise.setFilteredData(exercise.data)}
             selectedBoxStyle={{
               fill: "url(#lines)",
               stroke: "gray",
@@ -421,4 +407,32 @@ const BrushHandle = ({ x, height, isBrushActive }: BrushHandleRenderProps) => {
       />
     </Group>
   );
+};
+
+const useDimensions = () => {
+  const ref = useRef<SVGSVGElement>(null);
+  const [dimensions, setDimensions] = useState({
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+  });
+
+  useLayoutEffect(() => {
+    const updateSize = () => {
+      setDimensions({
+        width: ref.current?.clientWidth ?? DEFAULT_WIDTH,
+        height: ref.current?.clientHeight ?? DEFAULT_HEIGHT,
+      });
+    };
+
+    window.addEventListener("resize", updateSize);
+
+    updateSize();
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  return {
+    ref,
+    ...dimensions,
+  };
 };
