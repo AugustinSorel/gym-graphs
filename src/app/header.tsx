@@ -69,10 +69,7 @@ const DropDownMenu = () => {
     <DropdownMenu>
       <MenuIcon />
 
-      <DropdownMenuContent
-        className="mr-4 w-56"
-        onCloseAutoFocus={(e) => e.preventDefault()}
-      >
+      <DropdownMenuContent className="mr-4 w-56">
         <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
 
         <DropdownMenuSeparator />
@@ -409,10 +406,7 @@ const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <PopoverContent
-          className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1"
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
+        <PopoverContent className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1">
           <h2 className="p-2 text-xs font-semibold capitalize text-muted-foreground">
             exercises
           </h2>

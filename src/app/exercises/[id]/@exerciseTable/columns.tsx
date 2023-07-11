@@ -173,10 +173,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
           </Tooltip>
         </TooltipProvider>
 
-        <DropdownMenuContent
-          align="end"
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
+        <DropdownMenuContent align="end">
           <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
           <UpdateWeightLifted onAction={updateWeightLiftedAction} />
           <DeleteDataAlertDialog onAction={deleteDataAction} />
