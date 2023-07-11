@@ -35,7 +35,6 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [items, setItems] = useState(exercises);
   const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
 
-  //TODO:keyboard navigation
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   const handleDragEnd = useCallback(
@@ -100,7 +99,7 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
                 name: "",
               }
             }
-            dragComponent={<DragComponent id={activeId} />}
+            dragComponent={<DragComponent id={activeId} disableTooltip />}
           />
         ) : null}
       </DragOverlay>
@@ -130,13 +129,19 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
   );
 };
 
-//TODO:remove hover when drags
-const DragComponent = (props: { id: string } & PropsWithChildren) => {
-  const { attributes, listeners } = useSortable({ id: props.id });
+const DragComponent = ({
+  id,
+  disableTooltip = false,
+}: {
+  id: string;
+  disableTooltip?: boolean;
+}) => {
+  const { attributes, listeners } = useSortable({ id });
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip open={isOpen && !disableTooltip} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>
           <Button
             className="z-10 h-8 cursor-grab p-1 active:cursor-grabbing"
