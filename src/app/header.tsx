@@ -365,7 +365,6 @@ const DashboardLink = () => {
   );
 };
 
-//TODO: make this a list
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
   const [open, setOpen] = useState(false);
   const exercises = getExercises();

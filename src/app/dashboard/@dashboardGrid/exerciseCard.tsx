@@ -12,9 +12,8 @@ import {
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
 import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
-import { CardGraph } from "./cardGraph";
 import type { Exercise } from "@/fakeData";
-import type { ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { forwardRef } from "react";
 import {
   Tooltip,
@@ -24,12 +23,12 @@ import {
 } from "@/components/ui/tooltip";
 
 type Props = {
-  exercise: Exercise;
+  exerciseName:Exercise['name']
   dragComponent: ReactNode;
-};
+} & PropsWithChildren;
 
 const ExerciseCard = forwardRef<HTMLLIElement, Props>(
-  ({ exercise, dragComponent, ...props }, ref) => {
+  ({ exerciseName, dragComponent, ...props }, ref) => {
     return (
       <li
         ref={ref}
@@ -37,13 +36,13 @@ const ExerciseCard = forwardRef<HTMLLIElement, Props>(
         {...props}
       >
         <Link
-          href={`/exercises/${exercise.name}`}
+          href={`/exercises/${exerciseName}`}
           className="absolute inset-0 duration-300"
-          aria-label={`go to exercise ${exercise.name}`}
+          aria-label={`go to exercise ${exerciseName}`}
         />
 
         <header className="flex items-center gap-2 border-b border-border bg-primary p-2">
-          <p className="mr-auto truncate capitalize">{exercise.name}</p>
+          <p className="mr-auto truncate capitalize">{exerciseName}</p>
 
           <div className="z-10 transition-all duration-100 focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
             {dragComponent}
@@ -51,7 +50,7 @@ const ExerciseCard = forwardRef<HTMLLIElement, Props>(
           </div>
         </header>
 
-        <CardGraph data={exercise.data} />
+        {props.children}
       </li>
     );
   }

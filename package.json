@@ -29,6 +29,7 @@
     "@visx/grid": "^3.2.0",
     "@visx/group": "^3.0.0",
     "@visx/pattern": "^3.0.0",
+    "@visx/point": "^3.3.0",
     "@visx/scale": "^3.2.0",
     "@visx/shape": "^3.2.0",
     "@visx/tooltip": "^3.1.2",

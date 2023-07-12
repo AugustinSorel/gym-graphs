@@ -58,6 +58,9 @@ dependencies:
   '@visx/pattern':
     specifier: ^3.0.0
     version: 3.0.0(react@18.2.0)
+  '@visx/point':
+    specifier: ^3.3.0
+    version: 3.3.0
   '@visx/scale':
     specifier: ^3.2.0
     version: 3.2.0
@@ -1534,6 +1537,10 @@ packages:
 
   /@visx/point@3.0.1:
     resolution: {integrity: sha512-S5WOBMgEP2xHcgs3A2BFB2vwzrk0tMmn3PGZAbQJ+lu4HlnalDP72klUnxLTH8xclNNvpUHtHM5eLIJXyHx6Pw==}
+    dev: false
+
+  /@visx/point@3.3.0:
+    resolution: {integrity: sha512-03eBBIJarkmX79WbeEGTUZwmS5/MUuabbiM9KfkGS9pETBTWkp1DZtEHZdp5z34x5TDQVLSi0rk1Plg3/8RtDg==}
     dev: false
 
   /@visx/scale@3.2.0:

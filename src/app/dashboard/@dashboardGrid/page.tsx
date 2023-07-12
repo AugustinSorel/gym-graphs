@@ -4,5 +4,5 @@ import { SortableGrid } from "./sortableGrid";
 export default function Page() {
   const exercises = getExercises();
 
-  return <SortableGrid exercises={exercises} />;
+  return <SortableGrid exercises={exercises}/>;
 }

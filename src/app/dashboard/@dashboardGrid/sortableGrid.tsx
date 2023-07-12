@@ -20,7 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useCallback, useState } from "react";
 import type { PropsWithChildren } from "react";
-import type { Exercise } from "@/fakeData";
+import { type Exercise } from "@/fakeData";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slot } from "@radix-ui/react-slot";
@@ -30,10 +30,15 @@ import {
   TooltipTrigger,
   Tooltip,
 } from "@/components/ui/tooltip";
+import { LineGraph, type LineGraphData } from "./lineGraph";
+import { type RadarGraphData, RadarGraph } from "./radarGraph";
+import { keepDataFrom30Days } from "@/lib/date";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
-  const [items, setItems] = useState(exercises);
   const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
+  const [gridItems, setGridItems] = useState<GridItem[]>(
+    getGridItems(exercises)
+  );
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -42,11 +47,11 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
       const { active, over } = event;
 
       if (active.id !== over?.id) {
-        setItems((prev) => {
-          const oldIndex = items.findIndex(
+        setGridItems((prev) => {
+          const oldIndex = gridItems.findIndex(
             (exercise) => exercise.id === active?.id
           );
-          const newIndex = items.findIndex(
+          const newIndex = gridItems.findIndex(
             (exercise) => exercise.id === over?.id
           );
 
@@ -56,7 +61,7 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
         setActiveId(null);
       }
     },
-    [items]
+    [gridItems]
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -75,36 +80,60 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
       onDragCancel={handleDragCancel}
       onDragStart={handleDragStart}
     >
-      <SortableContext items={items} strategy={rectSortingStrategy}>
+      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         <DashboardGrid>
-          {items.map((exercise) => (
+          {gridItems.map((exercise) => (
             <SortableItem key={exercise.id} id={exercise.id}>
               <ExerciseCard
-                exercise={exercise}
+                exerciseName={exercise.name}
                 dragComponent={<DragComponent id={exercise.id} />}
-              />
+              >
+                <CardGraph item={exercise} />
+              </ExerciseCard>
             </SortableItem>
           ))}
         </DashboardGrid>
       </SortableContext>
 
       <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
-        {activeId ? (
+        {activeId && (
           <ExerciseCard
-            exercise={
-              items.find((e) => e.id === activeId) ?? {
-                gridIndex: 0,
-                id: "",
-                data: [],
-                name: "",
-              }
-            }
+            exerciseName={gridItems.find((e) => e.id === activeId)?.name ?? ""}
             dragComponent={<DragComponent id={activeId} disableTooltip />}
-          />
-        ) : null}
+          >
+            <CardGraph item={gridItems.find((e) => e.id === activeId)} />
+          </ExerciseCard>
+        )}
       </DragOverlay>
     </DndContext>
   );
+};
+
+type GridItem = { id: string; name: string; gridIndex: number } & (
+  | {
+      itemType: "line";
+      data: LineGraphData[];
+    }
+  | {
+      itemType: "radar";
+      data: RadarGraphData[];
+    }
+);
+
+const getGridItems = (exercises: Exercise[]) => {
+  return [
+    ...exercises.map((ex) => ({ ...ex, itemType: "line" as const })),
+    {
+      id: "radar",
+      name: "radar",
+      gridIndex: 0,
+      itemType: "radar" as const,
+      data: exercises.map((exercise) => ({
+        exerciseName: exercise.name,
+        frequency: keepDataFrom30Days(exercise.data).length,
+      })),
+    },
+  ];
 };
 
 const SortableItem = (props: { id: string } & PropsWithChildren) => {
@@ -127,6 +156,14 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
       {props.children}
     </Slot>
   );
+};
+
+const CardGraph = ({ item }: { item: GridItem }) => {
+  if (item.itemType === "radar") {
+    return <RadarGraph data={item.data} />;
+  }
+
+  return <LineGraph data={item.data} />;
 };
 
 const DragComponent = ({

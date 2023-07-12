@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useRef,
-  useState,
-  useMemo,
-  useLayoutEffect,
-  useCallback,
-} from "react";
+import React, { useRef, useMemo, useCallback } from "react";
 import type { TouchEvent, MouseEvent } from "react";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { Brush } from "@visx/brush";
@@ -24,10 +18,10 @@ import type { ExerciseData } from "@/fakeData";
 import { GridRows } from "@visx/grid";
 import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
+import { useDimensions as useDimensionsBase } from "@/lib/useDimensions";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
-// accessors
 const getDate = (d: GraphPoint) => new Date(d.date);
 const getOneRepMax = (d: GraphPoint) => d.oneRepMax;
 
@@ -83,34 +77,14 @@ const BrushHandle = ({ x, height, isBrushActive }: BrushHandleRenderProps) => {
 type Dimensions = ReturnType<typeof useDimensions>;
 
 const useDimensions = () => {
-  const ref = useRef<SVGSVGElement>(null);
-  const [dimensions, setDimensions] = useState({
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT,
-  });
+  const dimensions = useDimensionsBase(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
   const topChartBottomMargin = chartSeparation + 10;
   const topChartHeight = 0.8 * innerHeight - topChartBottomMargin;
   const bottomChartHeight = innerHeight - topChartHeight - chartSeparation;
 
-  useLayoutEffect(() => {
-    const updateSize = () => {
-      setDimensions({
-        width: ref.current?.clientWidth ?? DEFAULT_WIDTH,
-        height: ref.current?.clientHeight ?? DEFAULT_HEIGHT,
-      });
-    };
-
-    window.addEventListener("resize", updateSize);
-
-    updateSize();
-
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
   return {
-    ref,
     bottomChartHeight,
     topChartBottomMargin,
     topChartHeight,
