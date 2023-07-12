@@ -101,7 +101,17 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
             exerciseName={gridItems.find((e) => e.id === activeId)?.name ?? ""}
             dragComponent={<DragComponent id={activeId} disableTooltip />}
           >
-            <CardGraph item={gridItems.find((e) => e.id === activeId)} />
+            <CardGraph
+              item={
+                gridItems.find((e) => e.id === activeId) ?? {
+                  id: "-1",
+                  name: "-1",
+                  gridIndex: -1,
+                  itemType: "line",
+                  data: [],
+                }
+              }
+            />
           </ExerciseCard>
         )}
       </DragOverlay>
