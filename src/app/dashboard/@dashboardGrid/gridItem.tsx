@@ -12,8 +12,8 @@ import {
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
 import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
-import type { HTMLAttributes } from "react";
-import { useState } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
+import { forwardRef, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -35,53 +35,66 @@ export type GridItemType = { id: string; name: string; gridIndex: number } & (
     }
 );
 
-export const GridItem = ({ gridItem }: { gridItem: GridItemType }) => {
-  if (gridItem.itemType === "radar") {
+type Props = {
+  gridItem: GridItemType;
+  style?: CSSProperties;
+};
+
+export const GridItem = forwardRef<HTMLLIElement, Props>(
+  ({ gridItem, style }, ref) => {
+    if (gridItem.itemType === "radar") {
+      return (
+        <GridItemContainer ref={ref} style={style}>
+          <GridItemHeader>
+            <GridItemTitle>{gridItem.name}</GridItemTitle>
+
+            <GridItemActionsContainer>
+              <DragComponent id={gridItem.id} />
+            </GridItemActionsContainer>
+          </GridItemHeader>
+
+          <RadarGraph data={gridItem.data} />
+        </GridItemContainer>
+      );
+    }
+
     return (
-      <GridItemContainer>
+      <GridItemContainer ref={ref} style={style}>
+        <Link
+          href={`/exercises/${gridItem.name}`}
+          className="absolute inset-0 duration-300"
+          aria-label={`go to exercise ${gridItem.name}`}
+        />
+
         <GridItemHeader>
           <GridItemTitle>{gridItem.name}</GridItemTitle>
 
           <GridItemActionsContainer>
+            <ExerciseDropDown />
             <DragComponent id={gridItem.id} />
           </GridItemActionsContainer>
         </GridItemHeader>
 
-        <RadarGraph data={gridItem.data} />
+        <LineGraph data={gridItem.data} />
       </GridItemContainer>
     );
   }
+);
+GridItem.displayName = "GridItem";
 
+const GridItemContainer = forwardRef<
+  HTMLLIElement,
+  HTMLAttributes<HTMLLIElement>
+>((props, ref) => {
   return (
-    <GridItemContainer>
-      <Link
-        href={`/exercises/${gridItem.name}`}
-        className="absolute inset-0 duration-300"
-        aria-label={`go to exercise ${gridItem.name}`}
-      />
-
-      <GridItemHeader>
-        <GridItemTitle>{gridItem.name}</GridItemTitle>
-
-        <GridItemActionsContainer>
-          <ExerciseDropDown />
-          <DragComponent id={gridItem.id} />
-        </GridItemActionsContainer>
-      </GridItemHeader>
-
-      <LineGraph data={gridItem.data} />
-    </GridItemContainer>
-  );
-};
-
-const GridItemContainer = (props: HTMLAttributes<HTMLDivElement>) => {
-  return (
-    <div
+    <li
       {...props}
+      ref={ref}
       className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
     />
   );
-};
+});
+GridItemContainer.displayName = "x";
 
 const GridItemHeader = (props: HTMLAttributes<HTMLHeadElement>) => {
   return (

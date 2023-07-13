@@ -25,6 +25,7 @@ import { type Exercise } from "@/fakeData";
 import { keepDataFrom30Days } from "@/lib/date";
 import type { GridItemType } from "./gridItem";
 import { GridItem } from "./gridItem";
+import { Slot } from "@radix-ui/react-slot";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
@@ -127,11 +128,10 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
   });
 
   return (
-    <div
+    <Slot
       ref={setNodeRef}
       style={{
         opacity: isDragging ? "0.5" : "1",
-        zIndex: isDragging ? 30 : 0,
         transition,
         transform: transform
           ? `translate3d(${transform?.x}px, ${transform?.y}px, 0) scaleX(${transform?.scaleX})  scaleY(${transform?.scaleY})`
@@ -139,6 +139,6 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
       }}
     >
       {props.children}
-    </div>
+    </Slot>
   );
 };
