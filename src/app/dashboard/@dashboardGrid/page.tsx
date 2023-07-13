@@ -1,8 +1,10 @@
 import { getExercises } from "@/fakeData";
 import { SortableGrid } from "./sortableGrid";
 
-export default function Page() {
+const Page = () => {
   const exercises = getExercises();
 
-  return <SortableGrid exercises={exercises}/>;
-}
+  return <SortableGrid exercises={exercises} />;
+};
+
+export default Page;

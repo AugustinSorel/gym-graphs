@@ -1,7 +1,6 @@
 "use client";
 
-import { DashboardGrid } from "./exercisesGrid";
-import ExerciseCard from "./exerciseCard";
+import { GridLayout } from "./gridLayout";
 import {
   closestCenter,
   useSensor,
@@ -10,37 +9,36 @@ import {
   TouchSensor,
   MouseSensor,
   DragOverlay,
+  KeyboardSensor,
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
   SortableContext,
+  sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
 import { useCallback, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { type Exercise } from "@/fakeData";
-import { GripVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Slot } from "@radix-ui/react-slot";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-  Tooltip,
-} from "@/components/ui/tooltip";
-import { LineGraph, type LineGraphData } from "./lineGraph";
-import { type RadarGraphData, RadarGraph } from "./radarGraph";
 import { keepDataFrom30Days } from "@/lib/date";
+import type { GridItemType } from "./gridItem";
+import { GridItem } from "./gridItem";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
-  const [gridItems, setGridItems] = useState<GridItem[]>(
+  const [gridItems, setGridItems] = useState<GridItemType[]>(
     getGridItems(exercises)
   );
 
-  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -48,12 +46,8 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
 
       if (active.id !== over?.id) {
         setGridItems((prev) => {
-          const oldIndex = gridItems.findIndex(
-            (exercise) => exercise.id === active?.id
-          );
-          const newIndex = gridItems.findIndex(
-            (exercise) => exercise.id === over?.id
-          );
+          const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
+          const newIndex = gridItems.findIndex((x) => x.id === over?.id);
 
           return arrayMove(prev, oldIndex, newIndex);
         });
@@ -69,6 +63,8 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   }, []);
 
   const handleDragCancel = useCallback(() => {
+    console.log("hell");
+
     setActiveId(null);
   }, []);
 
@@ -81,56 +77,33 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
       onDragStart={handleDragStart}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        <DashboardGrid>
+        <GridLayout>
           {gridItems.map((exercise) => (
             <SortableItem key={exercise.id} id={exercise.id}>
-              <ExerciseCard
-                exerciseName={exercise.name}
-                dragComponent={<DragComponent id={exercise.id} />}
-                isLinkable={exercise.itemType === "line"}
-              >
-                <CardGraph item={exercise} />
-              </ExerciseCard>
+              <GridItem gridItem={exercise} />
             </SortableItem>
           ))}
-        </DashboardGrid>
+        </GridLayout>
       </SortableContext>
 
       <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
         {activeId && (
-          <ExerciseCard
-            exerciseName={gridItems.find((e) => e.id === activeId)?.name ?? ""}
-            dragComponent={<DragComponent id={activeId} disableTooltip />}
-            isLinkable={false}
-          >
-            <CardGraph
-              item={
-                gridItems.find((e) => e.id === activeId) ?? {
-                  id: "-1",
-                  name: "-1",
-                  gridIndex: -1,
-                  itemType: "line",
-                  data: [],
-                }
+          <GridItem
+            gridItem={
+              gridItems.find((e) => e.id === activeId) ?? {
+                id: "-1",
+                name: "",
+                itemType: "line",
+                data: [],
+                gridIndex: -1,
               }
-            />
-          </ExerciseCard>
+            }
+          />
         )}
       </DragOverlay>
     </DndContext>
   );
 };
-
-type GridItem = { id: string; name: string; gridIndex: number } & (
-  | {
-      itemType: "line";
-      data: LineGraphData[];
-    }
-  | {
-      itemType: "radar";
-      data: RadarGraphData[];
-    }
-);
 
 const getGridItems = (exercises: Exercise[]) => {
   return [
@@ -154,11 +127,11 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
   });
 
   return (
-    <Slot
+    <div
       ref={setNodeRef}
       style={{
-        zIndex: isDragging ? "20" : "0",
         opacity: isDragging ? "0.5" : "1",
+        zIndex: isDragging ? 30 : 0,
         transition,
         transform: transform
           ? `translate3d(${transform?.x}px, ${transform?.y}px, 0) scaleX(${transform?.scaleX})  scaleY(${transform?.scaleY})`
@@ -166,48 +139,6 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
       }}
     >
       {props.children}
-    </Slot>
-  );
-};
-
-const CardGraph = ({ item }: { item: GridItem }) => {
-  if (item.itemType === "radar") {
-    return <RadarGraph data={item.data} />;
-  }
-
-  return <LineGraph data={item.data} />;
-};
-
-const DragComponent = ({
-  id,
-  disableTooltip = false,
-}: {
-  id: string;
-  disableTooltip?: boolean;
-}) => {
-  const { attributes, listeners } = useSortable({ id });
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <TooltipProvider>
-      <Tooltip open={isOpen && !disableTooltip} onOpenChange={setIsOpen}>
-        <TooltipTrigger asChild>
-          <Button
-            className="z-10 h-8 cursor-grab p-1 active:cursor-grabbing"
-            size="icon"
-            variant="ghost"
-            aria-label="drag exercise in the grid"
-            {...listeners}
-            {...attributes}
-            aria-describedby="DndDescribedBy-1"
-          >
-            <GripVertical className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">drag exercise</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    </div>
   );
 };
