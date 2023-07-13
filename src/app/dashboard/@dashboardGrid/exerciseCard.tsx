@@ -23,38 +23,40 @@ import {
 } from "@/components/ui/tooltip";
 
 type Props = {
-  exerciseName:Exercise['name']
+  exerciseName: Exercise["name"];
   dragComponent: ReactNode;
+  isLinkable?: boolean;
 } & PropsWithChildren;
 
-const ExerciseCard = forwardRef<HTMLLIElement, Props>(
-  ({ exerciseName, dragComponent, ...props }, ref) => {
-    return (
-      <li
-        ref={ref}
-        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
-        {...props}
-      >
+const ExerciseCard = forwardRef<HTMLLIElement, Props>((props, ref) => {
+  const { exerciseName, dragComponent, isLinkable = true, ...rest } = props;
+  return (
+    <li
+      ref={ref}
+      className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+      {...rest}
+    >
+      {isLinkable && (
         <Link
           href={`/exercises/${exerciseName}`}
           className="absolute inset-0 duration-300"
           aria-label={`go to exercise ${exerciseName}`}
         />
+      )}
 
-        <header className="flex items-center gap-2 border-b border-border bg-primary p-2">
-          <p className="mr-auto truncate capitalize">{exerciseName}</p>
+      <header className="flex items-center gap-2 border-b border-border bg-primary p-2">
+        <p className="mr-auto truncate capitalize">{exerciseName}</p>
 
-          <div className="z-10 transition-all duration-100 focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
-            {dragComponent}
-            <CardDropDown />
-          </div>
-        </header>
+        <div className="z-10 transition-all duration-100 focus-within:opacity-100 group-hover:opacity-100 aria-[expanded=true]:opacity-100 sm:opacity-0">
+          {dragComponent}
+          <CardDropDown />
+        </div>
+      </header>
 
-        {props.children}
-      </li>
-    );
-  }
-);
+      {props.children}
+    </li>
+  );
+});
 ExerciseCard.displayName = "exerciseCard";
 
 export default ExerciseCard;

@@ -87,6 +87,7 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
               <ExerciseCard
                 exerciseName={exercise.name}
                 dragComponent={<DragComponent id={exercise.id} />}
+                isLinkable={exercise.itemType === "line"}
               >
                 <CardGraph item={exercise} />
               </ExerciseCard>
@@ -100,6 +101,7 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
           <ExerciseCard
             exerciseName={gridItems.find((e) => e.id === activeId)?.name ?? ""}
             dragComponent={<DragComponent id={activeId} disableTooltip />}
+            isLinkable={false}
           >
             <CardGraph
               item={
