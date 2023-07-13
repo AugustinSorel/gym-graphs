@@ -4,27 +4,27 @@ import { DashboardBackground } from "@/components/ui/dashboardBackground";
 
 const AuthForm = () => {
   return (
-    <div className="relative flex grow">
-      <div className="m-auto flex min-w-[min(500px,60%)] flex-col gap-10">
-        <div className="space-y-2">
+    <Container>
+      <AuthContainer>
+        <AuthTextsContainer>
           <Title>create an account</Title>
           <Paragraph>enter your email below to create an account</Paragraph>
-        </div>
+        </AuthTextsContainer>
 
         <EmailSignIn />
 
         <SeparatorText>or continue with</SeparatorText>
 
-        <div className="space-y-2">
+        <AuthControllersContainer>
           <GoogleSignIn />
           <GithubSignIn />
-        </div>
-      </div>
+        </AuthControllersContainer>
+      </AuthContainer>
 
-      <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
+      <BackgroundContainer>
         <DashboardBackground />
-      </div>
-    </div>
+      </BackgroundContainer>
+    </Container>
   );
 };
 
@@ -54,3 +54,32 @@ const SeparatorText = (props: HTMLProps<HTMLParagraphElement>) => {
   );
 };
 
+const BackgroundContainer = (props: HTMLProps<HTMLDivElement>) => {
+  return (
+    <div
+      {...props}
+      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+    />
+  );
+};
+
+const AuthContainer = (props: HTMLProps<HTMLDivElement>) => {
+  return (
+    <div
+      {...props}
+      className="m-auto flex min-w-[min(500px,60%)] flex-col gap-10"
+    />
+  );
+};
+
+const Container = (props: HTMLProps<HTMLDivElement>) => {
+  return <div {...props} className="relative flex grow" />;
+};
+
+const AuthControllersContainer = (props: HTMLProps<HTMLDivElement>) => {
+  return <div {...props} className="space-y-2" />;
+};
+
+const AuthTextsContainer = (props: HTMLProps<HTMLDivElement>) => {
+  return <div {...props} className="space-y-2" />;
+};

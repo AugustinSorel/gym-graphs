@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "./header";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
+import type { PropsWithChildren } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,11 +17,7 @@ export const metadata = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -32,4 +29,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

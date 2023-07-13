@@ -1,5 +1,5 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 type Props = {
   newExerciseForm: ReactNode;
@@ -8,17 +8,40 @@ type Props = {
 
 const Layout = (props: Props) => {
   return (
-    <main className="relative min-h-[calc(100vh-var(--header-height))]">
-      <div className="flex flex-col gap-5 p-5">
+    <Container>
+      <Body>
         {props.newExerciseForm}
         {props.dashboardGrid}
-      </div>
+      </Body>
 
-      <div className="absolute inset-0 -top-[var(--header-height)] -z-10">
+      <BackgroundContainer>
         <DashboardBackground />
-      </div>
-    </main>
+      </BackgroundContainer>
+    </Container>
   );
 };
 
 export default Layout;
+
+const Container = (props: HTMLAttributes<HTMLElement>) => {
+  return (
+    <main
+      {...props}
+      className="relative min-h-[calc(100vh-var(--header-height))]"
+    />
+  );
+};
+
+const Body = (props: HTMLAttributes<HTMLDivElement>) => {
+  return <div {...props} className="flex flex-col gap-5 p-5" />;
+}
+
+
+const BackgroundContainer = (props: HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      {...props}
+      className="absolute inset-0 -top-[var(--header-height)] -z-10"
+    />
+  );
+};

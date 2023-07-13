@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge";
 
 const HomePage = () => {
   return (
-    <main className="scrollbar-none relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
+    <main className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
       <HeroSection />
 
       <hr className="absolute left-1/2 top-[calc(100vh-4vmax-var(--header-height))] h-[8vmax] w-[125%] -translate-x-1/2 rounded-[50%] bg-background blur-md" />
