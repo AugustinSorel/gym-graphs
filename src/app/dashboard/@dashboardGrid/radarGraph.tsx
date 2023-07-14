@@ -19,8 +19,10 @@ const y = (d: RadarGraphData) => d.frequency;
 
 const genAngles = (length: number) =>
   [...new Array<number>(length + 1)].map((_, i) => ({
-    angle:
-      i * (degrees / length) + (length % 2 === 0 ? 0 : degrees / length / 2),
+    angle: +(
+      i * (degrees / length) +
+      (length % 2 === 0 ? 0 : degrees / length / 2)
+    ).toFixed(5),
   }));
 
 const genPoints = (length: number, radius: number) => {
