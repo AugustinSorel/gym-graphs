@@ -24,6 +24,8 @@ import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/store/weightUnit";
 import type { ExerciseData } from "@/fakeData";
+import { UpdateExerciseDateForm } from "./updateExerciseDateForm";
+import { formatDate } from "@/lib/date";
 
 const EstimatedPrHeader = ({
   column,
@@ -144,11 +146,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
     },
     cell: ({ row }) => {
       const date = new Date(row.getValue("date"));
-      const formatted = date.toLocaleDateString("fr-fr", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
+      const formatted = formatDate(date);
 
       return <div>{formatted}</div>;
     },
@@ -176,6 +174,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
         <DropdownMenuContent align="end">
           <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
           <UpdateWeightLifted onAction={updateWeightLiftedAction} />
+          <UpdateExerciseDateForm />
           <DeleteDataAlertDialog onAction={deleteDataAction} />
         </DropdownMenuContent>
       </DropdownMenu>

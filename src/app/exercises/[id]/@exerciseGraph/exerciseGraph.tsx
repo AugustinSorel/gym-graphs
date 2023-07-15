@@ -19,6 +19,7 @@ import { GridRows } from "@visx/grid";
 import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/lib/useDimensions";
+import { formatDate } from "@/lib/date";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
 
@@ -437,14 +438,7 @@ const Tooltip = ({ tooltip }: { tooltip: UseTooltipParams<GraphPoint> }) => {
       className="pointer-events-none absolute rounded-md border border-border bg-popover px-5 py-3 backdrop-blur-md transition-all"
     >
       <p>
-        Date:{" "}
-        <strong>
-          {getDate(tooltip.tooltipData).toLocaleString("fr-fr", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })}
-        </strong>
+        Date: <strong>{formatDate(getDate(tooltip.tooltipData))}</strong>
       </p>
       <p>
         One Rep Max: <strong>{getOneRepMax(tooltip.tooltipData)}</strong>

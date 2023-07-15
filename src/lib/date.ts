@@ -10,3 +10,11 @@ export const keepDataFrom30Days = (data: ExerciseData[]) => {
     return dataDate >= thirtyDaysAgo && dataDate <= currentDate;
   });
 };
+
+export const formatDate = (date: Date) => {
+  return date.toLocaleDateString("fr-fr", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
