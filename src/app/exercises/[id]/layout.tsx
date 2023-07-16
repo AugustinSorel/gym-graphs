@@ -7,7 +7,7 @@ type Props = {
 
 const Layout = (props: Props) => {
   return (
-    <main className="relative min-h-[calc(100vh-var(--header-height))]">
+    <main className="relative min-h-[calc(100dvh-var(--header-height))]">
       <div className="space-y-5 p-5">{props.newExerciseDataForm}</div>
 
       {props.children}

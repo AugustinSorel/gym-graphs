@@ -27,15 +27,14 @@ const Container = (props: HTMLAttributes<HTMLElement>) => {
   return (
     <main
       {...props}
-      className="relative min-h-[calc(100vh-var(--header-height))]"
+      className="relative min-h-[calc(100dvh-var(--header-height))]"
     />
   );
 };
 
 const Body = (props: HTMLAttributes<HTMLDivElement>) => {
   return <div {...props} className="flex flex-col gap-5 p-5" />;
-}
-
+};
 
 const BackgroundContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   return (
