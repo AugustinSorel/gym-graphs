@@ -35,7 +35,12 @@ const date = z
     invalid_type_error: "date must be a date",
   })
   .min(new Date("1900/01/01"), "date must be after 01/01/1900")
-  .max(new Date(), `date must before ${formatDate(new Date())}`);
+  .max(
+    new Date(new Date().setHours(23, 59, 59)),
+    `date must before ${formatDate(
+      new Date(new Date().setDate(new Date().getDate() + 1))
+    )}`
+  );
 
 export const newExerciseNameSchema = z.object({ name });
 
