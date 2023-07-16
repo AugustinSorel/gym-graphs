@@ -25,7 +25,7 @@ export default HomePage;
 const HeroSection = () => {
   return (
     <section className="relative">
-      <div className="mx-auto flex min-h-[calc(100vh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
+      <div className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
         <HeroTitle>
           Monitor your gym progress <GradientText>with ease</GradientText>
         </HeroTitle>
@@ -68,7 +68,7 @@ const Separator = () => {
         rx="60%"
         ry="40px"
         filter="url(#homePageSeparatorBlur)"
-        className="fill-background lg:[ry:80px]"
+        className="fill-background sm:[ry:80px]"
       />
     </svg>
   );
