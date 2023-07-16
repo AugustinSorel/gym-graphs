@@ -340,7 +340,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
     [brushDateScale, exercise.filteredData]
   );
 
-  //TODO:Mobile responsive
+  //FIXME:Mobile responsive
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) {
       return;
