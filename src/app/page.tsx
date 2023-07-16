@@ -11,8 +11,6 @@ const HomePage = () => {
     <main className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
       <HeroSection />
 
-      <Separator />
-
       <FeatureOne />
 
       <FeatureTwo />
@@ -45,13 +43,15 @@ const HeroSection = () => {
       <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
         <HeroBackground />
       </div>
+
+      <Separator />
     </section>
   );
 };
 
 const Separator = () => {
   return (
-    <svg className="absolute left-0 top-[calc(100vh-100px-var(--header-height))] h-[200px] w-full">
+    <svg className="absolute bottom-0 left-0 -z-10 h-[200px] w-full translate-y-[100px]">
       <filter
         id="homePageSeparatorBlur"
         x="-50%"
@@ -68,7 +68,7 @@ const Separator = () => {
         rx="60%"
         ry="40px"
         filter="url(#homePageSeparatorBlur)"
-        className="fill-background sm:[ry:80px]"
+        className="fill-background lg:[ry:80px]"
       />
     </svg>
   );
