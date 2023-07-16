@@ -111,3 +111,9 @@
     background-color: hsl(var(--muted-foreground));
   }
 }
+
+.opacity-full-on-touch-device {
+  @media (pointer: coarse) {
+    opacity: 100;
+  }
+}

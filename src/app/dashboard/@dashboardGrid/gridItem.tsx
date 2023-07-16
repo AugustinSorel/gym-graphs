@@ -109,7 +109,7 @@ const GridItemActionsContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       {...props}
-      className="z-10 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100 sm:opacity-0"
+      className="opacity-full-on-touch-device z-10 opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100"
     />
   );
 };
