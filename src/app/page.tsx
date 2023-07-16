@@ -11,7 +11,7 @@ const HomePage = () => {
     <main className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
       <HeroSection />
 
-      <hr className="absolute left-1/2 top-[calc(100vh-4vmax-var(--header-height))] h-[8vmax] w-[125%] -translate-x-1/2 rounded-[50%] bg-background blur-md" />
+      <Separator />
 
       <FeatureOne />
 
@@ -46,6 +46,31 @@ const HeroSection = () => {
         <HeroBackground />
       </div>
     </section>
+  );
+};
+
+const Separator = () => {
+  return (
+    <svg className="absolute left-0 top-[calc(100vh-100px-var(--header-height))] h-[200px] w-full">
+      <filter
+        id="homePageSeparatorBlur"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+      >
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+      </filter>
+
+      <ellipse
+        cx="50%"
+        cy="50%"
+        rx="60%"
+        ry="40px"
+        filter="url(#homePageSeparatorBlur)"
+        className="fill-background sm:[ry:80px]"
+      />
+    </svg>
   );
 };
 
@@ -172,23 +197,7 @@ const FeatuesGrid = () => {
 
         <GetStartedAction />
 
-        <svg className="absolute bottom-0 left-0 right-0 -z-10 h-full w-full">
-          <ellipse
-            cx="35%"
-            cy="40%"
-            rx="20%"
-            ry="20%"
-            className="fill-brand-color-one opacity-20 blur-[100px] dark:opacity-10"
-          />
-
-          <ellipse
-            cx="80%"
-            cy="70%"
-            rx="30%"
-            ry="30%"
-            className="fill-brand-color-two opacity-20 blur-[100px] dark:opacity-10"
-          />
-        </svg>
+        <FeaturesGridBackground />
       </div>
     </section>
   );
@@ -252,5 +261,38 @@ const GetStartedAction = () => {
         <ArrowRight className="ml-2" />
       </Link>
     </Button>
+  );
+};
+
+const FeaturesGridBackground = () => {
+  return (
+    <svg className="absolute bottom-0 left-0 right-0 -z-10 h-full w-full">
+      <filter
+        id="featuresGridBlur"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+      >
+        <feGaussianBlur in="SourceGraphic" stdDeviation="60" />
+      </filter>
+
+      <ellipse
+        cx="35%"
+        cy="40%"
+        rx="20%"
+        ry="20%"
+        filter="url(#featuresGridBlur)"
+        className="fill-brand-color-one opacity-20 dark:opacity-10"
+      />
+      <ellipse
+        cx="80%"
+        cy="70%"
+        rx="30%"
+        ry="30%"
+        filter="url(#featuresGridBlur)"
+        className="fill-brand-color-two opacity-20 dark:opacity-10"
+      />
+    </svg>
   );
 };
