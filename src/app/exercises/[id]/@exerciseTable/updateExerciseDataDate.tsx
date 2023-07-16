@@ -19,12 +19,62 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/date";
+import type { updateExerciseDataDate } from "./actions";
+import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
-export const UpdateExerciseDateForm = () => {
+type Props = {
+  onAction: typeof updateExerciseDataDate;
+};
+
+export const UpdateExerciseDataDate = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [exerciseDate, setExerciseDate] = useState(new Date());
+  const { toast } = useToast();
 
-  //TODO: add sumbit handler
+  const actionHandler = async (e: FormData) => {
+    const data = updateExerciseDataDateSchema.safeParse({
+      id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
+      date: exerciseDate,
+    });
+
+    if (!data.success) {
+      return toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: data.error.issues[0]?.message,
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void actionHandler(e)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    }
+
+    try {
+      await onAction(data.data);
+      setIsDialogOpen(() => false);
+    } catch (error) {
+      return toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: error instanceof Error ? error.message : "try again",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => void actionHandler(e)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    }
+  };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
@@ -38,7 +88,10 @@ export const UpdateExerciseDateForm = () => {
         <DialogHeader>
           <DialogTitle className="capitalize">change exercise date</DialogTitle>
         </DialogHeader>
-        <form className="flex flex-col gap-2">
+        <form
+          className="flex flex-col gap-2"
+          action={(e) => void actionHandler(e)}
+        >
           <Popover>
             <PopoverTrigger asChild>
               <Button

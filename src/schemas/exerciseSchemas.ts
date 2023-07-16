@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/date";
 import { z } from "zod";
 
 const id = z
@@ -28,6 +29,14 @@ const weightLifted = z
   .min(1, "weight lifted must be at least 1kg")
   .max(1000, "weight lifted must be at most 1000 kg");
 
+const date = z
+  .date({
+    required_error: "date is required",
+    invalid_type_error: "date must be a date",
+  })
+  .min(new Date("1900/01/01"), "date must be after 01/01/1900")
+  .max(new Date(), `date must before ${formatDate(new Date())}`);
+
 export const newExerciseNameSchema = z.object({ name });
 
 export const deleteExerciseSchema = z.object({ id });
@@ -50,9 +59,17 @@ export const updateWeightLiftedSchema = z.object({
   weightLifted,
 });
 
+export const updateExerciseDataDateSchema = z.object({
+  id,
+  date,
+});
+
 export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
 export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
 export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
 export type UpdateExerciseNameSchema = z.infer<typeof updateExerciseNameSchema>;
 export type UpdateNumberOfRepsSchema = z.infer<typeof updateNumberOfRepsSchema>;
 export type UpdateWeightLiftedSchema = z.infer<typeof updateWeightLiftedSchema>;
+export type UpdateExerciseDataDateSchema = z.infer<
+  typeof updateExerciseDataDateSchema
+>;

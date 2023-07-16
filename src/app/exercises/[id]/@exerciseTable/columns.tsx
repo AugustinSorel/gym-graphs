@@ -17,6 +17,7 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { UpdateNumberOfRepsForm } from "./updateNumberOfRepsForm";
 import {
   deleteDataAction,
+  updateExerciseDataDate,
   updateNumberOfRepsAction,
   updateWeightLiftedAction,
 } from "./actions";
@@ -24,7 +25,7 @@ import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/store/weightUnit";
 import type { ExerciseData } from "@/fakeData";
-import { UpdateExerciseDateForm } from "./updateExerciseDateForm";
+import { UpdateExerciseDataDate } from "./updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
 
 const EstimatedPrHeader = ({
@@ -174,7 +175,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
         <DropdownMenuContent align="end">
           <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
           <UpdateWeightLifted onAction={updateWeightLiftedAction} />
-          <UpdateExerciseDateForm />
+          <UpdateExerciseDataDate onAction={updateExerciseDataDate} />
           <DeleteDataAlertDialog onAction={deleteDataAction} />
         </DropdownMenuContent>
       </DropdownMenu>
