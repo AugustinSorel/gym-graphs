@@ -2,16 +2,14 @@
 
 import { GridLayout } from "./gridLayout";
 import {
-  closestCenter,
   useSensor,
   useSensors,
   DndContext,
   TouchSensor,
   MouseSensor,
-  DragOverlay,
   KeyboardSensor,
 } from "@dnd-kit/core";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
@@ -28,7 +26,6 @@ import { GridItem } from "./gridItem";
 import { Slot } from "@radix-ui/react-slot";
 
 export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
-  const [activeId, setActiveId] = useState<Exercise["id"] | null>(null);
   const [gridItems, setGridItems] = useState<GridItemType[]>(
     getGridItems(exercises)
   );
@@ -52,31 +49,13 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
 
           return arrayMove(prev, oldIndex, newIndex);
         });
-
-        setActiveId(null);
       }
     },
     [gridItems]
   );
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id.toString());
-  }, []);
-
-  const handleDragCancel = useCallback(() => {
-    console.log("hell");
-
-    setActiveId(null);
-  }, []);
-
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-      onDragStart={handleDragStart}
-    >
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         <GridLayout>
           {gridItems.map((exercise) => (
@@ -86,22 +65,6 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
           ))}
         </GridLayout>
       </SortableContext>
-
-      <DragOverlay adjustScale style={{ transformOrigin: "0 0 " }}>
-        {activeId && (
-          <GridItem
-            gridItem={
-              gridItems.find((e) => e.id === activeId) ?? {
-                id: "-1",
-                name: "",
-                itemType: "line",
-                data: [],
-                gridIndex: -1,
-              }
-            }
-          />
-        )}
-      </DragOverlay>
     </DndContext>
   );
 };
@@ -131,8 +94,8 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
     <Slot
       ref={setNodeRef}
       style={{
-        opacity: isDragging ? "0.5" : "1",
         transition,
+        zIndex: isDragging ? "20" : "1",
         transform: transform
           ? `translate3d(${transform?.x}px, ${transform?.y}px, 0) scaleX(${transform?.scaleX})  scaleY(${transform?.scaleY})`
           : undefined,
