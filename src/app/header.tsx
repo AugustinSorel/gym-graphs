@@ -54,7 +54,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useWeightUnit } from "@/store/weightUnit";
+import { useWeightUnit } from "@/context/weightUnit";
 import {
   Popover,
   PopoverContent,

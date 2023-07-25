@@ -3,7 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import type { PropsWithChildren } from "react";
 import { SessionProvider } from "next-auth/react";
-import { WeightUnitProvider } from "@/store/weightUnit";
+import { WeightUnitProvider } from "@/context/weightUnit";
 
 export const Providers = ({ children }: PropsWithChildren) => {
   return (
