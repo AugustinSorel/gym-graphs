@@ -1,7 +1,7 @@
 "use client";
 
 import { type ExerciseData } from "@/fakeData";
-import { useDimensions } from "@/lib/useDimensions";
+import { useDimensions } from "@/hooks/useDimensions";
 import { curveMonotoneX } from "@visx/curve";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";

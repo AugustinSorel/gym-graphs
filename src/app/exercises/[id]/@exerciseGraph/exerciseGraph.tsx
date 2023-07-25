@@ -18,7 +18,7 @@ import type { ExerciseData } from "@/fakeData";
 import { GridRows } from "@visx/grid";
 import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
-import { useDimensions as useDimensionsBase } from "@/lib/useDimensions";
+import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { formatDate } from "@/lib/date";
 
 type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;

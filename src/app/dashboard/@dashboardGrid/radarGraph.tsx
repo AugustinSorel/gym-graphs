@@ -3,7 +3,7 @@ import { scaleLinear } from "@visx/scale";
 import { Point } from "@visx/point";
 import { Line, LineRadial } from "@visx/shape";
 import type { Exercise } from "@/fakeData";
-import { useDimensions } from "@/lib/useDimensions";
+import { useDimensions } from "@/hooks/useDimensions";
 
 export type RadarGraphData = {
   frequency: number;

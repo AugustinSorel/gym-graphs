@@ -23,7 +23,7 @@ import {
 } from "./actions";
 import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
-import { useWeightUnit } from "@/store/weightUnit";
+import { useWeightUnit } from "@/context/weightUnit";
 import type { ExerciseData } from "@/fakeData";
 import { UpdateExerciseDataDate } from "./updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
