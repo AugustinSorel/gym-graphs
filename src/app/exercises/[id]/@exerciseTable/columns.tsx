@@ -20,7 +20,7 @@ import {
   updateExerciseDataDate,
   updateNumberOfRepsAction,
   updateWeightLiftedAction,
-} from "./actions";
+} from "@/serverActions/exerciseData";
 import { UpdateWeightLifted } from "./updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";

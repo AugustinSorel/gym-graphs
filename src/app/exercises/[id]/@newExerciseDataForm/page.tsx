@@ -1,4 +1,4 @@
-import { addExerciseDataAction } from "./actions";
+import { addExerciseDataAction } from "@/serverActions/exerciseData";
 import { NewExerciseDataForm } from "./newExerciseDataForm";
 
 const Page = () => {

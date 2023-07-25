@@ -1,4 +1,4 @@
-import { addNewExerciseAction } from "./actions";
+import { addNewExerciseAction } from "@/serverActions/exercises";
 import { NewExerciseForm } from "./newExerciseNameForm";
 
 const GridExercises = () => {

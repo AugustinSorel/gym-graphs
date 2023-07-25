@@ -15,7 +15,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
-import type { addExerciseDataAction } from "./actions";
+import type { addExerciseDataAction } from "@/serverActions/exerciseData";
 
 type Props = { action: typeof addExerciseDataAction };
 

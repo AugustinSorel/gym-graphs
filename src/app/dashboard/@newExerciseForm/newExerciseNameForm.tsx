@@ -15,7 +15,7 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
-import type { addNewExerciseAction } from "./actions";
+import type { addNewExerciseAction } from "@/serverActions/exercises";
 
 type Props = { action: typeof addNewExerciseAction };
 

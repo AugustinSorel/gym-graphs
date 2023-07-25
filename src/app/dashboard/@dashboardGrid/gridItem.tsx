@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UpdateExerciseNameDialog } from "./updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "./deleteExerciseAlertDialog";
-import { deleteExerciseAction, updateExerciseNameAction } from "./actions";
+import {
+  deleteExerciseAction,
+  updateExerciseNameAction,
+} from "@/serverActions/exercises";
 import type { CSSProperties, HTMLAttributes } from "react";
 import { forwardRef, useState } from "react";
 import {

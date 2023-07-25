@@ -5,7 +5,19 @@ import type {
   UpdateExerciseDataDateSchema,
   UpdateNumberOfRepsSchema,
   UpdateWeightLiftedSchema,
+  AddExerciseDataSchema,
 } from "@/schemas/exerciseSchemas";
+
+export const addExerciseDataAction = async (
+  exerciseData: AddExerciseDataSchema
+) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  //TODO: inset data in db
+  console.log(
+    `data: ${exerciseData.weightLifted} and ${exerciseData.numberOfReps} to id: ${exerciseData.id}`
+  );
+};
 
 export const updateNumberOfRepsAction = async (e: UpdateNumberOfRepsSchema) => {
   await new Promise((res) => setTimeout(res, 1_000));
