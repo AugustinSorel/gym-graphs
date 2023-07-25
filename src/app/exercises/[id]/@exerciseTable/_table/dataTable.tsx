@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import type { ExerciseData } from "@/fakeData";
-import { useExercise } from "../exerciseContext";
+import { useExercise } from "../../exerciseContext";
 
 interface DataTableProps<TValue> {
   columns: ColumnDef<ExerciseData, TValue>[];

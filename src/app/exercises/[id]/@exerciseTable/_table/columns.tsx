@@ -14,18 +14,18 @@ import {
 } from "@/components/ui/tooltip";
 import type { ColumnDef, HeaderContext } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { UpdateNumberOfRepsForm } from "./updateNumberOfRepsForm";
+import { UpdateNumberOfRepsForm } from "../_modals/updateNumberOfRepsForm";
 import {
   deleteDataAction,
   updateExerciseDataDate,
   updateNumberOfRepsAction,
   updateWeightLiftedAction,
 } from "@/serverActions/exerciseData";
-import { UpdateWeightLifted } from "./updateWeightLiftedForm";
-import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
+import { UpdateWeightLifted } from "../_modals/updateWeightLiftedForm";
+import { DeleteDataAlertDialog } from "../_modals/deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { ExerciseData } from "@/fakeData";
-import { UpdateExerciseDataDate } from "./updateExerciseDataDate";
+import { UpdateExerciseDataDate } from "../_modals/updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
 
 const EstimatedPrHeader = ({

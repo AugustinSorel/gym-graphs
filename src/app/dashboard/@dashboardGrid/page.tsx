@@ -1,5 +1,5 @@
 import { getExercises } from "@/fakeData";
-import { SortableGrid } from "./sortableGrid";
+import { SortableGrid } from "./_grid/sortableGrid";
 
 const Page = () => {
   const exercises = getExercises();

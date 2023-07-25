@@ -1,6 +1,5 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import {
   Dialog,
   DialogContent,
@@ -9,28 +8,35 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
-import { Edit2 } from "lucide-react";
+import { CalendarIcon, Edit2 } from "lucide-react";
 import { useState } from "react";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import type { updateWeightLiftedAction } from "./actions";
-import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/date";
+import type { updateExerciseDataDate } from "@/serverActions/exerciseData";
+import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
-type Props = { onAction: typeof updateWeightLiftedAction };
+type Props = {
+  onAction: typeof updateExerciseDataDate;
+};
 
-export const UpdateWeightLifted = ({ onAction }: Props) => {
+export const UpdateExerciseDataDate = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedWeightLifted, setUpdatedWeightLifted] = useState("");
+  const [exerciseDate, setExerciseDate] = useState(new Date());
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateWeightLiftedSchema.safeParse({
-      id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
-      weightLifted: +updatedWeightLifted,
+    const data = updateExerciseDataDateSchema.safeParse({
+      id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
+      date: exerciseDate,
     });
 
     if (!data.success) {
@@ -51,7 +57,6 @@ export const UpdateWeightLifted = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedWeightLifted("");
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
@@ -75,30 +80,44 @@ export const UpdateWeightLifted = ({ onAction }: Props) => {
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <Edit2 className="mr-2 h-4 w-4" />
-          <span className="capitalize">change weight lifted</span>
+          <span className="capitalize">change date</span>
         </DropdownMenuItem>
       </DialogTrigger>
 
       <DialogContent className="space-y-5 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="capitalize">
-            change number of repetitions
-          </DialogTitle>
+          <DialogTitle className="capitalize">change exercise date</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-2"
           action={(e) => void actionHandler(e)}
         >
-          <Label htmlFor="name" className="capitalize">
-            number of reps
-          </Label>
-          <Input
-            id="name"
-            value={updatedWeightLifted}
-            onChange={(e) => setUpdatedWeightLifted(e.target.value)}
-            autoComplete="off"
-          />
-
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(!exerciseDate && "text-muted-foreground")}
+              >
+                {exerciseDate ? (
+                  formatDate(exerciseDate)
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <Calendar
+                mode="single"
+                selected={exerciseDate}
+                onSelect={(day) => setExerciseDate(day ?? new Date())}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
           <SubmitButton />
         </form>
       </DialogContent>

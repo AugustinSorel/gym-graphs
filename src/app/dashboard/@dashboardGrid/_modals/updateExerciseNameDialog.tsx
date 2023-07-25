@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -7,36 +7,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Loader } from "@/components/ui/loader";
-import { CalendarIcon, Edit2 } from "lucide-react";
-import { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib/date";
-import type { updateExerciseDataDate } from "./actions";
-import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
-import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
+import { updateExerciseNameSchema } from "@/schemas/exerciseSchemas";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/ui/loader";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Edit2 } from "lucide-react";
+import type { updateExerciseNameAction } from "@/serverActions/exercises";
 
 type Props = {
-  onAction: typeof updateExerciseDataDate;
+  onAction: typeof updateExerciseNameAction;
 };
 
-export const UpdateExerciseDataDate = ({ onAction }: Props) => {
+export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [exerciseDate, setExerciseDate] = useState(new Date());
+  const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateExerciseDataDateSchema.safeParse({
+    const data = updateExerciseNameSchema.safeParse({
       id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
-      date: exerciseDate,
+      name: updatedExerciseName,
     });
 
     if (!data.success) {
@@ -57,6 +53,7 @@ export const UpdateExerciseDataDate = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
+      setUpdatedExerciseName("");
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
@@ -80,44 +77,27 @@ export const UpdateExerciseDataDate = ({ onAction }: Props) => {
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <Edit2 className="mr-2 h-4 w-4" />
-          <span className="capitalize">change date</span>
+          <span className="capitalize">rename</span>
         </DropdownMenuItem>
       </DialogTrigger>
 
       <DialogContent className="space-y-5 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="capitalize">change exercise date</DialogTitle>
+          <DialogTitle className="capitalize">change exercise name</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-2"
           action={(e) => void actionHandler(e)}
         >
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(!exerciseDate && "text-muted-foreground")}
-              >
-                {exerciseDate ? (
-                  formatDate(exerciseDate)
-                ) : (
-                  <span>Pick a date</span>
-                )}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <Calendar
-                mode="single"
-                selected={exerciseDate}
-                onSelect={(day) => setExerciseDate(day ?? new Date())}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("1900-01-01")
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <Label htmlFor="name" className="capitalize">
+            exercise name
+          </Label>
+          <Input
+            id="name"
+            value={updatedExerciseName}
+            onChange={(e) => setUpdatedExerciseName(e.target.value)}
+          />
+
           <SubmitButton />
         </form>
       </DialogContent>

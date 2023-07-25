@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,32 +8,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
-import { updateExerciseNameSchema } from "@/schemas/exerciseSchemas";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
-import type { updateExerciseNameAction } from "./actions";
+import { useState } from "react";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import type { updateWeightLiftedAction } from "@/serverActions/exerciseData";
+import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
-type Props = {
-  onAction: typeof updateExerciseNameAction;
-};
+type Props = { onAction: typeof updateWeightLiftedAction };
 
-export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
+export const UpdateWeightLifted = ({ onAction }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
+  const [updatedWeightLifted, setUpdatedWeightLifted] = useState("");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateExerciseNameSchema.safeParse({
-      id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
-      name: updatedExerciseName,
+    const data = updateWeightLiftedSchema.safeParse({
+      id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
+      weightLifted: +updatedWeightLifted,
     });
 
     if (!data.success) {
@@ -53,7 +51,7 @@ export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedExerciseName("");
+      setUpdatedWeightLifted("");
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
@@ -77,25 +75,28 @@ export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <Edit2 className="mr-2 h-4 w-4" />
-          <span className="capitalize">rename</span>
+          <span className="capitalize">change weight lifted</span>
         </DropdownMenuItem>
       </DialogTrigger>
 
       <DialogContent className="space-y-5 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="capitalize">change exercise name</DialogTitle>
+          <DialogTitle className="capitalize">
+            change number of repetitions
+          </DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-2"
           action={(e) => void actionHandler(e)}
         >
           <Label htmlFor="name" className="capitalize">
-            exercise name
+            number of reps
           </Label>
           <Input
             id="name"
-            value={updatedExerciseName}
-            onChange={(e) => setUpdatedExerciseName(e.target.value)}
+            value={updatedWeightLifted}
+            onChange={(e) => setUpdatedWeightLifted(e.target.value)}
+            autoComplete="off"
           />
 
           <SubmitButton />

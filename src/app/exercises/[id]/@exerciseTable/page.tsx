@@ -1,5 +1,5 @@
-import { columns } from "./columns";
-import { DataTable } from "./dataTable";
+import { columns } from "./_table/columns";
+import { DataTable } from "./_table/dataTable";
 
 const Page = () => {
   return (

@@ -18,7 +18,7 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
-import type { updateNumberOfRepsAction } from "./actions";
+import type { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
 
 type Props = { onAction: typeof updateNumberOfRepsAction };
 

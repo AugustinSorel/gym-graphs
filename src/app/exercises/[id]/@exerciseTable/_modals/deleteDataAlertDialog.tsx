@@ -12,26 +12,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ToastAction } from "@/components/ui/toast";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { deleteExerciseAction } from "./actions";
+import type { deleteDataAction } from "@/serverActions/exerciseData";
+import { ToastAction } from "@/components/ui/toast";
 
 type Props = {
-  onAction: typeof deleteExerciseAction;
+  onAction: typeof deleteDataAction;
 };
-
-export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
+export const DeleteDataAlertDialog = ({ onAction }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const exercise = "bench press";
 
   const deleteHandler = async () => {
     try {
-      setIsDeleteExerciseLoading(() => true);
+      setIsLoading(() => true);
       await onAction({ id: "" });
       setIsAlertDialogOpen(() => false);
     } catch (error) {
@@ -46,7 +44,7 @@ export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
         ),
       });
     } finally {
-      setIsDeleteExerciseLoading(() => false);
+      setIsLoading(() => false);
     }
   };
 
@@ -58,7 +56,7 @@ export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
           onSelect={(e) => e.preventDefault()}
         >
           <Trash className="mr-2 h-4 w-4" />
-          <span className="capitalize">delete exercise</span>
+          <span className="capitalize">delete data</span>
         </DropdownMenuItem>
       </AlertDialogTrigger>
 
@@ -66,8 +64,8 @@ export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{" "}
-            {exercise} from your exercise list
+            This action cannot be undone. This will permanently delete the data
+            from your exercise
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -79,7 +77,7 @@ export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
               void deleteHandler();
             }}
           >
-            {isDeleteExerciseLoading && <Loader />}
+            {isLoading && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>
