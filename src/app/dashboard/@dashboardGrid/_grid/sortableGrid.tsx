@@ -20,7 +20,6 @@ import {
 import { useCallback, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { type Exercise } from "@/fakeData";
-import { keepDataFrom30Days } from "@/lib/date";
 import type { GridItemType } from "./gridItem";
 import { GridItem } from "./gridItem";
 import { Slot } from "@radix-ui/react-slot";
@@ -71,15 +70,22 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
 
 const getGridItems = (exercises: Exercise[]) => {
   return [
-    ...exercises.map((ex) => ({ ...ex, itemType: "line" as const })),
+    ...exercises.map((ex) => ({
+      ...ex,
+      itemType: "line" as const,
+      isDraggable: true,
+      isModifiable: true,
+    })),
     {
       id: "radar",
       name: "radar",
       gridIndex: 0,
+      isDraggable: true,
+      isModifiable: false,
       itemType: "radar" as const,
       data: exercises.map((exercise) => ({
         exerciseName: exercise.name,
-        frequency: keepDataFrom30Days(exercise.data).length,
+        frequency: exercise.data.length,
       })),
     },
   ];

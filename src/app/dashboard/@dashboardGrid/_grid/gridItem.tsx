@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GripVertical, MoreHorizontal } from "lucide-react";
@@ -27,7 +29,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { RadarGraph, type RadarGraphData } from "../_graphs/radarGraph";
 import { LineGraph, type LineGraphData } from "../_graphs/lineGraph";
 
-export type GridItemType = { id: string; name: string; gridIndex: number } & (
+export type GridItemType = {
+  id: string;
+  name: string;
+  gridIndex: number;
+  isDraggable: boolean;
+  isModifiable: boolean;
+} & (
   | {
       itemType: "line";
       data: LineGraphData[];
@@ -52,7 +60,8 @@ export const GridItem = forwardRef<HTMLLIElement, Props>(
             <GridItemTitle>{gridItem.name}</GridItemTitle>
 
             <GridItemActionsContainer>
-              <DragComponent id={gridItem.id} />
+              {gridItem.isModifiable && <ExerciseDropDown />}
+              {gridItem.isDraggable && <DragComponent id={gridItem.id} />}
             </GridItemActionsContainer>
           </GridItemHeader>
 
@@ -73,8 +82,8 @@ export const GridItem = forwardRef<HTMLLIElement, Props>(
           <GridItemTitle>{gridItem.name}</GridItemTitle>
 
           <GridItemActionsContainer>
-            <ExerciseDropDown />
-            <DragComponent id={gridItem.id} />
+            {gridItem.isModifiable && <ExerciseDropDown />}
+            {gridItem.isDraggable && <DragComponent id={gridItem.id} />}
           </GridItemActionsContainer>
         </GridItemHeader>
 
