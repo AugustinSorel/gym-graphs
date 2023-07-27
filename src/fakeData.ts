@@ -96,6 +96,13 @@ const exercises: Exercise[] = [
         numberOfReps: 8,
         oneRepMax: 160,
       },
+      {
+        id: "83ba512a-3a2c2058-0dea-4940-a99a-ae61",
+        date: "2023-05-25",
+        weight: 150,
+        numberOfReps: 8,
+        oneRepMax: 180,
+      },
     ],
   },
   {
@@ -221,7 +228,12 @@ const exercises: Exercise[] = [
 ];
 
 export const getExercises = () => {
-  return exercises;
+  return exercises.map((exercise) => ({
+    ...exercise,
+    data: exercise.data.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    ),
+  }));
 };
 
 export const getExercise = (name: string) => {
