@@ -132,12 +132,6 @@ export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
 
         <Group>
           {data.map((d, i) => {
-            if (
-              d.frequency > Math.min(...data.map(y)) &&
-              d.frequency < Math.max(...data.map(y))
-            ) {
-              return null;
-            }
             const index = i === 0 ? 1 : i === data.length - 1 ? 0 : i + 1;
             const point = points[index] ?? { x: 0, y: 0 };
             return (

@@ -33,7 +33,12 @@ const Container = (props: HTMLAttributes<HTMLElement>) => {
 };
 
 const Body = (props: HTMLAttributes<HTMLDivElement>) => {
-  return <div {...props} className="flex flex-col gap-5 p-5" />;
+  return (
+    <div
+      {...props}
+      className="mx-auto flex max-w-[calc(var(--exercise-card-height)*4+20px*5)] flex-col gap-5 p-5"
+    />
+  );
 };
 
 const BackgroundContainer = (props: HTMLAttributes<HTMLDivElement>) => {
