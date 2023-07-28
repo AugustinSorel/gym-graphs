@@ -17,7 +17,7 @@ import {
   deleteExerciseAction,
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
-import type { CSSProperties, HTMLAttributes, PropsWithChildren } from "react";
+import type { CSSProperties, PropsWithChildren, ComponentProps } from "react";
 import { forwardRef, useState } from "react";
 import {
   Tooltip,
@@ -62,7 +62,7 @@ export const GridItem = forwardRef<HTMLLIElement, Props>((props, ref) => {
 });
 GridItem.displayName = "GridItem";
 
-const Container = forwardRef<HTMLLIElement, HTMLAttributes<HTMLLIElement>>(
+const Container = forwardRef<HTMLLIElement, ComponentProps<"li">>(
   (props, ref) => {
     return (
       <li
@@ -75,7 +75,7 @@ const Container = forwardRef<HTMLLIElement, HTMLAttributes<HTMLLIElement>>(
 );
 Container.displayName = "x";
 
-const Header = (props: HTMLAttributes<HTMLHeadElement>) => {
+const Header = (props: ComponentProps<"header">) => {
   return (
     <header
       {...props}
@@ -84,7 +84,7 @@ const Header = (props: HTMLAttributes<HTMLHeadElement>) => {
   );
 };
 
-const ActionContainer = (props: HTMLAttributes<HTMLDivElement>) => {
+const ActionContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
@@ -93,7 +93,7 @@ const ActionContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   );
 };
 
-const Title = (props: HTMLAttributes<HTMLParagraphElement>) => {
+const Title = (props: ComponentProps<"p">) => {
   return <p {...props} className="mr-auto truncate capitalize" />;
 };
 

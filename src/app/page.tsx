@@ -3,12 +3,12 @@ import { HeroBackground } from "@/components/ui/heroBackground";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { HTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 const HomePage = () => {
   return (
-    <main className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56">
+    <MainContainer>
       <HeroSection />
 
       <FeatureOne />
@@ -16,7 +16,7 @@ const HomePage = () => {
       <FeatureTwo />
 
       <FeatuesGrid />
-    </main>
+    </MainContainer>
   );
 };
 
@@ -24,8 +24,8 @@ export default HomePage;
 
 const HeroSection = () => {
   return (
-    <section className="relative">
-      <div className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl">
+    <HeroContainer>
+      <HeroContent>
         <HeroTitle>
           Monitor your gym progress <GradientText>with ease</GradientText>
         </HeroTitle>
@@ -38,14 +38,14 @@ const HeroSection = () => {
         </Text>
 
         <GetStartedAction />
-      </div>
+      </HeroContent>
 
-      <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
+      <HeroBackgroundContainer>
         <HeroBackground />
-      </div>
+      </HeroBackgroundContainer>
 
       <Separator />
-    </section>
+    </HeroContainer>
   );
 };
 
@@ -76,7 +76,7 @@ const Separator = () => {
 
 const FeatureOne = () => {
   return (
-    <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+    <FeatureContainer>
       <HeroTitle>
         Let&apos;s get your gym progress to{" "}
         <GradientText> the moon </GradientText>
@@ -89,7 +89,7 @@ const FeatureOne = () => {
         progress
       </Text>
 
-      <div className="relative xl:col-start-2 xl:row-span-2 xl:row-start-1">
+      <FeatureImageContainer className="xl:col-start-2">
         <Image
           src="/dashboard.png"
           priority
@@ -98,14 +98,14 @@ const FeatureOne = () => {
           height={2000}
           className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)]"
         />
-      </div>
-    </section>
+      </FeatureImageContainer>
+    </FeatureContainer>
   );
 };
 
 const FeatureTwo = () => {
   return (
-    <section className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2">
+    <FeatureContainer>
       <HeroTitle>
         Our system will adapt <GradientText>to you</GradientText>
       </HeroTitle>
@@ -115,7 +115,7 @@ const FeatureTwo = () => {
         <StrongText>the best</StrongText> user experience possible.
       </Text>
 
-      <div className="relative xl:col-start-1 xl:row-span-2 xl:row-start-1">
+      <FeatureImageContainer className="xl:col-start-1">
         <Image
           src="/exercisePage.png"
           priority
@@ -124,18 +124,18 @@ const FeatureTwo = () => {
           height={2000}
           className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)]"
         />
-      </div>
-    </section>
+      </FeatureImageContainer>
+    </FeatureContainer>
   );
 };
 
 const FeatuesGrid = () => {
   return (
-    <section className="relative">
-      <div className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5">
+    <FeaturesGridWrapper>
+      <FeaturesGridContainer>
         <HeroTitle>what we offer</HeroTitle>
 
-        <ul className='grid grid-cols-1 gap-5 lg:grid-cols-7 lg:grid-rows-2 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'>
+        <GridContainer>
           <Card className="lg:[grid-area:card-one]">
             <CardIcon>📈</CardIcon>
             <CardTitle>insights & analytics</CardTitle>
@@ -193,17 +193,91 @@ const FeatuesGrid = () => {
               personal information.
             </CardText>
           </Card>
-        </ul>
+        </GridContainer>
 
         <GetStartedAction />
 
         <FeaturesGridBackground />
-      </div>
-    </section>
+      </FeaturesGridContainer>
+    </FeaturesGridWrapper>
   );
 };
 
-const Card = (props: HTMLAttributes<HTMLLIElement>) => {
+const MainContainer = (props: ComponentProps<"main">) => {
+  return (
+    <main
+      {...props}
+      className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56"
+    />
+  );
+};
+
+const HeroContainer = (props: ComponentProps<"section">) => {
+  return <section {...props} className="relative" />;
+};
+
+const HeroContent = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl"
+    />
+  );
+};
+
+const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+    />
+  );
+};
+
+const FeatureContainer = (props: ComponentProps<"section">) => {
+  return (
+    <section
+      {...props}
+      className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
+    />
+  );
+};
+
+const FeatureImageContainer = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className={twMerge(
+        "relative xl:row-span-2 xl:row-start-1",
+        props.className
+      )}
+    />
+  );
+};
+
+const FeaturesGridWrapper = (props: ComponentProps<"section">) => {
+  return <section {...props} className="relative" />;
+};
+
+const FeaturesGridContainer = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5"
+    />
+  );
+};
+
+const GridContainer = (props: ComponentProps<"ul">) => {
+  return (
+    <ul
+      {...props}
+      className='grid grid-cols-1 gap-5 lg:grid-cols-7 lg:grid-rows-2 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'
+    />
+  );
+};
+
+const Card = (props: ComponentProps<"li">) => {
   return (
     <li
       {...props}
@@ -215,23 +289,23 @@ const Card = (props: HTMLAttributes<HTMLLIElement>) => {
   );
 };
 
-const CardIcon = (props: HTMLAttributes<HTMLSpanElement>) => {
+const CardIcon = (props: ComponentProps<"span">) => {
   return <span className="" {...props} />;
 };
 
-const CardTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
+const CardTitle = (props: ComponentProps<"h2">) => {
   return <h2 {...props} className="capitalize" />;
 };
 
-const CardText = (props: HTMLAttributes<HTMLParagraphElement>) => {
+const CardText = (props: ComponentProps<"p">) => {
   return <p className="text-lg font-normal text-muted-foreground" {...props} />;
 };
 
-const Text = (props: HTMLAttributes<HTMLParagraphElement>) => {
+const Text = (props: ComponentProps<"p">) => {
   return <p className="max-w-xl sm:text-2xl" {...props} />;
 };
 
-const HeroTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
+const HeroTitle = (props: ComponentProps<"h1">) => {
   return (
     <h1
       className="max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl"
@@ -240,7 +314,7 @@ const HeroTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
   );
 };
 
-const GradientText = (props: HTMLAttributes<HTMLElement>) => {
+const GradientText = (props: ComponentProps<"strong">) => {
   return (
     <strong
       className="bg-brand-gradient bg-clip-text font-bold text-transparent"
@@ -249,7 +323,7 @@ const GradientText = (props: HTMLAttributes<HTMLElement>) => {
   );
 };
 
-const StrongText = (props: HTMLAttributes<HTMLElement>) => {
+const StrongText = (props: ComponentProps<"strong">) => {
   return <strong className="font-semibold text-brand-color-two" {...props} />;
 };
 
@@ -286,10 +360,10 @@ const FeaturesGridBackground = () => {
         className="fill-brand-color-one opacity-20 dark:opacity-10"
       />
       <ellipse
-        cx="80%"
+        cx="70%"
         cy="70%"
-        rx="30%"
-        ry="30%"
+        rx="20%"
+        ry="20%"
         filter="url(#featuresGridBlur)"
         className="fill-brand-color-two opacity-20 dark:opacity-10"
       />

@@ -2,7 +2,7 @@
 
 import { ExerciseGraph } from "./exerciseGraph";
 import { useExercise } from "../exerciseContext";
-import type { HTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 
 const Page = () => {
   const exercise = useExercise();
@@ -22,7 +22,7 @@ const Page = () => {
 
 export default Page;
 
-const Card = (props: HTMLAttributes<HTMLDivElement>) => {
+const Card = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
@@ -31,16 +31,16 @@ const Card = (props: HTMLAttributes<HTMLDivElement>) => {
   );
 };
 
-const CardHeader = (props: HTMLAttributes<HTMLHeadElement>) => {
+const CardHeader = (props: ComponentProps<"header">) => {
   return (
     <header {...props} className="border-b border-border bg-primary p-3" />
   );
 };
 
-const CardTitle = (props: HTMLAttributes<HTMLHeadingElement>) => {
+const CardTitle = (props: ComponentProps<"h2">) => {
   return <h2 {...props} className="truncate font-medium capitalize" />;
 };
 
-const CardBody = (props: HTMLAttributes<HTMLDivElement>) => {
+const CardBody = (props: ComponentProps<"div">) => {
   return <div {...props} className="relative h-[500px] overflow-hidden" />;
 };
