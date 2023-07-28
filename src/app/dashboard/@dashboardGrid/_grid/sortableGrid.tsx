@@ -19,16 +19,15 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { useCallback, useState } from "react";
-import type { PropsWithChildren } from "react";
-import { type Exercise } from "@/fakeData";
-import type { GridItemType } from "./gridItem";
-import { GridItem } from "./gridItem";
+import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 
-export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
-  const [gridItems, setGridItems] = useState<GridItemType[]>(
-    getGridItems(exercises)
-  );
+type Props = {
+  items: { render: ReactNode; id: string }[];
+};
+
+export const SortableGrid = ({ items }: Props) => {
+  const [gridItems, setGridItems] = useState(items);
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -62,39 +61,15 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         <GridLayout>
-          {gridItems.map((exercise) => (
-            <SortableItem key={exercise.id} id={exercise.id}>
-              <GridItem gridItem={exercise} />
+          {gridItems.map((item) => (
+            <SortableItem key={item.id} id={item.id}>
+              {item.render}
             </SortableItem>
           ))}
         </GridLayout>
       </SortableContext>
     </DndContext>
   );
-};
-
-const getGridItems = (exercises: Exercise[]) => {
-  return [
-    ...exercises.map((ex) => ({
-      ...ex,
-      href: `/exercises/${ex.name}`,
-      itemType: "line" as const,
-      isDraggable: true,
-      isModifiable: true,
-    })),
-    {
-      id: "radar",
-      name: "radar",
-      gridIndex: 0,
-      isDraggable: true,
-      isModifiable: false,
-      itemType: "radar" as const,
-      data: exercises.map((exercise) => ({
-        exerciseName: exercise.name,
-        frequency: exercise.data.length,
-      })),
-    },
-  ];
 };
 
 const SortableItem = (props: { id: string } & PropsWithChildren) => {

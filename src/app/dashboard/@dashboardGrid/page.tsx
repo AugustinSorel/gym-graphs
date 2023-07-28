@@ -3,6 +3,8 @@ import { SortableGrid } from "./_grid/sortableGrid";
 import { GridItem } from "./_grid/gridItem";
 import { GridLayout } from "./_grid/gridLayout";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
+import { LineGraph } from "./_graphs/lineGraph";
+import { RadarGraph } from "./_graphs/radarGraph";
 
 type ExercisesByMonth = {
   date: string;
@@ -53,7 +55,43 @@ const Page = () => {
         <h1 className="-mt-5 text-sm font-semibold text-muted-foreground">
           All
         </h1>
-        <SortableGrid exercises={exercises} />
+        <SortableGrid
+          items={exercises
+            .map((exercise) => ({
+              render: (
+                <GridItem
+                  isDraggable
+                  isModifiable
+                  id={exercise.id}
+                  title={exercise.name}
+                  href={`/exercises/${exercise.name}`}
+                >
+                  <LineGraph data={exercise.data} />
+                </GridItem>
+              ),
+              id: exercise.id,
+            }))
+            .concat([
+              {
+                render: (
+                  <GridItem
+                    isDraggable
+                    isModifiable={false}
+                    id="radar"
+                    title="radar"
+                  >
+                    <RadarGraph
+                      data={exercises.map((exercise) => ({
+                        exerciseName: exercise.name,
+                        frequency: exercise.data.length,
+                      }))}
+                    />
+                  </GridItem>
+                ),
+                id: "radar",
+              },
+            ])}
+        />
       </section>
       {exercisesByMonth.map((group) => (
         <section className="space-y-1">
@@ -67,37 +105,36 @@ const Page = () => {
             <>
               {group.exercises.map((exercise) => (
                 <GridItem
-                  gridItem={{
-                    ...exercise,
-                    href: `/exercises/${exercise.name}?from=${
-                      group.date
-                    }&to=${dateAsYearMonthDayFormat(
-                      new Date(
-                        new Date(group.date).getFullYear(),
-                        new Date(group.date).getMonth() + 1,
-                        0
-                      )
-                    )}`,
-                    itemType: "line",
-                    isDraggable: false,
-                    isModifiable: false,
-                  }}
-                />
+                  isDraggable={false}
+                  isModifiable={false}
+                  id={exercise.id}
+                  title={exercise.name}
+                  href={`/exercises/${exercise.name}?from=${
+                    group.date
+                  }&to=${dateAsYearMonthDayFormat(
+                    new Date(
+                      new Date(group.date).getFullYear(),
+                      new Date(group.date).getMonth() + 1,
+                      0
+                    )
+                  )}`}
+                >
+                  <LineGraph data={exercise.data} />
+                </GridItem>
               ))}
               <GridItem
-                gridItem={{
-                  id: "radar",
-                  name: "radar",
-                  gridIndex: 0,
-                  itemType: "radar" as const,
-                  isDraggable: false,
-                  isModifiable: false,
-                  data: group.exercises.map((exercise) => ({
+                id="radar"
+                isDraggable={false}
+                isModifiable={false}
+                title="radar"
+              >
+                <RadarGraph
+                  data={group.exercises.map((exercise) => ({
                     exerciseName: exercise.name,
                     frequency: exercise.data.length,
-                  })),
-                }}
-              />
+                  }))}
+                />
+              </GridItem>
             </>
           </GridLayout>
         </section>
