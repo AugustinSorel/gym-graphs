@@ -1,4 +1,4 @@
-import type { HTMLProps } from "react";
+import type { ComponentProps } from "react";
 import { EmailSignIn, GithubSignIn, GoogleSignIn } from "./authControllers";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 
@@ -30,13 +30,13 @@ const AuthForm = () => {
 
 export default AuthForm;
 
-const Title = (props: HTMLProps<HTMLHeadingElement>) => {
+const Title = (props: ComponentProps<"h2">) => {
   return (
     <h2 {...props} className="text-center text-3xl font-bold capitalize" />
   );
 };
 
-const Paragraph = (props: HTMLProps<HTMLParagraphElement>) => {
+const Paragraph = (props: ComponentProps<"p">) => {
   return (
     <p
       {...props}
@@ -45,7 +45,7 @@ const Paragraph = (props: HTMLProps<HTMLParagraphElement>) => {
   );
 };
 
-const SeparatorText = (props: HTMLProps<HTMLParagraphElement>) => {
+const SeparatorText = (props: ComponentProps<"p">) => {
   return (
     <p
       {...props}
@@ -54,7 +54,7 @@ const SeparatorText = (props: HTMLProps<HTMLParagraphElement>) => {
   );
 };
 
-const BackgroundContainer = (props: HTMLProps<HTMLDivElement>) => {
+const BackgroundContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
@@ -63,7 +63,7 @@ const BackgroundContainer = (props: HTMLProps<HTMLDivElement>) => {
   );
 };
 
-const AuthContainer = (props: HTMLProps<HTMLDivElement>) => {
+const AuthContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
@@ -72,14 +72,14 @@ const AuthContainer = (props: HTMLProps<HTMLDivElement>) => {
   );
 };
 
-const Container = (props: HTMLProps<HTMLDivElement>) => {
+const Container = (props: ComponentProps<"div">) => {
   return <div {...props} className="relative flex grow" />;
 };
 
-const AuthControllersContainer = (props: HTMLProps<HTMLDivElement>) => {
+const AuthControllersContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="space-y-2" />;
 };
 
-const AuthTextsContainer = (props: HTMLProps<HTMLDivElement>) => {
+const AuthTextsContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="space-y-2" />;
 };

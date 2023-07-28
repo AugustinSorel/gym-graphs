@@ -5,9 +5,11 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
-import type { HTMLProps } from "react";
+import type { ComponentProps } from "react";
 
 //TODO: infinte scroll
+//TODO: lighthouse
+//TODO: html validator
 const ExercisesByMonthGrid = () => {
   const exercises = getExercises();
   const exercisesByMonth = getExercisesByMonth(exercises);
@@ -106,11 +108,11 @@ const getExercisesByMonth = (exercises: Exercise[]) => {
   return exercisesByMonth;
 };
 
-const Container = (props: HTMLProps<HTMLElement>) => {
+const Container = (props: ComponentProps<"section">) => {
   return <section {...props} className="mt-16 space-y-4" />;
 };
 
-const DateText = (props: HTMLProps<HTMLTimeElement>) => {
+const DateText = (props: ComponentProps<"time">) => {
   return (
     <time
       {...props}

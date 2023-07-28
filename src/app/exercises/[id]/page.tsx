@@ -3,7 +3,7 @@ import ExerciseGraph from "./@exerciseGraph/page";
 import ExerciseTable from "./@exerciseTable/page";
 import { ExerciseProvider } from "./exerciseContext";
 import { redirect } from "next/navigation";
-import type { HTMLProps } from "react";
+import type { ComponentProps } from "react";
 
 const Page = (props: { params: { id: string } }) => {
   const exercise = getExercise(props.params.id.replace(/%20/g, " "));
@@ -24,7 +24,7 @@ const Page = (props: { params: { id: string } }) => {
 
 export default Page;
 
-const ContentContainer = (props: HTMLProps<HTMLDivElement>) => {
+const ContentContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}

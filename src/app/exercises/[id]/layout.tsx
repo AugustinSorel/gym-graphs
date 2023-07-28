@@ -1,5 +1,5 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { HTMLProps, PropsWithChildren, ReactNode } from "react";
+import type { ComponentProps, PropsWithChildren, ReactNode } from "react";
 
 type Props = {
   newExerciseDataForm: ReactNode;
@@ -21,7 +21,7 @@ const Layout = (props: Props) => {
 
 export default Layout;
 
-const Main = (props: HTMLProps<HTMLElement>) => {
+const Main = (props: ComponentProps<"main">) => {
   return (
     <main
       {...props}
@@ -30,11 +30,11 @@ const Main = (props: HTMLProps<HTMLElement>) => {
   );
 };
 
-const FormContainer = (props: HTMLProps<HTMLDivElement>) => {
+const FormContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="space-y-5 p-5" />;
 };
 
-const BackgroundContainer = (props: HTMLProps<HTMLDivElement>) => {
+const BackgroundContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
