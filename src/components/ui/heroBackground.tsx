@@ -1,3 +1,4 @@
+//FIXME: optimize this
 export const HeroBackground = () => {
   return (
     <svg

@@ -1,6 +1,5 @@
 "use client";
 
-import { GridLayout } from "./gridLayout";
 import {
   useSensor,
   useSensors,
@@ -60,13 +59,11 @@ export const SortableGrid = ({ items }: Props) => {
       collisionDetection={closestCenter}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        <GridLayout>
-          {gridItems.map((item) => (
-            <SortableItem key={item.id} id={item.id}>
-              {item.render}
-            </SortableItem>
-          ))}
-        </GridLayout>
+        {gridItems.map((item) => (
+          <SortableItem key={item.id} id={item.id}>
+            {item.render}
+          </SortableItem>
+        ))}
       </SortableContext>
     </DndContext>
   );

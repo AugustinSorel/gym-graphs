@@ -3,7 +3,8 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 type Props = {
   newExerciseForm: ReactNode;
-  dashboardGrid: ReactNode;
+  allExercisesGrid: ReactNode;
+  exercisesByMonthGrid: ReactNode;
 };
 
 const Layout = (props: Props) => {
@@ -11,7 +12,8 @@ const Layout = (props: Props) => {
     <Container>
       <Body>
         {props.newExerciseForm}
-        {props.dashboardGrid}
+        {props.allExercisesGrid}
+        {props.exercisesByMonthGrid}
       </Body>
 
       <BackgroundContainer>
