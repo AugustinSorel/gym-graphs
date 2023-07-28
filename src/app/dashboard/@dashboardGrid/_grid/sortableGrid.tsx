@@ -8,6 +8,7 @@ import {
   TouchSensor,
   MouseSensor,
   KeyboardSensor,
+  closestCenter,
 } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
@@ -54,7 +55,11 @@ export const SortableGrid = ({ exercises }: { exercises: Exercise[] }) => {
   );
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+      collisionDetection={closestCenter}
+    >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         <GridLayout>
           {gridItems.map((exercise) => (
@@ -72,6 +77,7 @@ const getGridItems = (exercises: Exercise[]) => {
   return [
     ...exercises.map((ex) => ({
       ...ex,
+      href: `/exercises/${ex.name}`,
       itemType: "line" as const,
       isDraggable: true,
       isModifiable: true,

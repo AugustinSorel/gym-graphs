@@ -38,6 +38,7 @@ export type GridItemType = {
 } & (
   | {
       itemType: "line";
+      href: string;
       data: LineGraphData[];
     }
   | {
@@ -73,8 +74,8 @@ export const GridItem = forwardRef<HTMLLIElement, Props>(
     return (
       <GridItemContainer ref={ref} style={style}>
         <Link
-          href={`/exercises/${gridItem.name}`}
-          className="absolute inset-0 duration-300"
+          href={gridItem.href}
+          className="absolute inset-0"
           aria-label={`go to exercise ${gridItem.name}`}
         />
 
@@ -112,7 +113,7 @@ const GridItemHeader = (props: HTMLAttributes<HTMLHeadElement>) => {
   return (
     <header
       {...props}
-      className="flex items-center gap-2 border-b border-border bg-primary p-2"
+      className="flex h-14 items-center gap-2 border-b border-border bg-primary px-2"
     />
   );
 };

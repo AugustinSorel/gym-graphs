@@ -2,32 +2,28 @@ import { Exercise, getExercises } from "@/fakeData";
 import { SortableGrid } from "./_grid/sortableGrid";
 import { GridItem } from "./_grid/gridItem";
 import { GridLayout } from "./_grid/gridLayout";
+import { dateAsYearMonthDayFormat } from "@/lib/date";
 
-type D = {
+type ExercisesByMonth = {
   date: string;
   exercises: Exercise[];
 }[];
 
-const Page = () => {
-  const exercises = getExercises();
-
-  let res: D = [];
+const getExercisesByMonth = (exercises: Exercise[]) => {
+  let exercisesByMonth: ExercisesByMonth = [];
 
   for (const exercise of exercises) {
     for (const data of exercise.data) {
-      const date = new Date(new Date(data.date).setDate(1)).toLocaleDateString(
-        "us-us",
-        {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }
-      );
+      const firstDayOfMonthDate = new Date(new Date(data.date).setDate(1));
+      const date = dateAsYearMonthDayFormat(firstDayOfMonthDate);
 
-      const entry = res.find((entry) => entry.date === date);
+      const entry = exercisesByMonth.find((entry) => entry.date === date);
 
       if (!entry) {
-        res.push({ date, exercises: [{ ...exercise, data: [data] }] });
+        exercisesByMonth.push({
+          date,
+          exercises: [{ ...exercise, data: [data] }],
+        });
         continue;
       }
 
@@ -44,6 +40,13 @@ const Page = () => {
     }
   }
 
+  return exercisesByMonth;
+};
+
+const Page = () => {
+  const exercises = getExercises();
+  const exercisesByMonth = getExercisesByMonth(exercises);
+
   return (
     <>
       <section className="space-y-1">
@@ -52,10 +55,10 @@ const Page = () => {
         </h1>
         <SortableGrid exercises={exercises} />
       </section>
-      {res.map((group) => (
+      {exercisesByMonth.map((group) => (
         <section className="space-y-1">
           <h1 className="text-sm font-semibold text-muted-foreground">
-            {new Date(group.date).toLocaleDateString("us-us", {
+            {new Date(group.date).toLocaleDateString(undefined, {
               month: "long",
               year: "numeric",
             })}
@@ -66,6 +69,15 @@ const Page = () => {
                 <GridItem
                   gridItem={{
                     ...exercise,
+                    href: `/exercises/${exercise.name}?from=${
+                      group.date
+                    }&to=${dateAsYearMonthDayFormat(
+                      new Date(
+                        new Date(group.date).getFullYear(),
+                        new Date(group.date).getMonth() + 1,
+                        0
+                      )
+                    )}`,
                     itemType: "line",
                     isDraggable: false,
                     isModifiable: false,
