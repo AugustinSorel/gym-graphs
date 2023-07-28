@@ -17,20 +17,11 @@ const DEFAULT_HEIGHT = 253;
 export const LineGraph = ({ data }: { data: LineGraphData[] }) => {
   const dimensions = useDimensions(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
-  const currentMonthData = data.filter((d) => {
-    const dataDate = new Date(d.date);
-    const currentDate = new Date();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    return dataDate >= thirtyDaysAgo && dataDate <= currentDate;
-  });
-
   const dateScale = scaleTime({
     range: [0, dimensions.width],
     domain: [
-      Math.min(...currentMonthData.map((x) => getDate(x).getTime())),
-      Math.max(...currentMonthData.map((x) => getDate(x).getTime())),
+      Math.min(...data.map((x) => getDate(x).getTime())),
+      Math.max(...data.map((x) => getDate(x).getTime())),
     ],
   });
 
@@ -38,8 +29,8 @@ export const LineGraph = ({ data }: { data: LineGraphData[] }) => {
     range: [dimensions.height - 1, 1],
     round: true,
     domain: [
-      Math.min(...currentMonthData.map(getOneRepMax)),
-      Math.max(...currentMonthData.map(getOneRepMax)),
+      Math.min(...data.map(getOneRepMax)),
+      Math.max(...data.map(getOneRepMax)),
     ],
     nice: true,
   });
@@ -53,7 +44,7 @@ export const LineGraph = ({ data }: { data: LineGraphData[] }) => {
       className="p-2"
     >
       <LinePath<LineGraphData>
-        data={currentMonthData}
+        data={data}
         x={(d) => dateScale(getDate(d)) ?? 0}
         y={(d) => oneRepMaxScale(getOneRepMax(d)) ?? 0}
         className="stroke-brand-color-two"

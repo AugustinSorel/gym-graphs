@@ -3,7 +3,8 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 type Props = {
   newExerciseForm: ReactNode;
-  dashboardGrid: ReactNode;
+  allExercisesGrid: ReactNode;
+  exercisesByMonthGrid: ReactNode;
 };
 
 const Layout = (props: Props) => {
@@ -11,7 +12,8 @@ const Layout = (props: Props) => {
     <Container>
       <Body>
         {props.newExerciseForm}
-        {props.dashboardGrid}
+        {props.allExercisesGrid}
+        {props.exercisesByMonthGrid}
       </Body>
 
       <BackgroundContainer>
@@ -27,7 +29,7 @@ const Container = (props: HTMLAttributes<HTMLElement>) => {
   return (
     <main
       {...props}
-      className="relative min-h-[calc(100dvh-var(--header-height))]"
+      className="relative min-h-[calc(100dvh-var(--header-height))] overflow-hidden"
     />
   );
 };
@@ -45,7 +47,7 @@ const BackgroundContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       {...props}
-      className="absolute inset-0 -top-[var(--header-height)] -z-10"
+      className="fixed inset-0 -top-[var(--header-height)] -z-10"
     />
   );
 };

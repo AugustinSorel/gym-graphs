@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GripVertical, MoreHorizontal } from "lucide-react";
@@ -15,7 +17,7 @@ import {
   deleteExerciseAction,
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, PropsWithChildren } from "react";
 import { forwardRef, useState } from "react";
 import {
   Tooltip,
@@ -24,91 +26,65 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSortable } from "@dnd-kit/sortable";
-import { RadarGraph, type RadarGraphData } from "../_graphs/radarGraph";
-import { LineGraph, type LineGraphData } from "../_graphs/lineGraph";
-
-export type GridItemType = { id: string; name: string; gridIndex: number } & (
-  | {
-      itemType: "line";
-      data: LineGraphData[];
-    }
-  | {
-      itemType: "radar";
-      data: RadarGraphData[];
-    }
-);
 
 type Props = {
-  gridItem: GridItemType;
+  id: string;
+  title: string;
+  isDraggable: boolean;
+  isModifiable: boolean;
+  href?: string;
   style?: CSSProperties;
-};
+} & PropsWithChildren;
 
-export const GridItem = forwardRef<HTMLLIElement, Props>(
-  ({ gridItem, style }, ref) => {
-    if (gridItem.itemType === "radar") {
-      return (
-        <GridItemContainer ref={ref} style={style}>
-          <GridItemHeader>
-            <GridItemTitle>{gridItem.name}</GridItemTitle>
-
-            <GridItemActionsContainer>
-              <DragComponent id={gridItem.id} />
-            </GridItemActionsContainer>
-          </GridItemHeader>
-
-          <RadarGraph data={gridItem.data} />
-        </GridItemContainer>
-      );
-    }
-
-    return (
-      <GridItemContainer ref={ref} style={style}>
+export const GridItem = forwardRef<HTMLLIElement, Props>((props, ref) => {
+  return (
+    <Container ref={ref} style={props.style}>
+      {props.href && (
         <Link
-          href={`/exercises/${gridItem.name}`}
-          className="absolute inset-0 duration-300"
-          aria-label={`go to exercise ${gridItem.name}`}
+          href={props.href}
+          className="absolute inset-0"
+          aria-label={`go to exercise ${props.title}`}
         />
+      )}
 
-        <GridItemHeader>
-          <GridItemTitle>{gridItem.name}</GridItemTitle>
+      <Header>
+        <Title>{props.title}</Title>
 
-          <GridItemActionsContainer>
-            <ExerciseDropDown />
-            <DragComponent id={gridItem.id} />
-          </GridItemActionsContainer>
-        </GridItemHeader>
+        <ActionContainer>
+          {props.isModifiable && <ExerciseDropDown />}
+          {props.isDraggable && <DragComponent id={props.id} />}
+        </ActionContainer>
+      </Header>
 
-        <LineGraph data={gridItem.data} />
-      </GridItemContainer>
+      {props.children}
+    </Container>
+  );
+});
+GridItem.displayName = "GridItem";
+
+const Container = forwardRef<HTMLLIElement, HTMLAttributes<HTMLLIElement>>(
+  (props, ref) => {
+    return (
+      <li
+        {...props}
+        ref={ref}
+        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+      />
     );
   }
 );
-GridItem.displayName = "GridItem";
+Container.displayName = "x";
 
-const GridItemContainer = forwardRef<
-  HTMLLIElement,
-  HTMLAttributes<HTMLLIElement>
->((props, ref) => {
-  return (
-    <li
-      {...props}
-      ref={ref}
-      className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
-    />
-  );
-});
-GridItemContainer.displayName = "x";
-
-const GridItemHeader = (props: HTMLAttributes<HTMLHeadElement>) => {
+const Header = (props: HTMLAttributes<HTMLHeadElement>) => {
   return (
     <header
       {...props}
-      className="flex items-center gap-2 border-b border-border bg-primary p-2"
+      className="flex h-14 items-center gap-2 border-b border-border bg-primary px-2"
     />
   );
 };
 
-const GridItemActionsContainer = (props: HTMLAttributes<HTMLDivElement>) => {
+const ActionContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       {...props}
@@ -117,7 +93,7 @@ const GridItemActionsContainer = (props: HTMLAttributes<HTMLDivElement>) => {
   );
 };
 
-const GridItemTitle = (props: HTMLAttributes<HTMLParagraphElement>) => {
+const Title = (props: HTMLAttributes<HTMLParagraphElement>) => {
   return <p {...props} className="mr-auto truncate capitalize" />;
 };
 

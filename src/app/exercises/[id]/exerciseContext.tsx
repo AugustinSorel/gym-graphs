@@ -1,9 +1,9 @@
 "use client";
 
 import type { Exercise, ExerciseData } from "@/fakeData";
-import { keepDataFrom30Days } from "@/lib/date";
 import { createContext, useContext, useState } from "react";
 import type { PropsWithChildren } from "react";
+import { useExerciseParams } from "./useExercisesParams";
 
 type ExerciseContext = {
   filteredData: ExerciseData[];
@@ -18,9 +18,35 @@ export const ExerciseProvider = ({
   children,
   exercise,
 }: ExerciseProviderProps) => {
-  const [filteredData, setFilteredData] = useState(
-    keepDataFrom30Days(exercise.data)
-  );
+  const exerciseParams = useExerciseParams();
+  const fromDate = exerciseParams.getFromDate();
+  const toDate = exerciseParams.getToDate();
+
+  const getFilteredData = () => {
+    if (fromDate && !toDate) {
+      return exercise.data.filter(
+        (exercise) => new Date(exercise.date).getTime() >= fromDate.getTime()
+      );
+    }
+
+    if (!fromDate && toDate) {
+      return exercise.data.filter(
+        (exercise) => new Date(exercise.date).getTime() <= toDate.getTime()
+      );
+    }
+
+    if (fromDate && toDate && fromDate.getTime() < toDate.getTime()) {
+      return exercise.data.filter(
+        (exercise) =>
+          new Date(exercise.date).getTime() >= fromDate.getTime() &&
+          new Date(exercise.date).getTime() <= toDate.getTime()
+      );
+    }
+
+    return exercise.data;
+  };
+
+  const [filteredData, setFilteredData] = useState(getFilteredData());
 
   return (
     <ExerciseContext.Provider

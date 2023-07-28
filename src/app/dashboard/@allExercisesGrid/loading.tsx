@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { GridLayout } from "./_grid/gridLayout";
+import { GridLayout } from "../_grid/gridLayout";
 
 const Loader = () => {
   return (

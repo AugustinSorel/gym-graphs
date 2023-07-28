@@ -3,6 +3,7 @@ import ExerciseGraph from "./@exerciseGraph/page";
 import ExerciseTable from "./@exerciseTable/page";
 import { ExerciseProvider } from "./exerciseContext";
 import { redirect } from "next/navigation";
+import type { HTMLProps } from "react";
 
 const Page = (props: { params: { id: string } }) => {
   const exercise = getExercise(props.params.id.replace(/%20/g, " "));
@@ -13,12 +14,21 @@ const Page = (props: { params: { id: string } }) => {
 
   return (
     <ExerciseProvider exercise={exercise}>
-      <div className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-5 pb-5 pt-0 sm:px-5">
+      <ContentContainer>
         <ExerciseGraph />
         <ExerciseTable />
-      </div>
+      </ContentContainer>
     </ExerciseProvider>
   );
 };
 
 export default Page;
+
+const ContentContainer = (props: HTMLProps<HTMLDivElement>) => {
+  return (
+    <div
+      {...props}
+      className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-5 pb-5 pt-0 sm:px-5"
+    />
+  );
+};

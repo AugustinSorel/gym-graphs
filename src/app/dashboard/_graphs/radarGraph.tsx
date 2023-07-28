@@ -1,3 +1,5 @@
+"use client";
+
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Point } from "@visx/point";
