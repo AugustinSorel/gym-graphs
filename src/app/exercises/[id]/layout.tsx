@@ -12,7 +12,7 @@ const Layout = (props: Props) => {
 
       {props.children}
 
-      <div className="absolute inset-0 -top-[var(--header-height)] -z-10">
+      <div className="fixed inset-0 -top-[var(--header-height)] -z-10">
         <DashboardBackground />
       </div>
     </main>
