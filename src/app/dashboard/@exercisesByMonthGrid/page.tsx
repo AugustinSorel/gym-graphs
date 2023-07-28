@@ -7,6 +7,7 @@ import { RadarGraph } from "../_graphs/radarGraph";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { HTMLProps } from "react";
 
+//TODO: infinte scroll
 const ExercisesByMonthGrid = () => {
   const exercises = getExercises();
   const exercisesByMonth = getExercisesByMonth(exercises);
