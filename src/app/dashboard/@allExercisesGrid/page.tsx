@@ -3,12 +3,13 @@ import { SortableGrid } from "./sortableGrid";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
+import type { ComponentProps } from "react";
 
 const AllExercisesGrid = () => {
   const exercises = getExercises();
 
   return (
-    <section className="space-y-1">
+    <Container>
       <SortableGrid
         items={exercises
           .map((exercise) => ({
@@ -46,8 +47,12 @@ const AllExercisesGrid = () => {
             },
           ])}
       />
-    </section>
+    </Container>
   );
 };
 
 export default AllExercisesGrid;
+
+const Container = (props: ComponentProps<"div">) => {
+  return <div {...props} className="space-y-1" />;
+};
