@@ -41,7 +41,7 @@ export const GridItem = forwardRef<HTMLLIElement, Props>((props, ref) => {
     <Container ref={ref} style={props.style}>
       {props.href && (
         <Link
-          href={props.href}
+          href={props.href.replace(/ /g, "%20")}
           className="absolute inset-0"
           aria-label={`go to exercise ${props.title}`}
         />
@@ -110,9 +110,12 @@ const DragComponent = ({ id }: { id: string }) => {
             size="icon"
             variant="ghost"
             aria-label="drag exercise in the grid"
+            tabIndex={attributes.tabIndex}
+            aria-disabled={attributes["aria-disabled"]}
+            aria-pressed={attributes["aria-pressed"]}
+            aria-roledescription={attributes["aria-roledescription"]}
+            aria-describedby={attributes["aria-describedby"]}
             {...listeners}
-            {...attributes}
-            aria-describedby="DndDescribedBy-1"
           >
             <GripVertical className="h-4 w-4" />
           </Button>
