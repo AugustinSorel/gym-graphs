@@ -1,17 +1,40 @@
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
+import type { ComponentProps } from "react";
 
 const Hero = () => {
   return (
-    <div className="relative hidden grow items-center justify-center gap-5 overflow-x-clip lg:flex">
+    <Container>
       <Icon size="lg" />
-      <h1 className="text-4xl font-bold capitalize">gym graphs</h1>
+      <Title>gym graphs</Title>
 
-      <div className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10">
+      <BackgroundContainer>
         <HeroBackground />
-      </div>
-    </div>
+      </BackgroundContainer>
+    </Container>
   );
 };
 
-export default Hero
+export default Hero;
+
+const Container = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="relative hidden grow items-center justify-center gap-5 overflow-x-clip lg:flex"
+    />
+  );
+};
+
+const Title = (props: ComponentProps<"h1">) => {
+  return <h1 {...props} className="text-4xl font-bold capitalize" />;
+};
+
+const BackgroundContainer = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+    />
+  );
+};
