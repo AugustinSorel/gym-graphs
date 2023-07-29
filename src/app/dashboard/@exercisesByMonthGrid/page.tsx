@@ -17,13 +17,13 @@ const ExercisesByMonthGrid = () => {
   return (
     <>
       {exercisesByMonth.map((group) => (
-        <Container key={group.date}>
-          <DateText dateTime={group.date}>
-            {new Date(group.date).toLocaleDateString(undefined, {
-              month: "long",
-              year: "numeric",
-            })}
-          </DateText>
+        <Container
+          key={group.date}
+          data-date={new Date(group.date).toLocaleDateString(undefined, {
+            month: "long",
+            year: "numeric",
+          })}
+        >
           <GridLayout>
             <>
               {group.exercises.map((exercise) => (
@@ -109,14 +109,10 @@ const getExercisesByMonth = (exercises: Exercise[]) => {
 };
 
 const Container = (props: ComponentProps<"section">) => {
-  return <section {...props} className="mt-16 space-y-4" />;
-};
-
-const DateText = (props: ComponentProps<"time">) => {
   return (
-    <time
+    <section
       {...props}
-      className="block text-center text-5xl font-bold text-border"
+      className="mt-16 text-center before:mb-5 before:block before:text-center before:text-5xl before:font-bold before:text-border before:content-[attr(data-date)]"
     />
   );
 };
