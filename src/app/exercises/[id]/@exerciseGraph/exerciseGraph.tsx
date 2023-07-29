@@ -193,7 +193,6 @@ const MainGraph = ({
       <GridRows
         scale={oneRepMaxScale}
         width={xMax}
-        height={yMax}
         stroke="gray"
         numTicks={5}
         opacity={0.2}

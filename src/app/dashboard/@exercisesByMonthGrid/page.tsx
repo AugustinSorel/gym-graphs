@@ -8,7 +8,6 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { ComponentProps } from "react";
 
 //TODO: infinte scroll
-//TODO: html validator
 const ExercisesByMonthGrid = () => {
   const exercises = getExercises();
   const exercisesByMonth = getExercisesByMonth(exercises);

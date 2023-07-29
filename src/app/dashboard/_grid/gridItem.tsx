@@ -50,10 +50,12 @@ export const GridItem = forwardRef<HTMLLIElement, Props>((props, ref) => {
       <Header>
         <Title>{props.title}</Title>
 
-        <ActionContainer>
-          {props.isModifiable && <ExerciseDropDown />}
-          {props.isDraggable && <DragComponent id={props.id} />}
-        </ActionContainer>
+        {(props.isModifiable || props.isDraggable) && (
+          <ActionContainer>
+            {props.isModifiable && <ExerciseDropDown />}
+            {props.isDraggable && <DragComponent id={props.id} />}
+          </ActionContainer>
+        )}
       </Header>
 
       {props.children}
