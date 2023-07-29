@@ -20,6 +20,7 @@ import {
 import { useCallback, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
+import { GridLayout } from "../_grid/gridLayout";
 
 type Props = {
   items: { render: ReactNode; id: string }[];
@@ -59,11 +60,13 @@ export const SortableGrid = ({ items }: Props) => {
       collisionDetection={closestCenter}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        {gridItems.map((item) => (
-          <SortableItem key={item.id} id={item.id}>
-            {item.render}
-          </SortableItem>
-        ))}
+        <GridLayout>
+          {gridItems.map((item) => (
+            <SortableItem key={item.id} id={item.id}>
+              {item.render}
+            </SortableItem>
+          ))}
+        </GridLayout>
       </SortableContext>
     </DndContext>
   );
