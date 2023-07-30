@@ -1,8 +1,7 @@
-"use client";
-
 import Link from "next/link";
+import type { LinkProps } from "next/link";
 import { Button } from "@/components/ui/button";
-import { GripVertical, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,65 +16,14 @@ import {
   deleteExerciseAction,
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
-import type { CSSProperties, PropsWithChildren, ComponentProps } from "react";
-import { forwardRef, useState } from "react";
+import type { ComponentProps } from "react";
+import { forwardRef } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useSortable } from "@dnd-kit/sortable";
-
-type Props = {
-  id: string;
-  title: string;
-  isDraggable: boolean;
-  isModifiable: boolean;
-  href?: string;
-  style?: CSSProperties;
-} & PropsWithChildren;
-
-export const GridItem = forwardRef<HTMLLIElement, Props>((props, ref) => {
-  return (
-    <Container ref={ref} style={props.style}>
-      {props.href && (
-        <Link
-          href={props.href.replace(/ /g, "%20")}
-          className="absolute inset-0"
-          aria-label={`go to exercise ${props.title}`}
-        />
-      )}
-
-      <Header>
-        <Title>{props.title}</Title>
-
-        {(props.isModifiable || props.isDraggable) && (
-          <ActionContainer>
-            {props.isModifiable && <ExerciseDropDown />}
-            {props.isDraggable && <DragComponent id={props.id} />}
-          </ActionContainer>
-        )}
-      </Header>
-
-      {props.children}
-    </Container>
-  );
-});
-GridItem.displayName = "GridItem";
-
-const Container = forwardRef<HTMLLIElement, ComponentProps<"li">>(
-  (props, ref) => {
-    return (
-      <li
-        {...props}
-        ref={ref}
-        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
-      />
-    );
-  }
-);
-Container.displayName = "x";
 
 const Header = (props: ComponentProps<"header">) => {
   return (
@@ -99,35 +47,8 @@ const Title = (props: ComponentProps<"p">) => {
   return <p {...props} className="mr-auto truncate capitalize" />;
 };
 
-const DragComponent = ({ id }: { id: string }) => {
-  const { attributes, listeners } = useSortable({ id });
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <TooltipProvider>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
-        <TooltipTrigger asChild>
-          <Button
-            className="h-8 cursor-grab p-1 active:cursor-grabbing"
-            size="icon"
-            variant="ghost"
-            aria-label="drag exercise in the grid"
-            tabIndex={attributes.tabIndex}
-            aria-disabled={attributes["aria-disabled"]}
-            aria-pressed={attributes["aria-pressed"]}
-            aria-roledescription={attributes["aria-roledescription"]}
-            aria-describedby={attributes["aria-describedby"]}
-            {...listeners}
-          >
-            <GripVertical className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent className="active:opacity-0">
-          <p className="capitalize">drag exercise</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+const Anchor = (props: LinkProps) => {
+  return <Link {...props} className="absolute inset-0" />;
 };
 
 const ExerciseDropDown = () => {
@@ -163,3 +84,24 @@ const ExerciseDropDown = () => {
     </DropdownMenu>
   );
 };
+
+const Container = forwardRef<HTMLLIElement, ComponentProps<"li">>(
+  (props, ref) => {
+    return (
+      <li
+        {...props}
+        ref={ref}
+        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+      />
+    );
+  }
+);
+Container.displayName = "GridItem";
+
+export const GridItem = Object.assign(Container, {
+  Header,
+  ActionContainer,
+  Title,
+  Anchor,
+  ExerciseDropDown,
+});

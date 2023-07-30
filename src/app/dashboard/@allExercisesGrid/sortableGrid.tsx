@@ -21,6 +21,14 @@ import { useCallback, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { GridLayout } from "../_grid/gridLayout";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { GripVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   items: { render: ReactNode; id: string }[];
@@ -90,5 +98,32 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
     >
       {props.children}
     </Slot>
+  );
+};
+
+export const DragComponent = ({ id }: { id: string }) => {
+  const { attributes, listeners } = useSortable({ id });
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="h-8 cursor-grab p-1 active:cursor-grabbing"
+            size="icon"
+            variant="ghost"
+            aria-label="drag exercise in the grid"
+            {...attributes}
+            {...listeners}
+            suppressHydrationWarning
+          >
+            <GripVertical className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="active:opacity-0">
+          <p className="capitalize">drag exercise</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

@@ -1,5 +1,5 @@
 import { getExercises } from "@/fakeData";
-import { SortableGrid } from "./sortableGrid";
+import { DragComponent, SortableGrid } from "./sortableGrid";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
@@ -15,13 +15,17 @@ const AllExercisesGrid = () => {
           .map((exercise) => ({
             id: exercise.id,
             render: (
-              <GridItem
-                isDraggable
-                isModifiable
-                id={exercise.id}
-                title={exercise.name}
-                href={`/exercises/${exercise.name}`}
-              >
+              <GridItem>
+                <GridItem.Anchor href={`/exercises/${exercise.name}`} />
+                <GridItem.Header>
+                  <GridItem.Title>{exercise.name}</GridItem.Title>
+
+                  <GridItem.ActionContainer>
+                    <GridItem.ExerciseDropDown />
+                    <DragComponent id={exercise.id} />
+                  </GridItem.ActionContainer>
+                </GridItem.Header>
+
                 <LineGraph data={exercise.data} />
               </GridItem>
             ),
@@ -30,12 +34,15 @@ const AllExercisesGrid = () => {
             {
               id: "radar",
               render: (
-                <GridItem
-                  isDraggable
-                  isModifiable={false}
-                  id="radar"
-                  title="exercises count"
-                >
+                <GridItem>
+                  <GridItem.Header>
+                    <GridItem.Title>exercises count</GridItem.Title>
+
+                    <GridItem.ActionContainer>
+                      <DragComponent id="radar" />
+                    </GridItem.ActionContainer>
+                  </GridItem.Header>
+
                   <RadarGraph
                     data={exercises.map((exercise) => ({
                       exerciseName: exercise.name,

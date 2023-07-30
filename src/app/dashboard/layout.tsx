@@ -10,11 +10,11 @@ type Props = {
 const Layout = (props: Props) => {
   return (
     <Container>
-      <Body>
+      <ContentContainer>
         {props.newExerciseForm}
         {props.allExercisesGrid}
         {props.exercisesByMonthGrid}
-      </Body>
+      </ContentContainer>
 
       <BackgroundContainer>
         <DashboardBackground />
@@ -34,7 +34,7 @@ const Container = (props: ComponentProps<"main">) => {
   );
 };
 
-const Body = (props: ComponentProps<"div">) => {
+const ContentContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}

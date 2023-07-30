@@ -25,31 +25,31 @@ const ExercisesByMonthGrid = () => {
           <GridLayout>
             <>
               {group.exercises.map((exercise) => (
-                <GridItem
-                  key={exercise.id}
-                  isDraggable={false}
-                  isModifiable={false}
-                  id={exercise.id}
-                  title={exercise.name}
-                  href={`/exercises/${exercise.name}?from=${
-                    group.date
-                  }&to=${dateAsYearMonthDayFormat(
-                    new Date(
-                      new Date(group.date).getFullYear(),
-                      new Date(group.date).getMonth() + 1,
-                      0
-                    )
-                  )}`}
-                >
+                <GridItem key={exercise.id}>
+                  <GridItem.Anchor
+                    href={`/exercises/${exercise.name}?from=${
+                      group.date
+                    }&to=${dateAsYearMonthDayFormat(
+                      new Date(
+                        new Date(group.date).getFullYear(),
+                        new Date(group.date).getMonth() + 1,
+                        0
+                      )
+                    )}`}
+                  />
+                  <GridItem.Header>
+                    <GridItem.Title>{exercise.name}</GridItem.Title>
+                  </GridItem.Header>
+
                   <LineGraph data={exercise.data} />
                 </GridItem>
               ))}
-              <GridItem
-                id="radar"
-                isDraggable={false}
-                isModifiable={false}
-                title="exercises count"
-              >
+
+              <GridItem>
+                <GridItem.Header>
+                  <GridItem.Title>exercises count</GridItem.Title>
+                </GridItem.Header>
+
                 <RadarGraph
                   data={group.exercises.map((exercise) => ({
                     exerciseName: exercise.name,
