@@ -85,23 +85,22 @@ const ExerciseDropDown = () => {
   );
 };
 
-const Container = forwardRef<HTMLLIElement, ComponentProps<"li">>(
-  (props, ref) => {
-    return (
-      <li
-        {...props}
-        ref={ref}
-        className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
-      />
-    );
-  }
-);
-Container.displayName = "GridItem";
+const Root = forwardRef<HTMLLIElement, ComponentProps<"li">>((props, ref) => {
+  return (
+    <li
+      {...props}
+      ref={ref}
+      className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+    />
+  );
+});
+Root.displayName = "GridItem";
 
-export const GridItem = Object.assign(Container, {
+export const GridItem = {
+  Root,
   Header,
   ActionContainer,
   Title,
   Anchor,
   ExerciseDropDown,
-});
+};

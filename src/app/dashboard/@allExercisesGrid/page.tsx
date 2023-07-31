@@ -15,7 +15,7 @@ const AllExercisesGrid = () => {
           .map((exercise) => ({
             id: exercise.id,
             render: (
-              <GridItem>
+              <GridItem.Root>
                 <GridItem.Anchor href={`/exercises/${exercise.name}`} />
                 <GridItem.Header>
                   <GridItem.Title>{exercise.name}</GridItem.Title>
@@ -27,14 +27,14 @@ const AllExercisesGrid = () => {
                 </GridItem.Header>
 
                 <LineGraph data={exercise.data} />
-              </GridItem>
+              </GridItem.Root>
             ),
           }))
           .concat([
             {
               id: "radar",
               render: (
-                <GridItem>
+                <GridItem.Root>
                   <GridItem.Header>
                     <GridItem.Title>exercises count</GridItem.Title>
 
@@ -49,7 +49,7 @@ const AllExercisesGrid = () => {
                       frequency: exercise.data.length,
                     }))}
                   />
-                </GridItem>
+                </GridItem.Root>
               ),
             },
           ])}

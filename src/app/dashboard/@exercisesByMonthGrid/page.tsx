@@ -25,7 +25,7 @@ const ExercisesByMonthGrid = () => {
           <GridLayout>
             <>
               {group.exercises.map((exercise) => (
-                <GridItem key={exercise.id}>
+                <GridItem.Root key={exercise.id}>
                   <GridItem.Anchor
                     href={`/exercises/${exercise.name}?from=${
                       group.date
@@ -42,10 +42,10 @@ const ExercisesByMonthGrid = () => {
                   </GridItem.Header>
 
                   <LineGraph data={exercise.data} />
-                </GridItem>
+                </GridItem.Root>
               ))}
 
-              <GridItem>
+              <GridItem.Root>
                 <GridItem.Header>
                   <GridItem.Title>exercises count</GridItem.Title>
                 </GridItem.Header>
@@ -56,7 +56,7 @@ const ExercisesByMonthGrid = () => {
                     frequency: exercise.data.length,
                   }))}
                 />
-              </GridItem>
+              </GridItem.Root>
             </>
           </GridLayout>
         </Container>
