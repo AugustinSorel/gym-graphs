@@ -3,13 +3,17 @@ import { DragComponent, SortableGrid } from "./sortableGrid";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
-import type { ComponentProps } from "react";
+import { Badge } from "@/components/ui/badge";
+import { TimelineContainer } from "../timelineContainer";
 
 const AllExercisesGrid = () => {
   const exercises = getExercises();
 
   return (
-    <Container>
+    <TimelineContainer>
+      <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
+        <time dateTime="all">all</time>
+      </Badge>
       <SortableGrid
         items={exercises
           .map((exercise) => ({
@@ -54,12 +58,8 @@ const AllExercisesGrid = () => {
             },
           ])}
       />
-    </Container>
+    </TimelineContainer>
   );
 };
 
 export default AllExercisesGrid;
-
-const Container = (props: ComponentProps<"div">) => {
-  return <div {...props} className="space-y-1" />;
-};
