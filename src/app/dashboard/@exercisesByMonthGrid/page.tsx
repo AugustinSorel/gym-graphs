@@ -5,7 +5,8 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
-import type { ComponentProps } from "react";
+import { Badge } from "@/components/ui/badge";
+import { TimelineContainer } from "../timelineContainer";
 
 //TODO: infinte scroll
 const ExercisesByMonthGrid = () => {
@@ -15,13 +16,15 @@ const ExercisesByMonthGrid = () => {
   return (
     <>
       {exercisesByMonth.map((group) => (
-        <Container
-          key={group.date}
-          data-date={new Date(group.date).toLocaleDateString(undefined, {
-            month: "long",
-            year: "numeric",
-          })}
-        >
+        <TimelineContainer key={group.date}>
+          <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
+            <time dateTime={group.date}>
+              {new Date(group.date).toLocaleDateString(undefined, {
+                month: "long",
+                year: "numeric",
+              })}
+            </time>
+          </Badge>
           <GridLayout>
             <>
               {group.exercises.map((exercise) => (
@@ -59,7 +62,7 @@ const ExercisesByMonthGrid = () => {
               </GridItem.Root>
             </>
           </GridLayout>
-        </Container>
+        </TimelineContainer>
       ))}
     </>
   );
@@ -104,13 +107,4 @@ const getExercisesByMonth = (exercises: Exercise[]) => {
   }
 
   return exercisesByMonth;
-};
-
-const Container = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className="mt-16 text-center before:mb-5 before:block before:text-center before:text-5xl before:font-bold before:text-border before:content-[attr(data-date)]"
-    />
-  );
 };
