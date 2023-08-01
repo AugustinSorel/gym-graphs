@@ -38,7 +38,7 @@ const ContentContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="mx-auto flex max-w-[calc(var(--exercise-card-height)*4+20px*5)] flex-col gap-5 p-5"
+      className="mx-auto flex max-w-[calc(var(--exercise-card-height)*4+20px*5)] flex-col px-5 py-10"
     />
   );
 };
