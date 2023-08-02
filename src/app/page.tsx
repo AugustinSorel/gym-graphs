@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
@@ -199,7 +198,7 @@ const MainContainer = (props: ComponentProps<"main">) => {
   return (
     <main
       {...props}
-      className="relative flex flex-col gap-16 overflow-x-clip sm:gap-56"
+      className="relative flex flex-col gap-32 overflow-x-clip sm:gap-56"
     />
   );
 };
@@ -255,7 +254,7 @@ const FeaturesGridContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="mx-auto flex max-w-7xl flex-col items-center space-y-20 p-5"
+      className="mx-auto flex max-w-7xl flex-col items-center space-y-10 p-5"
     />
   );
 };
