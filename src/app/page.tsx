@@ -77,26 +77,20 @@ const Separator = () => {
 const FeatureOne = () => {
   return (
     <FeatureContainer>
-      <HeroTitle>
-        Let&apos;s get your gym progress to{" "}
-        <GradientText> the moon </GradientText>
+      <HeroTitle className="self-end">
+        Unleash <GradientText> Your Progress!</GradientText>
       </HeroTitle>
 
       <Text>
-        Thanks to our <StrongText>dashboard</StrongText>, you are in control of
-        what exercises go to your routine. Our powerful{" "}
-        <StrongText>graphs</StrongText> will also help you monitoring your
-        progress
+        With our innovative modular <StrongText>dashboard</StrongText>, you can
+        easily track your entire workout journey and get a comprehensive
+        breakdown of your achievements each <StrongText>month</StrongText>.
       </Text>
 
       <FeatureImageContainer className="xl:col-start-2">
-        <Image
-          src="/dashboard.png"
-          priority
+        <img
           alt="dashboard of gym graphs"
-          width={700}
-          height={2000}
-          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)]"
+          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.5)] [content:url('/dashboard-light.png')] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)] dark:[content:url('/dashboard-dark.png')]"
         />
       </FeatureImageContainer>
     </FeatureContainer>
@@ -106,23 +100,21 @@ const FeatureOne = () => {
 const FeatureTwo = () => {
   return (
     <FeatureContainer>
-      <HeroTitle>
-        Our system will adapt <GradientText>to you</GradientText>
+      <HeroTitle className="self-end">
+        Track <GradientText>Every Move!</GradientText>
       </HeroTitle>
 
       <Text>
-        Our system will adapt to your accordingly to your need. Giving you{" "}
-        <StrongText>the best</StrongText> user experience possible.
+        Our app allows you to <StrongText>effortlessly</StrongText> track all
+        your custom exercises, so you can stay in control of your fitness
+        journey like never before.
       </Text>
 
       <FeatureImageContainer className="xl:col-start-1">
-        <Image
+        <img
           src="/exercisePage.png"
-          priority
           alt="dashboard of gym graphs"
-          width={700}
-          height={2000}
-          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two))] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)]"
+          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.5)] [content:url('/exercise-page-light.png')] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)] dark:[content:url('/exercise-page-dark.png')]"
         />
       </FeatureImageContainer>
     </FeatureContainer>
@@ -238,7 +230,7 @@ const FeatureContainer = (props: ComponentProps<"section">) => {
   return (
     <section
       {...props}
-      className="grid grid-cols-1 content-center items-center justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
+      className="grid grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
     />
   );
 };
@@ -308,8 +300,11 @@ const Text = (props: ComponentProps<"p">) => {
 const HeroTitle = (props: ComponentProps<"h1">) => {
   return (
     <h1
-      className="max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl"
       {...props}
+      className={twMerge(
+        "max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl",
+        props.className
+      )}
     />
   );
 };
