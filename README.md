@@ -11,7 +11,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ### Home Page
 
-![gym-graphs vercel app_sign-in (1)](https://github.com/AugustinSorel/gym-graphs/assets/48162609/87f96201-11ad-4bab-93eb-9a19713b0993)
+![gym-graphs vercel app_](https://github.com/AugustinSorel/gym-graphs/assets/48162609/44aeaf9a-94a4-4699-aec5-ba7cc2aebf53)
 
 ### Sign in page
 
