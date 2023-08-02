@@ -20,16 +20,13 @@ export const HeroBackground = () => {
             fill="url(#paint2_linear_9_46)"
           />
         </g>
-        <g
-          className="mix-blend-color-burn dark:mix-blend-color-dodge"
-          filter="url(#blur)"
-        >
+        <g className="mix-blend-color-dodge" filter="url(#blur)">
           <path
             d="M2586.52 1122.76C2789.82 1175.61 3035.45 1068.57 3135.15 883.684L3430.62 335.752C3530.32 150.866 3446.34 -41.854 3243.04 -94.7009L2289.51 -342.569C2086.21 -395.416 1840.59 -288.378 1740.89 -103.492L1445.41 444.44C1345.72 629.326 1429.7 822.046 1633 874.893L2586.52 1122.76Z"
             fill="url(#paint3_radial_9_46)"
           />
         </g>
-        <g className="mix-blend-color-burn dark:mix-blend-color-dodge">
+        <g className="mix-blend-color-dodge">
           <path
             d="M280.632 1348.02C483.929 1400.87 729.557 1293.83 829.256 1108.94L1124.73 561.009C1224.43 376.123 1140.44 183.403 937.147 130.556L-16.3819 -117.312C-219.679 -170.159 -465.307 -63.1206 -565.007 121.765L-860.478 669.697C-960.178 854.583 -876.195 1047.3 -672.897 1100.15L280.632 1348.02Z"
             fill="url(#paint4_radial_9_46)"
