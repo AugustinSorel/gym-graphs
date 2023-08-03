@@ -122,75 +122,73 @@ const FeatureTwo = () => {
 
 const FeatuesGrid = () => {
   return (
-    <FeaturesGridWrapper>
-      <FeaturesGridContainer>
-        <HeroTitle>what we offer</HeroTitle>
+    <FeaturesGridContainer>
+      <HeroTitle>what we offer</HeroTitle>
 
-        <GridContainer>
-          <Card className="lg:[grid-area:card-one]">
-            <CardIcon>📈</CardIcon>
-            <CardTitle>insights & analytics</CardTitle>
-            <CardText>
-              Keep track of your progress every session and watch your results
-              soar! Get ready to see amazing results!
-            </CardText>
-          </Card>
-          <Card className="lg:[grid-area:card-two]">
-            <CardIcon>💻</CardIcon>
-            <CardTitle>cross platform</CardTitle>
-            <CardText>
-              Seamlessly switch between devices and access your workout data
-              anytime, anywhere. Our platform is compatible with desktop,
-              mobile, and tablet devices, ensuring you can stay connected and
-              motivated on the go.
-            </CardText>
-          </Card>
-          <Card className="lg:[grid-area:card-three]">
-            <CardIcon>🤝</CardIcon>
-            <CardTitle>open source</CardTitle>
-            <CardText>
-              If you&apos;re interested in the behind-the-scenes development of
-              our platform, we invite you to explore the code on our{" "}
-              <Link
-                href="https://github.com/augustinsorel/gym-graphs"
-                className="underline decoration-wavy"
-                target="_blank"
-              >
-                Github
-              </Link>
-              ! We highly value feedback and contributions from our community.
-              <br />
-              <br />
-              Your input and ideas play a crucial role in shaping the future of
-              our platform, and we appreciate the collaborative spirit that
-              drives us forward.
-            </CardText>
-          </Card>
-          <Card className="lg:[grid-area:card-four]">
-            <CardIcon>🧩</CardIcon>
-            <CardTitle>customizable</CardTitle>
-            <CardText>
-              With our modular dashboards, you&apos;re in charge of your
-              exercises! Customize your workout experience to fit your
-              preferences and needs.
-            </CardText>
-          </Card>
-          <Card className="lg:[grid-area:card-five]">
-            <CardIcon>🎁</CardIcon>
-            <CardTitle>100% free</CardTitle>
-            <CardText>
-              Great news! Our project is completely free to use, with no hidden
-              fees or charges. We value your privacy and do not collect any
-              personal information.
-            </CardText>
-          </Card>
-        </GridContainer>
+      <GridContainer>
+        <Card className="lg:[grid-area:card-one]">
+          <CardIcon>📈</CardIcon>
+          <CardTitle>insights & analytics</CardTitle>
+          <CardText>
+            Keep track of your progress every session and watch your results
+            soar! Get ready to see amazing results!
+          </CardText>
+        </Card>
+        <Card className="lg:[grid-area:card-two]">
+          <CardIcon>💻</CardIcon>
+          <CardTitle>cross platform</CardTitle>
+          <CardText>
+            Seamlessly switch between devices and access your workout data
+            anytime, anywhere. Our platform is compatible with desktop, mobile,
+            and tablet devices, ensuring you can stay connected and motivated on
+            the go.
+          </CardText>
+        </Card>
+        <Card className="lg:[grid-area:card-three]">
+          <CardIcon>🤝</CardIcon>
+          <CardTitle>open source</CardTitle>
+          <CardText>
+            If you&apos;re interested in the behind-the-scenes development of
+            our platform, we invite you to explore the code on our{" "}
+            <Link
+              href="https://github.com/augustinsorel/gym-graphs"
+              className="underline decoration-wavy"
+              target="_blank"
+            >
+              Github
+            </Link>
+            ! We highly value feedback and contributions from our community.
+            <br />
+            <br />
+            Your input and ideas play a crucial role in shaping the future of
+            our platform, and we appreciate the collaborative spirit that drives
+            us forward.
+          </CardText>
+        </Card>
+        <Card className="lg:[grid-area:card-four]">
+          <CardIcon>🧩</CardIcon>
+          <CardTitle>customizable</CardTitle>
+          <CardText>
+            With our modular dashboards, you&apos;re in charge of your
+            exercises! Customize your workout experience to fit your preferences
+            and needs.
+          </CardText>
+        </Card>
+        <Card className="lg:[grid-area:card-five]">
+          <CardIcon>🎁</CardIcon>
+          <CardTitle>100% free</CardTitle>
+          <CardText>
+            Great news! Our project is completely free to use, with no hidden
+            fees or charges. We value your privacy and do not collect any
+            personal information.
+          </CardText>
+        </Card>
+      </GridContainer>
 
-        <GetStartedAction />
+      <GetStartedAction />
 
-        <FeaturesGridBackground />
-      </FeaturesGridContainer>
-    </FeaturesGridWrapper>
+      <FeaturesGridBackground />
+    </FeaturesGridContainer>
   );
 };
 
@@ -229,7 +227,6 @@ const FeatureContainer = (props: ComponentProps<"section">) => {
   return (
     <section
       {...props}
-      className="grid grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
       className="mx-auto grid max-w-7xl grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
     />
   );
@@ -247,15 +244,11 @@ const FeatureImageContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const FeaturesGridWrapper = (props: ComponentProps<"section">) => {
-  return <section {...props} className="relative" />;
-};
-
 const FeaturesGridContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="mx-auto flex max-w-7xl flex-col items-center space-y-10 p-5"
+      className="relative mx-auto flex max-w-7xl flex-col items-center space-y-10 p-5"
     />
   );
 };
@@ -349,16 +342,16 @@ const FeaturesGridBackground = () => {
       <ellipse
         cx="35%"
         cy="40%"
-        rx="20%"
-        ry="20%"
+        rx="300px"
+        ry="200px"
         filter="url(#featuresGridBlur)"
         className="fill-brand-color-one opacity-20 dark:opacity-10"
       />
       <ellipse
         cx="70%"
         cy="70%"
-        rx="20%"
-        ry="20%"
+        rx="300px"
+        ry="200px"
         filter="url(#featuresGridBlur)"
         className="fill-brand-color-two opacity-20 dark:opacity-10"
       />
