@@ -1,6 +1,6 @@
 # Gym Graphs
 
-Gym Graphs allows users to track their gym progress with the help of graphs. The app allows users to add new exercises, organize their exercises with a dashboard and add new data for each exercises. The app will calculate an estimate one rep max given the number of repetitions and the weight lifted. The hosting for this project is on Vercel and the database is hosted in a digital ocean droplet
+Gym Graphs allows users to track their gym progress with the help of graphs. The app allows users to add new exercises, organize their exercises with a dashboard and add new data for each exercises. The app will calculate an estimate one rep max given the number of repetitions and the weight lifted. The hosting for this project is on Vercel and the database is hosted on an ec2 instance
 
 ## Demo
 
