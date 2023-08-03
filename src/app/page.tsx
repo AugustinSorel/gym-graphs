@@ -239,7 +239,7 @@ const FeatureImageContainer = (props: ComponentProps<"div">) => {
     <div
       {...props}
       className={twMerge(
-        "relative xl:row-span-2 xl:row-start-1",
+        "relative max-w-3xl xl:row-span-2 xl:row-start-1",
         props.className
       )}
     />
