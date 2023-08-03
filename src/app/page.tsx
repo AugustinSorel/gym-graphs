@@ -227,7 +227,7 @@ const FeatureContainer = (props: ComponentProps<"section">) => {
   return (
     <section
       {...props}
-      className="mx-auto grid max-w-7xl grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
+      className="mx-auto grid grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
     />
   );
 };
