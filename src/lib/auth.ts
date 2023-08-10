@@ -35,6 +35,7 @@ export const authOptions: NextAuthOptions = {
       from: env.EMAIL_FROM,
     }),
   ],
+  secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
