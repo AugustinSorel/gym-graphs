@@ -5,7 +5,7 @@ import {
   primaryKey,
   integer,
 } from "drizzle-orm/pg-core";
-import { AdapterAccount } from "next-auth/adapters";
+import type { AdapterAccount } from "next-auth/adapters";
 
 export const users = pgTable("users", {
   id: text("id").notNull().primaryKey(),
