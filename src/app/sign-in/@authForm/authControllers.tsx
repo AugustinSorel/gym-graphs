@@ -119,7 +119,6 @@ export const GithubSignIn = () => {
   );
 };
 
-//FIXME: add db provider to use email auth
 export const EmailSignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -136,8 +135,7 @@ export const EmailSignIn = () => {
     try {
       setIsLoading(() => true);
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // signIn("email", { callbackUrl: "/dashboard", email });
+      await signIn("email", { callbackUrl: "/dashboard", email });
     } catch (e) {
       toast({
         variant: "destructive",

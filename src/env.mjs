@@ -21,9 +21,12 @@ const server = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GITHUB_CLIENT_ID: z.string().min(1),
   GITHUB_CLIENT_SECRET: z.string().min(1),
-  EMAIL_SERVER: z.string().min(1),
-  EMAIL_FROM: z.string().min(1),
   DB_URL: z.string().url(),
+  EMAIL_FROM: z.string().email(),
+  EMAIL_SERVER_PORT: z.string().min(1),
+  EMAIL_SERVER_HOST: z.string().min(1),
+  EMAIL_SERVER_PASSWORD: z.string().min(1),
+  EMAIL_SERVER_USER: z.string().email(),
 });
 
 /**
@@ -48,9 +51,12 @@ const processEnv = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-  EMAIL_SERVER: process.env.EMAIL_SERVER,
-  EMAIL_FROM: process.env.EMAIL_FROM,
   DB_URL: process.env.DB_URL,
+  EMAIL_FROM: process.env.EMAIL_FROM,
+  EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
+  EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
+  EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
+  EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
 };
 
 // Don't touch the part below
