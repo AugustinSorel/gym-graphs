@@ -7,7 +7,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 
-export const users = pgTable("users", {
+export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
   name: text("name"),
   email: text("email").notNull(),
@@ -16,7 +16,7 @@ export const users = pgTable("users", {
 });
 
 export const accounts = pgTable(
-  "accounts",
+  "account",
   {
     userId: text("userId")
       .notNull()
@@ -37,7 +37,7 @@ export const accounts = pgTable(
   })
 );
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable("session", {
   sessionToken: text("sessionToken").notNull().primaryKey(),
   userId: text("userId")
     .notNull()
