@@ -5,12 +5,6 @@ import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
   secret: env.NEXTAUTH_SECRET,
-
-  callbacks: {
-    authorized: ({ req: _, token }) => {
-      return !!token;
-    },
-  },
 });
 
 export const config = { matcher: ["/dashboard/:path*", "/exercises/:path*"] };
