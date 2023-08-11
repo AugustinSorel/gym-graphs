@@ -7,11 +7,8 @@ export default withAuth({
   secret: env.NEXTAUTH_SECRET,
 
   callbacks: {
-    authorized: ({ req, token }) => {
-      if (token) {
-        return true;
-      }
-      return false;
+    authorized: ({ req: _, token }) => {
+      return !!token;
     },
   },
 });
