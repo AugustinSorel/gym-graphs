@@ -1,11 +1,11 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "c29b7da1-582c-4cd7-a4bc-b74baa0a4371",
+  "id": "67cf943b-d9b6-4146-8c2c-f849fdaa48fe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "accounts": {
-      "name": "accounts",
+    "account": {
+      "name": "account",
       "schema": "",
       "columns": {
         "userId": {
@@ -77,10 +77,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "accounts_userId_users_id_fk": {
-          "name": "accounts_userId_users_id_fk",
-          "tableFrom": "accounts",
-          "tableTo": "users",
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -92,17 +92,18 @@
         }
       },
       "compositePrimaryKeys": {
-        "accounts_provider_providerAccountId": {
-          "name": "accounts_provider_providerAccountId",
+        "account_provider_providerAccountId": {
+          "name": "account_provider_providerAccountId",
           "columns": [
             "provider",
             "providerAccountId"
           ]
         }
-      }
+      },
+      "uniqueConstraints": {}
     },
-    "sessions": {
-      "name": "sessions",
+    "session": {
+      "name": "session",
       "schema": "",
       "columns": {
         "sessionToken": {
@@ -126,10 +127,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "sessions_userId_users_id_fk": {
-          "name": "sessions_userId_users_id_fk",
-          "tableFrom": "sessions",
-          "tableTo": "users",
+        "session_userId_user_id_fk": {
+          "name": "session_userId_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
@@ -140,10 +141,11 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
-    "users": {
-      "name": "users",
+    "user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
@@ -179,7 +181,8 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "verificationToken": {
       "name": "verificationToken",
@@ -214,7 +217,8 @@
             "token"
           ]
         }
-      }
+      },
+      "uniqueConstraints": {}
     }
   },
   "enums": {},
@@ -224,4 +228,3 @@
     "tables": {},
     "columns": {}
   }
-}

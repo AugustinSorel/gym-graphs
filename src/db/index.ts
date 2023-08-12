@@ -7,4 +7,4 @@ const connectionString = env.DB_URL;
 const sql = postgres(connectionString, { max: 1 });
 export const db = drizzle(sql);
 
-void migrate(db, { migrationsFolder: "./drizzle" });
+void migrate(db, { migrationsFolder: "drizzle" });
