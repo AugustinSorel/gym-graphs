@@ -7,7 +7,6 @@
 /coverage
 
 # database
-/drizzle
 mydatabase.backup
 
 # next.js
