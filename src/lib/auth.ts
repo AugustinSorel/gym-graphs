@@ -8,9 +8,6 @@ import EmailProvider from "next-auth/providers/email";
 import { db } from "@/db";
 
 export const authOptions: NextAuthOptions = {
-  //FIXME:waiting on a fix from next auth
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
   adapter: DrizzleAdapter(db),
   providers: [
     GoogleProvider({
