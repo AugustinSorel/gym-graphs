@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/sign-in",
-    //TODO:email page
+    verifyRequest: "/verify-request",
   },
 };
 
