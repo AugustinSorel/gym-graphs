@@ -4,6 +4,9 @@ dependencies:
   '@auth/core':
     specifier: ^0.11.1
     version: 0.11.1(nodemailer@6.9.4)
+  '@auth/drizzle-adapter':
+    specifier: ^0.3.1
+    version: 0.3.1(nodemailer@6.9.4)
   '@dnd-kit/core':
     specifier: ^6.0.8
     version: 6.0.8(react-dom@18.2.0)(react@18.2.0)
@@ -198,6 +201,14 @@ packages:
       oauth4webapi: 2.3.0
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
+    dev: false
+
+  /@auth/drizzle-adapter@0.3.1(nodemailer@6.9.4):
+    resolution: {integrity: sha512-zSuewnrozY0EZYVrt2T5VY0R+wA3chXncanmUgvAgoX+pcussKMVFmnSrSYuc3i4vfM2qCmAa6S6dkSH5RViSA==}
+    dependencies:
+      '@auth/core': 0.11.1(nodemailer@6.9.4)
+    transitivePeerDependencies:
+      - nodemailer
     dev: false
 
   /@babel/runtime@7.22.10:
