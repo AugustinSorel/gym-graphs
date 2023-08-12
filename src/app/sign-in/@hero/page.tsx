@@ -21,7 +21,7 @@ const Container = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="relative hidden grow items-center justify-center gap-5 overflow-x-clip lg:flex"
+      className="relative hidden flex-1 items-center justify-center gap-5 overflow-x-clip lg:flex"
     />
   );
 };

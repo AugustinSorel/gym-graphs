@@ -73,7 +73,7 @@ const AuthContainer = (props: ComponentProps<"div">) => {
 };
 
 const Container = (props: ComponentProps<"div">) => {
-  return <div {...props} className="relative flex grow" />;
+  return <div {...props} className="relative flex flex-1" />;
 };
 
 const AuthControllersContainer = (props: ComponentProps<"div">) => {
