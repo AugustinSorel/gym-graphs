@@ -9,8 +9,8 @@ const Page = () => {
         <MailPlus className="h-24 w-24 stroke-muted-foreground" />
         <Title>verify your account</Title>
         <Text>
-          Check the email that's associated with your account to start using our
-          services
+          Check the email that&apos;s associated with your account to start
+          using our services
         </Text>
       </ContentContainer>
 
