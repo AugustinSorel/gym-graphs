@@ -1,21 +1,25 @@
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
-import type { ComponentProps } from "react";
+import type { ComponentProps, PropsWithChildren } from "react";
 
-const Hero = () => {
+const Layout = ({ children }: PropsWithChildren) => {
   return (
-    <Container>
-      <Icon size="lg" />
-      <Title>gym graphs</Title>
+    <main className="flex min-h-[calc(100dvh-var(--header-height))]">
+      <Container>
+        <Icon size="lg" />
+        <Title>gym graphs</Title>
 
-      <BackgroundContainer>
-        <HeroBackground />
-      </BackgroundContainer>
-    </Container>
+        <BackgroundContainer>
+          <HeroBackground />
+        </BackgroundContainer>
+      </Container>
+
+      {children}
+    </main>
   );
 };
 
-export default Hero;
+export default Layout;
 
 const Container = (props: ComponentProps<"div">) => {
   return (
