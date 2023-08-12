@@ -1,14 +1,10 @@
+import { env } from "@/env.mjs";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { env } from "@/env.mjs";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 
-const migrationClient = postgres(env.DB_URL, { max: 1 });
+const connectionString = env.DB_URL;
+const sql = postgres(connectionString, { max: 1 });
+export const db = drizzle(sql);
 
-void migrate(drizzle(migrationClient), {
-  migrationsFolder: "./migration-folder",
-});
-
-const client = postgres(env.DB_URL);
-export const db = drizzle(client);
-
+void migrate(db, { migrationsFolder: "./drizzle" });
