@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { User } from "next-auth";
+import type { User } from "next-auth";
 
 type DeleteUserAccountAction = {
   userId: User["id"];
