@@ -1,14 +1,37 @@
 import { env } from "@/env.mjs";
 import { getServerSession } from "next-auth";
-import type { NextAuthOptions } from "next-auth";
+import type { DefaultSession, NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import EmailProvider from "next-auth/providers/email";
 import { db } from "@/db";
 
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: DefaultSession["user"] & {
+      id: string;
+    };
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db),
+  callbacks: {
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.id,
+      },
+    }),
+  },
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,

@@ -61,6 +61,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getExercises } from "@/fakeData";
+import { deleteUserAccountAction } from "@/serverActions/user";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -248,11 +249,17 @@ const DeleteAccountDropDownItem = () => {
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const deleteHandler = async () => {
     try {
+      if (!session?.user.id) {
+        throw new Error("no user id");
+      }
+
       setIsDeleteAccountLoading(() => true);
-      await new Promise((res) => setTimeout(res, 1_000));
+      await deleteUserAccountAction({ userId: session?.user?.id });
+      await signOut({ callbackUrl: "/" });
       setIsAlertOpen(() => false);
     } catch (error) {
       toast({
