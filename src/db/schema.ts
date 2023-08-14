@@ -8,6 +8,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
+import { InferModel } from "drizzle-orm";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -74,3 +75,5 @@ export const exercise = pgTable(
     unq: unique().on(exercise.userId, exercise.name),
   })
 );
+
+export type Exercise = InferModel<typeof exercise>;
