@@ -42,7 +42,7 @@ const date = z
     )}`
   );
 
-export const newExerciseNameSchema = z.object({ name });
+export const newExerciseNameSchema = z.object({ name, userId: id });
 
 export const deleteExerciseSchema = z.object({ id });
 
