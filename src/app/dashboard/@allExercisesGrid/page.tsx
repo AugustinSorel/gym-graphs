@@ -1,13 +1,28 @@
-import { getExercises } from "@/fakeData";
 import { DragComponent, SortableGrid } from "./sortableGrid";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { Badge } from "@/components/ui/badge";
 import { TimelineContainer } from "../timelineContainer";
+import { db } from "@/db";
+import { exercise } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-const AllExercisesGrid = () => {
-  const exercises = getExercises();
+const AllExercisesGrid = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user.id) {
+    return redirect("/");
+  }
+
+  //TODO: order by gridIndex
+  const exercises = await db
+    .select()
+    .from(exercise)
+    .where(eq(exercise.userId, session.user.id));
 
   return (
     <TimelineContainer>
@@ -30,7 +45,8 @@ const AllExercisesGrid = () => {
                   </GridItem.ActionContainer>
                 </GridItem.Header>
 
-                <LineGraph data={exercise.data} />
+                {/*FIXME: remove [] to exercise.data instead */}
+                <LineGraph data={[]} />
               </GridItem.Root>
             ),
           }))
@@ -50,7 +66,8 @@ const AllExercisesGrid = () => {
                   <RadarGraph
                     data={exercises.map((exercise) => ({
                       exerciseName: exercise.name,
-                      frequency: exercise.data.length,
+                      //FIXME:remove 0 and use exercise.data.length instead
+                      frequency: 0,
                     }))}
                   />
                 </GridItem.Root>
