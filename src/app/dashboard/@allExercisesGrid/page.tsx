@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+//TODO: revalidate when adding / updating / removing exercise
 
 const AllExercisesGrid = async () => {
   const session = await getServerSession(authOptions);

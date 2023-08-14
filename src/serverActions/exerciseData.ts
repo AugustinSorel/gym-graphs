@@ -1,7 +1,6 @@
 "use server";
 
 import type {
-  DeleteExerciseSchema,
   UpdateExerciseDataDateSchema,
   UpdateNumberOfRepsSchema,
   UpdateWeightLiftedSchema,
