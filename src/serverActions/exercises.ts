@@ -32,7 +32,9 @@ export const addNewExerciseAction = async (
     const error = e as object;
 
     if ("code" in error && error.code === "23505") {
-      throw new Error("exercise name is already used");
+      return { error: "duplicate" } as const;
     }
+
+    return { error: "unknown" } as const;
   }
 };

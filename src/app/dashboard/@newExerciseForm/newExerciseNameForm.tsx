@@ -48,7 +48,12 @@ export const NewExerciseForm = ({ action }: Props) => {
     }
 
     try {
-      await action(newExercise.data);
+      const res = await action(newExercise.data);
+
+      if ("error" in res && res.error === "duplicate") {
+        throw new Error("exercise name is already used");
+      }
+
       setName("");
     } catch (error) {
       return toast({
