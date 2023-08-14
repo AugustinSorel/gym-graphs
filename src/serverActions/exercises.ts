@@ -1,11 +1,12 @@
 "use server";
 
+import { db } from "@/db";
+import { exercise } from "@/db/schema";
 import type {
   DeleteExerciseSchema,
   UpdateExerciseNameSchema,
   NewExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
-import { addNewExercise } from "@/fakeData";
 
 export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
   await new Promise((res) => setTimeout(res, 1_000));
@@ -22,7 +23,16 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    return await db
+      .insert(exercise)
+      .values({ ...newExercise })
+      .returning();
+  } catch (e) {
+    const error = e as object;
 
-  addNewExercise({ name: newExercise.name, gridIndex: 0 });
+    if ("code" in error && error.code === "23505") {
+      throw new Error("exercise name is already used");
+    }
+  }
 };
