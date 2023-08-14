@@ -51,7 +51,7 @@ const date = z
 
 export const newExerciseNameSchema = z.object({ name, userId: id });
 
-export const deleteExerciseSchema = z.object({ id });
+export const deleteExerciseSchema = z.object({ exerciseId });
 
 export const updateExerciseNameSchema = z.object({ name, exerciseId });
 
