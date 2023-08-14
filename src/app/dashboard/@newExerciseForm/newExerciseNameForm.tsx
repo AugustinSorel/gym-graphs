@@ -16,16 +16,19 @@ import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
 import type { addNewExerciseAction } from "@/serverActions/exercises";
+import { useSession } from "next-auth/react";
 
 type Props = { action: typeof addNewExerciseAction };
 
 export const NewExerciseForm = ({ action }: Props) => {
   const [name, setName] = useState("");
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const actionHandler = async (e: FormData) => {
     const newExercise = newExerciseNameSchema.safeParse({
       name,
+      userId: session?.user.id,
     });
 
     if (!newExercise.success) {
