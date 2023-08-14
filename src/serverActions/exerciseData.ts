@@ -6,6 +6,7 @@ import type {
   UpdateNumberOfRepsSchema,
   UpdateWeightLiftedSchema,
   AddExerciseDataSchema,
+  DeleteExerciseDataSchema,
 } from "@/schemas/exerciseSchemas";
 
 export const addExerciseDataAction = async (
@@ -31,7 +32,7 @@ export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
   console.log(e);
 };
 
-export const deleteDataAction = async (e: DeleteExerciseSchema) => {
+export const deleteDataAction = async (e: DeleteExerciseDataSchema) => {
   await new Promise((res) => setTimeout(res, 1_000));
 
   console.log(e);
