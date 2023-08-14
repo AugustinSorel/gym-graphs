@@ -40,7 +40,7 @@ const AllExercisesGrid = async () => {
                   <GridItem.Title>{exercise.name}</GridItem.Title>
 
                   <GridItem.ActionContainer>
-                    <GridItem.ExerciseDropDown />
+                    <GridItem.ExerciseDropDown exercise={exercise} />
                     <DragComponent id={exercise.id} />
                   </GridItem.ActionContainer>
                 </GridItem.Header>

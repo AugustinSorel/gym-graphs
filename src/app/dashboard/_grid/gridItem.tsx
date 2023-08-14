@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { Exercise } from "@/db/schema";
 
 const Header = (props: ComponentProps<"header">) => {
   return (
@@ -51,7 +52,7 @@ const Anchor = (props: LinkProps) => {
   return <Link {...props} className="absolute inset-0" />;
 };
 
-const ExerciseDropDown = () => {
+const ExerciseDropDown = ({ exercise }: { exercise: Exercise }) => {
   return (
     <DropdownMenu>
       <TooltipProvider>
@@ -77,7 +78,10 @@ const ExerciseDropDown = () => {
         <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <UpdateExerciseNameDialog onAction={updateExerciseNameAction} />
+          <UpdateExerciseNameDialog
+            onAction={updateExerciseNameAction}
+            exercise={exercise}
+          />
           <DeleteExerciseAlertDialog onAction={deleteExerciseAction} />
         </DropdownMenuGroup>
       </DropdownMenuContent>
