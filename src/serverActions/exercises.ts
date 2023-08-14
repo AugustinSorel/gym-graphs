@@ -7,11 +7,24 @@ import type {
   UpdateExerciseNameSchema,
   NewExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
+import { eq } from "drizzle-orm";
 
 export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    return await db
+      .update(exercise)
+      .set({ name: e.name })
+      .where(eq(exercise.id, e.exerciseId))
+      .returning();
+  } catch (e) {
+    const error = e as object;
 
-  console.log("e: ", e);
+    if ("code" in error && error.code === "23505") {
+      return { error: "duplicate" } as const;
+    }
+
+    return { error: "unknown" } as const;
+  }
 };
 
 export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
@@ -20,6 +33,7 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   console.log("e: ", e);
 };
 
+//TODO:revalidate path
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {

@@ -19,19 +19,21 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { updateExerciseNameAction } from "@/serverActions/exercises";
+import type { Exercise } from "@/db/schema";
 
 type Props = {
   onAction: typeof updateExerciseNameAction;
+  exercise: Exercise;
 };
 
-export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
+export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedExerciseName, setUpdatedExerciseName] = useState("bench press");
+  const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
     const data = updateExerciseNameSchema.safeParse({
-      id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
+      exerciseId: exercise.id,
       name: updatedExerciseName,
     });
 
@@ -52,7 +54,12 @@ export const UpdateExerciseNameDialog = ({ onAction }: Props) => {
     }
 
     try {
-      await onAction(data.data);
+      const res = await onAction(data.data);
+
+      if ("error" in res && res.error === "duplicate") {
+        throw new Error("exercise name is already used");
+      }
+
       setUpdatedExerciseName("");
       setIsDialogOpen(() => false);
     } catch (error) {

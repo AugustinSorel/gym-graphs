@@ -8,6 +8,13 @@ const id = z
   })
   .uuid("uuid is not valid");
 
+const exerciseId = z
+  .string({
+    required_error: "id is required",
+    invalid_type_error: "id must be a uuid",
+  })
+  .uuid("uuid is not valid");
+
 const name = z
   .string({ required_error: "exercise name is required" })
   .min(3, "exercise name must be at least 3 characters long")
@@ -46,7 +53,7 @@ export const newExerciseNameSchema = z.object({ name, userId: id });
 
 export const deleteExerciseSchema = z.object({ id });
 
-export const updateExerciseNameSchema = z.object({ id, name });
+export const updateExerciseNameSchema = z.object({ name, exerciseId });
 
 export const addExerciseDataSchema = z.object({
   id,
