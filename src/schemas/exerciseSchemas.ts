@@ -51,7 +51,7 @@ const date = z
 
 export const newExerciseNameSchema = z.object({ name, userId: id });
 
-export const deleteExerciseSchema = z.object({ id });
+export const deleteExerciseSchema = z.object({ exerciseId });
 
 export const updateExerciseNameSchema = z.object({ name, exerciseId });
 
@@ -76,7 +76,12 @@ export const updateExerciseDataDateSchema = z.object({
   date,
 });
 
+export const deleteExerciseDataSchema = z.object({
+  id,
+});
+
 export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
+export type DeleteExerciseDataSchema = z.infer<typeof deleteExerciseDataSchema>;
 export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
 export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
 export type UpdateExerciseNameSchema = z.infer<typeof updateExerciseNameSchema>;

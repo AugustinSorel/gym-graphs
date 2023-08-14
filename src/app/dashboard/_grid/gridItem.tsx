@@ -82,7 +82,10 @@ const ExerciseDropDown = ({ exercise }: { exercise: Exercise }) => {
             onAction={updateExerciseNameAction}
             exercise={exercise}
           />
-          <DeleteExerciseAlertDialog onAction={deleteExerciseAction} />
+          <DeleteExerciseAlertDialog
+            onAction={deleteExerciseAction}
+            exercise={exercise}
+          />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

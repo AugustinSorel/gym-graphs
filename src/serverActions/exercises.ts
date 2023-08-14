@@ -28,9 +28,10 @@ export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
 };
 
 export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
-  await new Promise((res) => setTimeout(res, 1_000));
-
-  console.log("e: ", e);
+  return await db
+    .delete(exercise)
+    .where(eq(exercise.id, e.exerciseId))
+    .returning();
 };
 
 //TODO:revalidate path

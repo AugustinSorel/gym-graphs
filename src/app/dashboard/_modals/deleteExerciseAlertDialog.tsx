@@ -18,21 +18,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { deleteExerciseAction } from "@/serverActions/exercises";
+import { Exercise } from "@/db/schema";
 
 type Props = {
   onAction: typeof deleteExerciseAction;
+  exercise: Exercise;
 };
 
-export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
+export const DeleteExerciseAlertDialog = ({ onAction, exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
   const { toast } = useToast();
-  const exercise = "bench press";
 
   const deleteHandler = async () => {
     try {
       setIsDeleteExerciseLoading(() => true);
-      await onAction({ id: "" });
+      await onAction({ exerciseId: exercise.id });
       setIsAlertDialogOpen(() => false);
     } catch (error) {
       return toast({
@@ -67,7 +68,7 @@ export const DeleteExerciseAlertDialog = ({ onAction }: Props) => {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{" "}
-            {exercise} from your exercise list
+            <strong>{exercise.name}</strong> from your exercise list
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
