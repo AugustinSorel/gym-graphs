@@ -24,14 +24,14 @@ const genAngles = (length: number) =>
     angle: +(
       i * (degrees / length) +
       (length % 2 === 0 ? 0 : degrees / length / 2)
-    ).toFixed(5),
+    ).toFixed(3),
   }));
 
 const genPoints = (length: number, radius: number) => {
   const step = (Math.PI * 2) / length;
   return [...new Array<number>(length)].map((_, i) => ({
-    x: +(radius * Math.sin(i * step)).toFixed(5),
-    y: +(radius * Math.cos(i * step)).toFixed(5),
+    x: +(radius * Math.sin(i * step)).toFixed(3),
+    y: +(radius * Math.cos(i * step)).toFixed(3),
   }));
 };
 
@@ -55,7 +55,7 @@ function genPolygonPoints(
       const yVal =
         scale(getValue(dataArray[i - 1] ?? defaultValue)) * Math.cos(i * step);
       points[i - 1] = { x: xVal, y: yVal };
-      res += `${xVal.toFixed(5)},${yVal.toFixed(5)} `;
+      res += `${xVal.toFixed(3)},${yVal.toFixed(3)} `;
       return res;
     });
 
@@ -157,8 +157,8 @@ export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
         {polygonPoints.points.map((point, i) => (
           <circle
             key={`radar-point-${i}`}
-            cx={point.x.toFixed(5)}
-            cy={point.y.toFixed(5)}
+            cx={point.x.toFixed(3)}
+            cy={point.y.toFixed(3)}
             r={4}
             className="fill-brand-color-two"
           />
