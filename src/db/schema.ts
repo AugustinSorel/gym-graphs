@@ -4,6 +4,8 @@ import {
   text,
   primaryKey,
   integer,
+  uuid,
+  unique,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 
@@ -54,5 +56,21 @@ export const verificationTokens = pgTable(
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
+  })
+);
+
+export const exercise = pgTable(
+  "exercise",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (exercise) => ({
+    unq: unique().on(exercise.userId, exercise.name),
   })
 );
