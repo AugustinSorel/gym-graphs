@@ -26,10 +26,6 @@ const AllExercisesGrid = async () => {
     .where(eq(exercise.userId, session.user.id));
 
   return (
-    <TimelineContainer>
-      <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
-        <time dateTime="all">all</time>
-      </Badge>
       <SortableGrid
         items={exercises
           .map((exercise) => ({
@@ -76,7 +72,6 @@ const AllExercisesGrid = async () => {
             },
           ])}
       />
-    </TimelineContainer>
   );
 };
 
