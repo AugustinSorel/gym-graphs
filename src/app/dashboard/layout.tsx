@@ -1,11 +1,11 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { ReactNode, ComponentProps } from "react";
+import type { ReactNode, ComponentProps, PropsWithChildren } from "react";
 
 type Props = {
   newExerciseForm: ReactNode;
   allExercisesGrid: ReactNode;
   exercisesByMonthGrid: ReactNode;
-};
+} & PropsWithChildren;
 
 const Layout = (props: Props) => {
   return (
@@ -19,6 +19,8 @@ const Layout = (props: Props) => {
       <BackgroundContainer>
         <DashboardBackground />
       </BackgroundContainer>
+
+      {props.children}
     </Container>
   );
 };

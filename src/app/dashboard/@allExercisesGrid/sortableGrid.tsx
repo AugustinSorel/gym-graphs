@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { GridLayout } from "../_grid/gridLayout";
@@ -36,6 +36,10 @@ type Props = {
 
 export const SortableGrid = ({ items }: Props) => {
   const [gridItems, setGridItems] = useState(items);
+
+  useEffect(() => {
+    setGridItems(items);
+  }, [items]);
 
   const sensors = useSensors(
     useSensor(MouseSensor),
