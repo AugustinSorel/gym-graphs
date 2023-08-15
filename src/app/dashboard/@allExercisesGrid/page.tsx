@@ -13,6 +13,8 @@ import { redirect } from "next/navigation";
 const AllExercisesGrid = async () => {
   const session = await getServerSession(authOptions);
 
+  await new Promise((res) => setTimeout(res, 5000));
+
   if (!session || !session.user.id) {
     return redirect("/");
   }
