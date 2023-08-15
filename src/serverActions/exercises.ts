@@ -1,3 +1,4 @@
+//FIXME: remove the ugly catches code
 "use server";
 
 import { db } from "@/db";
@@ -8,14 +9,19 @@ import type {
   NewExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
   try {
-    return await db
+    const res = await db
       .update(exercise)
       .set({ name: e.name })
       .where(eq(exercise.id, e.exerciseId))
       .returning();
+
+    revalidatePath("/dashboard");
+
+    return res;
   } catch (e) {
     const error = e as object;
 
@@ -28,21 +34,32 @@ export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
 };
 
 export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
-  return await db
-    .delete(exercise)
-    .where(eq(exercise.id, e.exerciseId))
-    .returning();
+  try {
+    const res = await db
+      .delete(exercise)
+      .where(eq(exercise.id, e.exerciseId))
+      .returning();
+
+    revalidatePath("/dashboard");
+
+    return res;
+  } catch (e) {
+    return { error: "unknown" } as const;
+  }
 };
 
-//TODO:revalidate path
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
   try {
-    return await db
+    const res = await db
       .insert(exercise)
       .values({ ...newExercise })
       .returning();
+
+    revalidatePath("/dashboard");
+
+    return res;
   } catch (e) {
     const error = e as object;
 
