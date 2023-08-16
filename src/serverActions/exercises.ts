@@ -2,7 +2,8 @@
 "use server";
 
 import { db } from "@/db";
-import { exercise } from "@/db/schema";
+import { exercise, exerciseGridPosition } from "@/db/schema";
+import type { Exercise, User } from "@/db/schema";
 import type {
   DeleteExerciseSchema,
   UpdateExerciseNameSchema,
@@ -52,14 +53,23 @@ export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
   try {
-    const res = await db
-      .insert(exercise)
-      .values({ ...newExercise })
-      .returning();
+    console.log(newExercise);
+    return db.transaction(async (tx) => {
+      const exerciseCreated = await tx
+        .insert(exercise)
+        .values({ name: newExercise.name, userId: newExercise.userId })
+        .returning();
 
-    revalidatePath("/dashboard");
+      if (exerciseCreated[0]) {
+        await tx.insert(exerciseGridPosition).values({
+          userId: newExercise.userId,
+          exerciseId: exerciseCreated[0].id,
+        });
+      }
 
-    return res;
+      revalidatePath("/dashboard");
+      return exerciseCreated;
+    });
   } catch (e) {
     const error = e as object;
 
@@ -71,15 +81,22 @@ export const addNewExerciseAction = async (
   }
 };
 
-export const updateExercisesGridIndex = async (gridItems: string[]) => {
+export const updateExercisesGridIndex = async ({
+  userId,
+  exercisesId,
+}: {
+  userId: User["id"];
+  exercisesId: Exercise["id"][];
+}) => {
   await db.transaction(async (tx) => {
-    gridItems.reverse().forEach(async (item, i) => {
-      await tx
-        .update(exercise)
-        .set({ gridIndex: i })
-        .where(eq(exercise.id, item));
-    });
-  });
+    await tx
+      .delete(exerciseGridPosition)
+      .where(eq(exerciseGridPosition.userId, userId));
 
-  console.log("done");
+    await tx
+      .insert(exerciseGridPosition)
+      .values(
+        exercisesId.reverse().map((exerciseId) => ({ exerciseId, userId }))
+      );
+  });
 };
