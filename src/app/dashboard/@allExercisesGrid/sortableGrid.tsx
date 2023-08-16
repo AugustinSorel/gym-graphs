@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import {
@@ -29,6 +29,7 @@ import {
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateExercisesGridIndex } from "@/serverActions/exercises";
+import { useSession } from "next-auth/react";
 
 type Props = {
   gridItems: { render: ReactNode; id: string }[];
@@ -36,6 +37,7 @@ type Props = {
 
 export const SortableGrid = (props: Props) => {
   const [gridItems, setGridItems] = useState(props.gridItems);
+  const { data: session } = useSession();
 
   useEffect(() => setGridItems(props.gridItems), [props.gridItems]);
 
@@ -47,25 +49,25 @@ export const SortableGrid = (props: Props) => {
     })
   );
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-      if (active.id === over?.id) {
-        return;
-      }
+    if (active.id === over?.id || !session) {
+      return;
+    }
 
-      const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
-      const newIndex = gridItems.findIndex((x) => x.id === over?.id);
+    const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
+    const newIndex = gridItems.findIndex((x) => x.id === over?.id);
 
-      const updatedGridItems = arrayMove(gridItems, oldIndex, newIndex);
+    const updatedGridItems = arrayMove(gridItems, oldIndex, newIndex);
 
-      setGridItems(updatedGridItems);
+    setGridItems(updatedGridItems);
 
-      updateExercisesGridIndex(updatedGridItems.map((item) => item.id));
-    },
-    [gridItems]
-  );
+    updateExercisesGridIndex({
+      userId: session?.user.id,
+      exercisesId: updatedGridItems.map((item) => item.id),
+    });
+  };
 
   return (
     <DndContext
