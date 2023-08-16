@@ -6,6 +6,7 @@ import {
   integer,
   uuid,
   unique,
+  serial,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import type { InferModel } from "drizzle-orm";
@@ -68,6 +69,7 @@ export const exercise = pgTable(
     userId: text("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    gridIndex: serial("grid_index"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },
