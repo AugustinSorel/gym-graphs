@@ -3,7 +3,7 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { db } from "@/db";
-import { exercise } from "@/db/schema";
+import { exercise, exerciseGridPosition } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -22,12 +22,16 @@ const AllExercisesGrid = async () => {
     .select()
     .from(exercise)
     .where(eq(exercise.userId, session.user.id))
-    .orderBy(desc(exercise.gridIndex));
+    .innerJoin(
+      exerciseGridPosition,
+      eq(exercise.id, exerciseGridPosition.exerciseId)
+    )
+    .orderBy(desc(exerciseGridPosition.gridPosition));
 
   return (
     <GridLayout>
       <SortableGrid
-        gridItems={exercises.map((exercise) => ({
+        gridItems={exercises.map(({ exercise }) => ({
           id: exercise.id,
           render: (
             <GridItem.Root>
@@ -54,7 +58,7 @@ const AllExercisesGrid = async () => {
         </GridItem.Header>
 
         <RadarGraph
-          data={exercises.map((exercise) => ({
+          data={exercises.map(({ exercise }) => ({
             exerciseName: exercise.name,
             //FIXME:remove 0 and use exercise.data.length instead
             frequency: 0,
