@@ -70,3 +70,16 @@ export const addNewExerciseAction = async (
     return { error: "unknown" } as const;
   }
 };
+
+export const updateExercisesGridIndex = async (gridItems: string[]) => {
+  await db.transaction(async (tx) => {
+    gridItems.reverse().forEach(async (item, i) => {
+      await tx
+        .update(exercise)
+        .set({ gridIndex: i })
+        .where(eq(exercise.id, item));
+    });
+  });
+
+  console.log("done");
+};
