@@ -49,7 +49,7 @@ export const SortableGrid = (props: Props) => {
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id === over?.id || !session) {
@@ -63,7 +63,7 @@ export const SortableGrid = (props: Props) => {
 
     setGridItems(updatedGridItems);
 
-    updateExercisesGridIndex({
+    await updateExercisesGridIndex({
       userId: session?.user.id,
       exercisesId: updatedGridItems.map((item) => item.id),
     });
@@ -72,7 +72,7 @@ export const SortableGrid = (props: Props) => {
   return (
     <DndContext
       sensors={sensors}
-      onDragEnd={handleDragEnd}
+      onDragEnd={(e) => void handleDragEnd(e)}
       collisionDetection={closestCenter}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
