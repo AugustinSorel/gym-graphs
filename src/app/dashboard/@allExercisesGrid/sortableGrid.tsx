@@ -20,7 +20,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { GridLayout } from "../_grid/gridLayout";
 import {
   Tooltip,
   TooltipContent,
@@ -29,17 +28,16 @@ import {
 } from "@/components/ui/tooltip";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { updateExercisesGridIndex } from "@/serverActions/exercises";
 
 type Props = {
-  items: { render: ReactNode; id: string }[];
+  gridItems: { render: ReactNode; id: string }[];
 };
 
-export const SortableGrid = ({ items }: Props) => {
-  const [gridItems, setGridItems] = useState(items);
+export const SortableGrid = (props: Props) => {
+  const [gridItems, setGridItems] = useState(props.gridItems);
 
-  useEffect(() => {
-    setGridItems(items);
-  }, [items]);
+  useEffect(() => setGridItems(props.gridItems), [props.gridItems]);
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -53,14 +51,18 @@ export const SortableGrid = ({ items }: Props) => {
     (event: DragEndEvent) => {
       const { active, over } = event;
 
-      if (active.id !== over?.id) {
-        setGridItems((prev) => {
-          const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
-          const newIndex = gridItems.findIndex((x) => x.id === over?.id);
-
-          return arrayMove(prev, oldIndex, newIndex);
-        });
+      if (active.id === over?.id) {
+        return;
       }
+
+      const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
+      const newIndex = gridItems.findIndex((x) => x.id === over?.id);
+
+      const updatedGridItems = arrayMove(gridItems, oldIndex, newIndex);
+
+      setGridItems(updatedGridItems);
+
+      updateExercisesGridIndex(updatedGridItems.map((item) => item.id));
     },
     [gridItems]
   );
@@ -72,13 +74,11 @@ export const SortableGrid = ({ items }: Props) => {
       collisionDetection={closestCenter}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        <GridLayout>
-          {gridItems.map((item) => (
-            <SortableItem key={item.id} id={item.id}>
-              {item.render}
-            </SortableItem>
-          ))}
-        </GridLayout>
+        {gridItems.map((item) => (
+          <SortableItem key={item.id} id={item.id}>
+            {item.render}
+          </SortableItem>
+        ))}
       </SortableContext>
     </DndContext>
   );
