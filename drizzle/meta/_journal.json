@@ -43,6 +43,34 @@
       "when": 1692128142481,
       "tag": "0005_amazing_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1692206444317,
+      "tag": "0006_curved_ma_gnuci",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1692206478638,
+      "tag": "0007_reflective_enchantress",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1692206523718,
+      "tag": "0008_flippant_betty_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1692207492944,
+      "tag": "0009_wonderful_moon_knight",
+      "breakpoints": true
     }
   ]
 }

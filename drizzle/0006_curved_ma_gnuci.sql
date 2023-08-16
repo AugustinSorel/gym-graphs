@@ -1,0 +1,1 @@
+ALTER TABLE "exercise" DROP COLUMN IF EXISTS "grid_index";
