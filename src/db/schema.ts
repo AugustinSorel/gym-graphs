@@ -6,6 +6,7 @@ import {
   integer,
   uuid,
   unique,
+  serial,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import type { InferModel } from "drizzle-orm";
@@ -60,6 +61,7 @@ export const verificationTokens = pgTable(
   })
 );
 
+//FIXME: add an s to exercise
 export const exercise = pgTable(
   "exercise",
   {
@@ -76,4 +78,17 @@ export const exercise = pgTable(
   })
 );
 
+//FIXME: add an s
+export const exerciseGridPosition = pgTable("exercise_grid_position", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  exerciseId: uuid("exercise_id")
+    .notNull()
+    .references(() => exercise.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  gridPosition: serial("grid_position"),
+});
+
 export type Exercise = InferModel<typeof exercise>;
+export type User = InferModel<typeof users>;

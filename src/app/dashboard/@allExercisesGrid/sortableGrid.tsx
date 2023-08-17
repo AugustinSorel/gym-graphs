@@ -17,10 +17,9 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { GridLayout } from "../_grid/gridLayout";
 import {
   Tooltip,
   TooltipContent,
@@ -29,17 +28,27 @@ import {
 } from "@/components/ui/tooltip";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { updateExercisesGridIndex } from "@/serverActions/exercises";
+import { useSession } from "next-auth/react";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
-  items: { render: ReactNode; id: string }[];
+  gridItems: { render: ReactNode; id: string }[];
 };
 
-export const SortableGrid = ({ items }: Props) => {
-  const [gridItems, setGridItems] = useState(items);
+const SortableGridContext = createContext<{ isSavingGridState: boolean }>({
+  isSavingGridState: false,
+});
 
-  useEffect(() => {
-    setGridItems(items);
-  }, [items]);
+export const SortableGrid = (props: Props) => {
+  const [gridItems, setGridItems] = useState(props.gridItems);
+  const [isSavingGridState, setIsSavingGridState] = useState(false);
+  const { data: session } = useSession();
+
+  const startSavingGridState = () => setIsSavingGridState(true);
+  const stopSavingGridState = () => setIsSavingGridState(false);
+
+  useEffect(() => setGridItems(props.gridItems), [props.gridItems]);
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -49,38 +58,46 @@ export const SortableGrid = ({ items }: Props) => {
     })
   );
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
 
-      if (active.id !== over?.id) {
-        setGridItems((prev) => {
-          const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
-          const newIndex = gridItems.findIndex((x) => x.id === over?.id);
+    if (active.id === over?.id || !session) {
+      return;
+    }
 
-          return arrayMove(prev, oldIndex, newIndex);
-        });
-      }
-    },
-    [gridItems]
-  );
+    startSavingGridState();
+
+    const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
+    const newIndex = gridItems.findIndex((x) => x.id === over?.id);
+
+    const updatedGridItems = arrayMove(gridItems, oldIndex, newIndex);
+
+    setGridItems(updatedGridItems);
+
+    await updateExercisesGridIndex({
+      userId: session?.user.id,
+      exercisesId: updatedGridItems.map((item) => item.id),
+    });
+
+    stopSavingGridState();
+  };
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragEnd={handleDragEnd}
-      collisionDetection={closestCenter}
-    >
-      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        <GridLayout>
+    <SortableGridContext.Provider value={{ isSavingGridState }}>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={(e) => void handleDragEnd(e)}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={gridItems} strategy={rectSortingStrategy}>
           {gridItems.map((item) => (
             <SortableItem key={item.id} id={item.id}>
               {item.render}
             </SortableItem>
           ))}
-        </GridLayout>
-      </SortableContext>
-    </DndContext>
+        </SortableContext>
+      </DndContext>
+    </SortableGridContext.Provider>
   );
 };
 
@@ -107,6 +124,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
 
 export const DragComponent = ({ id }: { id: string }) => {
   const { attributes, listeners } = useSortable({ id });
+  const { isSavingGridState } = useContext(SortableGridContext);
 
   return (
     <TooltipProvider>
@@ -120,8 +138,13 @@ export const DragComponent = ({ id }: { id: string }) => {
             {...attributes}
             {...listeners}
             suppressHydrationWarning
+            disabled={isSavingGridState}
           >
-            <GripVertical className="h-4 w-4" />
+            {isSavingGridState ? (
+              <Loader />
+            ) : (
+              <GripVertical className="h-4 w-4" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent className="active:opacity-0">

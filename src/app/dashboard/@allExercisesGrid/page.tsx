@@ -3,11 +3,12 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { db } from "@/db";
-import { exercise } from "@/db/schema";
+import { exercise, exerciseGridPosition } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { GridLayout } from "../_grid/gridLayout";
 //TODO: optimistic update when adding / updating / removing exercise
 
 const AllExercisesGrid = async () => {
@@ -17,17 +18,20 @@ const AllExercisesGrid = async () => {
     return redirect("/");
   }
 
-  //TODO: order by gridIndex
   const exercises = await db
     .select()
     .from(exercise)
     .where(eq(exercise.userId, session.user.id))
-    .orderBy(desc(exercise.createdAt));
+    .innerJoin(
+      exerciseGridPosition,
+      eq(exercise.id, exerciseGridPosition.exerciseId)
+    )
+    .orderBy(desc(exerciseGridPosition.gridPosition));
 
   return (
-    <SortableGrid
-      items={exercises
-        .map((exercise) => ({
+    <GridLayout>
+      <SortableGrid
+        gridItems={exercises.map(({ exercise }) => ({
           id: exercise.id,
           render: (
             <GridItem.Root>
@@ -45,32 +49,23 @@ const AllExercisesGrid = async () => {
               <LineGraph data={[]} />
             </GridItem.Root>
           ),
-        }))
-        .concat([
-          {
-            id: "radar",
-            render: (
-              <GridItem.Root>
-                <GridItem.Header>
-                  <GridItem.Title>exercises count</GridItem.Title>
+        }))}
+      />
 
-                  <GridItem.ActionContainer>
-                    <DragComponent id="radar" />
-                  </GridItem.ActionContainer>
-                </GridItem.Header>
+      <GridItem.Root>
+        <GridItem.Header>
+          <GridItem.Title>exercises count</GridItem.Title>
+        </GridItem.Header>
 
-                <RadarGraph
-                  data={exercises.map((exercise) => ({
-                    exerciseName: exercise.name,
-                    //FIXME:remove 0 and use exercise.data.length instead
-                    frequency: 0,
-                  }))}
-                />
-              </GridItem.Root>
-            ),
-          },
-        ])}
-    />
+        <RadarGraph
+          data={exercises.map(({ exercise }) => ({
+            exerciseName: exercise.name,
+            //FIXME:remove 0 and use exercise.data.length instead
+            frequency: 0,
+          }))}
+        />
+      </GridItem.Root>
+    </GridLayout>
   );
 };
 

@@ -1,0 +1,1 @@
+ALTER TABLE "exercise" ADD COLUMN "grid_index" serial NOT NULL;
