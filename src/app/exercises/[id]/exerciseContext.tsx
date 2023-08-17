@@ -1,6 +1,6 @@
 "use client";
 
-import type { Exercise, ExerciseData } from "@/db/schema";
+import type { Exercise, ExerciseData } from "@/db/types";
 import { createContext, useContext, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { useExerciseParams } from "./useExercisesParams";

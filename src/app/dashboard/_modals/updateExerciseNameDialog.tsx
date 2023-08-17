@@ -19,7 +19,7 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { updateExerciseNameAction } from "@/serverActions/exercises";
-import type { Exercise } from "@/db/schema";
+import type { Exercise } from "@/db/types";
 
 type Props = {
   onAction: typeof updateExerciseNameAction;

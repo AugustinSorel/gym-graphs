@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import type { ExerciseData } from "@/db/schema";
+import type { ExerciseData } from "@/db/types";
 import { useExercise } from "../../exerciseContext";
 
 interface DataTableProps<TValue> {

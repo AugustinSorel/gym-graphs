@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { Exercise } from "@/db/schema";
+import type { Exercise } from "@/db/types";
 
 const Header = (props: ComponentProps<"header">) => {
   return (

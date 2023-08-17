@@ -26,7 +26,7 @@ import { DeleteDataAlertDialog } from "../_modals/deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import { UpdateExerciseDataDate } from "../_modals/updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/db/schema";
+import type { ExerciseData } from "@/db/types";
 
 const EstimatedPrHeader = ({
   column,

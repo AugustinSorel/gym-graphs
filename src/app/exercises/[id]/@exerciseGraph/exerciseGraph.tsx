@@ -19,7 +19,7 @@ import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/db/schema";
+import type { ExerciseData } from "@/db/types";
 
 type GraphPoint = Pick<ExerciseData, "doneAt" | "oneRepMax">;
 

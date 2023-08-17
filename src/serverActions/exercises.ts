@@ -3,7 +3,7 @@
 
 import { db } from "@/db";
 import { exercises, exerciseGridPosition } from "@/db/schema";
-import type { Exercise, User } from "@/db/schema";
+import type { Exercise, User } from "@/db/types";
 import type {
   DeleteExerciseSchema,
   UpdateExerciseNameSchema,
