@@ -3,7 +3,7 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { db } from "@/db";
-import { exercise, exerciseGridPosition } from "@/db/schema";
+import { exercises, exerciseGridPosition } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -18,20 +18,20 @@ const AllExercisesGrid = async () => {
     return redirect("/");
   }
 
-  const exercises = await db
+  const exercisesWithGridPosition = await db
     .select()
-    .from(exercise)
-    .where(eq(exercise.userId, session.user.id))
+    .from(exercises)
+    .where(eq(exercises.userId, session.user.id))
     .innerJoin(
       exerciseGridPosition,
-      eq(exercise.id, exerciseGridPosition.exerciseId)
+      eq(exercises.id, exerciseGridPosition.exerciseId)
     )
     .orderBy(desc(exerciseGridPosition.gridPosition));
 
   return (
     <GridLayout>
       <SortableGrid
-        gridItems={exercises.map(({ exercise }) => ({
+        gridItems={exercisesWithGridPosition.map(({ exercise }) => ({
           id: exercise.id,
           render: (
             <GridItem.Root>
@@ -58,7 +58,7 @@ const AllExercisesGrid = async () => {
         </GridItem.Header>
 
         <RadarGraph
-          data={exercises.map(({ exercise }) => ({
+          data={exercisesWithGridPosition.map(({ exercise }) => ({
             exerciseName: exercise.name,
             //FIXME:remove 0 and use exercise.data.length instead
             frequency: 0,

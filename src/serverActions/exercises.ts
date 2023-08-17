@@ -2,7 +2,7 @@
 "use server";
 
 import { db } from "@/db";
-import { exercise, exerciseGridPosition } from "@/db/schema";
+import { exercises, exerciseGridPosition } from "@/db/schema";
 import type { Exercise, User } from "@/db/schema";
 import type {
   DeleteExerciseSchema,
@@ -15,9 +15,9 @@ import { revalidatePath } from "next/cache";
 export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
   try {
     const res = await db
-      .update(exercise)
-      .set({ name: e.name })
-      .where(eq(exercise.id, e.exerciseId))
+      .update(exercises)
+      .set({ name: e.name, updatedAt: new Date() })
+      .where(eq(exercises.id, e.exerciseId))
       .returning();
 
     revalidatePath("/dashboard");
@@ -37,8 +37,8 @@ export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
 export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   try {
     const res = await db
-      .delete(exercise)
-      .where(eq(exercise.id, e.exerciseId))
+      .delete(exercises)
+      .where(eq(exercises.id, e.exerciseId))
       .returning();
 
     revalidatePath("/dashboard");
@@ -55,7 +55,7 @@ export const addNewExerciseAction = async (
   try {
     return db.transaction(async (tx) => {
       const exerciseCreated = await tx
-        .insert(exercise)
+        .insert(exercises)
         .values({ name: newExercise.name, userId: newExercise.userId })
         .returning();
 

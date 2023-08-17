@@ -71,6 +71,13 @@
       "when": 1692207492944,
       "tag": "0009_wonderful_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1692265904634,
+      "tag": "0010_sudden_meltdown",
+      "breakpoints": true
     }
   ]
 }

@@ -61,13 +61,12 @@ export const verificationTokens = pgTable(
   })
 );
 
-//FIXME: add an s to exercise
-export const exercise = pgTable(
+export const exercises = pgTable(
   "exercise",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull(),
-    userId: text("userId")
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
@@ -78,17 +77,16 @@ export const exercise = pgTable(
   })
 );
 
-//FIXME: add an s
 export const exerciseGridPosition = pgTable("exercise_grid_position", {
   id: uuid("id").defaultRandom().primaryKey(),
   exerciseId: uuid("exercise_id")
     .notNull()
-    .references(() => exercise.id, { onDelete: "cascade" }),
+    .references(() => exercises.id, { onDelete: "cascade" }),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   gridPosition: serial("grid_position"),
 });
 
-export type Exercise = InferModel<typeof exercise>;
+export type Exercise = InferModel<typeof exercises>;
 export type User = InferModel<typeof users>;
