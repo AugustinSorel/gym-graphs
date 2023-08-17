@@ -1,12 +1,16 @@
-import { getExercise } from "@/fakeData";
 import ExerciseGraph from "./@exerciseGraph/page";
 import ExerciseTable from "./@exerciseTable/page";
+import NewExerciseDataForm from "./@newExerciseDataForm/page";
 import { ExerciseProvider } from "./exerciseContext";
 import { redirect } from "next/navigation";
 import type { ComponentProps } from "react";
+import { db } from "@/db";
 
-const Page = (props: { params: { id: string } }) => {
-  const exercise = getExercise(props.params.id.replace(/%20/g, " "));
+const Page = async (props: { params: { id: string } }) => {
+  const exercise = await db.query.exercises.findFirst({
+    with: { data: true },
+    where: (exercise, { eq }) => eq(exercise.id, props.params.id),
+  });
 
   if (!exercise) {
     return redirect("/dashboard");
@@ -14,6 +18,10 @@ const Page = (props: { params: { id: string } }) => {
 
   return (
     <ExerciseProvider exercise={exercise}>
+      <FormContainer>
+        <NewExerciseDataForm />
+      </FormContainer>
+
       <ContentContainer>
         <ExerciseGraph />
         <ExerciseTable />
@@ -23,6 +31,10 @@ const Page = (props: { params: { id: string } }) => {
 };
 
 export default Page;
+
+const FormContainer = (props: ComponentProps<"div">) => {
+  return <div {...props} className="space-y-5 p-5" />;
+};
 
 const ContentContainer = (props: ComponentProps<"div">) => {
   return (

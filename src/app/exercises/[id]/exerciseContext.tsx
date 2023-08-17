@@ -1,6 +1,6 @@
 "use client";
 
-import type { Exercise, ExerciseData } from "@/fakeData";
+import type { Exercise, ExerciseData } from "@/db/schema";
 import { createContext, useContext, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { useExerciseParams } from "./useExercisesParams";
@@ -8,11 +8,13 @@ import { useExerciseParams } from "./useExercisesParams";
 type ExerciseContext = {
   filteredData: ExerciseData[];
   setFilteredData: (data: ExerciseData[]) => void;
-} & Exercise;
+} & Exercise & { data: ExerciseData[] };
 
 const ExerciseContext = createContext<ExerciseContext | null>(null);
 
-type ExerciseProviderProps = { exercise: Exercise } & PropsWithChildren;
+type ExerciseProviderProps = {
+  exercise: Exercise & { data: ExerciseData[] };
+} & PropsWithChildren;
 
 export const ExerciseProvider = ({
   children,
@@ -25,21 +27,21 @@ export const ExerciseProvider = ({
   const getFilteredData = () => {
     if (fromDate && !toDate) {
       return exercise.data.filter(
-        (exercise) => new Date(exercise.date).getTime() >= fromDate.getTime()
+        (data) => new Date(data.doneAt).getTime() >= fromDate.getTime()
       );
     }
 
     if (!fromDate && toDate) {
       return exercise.data.filter(
-        (exercise) => new Date(exercise.date).getTime() <= toDate.getTime()
+        (data) => new Date(data.doneAt).getTime() <= toDate.getTime()
       );
     }
 
     if (fromDate && toDate && fromDate.getTime() < toDate.getTime()) {
       return exercise.data.filter(
-        (exercise) =>
-          new Date(exercise.date).getTime() >= fromDate.getTime() &&
-          new Date(exercise.date).getTime() <= toDate.getTime()
+        (data) =>
+          new Date(data.doneAt).getTime() >= fromDate.getTime() &&
+          new Date(data.doneAt).getTime() <= toDate.getTime()
       );
     }
 
