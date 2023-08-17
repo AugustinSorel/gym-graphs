@@ -11,8 +11,6 @@ import {
   date,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
-import { relations, type InferModel } from "drizzle-orm";
-//FIXME: create different files
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -80,14 +78,6 @@ export const exercises = pgTable(
   })
 );
 
-export const exercsiesRelations = relations(exercises, ({ many, one }) => ({
-  data: many(exercisesData),
-  position: one(exerciseGridPosition, {
-    fields: [exercises.id],
-    references: [exerciseGridPosition.exerciseId],
-  }),
-}));
-
 export const exerciseGridPosition = pgTable("exercise_grid_position", {
   id: uuid("id").defaultRandom().primaryKey(),
   exerciseId: uuid("exercise_id")
@@ -117,14 +107,3 @@ export const exercisesData = pgTable(
     unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
   })
 );
-
-export const exerciseDatasRelations = relations(exercisesData, ({ one }) => ({
-  exercise: one(exercises, {
-    fields: [exercisesData.exerciseId],
-    references: [exercises.id],
-  }),
-}));
-
-export type Exercise = InferModel<typeof exercises>;
-export type ExerciseData = InferModel<typeof exercisesData>;
-export type User = InferModel<typeof users>;

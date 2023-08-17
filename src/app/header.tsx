@@ -463,6 +463,7 @@ export const Header = () => {
           <>
             <Separator />
             <CurrentExeciseLink>
+              {/*FIXME: use exercise name*/}
               {pathname[2]?.replace(/%20/g, " ")}
             </CurrentExeciseLink>
           </>
