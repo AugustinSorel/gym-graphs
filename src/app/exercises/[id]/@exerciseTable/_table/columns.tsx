@@ -24,9 +24,9 @@ import {
 import { UpdateWeightLifted } from "../_modals/updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "../_modals/deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
-import type { ExerciseData } from "@/fakeData";
 import { UpdateExerciseDataDate } from "../_modals/updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
+import { ExerciseData } from "@/db/schema";
 
 const EstimatedPrHeader = ({
   column,
@@ -90,7 +90,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
     header: EstimatedPrHeader,
   },
   {
-    accessorKey: "numberOfReps",
+    accessorKey: "numberOfRepetitions",
     header: ({ column }) => {
       return (
         <TooltipProvider>
@@ -117,11 +117,11 @@ export const columns: ColumnDef<ExerciseData>[] = [
     },
   },
   {
-    accessorKey: "weight",
+    accessorKey: "weightLifted",
     header: WeightLiftedHeader,
   },
   {
-    accessorKey: "date",
+    accessorKey: "createdAt",
     header: ({ column }) => {
       return (
         <TooltipProvider>
@@ -146,7 +146,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date"));
+      const date = new Date(row.getValue("createdAt"));
       const formatted = formatDate(date);
 
       return <div>{formatted}</div>;
