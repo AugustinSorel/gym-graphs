@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import {
@@ -30,14 +30,23 @@ import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateExercisesGridIndex } from "@/serverActions/exercises";
 import { useSession } from "next-auth/react";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   gridItems: { render: ReactNode; id: string }[];
 };
 
+const SortableGridContext = createContext<{ isSavingGridState: boolean }>({
+  isSavingGridState: false,
+});
+
 export const SortableGrid = (props: Props) => {
   const [gridItems, setGridItems] = useState(props.gridItems);
+  const [isSavingGridState, setIsSavingGridState] = useState(false);
   const { data: session } = useSession();
+
+  const startSavingGridState = () => setIsSavingGridState(true);
+  const stopSavingGridState = () => setIsSavingGridState(false);
 
   useEffect(() => setGridItems(props.gridItems), [props.gridItems]);
 
@@ -56,6 +65,8 @@ export const SortableGrid = (props: Props) => {
       return;
     }
 
+    startSavingGridState();
+
     const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
     const newIndex = gridItems.findIndex((x) => x.id === over?.id);
 
@@ -67,22 +78,26 @@ export const SortableGrid = (props: Props) => {
       userId: session?.user.id,
       exercisesId: updatedGridItems.map((item) => item.id),
     });
+
+    stopSavingGridState();
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragEnd={(e) => void handleDragEnd(e)}
-      collisionDetection={closestCenter}
-    >
-      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        {gridItems.map((item) => (
-          <SortableItem key={item.id} id={item.id}>
-            {item.render}
-          </SortableItem>
-        ))}
-      </SortableContext>
-    </DndContext>
+    <SortableGridContext.Provider value={{ isSavingGridState }}>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={(e) => void handleDragEnd(e)}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={gridItems} strategy={rectSortingStrategy}>
+          {gridItems.map((item) => (
+            <SortableItem key={item.id} id={item.id}>
+              {item.render}
+            </SortableItem>
+          ))}
+        </SortableContext>
+      </DndContext>
+    </SortableGridContext.Provider>
   );
 };
 
@@ -109,6 +124,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
 
 export const DragComponent = ({ id }: { id: string }) => {
   const { attributes, listeners } = useSortable({ id });
+  const { isSavingGridState } = useContext(SortableGridContext);
 
   return (
     <TooltipProvider>
@@ -122,8 +138,13 @@ export const DragComponent = ({ id }: { id: string }) => {
             {...attributes}
             {...listeners}
             suppressHydrationWarning
+            disabled={isSavingGridState}
           >
-            <GripVertical className="h-4 w-4" />
+            {isSavingGridState ? (
+              <Loader />
+            ) : (
+              <GripVertical className="h-4 w-4" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent className="active:opacity-0">
