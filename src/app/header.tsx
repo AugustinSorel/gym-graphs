@@ -373,6 +373,7 @@ const DashboardLink = () => {
 };
 
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
+  //FIXME: use the user's exercises
   const [open, setOpen] = useState(false);
   const exercises = getExercises();
 
