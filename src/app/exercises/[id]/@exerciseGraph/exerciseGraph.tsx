@@ -14,16 +14,16 @@ import { curveMonotoneX } from "@visx/curve";
 import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
-import type { ExerciseData } from "@/fakeData";
 import { GridRows } from "@visx/grid";
 import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { formatDate } from "@/lib/date";
+import { ExerciseData } from "@/db/schema";
 
-type GraphPoint = Omit<ExerciseData, "id" | "numberOfReps" | "weight">;
+type GraphPoint = Pick<ExerciseData, "doneAt" | "oneRepMax">;
 
-const getDate = (d: GraphPoint) => new Date(d.date);
+const getDate = (d: GraphPoint) => new Date(d.doneAt);
 const getOneRepMax = (d: GraphPoint) => d.oneRepMax;
 
 const DEFAULT_WIDTH = 1250;
@@ -119,7 +119,7 @@ const MainGraph = ({
       );
       const d0 = exercise.data[index - 1] ??
         exercise.data.at(-1) ?? {
-          date: new Date().toString(),
+          doneAt: new Date().toString(),
           oneRepMax: -1,
         };
       const d1 = exercise.data[index];
@@ -319,7 +319,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
         x: brushDateScale(
           getDate(
             exercise.filteredData.at(0) ?? {
-              date: new Date().toString(),
+              doneAt: new Date().toString(),
               oneRepMax: 0,
             }
           )
@@ -329,7 +329,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
         x: brushDateScale(
           getDate(
             exercise.filteredData.at(-1) ?? {
-              date: new Date().toString(),
+              doneAt: new Date().toString(),
               oneRepMax: 0,
             }
           )
