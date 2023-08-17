@@ -53,7 +53,6 @@ export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
   try {
-    console.log(newExercise);
     return db.transaction(async (tx) => {
       const exerciseCreated = await tx
         .insert(exercise)
