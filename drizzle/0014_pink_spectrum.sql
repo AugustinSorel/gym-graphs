@@ -1,0 +1,1 @@
+ALTER TABLE "exercise_data" ADD COLUMN "done_at" timestamp DEFAULT now() NOT NULL;
