@@ -98,4 +98,6 @@ export const updateExercisesGridIndex = async ({
         exercisesId.reverse().map((exerciseId) => ({ exerciseId, userId }))
       );
   });
+
+  revalidatePath("/dashboard");
 };
