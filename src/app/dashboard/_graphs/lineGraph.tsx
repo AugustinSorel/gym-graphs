@@ -1,14 +1,14 @@
 "use client";
 
-import { type ExerciseData } from "@/fakeData";
+import { type ExerciseData } from "@/db/types";
 import { useDimensions } from "@/hooks/useDimensions";
 import { curveMonotoneX } from "@visx/curve";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
 
-export type LineGraphData = Pick<ExerciseData, "oneRepMax" | "date">;
+export type LineGraphData = Pick<ExerciseData, "oneRepMax" | "doneAt">;
 
-const getDate = (d: LineGraphData) => new Date(d.date);
+const getDate = (d: LineGraphData) => new Date(d.doneAt);
 const getOneRepMax = (d: LineGraphData) => d.oneRepMax;
 
 const DEFAULT_WIDTH = 302;

@@ -15,6 +15,7 @@ declare module "next-auth" {
   }
 }
 
+//TOOD: add defaults values for new user
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db),
   callbacks: {

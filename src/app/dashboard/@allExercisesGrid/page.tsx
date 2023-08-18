@@ -40,8 +40,7 @@ const AllExercisesGrid = async () => {
                 </GridItem.ActionContainer>
               </GridItem.Header>
 
-              {/*FIXME: remove [] to exercise.data instead */}
-              <LineGraph data={[]} />
+              <LineGraph data={exercise.data} />
             </GridItem.Root>
           ),
         }))}
@@ -55,8 +54,7 @@ const AllExercisesGrid = async () => {
         <RadarGraph
           data={exercises.map((exercise) => ({
             exerciseName: exercise.name,
-            //FIXME:remove 0 and use exercise.data.length instead
-            frequency: 0,
+            frequency: exercise.data.length,
           }))}
         />
       </GridItem.Root>
