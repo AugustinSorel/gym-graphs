@@ -8,17 +8,6 @@ import { db } from "@/db";
 import { z } from "zod";
 import type { Exercise } from "@/db/types";
 
-const getExercise = (exerciseId: Exercise["id"]) => {
-  if (!z.string().uuid().safeParse(exerciseId).success) {
-    return;
-  }
-
-  return db.query.exercises.findFirst({
-    with: { data: true },
-    where: (exercise, { eq }) => eq(exercise.id, exerciseId),
-  });
-};
-
 const Page = async (props: { params: { id: string } }) => {
   const exercise = await getExercise(props.params.id);
 
@@ -41,6 +30,17 @@ const Page = async (props: { params: { id: string } }) => {
 };
 
 export default Page;
+
+const getExercise = (exerciseId: Exercise["id"]) => {
+  if (!z.string().uuid().safeParse(exerciseId).success) {
+    return;
+  }
+
+  return db.query.exercises.findFirst({
+    with: { data: { orderBy: (data, { asc }) => [asc(data.doneAt)] } },
+    where: (exercise, { eq }) => eq(exercise.id, exerciseId),
+  });
+};
 
 const FormContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="space-y-5 p-5" />;

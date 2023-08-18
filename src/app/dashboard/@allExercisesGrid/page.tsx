@@ -19,7 +19,10 @@ const AllExercisesGrid = async () => {
   const exercises = (
     await db.query.exercises.findMany({
       where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
-      with: { data: true, position: true },
+      with: {
+        data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
+        position: true,
+      },
     })
   ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
 
