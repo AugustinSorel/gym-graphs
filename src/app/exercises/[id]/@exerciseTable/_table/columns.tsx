@@ -121,7 +121,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
     header: WeightLiftedHeader,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "doneAt",
     header: ({ column }) => {
       return (
         <TooltipProvider>
@@ -146,7 +146,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
+      const date = new Date(row.getValue("doneAt"));
       const formatted = formatDate(date);
 
       return <div>{formatted}</div>;
