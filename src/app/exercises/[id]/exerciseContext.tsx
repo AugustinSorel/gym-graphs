@@ -1,7 +1,13 @@
 "use client";
 
 import type { Exercise, ExerciseData } from "@/db/types";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { PropsWithChildren } from "react";
 import { useExerciseParams } from "./useExercisesParams";
 
@@ -24,7 +30,7 @@ export const ExerciseProvider = ({
   const fromDate = exerciseParams.getFromDate();
   const toDate = exerciseParams.getToDate();
 
-  const getFilteredData = () => {
+  const getFilteredData = useCallback(() => {
     if (fromDate && !toDate) {
       return exercise.data.filter(
         (data) => new Date(data.doneAt).getTime() >= fromDate.getTime()
@@ -46,11 +52,11 @@ export const ExerciseProvider = ({
     }
 
     return exercise.data;
-  };
+  }, [exercise.data, fromDate, toDate]);
 
   const [filteredData, setFilteredData] = useState(getFilteredData());
 
-  useEffect(() => setFilteredData(getFilteredData()), [exercise]);
+  useEffect(() => setFilteredData(getFilteredData()), [getFilteredData]);
 
   return (
     <ExerciseContext.Provider
