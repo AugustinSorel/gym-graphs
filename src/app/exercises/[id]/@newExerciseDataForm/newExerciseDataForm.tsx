@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 import type { addExerciseDataAction } from "@/serverActions/exerciseData";
+import { useExercise } from "../exerciseContext";
 
 type Props = { action: typeof addExerciseDataAction };
 
@@ -23,12 +24,13 @@ export const NewExerciseDataForm = ({ action }: Props) => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
+  const exercise = useExercise();
 
   const actionHandler = async (e: FormData) => {
     const addExerciseData = addExerciseDataSchema.safeParse({
       numberOfReps: +numberOfRepetitions,
       weightLifted: +weightLifted,
-      id: "3c68ebd4-49e4-44e0-b4be-ea2d9ded51d4",
+      exerciseId: exercise.id,
     });
 
     if (!addExerciseData.success) {
@@ -48,7 +50,12 @@ export const NewExerciseDataForm = ({ action }: Props) => {
     }
 
     try {
-      await action(addExerciseData.data);
+      const res = await action(addExerciseData.data);
+
+      if ("error" in res && res.error === "duplicate") {
+        throw new Error("You already have entered today's data");
+      }
+
       setNumberofRepetitions("");
       setWeightLifted("");
     } catch (error) {

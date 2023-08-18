@@ -3,8 +3,6 @@ import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { db } from "@/db";
-import { exercises, exerciseGridPosition } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -18,24 +16,21 @@ const AllExercisesGrid = async () => {
     return redirect("/");
   }
 
-  const exercisesWithGridPosition = await db
-    .select()
-    .from(exercises)
-    .where(eq(exercises.userId, session.user.id))
-    .innerJoin(
-      exerciseGridPosition,
-      eq(exercises.id, exerciseGridPosition.exerciseId)
-    )
-    .orderBy(desc(exerciseGridPosition.gridPosition));
+  const exercises = (
+    await db.query.exercises.findMany({
+      where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
+      with: { data: true, position: true },
+    })
+  ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
 
   return (
     <GridLayout>
       <SortableGrid
-        gridItems={exercisesWithGridPosition.map(({ exercise }) => ({
+        gridItems={exercises.map((exercise) => ({
           id: exercise.id,
           render: (
             <GridItem.Root>
-              <GridItem.Anchor href={`/exercises/${exercise.name}`} />
+              <GridItem.Anchor href={`/exercises/${exercise.id}`} />
               <GridItem.Header>
                 <GridItem.Title>{exercise.name}</GridItem.Title>
 
@@ -58,7 +53,7 @@ const AllExercisesGrid = async () => {
         </GridItem.Header>
 
         <RadarGraph
-          data={exercisesWithGridPosition.map(({ exercise }) => ({
+          data={exercises.map((exercise) => ({
             exerciseName: exercise.name,
             //FIXME:remove 0 and use exercise.data.length instead
             frequency: 0,

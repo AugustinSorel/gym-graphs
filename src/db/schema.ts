@@ -7,9 +7,10 @@ import {
   uuid,
   unique,
   serial,
+  real,
+  date,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
-import type { InferModel } from "drizzle-orm";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -88,5 +89,21 @@ export const exerciseGridPosition = pgTable("exercise_grid_position", {
   gridPosition: serial("grid_position"),
 });
 
-export type Exercise = InferModel<typeof exercises>;
-export type User = InferModel<typeof users>;
+export const exercisesData = pgTable(
+  "exercise_data",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "cascade" }),
+    numberOfRepetitions: integer("number_of_repetitions").notNull(),
+    weightLifted: integer("weight_lifted").notNull(),
+    oneRepMax: real("one_rep_max").notNull(),
+    doneAt: date("done_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (exerciseData) => ({
+    unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
+  })
+);

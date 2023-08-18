@@ -1,0 +1,1 @@
+ALTER TABLE "exercise_data" ALTER COLUMN "done_at" SET DATA TYPE date;

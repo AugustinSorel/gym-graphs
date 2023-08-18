@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { deleteExerciseAction } from "@/serverActions/exercises";
-import type { Exercise } from "@/db/schema";
+import type { Exercise } from "@/db/types";
 
 type Props = {
   onAction: typeof deleteExerciseAction;

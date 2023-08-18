@@ -56,7 +56,7 @@ export const deleteExerciseSchema = z.object({ exerciseId });
 export const updateExerciseNameSchema = z.object({ name, exerciseId });
 
 export const addExerciseDataSchema = z.object({
-  id,
+  exerciseId,
   numberOfReps,
   weightLifted,
 });
