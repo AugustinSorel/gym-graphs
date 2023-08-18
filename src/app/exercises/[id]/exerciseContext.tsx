@@ -1,7 +1,7 @@
 "use client";
 
 import type { Exercise, ExerciseData } from "@/db/types";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { useExerciseParams } from "./useExercisesParams";
 
@@ -49,6 +49,8 @@ export const ExerciseProvider = ({
   };
 
   const [filteredData, setFilteredData] = useState(getFilteredData());
+
+  useEffect(() => setFilteredData(getFilteredData()), [exercise]);
 
   return (
     <ExerciseContext.Provider
