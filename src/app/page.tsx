@@ -87,6 +87,7 @@ const FeatureOne = () => {
       </Text>
 
       <FeatureImageContainer className="xl:col-start-2">
+        {/*FIXME: remove esling warning*/}
         <img
           alt="dashboard of gym graphs"
           className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.5)] [content:url('/dashboard-light.png')] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)] dark:[content:url('/dashboard-dark.png')]"
@@ -110,6 +111,7 @@ const FeatureTwo = () => {
       </Text>
 
       <FeatureImageContainer className="xl:col-start-1">
+        {/*FIXME: remove esling warning*/}
         <img
           src="/exercisePage.png"
           alt="dashboard of gym graphs"
