@@ -1,17 +1,34 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridLayout } from "../_grid/gridLayout";
+import { TimelineContainer } from "../timelineContainer";
+import { Badge } from "@/components/ui/badge";
 
 const Loader = () => {
   return (
-    <GridLayout>
-      {[...Array<unknown>(10)].map((_, i) => (
-        <li key={i}>
-          <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
-            <header className="h-11 border-b border-border bg-primary" />
+    <>
+      {[...Array<unknown>(3)].map((_, i) => (
+        <TimelineContainer key={i}>
+          <Skeleton className="w-min">
+            <Badge
+              variant="accent"
+              className="mx-auto h-6 w-32 lg:ml-0 lg:mr-auto"
+            />
           </Skeleton>
-        </li>
+
+          <Skeleton>
+            <GridLayout>
+              {[...Array<unknown>(10)].map((_, i) => (
+                <li key={i}>
+                  <div className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
+                    <header className="h-11 border-b border-border bg-primary" />
+                  </div>
+                </li>
+              ))}
+            </GridLayout>
+          </Skeleton>
+        </TimelineContainer>
       ))}
-    </GridLayout>
+    </>
   );
 };
 
