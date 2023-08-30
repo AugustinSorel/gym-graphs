@@ -4,8 +4,8 @@ import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { Point } from "@visx/point";
 import { Line, LineRadial } from "@visx/shape";
-import type { Exercise } from "@/fakeData";
 import { useDimensions } from "@/hooks/useDimensions";
+import type { Exercise } from "@/db/types";
 
 export type RadarGraphData = {
   frequency: number;
