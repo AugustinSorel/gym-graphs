@@ -60,7 +60,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getExercises } from "@/fakeData";
 import { deleteUserAccountAction } from "@/serverActions/user";
 
 const DropDownMenu = () => {
@@ -375,7 +374,10 @@ const DashboardLink = () => {
 const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
   //FIXME: use the user's exercises
   const [open, setOpen] = useState(false);
-  const exercises = getExercises();
+  const exercises = [
+    { name: "bench press", id: "1" },
+    { name: "squat", id: "2" },
+  ];
 
   const [exerciseIdSelected, setExerciseIdSelected] = useState(
     exercises.find((exercise) => exercise.name === children?.toString())?.id
