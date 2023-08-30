@@ -1,5 +1,3 @@
-import { getExercises } from "@/fakeData";
-import type { Exercise } from "@/fakeData";
 import { GridLayout } from "../_grid/gridLayout";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
@@ -7,10 +5,17 @@ import { RadarGraph } from "../_graphs/radarGraph";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { TimelineContainer } from "../timelineContainer";
+import { db } from "@/db";
+import type { Exercise, ExerciseData } from "@/db/types";
 
 //TODO: infinte scroll
-const ExercisesByMonthGrid = () => {
-  const exercises = getExercises();
+const ExercisesByMonthGrid = async () => {
+  const exercises = await db.query.exercises.findMany({
+    with: {
+      data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
+    },
+  });
+
   const exercisesByMonth = getExercisesByMonth(exercises);
 
   return (
@@ -72,10 +77,12 @@ export default ExercisesByMonthGrid;
 
 type ExercisesByMonth = {
   date: string;
-  exercises: Exercise[];
+  exercises: (Exercise & { data: ExerciseData[] })[];
 }[];
 
-const getExercisesByMonth = (exercises: Exercise[]) => {
+const getExercisesByMonth = (
+  exercises: (Exercise & { data: ExerciseData[] })[]
+) => {
   const exercisesByMonth: ExercisesByMonth = [];
 
   for (const exercise of exercises) {
