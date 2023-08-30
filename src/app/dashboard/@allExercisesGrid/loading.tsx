@@ -3,15 +3,17 @@ import { GridLayout } from "../_grid/gridLayout";
 
 const Loader = () => {
   return (
-    <GridLayout>
-      {[...Array<unknown>(15)].map((_, i) => (
-        <li key={i}>
-          <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
-            <header className="h-11 border-b border-border bg-primary" />
-          </Skeleton>
-        </li>
-      ))}
-    </GridLayout>
+    <Skeleton>
+      <GridLayout>
+        {[...Array<unknown>(15)].map((_, i) => (
+          <li key={i}>
+            <div className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
+              <header className="h-11 border-b border-border bg-primary" />
+            </div>
+          </li>
+        ))}
+      </GridLayout>
+    </Skeleton>
   );
 };
 
