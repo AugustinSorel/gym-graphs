@@ -15,9 +15,6 @@ import { revalidatePath } from "next/cache";
 export const addExerciseDataAction = async (
   exerciseData: AddExerciseDataSchema
 ) => {
-  const oneRepMax =
-    exerciseData.weightLifted * (1 + exerciseData.numberOfReps / 30);
-
   try {
     const res = await db
       .insert(exercisesData)
@@ -25,7 +22,6 @@ export const addExerciseDataAction = async (
         exerciseId: exerciseData.exerciseId,
         numberOfRepetitions: exerciseData.numberOfReps,
         weightLifted: exerciseData.weightLifted,
-        oneRepMax,
       })
       .returning();
 
@@ -44,9 +40,22 @@ export const addExerciseDataAction = async (
 };
 
 export const updateNumberOfRepsAction = async (e: UpdateNumberOfRepsSchema) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    const res = await db
+      .update(exercisesData)
+      .set({
+        numberOfRepetitions: e.numberOfReps,
+        updatedAt: new Date(),
+      })
+      .where(eq(exercisesData.id, e.exerciseDataId))
+      .returning();
 
-  console.log(e);
+    revalidatePath("/exercises/[id]");
+
+    return res;
+  } catch (e) {
+    return { error: "unknown" } as const;
+  }
 };
 
 export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
