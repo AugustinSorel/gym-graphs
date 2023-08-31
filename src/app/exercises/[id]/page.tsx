@@ -43,14 +43,14 @@ const getExercise = (exerciseId: Exercise["id"]) => {
 };
 
 const FormContainer = (props: ComponentProps<"div">) => {
-  return <div {...props} className="space-y-5 p-5" />;
+  return <div {...props} className="p-10" />;
 };
 
 const ContentContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-5 pb-5 pt-0 sm:px-5"
+      className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-10 pb-5 pt-0 sm:px-5"
     />
   );
 };
