@@ -154,31 +154,36 @@ export const columns: ColumnDef<ExerciseData>[] = [
   },
   {
     id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="capitalize">view more</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="capitalize">view more</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-        <DropdownMenuContent align="end">
-          <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
-          <UpdateWeightLifted onAction={updateWeightLiftedAction} />
-          <UpdateExerciseDataDate onAction={updateExerciseDataDate} />
-          <DeleteDataAlertDialog onAction={deleteDataAction} />
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+          <DropdownMenuContent align="end">
+            <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
+            <UpdateWeightLifted onAction={updateWeightLiftedAction} />
+            <UpdateExerciseDataDate onAction={updateExerciseDataDate} />
+            <DeleteDataAlertDialog
+              onAction={deleteDataAction}
+              exerciseDataId={row.original.id}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
