@@ -1,7 +1,8 @@
 import { formatDate } from "@/lib/date";
 import { z } from "zod";
+import { userId } from "./userSchema";
 
-const id = z
+const exerciseDataId = z
   .string({
     required_error: "id is required",
     invalid_type_error: "id must be a uuid",
@@ -49,7 +50,7 @@ const date = z
     )}`
   );
 
-export const newExerciseNameSchema = z.object({ name, userId: id });
+export const newExerciseNameSchema = z.object({ name, userId });
 
 export const deleteExerciseSchema = z.object({ exerciseId });
 
@@ -62,22 +63,22 @@ export const addExerciseDataSchema = z.object({
 });
 
 export const updateNumberOfRepsSchema = z.object({
-  id,
+  exerciseDataId,
   numberOfReps,
 });
 
 export const updateWeightLiftedSchema = z.object({
-  id,
+  exerciseDataId,
   weightLifted,
 });
 
 export const updateExerciseDataDateSchema = z.object({
-  id,
+  exerciseDataId,
   date,
 });
 
 export const deleteExerciseDataSchema = z.object({
-  id,
+  exerciseDataId,
 });
 
 export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
