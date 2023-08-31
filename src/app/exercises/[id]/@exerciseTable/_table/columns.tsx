@@ -27,6 +27,7 @@ import { useWeightUnit } from "@/context/weightUnit";
 import { UpdateExerciseDataDate } from "../_modals/updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
 import type { ExerciseData } from "@/db/types";
+import { getOneRepMax } from "@/lib/math";
 
 const EstimatedPrHeader = ({
   column,
@@ -184,7 +185,10 @@ export const columns: ColumnDef<ExerciseData>[] = [
           </TooltipProvider>
 
           <DropdownMenuContent align="end">
-            <UpdateNumberOfRepsForm onAction={updateNumberOfRepsAction} />
+            <UpdateNumberOfRepsForm
+              onAction={updateNumberOfRepsAction}
+              exerciseData={row.original}
+            />
             <UpdateWeightLifted onAction={updateWeightLiftedAction} />
             <UpdateExerciseDataDate onAction={updateExerciseDataDate} />
             <DeleteDataAlertDialog

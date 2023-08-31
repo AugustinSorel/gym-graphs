@@ -19,18 +19,24 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
 import type { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
+import type { ExerciseData } from "@/db/types";
 
-type Props = { onAction: typeof updateNumberOfRepsAction };
+type Props = {
+  onAction: typeof updateNumberOfRepsAction;
+  exerciseData: ExerciseData;
+};
 
-export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
+export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState("10");
+  const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState(
+    exerciseData.numberOfRepetitions.toString()
+  );
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
     const data = updateNumberOfRepsSchema.safeParse({
-      id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
       numberOfReps: +updatedNumberOfReps,
+      exerciseDataId: exerciseData.id,
     });
 
     if (!data.success) {
@@ -51,7 +57,7 @@ export const UpdateNumberOfRepsForm = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedNumberOfReps("");
+      setUpdatedNumberOfReps(data.data.numberOfReps.toString());
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
