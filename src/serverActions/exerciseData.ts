@@ -59,9 +59,22 @@ export const updateNumberOfRepsAction = async (e: UpdateNumberOfRepsSchema) => {
 };
 
 export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    const res = await db
+      .update(exercisesData)
+      .set({
+        weightLifted: e.weightLifted,
+        updatedAt: new Date(),
+      })
+      .where(eq(exercisesData.id, e.exerciseDataId))
+      .returning();
 
-  console.log(e);
+    revalidatePath("/exercises/[id]");
+
+    return res;
+  } catch (e) {
+    return { error: "unknown" } as const;
+  }
 };
 
 export const deleteDataAction = async (e: DeleteExerciseDataSchema) => {
