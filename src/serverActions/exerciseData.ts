@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { exercisesData } from "@/db/schema";
+import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type {
   UpdateExerciseDataDateSchema,
   UpdateNumberOfRepsSchema,
@@ -95,7 +96,26 @@ export const deleteDataAction = async (e: DeleteExerciseDataSchema) => {
 export const updateExerciseDataDate = async (
   e: UpdateExerciseDataDateSchema
 ) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    const res = await db
+      .update(exercisesData)
+      .set({
+        doneAt: dateAsYearMonthDayFormat(e.doneAt),
+        updatedAt: new Date(),
+      })
+      .where(eq(exercisesData.id, e.exerciseDataId))
+      .returning();
 
-  console.log(e);
+    revalidatePath("/exercises/[id]");
+
+    return res;
+  } catch (e) {
+    const error = e as object;
+
+    if ("code" in error && error.code === "23505") {
+      return { error: "duplicate" } as const;
+    }
+
+    return { error: "unknown" } as const;
+  }
 };
