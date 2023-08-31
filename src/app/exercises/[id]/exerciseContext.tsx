@@ -56,7 +56,8 @@ export const ExerciseProvider = ({
 
   const [filteredData, setFilteredData] = useState(getFilteredData());
 
-  useEffect(() => setFilteredData(getFilteredData()), [getFilteredData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setFilteredData(getFilteredData()), [exercise.data]);
 
   return (
     <ExerciseContext.Provider
