@@ -9,6 +9,7 @@ import type {
   AddExerciseDataSchema,
   DeleteExerciseDataSchema,
 } from "@/schemas/exerciseSchemas";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export const addExerciseDataAction = async (
@@ -55,9 +56,18 @@ export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
 };
 
 export const deleteDataAction = async (e: DeleteExerciseDataSchema) => {
-  await new Promise((res) => setTimeout(res, 1_000));
+  try {
+    const res = await db
+      .delete(exercisesData)
+      .where(eq(exercisesData.id, e.exerciseDataId))
+      .returning();
 
-  console.log(e);
+    revalidatePath("/exercises/[id]");
+
+    return res;
+  } catch (e) {
+    return { error: "unknown" } as const;
+  }
 };
 
 export const updateExerciseDataDate = async (
