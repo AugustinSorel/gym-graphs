@@ -88,6 +88,16 @@ export const columns: ColumnDef<ExerciseData>[] = [
   {
     accessorKey: "oneRepMax",
     header: EstimatedPrHeader,
+    cell: ({ row }) => {
+      return (
+        <>
+          {getOneRepMax(
+            row.original.weightLifted,
+            row.original.numberOfRepetitions
+          )}
+        </>
+      );
+    },
   },
   {
     accessorKey: "numberOfRepetitions",

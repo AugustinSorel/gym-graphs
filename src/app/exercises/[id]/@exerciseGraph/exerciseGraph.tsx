@@ -20,11 +20,16 @@ import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { formatDate } from "@/lib/date";
 import type { ExerciseData } from "@/db/types";
+import { getOneRepMax as test } from "@/lib/math";
 
-type GraphPoint = Pick<ExerciseData, "doneAt" | "oneRepMax">;
+type GraphPoint = Pick<
+  ExerciseData,
+  "doneAt" | "weightLifted" | "numberOfRepetitions"
+>;
 
 const getDate = (d: GraphPoint) => new Date(d.doneAt);
-const getOneRepMax = (d: GraphPoint) => d.oneRepMax;
+const getOneRepMax = (d: GraphPoint) =>
+  test(d.weightLifted, d.numberOfRepetitions);
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;
@@ -120,7 +125,8 @@ const MainGraph = ({
       const d0 = exercise.data[index - 1] ??
         exercise.data.at(-1) ?? {
           doneAt: new Date().toString(),
-          oneRepMax: -1,
+          numberOfRepetitions: 0,
+          weightLifted: 0,
         };
       const d1 = exercise.data[index];
       let d = d0;
@@ -320,7 +326,8 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
           getDate(
             exercise.filteredData.at(0) ?? {
               doneAt: new Date().toString(),
-              oneRepMax: 0,
+              numberOfRepetitions: 0,
+              weightLifted: 0,
             }
           )
         ),
@@ -330,7 +337,8 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
           getDate(
             exercise.filteredData.at(-1) ?? {
               doneAt: new Date().toString(),
-              oneRepMax: 0,
+              numberOfRepetitions: 0,
+              weightLifted: 0,
             }
           )
         ),

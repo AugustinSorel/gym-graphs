@@ -5,11 +5,16 @@ import { useDimensions } from "@/hooks/useDimensions";
 import { curveMonotoneX } from "@visx/curve";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
+import { getOneRepMax as test } from "@/lib/math";
 
-export type LineGraphData = Pick<ExerciseData, "oneRepMax" | "doneAt">;
+export type LineGraphData = Pick<
+  ExerciseData,
+  "weightLifted" | "numberOfRepetitions" | "doneAt"
+>;
 
 const getDate = (d: LineGraphData) => new Date(d.doneAt);
-const getOneRepMax = (d: LineGraphData) => d.oneRepMax;
+const getOneRepMax = (d: LineGraphData) =>
+  test(d.weightLifted, d.numberOfRepetitions);
 
 const DEFAULT_WIDTH = 302;
 const DEFAULT_HEIGHT = 253;

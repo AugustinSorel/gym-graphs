@@ -1,0 +1,1 @@
+ALTER TABLE "exercise_data" ADD COLUMN "one_rep_max" real NOT NULL;

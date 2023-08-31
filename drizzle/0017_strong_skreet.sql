@@ -1,0 +1,1 @@
+ALTER TABLE "exercise_data" DROP COLUMN IF EXISTS "one_rep_max";
