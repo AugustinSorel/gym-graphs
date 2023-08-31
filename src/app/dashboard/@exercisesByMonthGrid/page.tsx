@@ -9,6 +9,7 @@ import { db } from "@/db";
 import type { Exercise, ExerciseData } from "@/db/types";
 
 //TODO: infinte scroll
+//TODO: date graph
 const ExercisesByMonthGrid = async () => {
   const exercises = await db.query.exercises.findMany({
     with: {

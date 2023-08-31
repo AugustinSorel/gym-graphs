@@ -1,4 +1,4 @@
-//FIXME: remove the ugly catches code
+//TODO: remove the ugly catches code
 "use server";
 
 import { db } from "@/db";
