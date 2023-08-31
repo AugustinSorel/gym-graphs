@@ -23,20 +23,24 @@ import type { updateExerciseDataDate } from "@/serverActions/exerciseData";
 import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import type { ExerciseData } from "@/db/types";
 
 type Props = {
   onAction: typeof updateExerciseDataDate;
+  exerciseData: ExerciseData;
 };
 
-export const UpdateExerciseDataDate = ({ onAction }: Props) => {
+export const UpdateExerciseDataDate = ({ onAction, exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [exerciseDate, setExerciseDate] = useState(new Date());
+  const [exerciseDate, setExerciseDate] = useState(
+    new Date(exerciseData.doneAt)
+  );
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
     const data = updateExerciseDataDateSchema.safeParse({
-      id: "7c9ffb4b-92e7-4443-8e2f-dbbfceeeca16",
-      date: exerciseDate,
+      exerciseDataId: exerciseData.id,
+      doneAt: exerciseDate,
     });
 
     if (!data.success) {
@@ -56,7 +60,12 @@ export const UpdateExerciseDataDate = ({ onAction }: Props) => {
     }
 
     try {
-      await onAction(data.data);
+      const res = await onAction(data.data);
+
+      if ("error" in res && res.error === "duplicate") {
+        throw new Error("This date clashes with an existing data");
+      }
+
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({

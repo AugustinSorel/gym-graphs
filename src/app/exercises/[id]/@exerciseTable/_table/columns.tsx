@@ -193,7 +193,10 @@ export const columns: ColumnDef<ExerciseData>[] = [
               onAction={updateWeightLiftedAction}
               exerciseData={row.original}
             />
-            <UpdateExerciseDataDate onAction={updateExerciseDataDate} />
+            <UpdateExerciseDataDate
+              onAction={updateExerciseDataDate}
+              exerciseData={row.original}
+            />
             <DeleteDataAlertDialog
               onAction={deleteDataAction}
               exerciseDataId={row.original.id}
