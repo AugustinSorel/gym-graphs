@@ -19,17 +19,23 @@ import type { updateWeightLiftedAction } from "@/serverActions/exerciseData";
 import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import type { ExerciseData } from "@/db/types";
 
-type Props = { onAction: typeof updateWeightLiftedAction };
+type Props = {
+  onAction: typeof updateWeightLiftedAction;
+  exerciseData: ExerciseData;
+};
 
-export const UpdateWeightLifted = ({ onAction }: Props) => {
+export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedWeightLifted, setUpdatedWeightLifted] = useState("");
+  const [updatedWeightLifted, setUpdatedWeightLifted] = useState(
+    exerciseData.weightLifted.toString()
+  );
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
     const data = updateWeightLiftedSchema.safeParse({
-      id: "3ece1226-bbf8-4651-ad6c-1b51cba4143a",
+      exerciseDataId: exerciseData.id,
       weightLifted: +updatedWeightLifted,
     });
 
@@ -51,7 +57,7 @@ export const UpdateWeightLifted = ({ onAction }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedWeightLifted("");
+      setUpdatedWeightLifted(data.data.weightLifted.toString());
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
