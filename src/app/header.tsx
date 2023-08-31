@@ -29,8 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -61,6 +60,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { deleteUserAccountAction } from "@/serverActions/user";
+import { getAllExercises } from "@/serverActions/exercises";
+import type { Exercise } from "@/db/types";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -352,48 +353,61 @@ const Separator = () => {
 const DashboardLink = () => {
   const { data: session } = useSession();
 
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Link
-            href="/dashboard"
-            className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
-          >
-            {session?.user?.name ?? session?.user?.email?.split("@").at(0)}
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">dashboard</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
-const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
-  //FIXME: use the user's exercises
-  const [open, setOpen] = useState(false);
-  const exercises = [
-    { name: "bench press", id: "1" },
-    { name: "squat", id: "2" },
-  ];
-
-  const [exerciseIdSelected, setExerciseIdSelected] = useState(
-    exercises.find((exercise) => exercise.name === children?.toString())?.id
-  );
-
-  const selectHandler = (exerciseId: typeof exerciseIdSelected) => {
-    setExerciseIdSelected(exerciseId);
-    setOpen(() => false);
-  };
+  if (!session) {
+    return null;
+  }
 
   return (
     <>
+      <Separator />
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/dashboard"
+              className="max-w-sm truncate text-xl font-medium capitalize outline-none focus-visible:underline"
+            >
+              {session?.user?.name ?? session?.user?.email?.split("@").at(0)}
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">dashboard</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </>
+  );
+};
+
+type CurrentExerciseLinkProps = {
+  selectedExerciseId: Exercise["id"];
+};
+
+const CurrentExeciseLink = ({
+  selectedExerciseId,
+}: CurrentExerciseLinkProps) => {
+  const [exercises, setExercises] = useState<Exercise[] | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const fetch = async () => {
+    setExercises(await getAllExercises());
+  };
+
+  useEffect(() => void fetch(), []);
+
+  if (!exercises) {
+    return null;
+  }
+
+  return (
+    <>
+      <Separator />
+
       <span className="truncate text-xl font-medium capitalize">
-        {children}
+        {exercises.find((exercise) => exercise.id === selectedExerciseId)?.name}
       </span>
-      <Popover open={open} onOpenChange={setOpen}>
+
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -402,7 +416,6 @@ const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
                   variant="ghost"
                   size="icon"
                   role="combobox"
-                  aria-expanded={open}
                   aria-label="change exercises"
                   className="z-10 ml-2 h-8 p-1"
                 >
@@ -426,12 +439,12 @@ const CurrentExeciseLink = ({ children }: PropsWithChildren) => {
               size="sm"
               className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
               key={exercise.id}
-              onClick={() => selectHandler(exercise.id)}
               asChild
+              onClick={() => setIsOpen(false)}
             >
-              <Link href={`/exercises/${exercise.name}`}>
+              <Link href={`/exercises/${exercise.id}`}>
                 <span className="truncate text-sm">{exercise.name}</span>
-                {exerciseIdSelected === exercise.id && (
+                {selectedExerciseId === exercise.id && (
                   <Check className="h-4 w-4" />
                 )}
               </Link>
@@ -448,27 +461,17 @@ export const Header = () => {
 
   const showExecisesPath = pathname[1] === "exercises";
   const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+  const exerciseId = pathname[2];
 
   return (
     <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary pr-4 backdrop-blur-md">
       <nav className="flex h-full w-full items-center overflow-hidden p-4">
         <HomeIcon />
 
-        {showDashboardPath && (
-          <>
-            <Separator />
-            <DashboardLink />
-          </>
-        )}
+        {showDashboardPath && <DashboardLink />}
 
-        {showExecisesPath && (
-          <>
-            <Separator />
-            <CurrentExeciseLink>
-              {/*FIXME: use exercise name*/}
-              {pathname[2]?.replace(/%20/g, " ")}
-            </CurrentExeciseLink>
-          </>
+        {showExecisesPath && exerciseId && (
+          <CurrentExeciseLink selectedExerciseId={exerciseId} />
         )}
       </nav>
       <DropDownMenu />

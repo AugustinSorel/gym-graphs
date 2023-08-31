@@ -101,3 +101,7 @@ export const updateExercisesGridIndex = async ({
 
   revalidatePath("/dashboard");
 };
+
+export const getAllExercises = async () => {
+  return db.select().from(exercises);
+};
