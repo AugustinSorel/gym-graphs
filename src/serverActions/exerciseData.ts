@@ -1,3 +1,4 @@
+//FIXME: try with float numbers
 "use server";
 
 import { db } from "@/db";
