@@ -40,7 +40,7 @@ const weightLifted = z
   .min(1, "weight lifted must be at least 1kg")
   .max(1000, "weight lifted must be at most 1000 kg");
 
-const doneAt = z
+const doneAt = z.coerce
   .date({
     required_error: "date is required",
     invalid_type_error: "date must be a date",

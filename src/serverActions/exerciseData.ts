@@ -2,7 +2,6 @@
 
 import { db } from "@/db";
 import { exercisesData } from "@/db/schema";
-import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type {
   UpdateExerciseDataDateSchema,
   UpdateNumberOfRepsSchema,
@@ -100,7 +99,7 @@ export const updateExerciseDataDate = async (
     const res = await db
       .update(exercisesData)
       .set({
-        doneAt: dateAsYearMonthDayFormat(e.doneAt),
+        doneAt: e.doneAt.toString(),
         updatedAt: new Date(),
       })
       .where(eq(exercisesData.id, e.exerciseDataId))
