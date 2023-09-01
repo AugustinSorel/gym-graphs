@@ -57,7 +57,6 @@ export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedNumberOfReps(data.data.numberOfReps.toString());
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
