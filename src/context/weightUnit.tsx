@@ -1,4 +1,3 @@
-//FIXME: add convertion to lbs
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
