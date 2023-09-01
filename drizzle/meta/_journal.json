@@ -141,6 +141,13 @@
       "when": 1693501113403,
       "tag": "0019_fair_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1693563883286,
+      "tag": "0020_loud_the_renegades",
+      "breakpoints": true
     }
   ]
 }

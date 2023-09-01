@@ -20,6 +20,8 @@ import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
+import { convertWeightToKg } from "@/lib/math";
+import { useWeightUnit } from "@/context/weightUnit";
 
 type Props = {
   onAction: typeof updateWeightLiftedAction;
@@ -28,6 +30,7 @@ type Props = {
 
 export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const weightUnit = useWeightUnit();
   const [updatedWeightLifted, setUpdatedWeightLifted] = useState(
     exerciseData.weightLifted.toString()
   );
@@ -36,7 +39,7 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
   const actionHandler = async (e: FormData) => {
     const data = updateWeightLiftedSchema.safeParse({
       exerciseDataId: exerciseData.id,
-      weightLifted: +updatedWeightLifted,
+      weightLifted: convertWeightToKg(+updatedWeightLifted, weightUnit.get),
     });
 
     if (!data.success) {
@@ -57,7 +60,6 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
 
     try {
       await onAction(data.data);
-      setUpdatedWeightLifted(data.data.weightLifted.toString());
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({

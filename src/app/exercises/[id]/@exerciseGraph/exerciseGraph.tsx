@@ -20,7 +20,7 @@ import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { formatDate } from "@/lib/date";
 import type { ExerciseData } from "@/db/types";
-import { getOneRepMax as test } from "@/lib/math";
+import { calculateOneRepMax } from "@/lib/math";
 
 type GraphPoint = Pick<
   ExerciseData,
@@ -29,7 +29,7 @@ type GraphPoint = Pick<
 
 const getDate = (d: GraphPoint) => new Date(d.doneAt);
 const getOneRepMax = (d: GraphPoint) =>
-  test(d.weightLifted, d.numberOfRepetitions);
+  calculateOneRepMax(d.weightLifted, d.numberOfRepetitions);
 
 const DEFAULT_WIDTH = 1250;
 const DEFAULT_HEIGHT = 500;

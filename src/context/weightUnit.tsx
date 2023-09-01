@@ -1,4 +1,3 @@
-//FIXME: add convertion to lbs
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
@@ -7,7 +6,7 @@ import { createContext, useContext } from "react";
 const WEIGHT_KEY = "weightUnit";
 
 const weightUnitSchema = z.enum(["kg", "lbs"]);
-type WeightUnit = z.infer<typeof weightUnitSchema> | undefined;
+export type WeightUnit = z.infer<typeof weightUnitSchema>;
 
 type WeightUnitContext = {
   get: WeightUnit;
@@ -17,7 +16,7 @@ type WeightUnitContext = {
 const WeightUnitContext = createContext<WeightUnitContext | null>(null);
 
 export const WeightUnitProvider = ({ children }: PropsWithChildren) => {
-  const [weightUnit, setWweightUnit] = useState<WeightUnit>(undefined);
+  const [weightUnit, setWweightUnit] = useState<WeightUnit>("kg");
 
   useEffect(() => {
     try {

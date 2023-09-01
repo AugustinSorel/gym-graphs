@@ -1,3 +1,4 @@
+//FIXME: add loading page
 import ExerciseGraph from "./@exerciseGraph/page";
 import ExerciseTable from "./@exerciseTable/page";
 import NewExerciseDataForm from "./@newExerciseDataForm/page";

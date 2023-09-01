@@ -10,6 +10,8 @@ import {
 } from "react";
 import type { PropsWithChildren } from "react";
 import { useExerciseParams } from "./useExercisesParams";
+import { convertWeightToLbs } from "@/lib/math";
+import { useWeightUnit } from "@/context/weightUnit";
 
 type ExerciseContext = {
   filteredData: ExerciseData[];
@@ -29,6 +31,7 @@ export const ExerciseProvider = ({
   const exerciseParams = useExerciseParams();
   const fromDate = exerciseParams.getFromDate();
   const toDate = exerciseParams.getToDate();
+  const weightUnit = useWeightUnit();
 
   const getFilteredData = useCallback(() => {
     if (fromDate && !toDate) {
@@ -54,14 +57,32 @@ export const ExerciseProvider = ({
     return exercise.data;
   }, [exercise.data, fromDate, toDate]);
 
-  const [filteredData, setFilteredData] = useState(getFilteredData());
+  const convertWeight = useCallback(
+    (exerciseData: ExerciseData[]) => {
+      return exerciseData.map((data) => ({
+        ...data,
+        weightLifted: convertWeightToLbs(data.weightLifted, weightUnit.get),
+      }));
+    },
+    [weightUnit.get]
+  );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setFilteredData(getFilteredData()), [exercise.data]);
+  const [filteredData, setFilteredData] = useState(
+    convertWeight(getFilteredData())
+  );
+
+  useEffect(() => {
+    setFilteredData(convertWeight(getFilteredData()));
+  }, [exercise.data, weightUnit, convertWeight, getFilteredData]);
 
   return (
     <ExerciseContext.Provider
-      value={{ ...exercise, filteredData, setFilteredData }}
+      value={{
+        ...exercise,
+        data: convertWeight(exercise.data),
+        filteredData,
+        setFilteredData,
+      }}
     >
       {children}
     </ExerciseContext.Provider>

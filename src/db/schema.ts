@@ -8,6 +8,7 @@ import {
   unique,
   serial,
   date,
+  real,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 
@@ -96,7 +97,7 @@ export const exercisesData = pgTable(
       .notNull()
       .references(() => exercises.id, { onDelete: "cascade" }),
     numberOfRepetitions: integer("number_of_repetitions").notNull(),
-    weightLifted: integer("weight_lifted").notNull(),
+    weightLifted: real("weight_lifted").notNull(),
     doneAt: date("done_at").defaultNow().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
