@@ -73,7 +73,8 @@ export const ExerciseProvider = ({
 
   useEffect(() => {
     setFilteredData(convertWeight(getFilteredData()));
-  }, [exercise.data, weightUnit, convertWeight, getFilteredData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise.data, weightUnit, convertWeight]);
 
   return (
     <ExerciseContext.Provider
