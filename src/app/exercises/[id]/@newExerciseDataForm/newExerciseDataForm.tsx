@@ -17,6 +17,8 @@ import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 import type { addExerciseDataAction } from "@/serverActions/exerciseData";
 import { useExercise } from "../exerciseContext";
+import { useWeightUnit } from "@/context/weightUnit";
+import { convertWeightToKg } from "@/lib/math";
 
 type Props = { action: typeof addExerciseDataAction };
 
@@ -25,11 +27,12 @@ export const NewExerciseDataForm = ({ action }: Props) => {
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
   const exercise = useExercise();
+  const weightUnit = useWeightUnit();
 
   const actionHandler = async (e: FormData) => {
     const addExerciseData = addExerciseDataSchema.safeParse({
       numberOfReps: +numberOfRepetitions,
-      weightLifted: +weightLifted,
+      weightLifted: convertWeightToKg(+weightLifted, weightUnit.get),
       exerciseId: exercise.id,
     });
 
@@ -88,7 +91,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
         autoComplete="off"
       />
       <Input
-        placeholder="Weight"
+        placeholder={`Weight - (${weightUnit.get})`}
         value={weightLifted}
         onChange={(e) => setWeightLifted(e.target.value)}
         name="weightLifted"
