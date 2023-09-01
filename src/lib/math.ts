@@ -1,6 +1,6 @@
 import type { ExerciseData } from "@/db/types";
 
-export const getOneRepMax = (
+export const calculateOneRepMax = (
   weightLifted: ExerciseData["weightLifted"],
   numberOfReps: ExerciseData["numberOfRepetitions"]
 ) => {

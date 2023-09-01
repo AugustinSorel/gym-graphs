@@ -27,7 +27,7 @@ import { useWeightUnit } from "@/context/weightUnit";
 import { UpdateExerciseDataDate } from "../_modals/updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
 import type { ExerciseData } from "@/db/types";
-import { getOneRepMax } from "@/lib/math";
+import { calculateOneRepMax } from "@/lib/math";
 
 const EstimatedPrHeader = ({
   column,
@@ -92,7 +92,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
     cell: ({ row }) => {
       return (
         <>
-          {getOneRepMax(
+          {calculateOneRepMax(
             row.original.weightLifted,
             row.original.numberOfRepetitions
           )}
