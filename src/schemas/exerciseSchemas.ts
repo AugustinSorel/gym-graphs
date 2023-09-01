@@ -27,7 +27,10 @@ const numberOfReps = z
     invalid_type_error: "number of repetitions must be a number",
   })
   .min(1, "number of repetitions must be at least 1")
-  .max(200, "number of repetitions must at most 200");
+  .max(200, "number of repetitions must at most 200")
+  .int({
+    message: "number of repetitions must be an integer",
+  });
 
 const weightLifted = z
   .number({
