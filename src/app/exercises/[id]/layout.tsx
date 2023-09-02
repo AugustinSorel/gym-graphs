@@ -1,9 +1,16 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { ComponentProps, PropsWithChildren } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
-const Layout = (props: PropsWithChildren) => {
+type Props = {
+  children: ReactNode;
+  newExerciseDataForm: ReactNode;
+};
+
+const Layout = (props: Props) => {
   return (
     <Main>
+      <FormContainer>{props.newExerciseDataForm}</FormContainer>
+
       {props.children}
 
       <BackgroundContainer>
@@ -31,4 +38,8 @@ const BackgroundContainer = (props: ComponentProps<"div">) => {
       className="fixed inset-0 -top-[var(--header-height)] -z-10"
     />
   );
+};
+
+const FormContainer = (props: ComponentProps<"div">) => {
+  return <div {...props} className="p-10" />;
 };

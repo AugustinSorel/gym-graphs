@@ -9,7 +9,7 @@ const Loader = () => {
       <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
         <time dateTime="all">all</time>
       </Badge>
-      <Skeleton>
+      <Skeleton className="backdrop-blur-md">
         <GridLayout>
           {[...Array<unknown>(15)].map((_, i) => (
             <li key={i}>
