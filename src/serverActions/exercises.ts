@@ -103,6 +103,6 @@ export const updateExercisesGridIndex = async ({
   revalidatePath("/dashboard");
 };
 
-export const getAllExercises = async () => {
-  return db.select().from(exercises);
+export const getAllExercises = async (userId: User["id"]) => {
+  return db.select().from(exercises).where(eq(exercises.userId, userId));
 };
