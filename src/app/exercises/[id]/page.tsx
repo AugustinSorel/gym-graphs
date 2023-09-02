@@ -10,8 +10,6 @@ import type { Exercise } from "@/db/types";
 const Page = async (props: { params: { id: string } }) => {
   const exercise = await getExercise(props.params.id);
 
-  await new Promise((res) => setTimeout(res, 10000));
-
   if (!exercise) {
     return redirect("/dashboard");
   }

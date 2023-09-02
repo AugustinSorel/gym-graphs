@@ -15,7 +15,7 @@ const Loader = () => {
             />
           </Skeleton>
 
-          <Skeleton>
+          <Skeleton className="backdrop-blur-md">
             <GridLayout>
               {[...Array<unknown>(10)].map((_, i) => (
                 <li key={i}>
