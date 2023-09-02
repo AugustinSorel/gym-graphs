@@ -49,6 +49,7 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   }
 };
 
+//FIXME: duplicate key error does not work
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
@@ -102,6 +103,6 @@ export const updateExercisesGridIndex = async ({
   revalidatePath("/dashboard");
 };
 
-export const getAllExercises = async () => {
-  return db.select().from(exercises);
+export const getAllExercises = async (userId: User["id"]) => {
+  return db.select().from(exercises).where(eq(exercises.userId, userId));
 };

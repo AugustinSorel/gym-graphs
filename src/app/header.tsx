@@ -29,7 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -388,12 +388,17 @@ const CurrentExeciseLink = ({
 }: CurrentExerciseLinkProps) => {
   const [exercises, setExercises] = useState<Exercise[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
 
-  const fetch = async () => {
-    setExercises(await getAllExercises());
-  };
+  const fetch = useCallback(async () => {
+    if (!session?.user.id) {
+      return;
+    }
 
-  useEffect(() => void fetch(), []);
+    setExercises(await getAllExercises(session.user.id));
+  }, [session?.user.id]);
+
+  useEffect(() => void fetch(), [fetch]);
 
   if (!exercises) {
     return null;

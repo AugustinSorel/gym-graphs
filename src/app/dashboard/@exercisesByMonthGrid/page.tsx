@@ -6,25 +6,30 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { TimelineContainer } from "../timelineContainer";
 import { db } from "@/db";
-import type { Exercise, ExerciseData } from "@/db/types";
+import type { Exercise, ExerciseData, User } from "@/db/types";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
 //TODO: infinte scroll
 //TODO: date graph
 const ExercisesByMonthGrid = async () => {
-  const exercises = await db.query.exercises.findMany({
-    with: {
-      data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
-    },
-  });
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user.id) {
+    return redirect("/");
+  }
+
+  const exercises = await getExercises(session.user.id);
 
   const exercisesByMonth = getExercisesByMonth(exercises);
 
   return (
     <>
       {exercisesByMonth.map((group) => (
-        <TimelineContainer key={group.date}>
+        <TimelineContainer key={dateAsYearMonthDayFormat(group.date)}>
           <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
-            <time dateTime={group.date}>
+            <time dateTime={dateAsYearMonthDayFormat(group.date)}>
               {new Date(group.date).toLocaleDateString(undefined, {
                 month: "long",
                 year: "numeric",
@@ -37,9 +42,11 @@ const ExercisesByMonthGrid = async () => {
                 <GridItem.Root key={exercise.id}>
                   <GridItem.Anchor
                     aria-label={`go to ${exercise.name}`}
-                    href={`/exercises/${exercise.id}?from=${
+                    href={`/exercises/${
+                      exercise.id
+                    }?from=${dateAsYearMonthDayFormat(
                       group.date
-                    }&to=${dateAsYearMonthDayFormat(
+                    )}&to=${dateAsYearMonthDayFormat(
                       new Date(
                         new Date(group.date).getFullYear(),
                         new Date(group.date).getMonth() + 1,
@@ -78,7 +85,7 @@ const ExercisesByMonthGrid = async () => {
 export default ExercisesByMonthGrid;
 
 type ExercisesByMonth = {
-  date: string;
+  date: Date;
   exercises: (Exercise & { data: ExerciseData[] })[];
 }[];
 
@@ -90,13 +97,14 @@ const getExercisesByMonth = (
   for (const exercise of exercises) {
     for (const data of exercise.data) {
       const firstDayOfMonthDate = new Date(new Date(data.doneAt).setDate(1));
-      const date = dateAsYearMonthDayFormat(firstDayOfMonthDate);
 
-      const entry = exercisesByMonth.find((entry) => entry.date === date);
+      const entry = exercisesByMonth.find(
+        (entry) => entry.date.getTime() === firstDayOfMonthDate.getTime()
+      );
 
       if (!entry) {
         exercisesByMonth.push({
-          date,
+          date: firstDayOfMonthDate,
           exercises: [{ ...exercise, data: [data] }],
         });
         continue;
@@ -115,5 +123,14 @@ const getExercisesByMonth = (
     }
   }
 
-  return exercisesByMonth;
+  return exercisesByMonth.sort((a, b) => b.date.getTime() - a.date.getTime());
+};
+
+const getExercises = (userId: User["id"]) => {
+  return db.query.exercises.findMany({
+    with: {
+      data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
+    },
+    where: (exercise, { eq }) => eq(exercise.userId, userId),
+  });
 };

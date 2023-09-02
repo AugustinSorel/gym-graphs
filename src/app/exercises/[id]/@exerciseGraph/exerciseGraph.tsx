@@ -348,7 +348,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
   );
 
   //FIXME:Mobile responsive
-  //FIXME: does not update graph when new exercise data is added
+  //FIXME: does not update brush when new exercise data is added
   const onBrushChange = (domain: Bounds | null) => {
     if (!domain) {
       return;
