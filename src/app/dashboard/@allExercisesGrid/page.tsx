@@ -39,7 +39,10 @@ const AllExercisesGrid = async () => {
             id: exercise.id,
             render: (
               <GridItem.Root>
-                <GridItem.Anchor href={`/exercises/${exercise.id}`} />
+                <GridItem.Anchor
+                  aria-label={`go to ${exercise.name}`}
+                  href={`/exercises/${exercise.id}`}
+                />
                 <GridItem.Header>
                   <GridItem.Title>{exercise.name}</GridItem.Title>
 

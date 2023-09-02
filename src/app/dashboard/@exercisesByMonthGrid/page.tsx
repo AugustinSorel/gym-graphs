@@ -36,6 +36,7 @@ const ExercisesByMonthGrid = async () => {
               {group.exercises.map((exercise) => (
                 <GridItem.Root key={exercise.id}>
                   <GridItem.Anchor
+                    aria-label={`go to ${exercise.name}`}
                     href={`/exercises/${exercise.id}?from=${
                       group.date
                     }&to=${dateAsYearMonthDayFormat(
