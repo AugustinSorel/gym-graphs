@@ -13,3 +13,18 @@ export const formatDate = (date: Date) => {
     year: "numeric",
   });
 };
+
+export const addMonths = (date: Date, months: number) => {
+  date.setMonth(date.getMonth() + months);
+  return date;
+};
+
+export const addDays = (date: Date, days: number) => {
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+export const addYears = (date: Date, years: number) => {
+  date.setFullYear(date.getFullYear() + years);
+  return date;
+};
