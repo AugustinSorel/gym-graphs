@@ -6,7 +6,7 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { TimelineContainer } from "../timelineContainer";
 import { db } from "@/db";
-import type { Exercise, ExerciseData } from "@/db/types";
+import type { Exercise, ExerciseData, User } from "@/db/types";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -20,16 +20,9 @@ const ExercisesByMonthGrid = async () => {
     return redirect("/");
   }
 
-  const exercises = await db.query.exercises.findMany({
-    with: {
-      data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
-    },
-    where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
-  });
+  const exercises = await getExercises(session.user.id);
 
-  const exercisesByMonth = getExercisesByMonth(exercises).sort(
-    (a, b) => b.date.getTime() - a.date.getTime()
-  );
+  const exercisesByMonth = getExercisesByMonth(exercises);
 
   return (
     <>
@@ -130,5 +123,14 @@ const getExercisesByMonth = (
     }
   }
 
-  return exercisesByMonth;
+  return exercisesByMonth.sort((a, b) => b.date.getTime() - a.date.getTime());
+};
+
+const getExercises = (userId: User["id"]) => {
+  return db.query.exercises.findMany({
+    with: {
+      data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
+    },
+    where: (exercise, { eq }) => eq(exercise.userId, userId),
+  });
 };
