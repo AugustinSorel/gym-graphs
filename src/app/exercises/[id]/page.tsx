@@ -6,6 +6,7 @@ import type { ComponentProps } from "react";
 import { db } from "@/db";
 import { z } from "zod";
 import type { Exercise } from "@/db/types";
+//TODO: hide stuff when one data is shown
 
 const Page = async (props: { params: { id: string } }) => {
   const exercise = await getExercise(props.params.id);
