@@ -49,6 +49,7 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   }
 };
 
+//FIXME: duplicate key error does not work
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
