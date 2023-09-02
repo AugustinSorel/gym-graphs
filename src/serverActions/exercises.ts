@@ -49,12 +49,11 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   }
 };
 
-//FIXME: duplicate key error does not work
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema
 ) => {
   try {
-    return db.transaction(async (tx) => {
+    return await db.transaction(async (tx) => {
       const exerciseCreated = await tx
         .insert(exercises)
         .values({ name: newExercise.name, userId: newExercise.userId })
