@@ -16,9 +16,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
 import type { addExerciseDataAction } from "@/serverActions/exerciseData";
-import { useExercise } from "../exerciseContext";
 import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToKg } from "@/lib/math";
+import { usePathname } from "next/navigation";
 
 type Props = { action: typeof addExerciseDataAction };
 
@@ -26,14 +26,14 @@ export const NewExerciseDataForm = ({ action }: Props) => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
-  const exercise = useExercise();
   const weightUnit = useWeightUnit();
+  const pathname = usePathname().split("/");
 
   const actionHandler = async (e: FormData) => {
     const addExerciseData = addExerciseDataSchema.safeParse({
       numberOfReps: +numberOfRepetitions,
       weightLifted: convertWeightToKg(+weightLifted, weightUnit.get),
-      exerciseId: exercise.id,
+      exerciseId: pathname[2],
     });
 
     if (!addExerciseData.success) {

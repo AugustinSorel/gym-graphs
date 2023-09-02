@@ -1,7 +1,5 @@
-//FIXME: add loading page
 import ExerciseGraph from "./@exerciseGraph/page";
 import ExerciseTable from "./@exerciseTable/page";
-import NewExerciseDataForm from "./@newExerciseDataForm/page";
 import { ExerciseProvider } from "./exerciseContext";
 import { redirect } from "next/navigation";
 import type { ComponentProps } from "react";
@@ -12,16 +10,14 @@ import type { Exercise } from "@/db/types";
 const Page = async (props: { params: { id: string } }) => {
   const exercise = await getExercise(props.params.id);
 
+  await new Promise((res) => setTimeout(res, 10000));
+
   if (!exercise) {
     return redirect("/dashboard");
   }
 
   return (
     <ExerciseProvider exercise={exercise}>
-      <FormContainer>
-        <NewExerciseDataForm />
-      </FormContainer>
-
       <ContentContainer>
         <ExerciseGraph />
         <ExerciseTable />
@@ -41,10 +37,6 @@ const getExercise = (exerciseId: Exercise["id"]) => {
     with: { data: { orderBy: (data, { asc }) => [asc(data.doneAt)] } },
     where: (exercise, { eq }) => eq(exercise.id, exerciseId),
   });
-};
-
-const FormContainer = (props: ComponentProps<"div">) => {
-  return <div {...props} className="p-10" />;
 };
 
 const ContentContainer = (props: ComponentProps<"div">) => {
