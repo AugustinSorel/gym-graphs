@@ -20,6 +20,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ### Dashboard Page
 
 ### Exercise Page
+![Screenshot from 2023-09-02 22-01-01](https://github.com/AugustinSorel/gym-graphs/assets/48162609/80e1756f-9fe7-4d09-b778-36d15af4fa34)
 
 ### Light theme
 
