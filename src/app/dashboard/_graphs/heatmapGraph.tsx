@@ -125,10 +125,6 @@ export const HeatmapGraph = ({ data }: { data: HeatmapData[] }) => {
                   y={bin.y}
                   fill={bin.color}
                   fillOpacity={bin.opacity}
-                  onClick={() => {
-                    const { row, column } = bin;
-                    alert(JSON.stringify({ row, column, bin: bin.bin }));
-                  }}
                 />
               ))
             )
