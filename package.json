@@ -30,6 +30,7 @@
     "@visx/event": "^3.3.0",
     "@visx/grid": "^3.3.0",
     "@visx/group": "^3.3.0",
+    "@visx/heatmap": "^3.3.0",
     "@visx/pattern": "^3.3.0",
     "@visx/point": "^3.3.0",
     "@visx/scale": "^3.3.0",

@@ -10,9 +10,10 @@ import type { Exercise, ExerciseData, User } from "@/db/types";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { HeatmapGraph } from "../_graphs/heatmapGraph";
+import { prepareHeatmapData } from "../_graphs/heatmapUtils";
 
 //TODO: infinte scroll
-//TODO: date graph
 const ExercisesByMonthGrid = async () => {
   const session = await getServerSession(authOptions);
 
@@ -73,6 +74,14 @@ const ExercisesByMonthGrid = async () => {
                     frequency: exercise.data.length,
                   }))}
                 />
+              </GridItem.Root>
+
+              <GridItem.Root>
+                <GridItem.Header>
+                  <GridItem.Title>heatmap</GridItem.Title>
+                </GridItem.Header>
+
+                <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
               </GridItem.Root>
             </>
           </GridLayout>
