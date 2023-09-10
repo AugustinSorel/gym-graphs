@@ -10,19 +10,19 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ## Images
 
 ### Home Page
-
-![gym-graphs vercel app_](https://github.com/AugustinSorel/gym-graphs/assets/48162609/44aeaf9a-94a4-4699-aec5-ba7cc2aebf53)
+![gym-graphs vercel app_](https://github.com/AugustinSorel/gym-graphs/assets/48162609/9f02de2a-c5d8-4b66-bb17-df94fe708f7e)
 
 ### Sign in page
-
-![gym-graphs vercel app_sign-in](https://github.com/AugustinSorel/gym-graphs/assets/48162609/b18434ac-2706-40b1-bbd7-34a377585c0a)
+![gym-graphs vercel app_sign-in_callbackUrl=https%3A%2F%2Fgym-graphs vercel app%2Fdashboard](https://github.com/AugustinSorel/gym-graphs/assets/48162609/bcd0c336-81c7-45be-869f-2dc8d7aa8c58)
 
 ### Dashboard Page
+![Screenshot from 2023-09-10 14-18-31](https://github.com/AugustinSorel/gym-graphs/assets/48162609/20eca2e6-d8a8-40bc-b99c-d47fddbda1d8)
 
 ### Exercise Page
-![Screenshot from 2023-09-02 22-01-01](https://github.com/AugustinSorel/gym-graphs/assets/48162609/80e1756f-9fe7-4d09-b778-36d15af4fa34)
+![exercise-page-dark](https://github.com/AugustinSorel/gym-graphs/assets/48162609/e804f6f1-2af5-4f40-9be8-aa1d71f93320)
 
 ### Light theme
+![Screenshot from 2023-09-10 14-18-40](https://github.com/AugustinSorel/gym-graphs/assets/48162609/ebcbc7ec-1485-4628-9c9f-dc44a319c49c)
 
 ## Features
 
