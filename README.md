@@ -5,7 +5,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ## Demo
 
 - live website: https://gym-graphs.vercel.app
-- youtube viedo:
+- youtube viedo: https://www.youtube.com/watch?v=T8_tNIFI6co
 
 ## Images
 
