@@ -89,9 +89,7 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
 
       <DialogContent className="space-y-5 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="capitalize">
-            change number of repetitions
-          </DialogTitle>
+          <DialogTitle className="capitalize">change weight lifted</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-2"
