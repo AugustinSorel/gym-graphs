@@ -14,7 +14,11 @@ export const prepareHeatmapData = (
         })
         .toLowerCase();
 
-      const weekIndex = Math.ceil(new Date(data.doneAt).getDate() / 7);
+      const offset = new Date(new Date(data.doneAt).setDate(1)).getDay();
+
+      const weekIndex = Math.ceil(
+        (new Date(data.doneAt).getDate() + offset) / 7
+      );
 
       const heatmapColumn = res.find((col) => col.dayIndex === day);
 
