@@ -14,7 +14,8 @@ export const prepareHeatmapData = (
         })
         .toLowerCase();
 
-      const offset = new Date(new Date(data.doneAt).setDate(1)).getDay() - 1;
+      const offset =
+        (new Date(new Date(data.doneAt).setDate(1)).getDay() + 6) % 7;
 
       const weekIndex = Math.ceil(
         (new Date(data.doneAt).getDate() + offset) / 7
