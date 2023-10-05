@@ -10,6 +10,11 @@ import { GridLayout } from "../_grid/gridLayout";
 import { TimelineContainer } from "../timelineContainer";
 import { Badge } from "@/components/ui/badge";
 import type { ComponentProps } from "react";
+import {
+  ExerciseDropDown,
+  ExerciseTagsComboBox,
+} from "../_grid/gridItemActions";
+import { MoreHorizontal, Tag } from "lucide-react";
 //TODO: optimistic update when adding / updating / removing exercise
 
 const AllExercisesGrid = async () => {
@@ -24,6 +29,7 @@ const AllExercisesGrid = async () => {
       where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
       with: {
         data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
+        tags: { orderBy: (data, { asc }) => [asc(data.text)] },
         position: true,
       },
     })
@@ -61,7 +67,21 @@ const AllExercisesGrid = async () => {
                   <GridItem.Title>{exercise.name}</GridItem.Title>
 
                   <GridItem.ActionContainer>
-                    <GridItem.ExerciseDropDown exercise={exercise} />
+                    <ExerciseTagsComboBox
+                      exerciseId={exercise.id}
+                      exerciseTags={exercise.tags}
+                    >
+                      <GridItem.ActionButton aria-label="view exercise tags">
+                        <Tag className="h-4 w-4" />
+                      </GridItem.ActionButton>
+                    </ExerciseTagsComboBox>
+
+                    <ExerciseDropDown exercise={exercise}>
+                      <GridItem.ActionButton aria-label="view more">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </GridItem.ActionButton>
+                    </ExerciseDropDown>
+
                     <DragComponent id={exercise.id} />
                   </GridItem.ActionContainer>
                 </GridItem.Header>
