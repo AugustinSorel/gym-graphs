@@ -106,3 +106,17 @@ export const exercisesData = pgTable(
     unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
   })
 );
+
+export const exercisesTag = pgTable(
+  "exercise_tag",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+  },
+  (exerciseTag) => ({
+    unq: unique().on(exerciseTag.text, exerciseTag.exerciseId),
+  })
+);
