@@ -33,38 +33,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Check, MoreHorizontal, Tag } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { useState } from "react";
-import { GridItem } from "./gridItem";
-import type { Exercise } from "@/db/types";
+import { exerciseTags as test } from "@/schemas/exerciseTag";
+import type { Exercise, ExerciseTag } from "@/db/types";
 import type { PropsWithChildren } from "react";
+import {
+  removeExerciseTag,
+  addNewTagToExercise,
+} from "@/serverActions/exerciseTag";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+type ExerciseTagsComboBoxProps = {
+  exerciseId: Exercise["id"];
+  exerciseTags: ExerciseTag[];
+} & PropsWithChildren;
 
-export const ExerciseTagsComboBox = ({ children }: PropsWithChildren) => {
+export const ExerciseTagsComboBox = ({
+  children,
+  exerciseTags,
+  exerciseId,
+}: ExerciseTagsComboBoxProps) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [selectedTags, setSelectedTags] = useState(exerciseTags);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -83,23 +73,41 @@ export const ExerciseTagsComboBox = ({ children }: PropsWithChildren) => {
           <CommandInput placeholder="Search framework..." />
           <CommandEmpty>No framework found.</CommandEmpty>
           <CommandGroup>
-            {frameworks.map((framework) => (
-              <CommandItem
-                key={framework.value}
-                onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === framework.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {framework.label}
-              </CommandItem>
-            ))}
+            {test.map((tag) => {
+              const isSelected = selectedTags.find((t) => t.text === tag);
+
+              return (
+                <CommandItem
+                  key={tag}
+                  onSelect={() => {
+                    if (isSelected) {
+                      void removeExerciseTag(exerciseId, tag);
+                      setSelectedTags((prev) =>
+                        prev.filter((v) => v.text !== tag)
+                      );
+                    } else {
+                      void addNewTagToExercise(exerciseId, tag);
+                      setSelectedTags((prev) => [
+                        ...prev,
+                        { text: tag, exerciseId, id: Math.random().toString() },
+                      ]);
+                    }
+                  }}
+                >
+                  <div
+                    className={cn(
+                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-border",
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "opacity-50 [&_svg]:invisible"
+                    )}
+                  >
+                    <CheckIcon className={cn("h-4 w-4")} />
+                  </div>
+                  <span>{tag}</span>
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         </Command>
       </PopoverContent>

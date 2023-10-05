@@ -29,6 +29,7 @@ const AllExercisesGrid = async () => {
       where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
       with: {
         data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
+        tags: { orderBy: (data, { asc }) => [asc(data.text)] },
         position: true,
       },
     })
@@ -66,7 +67,10 @@ const AllExercisesGrid = async () => {
                   <GridItem.Title>{exercise.name}</GridItem.Title>
 
                   <GridItem.ActionContainer>
-                    <ExerciseTagsComboBox>
+                    <ExerciseTagsComboBox
+                      exerciseId={exercise.id}
+                      exerciseTags={exercise.tags}
+                    >
                       <GridItem.ActionButton aria-label="view exercise tags">
                         <Tag className="h-4 w-4" />
                       </GridItem.ActionButton>
