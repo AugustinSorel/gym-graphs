@@ -105,3 +105,10 @@ export const updateExercisesGridIndex = async ({
 export const getAllExercises = async (userId: User["id"]) => {
   return db.select().from(exercises).where(eq(exercises.userId, userId));
 };
+
+export const udpateExerciseTags = (
+  exerciseId: Exercise["id"],
+  tags: Exercise["tags"]
+) => {
+  return db.update(exercises).set({ tags }).where(eq(exercises.id, exerciseId));
+};

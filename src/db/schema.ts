@@ -11,6 +11,7 @@ import {
   real,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
+import { muscleGroups } from "@/lib/muscleGroups";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -72,6 +73,11 @@ export const exercises = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
+    tags: text("tags", { enum: muscleGroups })
+      .array()
+      .notNull()
+      //FIXME: for some reason drizzle is bugged and does not work with []
+      .default("{}" as unknown as []),
   },
   (exercise) => ({
     unq: unique().on(exercise.userId, exercise.name),
@@ -104,19 +110,5 @@ export const exercisesData = pgTable(
   },
   (exerciseData) => ({
     unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
-  })
-);
-
-export const exercisesTag = pgTable(
-  "exercise_tag",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    exerciseId: uuid("exercise_id")
-      .notNull()
-      .references(() => exercises.id, { onDelete: "cascade" }),
-    text: text("text").notNull(),
-  },
-  (exerciseTag) => ({
-    unq: unique().on(exerciseTag.text, exerciseTag.exerciseId),
   })
 );

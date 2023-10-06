@@ -12,6 +12,7 @@ import { UpdateExerciseNameDialog } from "../_modals/updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "../_modals/deleteExerciseAlertDialog";
 import {
   deleteExerciseAction,
+  udpateExerciseTags,
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
 import {
@@ -35,17 +36,13 @@ import {
 import { cn } from "@/lib/utils";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
-import { exerciseTags as test } from "@/schemas/exerciseTag";
-import type { Exercise, ExerciseTag } from "@/db/types";
+import type { Exercise } from "@/db/types";
 import type { PropsWithChildren } from "react";
-import {
-  removeExerciseTag,
-  addNewTagToExercise,
-} from "@/serverActions/exerciseTag";
+import { muscleGroups } from "@/lib/muscleGroups";
 
 type ExerciseTagsComboBoxProps = {
   exerciseId: Exercise["id"];
-  exerciseTags: ExerciseTag[];
+  exerciseTags: NonNullable<Exercise["tags"]>;
 } & PropsWithChildren;
 
 export const ExerciseTagsComboBox = ({
@@ -73,25 +70,19 @@ export const ExerciseTagsComboBox = ({
           <CommandInput placeholder="Search framework..." />
           <CommandEmpty>No framework found.</CommandEmpty>
           <CommandGroup>
-            {test.map((tag) => {
-              const isSelected = selectedTags.find((t) => t.text === tag);
+            {muscleGroups.map((tag) => {
+              const isSelected = selectedTags.includes(tag);
 
               return (
                 <CommandItem
                   key={tag}
                   onSelect={() => {
-                    if (isSelected) {
-                      void removeExerciseTag(exerciseId, tag);
-                      setSelectedTags((prev) =>
-                        prev.filter((v) => v.text !== tag)
-                      );
-                    } else {
-                      void addNewTagToExercise(exerciseId, tag);
-                      setSelectedTags((prev) => [
-                        ...prev,
-                        { text: tag, exerciseId, id: Math.random().toString() },
-                      ]);
-                    }
+                    const filteredTags = isSelected
+                      ? selectedTags.filter((v) => v !== tag)
+                      : [...selectedTags, tag];
+
+                    setSelectedTags(filteredTags);
+                    void udpateExerciseTags(exerciseId, filteredTags);
                   }}
                 >
                   <div

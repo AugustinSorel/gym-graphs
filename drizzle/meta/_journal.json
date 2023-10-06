@@ -155,6 +155,20 @@
       "when": 1696536685368,
       "tag": "0021_stiff_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1696540326149,
+      "tag": "0022_rainy_nightcrawler",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1696583531331,
+      "tag": "0023_smart_namorita",
+      "breakpoints": true
     }
   ]
 }

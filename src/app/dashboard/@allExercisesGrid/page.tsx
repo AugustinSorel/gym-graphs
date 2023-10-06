@@ -29,7 +29,6 @@ const AllExercisesGrid = async () => {
       where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
       with: {
         data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
-        tags: { orderBy: (data, { asc }) => [asc(data.text)] },
         position: true,
       },
     })
