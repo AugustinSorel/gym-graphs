@@ -12,7 +12,6 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
-import { muscleGroups } from "@/lib/muscleGroups";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -64,7 +63,17 @@ export const verificationTokens = pgTable(
   })
 );
 
-export const muscleGroupsEnum = pgEnum("muscle_groups", muscleGroups);
+export const muscleGroupsEnum = pgEnum("muscle_groups", [
+  "legs",
+  "chest",
+  "biceps",
+  "triceps",
+  "back",
+  "shoulders",
+  "calfs",
+  "abs",
+  "traps",
+]);
 
 export const exercises = pgTable(
   "exercise",

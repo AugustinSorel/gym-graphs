@@ -38,7 +38,7 @@ import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 import type { Exercise } from "@/db/types";
 import type { PropsWithChildren } from "react";
-import { muscleGroups } from "@/lib/muscleGroups";
+import { muscleGroupsEnum } from "@/db/schema";
 
 type ExerciseTagsComboBoxProps = {
   exerciseId: Exercise["id"];
@@ -70,7 +70,7 @@ export const ExerciseTagsComboBox = ({
           <CommandInput placeholder="Search a muscle group..." />
           <CommandEmpty>No muscle group found.</CommandEmpty>
           <CommandGroup>
-            {muscleGroups.map((tag) => {
+            {muscleGroupsEnum.enumValues.map((tag) => {
               const isSelected = selectedTags.includes(tag);
 
               return (
