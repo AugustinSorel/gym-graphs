@@ -9,6 +9,7 @@ import {
   serial,
   date,
   real,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import { muscleGroups } from "@/lib/muscleGroups";
@@ -63,6 +64,8 @@ export const verificationTokens = pgTable(
   })
 );
 
+export const muscleGroupsEnum = pgEnum("muscle_groups", muscleGroups);
+
 export const exercises = pgTable(
   "exercise",
   {
@@ -73,7 +76,8 @@ export const exercises = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
-    tags: text("tags", { enum: muscleGroups })
+
+    muscleGroups: muscleGroupsEnum("muscle_groups")
       .array()
       .notNull()
       //FIXME: for some reason drizzle is bugged and does not work with []

@@ -42,16 +42,16 @@ import { muscleGroups } from "@/lib/muscleGroups";
 
 type ExerciseTagsComboBoxProps = {
   exerciseId: Exercise["id"];
-  exerciseTags: NonNullable<Exercise["tags"]>;
+  exerciseMuscleGroups: NonNullable<Exercise["muscleGroups"]>;
 } & PropsWithChildren;
 
 export const ExerciseTagsComboBox = ({
   children,
-  exerciseTags,
+  exerciseMuscleGroups,
   exerciseId,
 }: ExerciseTagsComboBoxProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedTags, setSelectedTags] = useState(exerciseTags);
+  const [selectedTags, setSelectedTags] = useState(exerciseMuscleGroups);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,8 +67,8 @@ export const ExerciseTagsComboBox = ({
       </TooltipProvider>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandInput placeholder="Search a muscle group..." />
+          <CommandEmpty>No muscle group found.</CommandEmpty>
           <CommandGroup>
             {muscleGroups.map((tag) => {
               const isSelected = selectedTags.includes(tag);

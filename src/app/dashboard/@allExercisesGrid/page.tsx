@@ -68,7 +68,7 @@ const AllExercisesGrid = async () => {
                   <GridItem.ActionContainer>
                     <ExerciseTagsComboBox
                       exerciseId={exercise.id}
-                      exerciseTags={exercise.tags}
+                      exerciseMuscleGroups={exercise.muscleGroups}
                     >
                       <GridItem.ActionButton aria-label="view exercise tags">
                         <Tag className="h-4 w-4" />

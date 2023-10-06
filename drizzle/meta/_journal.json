@@ -169,6 +169,13 @@
       "when": 1696583531331,
       "tag": "0023_smart_namorita",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1696585145282,
+      "tag": "0024_lowly_blazing_skull",
+      "breakpoints": true
     }
   ]
 }
