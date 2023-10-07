@@ -10,7 +10,7 @@ import { useDashboardFilters } from "../dashboardFiltersContext";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import type { ComponentProps } from "react";
-import { MuscleGroupDropdown } from "../muscleGroupsDropdown";
+import { MuscleGroupsDropdown } from "../muscleGroupsDropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Page = () => {
@@ -18,7 +18,7 @@ const Page = () => {
 
   return (
     <Container>
-      <MuscleGroupDropdown
+      <MuscleGroupsDropdown
         selectedValues={dashboardFilters.muscleGroups}
         updateValues={dashboardFilters.setMuscleGroups}
       >
@@ -36,7 +36,7 @@ const Page = () => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      </MuscleGroupDropdown>
+      </MuscleGroupsDropdown>
     </Container>
   );
 };

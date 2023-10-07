@@ -8,7 +8,7 @@ import { GridLayout } from "../_grid/gridLayout";
 import { MoreHorizontal, Tag } from "lucide-react";
 import { useDashboardFilters } from "../dashboardFiltersContext";
 import type { Exercise, ExerciseWithData } from "@/db/types";
-import { MuscleGroupDropdown } from "../muscleGroupsDropdown";
+import { MuscleGroupsDropdown } from "../muscleGroupsDropdown";
 import {
   deleteExerciseAction,
   updateExerciseMuscleGroups,
@@ -103,7 +103,7 @@ const ExerciseMuscleGroup = ({
   );
 
   return (
-    <MuscleGroupDropdown
+    <MuscleGroupsDropdown
       selectedValues={selectedMuscleGroups}
       updateValues={(newValues) => {
         setSelectedMuscleGroups(newValues);
@@ -120,7 +120,7 @@ const ExerciseMuscleGroup = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    </MuscleGroupDropdown>
+    </MuscleGroupsDropdown>
   );
 };
 

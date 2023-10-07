@@ -1,8 +1,10 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import type { ReactNode, ComponentProps, PropsWithChildren } from "react";
+import { DashboardFiltersContextProvider } from "./dashboardFiltersContext";
 
 type Props = {
   newExerciseForm: ReactNode;
+  dashboardFilters: ReactNode;
   allExercisesGrid: ReactNode;
   exercisesByMonthGrid: ReactNode;
 } & PropsWithChildren;
@@ -12,8 +14,11 @@ const Layout = (props: Props) => {
     <Container>
       <ContentContainer>
         {props.newExerciseForm}
-        {props.allExercisesGrid}
-        {props.exercisesByMonthGrid}
+        <DashboardFiltersContextProvider>
+          {props.dashboardFilters}
+          {props.allExercisesGrid}
+          {props.exercisesByMonthGrid}
+        </DashboardFiltersContextProvider>
       </ContentContainer>
 
       <BackgroundContainer>
