@@ -1,38 +1,56 @@
-import { DragComponent, SortableGrid } from "./sortableGrid";
-import { GridItem } from "../_grid/gridItem";
-import { LineGraph } from "../_graphs/lineGraph";
-import { RadarGraph } from "../_graphs/radarGraph";
 import { db } from "@/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { GridLayout } from "../_grid/gridLayout";
 import { TimelineContainer } from "../timelineContainer";
 import { Badge } from "@/components/ui/badge";
-import type { ComponentProps } from "react";
-import {
-  ExerciseDropDown,
-  ExerciseTagsComboBox,
-} from "../_grid/gridItemActions";
+import type { ComponentProps, PropsWithChildren } from "react";
+import type { Exercise, User } from "@/db/types";
+import { GridLayout } from "../_grid/gridLayout";
+import { DragComponent, SortableGrid } from "./sortableGrid";
+import { GridItem } from "../_grid/gridItem";
+import { LineGraph } from "../_graphs/lineGraph";
+import { RadarGraph } from "../_graphs/radarGraph";
 import { MoreHorizontal, Tag } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { UpdateExerciseNameDialog } from "../_modals/updateExerciseNameDialog";
+import { DeleteExerciseAlertDialog } from "../_modals/deleteExerciseAlertDialog";
+import {
+  deleteExerciseAction,
+  updateExerciseNameAction,
+} from "@/serverActions/exercises";
+import { filterGridItems } from "../_grid/filterGridItems";
+import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 //TODO: optimistic update when adding / updating / removing exercise
 
-const AllExercisesGrid = async () => {
+const AllExercisesGrid = async (props: {
+  searchParams: { tags: string } | undefined;
+}) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const exercises = (
-    await db.query.exercises.findMany({
-      where: (exercise, { eq }) => eq(exercise.userId, session.user.id),
-      with: {
-        data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
-        position: true,
-      },
-    })
-  ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
+  const tags = props.searchParams?.tags;
+
+  const exercises = filterGridItems(
+    await getExercises(session.user.id),
+    tags ? tags.split(",") : []
+  );
 
   if (exercises.length < 1) {
     return (
@@ -66,14 +84,11 @@ const AllExercisesGrid = async () => {
                   <GridItem.Title>{exercise.name}</GridItem.Title>
 
                   <GridItem.ActionContainer>
-                    <ExerciseTagsComboBox
-                      exerciseId={exercise.id}
-                      exerciseMuscleGroups={exercise.muscleGroups}
-                    >
+                    <ExerciseMuscleGroupsDropdown exercise={exercise}>
                       <GridItem.ActionButton aria-label="view exercise tags">
                         <Tag className="h-4 w-4" />
                       </GridItem.ActionButton>
-                    </ExerciseTagsComboBox>
+                    </ExerciseMuscleGroupsDropdown>
 
                     <ExerciseDropDown exercise={exercise}>
                       <GridItem.ActionButton aria-label="view more">
@@ -125,4 +140,50 @@ const Title = (props: ComponentProps<"h1">) => {
 
 const Text = (props: ComponentProps<"p">) => {
   return <p {...props} className="text-xl text-muted-foreground" />;
+};
+
+const getExercises = async (userId: User["id"]) => {
+  return (
+    await db.query.exercises.findMany({
+      where: (exercise, { eq }) => eq(exercise.userId, userId),
+      with: {
+        data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
+        position: true,
+      },
+    })
+  ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
+};
+
+const ExerciseDropDown = ({
+  exercise,
+  children,
+}: { exercise: Exercise } & PropsWithChildren) => {
+  return (
+    <DropdownMenu>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">view more</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <UpdateExerciseNameDialog
+            onAction={updateExerciseNameAction}
+            exercise={exercise}
+          />
+          <DeleteExerciseAlertDialog
+            onAction={deleteExerciseAction}
+            exercise={exercise}
+          />
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };

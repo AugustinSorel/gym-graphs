@@ -106,12 +106,14 @@ export const getAllExercises = async (userId: User["id"]) => {
   return db.select().from(exercises).where(eq(exercises.userId, userId));
 };
 
-export const udpateExerciseTags = async (
+export const updateExerciseMuscleGroups = async (
   exerciseId: Exercise["id"],
   muscleGroups: Exercise["muscleGroups"]
 ) => {
-  return db
+  await db
     .update(exercises)
     .set({ muscleGroups })
     .where(eq(exercises.id, exerciseId));
+
+  revalidatePath("/dashboard");
 };

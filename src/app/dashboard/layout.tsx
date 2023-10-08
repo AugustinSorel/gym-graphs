@@ -3,6 +3,7 @@ import type { ReactNode, ComponentProps, PropsWithChildren } from "react";
 
 type Props = {
   newExerciseForm: ReactNode;
+  dashboardFilters: ReactNode;
   allExercisesGrid: ReactNode;
   exercisesByMonthGrid: ReactNode;
 } & PropsWithChildren;
@@ -12,6 +13,7 @@ const Layout = (props: Props) => {
     <Container>
       <ContentContainer>
         {props.newExerciseForm}
+        {props.dashboardFilters}
         {props.allExercisesGrid}
         {props.exercisesByMonthGrid}
       </ContentContainer>

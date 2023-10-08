@@ -1,67 +1,75 @@
+import { db } from "@/db";
+import type { ExerciseWithData, User } from "@/db/types";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { dateAsYearMonthDayFormat } from "@/lib/date";
+import { TimelineContainer } from "../timelineContainer";
+import { Badge } from "@/components/ui/badge";
 import { GridLayout } from "../_grid/gridLayout";
 import { GridItem } from "../_grid/gridItem";
 import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
-import { dateAsYearMonthDayFormat } from "@/lib/date";
-import { Badge } from "@/components/ui/badge";
-import { TimelineContainer } from "../timelineContainer";
-import { db } from "@/db";
-import type { Exercise, ExerciseData, User } from "@/db/types";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { HeatmapGraph } from "../_graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_graphs/heatmapUtils";
+import { filterGridItems } from "../_grid/filterGridItems";
 
 //TODO: infinte scroll
-const ExercisesByMonthGrid = async () => {
+const ExercisesByMonthGrid = async (props: {
+  searchParams: { tags: string } | undefined;
+}) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const exercises = await getExercises(session.user.id);
+  const tags = props.searchParams?.tags;
 
-  const exercisesByMonth = getExercisesByMonth(exercises);
+  const exercises = filterGridItems(
+    await getExercises(session.user.id),
+    tags ? tags.split(",") : []
+  );
 
   return (
     <>
-      {exercisesByMonth.map((group) => (
-        <TimelineContainer key={dateAsYearMonthDayFormat(group.date)}>
-          <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
-            <time dateTime={dateAsYearMonthDayFormat(group.date)}>
-              {new Date(group.date).toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-              })}
-            </time>
-          </Badge>
-          <GridLayout>
-            <>
-              {group.exercises.map((exercise) => (
-                <GridItem.Root key={exercise.id}>
-                  <GridItem.Anchor
-                    aria-label={`go to ${exercise.name}`}
-                    href={`/exercises/${
-                      exercise.id
-                    }?from=${dateAsYearMonthDayFormat(
-                      group.date
-                    )}&to=${dateAsYearMonthDayFormat(
-                      new Date(
-                        new Date(group.date).getFullYear(),
-                        new Date(group.date).getMonth() + 1,
-                        0
-                      )
-                    )}`}
-                  />
-                  <GridItem.Header>
-                    <GridItem.Title>{exercise.name}</GridItem.Title>
-                  </GridItem.Header>
+      {getExercisesByMonth(exercises).map((group) => {
+        return (
+          <TimelineContainer key={dateAsYearMonthDayFormat(group.date)}>
+            <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
+              <time dateTime={dateAsYearMonthDayFormat(group.date)}>
+                {new Date(group.date).toLocaleDateString(undefined, {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </time>
+            </Badge>
+            <GridLayout>
+              {group.exercises.map((exercise) => {
+                return (
+                  <GridItem.Root key={exercise.id}>
+                    <GridItem.Anchor
+                      aria-label={`go to ${exercise.name}`}
+                      href={`/exercises/${
+                        exercise.id
+                      }?from=${dateAsYearMonthDayFormat(
+                        group.date
+                      )}&to=${dateAsYearMonthDayFormat(
+                        new Date(
+                          new Date(group.date).getFullYear(),
+                          new Date(group.date).getMonth() + 1,
+                          0
+                        )
+                      )}`}
+                    />
+                    <GridItem.Header>
+                      <GridItem.Title>{exercise.name}</GridItem.Title>
+                    </GridItem.Header>
 
-                  <LineGraph data={exercise.data} />
-                </GridItem.Root>
-              ))}
+                    <LineGraph data={exercise.data} />
+                  </GridItem.Root>
+                );
+              })}
 
               <GridItem.Root>
                 <GridItem.Header>
@@ -83,10 +91,10 @@ const ExercisesByMonthGrid = async () => {
 
                 <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
               </GridItem.Root>
-            </>
-          </GridLayout>
-        </TimelineContainer>
-      ))}
+            </GridLayout>
+          </TimelineContainer>
+        );
+      })}
     </>
   );
 };
@@ -95,12 +103,10 @@ export default ExercisesByMonthGrid;
 
 type ExercisesByMonth = {
   date: Date;
-  exercises: (Exercise & { data: ExerciseData[] })[];
+  exercises: ExerciseWithData[];
 }[];
 
-const getExercisesByMonth = (
-  exercises: (Exercise & { data: ExerciseData[] })[]
-) => {
+const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
   const exercisesByMonth: ExercisesByMonth = [];
 
   for (const exercise of exercises) {
