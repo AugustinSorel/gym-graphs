@@ -33,23 +33,21 @@ import {
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
 import { filterGridItems } from "../_grid/filterGridItems";
+import type { SearchParams } from "../_grid/filterGridItems";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
+import { MuscleGroupsFilter, SearchFilter } from "./filtersComponent";
 //TODO: optimistic update when adding / updating / removing exercise
 
-const AllExercisesGrid = async (props: {
-  searchParams: { tags: string } | undefined;
-}) => {
+const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const tags = props.searchParams?.tags;
-
   const exercises = filterGridItems(
     await getExercises(session.user.id),
-    tags ? tags.split(",") : []
+    props.searchParams
   );
 
   if (exercises.length < 1) {
@@ -67,9 +65,14 @@ const AllExercisesGrid = async (props: {
 
   return (
     <TimelineContainer>
-      <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
-        <time dateTime="all">all</time>
-      </Badge>
+      <div className="flex items-center gap-2">
+        <Badge variant="accent" className="mr-auto">
+          <time dateTime="all">all</time>
+        </Badge>
+
+        <SearchFilter />
+        <MuscleGroupsFilter />
+      </div>
       <GridLayout>
         <SortableGrid
           gridItems={exercises.map((exercise) => ({
