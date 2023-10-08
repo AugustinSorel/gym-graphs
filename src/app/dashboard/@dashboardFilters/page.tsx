@@ -6,21 +6,41 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useDashboardFilters } from "../dashboardFiltersContext";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import type { ComponentProps } from "react";
 import { MuscleGroupsDropdown } from "../muscleGroupsDropdown";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const Page = () => {
-  const dashboardFilters = useDashboardFilters();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   return (
     <Container>
       <MuscleGroupsDropdown
-        selectedValues={dashboardFilters.muscleGroups}
-        updateValues={dashboardFilters.setMuscleGroups}
+        selectedValues={(searchParams.get("tags") ?? "")
+          .split(",")
+          .filter(Boolean)}
+        updateValues={(values) => {
+          const current = new URLSearchParams(
+            Array.from(searchParams.entries())
+          );
+
+          if (values.length < 1) {
+            current.delete("tags");
+          } else {
+            current.set("tags", values.join(","));
+          }
+
+          const search = current.toString();
+          const query = search ? `?${search}` : "";
+
+          void router.push(`${pathname}${query}`);
+        }}
       >
         <TooltipProvider>
           <Tooltip>
