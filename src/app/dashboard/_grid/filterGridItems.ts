@@ -1,16 +1,33 @@
 import type { Exercise } from "@/db/types";
 
+export type SearchParams = { tags: string; search: string } | undefined;
+
 export const filterGridItems = <T extends Exercise[]>(
   exercises: T,
-  muscleGroups: string[]
+  searchParams: SearchParams
 ) => {
-  if (muscleGroups.length < 1) {
+  if (!searchParams) {
     return exercises;
   }
 
-  return exercises.filter((exercise) =>
-    exercise.muscleGroups.some((muscleGroup) =>
-      muscleGroups.includes(muscleGroup)
+  const muscleGroups = searchParams.tags ? searchParams.tags.split(",") : [];
+  const exerciseName = searchParams.search;
+
+  if (muscleGroups.length < 1 && !exerciseName) {
+    return exercises;
+  }
+
+  return exercises
+    .filter(
+      (exercise) =>
+        muscleGroups.length < 1 ||
+        exercise.muscleGroups.some((muscleGroup) =>
+          muscleGroups.includes(muscleGroup)
+        )
     )
-  ) as T;
+    .filter(
+      (exercise) =>
+        !exerciseName ||
+        exercise.name.toLowerCase().startsWith(exerciseName.toLowerCase())
+    ) as T;
 };

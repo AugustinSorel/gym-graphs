@@ -13,22 +13,19 @@ import { RadarGraph } from "../_graphs/radarGraph";
 import { HeatmapGraph } from "../_graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_graphs/heatmapUtils";
 import { filterGridItems } from "../_grid/filterGridItems";
+import type { SearchParams } from "../_grid/filterGridItems";
 
 //TODO: infinte scroll
-const ExercisesByMonthGrid = async (props: {
-  searchParams: { tags: string } | undefined;
-}) => {
+const ExercisesByMonthGrid = async (props: { searchParams: SearchParams }) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const tags = props.searchParams?.tags;
-
   const exercises = filterGridItems(
     await getExercises(session.user.id),
-    tags ? tags.split(",") : []
+    props.searchParams
   );
 
   return (
@@ -36,7 +33,7 @@ const ExercisesByMonthGrid = async (props: {
       {getExercisesByMonth(exercises).map((group) => {
         return (
           <TimelineContainer key={dateAsYearMonthDayFormat(group.date)}>
-            <Badge variant="accent" className="mx-auto lg:ml-0 lg:mr-auto">
+            <Badge variant="accent" className="w-max">
               <time dateTime={dateAsYearMonthDayFormat(group.date)}>
                 {new Date(group.date).toLocaleDateString(undefined, {
                   month: "long",
