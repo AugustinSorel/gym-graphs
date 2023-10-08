@@ -22,6 +22,7 @@ const ActionContainer = (props: ComponentProps<"div">) => {
   );
 };
 
+//FIXME: remove this
 const ActionButton = (
   props: ComponentProps<typeof Button>,
   ref: Ref<HTMLButtonElement>
@@ -41,6 +42,7 @@ const Title = (props: ComponentProps<"p">) => {
   return <p {...props} className="mr-auto truncate capitalize" />;
 };
 
+//FIXME: remove this
 const Anchor = (props: LinkProps) => {
   return <Link {...props} className="absolute inset-0" />;
 };
