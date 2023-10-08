@@ -45,9 +45,11 @@ const AllExercisesGrid = async (props: {
     return redirect("/");
   }
 
+  const tags = props.searchParams?.tags;
+
   const exercises = filterGridItems(
     await getExercises(session.user.id),
-    (props.searchParams?.tags ?? "").split(",").filter(Boolean)
+    tags ? tags.split(",") : []
   );
 
   if (exercises.length < 1) {

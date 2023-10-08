@@ -24,9 +24,11 @@ const ExercisesByMonthGrid = async (props: {
     return redirect("/");
   }
 
+  const tags = props.searchParams?.tags;
+
   const exercises = filterGridItems(
     await getExercises(session.user.id),
-    (props.searchParams?.tags ?? "").split(",").filter(Boolean)
+    tags ? tags.split(",") : []
   );
 
   return (
