@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
+//TODO: add analytics
 
 const HomePage = () => {
   return (
