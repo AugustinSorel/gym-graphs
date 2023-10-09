@@ -4,6 +4,7 @@ import { Header } from "./header";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           {children}
         </Providers>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );

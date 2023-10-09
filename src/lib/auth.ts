@@ -17,7 +17,6 @@ declare module "next-auth" {
   }
 }
 
-//FIXME: make the graphs looks nicer
 const createUser = ({ user }: { user: User }) => {
   void db.transaction(async (tx) => {
     const [benchPress, squat, deadlift] = await tx
