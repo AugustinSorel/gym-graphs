@@ -20,7 +20,9 @@ export const SearchFilter = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [exerciseName, setExerciseName] = useState("");
+  const [exerciseName, setExerciseName] = useState(
+    searchParams.get("search") || ""
+  );
 
   const updateExerciseNameUrlParams = (e: ChangeEvent<HTMLInputElement>) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -34,7 +36,7 @@ export const SearchFilter = () => {
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
-    void router.push(`${pathname}${query}`);
+    router.push(`${pathname}${query}`);
   };
 
   return (
@@ -72,7 +74,7 @@ export const MuscleGroupsFilter = () => {
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
-    void router.push(`${pathname}${query}`);
+    router.push(`${pathname}${query}`);
   };
 
   return (
