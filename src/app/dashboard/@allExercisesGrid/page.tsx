@@ -2,8 +2,6 @@ import { db } from "@/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { TimelineContainer } from "../timelineContainer";
-import { Badge } from "@/components/ui/badge";
 import type { ComponentProps, PropsWithChildren } from "react";
 import type { Exercise, User } from "@/db/types";
 import { GridLayout } from "../_grid/gridLayout";
@@ -35,7 +33,6 @@ import {
 import { filterGridItems } from "../_grid/filterGridItems";
 import type { SearchParams } from "../_grid/filterGridItems";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
-import { MuscleGroupsFilter, SearchFilter } from "./filtersComponent";
 //TODO: optimistic update when adding / updating / removing exercise
 
 const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
@@ -50,10 +47,17 @@ const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
     props.searchParams
   );
 
-  if (exercises.length < 1) {
+  if (exercises.length < 1 && props.searchParams?.search) {
     return (
       <Container>
-        <Title>no data</Title>
+        <Text>{props.searchParams.search} not found</Text>
+      </Container>
+    );
+  }
+
+  if (exercises.length < 1 && !props.searchParams?.search) {
+    return (
+      <Container>
         <Text>
           Your dashboard is empty
           <br />
@@ -64,65 +68,55 @@ const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
   }
 
   return (
-    <TimelineContainer>
-      <div className="flex items-center gap-2">
-        <Badge variant="accent" className="mr-auto">
-          <time dateTime="all">all</time>
-        </Badge>
+    <GridLayout>
+      <SortableGrid
+        gridItems={exercises.map((exercise) => ({
+          id: exercise.id,
+          render: (
+            <GridItem.Root>
+              <GridItem.Anchor
+                aria-label={`go to ${exercise.name}`}
+                href={`/exercises/${exercise.id}`}
+              />
+              <GridItem.Header>
+                <GridItem.Title>{exercise.name}</GridItem.Title>
 
-        <SearchFilter />
-        <MuscleGroupsFilter />
-      </div>
-      <GridLayout>
-        <SortableGrid
-          gridItems={exercises.map((exercise) => ({
-            id: exercise.id,
-            render: (
-              <GridItem.Root>
-                <GridItem.Anchor
-                  aria-label={`go to ${exercise.name}`}
-                  href={`/exercises/${exercise.id}`}
-                />
-                <GridItem.Header>
-                  <GridItem.Title>{exercise.name}</GridItem.Title>
+                <GridItem.ActionContainer>
+                  <ExerciseMuscleGroupsDropdown exercise={exercise}>
+                    <GridItem.ActionButton aria-label="view exercise tags">
+                      <Tag className="h-4 w-4" />
+                    </GridItem.ActionButton>
+                  </ExerciseMuscleGroupsDropdown>
 
-                  <GridItem.ActionContainer>
-                    <ExerciseMuscleGroupsDropdown exercise={exercise}>
-                      <GridItem.ActionButton aria-label="view exercise tags">
-                        <Tag className="h-4 w-4" />
-                      </GridItem.ActionButton>
-                    </ExerciseMuscleGroupsDropdown>
+                  <ExerciseDropDown exercise={exercise}>
+                    <GridItem.ActionButton aria-label="view more">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </GridItem.ActionButton>
+                  </ExerciseDropDown>
 
-                    <ExerciseDropDown exercise={exercise}>
-                      <GridItem.ActionButton aria-label="view more">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </GridItem.ActionButton>
-                    </ExerciseDropDown>
+                  <DragComponent id={exercise.id} />
+                </GridItem.ActionContainer>
+              </GridItem.Header>
 
-                    <DragComponent id={exercise.id} />
-                  </GridItem.ActionContainer>
-                </GridItem.Header>
+              <LineGraph data={exercise.data} />
+            </GridItem.Root>
+          ),
+        }))}
+      />
 
-                <LineGraph data={exercise.data} />
-              </GridItem.Root>
-            ),
+      <GridItem.Root>
+        <GridItem.Header>
+          <GridItem.Title>exercises count</GridItem.Title>
+        </GridItem.Header>
+
+        <RadarGraph
+          data={exercises.map((exercise) => ({
+            exerciseName: exercise.name,
+            frequency: exercise.data.length,
           }))}
         />
-
-        <GridItem.Root>
-          <GridItem.Header>
-            <GridItem.Title>exercises count</GridItem.Title>
-          </GridItem.Header>
-
-          <RadarGraph
-            data={exercises.map((exercise) => ({
-              exerciseName: exercise.name,
-              frequency: exercise.data.length,
-            }))}
-          />
-        </GridItem.Root>
-      </GridLayout>
-    </TimelineContainer>
+      </GridItem.Root>
+    </GridLayout>
   );
 };
 
@@ -135,10 +129,6 @@ const Container = (props: ComponentProps<"div">) => {
       className="mt-10 flex flex-col items-center space-y-5 text-center"
     />
   );
-};
-
-const Title = (props: ComponentProps<"h1">) => {
-  return <h1 {...props} className="text-6xl font-bold uppercase" />;
 };
 
 const Text = (props: ComponentProps<"p">) => {
