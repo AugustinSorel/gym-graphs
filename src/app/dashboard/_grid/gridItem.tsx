@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { LinkProps } from "next/link";
 import { Button } from "@/components/ui/button";
-import type { ComponentProps, Ref } from "react";
+import type { ComponentProps } from "react";
 import { forwardRef } from "react";
 
 const Header = (props: ComponentProps<"header">) => {
@@ -22,27 +22,14 @@ const ActionContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-//FIXME: remove this
-const ActionButton = (
-  props: ComponentProps<typeof Button>,
-  ref: Ref<HTMLButtonElement>
-) => {
-  return (
-    <Button
-      ref={ref}
-      className="h-8 p-1"
-      size="icon"
-      variant="ghost"
-      {...props}
-    />
-  );
+const ActionButton = (props: ComponentProps<typeof Button>) => {
+  return <Button className="h-8 p-1" size="icon" variant="ghost" {...props} />;
 };
 
 const Title = (props: ComponentProps<"p">) => {
   return <p {...props} className="mr-auto truncate capitalize" />;
 };
 
-//FIXME: remove this
 const Anchor = (props: LinkProps) => {
   return <Link {...props} className="absolute inset-0" />;
 };
@@ -62,7 +49,7 @@ export const GridItem = {
   Root,
   Header,
   ActionContainer,
-  ActionButton: forwardRef(ActionButton),
+  ActionButton,
   Title,
   Anchor,
 };
