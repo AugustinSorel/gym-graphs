@@ -50,7 +50,21 @@ const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
   if (exercises.length < 1 && props.searchParams?.search) {
     return (
       <Container>
-        <Text>{props.searchParams.search} not found</Text>
+        <Text>
+          no exercises named <PropsText>{props.searchParams.search}</PropsText>{" "}
+          found
+        </Text>
+      </Container>
+    );
+  }
+
+  if (exercises.length < 1 && props.searchParams?.tags) {
+    return (
+      <Container>
+        <Text>
+          no exercises with the tag of{" "}
+          <PropsText>{props.searchParams.tags}</PropsText> found
+        </Text>
       </Container>
     );
   }
@@ -179,4 +193,8 @@ const ExerciseDropDown = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
+};
+
+const PropsText = (props: ComponentProps<"span">) => {
+  return <span {...props} className="text-brand-color-two" />;
 };
