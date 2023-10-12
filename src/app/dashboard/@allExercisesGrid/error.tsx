@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { TimelineContainer } from "../timelineContainer";
 import type { ComponentProps } from "react";
 
 type Props = {
@@ -10,7 +9,7 @@ type Props = {
 };
 const Error = (props: Props) => {
   return (
-    <TimelineContainer className="before:bg-destructive after:bg-destructive">
+    <div data-containsError className="flex flex-col gap-5">
       <ErrorTitle>Something went wrong</ErrorTitle>
       <ErrorSubText>
         Sorry, we could not load all your exercises because:
@@ -19,7 +18,7 @@ const Error = (props: Props) => {
       <Button onClick={props.reset} className="mx-auto w-max lg:ml-0">
         try again
       </Button>
-    </TimelineContainer>
+    </div>
   );
 };
 
