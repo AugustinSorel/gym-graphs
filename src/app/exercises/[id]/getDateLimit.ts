@@ -1,9 +1,9 @@
 import { exercisesData } from "@/db/schema";
 import { and, gte, lte } from "drizzle-orm";
-import type { ExercisePageProps } from "./parseExercisePageProps";
+import type { SafeExercisePageProps } from "./page";
 
 export const whereDoneAtIsBetweenDates = (
-  dates: ExercisePageProps["searchParams"]
+  dates: SafeExercisePageProps["searchParams"]
 ) => {
   const { from, to } = dates;
 
