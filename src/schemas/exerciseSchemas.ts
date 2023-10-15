@@ -9,7 +9,7 @@ const exerciseDataId = z
   })
   .uuid("uuid is not valid");
 
-const exerciseId = z
+export const exerciseId = z
   .string({
     required_error: "id is required",
     invalid_type_error: "id must be a uuid",
