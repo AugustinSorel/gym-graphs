@@ -1,30 +1,38 @@
 "use client";
 
 import type { Exercise } from "@/db/types";
-import { useState, type PropsWithChildren } from "react";
-import { MuscleGroupsDropdown } from "../muscleGroupsDropdown";
+import { useTransition, type PropsWithChildren, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { updateExerciseMuscleGroups } from "@/serverActions/exercises";
+import { muscleGroupsEnum } from "@/db/schema";
+import { Loader } from "@/components/ui/loader";
 
 export const ExerciseMuscleGroupsDropdown = ({
   exercise,
   children,
 }: { exercise: Exercise } & PropsWithChildren) => {
-  const [selectedValues, setSelectedValues] = useState(exercise.muscleGroups);
+  const [isPending, startTransition] = useTransition();
+  const [lastMuscleGroupSelected, setLastMuscleGroupSelected] = useState<
+    (typeof muscleGroupsEnum.enumValues)[number] | null
+  >(null);
+
   return (
-    <MuscleGroupsDropdown
-      selectedValues={selectedValues}
-      updateValues={(newValues) => {
-        setSelectedValues(newValues);
-        void updateExerciseMuscleGroups(exercise.id, newValues);
-      }}
-    >
+    <DropdownMenu>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -35,6 +43,60 @@ export const ExerciseMuscleGroupsDropdown = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    </MuscleGroupsDropdown>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel className="capitalize">
+          muscle groups
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          {muscleGroupsEnum.enumValues.map((muscleGroup) => {
+            const isSelected = exercise.muscleGroups.includes(muscleGroup);
+            return (
+              <DropdownMenuCheckboxItem
+                key={muscleGroup}
+                checked={isSelected}
+                onSelect={(e) => e.preventDefault()}
+                disabled={isPending && lastMuscleGroupSelected === muscleGroup}
+                onCheckedChange={() => {
+                  const filteredMuscleGroups = isSelected
+                    ? exercise.muscleGroups.filter((v) => v !== muscleGroup)
+                    : [...exercise.muscleGroups, muscleGroup];
+
+                  setLastMuscleGroupSelected(muscleGroup);
+                  startTransition(async () => {
+                    await updateExerciseMuscleGroups(
+                      exercise.id,
+                      filteredMuscleGroups
+                    );
+                  });
+                }}
+              >
+                {isPending && lastMuscleGroupSelected === muscleGroup && (
+                  <Loader className="mr-1 h-3 w-3" />
+                )}
+                {muscleGroup}
+              </DropdownMenuCheckboxItem>
+            );
+          })}
+        </DropdownMenuGroup>
+
+        {exercise.muscleGroups.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onSelect={() =>
+                  void updateExerciseMuscleGroups(exercise.id, [])
+                }
+                className="justify-center text-center"
+              >
+                Clear filters
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

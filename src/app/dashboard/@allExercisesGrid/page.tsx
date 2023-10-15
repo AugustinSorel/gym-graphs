@@ -34,7 +34,6 @@ import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
 //TODO: optimistic update when adding / updating / removing exercise
-//FIXME: use usetransition
 
 const AllExercisesGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
