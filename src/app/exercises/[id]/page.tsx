@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
-import type { Exercise } from "@/db/types";
+import type { Exercise, User } from "@/db/types";
 import { z } from "zod";
 import { exerciseId as exerciseIdSchema } from "@/schemas/exerciseSchemas";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/db";
+import { exercises } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export type ExercisePageProps = {
   params: { id?: Exercise["id"] };
@@ -13,11 +18,17 @@ export type SafeExercisePageProps = {
   searchParams: { from: string; to: string };
 };
 
-//FIXME: make this page trully private
-const Page = (unsafeProps: ExercisePageProps) => {
+const Page = async (unsafeProps: ExercisePageProps) => {
   const props = parseExercisePageProps(unsafeProps);
+  const session = await getServerSession(authOptions);
 
-  if (!props) {
+  if (!props || !session || !session.user.id) {
+    return redirect("/dashboard");
+  }
+
+  const [exercise] = await getExercise(props.exerciseId, session.user.id);
+
+  if (!exercise) {
     return redirect("/dashboard");
   }
 
@@ -49,4 +60,11 @@ const parseExercisePageProps = (props: ExercisePageProps) => {
     exerciseId: exerciseId.data,
     datesLimit: datesLimit.data,
   };
+};
+
+const getExercise = (exerciseId: Exercise["id"], userId: User["id"]) => {
+  return db
+    .select()
+    .from(exercises)
+    .where(and(eq(exercises.id, exerciseId), eq(exercises.userId, userId)));
 };
