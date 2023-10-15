@@ -4,6 +4,8 @@ import type { ComponentProps, ReactNode } from "react";
 type Props = {
   children: ReactNode;
   newExerciseDataForm: ReactNode;
+  exerciseGraph: ReactNode;
+  exerciseTable: ReactNode;
 };
 
 const Layout = (props: Props) => {
@@ -11,7 +13,10 @@ const Layout = (props: Props) => {
     <Main>
       <FormContainer>{props.newExerciseDataForm}</FormContainer>
 
-      {props.children}
+      <ContentContainer>
+        {props.exerciseGraph}
+        {props.exerciseTable}
+      </ContentContainer>
 
       <BackgroundContainer>
         <DashboardBackground />
@@ -42,4 +47,13 @@ const BackgroundContainer = (props: ComponentProps<"div">) => {
 
 const FormContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="p-10" />;
+};
+
+const ContentContainer = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      {...props}
+      className="mx-auto flex max-w-[calc(var(--exercise-card-height)*4+20px*3)] flex-col gap-10  pb-5 pt-0 sm:px-5"
+    />
+  );
 };
