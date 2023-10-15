@@ -2,23 +2,13 @@ import { db } from "@/db";
 import { columns } from "./_table/columns";
 import { DataTable } from "./_table/dataTable";
 import { redirect } from "next/navigation";
-import type { ExercisePageProps } from "../parseExercisePageProps";
-import { parseExercisePageProps } from "../parseExercisePageProps";
 import type { ComponentProps } from "react";
 import type { Exercise } from "@/db/types";
 import { whereDoneAtIsBetweenDates } from "../getDateLimit";
+import type { SafeExercisePageProps } from "../page";
 
-const Page = async (unsafeProps: ExercisePageProps) => {
-  const parsedProps = parseExercisePageProps(unsafeProps);
-
-  if (!parsedProps) {
-    return redirect("/dashboard");
-  }
-
-  const exercise = await getExercise(
-    parsedProps.exerciseId,
-    parsedProps.datesLimit
-  );
+const Page = async (props: SafeExercisePageProps) => {
+  const exercise = await getExercise(props.params.id, props.searchParams);
 
   if (!exercise) {
     return redirect("/dashboard");
@@ -35,7 +25,7 @@ export default Page;
 
 const getExercise = (
   exerciseId: Exercise["id"],
-  datesLimit: ExercisePageProps["searchParams"]
+  datesLimit: SafeExercisePageProps["searchParams"]
 ) => {
   return db.query.exercises.findFirst({
     with: {

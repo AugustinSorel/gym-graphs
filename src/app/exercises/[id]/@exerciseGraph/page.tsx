@@ -3,23 +3,13 @@ import { ExerciseGraph } from "./exerciseGraph";
 import { type ComponentProps } from "react";
 import type { Exercise } from "@/db/types";
 import { redirect } from "next/navigation";
-import { parseExercisePageProps } from "../parseExercisePageProps";
-import type { ExercisePageProps } from "../parseExercisePageProps";
 import { and, eq } from "drizzle-orm";
 import { exercisesData } from "@/db/schema";
 import { whereDoneAtIsBetweenDates } from "../getDateLimit";
+import type { SafeExercisePageProps } from "../page";
 
-const Page = async (unsafeProps: ExercisePageProps) => {
-  const parsedProps = parseExercisePageProps(unsafeProps);
-
-  if (!parsedProps) {
-    return redirect("/dashboard");
-  }
-
-  const exercise = await getExercise(
-    parsedProps.exerciseId,
-    parsedProps.datesLimit
-  );
+const Page = async (props: SafeExercisePageProps) => {
+  const exercise = await getExercise(props.params.id, props.searchParams);
 
   if (!exercise) {
     return redirect("/dashboard");
@@ -44,7 +34,7 @@ export default Page;
 //for now using 2 queries instead of using the missing extras
 const getExercise = (
   exerciseId: Exercise["id"],
-  datesLimit: ExercisePageProps["searchParams"]
+  datesLimit: SafeExercisePageProps["searchParams"]
 ) => {
   return db.transaction(async (tx) => {
     const exercise = await tx.query.exercises.findFirst({
