@@ -15,12 +15,13 @@ import { AxisLeft, AxisBottom } from "@visx/axis";
 import { localPoint } from "@visx/event";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import { GridRows } from "@visx/grid";
-import { useExercise } from "../exerciseContext";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
-import { formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/db/types";
-import { calculateOneRepMax } from "@/lib/math";
+import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
+import type { ExerciseData, ExerciseWithData } from "@/db/types";
+import { calculateOneRepMax, convertWeightToLbs } from "@/lib/math";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useWeightUnit } from "@/context/weightUnit";
 
 type GraphPoint = Pick<
   ExerciseData,
@@ -37,9 +38,26 @@ const margin = { top: 20, left: 40, bottom: 20, right: 20 };
 const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
 const chartSeparation = 30;
 
-export const ExerciseGraph = () => {
+type Props = {
+  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
+};
+
+export const ExerciseGraph = ({ exercise: exerciseNonConverted }: Props) => {
+  const weightUnit = useWeightUnit();
   const dimensions = useDimensions();
   const tooltip = useTooltip<GraphPoint>();
+
+  const exercise = {
+    ...exerciseNonConverted,
+    data: exerciseNonConverted.data.map((y) => ({
+      ...y,
+      weightLifted: convertWeightToLbs(y.weightLifted, weightUnit.get),
+    })),
+    filteredData: exerciseNonConverted.filteredData.map((y) => ({
+      ...y,
+      weightLifted: convertWeightToLbs(y.weightLifted, weightUnit.get),
+    })),
+  };
 
   return (
     <>
@@ -50,9 +68,13 @@ export const ExerciseGraph = () => {
         ref={dimensions.ref}
         className="select-none"
       >
-        <MainGraph dimensions={dimensions} tooltip={tooltip} />
+        <MainGraph
+          dimensions={dimensions}
+          tooltip={tooltip}
+          exercise={exercise}
+        />
 
-        <BrushGraph dimensions={dimensions} />
+        <BrushGraph dimensions={dimensions} exercise={exercise} />
       </svg>
 
       <Tooltip tooltip={tooltip} />
@@ -81,13 +103,14 @@ const useDimensions = () => {
 const MainGraph = ({
   dimensions,
   tooltip,
+  exercise,
 }: {
   dimensions: Dimensions;
   tooltip: UseTooltipParams<GraphPoint>;
+  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
 }) => {
   const xMax = Math.max(dimensions.width - margin.left - margin.right, 0);
   const yMax = Math.max(dimensions.topChartHeight, 0);
-  const exercise = useExercise();
 
   const dateScale = useMemo(
     () =>
@@ -284,9 +307,17 @@ const MainGraph = ({
   );
 };
 
-const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
-  const exercise = useExercise();
+const BrushGraph = ({
+  dimensions,
+  exercise,
+}: {
+  dimensions: Dimensions;
+  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
+}) => {
   const brushRef = useRef<BaseBrush | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const xBrushMax = Math.max(
     dimensions.width - brushMargin.left - brushMargin.right,
@@ -353,14 +384,11 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
       return;
     }
 
-    const { x0, x1, y0, y1 } = domain;
-    const oneRepMaxCopy = exercise.data.filter((s) => {
-      const x = getDate(s).getTime();
-      const y = getOneRepMax(s);
-      return x > x0 && x < x1 && y > y0 && y < y1;
-    });
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    params.set("from", dateAsYearMonthDayFormat(new Date(domain.x0)));
+    params.set("to", dateAsYearMonthDayFormat(new Date(domain.x1)));
 
-    exercise.setFilteredData(oneRepMaxCopy);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -400,7 +428,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
         brushDirection="horizontal"
         initialBrushPosition={initialBrushPosition}
         onChange={onBrushChange}
-        onClick={() => exercise.setFilteredData(exercise.data)}
+        onClick={() => router.push(pathname)}
         selectedBoxStyle={{
           fill: "url(#lines)",
           stroke: "gray",
