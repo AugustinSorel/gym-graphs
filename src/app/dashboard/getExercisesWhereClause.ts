@@ -1,5 +1,5 @@
 import { exercises, muscleGroupsEnum } from "@/db/schema";
-import type { User } from "@/db/types";
+import type { Exercise, User } from "@/db/types";
 import { and, arrayOverlaps, eq, ilike } from "drizzle-orm";
 
 export type DashboardPageProps = {
@@ -14,7 +14,7 @@ export const getExercisesWhereClause = ({ searchParams, userId }: Props) => {
         .split(",")
         .filter((item) =>
           (muscleGroupsEnum.enumValues as string[]).includes(item)
-        ) as typeof muscleGroupsEnum.enumValues)
+        ) as Exercise["muscleGroups"])
     : null;
 
   if (muscleGroups && searchParams.search) {
