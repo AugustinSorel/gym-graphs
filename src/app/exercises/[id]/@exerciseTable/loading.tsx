@@ -1,35 +1,19 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ComponentProps } from "react";
 
-const Loading = () => {
+const Loader = () => {
   return (
     <Skeleton className="backdrop-blur-md">
-      <ContentContainer>
-        <Card>
-          <CardHeader />
-          <CardBody />
-        </Card>
-
-        <Card>
-          <CardHeader />
-          <CardBody />
-          <CardFooter />
-        </Card>
-      </ContentContainer>
+      <Card>
+        <CardHeader />
+        <CardBody />
+        <CardFooter />
+      </Card>
     </Skeleton>
   );
 };
 
-export default Loading;
-
-const ContentContainer = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className="mx-auto max-w-[calc(var(--exercise-card-height)*4+20px*3)] space-y-10 pb-5 pt-0 sm:px-5"
-    />
-  );
-};
+export default Loader;
 
 const Card = (props: ComponentProps<"div">) => {
   return (

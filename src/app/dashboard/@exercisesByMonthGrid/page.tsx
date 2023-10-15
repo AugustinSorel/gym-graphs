@@ -12,21 +12,18 @@ import { LineGraph } from "../_graphs/lineGraph";
 import { RadarGraph } from "../_graphs/radarGraph";
 import { HeatmapGraph } from "../_graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_graphs/heatmapUtils";
-import { filterGridItems } from "../_grid/filterGridItems";
-import type { SearchParams } from "../_grid/filterGridItems";
+import type { DashboardPageProps } from "../getExercisesWhereClause";
+import { getExercisesWhereClause } from "../getExercisesWhereClause";
 
 //TODO: infinte scroll
-const ExercisesByMonthGrid = async (props: { searchParams: SearchParams }) => {
+const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const exercises = filterGridItems(
-    await getExercises(session.user.id),
-    props.searchParams
-  );
+  const exercises = await getExercises(session.user.id, props.searchParams);
 
   return (
     <>
@@ -103,6 +100,7 @@ type ExercisesByMonth = {
   exercises: ExerciseWithData[];
 }[];
 
+//FIXME: use sql for that using normal drizzle syntax and not query syntax
 const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
   const exercisesByMonth: ExercisesByMonth = [];
 
@@ -138,11 +136,14 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
   return exercisesByMonth.sort((a, b) => b.date.getTime() - a.date.getTime());
 };
 
-const getExercises = (userId: User["id"]) => {
+const getExercises = (
+  userId: User["id"],
+  searchParams: DashboardPageProps["searchParams"]
+) => {
   return db.query.exercises.findMany({
     with: {
       data: { orderBy: (data, { desc }) => [desc(data.doneAt)] },
     },
-    where: (exercise, { eq }) => eq(exercise.userId, userId),
+    where: () => getExercisesWhereClause({ searchParams, userId }),
   });
 };

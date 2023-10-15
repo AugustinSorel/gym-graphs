@@ -17,19 +17,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ExerciseData } from "@/db/types";
-import { useExercise } from "../../exerciseContext";
+import { useWeightUnit } from "@/context/weightUnit";
+import { convertWeightToLbs } from "@/lib/math";
 
 interface DataTableProps<TValue> {
   columns: ColumnDef<ExerciseData, TValue>[];
+  data: ExerciseData[];
 }
 
-export function DataTable<TValue>({ columns }: DataTableProps<TValue>) {
-  const exercise = useExercise();
+export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const weightUnit = useWeightUnit();
+
+  const memoisedData = useMemo(
+    () =>
+      data.map((point) => ({
+        ...point,
+        weightUnit: convertWeightToLbs(point.weightLifted, weightUnit.get),
+      })),
+    [data, weightUnit.get]
+  );
+
   const table = useReactTable({
-    data: exercise.filteredData,
+    data: memoisedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
