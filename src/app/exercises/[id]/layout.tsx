@@ -18,6 +18,8 @@ const Layout = (props: Props) => {
         {props.exerciseTable}
       </ContentContainer>
 
+      {props.children}
+
       <BackgroundContainer>
         <DashboardBackground />
       </BackgroundContainer>
