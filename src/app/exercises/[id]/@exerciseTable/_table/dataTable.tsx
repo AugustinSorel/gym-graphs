@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ExerciseData } from "@/db/types";
 import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToLbs } from "@/lib/math";
@@ -31,11 +31,17 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const weightUnit = useWeightUnit();
 
+  const memoisedData = useMemo(
+    () =>
+      data.map((point) => ({
+        ...point,
+        weightUnit: convertWeightToLbs(point.weightLifted, weightUnit.get),
+      })),
+    [data, weightUnit.get]
+  );
+
   const table = useReactTable({
-    data: data.map((point) => ({
-      ...point,
-      weightUnit: convertWeightToLbs(point.weightLifted, weightUnit.get),
-    })),
+    data: memoisedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
