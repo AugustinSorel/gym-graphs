@@ -30,22 +30,20 @@ import {
   deleteExerciseAction,
   updateExerciseNameAction,
 } from "@/serverActions/exercises";
-import { filterGridItems } from "../_grid/filterGridItems";
-import type { SearchParams } from "../_grid/filterGridItems";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
+import type { DashboardPageProps } from "../getExercisesWhereClause";
+import { getExercisesWhereClause } from "../getExercisesWhereClause";
 //TODO: optimistic update when adding / updating / removing exercise
+//FIXME: use usetransition
 
-const AllExercisesGrid = async (props: { searchParams: SearchParams }) => {
+const AllExercisesGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.id) {
     return redirect("/");
   }
 
-  const exercises = filterGridItems(
-    await getExercises(session.user.id),
-    props.searchParams
-  );
+  const exercises = await getExercises(session.user.id, props.searchParams);
 
   if (exercises.length < 1 && props.searchParams?.search) {
     return (
@@ -149,14 +147,17 @@ const Text = (props: ComponentProps<"p">) => {
   return <p {...props} className="text-xl text-muted-foreground" />;
 };
 
-const getExercises = async (userId: User["id"]) => {
+const getExercises = async (
+  userId: User["id"],
+  searchParams: DashboardPageProps["searchParams"]
+) => {
   return (
     await db.query.exercises.findMany({
-      where: (exercise, { eq }) => eq(exercise.userId, userId),
       with: {
         data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
         position: true,
       },
+      where: () => getExercisesWhereClause({ searchParams, userId }),
     })
   ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
 };
