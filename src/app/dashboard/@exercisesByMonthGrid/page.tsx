@@ -100,7 +100,6 @@ type ExercisesByMonth = {
   exercises: ExerciseWithData[];
 }[];
 
-//FIXME: use sql for that using normal drizzle syntax and not query syntax
 const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
   const exercisesByMonth: ExercisesByMonth = [];
 
