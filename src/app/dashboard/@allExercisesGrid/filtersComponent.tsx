@@ -114,6 +114,7 @@ export const MuscleGroupsFilter = () => {
                 size="icon"
                 className="relative h-8 p-1"
                 disabled={isPending}
+                aria-label="filters with tags"
               >
                 {isPending ? (
                   <Loader className="h-4 w-4" />
