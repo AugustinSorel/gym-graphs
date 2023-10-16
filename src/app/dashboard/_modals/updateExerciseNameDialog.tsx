@@ -60,7 +60,6 @@ export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
         throw new Error("exercise name is already used");
       }
 
-      setUpdatedExerciseName("");
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
