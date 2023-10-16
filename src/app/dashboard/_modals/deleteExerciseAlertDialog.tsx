@@ -19,6 +19,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { deleteExerciseAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
+import { useSession } from "next-auth/react";
 
 type Props = {
   onAction: typeof deleteExerciseAction;
@@ -29,11 +30,15 @@ export const DeleteExerciseAlertDialog = ({ onAction, exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const deleteHandler = async () => {
     try {
       setIsDeleteExerciseLoading(() => true);
-      await onAction({ exerciseId: exercise.id });
+      await onAction({
+        exerciseId: exercise.id,
+        userId: session?.user.id ?? "",
+      });
       setIsAlertDialogOpen(() => false);
     } catch (error) {
       return toast({

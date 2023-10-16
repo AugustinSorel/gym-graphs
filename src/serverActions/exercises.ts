@@ -9,7 +9,7 @@ import type {
   UpdateExerciseNameSchema,
   NewExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
@@ -17,7 +17,9 @@ export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
     const res = await db
       .update(exercises)
       .set({ name: e.name, updatedAt: new Date() })
-      .where(eq(exercises.id, e.exerciseId))
+      .where(
+        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
+      )
       .returning();
 
     revalidatePath("/dashboard");
@@ -38,7 +40,9 @@ export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   try {
     const res = await db
       .delete(exercises)
-      .where(eq(exercises.id, e.exerciseId))
+      .where(
+        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
+      )
       .returning();
 
     revalidatePath("/dashboard");

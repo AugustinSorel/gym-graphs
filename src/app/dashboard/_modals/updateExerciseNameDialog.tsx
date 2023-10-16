@@ -20,6 +20,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { updateExerciseNameAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
+import { useSession } from "next-auth/react";
 
 type Props = {
   onAction: typeof updateExerciseNameAction;
@@ -30,9 +31,11 @@ export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const actionHandler = async (e: FormData) => {
     const data = updateExerciseNameSchema.safeParse({
+      userId: session?.user.id,
       exerciseId: exercise.id,
       name: updatedExerciseName,
     });
