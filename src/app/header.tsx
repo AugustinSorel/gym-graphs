@@ -62,6 +62,7 @@ import {
 import { deleteUserAccountAction } from "@/serverActions/user";
 import { getAllExercises } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
+import { getErrorMessage } from "@/lib/utils";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -249,23 +250,24 @@ const DeleteAccountDropDownItem = () => {
   const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { toast } = useToast();
-  const { data: session } = useSession();
 
   const deleteHandler = async () => {
     try {
-      if (!session?.user.id) {
-        throw new Error("no user id");
+      setIsDeleteAccountLoading(() => true);
+
+      const res = await deleteUserAccountAction(null);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
       }
 
-      setIsDeleteAccountLoading(() => true);
-      await deleteUserAccountAction({ userId: session?.user?.id });
       await signOut({ callbackUrl: "/" });
       setIsAlertOpen(() => false);
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: "We could not delete your account",
+        description: getErrorMessage(error),
         action: (
           <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
             Try again

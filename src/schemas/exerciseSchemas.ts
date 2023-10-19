@@ -1,6 +1,5 @@
 import { formatDate } from "@/lib/date";
 import { z } from "zod";
-import { userId } from "./userSchema";
 import { muscleGroupsEnum } from "@/db/schema";
 
 const exerciseDataId = z
