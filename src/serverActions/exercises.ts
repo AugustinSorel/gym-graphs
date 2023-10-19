@@ -9,6 +9,7 @@ import {
   type DeleteExerciseSchema,
   type NewExerciseNameSchema,
   updateExerciseNameSchema,
+  deleteExerciseSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -45,22 +46,21 @@ export const updateExerciseNameAction = privateAction(
   }
 );
 
-export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
-  try {
+export const deleteExerciseAction = privateAction(
+  deleteExerciseSchema,
+  async (data, ctx) => {
     const res = await db
       .delete(exercises)
       .where(
-        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
+        and(eq(exercises.id, data.exerciseId), eq(exercises.userId, ctx.userId))
       )
       .returning();
 
     revalidatePath("/dashboard");
 
     return res;
-  } catch (e) {
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const addNewExerciseAction = async (
   newExercise: NewExerciseNameSchema

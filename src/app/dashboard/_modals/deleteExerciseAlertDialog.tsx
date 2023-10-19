@@ -19,7 +19,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { deleteExerciseAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
-import { useSession } from "next-auth/react";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof deleteExerciseAction;
@@ -30,21 +30,22 @@ export const DeleteExerciseAlertDialog = ({ onAction, exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
   const { toast } = useToast();
-  const { data: session } = useSession();
 
   const deleteHandler = async () => {
     try {
       setIsDeleteExerciseLoading(() => true);
-      await onAction({
-        exerciseId: exercise.id,
-        userId: session?.user.id ?? "",
-      });
+      const res = await onAction({ exerciseId: exercise.id });
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
+      }
+
       setIsAlertDialogOpen(() => false);
     } catch (error) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
             Try again
