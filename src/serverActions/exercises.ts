@@ -6,10 +6,9 @@ import { exercises, exerciseGridPosition } from "@/db/schema";
 import type { Exercise, User } from "@/db/types";
 import { ServerActionError, privateAction } from "@/lib/safeAction";
 import {
-  type DeleteExerciseSchema,
-  type NewExerciseNameSchema,
   updateExerciseNameSchema,
   deleteExerciseSchema,
+  newExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -62,36 +61,39 @@ export const deleteExerciseAction = privateAction(
   }
 );
 
-export const addNewExerciseAction = async (
-  newExercise: NewExerciseNameSchema
-) => {
-  try {
-    return await db.transaction(async (tx) => {
-      const exerciseCreated = await tx
-        .insert(exercises)
-        .values({ name: newExercise.name, userId: newExercise.userId })
-        .returning();
+export const addNewExerciseAction = privateAction(
+  newExerciseNameSchema,
+  async (data, ctx) => {
+    try {
+      return await db.transaction(async (tx) => {
+        const exerciseCreated = await tx
+          .insert(exercises)
+          .values({ name: data.name, userId: ctx.userId })
+          .returning();
 
-      if (exerciseCreated[0]) {
-        await tx.insert(exerciseGridPosition).values({
-          userId: newExercise.userId,
-          exerciseId: exerciseCreated[0].id,
-        });
+        if (exerciseCreated[0]) {
+          await tx.insert(exerciseGridPosition).values({
+            userId: ctx.userId,
+            exerciseId: exerciseCreated[0].id,
+          });
+        }
+
+        revalidatePath("/dashboard");
+        return exerciseCreated;
+      });
+    } catch (e) {
+      const error = e as object;
+
+      if ("code" in error && error.code === "23505") {
+        throw new ServerActionError(`${data.name} is already used`);
       }
 
-      revalidatePath("/dashboard");
-      return exerciseCreated;
-    });
-  } catch (e) {
-    const error = e as object;
-
-    if ("code" in error && error.code === "23505") {
-      return { error: "duplicate" } as const;
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
     }
-
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const updateExercisesGridIndex = async ({
   userId,

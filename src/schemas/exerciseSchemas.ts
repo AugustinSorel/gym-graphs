@@ -53,7 +53,7 @@ const doneAt = z.coerce
     )}`
   );
 
-export const newExerciseNameSchema = z.object({ name, userId });
+export const newExerciseNameSchema = z.object({ name });
 
 export const deleteExerciseSchema = z.object({ exerciseId });
 

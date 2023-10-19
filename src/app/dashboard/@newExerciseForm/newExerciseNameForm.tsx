@@ -16,42 +16,21 @@ import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
 import type { addNewExerciseAction } from "@/serverActions/exercises";
-import { useSession } from "next-auth/react";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = { action: typeof addNewExerciseAction };
 
 export const NewExerciseForm = ({ action }: Props) => {
   const [name, setName] = useState("");
   const { toast } = useToast();
-  const { data: session } = useSession();
 
   const actionHandler = async (e: FormData) => {
-    const newExercise = newExerciseNameSchema.safeParse({
-      name,
-      userId: session?.user.id,
-    });
-
-    if (!newExercise.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: newExercise.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      const res = await action(newExercise.data);
+      const newExercise = newExerciseNameSchema.parse({ name });
+      const res = await action(newExercise);
 
-      if ("error" in res && res.error === "duplicate") {
-        throw new Error("exercise name is already used");
+      if (res.serverError) {
+        throw new Error(res.serverError);
       }
 
       setName("");
@@ -59,7 +38,7 @@ export const NewExerciseForm = ({ action }: Props) => {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"
