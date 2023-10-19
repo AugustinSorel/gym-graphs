@@ -4,37 +4,46 @@
 import { db } from "@/db";
 import { exercises, exerciseGridPosition } from "@/db/schema";
 import type { Exercise, User } from "@/db/types";
-import type {
-  DeleteExerciseSchema,
-  UpdateExerciseNameSchema,
-  NewExerciseNameSchema,
+import { ServerActionError, privateAction } from "@/lib/safeAction";
+import {
+  type DeleteExerciseSchema,
+  type NewExerciseNameSchema,
+  updateExerciseNameSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
-  try {
-    const res = await db
-      .update(exercises)
-      .set({ name: e.name, updatedAt: new Date() })
-      .where(
-        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
-      )
-      .returning();
+export const updateExerciseNameAction = privateAction(
+  updateExerciseNameSchema,
+  async (data, ctx) => {
+    try {
+      const res = await db
+        .update(exercises)
+        .set({ name: data.name, updatedAt: new Date() })
+        .where(
+          and(
+            eq(exercises.id, data.exerciseId),
+            eq(exercises.userId, ctx.userId)
+          )
+        )
+        .returning();
 
-    revalidatePath("/dashboard");
+      revalidatePath("/dashboard");
 
-    return res;
-  } catch (e) {
-    const error = e as object;
+      return res;
+    } catch (e) {
+      const error = e as object;
 
-    if ("code" in error && error.code === "23505") {
-      return { error: "duplicate" } as const;
+      if ("code" in error && error.code === "23505") {
+        throw new ServerActionError(`${data.name} is already used`);
+      }
+
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
     }
-
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
   try {
