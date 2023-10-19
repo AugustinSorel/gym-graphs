@@ -38,32 +38,16 @@ export const UpdateExerciseDataDate = ({ onAction, exerciseData }: Props) => {
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const updateExerciseDate = updateExerciseDataDateSchema.safeParse({
-      exerciseDataId: exerciseData.id,
-      doneAt: dateAsYearMonthDayFormat(exerciseDate),
-    });
-
-    if (!updateExerciseDate.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: updateExerciseDate.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      const res = await onAction(updateExerciseDate.data);
+      const data = updateExerciseDataDateSchema.parse({
+        exerciseDataId: exerciseData.id,
+        doneAt: dateAsYearMonthDayFormat(exerciseDate),
+      });
 
-      if ("error" in res && res.error === "duplicate") {
-        throw new Error("This date clashes with an existing data");
+      const res = await onAction(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
       }
 
       setIsDialogOpen(() => false);

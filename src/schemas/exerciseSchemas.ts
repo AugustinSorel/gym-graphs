@@ -95,7 +95,3 @@ export const updateExerciseMuscleGroupsSchema = z.object({
   exerciseId,
   muscleGroups: z.enum(muscleGroupsEnum.enumValues).array(),
 });
-
-export type UpdateExerciseDataDateSchema = z.infer<
-  typeof updateExerciseDataDateSchema
->;

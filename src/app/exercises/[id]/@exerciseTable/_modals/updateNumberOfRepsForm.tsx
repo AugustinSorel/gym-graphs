@@ -20,6 +20,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
 import type { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
 import type { ExerciseData } from "@/db/types";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof updateNumberOfRepsAction;
@@ -51,7 +52,7 @@ export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"
