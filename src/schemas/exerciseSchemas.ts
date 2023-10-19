@@ -1,6 +1,7 @@
 import { formatDate } from "@/lib/date";
 import { z } from "zod";
 import { userId } from "./userSchema";
+import { muscleGroupsEnum } from "@/db/schema";
 
 const exerciseDataId = z
   .string({
@@ -90,11 +91,13 @@ export const updateExercisesGridIndexSchema = z.object({
 
 export const getAllExercisesSchema = z.null();
 
-export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
+export const updateExerciseMuscleGroupsSchema = z.object({
+  exerciseId,
+  muscleGroups: z.enum(muscleGroupsEnum.enumValues).array(),
+});
+
 export type DeleteExerciseDataSchema = z.infer<typeof deleteExerciseDataSchema>;
 export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
-export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
-export type UpdateExerciseNameSchema = z.infer<typeof updateExerciseNameSchema>;
 export type UpdateNumberOfRepsSchema = z.infer<typeof updateNumberOfRepsSchema>;
 export type UpdateWeightLiftedSchema = z.infer<typeof updateWeightLiftedSchema>;
 export type UpdateExerciseDataDateSchema = z.infer<

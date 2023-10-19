@@ -11,6 +11,7 @@ import {
   newExerciseNameSchema,
   updateExercisesGridIndexSchema,
   getAllExercisesSchema,
+  updateExerciseMuscleGroupsSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -125,14 +126,14 @@ export const getAllExercises = privateAction(
   }
 );
 
-export const updateExerciseMuscleGroups = async (
-  exerciseId: Exercise["id"],
-  muscleGroups: Exercise["muscleGroups"]
-) => {
-  await db
-    .update(exercises)
-    .set({ muscleGroups })
-    .where(eq(exercises.id, exerciseId));
+export const updateExerciseMuscleGroups = privateAction(
+  updateExerciseMuscleGroupsSchema,
+  async (data) => {
+    await db
+      .update(exercises)
+      .set({ muscleGroups: data.muscleGroups })
+      .where(eq(exercises.id, data.exerciseId));
 
-  revalidatePath("/dashboard");
-};
+    revalidatePath("/dashboard");
+  }
+);
