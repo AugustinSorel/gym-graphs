@@ -19,6 +19,8 @@ import { Trash } from "lucide-react";
 import type { deleteDataAction } from "@/serverActions/exerciseData";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
+import { deleteExerciseDataSchema } from "@/schemas/exerciseSchemas";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof deleteDataAction;
@@ -32,14 +34,22 @@ export const DeleteDataAlertDialog = ({ onAction, exerciseDataId }: Props) => {
 
   const deleteHandler = async () => {
     try {
+      const data = deleteExerciseDataSchema.parse({ exerciseDataId });
+
       setIsLoading(() => true);
-      await onAction({ exerciseDataId });
+
+      const res = await onAction(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
+      }
+
       setIsAlertDialogOpen(() => false);
     } catch (error) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
             Try again
