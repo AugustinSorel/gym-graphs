@@ -19,6 +19,7 @@ import type { addExerciseDataAction } from "@/serverActions/exerciseData";
 import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToKg } from "@/lib/math";
 import { usePathname } from "next/navigation";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = { action: typeof addExerciseDataAction };
 
@@ -49,7 +50,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"

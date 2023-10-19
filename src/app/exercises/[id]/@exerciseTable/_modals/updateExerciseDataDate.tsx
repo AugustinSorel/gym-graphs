@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
 import type { updateExerciseDataDate } from "@/serverActions/exerciseData";
 import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
@@ -55,7 +55,7 @@ export const UpdateExerciseDataDate = ({ onAction, exerciseData }: Props) => {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"

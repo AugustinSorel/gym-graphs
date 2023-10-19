@@ -22,6 +22,7 @@ import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 import { convertWeightToKg } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof updateWeightLiftedAction;
@@ -54,7 +55,7 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"
