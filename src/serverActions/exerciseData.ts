@@ -5,10 +5,10 @@ import { exercisesData } from "@/db/schema";
 import { ServerActionError, privateAction } from "@/lib/safeAction";
 import {
   type UpdateExerciseDataDateSchema,
-  type UpdateNumberOfRepsSchema,
   type UpdateWeightLiftedSchema,
   type DeleteExerciseDataSchema,
   addExerciseDataSchema,
+  updateNumberOfRepsSchema,
 } from "@/schemas/exerciseSchemas";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -41,24 +41,23 @@ export const addExerciseDataAction = privateAction(
   }
 );
 
-export const updateNumberOfRepsAction = async (e: UpdateNumberOfRepsSchema) => {
-  try {
+export const updateNumberOfRepsAction = privateAction(
+  updateNumberOfRepsSchema,
+  async (data) => {
     const res = await db
       .update(exercisesData)
       .set({
-        numberOfRepetitions: e.numberOfReps,
+        numberOfRepetitions: data.numberOfReps,
         updatedAt: new Date(),
       })
-      .where(eq(exercisesData.id, e.exerciseDataId))
+      .where(eq(exercisesData.id, data.exerciseDataId))
       .returning();
 
     revalidatePath("/exercises/[id]");
 
     return res;
-  } catch (e) {
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
   try {
