@@ -30,33 +30,17 @@ export const NewExerciseDataForm = ({ action }: Props) => {
   const pathname = usePathname().split("/");
 
   const actionHandler = async (e: FormData) => {
-    const addExerciseData = addExerciseDataSchema.safeParse({
-      numberOfReps: +numberOfRepetitions,
-      weightLifted: convertWeightToKg(+weightLifted, weightUnit.get),
-      exerciseId: pathname[2],
-    });
-
-    if (!addExerciseData.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: addExerciseData.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      const res = await action(addExerciseData.data);
+      const data = addExerciseDataSchema.parse({
+        numberOfReps: +numberOfRepetitions,
+        weightLifted: convertWeightToKg(+weightLifted, weightUnit.get),
+        exerciseId: pathname[2],
+      });
 
-      if ("error" in res && res.error === "duplicate") {
-        throw new Error("You already have entered today's data");
+      const res = await action(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
       }
 
       setNumberofRepetitions("");

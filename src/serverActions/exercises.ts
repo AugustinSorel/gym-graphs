@@ -3,7 +3,6 @@
 
 import { db } from "@/db";
 import { exercises, exerciseGridPosition } from "@/db/schema";
-import type { Exercise } from "@/db/types";
 import { ServerActionError, privateAction } from "@/lib/safeAction";
 import {
   updateExerciseNameSchema,

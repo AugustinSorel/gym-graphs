@@ -2,42 +2,44 @@
 
 import { db } from "@/db";
 import { exercisesData } from "@/db/schema";
-import type {
-  UpdateExerciseDataDateSchema,
-  UpdateNumberOfRepsSchema,
-  UpdateWeightLiftedSchema,
-  AddExerciseDataSchema,
-  DeleteExerciseDataSchema,
+import { ServerActionError, privateAction } from "@/lib/safeAction";
+import {
+  type UpdateExerciseDataDateSchema,
+  type UpdateNumberOfRepsSchema,
+  type UpdateWeightLiftedSchema,
+  type DeleteExerciseDataSchema,
+  addExerciseDataSchema,
 } from "@/schemas/exerciseSchemas";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export const addExerciseDataAction = async (
-  exerciseData: AddExerciseDataSchema
-) => {
-  try {
-    const res = await db
-      .insert(exercisesData)
-      .values({
-        exerciseId: exerciseData.exerciseId,
-        numberOfRepetitions: exerciseData.numberOfReps,
-        weightLifted: exerciseData.weightLifted,
-      })
-      .returning();
+export const addExerciseDataAction = privateAction(
+  addExerciseDataSchema,
+  async (data) => {
+    try {
+      const res = await db
+        .insert(exercisesData)
+        .values({
+          exerciseId: data.exerciseId,
+          numberOfRepetitions: data.numberOfReps,
+          weightLifted: data.weightLifted,
+        })
+        .returning();
 
-    revalidatePath("/exercises/[id]");
+      revalidatePath("/exercises/[id]");
 
-    return res;
-  } catch (e) {
-    const error = e as object;
+      return res;
+    } catch (e) {
+      const error = e as object;
 
-    if ("code" in error && error.code === "23505") {
-      return { error: "duplicate" } as const;
+      if ("code" in error && error.code === "23505") {
+        throw new ServerActionError("you have already entered today's data");
+      }
+
+      throw new Error("unhanndled server error");
     }
-
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const updateNumberOfRepsAction = async (e: UpdateNumberOfRepsSchema) => {
   try {
