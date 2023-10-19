@@ -97,7 +97,6 @@ export const updateExerciseMuscleGroupsSchema = z.object({
 });
 
 export type DeleteExerciseDataSchema = z.infer<typeof deleteExerciseDataSchema>;
-export type UpdateWeightLiftedSchema = z.infer<typeof updateWeightLiftedSchema>;
 export type UpdateExerciseDataDateSchema = z.infer<
   typeof updateExerciseDataDateSchema
 >;

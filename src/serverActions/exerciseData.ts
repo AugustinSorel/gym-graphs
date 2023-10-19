@@ -9,6 +9,7 @@ import {
   type DeleteExerciseDataSchema,
   addExerciseDataSchema,
   updateNumberOfRepsSchema,
+  updateWeightLiftedSchema,
 } from "@/schemas/exerciseSchemas";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -59,24 +60,23 @@ export const updateNumberOfRepsAction = privateAction(
   }
 );
 
-export const updateWeightLiftedAction = async (e: UpdateWeightLiftedSchema) => {
-  try {
+export const updateWeightLiftedAction = privateAction(
+  updateWeightLiftedSchema,
+  async (data) => {
     const res = await db
       .update(exercisesData)
       .set({
-        weightLifted: e.weightLifted,
+        weightLifted: data.weightLifted,
         updatedAt: new Date(),
       })
-      .where(eq(exercisesData.id, e.exerciseDataId))
+      .where(eq(exercisesData.id, data.exerciseDataId))
       .returning();
 
     revalidatePath("/exercises/[id]");
 
     return res;
-  } catch (e) {
-    return { error: "unknown" } as const;
   }
-};
+);
 
 export const deleteDataAction = async (e: DeleteExerciseDataSchema) => {
   try {
