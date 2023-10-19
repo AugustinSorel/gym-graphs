@@ -3,14 +3,14 @@
 
 import { db } from "@/db";
 import { exercises, exerciseGridPosition } from "@/db/schema";
-import type { Exercise, User } from "@/db/types";
+import type { Exercise } from "@/db/types";
 import { ServerActionError, privateAction } from "@/lib/safeAction";
 import {
   updateExerciseNameSchema,
   deleteExerciseSchema,
   newExerciseNameSchema,
-  exerciseId,
   updateExercisesGridIndexSchema,
+  getAllExercisesSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -118,9 +118,12 @@ export const updateExercisesGridIndex = privateAction(
   }
 );
 
-export const getAllExercises = async (userId: User["id"]) => {
-  return db.select().from(exercises).where(eq(exercises.userId, userId));
-};
+export const getAllExercises = privateAction(
+  getAllExercisesSchema,
+  async (_, ctx) => {
+    return db.select().from(exercises).where(eq(exercises.userId, ctx.userId));
+  }
+);
 
 export const updateExerciseMuscleGroups = async (
   exerciseId: Exercise["id"],

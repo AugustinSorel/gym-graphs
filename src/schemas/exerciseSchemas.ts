@@ -88,6 +88,8 @@ export const updateExercisesGridIndexSchema = z.object({
   exercisesId: exerciseId.array(),
 });
 
+export const getAllExercisesSchema = z.null();
+
 export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
 export type DeleteExerciseDataSchema = z.infer<typeof deleteExerciseDataSchema>;
 export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;

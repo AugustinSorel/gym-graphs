@@ -383,20 +383,20 @@ type CurrentExerciseLinkProps = {
   selectedExerciseId: Exercise["id"];
 };
 
+//FIXME: make this a params
 const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {
   const [exercises, setExercises] = useState<Exercise[] | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
 
   const fetch = useCallback(async () => {
-    if (!session?.user.id) {
-      return;
-    }
+    const res = await getAllExercises(null);
 
-    setExercises(await getAllExercises(session.user.id));
-  }, [session?.user.id]);
+    if (res.data) {
+      setExercises(res.data);
+    }
+  }, []);
 
   useEffect(() => void fetch(), [fetch]);
 
