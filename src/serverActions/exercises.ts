@@ -3,121 +3,136 @@
 
 import { db } from "@/db";
 import { exercises, exerciseGridPosition } from "@/db/schema";
-import type { Exercise, User } from "@/db/types";
-import type {
-  DeleteExerciseSchema,
-  UpdateExerciseNameSchema,
-  NewExerciseNameSchema,
+import { ServerActionError, privateAction } from "@/lib/safeAction";
+import {
+  updateExerciseNameSchema,
+  deleteExerciseSchema,
+  newExerciseNameSchema,
+  updateExercisesGridIndexSchema,
+  getAllExercisesSchema,
+  updateExerciseMuscleGroupsSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export const updateExerciseNameAction = async (e: UpdateExerciseNameSchema) => {
-  try {
-    const res = await db
-      .update(exercises)
-      .set({ name: e.name, updatedAt: new Date() })
-      .where(
-        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
-      )
-      .returning();
+export const updateExerciseNameAction = privateAction(
+  updateExerciseNameSchema,
+  async (data, ctx) => {
+    try {
+      const res = await db
+        .update(exercises)
+        .set({ name: data.name, updatedAt: new Date() })
+        .where(
+          and(
+            eq(exercises.id, data.exerciseId),
+            eq(exercises.userId, ctx.userId)
+          )
+        )
+        .returning();
 
-    revalidatePath("/dashboard");
+      revalidatePath("/dashboard");
 
-    return res;
-  } catch (e) {
-    const error = e as object;
+      return res;
+    } catch (e) {
+      const error = e as object;
 
-    if ("code" in error && error.code === "23505") {
-      return { error: "duplicate" } as const;
+      if ("code" in error && error.code === "23505") {
+        throw new ServerActionError(`${data.name} is already used`);
+      }
+
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
     }
-
-    return { error: "unknown" } as const;
   }
-};
+);
 
-export const deleteExerciseAction = async (e: DeleteExerciseSchema) => {
-  try {
+export const deleteExerciseAction = privateAction(
+  deleteExerciseSchema,
+  async (data, ctx) => {
     const res = await db
       .delete(exercises)
       .where(
-        and(eq(exercises.id, e.exerciseId), eq(exercises.userId, e.userId))
+        and(eq(exercises.id, data.exerciseId), eq(exercises.userId, ctx.userId))
       )
       .returning();
 
     revalidatePath("/dashboard");
 
     return res;
-  } catch (e) {
-    return { error: "unknown" } as const;
   }
-};
+);
 
-export const addNewExerciseAction = async (
-  newExercise: NewExerciseNameSchema
-) => {
-  try {
-    return await db.transaction(async (tx) => {
-      const exerciseCreated = await tx
-        .insert(exercises)
-        .values({ name: newExercise.name, userId: newExercise.userId })
-        .returning();
+export const addNewExerciseAction = privateAction(
+  newExerciseNameSchema,
+  async (data, ctx) => {
+    try {
+      return await db.transaction(async (tx) => {
+        const exerciseCreated = await tx
+          .insert(exercises)
+          .values({ name: data.name, userId: ctx.userId })
+          .returning();
 
-      if (exerciseCreated[0]) {
-        await tx.insert(exerciseGridPosition).values({
-          userId: newExercise.userId,
-          exerciseId: exerciseCreated[0].id,
-        });
+        if (exerciseCreated[0]) {
+          await tx.insert(exerciseGridPosition).values({
+            userId: ctx.userId,
+            exerciseId: exerciseCreated[0].id,
+          });
+        }
+
+        revalidatePath("/dashboard");
+        return exerciseCreated;
+      });
+    } catch (e) {
+      const error = e as object;
+
+      if ("code" in error && error.code === "23505") {
+        throw new ServerActionError(`${data.name} is already used`);
       }
 
-      revalidatePath("/dashboard");
-      return exerciseCreated;
-    });
-  } catch (e) {
-    const error = e as object;
-
-    if ("code" in error && error.code === "23505") {
-      return { error: "duplicate" } as const;
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
     }
-
-    return { error: "unknown" } as const;
   }
-};
+);
 
-export const updateExercisesGridIndex = async ({
-  userId,
-  exercisesId,
-}: {
-  userId: User["id"];
-  exercisesId: Exercise["id"][];
-}) => {
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(exerciseGridPosition)
-      .where(eq(exerciseGridPosition.userId, userId));
+export const updateExercisesGridIndex = privateAction(
+  updateExercisesGridIndexSchema,
+  async (data, ctx) => {
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(exerciseGridPosition)
+        .where(eq(exerciseGridPosition.userId, ctx.userId));
 
-    await tx
-      .insert(exerciseGridPosition)
-      .values(
-        exercisesId.reverse().map((exerciseId) => ({ exerciseId, userId }))
-      );
-  });
+      await tx
+        .insert(exerciseGridPosition)
+        .values(
+          data.exercisesId
+            .reverse()
+            .map((exerciseId) => ({ exerciseId, userId: ctx.userId }))
+        );
+    });
 
-  revalidatePath("/dashboard");
-};
+    revalidatePath("/dashboard");
+  }
+);
 
-export const getAllExercises = async (userId: User["id"]) => {
-  return db.select().from(exercises).where(eq(exercises.userId, userId));
-};
+export const getAllExercises = privateAction(
+  getAllExercisesSchema,
+  async (_, ctx) => {
+    return db.select().from(exercises).where(eq(exercises.userId, ctx.userId));
+  }
+);
 
-export const updateExerciseMuscleGroups = async (
-  exerciseId: Exercise["id"],
-  muscleGroups: Exercise["muscleGroups"]
-) => {
-  await db
-    .update(exercises)
-    .set({ muscleGroups })
-    .where(eq(exercises.id, exerciseId));
+export const updateExerciseMuscleGroups = privateAction(
+  updateExerciseMuscleGroupsSchema,
+  async (data) => {
+    await db
+      .update(exercises)
+      .set({ muscleGroups: data.muscleGroups })
+      .where(eq(exercises.id, data.exerciseId));
 
-  revalidatePath("/dashboard");
-};
+    revalidatePath("/dashboard");
+  }
+);

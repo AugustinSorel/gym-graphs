@@ -29,7 +29,6 @@ import {
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateExercisesGridIndex } from "@/serverActions/exercises";
-import { useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
 
 type Props = {
@@ -43,7 +42,6 @@ const SortableGridContext = createContext<{ isSavingGridState: boolean }>({
 export const SortableGrid = (props: Props) => {
   const [gridItems, setGridItems] = useState(props.gridItems);
   const [isSavingGridState, setIsSavingGridState] = useState(false);
-  const { data: session } = useSession();
 
   const startSavingGridState = () => setIsSavingGridState(true);
   const stopSavingGridState = () => setIsSavingGridState(false);
@@ -61,7 +59,7 @@ export const SortableGrid = (props: Props) => {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (active.id === over?.id || !session) {
+    if (active.id === over?.id) {
       return;
     }
 
@@ -75,7 +73,6 @@ export const SortableGrid = (props: Props) => {
     setGridItems(updatedGridItems);
 
     await updateExercisesGridIndex({
-      userId: session?.user.id,
       exercisesId: updatedGridItems.map((item) => item.id),
     });
 

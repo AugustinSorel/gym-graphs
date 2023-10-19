@@ -65,10 +65,10 @@ export const ExerciseMuscleGroupsDropdown = ({
 
                   setLastMuscleGroupSelected(muscleGroup);
                   startTransition(async () => {
-                    await updateExerciseMuscleGroups(
-                      exercise.id,
-                      filteredMuscleGroups
-                    );
+                    await updateExerciseMuscleGroups({
+                      exerciseId: exercise.id,
+                      muscleGroups: filteredMuscleGroups,
+                    });
                   });
                 }}
               >
@@ -87,7 +87,10 @@ export const ExerciseMuscleGroupsDropdown = ({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 onSelect={() =>
-                  void updateExerciseMuscleGroups(exercise.id, [])
+                  void updateExerciseMuscleGroups({
+                    exerciseId: exercise.id,
+                    muscleGroups: [],
+                  })
                 }
                 className="justify-center text-center"
               >

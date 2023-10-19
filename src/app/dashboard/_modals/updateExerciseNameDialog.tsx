@@ -20,7 +20,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { updateExerciseNameAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
-import { useSession } from "next-auth/react";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof updateExerciseNameAction;
@@ -31,44 +31,26 @@ export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
   const { toast } = useToast();
-  const { data: session } = useSession();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateExerciseNameSchema.safeParse({
-      userId: session?.user.id,
-      exerciseId: exercise.id,
-      name: updatedExerciseName,
-    });
-
-    if (!data.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: data.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      const res = await onAction(data.data);
+      const data = updateExerciseNameSchema.parse({
+        exerciseId: exercise.id,
+        name: updatedExerciseName,
+      });
 
-      if ("error" in res && res.error === "duplicate") {
-        throw new Error("exercise name is already used");
+      const res = await onAction(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
       }
 
       setIsDialogOpen(() => false);
     } catch (error) {
-      return toast({
+      toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"

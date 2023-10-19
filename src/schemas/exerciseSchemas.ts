@@ -1,6 +1,6 @@
 import { formatDate } from "@/lib/date";
 import { z } from "zod";
-import { userId } from "./userSchema";
+import { muscleGroupsEnum } from "@/db/schema";
 
 const exerciseDataId = z
   .string({
@@ -53,11 +53,11 @@ const doneAt = z.coerce
     )}`
   );
 
-export const newExerciseNameSchema = z.object({ name, userId });
+export const newExerciseNameSchema = z.object({ name });
 
-export const deleteExerciseSchema = z.object({ exerciseId, userId });
+export const deleteExerciseSchema = z.object({ exerciseId });
 
-export const updateExerciseNameSchema = z.object({ name, exerciseId, userId });
+export const updateExerciseNameSchema = z.object({ name, exerciseId });
 
 export const addExerciseDataSchema = z.object({
   exerciseId,
@@ -84,13 +84,13 @@ export const deleteExerciseDataSchema = z.object({
   exerciseDataId,
 });
 
-export type DeleteExerciseSchema = z.infer<typeof deleteExerciseSchema>;
-export type DeleteExerciseDataSchema = z.infer<typeof deleteExerciseDataSchema>;
-export type AddExerciseDataSchema = z.infer<typeof addExerciseDataSchema>;
-export type NewExerciseNameSchema = z.infer<typeof newExerciseNameSchema>;
-export type UpdateExerciseNameSchema = z.infer<typeof updateExerciseNameSchema>;
-export type UpdateNumberOfRepsSchema = z.infer<typeof updateNumberOfRepsSchema>;
-export type UpdateWeightLiftedSchema = z.infer<typeof updateWeightLiftedSchema>;
-export type UpdateExerciseDataDateSchema = z.infer<
-  typeof updateExerciseDataDateSchema
->;
+export const updateExercisesGridIndexSchema = z.object({
+  exercisesId: exerciseId.array(),
+});
+
+export const getAllExercisesSchema = z.null();
+
+export const updateExerciseMuscleGroupsSchema = z.object({
+  exerciseId,
+  muscleGroups: z.enum(muscleGroupsEnum.enumValues).array(),
+});

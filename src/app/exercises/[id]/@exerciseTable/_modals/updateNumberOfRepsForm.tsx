@@ -20,6 +20,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
 import type { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
 import type { ExerciseData } from "@/db/types";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof updateNumberOfRepsAction;
@@ -34,35 +35,24 @@ export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateNumberOfRepsSchema.safeParse({
-      numberOfReps: +updatedNumberOfReps,
-      exerciseDataId: exerciseData.id,
-    });
-
-    if (!data.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: data.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      await onAction(data.data);
+      const data = updateNumberOfRepsSchema.parse({
+        numberOfReps: +updatedNumberOfReps,
+        exerciseDataId: exerciseData.id,
+      });
+
+      const res = await onAction(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
+      }
+
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"

@@ -22,6 +22,7 @@ import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 import { convertWeightToKg } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
+import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
   onAction: typeof updateWeightLiftedAction;
@@ -37,35 +38,24 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
-    const data = updateWeightLiftedSchema.safeParse({
-      exerciseDataId: exerciseData.id,
-      weightLifted: convertWeightToKg(+updatedWeightLifted, weightUnit.get),
-    });
-
-    if (!data.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: data.error.issues[0]?.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void actionHandler(e)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
     try {
-      await onAction(data.data);
+      const data = updateWeightLiftedSchema.parse({
+        exerciseDataId: exerciseData.id,
+        weightLifted: convertWeightToKg(+updatedWeightLifted, weightUnit.get),
+      });
+
+      const res = await onAction(data);
+
+      if (res.serverError) {
+        throw new Error(res.serverError);
+      }
+
       setIsDialogOpen(() => false);
     } catch (error) {
       return toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: error instanceof Error ? error.message : "try again",
+        description: getErrorMessage(error),
         action: (
           <ToastAction
             altText="Try again"
