@@ -9,6 +9,8 @@ import {
   updateExerciseNameSchema,
   deleteExerciseSchema,
   newExerciseNameSchema,
+  exerciseId,
+  updateExercisesGridIndexSchema,
 } from "@/schemas/exerciseSchemas";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -95,27 +97,26 @@ export const addNewExerciseAction = privateAction(
   }
 );
 
-export const updateExercisesGridIndex = async ({
-  userId,
-  exercisesId,
-}: {
-  userId: User["id"];
-  exercisesId: Exercise["id"][];
-}) => {
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(exerciseGridPosition)
-      .where(eq(exerciseGridPosition.userId, userId));
+export const updateExercisesGridIndex = privateAction(
+  updateExercisesGridIndexSchema,
+  async (data, ctx) => {
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(exerciseGridPosition)
+        .where(eq(exerciseGridPosition.userId, ctx.userId));
 
-    await tx
-      .insert(exerciseGridPosition)
-      .values(
-        exercisesId.reverse().map((exerciseId) => ({ exerciseId, userId }))
-      );
-  });
+      await tx
+        .insert(exerciseGridPosition)
+        .values(
+          data.exercisesId
+            .reverse()
+            .map((exerciseId) => ({ exerciseId, userId: ctx.userId }))
+        );
+    });
 
-  revalidatePath("/dashboard");
-};
+    revalidatePath("/dashboard");
+  }
+);
 
 export const getAllExercises = async (userId: User["id"]) => {
   return db.select().from(exercises).where(eq(exercises.userId, userId));
