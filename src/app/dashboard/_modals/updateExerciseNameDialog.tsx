@@ -15,7 +15,7 @@ import { updateExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { updateExerciseNameAction } from "@/serverActions/exercises";

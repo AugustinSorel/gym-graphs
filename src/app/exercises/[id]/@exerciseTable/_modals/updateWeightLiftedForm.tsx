@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import type { updateWeightLiftedAction } from "@/serverActions/exerciseData";
 import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";

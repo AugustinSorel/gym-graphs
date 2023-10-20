@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
 import type { addNewExerciseAction } from "@/serverActions/exercises";
 import { getErrorMessage } from "@/lib/utils";
+import { useFormStatus } from "react-dom";
 
 type Props = { action: typeof addNewExerciseAction };
 
