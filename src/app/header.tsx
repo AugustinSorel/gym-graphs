@@ -385,7 +385,6 @@ type CurrentExerciseLinkProps = {
   selectedExerciseId: Exercise["id"];
 };
 
-//FIXME: make this a params
 const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {

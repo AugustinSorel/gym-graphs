@@ -89,8 +89,7 @@ export const exercises = pgTable(
     muscleGroups: muscleGroupsEnum("muscle_groups")
       .array()
       .notNull()
-      //FIXME: for some reason drizzle is bugged and does not work with []
-      .default("{}" as unknown as []),
+      .default([]),
   },
   (exercise) => ({
     unq: unique().on(exercise.userId, exercise.name),
