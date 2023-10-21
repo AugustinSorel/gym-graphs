@@ -18,3 +18,13 @@ export const getErrorMessage = (error: unknown) => {
 
   return "unhandled error";
 };
+
+type PluralizeProps = {
+  count: number;
+  noun: string;
+  suffix?: string;
+};
+
+export const pluralize = ({ count, noun, suffix = "s" }: PluralizeProps) => {
+  return `${noun}${count !== 1 ? suffix : ""}`;
+};
