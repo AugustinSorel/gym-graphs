@@ -11,7 +11,7 @@ export const calculateOneRepMax = (
 };
 
 export const convertWeightToLbs = (weight: number, unit: WeightUnit) => {
-  if (unit === "lbs") {
+  if (unit === "lb") {
     return +(weight * LBS_CONVERTION).toFixed(2);
   }
 
@@ -19,7 +19,7 @@ export const convertWeightToLbs = (weight: number, unit: WeightUnit) => {
 };
 
 export const convertWeightToKg = (weight: number, unit: WeightUnit) => {
-  if (unit === "lbs") {
+  if (unit === "lb") {
     return +(weight / LBS_CONVERTION).toFixed(2);
   }
 
