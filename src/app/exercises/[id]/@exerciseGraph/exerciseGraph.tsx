@@ -22,6 +22,7 @@ import type { ExerciseData, ExerciseWithData } from "@/db/types";
 import { calculateOneRepMax, convertWeightToLbs } from "@/lib/math";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useWeightUnit } from "@/context/weightUnit";
+import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 
 type GraphPoint = Pick<
   ExerciseData,
@@ -461,6 +462,8 @@ const BrushHandle = ({ x, height, isBrushActive }: BrushHandleRenderProps) => {
 };
 
 const Tooltip = ({ tooltip }: { tooltip: UseTooltipParams<GraphPoint> }) => {
+  const displayWeight = useDisplayWeight();
+
   if (!tooltip.tooltipData) {
     return null;
   }
@@ -476,7 +479,8 @@ const Tooltip = ({ tooltip }: { tooltip: UseTooltipParams<GraphPoint> }) => {
         Date: <strong>{formatDate(getDate(tooltip.tooltipData))}</strong>
       </p>
       <p>
-        One Rep Max: <strong>{getOneRepMax(tooltip.tooltipData)}</strong>
+        One Rep Max:{" "}
+        <strong>{displayWeight.show(getOneRepMax(tooltip.tooltipData))}</strong>
       </p>
     </TooltipWithBounds>
   );
