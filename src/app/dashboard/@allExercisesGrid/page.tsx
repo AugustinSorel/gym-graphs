@@ -33,6 +33,7 @@ import {
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
+import { RandomFacts } from "../_graphs/randomFacts";
 //TODO: optimistic update when adding / updating / removing exercise
 
 const AllExercisesGrid = async (props: DashboardPageProps) => {
@@ -126,6 +127,14 @@ const AllExercisesGrid = async (props: DashboardPageProps) => {
             frequency: exercise.data.length,
           }))}
         />
+      </GridItem.Root>
+
+      <GridItem.Root>
+        <GridItem.Header>
+          <GridItem.Title>random facts</GridItem.Title>
+        </GridItem.Header>
+
+        <RandomFacts exercises={exercises} />
       </GridItem.Root>
     </GridLayout>
   );
