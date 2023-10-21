@@ -17,7 +17,7 @@ const ActionContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="opacity-full-on-touch-device z-10 flex items-center opacity-0 transition-all duration-100 group-focus-within:opacity-100 group-hover:opacity-100"
+      className="opacity-full-on-touch-device pointer-events-none z-10 flex items-center opacity-0 transition-all duration-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
     />
   );
 };
