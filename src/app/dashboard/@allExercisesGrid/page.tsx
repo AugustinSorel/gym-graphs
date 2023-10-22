@@ -39,7 +39,7 @@ import { RandomFacts } from "../_graphs/randomFacts";
 const AllExercisesGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user.id) {
+  if (!session?.user.id) {
     return redirect("/");
   }
 
@@ -157,7 +157,7 @@ const Text = (props: ComponentProps<"p">) => {
 
 const getExercises = async (
   userId: User["id"],
-  searchParams: DashboardPageProps["searchParams"]
+  searchParams: DashboardPageProps["searchParams"],
 ) => {
   return (
     await db.query.exercises.findMany({

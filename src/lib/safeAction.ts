@@ -11,7 +11,7 @@ export class ServerActionError extends Error {
 export const privateAction = createSafeActionClient({
   middleware: async () => {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user.id) {
+    if (!session?.user.id) {
       throw new ServerActionError("not signed in");
     }
 
