@@ -14,6 +14,7 @@ import { HeatmapGraph } from "../_graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_graphs/heatmapUtils";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
+import { RandomFacts } from "../_graphs/randomFacts";
 
 //TODO: infinte scroll
 const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
@@ -84,6 +85,14 @@ const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
                 </GridItem.Header>
 
                 <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
+              </GridItem.Root>
+
+              <GridItem.Root>
+                <GridItem.Header>
+                  <GridItem.Title>random facts</GridItem.Title>
+                </GridItem.Header>
+
+                <RandomFacts exercises={group.exercises} />
               </GridItem.Root>
             </GridLayout>
           </TimelineContainer>

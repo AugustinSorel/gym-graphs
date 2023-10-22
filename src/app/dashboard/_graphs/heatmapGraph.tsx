@@ -42,7 +42,10 @@ const DEFAULT_HEIGHT = 253;
 const weekDays = ["m", "t", "w", "t", "f", "s", "s"];
 
 export const HeatmapGraph = ({ data }: { data: HeatmapData[] }) => {
-  const dimensions = useDimensions(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  const dimensions = useDimensions<SVGSVGElement>(
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT
+  );
   const heatmapRef = useRef<SVGGElement | null>(null);
 
   const gap = 5;

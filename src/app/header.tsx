@@ -140,8 +140,8 @@ const WeightDropDownItem = () => {
             <DropdownMenuRadioItem value="kg" className="capitalize">
               kg
             </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="lbs" className="capitalize">
-              lbs
+            <DropdownMenuRadioItem value="lb" className="capitalize">
+              lb
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
         </DropdownMenuSubContent>

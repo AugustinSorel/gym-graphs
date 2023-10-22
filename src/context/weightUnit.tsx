@@ -5,7 +5,7 @@ import { createContext, useContext } from "react";
 
 const WEIGHT_KEY = "weightUnit";
 
-const weightUnitSchema = z.enum(["kg", "lbs"]);
+const weightUnitSchema = z.enum(["kg", "lb"]);
 export type WeightUnit = z.infer<typeof weightUnitSchema>;
 
 type WeightUnitContext = {
