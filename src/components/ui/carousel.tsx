@@ -100,7 +100,7 @@ const ArrowNavigation = () => {
       <Button
         title="go to next item"
         name="go to next item"
-        className="opacity-full-on-touch-device h-8 rounded-full opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
+        className="opacity-full-on-touch-device h-8 rounded-full opacity-0 backdrop-blur-md transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
         onClick={carousel.goToPreviousItem}
         size="icon"
       >
@@ -109,7 +109,7 @@ const ArrowNavigation = () => {
       <Button
         title="go to previous item"
         name="go to previous item"
-        className="opacity-full-on-touch-device h-8 rounded-full opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
+        className="opacity-full-on-touch-device h-8 rounded-full opacity-0 backdrop-blur-md transition-opacity group-hover:pointer-events-auto group-hover:opacity-100"
         onClick={carousel.goToNextItem}
         size="icon"
       >
