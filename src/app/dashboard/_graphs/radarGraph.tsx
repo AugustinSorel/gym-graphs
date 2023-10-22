@@ -71,7 +71,10 @@ export type RadarProps = {
 };
 
 export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
-  const dimensions = useDimensions(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  const dimensions = useDimensions<SVGSVGElement>(
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT
+  );
 
   const xMax = dimensions.width - margin.left - margin.right;
   const yMax = dimensions.height - margin.top - margin.bottom;

@@ -1,10 +1,12 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
-export const useDimensions = (
+//FIXME: use reziseObserver
+//FIXME: remove props
+export const useDimensions = <T extends HTMLElement | SVGElement>(
   DEFAULT_WIDTH: number,
   DEFAULT_HEIGHT: number
 ) => {
-  const ref = useRef<SVGSVGElement>(null);
+  const ref = useRef<T>(null);
   const [dimensions, setDimensions] = useState({
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,

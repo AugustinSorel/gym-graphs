@@ -20,7 +20,10 @@ const DEFAULT_WIDTH = 302;
 const DEFAULT_HEIGHT = 253;
 
 export const LineGraph = ({ data }: { data: LineGraphData[] }) => {
-  const dimensions = useDimensions(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  const dimensions = useDimensions<SVGSVGElement>(
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT
+  );
 
   const dateScale = scaleTime({
     range: [0, dimensions.width],

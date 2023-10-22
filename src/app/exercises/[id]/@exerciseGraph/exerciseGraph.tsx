@@ -86,7 +86,10 @@ export const ExerciseGraph = ({ exercise: exerciseNonConverted }: Props) => {
 type Dimensions = ReturnType<typeof useDimensions>;
 
 const useDimensions = () => {
-  const dimensions = useDimensionsBase(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  const dimensions = useDimensionsBase<SVGSVGElement>(
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT
+  );
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
   const topChartBottomMargin = chartSeparation + 10;
