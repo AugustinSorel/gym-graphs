@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridLayout } from "../_grid/gridLayout";
 
+//FIXME: loading backdrop brokwn
 const Loader = () => {
   return (
     <Skeleton className="backdrop-blur-md">
