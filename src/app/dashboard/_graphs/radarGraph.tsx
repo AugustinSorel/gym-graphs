@@ -1,5 +1,4 @@
 "use client";
-//TODO:remove hydration warning
 
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
@@ -111,6 +110,7 @@ export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
               fill="none"
               className="stroke-muted-foreground"
               strokeLinecap="round"
+              {...{ suppressHydrationWarning: true }}
             />
           ))}
         </Group>
