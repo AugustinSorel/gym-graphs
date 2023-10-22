@@ -120,7 +120,7 @@ const MainGraph = ({
           Math.max(...exercise.filteredData.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xMax, exercise.filteredData]
+    [xMax, exercise.filteredData],
   );
 
   const oneRepMaxScale = useMemo(
@@ -130,7 +130,7 @@ const MainGraph = ({
         domain: [0, Math.max(...exercise.filteredData.map(getOneRepMax))],
         nice: true,
       }),
-    [yMax, exercise.filteredData]
+    [yMax, exercise.filteredData],
   );
 
   const handleTooltip = useCallback(
@@ -139,10 +139,10 @@ const MainGraph = ({
         return;
       }
 
-      const { x } = localPoint(event) || { x: 0 };
+      const { x } = localPoint(event) ?? { x: 0 };
       const x0 = dateScale.invert(x);
       const index = exercise.data.findIndex(
-        (d) => getDate(d).getTime() > x0.getTime()
+        (d) => getDate(d).getTime() > x0.getTime(),
       );
       const d0 = exercise.data[index - 1] ??
         exercise.data.at(-1) ?? {
@@ -171,7 +171,7 @@ const MainGraph = ({
       oneRepMaxScale,
       exercise.filteredData.length,
       exercise.data,
-    ]
+    ],
   );
 
   if (exercise.filteredData.length < 1) {
@@ -320,11 +320,11 @@ const BrushGraph = ({
 
   const xBrushMax = Math.max(
     dimensions.width - brushMargin.left - brushMargin.right,
-    0
+    0,
   );
   const yBrushMax = Math.max(
     dimensions.bottomChartHeight - brushMargin.top - brushMargin.bottom,
-    0
+    0,
   );
 
   const brushDateScale = useMemo(
@@ -336,7 +336,7 @@ const BrushGraph = ({
           Math.max(...exercise.data.map((p) => getDate(p).getTime())),
         ],
       }),
-    [xBrushMax, exercise.data]
+    [xBrushMax, exercise.data],
   );
 
   const brushOneRepMaxScale = useMemo(
@@ -346,7 +346,7 @@ const BrushGraph = ({
         domain: [0, Math.max(...exercise.data.map(getOneRepMax))],
         nice: true,
       }),
-    [yBrushMax, exercise.data]
+    [yBrushMax, exercise.data],
   );
 
   const initialBrushPosition = useMemo(
@@ -358,8 +358,8 @@ const BrushGraph = ({
               doneAt: new Date().toString(),
               numberOfRepetitions: 0,
               weightLifted: 0,
-            }
-          )
+            },
+          ),
         ),
       },
       end: {
@@ -369,12 +369,12 @@ const BrushGraph = ({
               doneAt: new Date().toString(),
               numberOfRepetitions: 0,
               weightLifted: 0,
-            }
-          )
+            },
+          ),
         ),
       },
     }),
-    [brushDateScale, exercise.filteredData]
+    [brushDateScale, exercise.filteredData],
   );
 
   //FIXME:Mobile responsive

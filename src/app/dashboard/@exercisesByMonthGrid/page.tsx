@@ -20,7 +20,7 @@ import { RandomFacts } from "../_graphs/randomFacts";
 const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user.id) {
+  if (!session?.user.id) {
     return redirect("/");
   }
 
@@ -48,13 +48,13 @@ const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
                       href={`/exercises/${
                         exercise.id
                       }?from=${dateAsYearMonthDayFormat(
-                        group.date
+                        group.date,
                       )}&to=${dateAsYearMonthDayFormat(
                         new Date(
                           new Date(group.date).getFullYear(),
                           new Date(group.date).getMonth() + 1,
-                          0
-                        )
+                          0,
+                        ),
                       )}`}
                     />
                     <GridItem.Header>
@@ -117,7 +117,7 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
       const firstDayOfMonthDate = new Date(new Date(data.doneAt).setDate(1));
 
       const entry = exercisesByMonth.find(
-        (entry) => entry.date.getTime() === firstDayOfMonthDate.getTime()
+        (entry) => entry.date.getTime() === firstDayOfMonthDate.getTime(),
       );
 
       if (!entry) {
@@ -129,7 +129,7 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
       }
 
       const exerciseInEntry = entry.exercises.find(
-        (ex) => ex.id === exercise.id
+        (ex) => ex.id === exercise.id,
       );
 
       if (!exerciseInEntry) {
@@ -146,7 +146,7 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
 
 const getExercises = (
   userId: User["id"],
-  searchParams: DashboardPageProps["searchParams"]
+  searchParams: DashboardPageProps["searchParams"],
 ) => {
   return db.query.exercises.findMany({
     with: {

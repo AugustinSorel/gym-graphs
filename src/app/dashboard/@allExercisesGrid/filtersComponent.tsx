@@ -32,7 +32,7 @@ export const SearchFilter = () => {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [exerciseName, setExerciseName] = useState(
-    searchParams.get("search") || ""
+    searchParams.get("search") ?? "",
   );
 
   const updateExerciseNameUrlParams = (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ export const MuscleGroupsFilter = () => {
     ? (muscleGroups
         .split(",")
         .filter((muscleGroup) =>
-          (muscleGroupsEnum.enumValues as string[]).includes(muscleGroup)
+          (muscleGroupsEnum.enumValues as string[]).includes(muscleGroup),
         ) as Exercise["muscleGroups"])
     : [];
 

@@ -22,7 +22,7 @@ const Page = async (unsafeProps: ExercisePageProps) => {
   const props = parseExercisePageProps(unsafeProps);
   const session = await getServerSession(authOptions);
 
-  if (!props || !session || !session.user.id) {
+  if (!props || !session?.user.id) {
     return redirect("/dashboard");
   }
 
