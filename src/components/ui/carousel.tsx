@@ -75,7 +75,7 @@ type RootProps = ComponentPropsWithoutRef<"div"> &
   Pick<CarouselContext, "itemsSize">;
 
 const Root = ({ itemsSize, ...rest }: RootProps) => {
-  const dimensions = useDimensions<HTMLDivElement>(300, 300);
+  const dimensions = useDimensions<HTMLDivElement>();
 
   return (
     <CarouselProvider rootWidth={dimensions.width} itemsSize={itemsSize}>
@@ -201,7 +201,7 @@ const Body = (props: PropsWithChildren) => {
 
   return (
     <div
-      className="absolute inset-0 -z-10 grid select-none duration-300"
+      className="absolute inset-0 -z-10 grid select-none transition-[translate]"
       style={{
         translate: `${
           carousel.rootWidth * carousel.currentItemIndex * -1 - draggingDistance

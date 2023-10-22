@@ -1,15 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
-//FIXME: remove props
-export const useDimensions = <T extends HTMLElement | SVGElement>(
-  DEFAULT_WIDTH: number,
-  DEFAULT_HEIGHT: number
-) => {
+export const useDimensions = <T extends HTMLElement | SVGElement>() => {
   const ref = useRef<T>(null);
-  const [dimensions, setDimensions] = useState({
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT,
-  });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const onResizeHandler = useCallback(() => {
     if (!ref.current) {
@@ -17,10 +10,10 @@ export const useDimensions = <T extends HTMLElement | SVGElement>(
     }
 
     setDimensions({
-      width: ref.current.clientWidth ?? DEFAULT_WIDTH,
-      height: ref.current.clientHeight ?? DEFAULT_HEIGHT,
+      width: ref.current.clientWidth,
+      height: ref.current.clientHeight,
     });
-  }, [DEFAULT_HEIGHT, DEFAULT_WIDTH]);
+  }, []);
 
   useLayoutEffect(() => {
     if (!ref.current) {

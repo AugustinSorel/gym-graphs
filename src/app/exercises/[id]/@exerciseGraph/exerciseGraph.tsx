@@ -33,8 +33,6 @@ const getDate = (d: GraphPoint) => new Date(d.doneAt);
 const getOneRepMax = (d: GraphPoint) =>
   calculateOneRepMax(d.weightLifted, d.numberOfRepetitions);
 
-const DEFAULT_WIDTH = 1250;
-const DEFAULT_HEIGHT = 500;
 const margin = { top: 20, left: 40, bottom: 20, right: 20 };
 const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
 const chartSeparation = 30;
@@ -86,10 +84,7 @@ export const ExerciseGraph = ({ exercise: exerciseNonConverted }: Props) => {
 type Dimensions = ReturnType<typeof useDimensions>;
 
 const useDimensions = () => {
-  const dimensions = useDimensionsBase<SVGSVGElement>(
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT
-  );
+  const dimensions = useDimensionsBase<SVGSVGElement>();
 
   const innerHeight = dimensions.height - margin.top - margin.bottom;
   const topChartBottomMargin = chartSeparation + 10;
