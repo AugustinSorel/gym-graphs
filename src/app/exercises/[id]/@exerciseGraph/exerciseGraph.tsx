@@ -416,6 +416,7 @@ const BrushGraph = ({
         orientation={["diagonal"]}
       />
       <Brush
+        key={dimensions.width}
         xScale={brushDateScale}
         yScale={brushOneRepMaxScale}
         width={xBrushMax}
