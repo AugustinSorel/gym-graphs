@@ -161,12 +161,13 @@ const Body = (props: PropsWithChildren) => {
   };
 
   const draggingMove = (currentX: number) => {
-    if (!touchStart) {
+    const distance = touchStart - currentX;
+
+    if (!touchStart || Math.abs(distance) < 50) {
       return;
     }
 
     setTouchEnd(currentX);
-    const distance = touchStart - currentX;
     setDraggingDistance(distance);
   };
 
