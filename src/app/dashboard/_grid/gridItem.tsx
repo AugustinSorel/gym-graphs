@@ -34,9 +34,9 @@ const Anchor = (props: LinkProps) => {
   return <Link {...props} className="absolute inset-0" />;
 };
 
-const Root = forwardRef<HTMLLIElement, ComponentProps<"li">>((props, ref) => {
+const Root = forwardRef<HTMLDivElement, ComponentProps<"div">>((props, ref) => {
   return (
-    <li
+    <div
       {...props}
       ref={ref}
       className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
