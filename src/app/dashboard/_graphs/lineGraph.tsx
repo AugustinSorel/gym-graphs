@@ -16,14 +16,8 @@ const getDate = (d: LineGraphData) => new Date(d.doneAt);
 const getOneRepMax = (d: LineGraphData) =>
   calculateOneRepMax(d.weightLifted, d.numberOfRepetitions);
 
-const DEFAULT_WIDTH = 302;
-const DEFAULT_HEIGHT = 253;
-
 export const LineGraph = ({ data }: { data: LineGraphData[] }) => {
-  const dimensions = useDimensions<SVGSVGElement>(
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT
-  );
+  const dimensions = useDimensions<SVGSVGElement>();
 
   const dateScale = scaleTime({
     range: [0, dimensions.width],

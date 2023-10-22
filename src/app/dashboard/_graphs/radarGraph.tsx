@@ -14,8 +14,6 @@ export type RadarGraphData = {
 };
 
 const degrees = 360;
-const DEFAULT_WIDTH = 302;
-const DEFAULT_HEIGHT = 253;
 const margin = { top: 20, left: 20, right: 20, bottom: 20 };
 
 const y = (d: RadarGraphData) => d.frequency;
@@ -71,10 +69,7 @@ export type RadarProps = {
 };
 
 export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
-  const dimensions = useDimensions<SVGSVGElement>(
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT
-  );
+  const dimensions = useDimensions<SVGSVGElement>();
 
   const xMax = dimensions.width - margin.left - margin.right;
   const yMax = dimensions.height - margin.top - margin.bottom;

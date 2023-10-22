@@ -5,11 +5,11 @@ import type { ExerciseWithData } from "@/db/types";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import type { ComponentPropsWithoutRef } from "react";
 
-export const RandomFacts = ({
-  exercises,
-}: {
+type Props = {
   exercises: ExerciseWithData[];
-}) => {
+};
+
+export const RandomFacts = ({ exercises }: Props) => {
   const displayWeight = useDisplayWeight();
   const data = prepareRandomFactsData(exercises);
 
@@ -17,23 +17,23 @@ export const RandomFacts = ({
     <Carousel.Root itemsSize={5}>
       <Carousel.ArrowNavigation />
       <Carousel.Body>
-        <CardContainer key="item-1">
+        <CardContainer>
           <Text>weight lifted</Text>
           <StrongText>{displayWeight.show(data.totalWeightLifted)}</StrongText>
         </CardContainer>
-        <CardContainer key="item-2">
+        <CardContainer>
           <Text>repetitions made</Text>
           <StrongText>{data.totalNumberOfRepetitions}</StrongText>
         </CardContainer>
-        <CardContainer key="item-3">
+        <CardContainer>
           <Text>number of days</Text>
           <StrongText>{data.numberOfDays}</StrongText>
         </CardContainer>
-        <CardContainer key="item-4">
+        <CardContainer>
           <Text>exercises explored</Text>
           <StrongText>{data.totalExercises}</StrongText>
         </CardContainer>
-        <CardContainer key="item-5">
+        <CardContainer>
           <Text>data logged</Text>
           <StrongText>{data.totalData}</StrongText>
         </CardContainer>
@@ -81,7 +81,7 @@ const CardContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return (
     <div
       {...props}
-      className="grid grid-rows-[1fr_auto_1fr] gap-4 text-muted-foreground"
+      className="grid grid-rows-[1fr_auto_1fr] gap-4 overflow-hidden text-muted-foreground"
     />
   );
 };
