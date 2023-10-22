@@ -1,11 +1,14 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ComponentProps } from "react";
 
 const Loader = () => {
   return (
-    <Card>
-      <CardHeader />
-      <CardBody />
-    </Card>
+    <Skeleton className="backdrop-blur-md">
+      <Card>
+        <CardHeader />
+        <CardBody />
+      </Card>
+    </Skeleton>
   );
 };
 
