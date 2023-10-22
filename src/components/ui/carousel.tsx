@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Children,
-  createContext,
-  useContext,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useState } from "react";
 import type { ComponentPropsWithoutRef, PropsWithChildren } from "react";
 import { Button } from "./button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -14,7 +8,6 @@ import { useDimensions } from "@/hooks/useDimensions";
 
 type CarouselContext = {
   itemsSize: number;
-  setItemsSize: (size: number) => void;
   currentItemIndex: number;
   rootWidth: number;
   goToPreviousItem: () => void;
@@ -25,11 +18,14 @@ type CarouselContext = {
 const CarouselContext = createContext<CarouselContext | null>(null);
 
 type CarouselProviderProps = PropsWithChildren &
-  Pick<CarouselContext, "rootWidth">;
+  Pick<CarouselContext, "rootWidth" | "itemsSize">;
 
-const CarouselProvider = ({ children, rootWidth }: CarouselProviderProps) => {
+const CarouselProvider = ({
+  children,
+  rootWidth,
+  itemsSize,
+}: CarouselProviderProps) => {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [itemsSize, setItemsSize] = useState(0);
 
   const goToNextItem = () => {
     setCurrentItemIndex((prev) => (prev >= itemsSize - 1 ? 0 : prev + 1));
@@ -51,7 +47,6 @@ const CarouselProvider = ({ children, rootWidth }: CarouselProviderProps) => {
     <CarouselContext.Provider
       value={{
         itemsSize,
-        setItemsSize,
         currentItemIndex,
         goToNextItem,
         goToPreviousItem,
@@ -76,13 +71,16 @@ const useCarousel = () => {
   return ctx;
 };
 
-const Root = (props: ComponentPropsWithoutRef<"div">) => {
+type RootProps = ComponentPropsWithoutRef<"div"> &
+  Pick<CarouselContext, "itemsSize">;
+
+const Root = ({ itemsSize, ...rest }: RootProps) => {
   const dimensions = useDimensions<HTMLDivElement>(300, 300);
 
   return (
-    <CarouselProvider rootWidth={dimensions.width}>
+    <CarouselProvider rootWidth={dimensions.width} itemsSize={itemsSize}>
       <div
-        {...props}
+        {...rest}
         ref={dimensions.ref}
         className="group relative isolate flex h-full w-full overflow-hidden p-2"
       />
@@ -148,10 +146,6 @@ const DotsNavigation = () => {
 const Body = (props: PropsWithChildren) => {
   const carousel = useCarousel();
 
-  useLayoutEffect(() => {
-    carousel.setItemsSize(Children.count(props.children));
-  }, [carousel, props.children]);
-
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [draggingDistance, setDraggingDistance] = useState(0);
@@ -206,7 +200,7 @@ const Body = (props: PropsWithChildren) => {
 
   return (
     <div
-      className="absolute inset-0 -z-10 grid select-none transition-transform duration-300"
+      className="absolute inset-0 -z-10 grid select-none duration-300"
       style={{
         translate: `${
           carousel.rootWidth * carousel.currentItemIndex * -1 - draggingDistance

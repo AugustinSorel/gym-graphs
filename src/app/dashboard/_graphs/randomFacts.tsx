@@ -1,8 +1,9 @@
 "use client";
 
+import { Carousel } from "@/components/ui/carousel";
 import type { ExerciseWithData } from "@/db/types";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
-import { pluralize } from "@/lib/utils";
+import type { ComponentPropsWithoutRef } from "react";
 
 export const RandomFacts = ({
   exercises,
@@ -13,32 +14,32 @@ export const RandomFacts = ({
   const data = prepareRandomFactsData(exercises);
 
   return (
-    <Container>
-      <Text>
-        you have lifted{" "}
-        <StrongText>{displayWeight.show(data.totalWeightLifted)}</StrongText> so
-        far.
-      </Text>
-      <Text>
-        with a total of <StrongText>{data.totalNumberOfRepetitions}</StrongText>{" "}
-        {pluralize({
-          noun: "repetition",
-          count: data.totalNumberOfRepetitions,
-        })}
-        .
-      </Text>
-      <Text>
-        you exercised <StrongText>{data.numberOfDays}</StrongText>{" "}
-        {pluralize({ noun: "day", count: data.numberOfDays })} so far
-      </Text>
-      <Text>
-        you have explored <StrongText>{data.totalExercises}</StrongText>{" "}
-        different {pluralize({ noun: "exercise", count: data.totalExercises })}.
-      </Text>
-      <Text>
-        you logged a total of <StrongText>{data.totalData}</StrongText> data
-      </Text>
-    </Container>
+    <Carousel.Root itemsSize={5}>
+      <Carousel.ArrowNavigation />
+      <Carousel.Body>
+        <CardContainer key="item-1">
+          <Text>weight lifted</Text>
+          <StrongText>{displayWeight.show(data.totalWeightLifted)}</StrongText>
+        </CardContainer>
+        <CardContainer key="item-2">
+          <Text>repetitions made</Text>
+          <StrongText>{data.totalNumberOfRepetitions}</StrongText>
+        </CardContainer>
+        <CardContainer key="item-3">
+          <Text>number of days</Text>
+          <StrongText>{data.numberOfDays}</StrongText>
+        </CardContainer>
+        <CardContainer key="item-4">
+          <Text>exercises explored</Text>
+          <StrongText>{data.totalExercises}</StrongText>
+        </CardContainer>
+        <CardContainer key="item-5">
+          <Text>data logged</Text>
+          <StrongText>{data.totalData}</StrongText>
+        </CardContainer>
+      </Carousel.Body>
+      <Carousel.DotsNavigation />
+    </Carousel.Root>
   );
 };
 
@@ -76,19 +77,21 @@ const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
   };
 };
 
-const Container = (props: ComponentProps<"div">) => {
+const CardContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return (
     <div
       {...props}
-      className="flex h-full flex-col justify-around p-2 text-left text-sm text-muted-foreground"
+      className="grid grid-rows-[1fr_auto_1fr] gap-4 text-muted-foreground"
     />
   );
 };
 
-const Text = (props: ComponentProps<"p">) => {
-  return <p {...props} className="first-letter:capitalize" />;
+const Text = (props: ComponentPropsWithoutRef<"p">) => {
+  return <p {...props} className="self-end first-letter:capitalize" />;
 };
 
-const StrongText = (props: ComponentProps<"span">) => {
-  return <strong {...props} className="font-bold text-brand-color-two" />;
+const StrongText = (props: ComponentPropsWithoutRef<"span">) => {
+  return (
+    <strong {...props} className="text-4xl font-bold text-brand-color-two" />
+  );
 };
