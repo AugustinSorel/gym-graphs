@@ -15,17 +15,16 @@ const Loader = () => {
             />
           </Skeleton>
 
-          <Skeleton className="backdrop-blur-md">
-            <GridLayout>
-              {[...Array<unknown>(10)].map((_, i) => (
-                <li key={i}>
-                  <div className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
-                    <header className="h-11 border-b border-border bg-primary" />
-                  </div>
-                </li>
-              ))}
-            </GridLayout>
-          </Skeleton>
+          <GridLayout>
+            {[...Array<unknown>(10)].map((_, i) => (
+              <Skeleton
+                key={i}
+                className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md"
+              >
+                <header className="h-11 border-b border-border bg-primary" />
+              </Skeleton>
+            ))}
+          </GridLayout>
         </TimelineContainer>
       ))}
     </>
