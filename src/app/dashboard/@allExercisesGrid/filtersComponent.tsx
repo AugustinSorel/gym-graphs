@@ -112,7 +112,8 @@ export const MuscleGroupsFilter = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 size="icon"
-                className="relative h-8 p-1"
+                data-filters-number={selectedValues.length}
+                className="relative h-8 p-1 backdrop-filter after:absolute after:-right-1/3 after:-top-1/3 after:flex after:h-5 after:w-5 after:items-center after:justify-center after:rounded-full after:border after:border-border after:bg-brand-color-two after:text-xs after:backdrop-blur-md after:content-[attr(data-filters-number)] data-[filters-number='0']:after:hidden"
                 disabled={isPending}
                 aria-label="filters with tags"
               >
