@@ -29,7 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCallback, useEffect, useState } from "react";
+import { PropsWithChildren, useCallback, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -317,7 +317,13 @@ const DeleteAccountDropDownItem = () => {
   );
 };
 
-const HomeIcon = () => {
+const HomeIcon = ({ children }: PropsWithChildren) => {
+  const { data: session } = useSession();
+
+  if (session?.user.id) {
+    return <>{children}</>;
+  }
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -328,9 +334,7 @@ const HomeIcon = () => {
             aria-label="home"
             className="h-max rounded-full p-0"
           >
-            <Link href="/">
-              <Icon className="hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]" />
-            </Link>
+            <Link href="/">{children}</Link>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -472,7 +476,9 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary pr-4 backdrop-blur-md">
       <nav className="flex h-full w-full items-center overflow-hidden p-4">
-        <HomeIcon />
+        <HomeIcon>
+          <Icon className="hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]" />
+        </HomeIcon>
 
         {showDashboardPath && <DashboardLink />}
 
