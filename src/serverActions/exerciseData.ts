@@ -27,6 +27,7 @@ export const addExerciseDataAction = privateAction(
         .returning();
 
       revalidatePath("/exercises/[id]");
+      revalidatePath("/dashboard");
 
       return res;
     } catch (e) {
@@ -38,7 +39,7 @@ export const addExerciseDataAction = privateAction(
 
       throw new Error("unhanndled server error");
     }
-  }
+  },
 );
 
 export const updateNumberOfRepsAction = privateAction(
@@ -54,9 +55,10 @@ export const updateNumberOfRepsAction = privateAction(
       .returning();
 
     revalidatePath("/exercises/[id]");
+    revalidatePath("/dashboard");
 
     return res;
-  }
+  },
 );
 
 export const updateWeightLiftedAction = privateAction(
@@ -72,9 +74,10 @@ export const updateWeightLiftedAction = privateAction(
       .returning();
 
     revalidatePath("/exercises/[id]");
+    revalidatePath("/dashboard");
 
     return res;
-  }
+  },
 );
 
 export const deleteDataAction = privateAction(
@@ -86,9 +89,10 @@ export const deleteDataAction = privateAction(
       .returning();
 
     revalidatePath("/exercises/[id]");
+    revalidatePath("/dashboard");
 
     return res;
-  }
+  },
 );
 
 export const updateExerciseDataDate = privateAction(
@@ -105,6 +109,7 @@ export const updateExerciseDataDate = privateAction(
         .returning();
 
       revalidatePath("/exercises/[id]");
+      revalidatePath("/dashboard");
 
       return res;
     } catch (e) {
@@ -116,5 +121,5 @@ export const updateExerciseDataDate = privateAction(
 
       throw new Error("unhanndled server error");
     }
-  }
+  },
 );
