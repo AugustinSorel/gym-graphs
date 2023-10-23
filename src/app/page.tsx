@@ -1,12 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
+import { authOptions } from "@/lib/auth";
 import { ArrowRight } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
-const HomePage = () => {
+const HomePage = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (session && session.user.id) {
+    return redirect("/dashboard");
+  }
+
   return (
     <MainContainer>
       <HeroSection />
@@ -244,7 +253,7 @@ const FeatureImageContainer = (props: ComponentProps<"div">) => {
       {...props}
       className={twMerge(
         "relative max-w-3xl xl:row-span-2 xl:row-start-1",
-        props.className
+        props.className,
       )}
     />
   );
@@ -274,7 +283,7 @@ const Card = (props: ComponentProps<"li">) => {
       {...props}
       className={twMerge(
         "space-y-3 rounded-md border border-border bg-primary p-7 text-2xl font-semibold backdrop-blur-md transition-colors hover:bg-border",
-        props.className
+        props.className,
       )}
     />
   );
@@ -302,7 +311,7 @@ const HeroTitle = (props: ComponentProps<"h1">) => {
       {...props}
       className={twMerge(
         "max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl",
-        props.className
+        props.className,
       )}
     />
   );
