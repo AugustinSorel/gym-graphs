@@ -8,6 +8,7 @@ import EmailProvider from "next-auth/providers/email";
 import { db } from "@/db";
 import { exerciseGridPosition, exercises, exercisesData } from "@/db/schema";
 import { addDays, addMonths } from "./date";
+import { redirect } from "next/navigation";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -240,4 +241,12 @@ export const authOptions: NextAuthOptions = {
 
 export const getSession = async () => {
   return getServerSession(authOptions);
+};
+
+export const redirectIfSignedIn = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (session?.user.id) {
+    return redirect("/dashboard");
+  }
 };

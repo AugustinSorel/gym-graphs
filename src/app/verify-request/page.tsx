@@ -1,8 +1,11 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import type { ComponentProps } from "react";
 import { MailPlus } from "lucide-react";
+import { redirectIfSignedIn } from "@/lib/auth";
 
-const Page = () => {
+const Page = async () => {
+  await redirectIfSignedIn();
+
   return (
     <Container>
       <ContentContainer>
