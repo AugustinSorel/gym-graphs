@@ -1,20 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
-import { authOptions } from "@/lib/auth";
+import { redirectIfSignedIn } from "@/lib/auth";
 import { ArrowRight } from "lucide-react";
-import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 const HomePage = async () => {
-  const session = await getServerSession(authOptions);
-
-  if (session && session.user.id) {
-    return redirect("/dashboard");
-  }
+  await redirectIfSignedIn();
 
   return (
     <MainContainer>
