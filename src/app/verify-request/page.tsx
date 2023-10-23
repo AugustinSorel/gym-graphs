@@ -1,8 +1,17 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import type { ComponentProps } from "react";
 import { MailPlus } from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-const Page = () => {
+const Page = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (session && session.user.id) {
+    return redirect("/dashboard");
+  }
+
   return (
     <Container>
       <ContentContainer>
