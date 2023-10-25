@@ -118,6 +118,7 @@ export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
               cursor: zoom.isDragging ? "grabbing" : "grab",
               touchAction: "none",
             }}
+            className="disalbe-interaction-on-touch-device"
             ref={zoom.containerRef}
             width="100%"
             height="100%"
