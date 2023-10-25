@@ -86,6 +86,9 @@ dependencies:
   '@visx/tooltip':
     specifier: ^3.3.0
     version: 3.3.0(react-dom@18.2.0)(react@18.2.0)
+  '@visx/zoom':
+    specifier: ^3.3.0
+    version: 3.3.0(react@18.2.0)
   class-variance-authority:
     specifier: ^0.6.1
     version: 0.6.1
@@ -1748,6 +1751,19 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
+  /@use-gesture/core@10.3.0:
+    resolution: {integrity: sha512-rh+6MND31zfHcy9VU3dOZCqGY511lvGcfyJenN4cWZe0u1BH6brBpBddLVXhF2r4BMqWbvxfsbL7D287thJU2A==}
+    dev: false
+
+  /@use-gesture/react@10.3.0(react@18.2.0):
+    resolution: {integrity: sha512-3zc+Ve99z4usVP6l9knYVbVnZgfqhKah7sIG+PS2w+vpig2v2OLct05vs+ZXMzwxdNCMka8B+8WlOo0z6Pn6DA==}
+    peerDependencies:
+      react: '>= 16.8.0'
+    dependencies:
+      '@use-gesture/core': 10.3.0
+      react: 18.2.0
+    dev: false
+
   /@vercel/analytics@1.1.0:
     resolution: {integrity: sha512-k5ePYZPxitxxD1eJenPUUuH3qK+EtaA9OVD3oO0BRbyT/LarmZF0qdkptRSidip1arQxsTEIWvHbTuj1oksl+Q==}
     dependencies:
@@ -1953,6 +1969,18 @@ packages:
       d3-time: 3.1.0
       d3-time-format: 4.1.0
       internmap: 2.0.3
+    dev: false
+
+  /@visx/zoom@3.3.0(react@18.2.0):
+    resolution: {integrity: sha512-ijSitmJWbhupAe1F0LTsusg/WWEvYBcxV9iOHmTbGHhgpdKuhmZCXYg2zGAF4oT3lTuhofUA678jQt5+U9FlWA==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.6
+      '@use-gesture/react': 10.3.0(react@18.2.0)
+      '@visx/event': 3.3.0
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /acorn-jsx@5.3.2(acorn@8.10.0):

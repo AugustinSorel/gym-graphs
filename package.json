@@ -37,6 +37,7 @@
     "@visx/scale": "^3.3.0",
     "@visx/shape": "^3.3.0",
     "@visx/tooltip": "^3.3.0",
+    "@visx/zoom": "^3.3.0",
     "class-variance-authority": "^0.6.1",
     "clsx": "^1.2.1",
     "drizzle-orm": "^0.28.6",

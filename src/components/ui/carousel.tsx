@@ -1,7 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import type { ComponentPropsWithoutRef, PropsWithChildren } from "react";
+import type {
+  CSSProperties,
+  ComponentPropsWithoutRef,
+  PropsWithChildren,
+} from "react";
 import { Button } from "./button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useDimensions } from "@/hooks/useDimensions";
@@ -64,7 +68,7 @@ const useCarousel = () => {
 
   if (!ctx) {
     throw new Error(
-      "carousel context should be used inside of the <CarouselProvider.Provider>"
+      "carousel context should be used inside of the <CarouselProvider.Provider>",
     );
   }
 
@@ -149,7 +153,7 @@ const Body = (props: PropsWithChildren) => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [draggingDistance, setDraggingDistance] = useState(0);
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 10;
 
   const draggingStart = (startX: number) => {
     if (carousel.itemsSize < 2) {
@@ -161,11 +165,11 @@ const Body = (props: PropsWithChildren) => {
   };
 
   const draggingMove = (currentX: number) => {
-    const distance = touchStart - currentX;
-
-    if (!touchStart || Math.abs(distance) < 50) {
+    if (!touchStart) {
       return;
     }
+
+    const distance = touchStart - currentX;
 
     setTouchEnd(currentX);
     setDraggingDistance(distance);
@@ -178,7 +182,7 @@ const Body = (props: PropsWithChildren) => {
 
     const distance = touchStart - touchEnd;
 
-    if (Math.abs(distance) < 50) {
+    if (Math.abs(distance) < minSwipeDistance) {
       setDraggingDistance(0);
       setTouchStart(0);
       setTouchEnd(0);
@@ -199,15 +203,28 @@ const Body = (props: PropsWithChildren) => {
     }
   };
 
+  const getCursorType = (): CSSProperties["cursor"] => {
+    if (Math.abs(draggingDistance) > 0) {
+      return "grabbing";
+    }
+
+    if (carousel.itemsSize > 1) {
+      return "grab";
+    }
+
+    return "auto";
+  };
+
   return (
     <div
       className="absolute inset-0 -z-10 grid select-none transition-[translate]"
       style={{
         translate: `${
-          carousel.rootWidth * carousel.currentItemIndex * -1 - draggingDistance
+          carousel.rootWidth * carousel.currentItemIndex * -1 -
+          (Math.abs(draggingDistance) > minSwipeDistance ? draggingDistance : 0)
         }px 0`,
         gridTemplateColumns: `repeat(${carousel.itemsSize},${carousel.rootWidth}px)`,
-        cursor: carousel.itemsSize > 1 ? "grab" : "auto",
+        cursor: getCursorType(),
       }}
       onTouchStart={(e) => draggingStart(e.targetTouches[0]?.clientX ?? 0)}
       onTouchMove={(e) => draggingMove(e.targetTouches[0]?.clientX ?? 0)}

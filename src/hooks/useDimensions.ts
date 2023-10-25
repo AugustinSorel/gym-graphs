@@ -1,31 +1,26 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export const useDimensions = <T extends HTMLElement | SVGElement>() => {
   const ref = useRef<T>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  const onResizeHandler = useCallback(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    setDimensions({
-      width: ref.current.clientWidth,
-      height: ref.current.clientHeight,
-    });
-  }, []);
+  const [dimensions, setDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
   useLayoutEffect(() => {
-    if (!ref.current) {
-      return;
-    }
+    const updateSize = () => {
+      setDimensions({
+        width: ref.current?.clientWidth ?? 0,
+        height: ref.current?.clientHeight ?? 0,
+      });
+    };
 
-    const observer = new ResizeObserver(onResizeHandler);
+    window.addEventListener("resize", updateSize);
 
-    observer.observe(ref.current);
+    updateSize();
 
-    return () => observer.disconnect();
-  }, [onResizeHandler]);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   return {
     ref,
