@@ -34,7 +34,7 @@ export const DashboardBackground = () => {
         width="100%"
         height="100%"
         fill="url(#pattern-circles)"
-        className="opacity-10 dark:opacity-[0.15]"
+        className="opacity-10 dark:opacity-5"
       />
       <ellipse
         cx="0"
@@ -42,7 +42,7 @@ export const DashboardBackground = () => {
         rx="60%"
         ry="60%"
         filter="url(#dashboardBackgroundBlur)"
-        className="fill-brand-color-one opacity-30 dark:opacity-20"
+        className="fill-brand-color-one opacity-20 dark:opacity-10"
       />
       <ellipse
         cx="100%"
@@ -50,7 +50,7 @@ export const DashboardBackground = () => {
         rx="60%"
         ry="60%"
         filter="url(#dashboardBackgroundBlur)"
-        className="fill-brand-color-two opacity-30 dark:opacity-20"
+        className="fill-brand-color-two opacity-20 dark:opacity-10"
       />
     </svg>
   );
