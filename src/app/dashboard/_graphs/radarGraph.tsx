@@ -115,7 +115,6 @@ export const RadarGraph = ({ data }: { data: RadarGraphData[] }) => {
         <div className="relative h-full overflow-hidden" ref={dimensions.ref}>
           <svg
             style={{
-              //TODO:add this to the carousel
               cursor: zoom.isDragging ? "grabbing" : "grab",
               touchAction: "none",
             }}
