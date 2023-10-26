@@ -29,7 +29,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PropsWithChildren, useCallback, useEffect, useState } from "react";
+import {
+  type PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
