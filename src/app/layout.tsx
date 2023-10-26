@@ -5,10 +5,11 @@ import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Gym Graphs",
   description: "Monitor your gym progress with the help of powerfull graphs",
   keywords: ["gym", "gym graphs", "gym monitor", "gym tracker"],
@@ -16,6 +17,8 @@ export const metadata = {
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
+  manifest: "/manifest.json",
+  icons: { apple: "/icon.png" },
 };
 
 const RootLayout = ({ children }: PropsWithChildren) => {
