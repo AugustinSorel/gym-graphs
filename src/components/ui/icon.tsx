@@ -15,7 +15,7 @@ const iconVariants = cva(
     defaultVariants: {
       size: "default",
     },
-  }
+  },
 );
 
 type IconProps = VariantProps<typeof iconVariants> & SVGProps<SVGSVGElement>;
@@ -31,7 +31,7 @@ export const Icon = ({ size, className }: IconProps) => {
       <circle cx="25" cy="25" r="25" fill="url(#gradient)" />
       <path
         d="M50 25C50 28.283 49.3534 31.5339 48.097 34.5671C46.8406 37.6002 44.9991 40.3562 42.6777 42.6777C40.3562 44.9991 37.6002 46.8406 34.5671 48.097C31.5339 49.3534 28.283 50 25 50C21.717 50 18.4661 49.3534 15.4329 48.097C12.3998 46.8406 9.64379 44.9991 7.32233 42.6777C5.00086 40.3562 3.15938 37.6002 1.90301 34.5671C0.646644 31.5339 -2.87013e-07 28.283 0 25L25 25H50Z"
-        className="fill-primary"
+        className="fill-border"
       />
       <defs>
         <linearGradient
