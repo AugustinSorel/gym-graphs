@@ -7,6 +7,38 @@
   "name": "Gym Graphs",
   "short_name": "Gym Graphs",
   "description": "Gym application to track your progress",
+  "id": "/",
+  "orientation": "any",
+  "categories": ["sports", "fitness"],
+  "dir": "ltr",
+  "lang": "en",
+  "prefer_related_applications": false,
+  "scope_extensions": [],
+  "related_applications": [],
+  "protocol_handlers": [],
+  "shortcuts": [],
+  "file_handlers": [],
+  "handle_links": "auto",
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "screenshots": [
+    {
+      "src": "dashboard-dark.png",
+      "sizes": "1666x880",
+      "type": "image/png",
+      "platform": "wide"
+    },
+    {
+      "src": "exercise-page-dark.png",
+      "sizes": "1666x944",
+      "type": "image/png",
+      "platform": "wide"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192x192.png",
