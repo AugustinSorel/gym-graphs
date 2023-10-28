@@ -18,8 +18,8 @@ declare module "next-auth" {
   }
 }
 
-const createUser = ({ user }: { user: User }) => {
-  void db.transaction(async (tx) => {
+const createUser = async ({ user }: { user: User }) => {
+  await db.transaction(async (tx) => {
     const [benchPress, squat, deadlift] = await tx
       .insert(exercises)
       .values([
