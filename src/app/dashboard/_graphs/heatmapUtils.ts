@@ -2,7 +2,7 @@ import type { Exercise, ExerciseData } from "@/db/types";
 import type { HeatmapData } from "./heatmapGraph";
 
 export const prepareHeatmapData = (
-  exercises: (Exercise & { data: ExerciseData[] })[]
+  exercises: (Exercise & { data: ExerciseData[] })[],
 ) => {
   const res = getDefaultHeatmapData();
 
@@ -18,7 +18,7 @@ export const prepareHeatmapData = (
         (new Date(new Date(data.doneAt).setDate(1)).getDay() + 6) % 7;
 
       const weekIndex = Math.ceil(
-        (new Date(data.doneAt).getDate() + offset) / 7
+        (new Date(data.doneAt).getDate() + offset) / 7,
       );
 
       const heatmapColumn = res.find((col) => col.dayIndex === day);
@@ -31,7 +31,7 @@ export const prepareHeatmapData = (
 
       if (!row) {
         throw new Error(
-          `row not found when preparing heatmap data ${weekIndex}`
+          `row not found when preparing heatmap data ${weekIndex}`,
         );
       }
 
@@ -46,6 +46,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
   {
     dayIndex: "monday",
     bins: [
+      {
+        weekIndex: 6,
+        count: 0,
+      },
       {
         weekIndex: 5,
         count: 0,
@@ -72,6 +76,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
     dayIndex: "tuesday",
     bins: [
       {
+        weekIndex: 6,
+        count: 0,
+      },
+      {
         weekIndex: 5,
         count: 0,
       },
@@ -96,6 +104,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
   {
     dayIndex: "wednesday",
     bins: [
+      {
+        weekIndex: 6,
+        count: 0,
+      },
       {
         weekIndex: 5,
         count: 0,
@@ -122,6 +134,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
     dayIndex: "thursday",
     bins: [
       {
+        weekIndex: 6,
+        count: 0,
+      },
+      {
         weekIndex: 5,
         count: 0,
       },
@@ -146,6 +162,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
   {
     dayIndex: "friday",
     bins: [
+      {
+        weekIndex: 6,
+        count: 0,
+      },
       {
         weekIndex: 5,
         count: 0,
@@ -172,6 +192,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
     dayIndex: "saturday",
     bins: [
       {
+        weekIndex: 6,
+        count: 0,
+      },
+      {
         weekIndex: 5,
         count: 0,
       },
@@ -196,6 +220,10 @@ export const getDefaultHeatmapData = (): HeatmapData[] => [
   {
     dayIndex: "sunday",
     bins: [
+      {
+        weekIndex: 6,
+        count: 0,
+      },
       {
         weekIndex: 5,
         count: 0,

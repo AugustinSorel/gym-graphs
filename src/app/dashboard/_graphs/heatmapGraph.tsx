@@ -7,7 +7,7 @@ import { HeatmapRect } from "@visx/heatmap";
 import { useDimensions } from "@/hooks/useDimensions";
 
 type Bin = {
-  weekIndex: 1 | 2 | 3 | 4 | 5;
+  weekIndex: 1 | 2 | 3 | 4 | 5 | 6;
   count: number;
 };
 
@@ -46,7 +46,7 @@ export const HeatmapGraph = ({ data }: { data: HeatmapData[] }) => {
   const binWidth = 30;
 
   const xMax = 7 * binWidth + 7 * gap;
-  const yMax = 5 * binWidth + 5 * gap;
+  const yMax = 6 * binWidth + 6 * gap;
 
   const heatmapX =
     dimensions.width / 2 - (heatmapRef.current?.getBBox().width ?? 0) / 2;
@@ -123,7 +123,7 @@ export const HeatmapGraph = ({ data }: { data: HeatmapData[] }) => {
                   fill={bin.color}
                   fillOpacity={bin.opacity}
                 />
-              ))
+              )),
             )
           }
         </HeatmapRect>
