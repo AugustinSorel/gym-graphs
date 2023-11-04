@@ -114,7 +114,9 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
 
   for (const exercise of exercises) {
     for (const data of exercise.data) {
-      const firstDayOfMonthDate = new Date(new Date(data.doneAt).setDate(1));
+      const firstDayOfMonthDate = new Date(
+        new Date(new Date(data.doneAt).setDate(1)).toLocaleDateString(),
+      );
 
       const entry = exercisesByMonth.find(
         (entry) => entry.date.getTime() === firstDayOfMonthDate.getTime(),
