@@ -30,9 +30,9 @@ const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
     <>
       {getExercisesByMonth(exercises).map((group) => {
         return (
-          <TimelineContainer key={dateAsYearMonthDayFormat(group.date)}>
+          <TimelineContainer key={group.date}>
             <Badge variant="accent" className="w-max">
-              <time dateTime={dateAsYearMonthDayFormat(group.date)}>
+              <time dateTime={group.date}>
                 {new Date(group.date).toLocaleDateString(undefined, {
                   month: "long",
                   year: "numeric",
@@ -45,11 +45,9 @@ const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
                   <GridItem.Root key={exercise.id}>
                     <GridItem.Anchor
                       aria-label={`go to ${exercise.name}`}
-                      href={`/exercises/${
-                        exercise.id
-                      }?from=${dateAsYearMonthDayFormat(
-                        group.date,
-                      )}&to=${dateAsYearMonthDayFormat(
+                      href={`/exercises/${exercise.id}?from=${
+                        group.date
+                      }&to=${dateAsYearMonthDayFormat(
                         new Date(
                           new Date(group.date).getFullYear(),
                           new Date(group.date).getMonth() + 1,
@@ -105,7 +103,7 @@ const ExercisesByMonthGrid = async (props: DashboardPageProps) => {
 export default ExercisesByMonthGrid;
 
 type ExercisesByMonth = {
-  date: Date;
+  date: string;
   exercises: ExerciseWithData[];
 }[];
 
@@ -114,12 +112,12 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
 
   for (const exercise of exercises) {
     for (const data of exercise.data) {
-      const firstDayOfMonthDate = new Date(
-        new Date(new Date(data.doneAt).setDate(1)).toLocaleDateString(),
+      const firstDayOfMonthDate = dateAsYearMonthDayFormat(
+        new Date(new Date(data.doneAt).setDate(1)),
       );
 
       const entry = exercisesByMonth.find(
-        (entry) => entry.date.getTime() === firstDayOfMonthDate.getTime(),
+        (entry) => entry.date === firstDayOfMonthDate,
       );
 
       if (!entry) {
@@ -143,7 +141,9 @@ const getExercisesByMonth = (exercises: ExerciseWithData[]) => {
     }
   }
 
-  return exercisesByMonth.sort((a, b) => b.date.getTime() - a.date.getTime());
+  return exercisesByMonth.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 };
 
 const getExercises = (
