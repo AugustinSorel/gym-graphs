@@ -19,21 +19,20 @@ import {
 } from "@/components/ui/popover";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import type { updateExerciseDataDate } from "@/serverActions/exerciseData";
+import { updateExerciseDataDate } from "@/serverActions/exerciseData";
 import { updateExerciseDataDateSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 
 type Props = {
-  onAction: typeof updateExerciseDataDate;
   exerciseData: ExerciseData;
 };
 
-export const UpdateExerciseDataDate = ({ onAction, exerciseData }: Props) => {
+export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [exerciseDate, setExerciseDate] = useState(
-    new Date(exerciseData.doneAt)
+    new Date(exerciseData.doneAt),
   );
   const { toast } = useToast();
 
@@ -44,7 +43,7 @@ export const UpdateExerciseDataDate = ({ onAction, exerciseData }: Props) => {
         doneAt: dateAsYearMonthDayFormat(exerciseDate),
       });
 
-      const res = await onAction(data);
+      const res = await updateExerciseDataDate(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

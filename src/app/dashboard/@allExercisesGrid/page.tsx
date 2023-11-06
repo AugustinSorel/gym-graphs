@@ -26,10 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { UpdateExerciseNameDialog } from "../_modals/updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "../_modals/deleteExerciseAlertDialog";
-import {
-  deleteExerciseAction,
-  updateExerciseNameAction,
-} from "@/serverActions/exercises";
+import { deleteExerciseAction } from "@/serverActions/exercises";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
@@ -190,10 +187,7 @@ const ExerciseDropDown = ({
         <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <UpdateExerciseNameDialog
-            onAction={updateExerciseNameAction}
-            exercise={exercise}
-          />
+          <UpdateExerciseNameDialog exercise={exercise} />
           <DeleteExerciseAlertDialog
             onAction={deleteExerciseAction}
             exercise={exercise}

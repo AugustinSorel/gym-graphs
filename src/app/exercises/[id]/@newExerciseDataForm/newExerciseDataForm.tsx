@@ -15,15 +15,13 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { addExerciseDataSchema } from "@/schemas/exerciseSchemas";
-import type { addExerciseDataAction } from "@/serverActions/exerciseData";
+import { addExerciseDataAction } from "@/serverActions/exerciseData";
 import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToKg } from "@/lib/math";
 import { usePathname } from "next/navigation";
 import { getErrorMessage } from "@/lib/utils";
 
-type Props = { action: typeof addExerciseDataAction };
-
-export const NewExerciseDataForm = ({ action }: Props) => {
+export const NewExerciseDataForm = () => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");
   const [weightLifted, setWeightLifted] = useState("");
   const { toast } = useToast();
@@ -38,7 +36,7 @@ export const NewExerciseDataForm = ({ action }: Props) => {
         exerciseId: pathname[2],
       });
 
-      const res = await action(data);
+      const res = await addExerciseDataAction(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

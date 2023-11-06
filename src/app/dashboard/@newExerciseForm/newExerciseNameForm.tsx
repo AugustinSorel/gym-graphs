@@ -15,19 +15,17 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
 import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
-import type { addNewExerciseAction } from "@/serverActions/exercises";
+import { addNewExerciseAction } from "@/serverActions/exercises";
 import { getErrorMessage } from "@/lib/utils";
 
-type Props = { action: typeof addNewExerciseAction };
-
-export const NewExerciseForm = ({ action }: Props) => {
+export const NewExerciseForm = () => {
   const [name, setName] = useState("");
   const { toast } = useToast();
 
   const actionHandler = async (e: FormData) => {
     try {
       const newExercise = newExerciseNameSchema.parse({ name });
-      const res = await action(newExercise);
+      const res = await addNewExerciseAction(newExercise);
 
       if (res.serverError) {
         throw new Error(res.serverError);

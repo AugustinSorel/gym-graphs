@@ -18,16 +18,15 @@ import { Loader } from "@/components/ui/loader";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
-import type { updateExerciseNameAction } from "@/serverActions/exercises";
+import { updateExerciseNameAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
 import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
-  onAction: typeof updateExerciseNameAction;
   exercise: Exercise;
 };
 
-export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
+export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
   const { toast } = useToast();
@@ -39,7 +38,7 @@ export const UpdateExerciseNameDialog = ({ onAction, exercise }: Props) => {
         name: updatedExerciseName,
       });
 
-      const res = await onAction(data);
+      const res = await updateExerciseNameAction(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

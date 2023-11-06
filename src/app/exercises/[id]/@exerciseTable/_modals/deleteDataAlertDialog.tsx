@@ -16,18 +16,17 @@ import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { deleteDataAction } from "@/serverActions/exerciseData";
+import { deleteDataAction } from "@/serverActions/exerciseData";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 import { deleteExerciseDataSchema } from "@/schemas/exerciseSchemas";
 import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
-  onAction: typeof deleteDataAction;
   exerciseDataId: ExerciseData["id"];
 };
 
-export const DeleteDataAlertDialog = ({ onAction, exerciseDataId }: Props) => {
+export const DeleteDataAlertDialog = ({ exerciseDataId }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -38,7 +37,7 @@ export const DeleteDataAlertDialog = ({ onAction, exerciseDataId }: Props) => {
 
       setIsLoading(() => true);
 
-      const res = await onAction(data);
+      const res = await deleteDataAction(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

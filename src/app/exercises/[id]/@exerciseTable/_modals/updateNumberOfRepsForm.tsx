@@ -18,19 +18,18 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
-import type { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
+import { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
 import type { ExerciseData } from "@/db/types";
 import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
-  onAction: typeof updateNumberOfRepsAction;
   exerciseData: ExerciseData;
 };
 
-export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
+export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState(
-    exerciseData.numberOfRepetitions.toString()
+    exerciseData.numberOfRepetitions.toString(),
   );
   const { toast } = useToast();
 
@@ -41,7 +40,7 @@ export const UpdateNumberOfRepsForm = ({ onAction, exerciseData }: Props) => {
         exerciseDataId: exerciseData.id,
       });
 
-      const res = await onAction(data);
+      const res = await updateNumberOfRepsAction(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

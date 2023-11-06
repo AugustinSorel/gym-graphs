@@ -15,7 +15,7 @@ import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
-import type { updateWeightLiftedAction } from "@/serverActions/exerciseData";
+import { updateWeightLiftedAction } from "@/serverActions/exerciseData";
 import { updateWeightLiftedSchema } from "@/schemas/exerciseSchemas";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
@@ -25,15 +25,14 @@ import { useWeightUnit } from "@/context/weightUnit";
 import { getErrorMessage } from "@/lib/utils";
 
 type Props = {
-  onAction: typeof updateWeightLiftedAction;
   exerciseData: ExerciseData;
 };
 
-export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
+export const UpdateWeightLifted = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const weightUnit = useWeightUnit();
   const [updatedWeightLifted, setUpdatedWeightLifted] = useState(
-    exerciseData.weightLifted.toString()
+    exerciseData.weightLifted.toString(),
   );
   const { toast } = useToast();
 
@@ -44,7 +43,7 @@ export const UpdateWeightLifted = ({ onAction, exerciseData }: Props) => {
         weightLifted: convertWeightToKg(+updatedWeightLifted, weightUnit.get),
       });
 
-      const res = await onAction(data);
+      const res = await updateWeightLiftedAction(data);
 
       if (res.serverError) {
         throw new Error(res.serverError);

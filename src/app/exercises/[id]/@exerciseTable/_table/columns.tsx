@@ -15,12 +15,6 @@ import {
 import type { ColumnDef, HeaderContext } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { UpdateNumberOfRepsForm } from "../_modals/updateNumberOfRepsForm";
-import {
-  deleteDataAction,
-  updateExerciseDataDate,
-  updateNumberOfRepsAction,
-  updateWeightLiftedAction,
-} from "@/serverActions/exerciseData";
 import { UpdateWeightLifted } from "../_modals/updateWeightLiftedForm";
 import { DeleteDataAlertDialog } from "../_modals/deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
@@ -94,7 +88,7 @@ export const columns: ColumnDef<ExerciseData>[] = [
         <>
           {calculateOneRepMax(
             row.original.weightLifted,
-            row.original.numberOfRepetitions
+            row.original.numberOfRepetitions,
           )}
         </>
       );
@@ -185,22 +179,10 @@ export const columns: ColumnDef<ExerciseData>[] = [
           </TooltipProvider>
 
           <DropdownMenuContent align="end">
-            <UpdateNumberOfRepsForm
-              onAction={updateNumberOfRepsAction}
-              exerciseData={row.original}
-            />
-            <UpdateWeightLifted
-              onAction={updateWeightLiftedAction}
-              exerciseData={row.original}
-            />
-            <UpdateExerciseDataDate
-              onAction={updateExerciseDataDate}
-              exerciseData={row.original}
-            />
-            <DeleteDataAlertDialog
-              onAction={deleteDataAction}
-              exerciseDataId={row.original.id}
-            />
+            <UpdateNumberOfRepsForm exerciseData={row.original} />
+            <UpdateWeightLifted exerciseData={row.original} />
+            <UpdateExerciseDataDate exerciseData={row.original} />
+            <DeleteDataAlertDialog exerciseDataId={row.original.id} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
