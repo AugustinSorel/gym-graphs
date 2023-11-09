@@ -7,6 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { exercisesData } from "@/db/schema";
 import { whereDoneAtIsBetweenDates } from "../getDateLimit";
 import type { SafeExercisePageProps } from "../page";
+import { ExerciseGraphCard } from "./exerciseGraphCard";
 
 const Page = async (props: SafeExercisePageProps) => {
   const exercise = await getExercise(props.params.id, props.searchParams);
@@ -15,17 +16,7 @@ const Page = async (props: SafeExercisePageProps) => {
     return redirect("/dashboard");
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{exercise.name}</CardTitle>
-      </CardHeader>
-
-      <CardBody>
-        <ExerciseGraph exercise={exercise} />
-      </CardBody>
-    </Card>
-  );
+  return <ExerciseGraphCard exercise={exercise} />;
 };
 
 export default Page;
@@ -34,7 +25,7 @@ export default Page;
 //for now using 2 queries instead of using the missing extras
 const getExercise = (
   exerciseId: Exercise["id"],
-  datesLimit: SafeExercisePageProps["searchParams"]
+  datesLimit: SafeExercisePageProps["searchParams"],
 ) => {
   return db.transaction(async (tx) => {
     const exercise = await tx.query.exercises.findFirst({
@@ -56,8 +47,8 @@ const getExercise = (
       .where(
         and(
           eq(exercisesData.exerciseId, exerciseId),
-          whereDoneAtIsBetweenDates(datesLimit)
-        )
+          whereDoneAtIsBetweenDates(datesLimit),
+        ),
       )
       .orderBy(exercisesData.doneAt);
 
@@ -66,27 +57,4 @@ const getExercise = (
       filteredData,
     };
   });
-};
-
-const Card = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className="border-y border-border bg-primary backdrop-blur-md sm:rounded-md sm:border"
-    />
-  );
-};
-
-const CardHeader = (props: ComponentProps<"header">) => {
-  return (
-    <header {...props} className="border-b border-border bg-primary p-3" />
-  );
-};
-
-const CardTitle = (props: ComponentProps<"h2">) => {
-  return <h2 {...props} className="truncate font-medium capitalize" />;
-};
-
-const CardBody = (props: ComponentProps<"div">) => {
-  return <div {...props} className="relative h-[500px] overflow-hidden" />;
 };
