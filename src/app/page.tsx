@@ -1,11 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { redirectIfSignedIn } from "@/lib/auth";
-import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { twMerge } from "tailwind-merge";
+import { TimelineContainer } from "./dashboard/timelineContainer";
+import { GridItem } from "./dashboard/_grid/gridItem";
+import { LineGraph } from "./dashboard/_graphs/lineGraph";
+import { GridLayout } from "./dashboard/_grid/gridLayout";
+import { Badge } from "@/components/ui/badge";
+import { RadarGraph } from "./dashboard/_graphs/radarGraph";
+import { RandomFacts } from "./dashboard/_graphs/randomFacts";
+import { HeatmapGraph } from "./dashboard/_graphs/heatmapGraph";
+import { prepareHeatmapData } from "./dashboard/_graphs/heatmapUtils";
+import { mockExercises } from "@/lib/mock-data";
 
 const HomePage = async () => {
   await redirectIfSignedIn();
@@ -79,8 +90,8 @@ const Separator = () => {
 
 const FeatureOne = () => {
   return (
-    <FeatureContainer>
-      <HeroTitle className="self-end">
+    <FeatureContainerTemp>
+      <HeroTitle className="max-w-full">
         Unleash <GradientText> Your Progress!</GradientText>
       </HeroTitle>
 
@@ -90,16 +101,72 @@ const FeatureOne = () => {
         breakdown of your achievements each <StrongText>month</StrongText>.
       </Text>
 
-      <FeatureImageContainer className="xl:col-start-2">
-        <Image
-          alt="dashboard of gym graphs"
-          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.5)] dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-one)/0.3)] dark:[content:url('/dashboard-dark.png')]"
-          src="/dashboard-light.png"
-          width={1000}
-          height={1000}
-        />
-      </FeatureImageContainer>
-    </FeatureContainer>
+      <TimelineContainer className=" w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+        <Badge variant="accent" className="mr-auto">
+          <time dateTime="all">
+            {new Date().toLocaleDateString(undefined, {
+              month: "long",
+              year: "numeric",
+            })}
+          </time>
+        </Badge>
+        <GridLayout>
+          {mockExercises.map((exercise) => (
+            <GridItem.Root key={exercise.id}>
+              <GridItem.Header>
+                <GridItem.Title>{exercise.name}</GridItem.Title>
+
+                <GridItem.ActionContainer>
+                  <GridItem.ActionButton aria-label="view exercise tags">
+                    <Tag className="h-4 w-4" />
+                  </GridItem.ActionButton>
+
+                  <GridItem.ActionButton aria-label="view more">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </GridItem.ActionButton>
+
+                  <GridItem.ActionButton aria-label="view more">
+                    <GripVertical className="h-4 w-4" />
+                  </GridItem.ActionButton>
+                </GridItem.ActionContainer>
+              </GridItem.Header>
+
+              <LineGraph data={exercise.data} />
+            </GridItem.Root>
+          ))}
+
+          <GridItem.Root>
+            <GridItem.Header>
+              <GridItem.Title>exercises count</GridItem.Title>
+            </GridItem.Header>
+
+            <RadarGraph
+              data={mockExercises.map((exercise) => ({
+                exerciseName: exercise.name,
+                frequency: exercise.data.length,
+              }))}
+            />
+          </GridItem.Root>
+
+          <GridItem.Root>
+            <GridItem.Header>
+              <GridItem.Title>heatmap</GridItem.Title>
+            </GridItem.Header>
+
+            <HeatmapGraph data={prepareHeatmapData(mockExercises)} />
+          </GridItem.Root>
+
+          <GridItem.Root>
+            <GridItem.Header>
+              <GridItem.Title>random facts</GridItem.Title>
+            </GridItem.Header>
+
+            <RandomFacts exercises={mockExercises} />
+          </GridItem.Root>
+        </GridLayout>
+      </TimelineContainer>
+      <FeaturesGridBackground />
+    </FeatureContainerTemp>
   );
 };
 
@@ -241,6 +308,15 @@ const FeatureContainer = (props: ComponentProps<"section">) => {
   );
 };
 
+const FeatureContainerTemp = (props: ComponentPropsWithoutRef<"section">) => {
+  return (
+    <section
+      className="relative flex w-full flex-col items-center gap-10 p-5 text-center"
+      {...props}
+    />
+  );
+};
+
 const FeatureImageContainer = (props: ComponentProps<"div">) => {
   return (
     <div
@@ -303,7 +379,7 @@ const HeroTitle = (props: ComponentProps<"h1">) => {
   return (
     <h1
       {...props}
-      className={twMerge(
+      className={cn(
         "max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl",
         props.className,
       )}
