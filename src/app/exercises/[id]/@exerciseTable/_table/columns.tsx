@@ -79,7 +79,7 @@ const WeightLiftedHeader = ({
   );
 };
 
-export const columns: ColumnDef<ExerciseData>[] = [
+export const exerciseTableColumns: ColumnDef<ExerciseData>[] = [
   {
     accessorKey: "oneRepMax",
     header: EstimatedPrHeader,
@@ -189,3 +189,28 @@ export const columns: ColumnDef<ExerciseData>[] = [
     },
   },
 ];
+
+export const exerciseTableColumnsWithoutActions = exerciseTableColumns.map(
+  (c) =>
+    c.id === "actions"
+      ? {
+          id: "actions",
+          cell: () => {
+            return (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="capitalize">view more</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          },
+        }
+      : c,
+);

@@ -3,7 +3,6 @@ import { HeroBackground } from "@/components/ui/heroBackground";
 import { redirectIfSignedIn } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { twMerge } from "tailwind-merge";
@@ -23,6 +22,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseTable/_table/columns";
+import { ExerciseGraphCard } from "./exercises/[id]/@exerciseGraph/exerciseGraphCard";
+import { ExerciseTableCard } from "./exercises/[id]/@exerciseTable/exerciseTableCard";
 
 const HomePage = async () => {
   await redirectIfSignedIn();
@@ -96,8 +98,8 @@ const Separator = () => {
 
 const FeatureOne = () => {
   return (
-    <FeatureContainerTemp>
-      <HeroTitle className="max-w-full">
+    <FeatureContainer>
+      <HeroTitle>
         Unleash <GradientText> Your Progress!</GradientText>
       </HeroTitle>
 
@@ -107,7 +109,7 @@ const FeatureOne = () => {
         breakdown of your achievements each <StrongText>month</StrongText>.
       </Text>
 
-      <TimelineContainer className=" w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+      <TimelineContainer className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
         <Badge variant="accent" className="mr-auto">
           <time dateTime="all">
             {new Date().toLocaleDateString(undefined, {
@@ -199,14 +201,14 @@ const FeatureOne = () => {
         </GridLayout>
       </TimelineContainer>
       <FeaturesGridBackground />
-    </FeatureContainerTemp>
+    </FeatureContainer>
   );
 };
 
 const FeatureTwo = () => {
   return (
     <FeatureContainer>
-      <HeroTitle className="self-end">
+      <HeroTitle>
         Track <GradientText>Every Move!</GradientText>
       </HeroTitle>
 
@@ -216,15 +218,22 @@ const FeatureTwo = () => {
         journey like never before.
       </Text>
 
-      <FeatureImageContainer className="xl:col-start-1">
-        <Image
-          alt="exercise page of gym graphs"
-          className="drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.5)]  dark:drop-shadow-[0_0_70px_hsl(var(--brand-color-two)/0.3)] dark:[content:url('/exercise-page-dark.png')]"
-          src="/exercise-page-light.png"
-          width={1000}
-          height={1000}
+      <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+        <ExerciseGraphCard
+          exercise={{
+            ...mockExercises[0]!,
+            filteredData: [...mockExercises[0]!.data],
+          }}
         />
-      </FeatureImageContainer>
+      </div>
+
+      <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+        <ExerciseTableCard
+          columns={exerciseTableColumnsWithoutActions}
+          data={mockExercises[0]!.data}
+        />
+      </div>
+      <FeaturesGridBackground />
     </FeatureContainer>
   );
 };
@@ -318,7 +327,7 @@ const HeroContent = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 text-center sm:max-w-3xl"
+      className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-14 p-5 sm:max-w-3xl"
     />
   );
 };
@@ -332,32 +341,11 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const FeatureContainer = (props: ComponentProps<"section">) => {
+const FeatureContainer = (props: ComponentPropsWithoutRef<"section">) => {
   return (
     <section
+      className="relative flex flex-col items-center gap-14 p-5"
       {...props}
-      className="mx-auto grid grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
-    />
-  );
-};
-
-const FeatureContainerTemp = (props: ComponentPropsWithoutRef<"section">) => {
-  return (
-    <section
-      className="relative flex w-full flex-col items-center gap-10 p-5 text-center"
-      {...props}
-    />
-  );
-};
-
-const FeatureImageContainer = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className={twMerge(
-        "relative max-w-3xl xl:row-span-2 xl:row-start-1",
-        props.className,
-      )}
     />
   );
 };
@@ -366,7 +354,7 @@ const FeaturesGridContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="relative mx-auto flex max-w-7xl flex-col items-center space-y-10 p-5"
+      className="relative mx-auto flex max-w-7xl flex-col items-center gap-14 p-5"
     />
   );
 };
@@ -405,7 +393,7 @@ const CardText = (props: ComponentProps<"p">) => {
 };
 
 const Text = (props: ComponentProps<"p">) => {
-  return <p className="max-w-xl sm:text-2xl" {...props} />;
+  return <p className="max-w-xl text-center sm:text-2xl" {...props} />;
 };
 
 const HeroTitle = (props: ComponentProps<"h1">) => {
@@ -413,7 +401,7 @@ const HeroTitle = (props: ComponentProps<"h1">) => {
     <h1
       {...props}
       className={cn(
-        "max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl",
+        "text-center text-4xl font-bold first-letter:capitalize sm:text-7xl",
         props.className,
       )}
     />

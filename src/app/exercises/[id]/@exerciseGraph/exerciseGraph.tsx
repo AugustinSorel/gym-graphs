@@ -317,6 +317,7 @@ const BrushGraph = ({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const disableInteractivity = pathname === "/";
 
   const xBrushMax = Math.max(
     dimensions.width - brushMargin.left - brushMargin.right,
@@ -379,7 +380,7 @@ const BrushGraph = ({
 
   //FIXME:Mobile responsive
   const onBrushChange = (domain: Bounds | null) => {
-    if (!domain) {
+    if (!domain || disableInteractivity) {
       return;
     }
 
@@ -428,7 +429,13 @@ const BrushGraph = ({
         brushDirection="horizontal"
         initialBrushPosition={initialBrushPosition}
         onChange={onBrushChange}
-        onClick={() => router.push(pathname)}
+        onClick={() => {
+          if (disableInteractivity) {
+            return;
+          }
+
+          router.push(pathname);
+        }}
         selectedBoxStyle={{
           fill: "url(#lines)",
           stroke: "gray",

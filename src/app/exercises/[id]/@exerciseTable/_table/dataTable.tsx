@@ -27,7 +27,10 @@ interface DataTableProps<TValue> {
   data: ExerciseData[];
 }
 
-export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
+export function ExerciseTable<TValue>({
+  columns,
+  data,
+}: DataTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const weightUnit = useWeightUnit();
 
@@ -37,7 +40,7 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
         ...point,
         weightUnit: convertWeightToLbs(point.weightLifted, weightUnit.get),
       })),
-    [data, weightUnit.get]
+    [data, weightUnit.get],
   );
 
   const table = useReactTable({
@@ -66,7 +69,7 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -85,7 +88,7 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

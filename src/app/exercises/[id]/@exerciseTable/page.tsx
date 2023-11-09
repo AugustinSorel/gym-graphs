@@ -1,11 +1,10 @@
 import { db } from "@/db";
-import { columns } from "./_table/columns";
-import { DataTable } from "./_table/dataTable";
 import { redirect } from "next/navigation";
-import type { ComponentProps } from "react";
 import type { Exercise } from "@/db/types";
 import { whereDoneAtIsBetweenDates } from "../getDateLimit";
 import type { SafeExercisePageProps } from "../page";
+import { ExerciseTableCard } from "./exerciseTableCard";
+import { exerciseTableColumns } from "./_table/columns";
 
 const Page = async (props: SafeExercisePageProps) => {
   const exercise = await getExercise(props.params.id, props.searchParams);
@@ -15,9 +14,7 @@ const Page = async (props: SafeExercisePageProps) => {
   }
 
   return (
-    <Card>
-      <DataTable columns={columns} data={exercise.data} />
-    </Card>
+    <ExerciseTableCard columns={exerciseTableColumns} data={exercise.data} />
   );
 };
 
@@ -25,7 +22,7 @@ export default Page;
 
 const getExercise = (
   exerciseId: Exercise["id"],
-  datesLimit: SafeExercisePageProps["searchParams"]
+  datesLimit: SafeExercisePageProps["searchParams"],
 ) => {
   return db.query.exercises.findFirst({
     with: {
@@ -36,13 +33,4 @@ const getExercise = (
     },
     where: (exercise, { eq }) => eq(exercise.id, exerciseId),
   });
-};
-
-const Card = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className="overflow-hidden border-y border-border bg-primary backdrop-blur-md sm:rounded-md sm:border"
-    />
-  );
 };
