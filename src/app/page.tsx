@@ -341,18 +341,6 @@ const FeatureContainer = (props: ComponentPropsWithoutRef<"section">) => {
   );
 };
 
-const FeatureImageContainer = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className={twMerge(
-        "relative max-w-3xl xl:row-span-2 xl:row-start-1",
-        props.className,
-      )}
-    />
-  );
-};
-
 const FeaturesGridContainer = (props: ComponentProps<"div">) => {
   return (
     <div
