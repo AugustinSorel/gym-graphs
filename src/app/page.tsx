@@ -404,7 +404,7 @@ const HeroTitle = (props: ComponentProps<"h1">) => {
     <h1
       {...props}
       className={cn(
-        "max-w-3xl text-4xl font-bold first-letter:capitalize sm:text-7xl",
+        "text-4xl font-bold first-letter:capitalize sm:text-7xl",
         props.className,
       )}
     />
