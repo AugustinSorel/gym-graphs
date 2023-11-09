@@ -206,7 +206,7 @@ const FeatureOne = () => {
 const FeatureTwo = () => {
   return (
     <FeatureContainer>
-      <HeroTitle className="self-end">
+      <HeroTitle>
         Track <GradientText>Every Move!</GradientText>
       </HeroTitle>
 
