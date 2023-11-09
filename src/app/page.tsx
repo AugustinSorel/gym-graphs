@@ -96,7 +96,7 @@ const Separator = () => {
 
 const FeatureOne = () => {
   return (
-    <FeatureContainerTemp>
+    <FeatureContainer>
       <HeroTitle>
         Unleash <GradientText> Your Progress!</GradientText>
       </HeroTitle>
@@ -199,7 +199,7 @@ const FeatureOne = () => {
         </GridLayout>
       </TimelineContainer>
       <FeaturesGridBackground />
-    </FeatureContainerTemp>
+    </FeatureContainer>
   );
 };
 
@@ -332,16 +332,7 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const FeatureContainer = (props: ComponentProps<"section">) => {
-  return (
-    <section
-      {...props}
-      className="mx-auto grid grid-cols-1 justify-items-center gap-10 p-5 text-center xl:grid-cols-2"
-    />
-  );
-};
-
-const FeatureContainerTemp = (props: ComponentPropsWithoutRef<"section">) => {
+const FeatureContainer = (props: ComponentPropsWithoutRef<"section">) => {
   return (
     <section
       className="relative flex w-full flex-col items-center gap-10 p-5 text-center"
