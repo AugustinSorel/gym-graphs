@@ -17,6 +17,12 @@ import { RandomFacts } from "./dashboard/_graphs/randomFacts";
 import { HeatmapGraph } from "./dashboard/_graphs/heatmapGraph";
 import { prepareHeatmapData } from "./dashboard/_graphs/heatmapUtils";
 import { mockExercises } from "@/lib/mock-data";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const HomePage = async () => {
   await redirectIfSignedIn();
@@ -118,15 +124,42 @@ const FeatureOne = () => {
 
                 <GridItem.ActionContainer>
                   <GridItem.ActionButton aria-label="view exercise tags">
-                    <Tag className="h-4 w-4" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Tag className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">tags</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </GridItem.ActionButton>
 
                   <GridItem.ActionButton aria-label="view more">
-                    <MoreHorizontal className="h-4 w-4" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">view more</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </GridItem.ActionButton>
 
                   <GridItem.ActionButton aria-label="view more">
-                    <GripVertical className="h-4 w-4" />
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <GripVertical className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">drag exercise</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </GridItem.ActionButton>
                 </GridItem.ActionContainer>
               </GridItem.Header>
