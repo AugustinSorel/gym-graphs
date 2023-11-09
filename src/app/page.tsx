@@ -97,7 +97,7 @@ const Separator = () => {
 const FeatureOne = () => {
   return (
     <FeatureContainerTemp>
-      <HeroTitle className="max-w-full">
+      <HeroTitle>
         Unleash <GradientText> Your Progress!</GradientText>
       </HeroTitle>
 
@@ -206,7 +206,7 @@ const FeatureOne = () => {
 const FeatureTwo = () => {
   return (
     <FeatureContainer>
-      <HeroTitle className="self-end">
+      <HeroTitle>
         Track <GradientText>Every Move!</GradientText>
       </HeroTitle>
 
