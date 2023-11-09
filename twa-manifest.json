@@ -35,7 +35,11 @@
   "fullScopeUrl": "https://gym-graphs.vercel.app/",
   "minSdkVersion": 19,
   "orientation": "default",
-  "fingerprints": [],
+  "fingerprints": [
+    {
+      "value": "1D:3B:E4:B6:A9:DA:6D:93:38:CA:32:CB:0D:8A:65:D7:C8:44:8C:15:CD:0C:BB:18:79:90:99:8B:E7:16:3F:13"
+    }
+  ],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "appVersion": "1"
