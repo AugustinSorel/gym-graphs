@@ -414,6 +414,7 @@ const CurrentExeciseLink = ({
     return null;
   }
 
+  //FIXME:use drop down over popover
   return (
     <>
       <Separator />
