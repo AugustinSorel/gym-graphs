@@ -1,11 +1,9 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type Props = {
-  children: ReactNode;
   newExerciseDataForm: ReactNode;
-  exerciseGraph: ReactNode;
-  exerciseTable: ReactNode;
+  exerciseDetails: ReactNode;
 };
 
 //FIXME: group the exerciseGraph and exercise table together
@@ -14,12 +12,7 @@ const Layout = (props: Props) => {
     <Main>
       <FormContainer>{props.newExerciseDataForm}</FormContainer>
 
-      <ContentContainer>
-        {props.exerciseGraph}
-        {props.exerciseTable}
-      </ContentContainer>
-
-      {props.children}
+      {props.exerciseDetails}
 
       <BackgroundContainer>
         <DashboardBackground />
@@ -30,7 +23,7 @@ const Layout = (props: Props) => {
 
 export default Layout;
 
-const Main = (props: ComponentProps<"main">) => {
+const Main = (props: ComponentPropsWithoutRef<"main">) => {
   return (
     <main
       {...props}
@@ -39,7 +32,7 @@ const Main = (props: ComponentProps<"main">) => {
   );
 };
 
-const BackgroundContainer = (props: ComponentProps<"div">) => {
+const BackgroundContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return (
     <div
       {...props}
@@ -48,15 +41,6 @@ const BackgroundContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const FormContainer = (props: ComponentProps<"div">) => {
+const FormContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return <div {...props} className="p-10" />;
-};
-
-const ContentContainer = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      {...props}
-      className="mx-auto flex max-w-[calc(var(--exercise-card-height)*4+20px*3)] flex-col gap-10  pb-5 pt-0 sm:px-5"
-    />
-  );
 };
