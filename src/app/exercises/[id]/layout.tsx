@@ -6,7 +6,6 @@ type Props = {
   exerciseDetails: ReactNode;
 };
 
-//FIXME: group the exerciseGraph and exercise table together
 const Layout = (props: Props) => {
   return (
     <Main>
