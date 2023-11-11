@@ -22,9 +22,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseTable/_table/columns";
-import { ExerciseGraphCard } from "./exercises/[id]/@exerciseGraph/exerciseGraphCard";
-import { ExerciseTableCard } from "./exercises/[id]/@exerciseTable/exerciseTableCard";
+import { ExerciseDetailsProvider } from "./exercises/[id]/@exerciseDetails/exerciseDetailsContext";
+import { ExerciseGraphCard } from "./exercises/[id]/@exerciseDetails/_graph/exerciseGraphCard";
+import { ExerciseTableCard } from "./exercises/[id]/@exerciseDetails/_table/exerciseTableCard";
+import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseDetails/_table/_table/columns";
 
 const HomePage = async () => {
   await redirectIfSignedIn();
@@ -218,21 +219,13 @@ const FeatureTwo = () => {
         journey like never before.
       </Text>
 
-      <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
-        <ExerciseGraphCard
-          exercise={{
-            ...mockExercises[0]!,
-            filteredData: [...mockExercises[0]!.data],
-          }}
-        />
+      <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] space-y-10">
+        <ExerciseDetailsProvider exercise={mockExercises[0]!}>
+          <ExerciseGraphCard />
+          <ExerciseTableCard columns={exerciseTableColumnsWithoutActions} />
+        </ExerciseDetailsProvider>
       </div>
 
-      <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
-        <ExerciseTableCard
-          columns={exerciseTableColumnsWithoutActions}
-          data={mockExercises[0]!.data}
-        />
-      </div>
       <FeaturesGridBackground />
     </FeatureContainer>
   );
