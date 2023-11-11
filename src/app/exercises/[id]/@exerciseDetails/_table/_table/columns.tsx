@@ -200,7 +200,11 @@ export const exerciseTableColumnsWithoutActions = exerciseTableColumns.map(
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-8 p-0"
+                      aria-label="placeholder button"
+                    >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
