@@ -17,12 +17,11 @@ import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import { GridRows } from "@visx/grid";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
-import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import type { ExerciseData, ExerciseWithData } from "@/db/types";
-import { calculateOneRepMax, convertWeightToLbs } from "@/lib/math";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useWeightUnit } from "@/context/weightUnit";
+import { formatDate } from "@/lib/date";
+import type { ExerciseData } from "@/db/types";
+import { calculateOneRepMax } from "@/lib/math";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
+import { useExerciseDetails } from "../exerciseDetailsContext";
 
 type GraphPoint = Pick<
   ExerciseData,
@@ -37,26 +36,9 @@ const margin = { top: 20, left: 40, bottom: 20, right: 20 };
 const brushMargin = { top: 10, bottom: 0, left: 10, right: 10 };
 const chartSeparation = 30;
 
-type Props = {
-  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
-};
-
-export const ExerciseGraph = ({ exercise: exerciseNonConverted }: Props) => {
-  const weightUnit = useWeightUnit();
+export const ExerciseGraph = () => {
   const dimensions = useDimensions();
   const tooltip = useTooltip<GraphPoint>();
-
-  const exercise = {
-    ...exerciseNonConverted,
-    data: exerciseNonConverted.data.map((y) => ({
-      ...y,
-      weightLifted: convertWeightToLbs(y.weightLifted, weightUnit.get),
-    })),
-    filteredData: exerciseNonConverted.filteredData.map((y) => ({
-      ...y,
-      weightLifted: convertWeightToLbs(y.weightLifted, weightUnit.get),
-    })),
-  };
 
   return (
     <>
@@ -67,13 +49,9 @@ export const ExerciseGraph = ({ exercise: exerciseNonConverted }: Props) => {
         ref={dimensions.ref}
         className="select-none"
       >
-        <MainGraph
-          dimensions={dimensions}
-          tooltip={tooltip}
-          exercise={exercise}
-        />
+        <MainGraph dimensions={dimensions} tooltip={tooltip} />
 
-        <BrushGraph dimensions={dimensions} exercise={exercise} />
+        <BrushGraph dimensions={dimensions} />
       </svg>
 
       <Tooltip tooltip={tooltip} />
@@ -102,14 +80,13 @@ const useDimensions = () => {
 const MainGraph = ({
   dimensions,
   tooltip,
-  exercise,
 }: {
   dimensions: Dimensions;
   tooltip: UseTooltipParams<GraphPoint>;
-  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
 }) => {
   const xMax = Math.max(dimensions.width - margin.left - margin.right, 0);
   const yMax = Math.max(dimensions.topChartHeight, 0);
+  const { exercise } = useExerciseDetails();
 
   const dateScale = useMemo(
     () =>
@@ -306,18 +283,9 @@ const MainGraph = ({
   );
 };
 
-const BrushGraph = ({
-  dimensions,
-  exercise,
-}: {
-  dimensions: Dimensions;
-  exercise: ExerciseWithData & { filteredData: ExerciseData[] };
-}) => {
+const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
   const brushRef = useRef<BaseBrush | null>(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const disableInteractivity = pathname === "/";
+  const { exercise, filter } = useExerciseDetails();
 
   const xBrushMax = Math.max(
     dimensions.width - brushMargin.left - brushMargin.right,
@@ -380,15 +348,11 @@ const BrushGraph = ({
 
   //FIXME:Mobile responsive
   const onBrushChange = (domain: Bounds | null) => {
-    if (!domain || disableInteractivity) {
+    if (!domain) {
       return;
     }
 
-    const params = new URLSearchParams(Array.from(searchParams.entries()));
-    params.set("from", dateAsYearMonthDayFormat(new Date(domain.x0)));
-    params.set("to", dateAsYearMonthDayFormat(new Date(domain.x1)));
-
-    router.push(`${pathname}?${params.toString()}`);
+    filter({ from: new Date(domain.x0), to: new Date(domain.x1) });
   };
 
   return (
@@ -429,13 +393,7 @@ const BrushGraph = ({
         brushDirection="horizontal"
         initialBrushPosition={initialBrushPosition}
         onChange={onBrushChange}
-        onClick={() => {
-          if (disableInteractivity) {
-            return;
-          }
-
-          router.push(pathname);
-        }}
+        onClick={() => filter({ from: null, to: null })}
         selectedBoxStyle={{
           fill: "url(#lines)",
           stroke: "gray",

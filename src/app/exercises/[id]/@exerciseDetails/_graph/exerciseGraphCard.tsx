@@ -1,14 +1,12 @@
-import type { ExerciseData, ExerciseWithData } from "@/db/types";
+"use client";
+
 import type { ComponentPropsWithoutRef } from "react";
 import { ExerciseGraph } from "./exerciseGraph";
+import { useExerciseDetails } from "../exerciseDetailsContext";
 
-type Props = {
-  exercise: ExerciseWithData & {
-    filteredData: ExerciseData[];
-  };
-};
+export const ExerciseGraphCard = () => {
+  const { exercise } = useExerciseDetails();
 
-export const ExerciseGraphCard = ({ exercise }: Props) => {
   return (
     <Card>
       <CardHeader>
@@ -16,7 +14,7 @@ export const ExerciseGraphCard = ({ exercise }: Props) => {
       </CardHeader>
 
       <CardBody>
-        <ExerciseGraph exercise={exercise} />
+        <ExerciseGraph />
       </CardBody>
     </Card>
   );

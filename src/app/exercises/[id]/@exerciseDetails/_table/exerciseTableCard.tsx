@@ -3,10 +3,10 @@ import { ExerciseTable } from "./_table/dataTable";
 
 type Props = ComponentProps<typeof ExerciseTable>;
 
-export const ExerciseTableCard = ({ data, columns }: Props) => {
+export const ExerciseTableCard = ({ columns }: Props) => {
   return (
     <Card>
-      <ExerciseTable columns={columns} data={data} />
+      <ExerciseTable columns={columns} />
     </Card>
   );
 };

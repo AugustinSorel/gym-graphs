@@ -1,5 +1,4 @@
 import { useWeightUnit } from "@/context/weightUnit";
-import { convertWeightToLbs } from "@/lib/math";
 
 export const useDisplayWeight = () => {
   const weightUnit = useWeightUnit();
@@ -8,7 +7,7 @@ export const useDisplayWeight = () => {
     return new Intl.NumberFormat(undefined, {
       style: "unit",
       unit: weightUnit.get === "kg" ? "kilogram" : "pound",
-    }).format(convertWeightToLbs(weight, weightUnit.get));
+    }).format(weight);
   };
 
   return { show };
