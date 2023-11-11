@@ -3,7 +3,8 @@
 import { useWeightUnit } from "@/context/weightUnit";
 import type { ExerciseData, ExerciseWithData } from "@/db/types";
 import { convertWeightToLbs } from "@/lib/math";
-import { createContext, useContext, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
 
 type FilterDates = { from: Date | null; to: Date | null };
@@ -24,47 +25,21 @@ export const ExerciseDetailsProvider = ({
   children,
   exercise,
 }: ExerciseDetailsProviderProps) => {
-  const weightUnit = useWeightUnit();
+  const filterExercise = useFilterExercise();
+  const convertExerciseData = useConvertExerciseData();
 
-  const [filterDates, setFilterDates] = useState<FilterDates>({
-    from: null,
-    to: null,
-  });
-
-  const exerciseConverted = {
-    ...exercise,
-    data: exercise.data.map((y) => ({
-      ...y,
-      weightLifted: convertWeightToLbs(y.weightLifted, weightUnit.get),
-    })),
-  };
-
-  const exerciseWithFilteredData: ExerciseWithData & {
-    filteredData: ExerciseData[];
-  } = {
-    ...exerciseConverted,
-    filteredData: [...exerciseConverted.data].filter((exData) => {
-      const defaultValues = {
-        from: new Date(exercise.data.at(0)?.doneAt ?? ""),
-        to: new Date(exercise.data.at(-1)?.doneAt ?? ""),
-      };
-
-      return (
-        (filterDates.from ?? defaultValues.from).getTime() <=
-          new Date(exData.doneAt).getTime() &&
-        (filterDates.to ?? defaultValues.to).getTime() >=
-          new Date(exData.doneAt).getTime()
-      );
-    }),
-  };
-
-  const filter = ({ from, to }: FilterDates) => {
-    setFilterDates({ from, to });
-  };
+  const convertedData = exercise.data.map(convertExerciseData.convert);
 
   return (
     <ExerciseDetailsContext.Provider
-      value={{ exercise: exerciseWithFilteredData, filter }}
+      value={{
+        exercise: {
+          ...exercise,
+          data: convertedData,
+          filteredData: convertedData.filter(filterExercise.filter),
+        },
+        filter: filterExercise.setFilterDates,
+      }}
     >
       {children}
     </ExerciseDetailsContext.Provider>
@@ -81,4 +56,66 @@ export const useExerciseDetails = () => {
   }
 
   return ctx;
+};
+
+const useConvertExerciseData = () => {
+  const weightUnit = useWeightUnit();
+
+  const convert = (exerciseData: ExerciseData) => {
+    return {
+      ...exerciseData,
+      weightLifted: convertWeightToLbs(
+        exerciseData.weightLifted,
+        weightUnit.get,
+      ),
+    };
+  };
+
+  return { convert };
+};
+
+const useFilterExercise = () => {
+  const [filterDates, setFilterDates] = useState<FilterDates>({
+    from: null,
+    to: null,
+  });
+
+  const searchParams = useSearchParams();
+
+  useLayoutEffect(() => {
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+
+    const dates: FilterDates = {
+      from: from ? new Date(from) : null,
+      to: to ? new Date(to) : null,
+    };
+
+    setFilterDates(dates);
+  }, [searchParams]);
+
+  const filter = (exerciseData: ExerciseData) => {
+    if (filterDates.from && !filterDates.to) {
+      return (
+        filterDates.from.getTime() <= new Date(exerciseData.doneAt).getTime()
+      );
+    }
+
+    if (!filterDates.from && filterDates.to) {
+      return (
+        filterDates.to.getTime() >= new Date(exerciseData.doneAt).getTime()
+      );
+    }
+
+    if (filterDates.from && filterDates.to) {
+      return (
+        filterDates.from.getTime() <= new Date(exerciseData.doneAt).getTime() &&
+        filterDates.to.getTime() >= new Date(exerciseData.doneAt).getTime()
+      );
+    }
+
+    return true;
+  };
+
+  return { filter, setFilterDates };
 };
