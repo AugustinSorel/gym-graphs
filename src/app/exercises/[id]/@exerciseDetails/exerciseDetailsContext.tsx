@@ -3,7 +3,8 @@
 import { useWeightUnit } from "@/context/weightUnit";
 import type { ExerciseData, ExerciseWithData } from "@/db/types";
 import { convertWeightToLbs } from "@/lib/math";
-import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
+import type { PropsWithChildren } from "react";
 
 type FilterDates = { from: Date | null; to: Date | null };
 

@@ -1,8 +1,8 @@
 import { authOptions } from "@/lib/auth";
-import { User, getServerSession } from "next-auth";
+import { type User, getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { exerciseId as exerciseIdSchema } from "@/schemas/exerciseSchemas";
-import { Exercise } from "@/db/types";
+import type { Exercise } from "@/db/types";
 import { db } from "@/db";
 import { ExerciseDetailsProvider } from "./exerciseDetailsContext";
 import { ExerciseGraphCard } from "./_graph/exerciseGraphCard";

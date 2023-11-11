@@ -17,10 +17,9 @@ import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
 import { GridRows } from "@visx/grid";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
-import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
+import { formatDate } from "@/lib/date";
 import type { ExerciseData } from "@/db/types";
 import { calculateOneRepMax } from "@/lib/math";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import { useExerciseDetails } from "../exerciseDetailsContext";
 
@@ -286,8 +285,6 @@ const MainGraph = ({
 
 const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
   const brushRef = useRef<BaseBrush | null>(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const { exercise, filter } = useExerciseDetails();
 
   const xBrushMax = Math.max(
@@ -355,13 +352,7 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
       return;
     }
 
-    const params = new URLSearchParams(Array.from(searchParams.entries()));
-    params.set("from", dateAsYearMonthDayFormat(new Date(domain.x0)));
-    params.set("to", dateAsYearMonthDayFormat(new Date(domain.x1)));
-
     filter({ from: new Date(domain.x0), to: new Date(domain.x1) });
-
-    // router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
