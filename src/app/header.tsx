@@ -398,7 +398,6 @@ const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {
   const [exercises, setExercises] = useState<Exercise[] | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
 
   const fetch = useCallback(async () => {
     const res = await getAllExercises(null);
@@ -414,7 +413,6 @@ const CurrentExeciseLink = ({
     return null;
   }
 
-  //FIXME:use drop down over popover
   return (
     <>
       <Separator />
@@ -423,11 +421,11 @@ const CurrentExeciseLink = ({
         {exercises.find((exercise) => exercise.id === selectedExerciseId)?.name}
       </span>
 
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenu>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <PopoverTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -437,26 +435,24 @@ const CurrentExeciseLink = ({
                 >
                   <ChevronsUpDown className="h-4 w-4 stroke-muted-foreground" />
                 </Button>
-              </PopoverTrigger>
+              </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent>
               <p className="capitalize">jump to</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <PopoverContent className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1">
-          <h2 className="p-2 text-xs font-semibold capitalize text-muted-foreground">
+
+        <DropdownMenuContent className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1">
+          <DropdownMenuLabel className="capitalize">
             exercises
-          </h2>
+          </DropdownMenuLabel>
 
           {exercises.map((exercise) => (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
+            <DropdownMenuItem
               key={exercise.id}
+              className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
               asChild
-              onClick={() => setIsOpen(false)}
             >
               <Link href={`/exercises/${exercise.id}`}>
                 <span className="truncate text-sm">{exercise.name}</span>
@@ -464,10 +460,10 @@ const CurrentExeciseLink = ({
                   <Check className="h-4 w-4" />
                 )}
               </Link>
-            </Button>
+            </DropdownMenuItem>
           ))}
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 };
