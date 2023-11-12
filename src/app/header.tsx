@@ -59,11 +59,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { deleteUserAccountAction } from "@/serverActions/user";
 import { getAllExercises } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
