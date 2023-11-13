@@ -7,6 +7,7 @@
   "name": "Gym Graphs",
   "short_name": "Gym Graphs",
   "description": "Gym application to track your progress",
+  "iarc_rating_id": "629cbe1d-e639-4443-b2a2-33900580e268",
   "id": "/",
   "orientation": "any",
   "categories": ["sports", "fitness"],
