@@ -34,16 +34,27 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
+
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Use prepared auth state.
+        storageState: "e2e/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
 
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        // Use prepared auth state.
+        storageState: "e2e/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
-
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
