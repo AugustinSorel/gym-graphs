@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,11 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         </Providers>
         <Toaster />
         <Analytics />
+        <Script
+          defer
+          data-domain="gym-graphs.vercel.app"
+          src="https://analytics.augustin-sorel.com/js/script.js"
+        />
       </body>
     </html>
   );
