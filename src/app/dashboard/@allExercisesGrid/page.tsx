@@ -26,12 +26,10 @@ import {
 } from "@/components/ui/tooltip";
 import { UpdateExerciseNameDialog } from "../_modals/updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "../_modals/deleteExerciseAlertDialog";
-import { deleteExerciseAction } from "@/serverActions/exercises";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
 import { RandomFacts } from "../_graphs/randomFacts";
-//TODO: optimistic update when adding / updating / removing exercise
 
 const AllExercisesGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
@@ -188,10 +186,7 @@ const ExerciseDropDown = ({
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <UpdateExerciseNameDialog exercise={exercise} />
-          <DeleteExerciseAlertDialog
-            onAction={deleteExerciseAction}
-            exercise={exercise}
-          />
+          <DeleteExerciseAlertDialog exercise={exercise} />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

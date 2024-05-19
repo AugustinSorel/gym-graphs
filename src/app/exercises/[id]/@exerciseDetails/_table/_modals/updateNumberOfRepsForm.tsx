@@ -17,10 +17,8 @@ import { useState } from "react";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { updateNumberOfRepsSchema } from "@/schemas/exerciseSchemas";
-import { updateNumberOfRepsAction } from "@/serverActions/exerciseData";
 import type { ExerciseData } from "@/db/types";
-import { getErrorMessage } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 type Props = {
   exerciseData: ExerciseData;
@@ -33,36 +31,27 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
   );
   const { toast } = useToast();
 
-  const actionHandler = async (e: FormData) => {
-    try {
-      const data = updateNumberOfRepsSchema.parse({
-        numberOfReps: +updatedNumberOfReps,
-        exerciseDataId: exerciseData.id,
-      });
-
-      const res = await updateNumberOfRepsAction(data);
-
-      if (res.serverError) {
-        throw new Error(res.serverError);
-      }
-
+  //TODO: performance
+  const updateNumberOfReps = api.exerciseData.updateNumberOfReps.useMutation({
+    onSuccess: () => {
       setIsDialogOpen(() => false);
-    } catch (error) {
-      return toast({
+    },
+    onError: (error, variables) => {
+      toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: getErrorMessage(error),
+        description: error.message,
         action: (
           <ToastAction
             altText="Try again"
-            onClick={() => void actionHandler(e)}
+            onClick={() => updateNumberOfReps.mutate(variables)}
           >
             Try again
           </ToastAction>
         ),
       });
-    }
-  };
+    },
+  });
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -81,7 +70,13 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
         </DialogHeader>
         <form
           className="flex flex-col gap-2"
-          action={(e) => void actionHandler(e)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            updateNumberOfReps.mutate({
+              id: exerciseData.id,
+              numberOfRepetitions: +updatedNumberOfReps,
+            });
+          }}
         >
           <Label htmlFor="name" className="capitalize">
             number of reps

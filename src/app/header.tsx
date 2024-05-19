@@ -29,12 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  type PropsWithChildren,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { type PropsWithChildren, useState, Suspense } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -59,7 +54,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
-import { getAllExercises } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
 import { getErrorMessage } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -347,8 +341,13 @@ const Separator = () => {
   );
 };
 
+//TODO:loader
 const DashboardLink = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <>loading...</>;
+  }
 
   if (!session) {
     return null;
@@ -383,17 +382,7 @@ type CurrentExerciseLinkProps = {
 const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {
-  const [exercises, setExercises] = useState<Exercise[] | null>(null);
-
-  const fetch = useCallback(async () => {
-    const res = await getAllExercises(null);
-
-    if (res.data) {
-      setExercises(res.data);
-    }
-  }, []);
-
-  useEffect(() => void fetch(), [fetch]);
+  const [exercises] = api.exercise.all.useSuspenseQuery();
 
   if (!exercises) {
     return null;
@@ -454,6 +443,7 @@ const CurrentExeciseLink = ({
   );
 };
 
+//TODO:loader
 export const Header = () => {
   const pathname = usePathname().split("/");
 
@@ -471,7 +461,9 @@ export const Header = () => {
         {showDashboardPath && <DashboardLink />}
 
         {showExecisesPath && exerciseId && (
-          <CurrentExeciseLink selectedExerciseId={exerciseId} />
+          <Suspense fallback={<>loading...</>}>
+            <CurrentExeciseLink selectedExerciseId={exerciseId} />
+          </Suspense>
         )}
       </nav>
       <DropDownMenu />

@@ -1,5 +1,5 @@
-import { createCaller } from "@/server/root";
-import { createTRPCContext } from "@/server/trpc";
+import { createCaller } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 import { headers } from "next/headers";
 import { cache } from "react";
 

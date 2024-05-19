@@ -17,45 +17,38 @@ import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { deleteExerciseAction } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
-import { getErrorMessage } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 type Props = {
-  onAction: typeof deleteExerciseAction;
   exercise: Exercise;
 };
 
-export const DeleteExerciseAlertDialog = ({ onAction, exercise }: Props) => {
+export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const [isDeleteExerciseLoading, setIsDeleteExerciseLoading] = useState(false);
   const { toast } = useToast();
 
-  const deleteHandler = async () => {
-    try {
-      setIsDeleteExerciseLoading(() => true);
-      const res = await onAction({ exerciseId: exercise.id });
-
-      if (res.serverError) {
-        throw new Error(res.serverError);
-      }
-
-      setIsAlertDialogOpen(() => false);
-    } catch (error) {
-      return toast({
+  //TODO:performance
+  const deleteExercise = api.exercise.delete.useMutation({
+    onSuccess: () => {
+      setIsAlertDialogOpen(false);
+    },
+    onError: (error, variables) => {
+      toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: getErrorMessage(error),
+        description: error.message,
         action: (
-          <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
+          <ToastAction
+            altText="Try again"
+            onClick={() => deleteExercise.mutate(variables)}
+          >
             Try again
           </ToastAction>
         ),
       });
-    } finally {
-      setIsDeleteExerciseLoading(() => false);
-    }
-  };
+    },
+  });
 
   return (
     <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
@@ -80,13 +73,14 @@ export const DeleteExerciseAlertDialog = ({ onAction, exercise }: Props) => {
         <AlertDialogFooter>
           <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
           <AlertDialogAction
+            disabled={deleteExercise.isPending}
             className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
             onClick={(e) => {
               e.preventDefault();
-              void deleteHandler();
+              deleteExercise.mutate({ id: exercise.id });
             }}
           >
-            {isDeleteExerciseLoading && <Loader />}
+            {deleteExercise.isPending && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>

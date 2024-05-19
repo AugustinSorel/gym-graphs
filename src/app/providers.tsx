@@ -5,6 +5,7 @@ import type { PropsWithChildren } from "react";
 import { SessionProvider } from "next-auth/react";
 import { WeightUnitProvider } from "@/context/weightUnit";
 import { TRPCReactProvider } from "@/trpc/react";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const Providers = ({ children }: PropsWithChildren) => {
   return (
@@ -16,6 +17,7 @@ export const Providers = ({ children }: PropsWithChildren) => {
           </ThemeProvider>
         </SessionProvider>
       </WeightUnitProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </TRPCReactProvider>
   );
 };

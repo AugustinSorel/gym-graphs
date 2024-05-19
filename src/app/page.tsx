@@ -457,3 +457,8 @@ const FeaturesGridBackground = () => {
     </svg>
   );
 };
+
+//TODO: call trpc server on rsc
+//TODO: error msg
+//TODO: react hook form
+//TODO: update nextjs

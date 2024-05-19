@@ -16,49 +16,38 @@ import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import { deleteDataAction } from "@/serverActions/exerciseData";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
-import { deleteExerciseDataSchema } from "@/schemas/exerciseSchemas";
-import { getErrorMessage } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 type Props = {
-  exerciseDataId: ExerciseData["id"];
+  exerciseData: ExerciseData;
 };
 
-export const DeleteDataAlertDialog = ({ exerciseDataId }: Props) => {
+export const DeleteDataAlertDialog = ({ exerciseData }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const deleteHandler = async () => {
-    try {
-      const data = deleteExerciseDataSchema.parse({ exerciseDataId });
-
-      setIsLoading(() => true);
-
-      const res = await deleteDataAction(data);
-
-      if (res.serverError) {
-        throw new Error(res.serverError);
-      }
-
+  const deleteExerciseData = api.exerciseData.delete.useMutation({
+    onSuccess: () => {
       setIsAlertDialogOpen(() => false);
-    } catch (error) {
-      return toast({
+    },
+    onError: (error, variables) => {
+      toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: getErrorMessage(error),
+        description: error.message,
         action: (
-          <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
+          <ToastAction
+            altText="Try again"
+            onClick={() => deleteExerciseData.mutate(variables)}
+          >
             Try again
           </ToastAction>
         ),
       });
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
+    },
+  });
 
   return (
     <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
@@ -84,12 +73,13 @@ export const DeleteDataAlertDialog = ({ exerciseDataId }: Props) => {
           <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
           <AlertDialogAction
             className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            disabled={deleteExerciseData.isPending}
             onClick={(e) => {
               e.preventDefault();
-              void deleteHandler();
+              deleteExerciseData.mutate({ id: exerciseData.id });
             }}
           >
-            {isLoading && <Loader />}
+            {deleteExerciseData.isPending && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>

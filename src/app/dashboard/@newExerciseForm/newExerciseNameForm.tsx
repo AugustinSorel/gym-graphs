@@ -13,45 +13,38 @@ import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
-import { newExerciseNameSchema } from "@/schemas/exerciseSchemas";
 import { useState } from "react";
-import { addNewExerciseAction } from "@/serverActions/exercises";
-import { getErrorMessage } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 export const NewExerciseForm = () => {
   const [name, setName] = useState("");
   const { toast } = useToast();
 
-  const actionHandler = async (e: FormData) => {
-    try {
-      const newExercise = newExerciseNameSchema.parse({ name });
-      const res = await addNewExerciseAction(newExercise);
-
-      if (res.serverError) {
-        throw new Error(res.serverError);
-      }
-
+  //TODO: performance optimization
+  const createExercise = api.exercise.create.useMutation({
+    onSuccess: () => {
       setName("");
-    } catch (error) {
-      return toast({
+    },
+    onError: (error) => {
+      toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: getErrorMessage(error),
+        description: error.shape?.data.zodError?.fieldErrors?.name?.at(0),
         action: (
           <ToastAction
             altText="Try again"
-            onClick={() => void actionHandler(e)}
+            onClick={() => void createExercise.mutate({ name })}
           >
             Try again
           </ToastAction>
         ),
       });
-    }
-  };
+    },
+  });
 
   return (
     <form
-      action={(e) => void actionHandler(e)}
+      action={() => createExercise.mutate({ name })}
       className="mx-auto flex w-full max-w-2xl gap-2"
     >
       <Input

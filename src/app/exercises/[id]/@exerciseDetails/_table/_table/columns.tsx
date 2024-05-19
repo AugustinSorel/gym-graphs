@@ -182,7 +182,7 @@ export const exerciseTableColumns: ColumnDef<ExerciseData>[] = [
             <UpdateNumberOfRepsForm exerciseData={row.original} />
             <UpdateWeightLifted exerciseData={row.original} />
             <UpdateExerciseDataDate exerciseData={row.original} />
-            <DeleteDataAlertDialog exerciseDataId={row.original.id} />
+            <DeleteDataAlertDialog exerciseData={row.original} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

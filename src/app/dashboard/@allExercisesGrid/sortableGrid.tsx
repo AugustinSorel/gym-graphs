@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import {
@@ -28,23 +28,39 @@ import {
 } from "@/components/ui/tooltip";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { updateExercisesGridIndex } from "@/serverActions/exercises";
 import { Loader } from "@/components/ui/loader";
+import { api } from "@/trpc/react";
+import { useMutationState } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 type Props = {
   gridItems: { render: ReactNode; id: string }[];
 };
 
-const SortableGridContext = createContext<{ isSavingGridState: boolean }>({
-  isSavingGridState: false,
-});
-
 export const SortableGrid = (props: Props) => {
   const [gridItems, setGridItems] = useState(props.gridItems);
-  const [isSavingGridState, setIsSavingGridState] = useState(false);
+  const { toast } = useToast();
 
-  const startSavingGridState = () => setIsSavingGridState(true);
-  const stopSavingGridState = () => setIsSavingGridState(false);
+  //TODO: performance
+  const moveExercise = api.exercise.move.useMutation({
+    onError: (error, variables) => {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: error.shape?.data.zodError?.fieldErrors?.name?.at(0),
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => moveExercise.mutate(variables)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    },
+  });
 
   useEffect(() => setGridItems(props.gridItems), [props.gridItems]);
 
@@ -53,17 +69,15 @@ export const SortableGrid = (props: Props) => {
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id === over?.id) {
       return;
     }
-
-    startSavingGridState();
 
     const oldIndex = gridItems.findIndex((x) => x.id === active?.id);
     const newIndex = gridItems.findIndex((x) => x.id === over?.id);
@@ -72,29 +86,23 @@ export const SortableGrid = (props: Props) => {
 
     setGridItems(updatedGridItems);
 
-    await updateExercisesGridIndex({
-      exercisesId: updatedGridItems.map((item) => item.id),
-    });
-
-    stopSavingGridState();
+    moveExercise.mutate(updatedGridItems.map((item) => item.id));
   };
 
   return (
-    <SortableGridContext.Provider value={{ isSavingGridState }}>
-      <DndContext
-        sensors={sensors}
-        onDragEnd={(e) => void handleDragEnd(e)}
-        collisionDetection={closestCenter}
-      >
-        <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-          {gridItems.map((item) => (
-            <SortableItem key={item.id} id={item.id}>
-              {item.render}
-            </SortableItem>
-          ))}
-        </SortableContext>
-      </DndContext>
-    </SortableGridContext.Provider>
+    <DndContext
+      sensors={sensors}
+      onDragEnd={(e) => void handleDragEnd(e)}
+      collisionDetection={closestCenter}
+    >
+      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
+        {gridItems.map((item) => (
+          <SortableItem key={item.id} id={item.id}>
+            {item.render}
+          </SortableItem>
+        ))}
+      </SortableContext>
+    </DndContext>
   );
 };
 
@@ -121,7 +129,15 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
 
 export const DragComponent = ({ id }: { id: string }) => {
   const { attributes, listeners } = useSortable({ id });
-  const { isSavingGridState } = useContext(SortableGridContext);
+
+  const moveExerciseMutationState = useMutationState({
+    filters: {
+      mutationKey: getQueryKey(api.exercise.move),
+    },
+  });
+
+  const isSavingGridState =
+    moveExerciseMutationState.at(-1)?.status === "pending";
 
   return (
     <TooltipProvider>
