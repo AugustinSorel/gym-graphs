@@ -1,5 +1,3 @@
-"use client";
-
 import { Timeline } from "../timeline";
 import { Badge } from "@/components/ui/badge";
 import { Suspense, type ComponentPropsWithoutRef } from "react";

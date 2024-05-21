@@ -68,6 +68,7 @@ export const FilterByExrerciseMuscleGroups = () => {
   const searchParams = useSearchParams();
 
   const selectedMuscleGroups = exerciseSchema.shape.muscleGroups
+    //TODO: move this catch to the schema
     .catch([])
     .parse(searchParams.get("muscle_groups")?.split(","));
 

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { muscleGroupsEnum } from "@/db/schema";
 
+//TODO: remove this crap
 export const exerciseId = z
   .string({
     required_error: "id is required",

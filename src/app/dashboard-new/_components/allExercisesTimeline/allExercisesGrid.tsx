@@ -1,3 +1,5 @@
+"use client";
+
 import { type RouterInputs, type RouterOutputs, api } from "@/trpc/react";
 import { type ComponentPropsWithoutRef } from "react";
 import { GridLayout } from "@/app/dashboard/_grid/gridLayout";
@@ -36,6 +38,7 @@ export const AllExercisesGrid = () => {
 
   const exerciseName = searchParams.get("name")?.trim().toLowerCase() ?? "";
   const muscleGroups = exerciseSchema.shape.muscleGroups
+    //TODO: move this catch to the schema
     .catch([])
     .parse(searchParams.get("muscle_groups")?.split(","));
 
@@ -192,6 +195,7 @@ const OptimisticExerciseItem = () => {
   );
 };
 
+//TODO: add error boundaries
 const RadarItem = ({
   exercises,
 }: {
