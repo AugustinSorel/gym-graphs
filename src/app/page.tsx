@@ -461,4 +461,6 @@ const FeaturesGridBackground = () => {
 //TODO: call trpc server on rsc
 //TODO: error msg
 //TODO: react hook form
-//TODO: update nextjs
+//TODO: remove old auth.ts
+//TODO: add email and psw
+//TODO: move db to server folder

@@ -28,7 +28,7 @@ import { UpdateExerciseNameDialog } from "@/app/dashboard/_modals/updateExercise
 import { DeleteExerciseAlertDialog } from "@/app/dashboard/_modals/deleteExerciseAlertDialog";
 import { DragComponent, SortableGrid } from "./sortableGrid";
 import { useSearchParams } from "next/navigation";
-import { exerciseSchema } from "@/schemas/exerciseSchemas";
+import { exerciseSchema } from "@/schemas/exercise.schema";
 import { pluralize } from "@/lib/utils";
 
 export const AllExercisesGrid = () => {

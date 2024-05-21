@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exerciseSchema } from "@/schemas/exerciseSchemas";
+import { exerciseSchema } from "@/schemas/exercise.schema";
 
 export const FilterByExerciseName = () => {
   const router = useRouter();

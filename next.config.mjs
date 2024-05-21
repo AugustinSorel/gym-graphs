@@ -11,9 +11,6 @@ const nextConfig = {
     skipWaiting: true,
   }),
   reactStrictMode: true,
-  experimental: {
-    serverActions: true,
-  },
 };
 
 export default nextConfig;
