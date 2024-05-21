@@ -102,10 +102,15 @@ export const exerciseRouter = createTRPCRouter({
     }),
 
   all: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db
-      .select()
-      .from(exercises)
-      .where(eq(exercises.userId, ctx.session.user.id));
+    return (
+      await ctx.db.query.exercises.findMany({
+        with: {
+          data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
+          position: true,
+        },
+      })
+    ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
+    //TODO: use order by rather than this crapy sort
   }),
 
   muscleGroup: protectedProcedure

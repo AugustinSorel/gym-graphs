@@ -27,12 +27,9 @@ type Props = {
 export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const { toast } = useToast();
+  const utils = api.useUtils();
 
-  //TODO:performance
   const deleteExercise = api.exercise.delete.useMutation({
-    onSuccess: () => {
-      setIsAlertDialogOpen(false);
-    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -47,6 +44,23 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
           </ToastAction>
         ),
       });
+    },
+    onMutate: (exerciseToDelete) => {
+      const allExercises = utils.exercise.all.getData();
+
+      if (!allExercises) {
+        return;
+      }
+
+      utils.exercise.all.setData(
+        undefined,
+        allExercises.filter((x) => x.id !== exerciseToDelete.id),
+      );
+
+      setIsAlertDialogOpen(false);
+    },
+    onSettled: async () => {
+      await utils.exercise.all.invalidate();
     },
   });
 
@@ -73,14 +87,12 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
         <AlertDialogFooter>
           <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={deleteExercise.isPending}
             className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
             onClick={(e) => {
               e.preventDefault();
               deleteExercise.mutate({ id: exercise.id });
             }}
           >
-            {deleteExercise.isPending && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>

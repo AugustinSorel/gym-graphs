@@ -19,7 +19,6 @@ import {
 } from "@dnd-kit/sortable";
 import { useEffect, useState } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
-import { Slot } from "@radix-ui/react-slot";
 import {
   Tooltip,
   TooltipContent,
@@ -36,7 +35,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
 type Props = {
-  gridItems: { render: ReactNode; id: string }[];
+  gridItems: { component: ReactNode; id: string }[];
 };
 
 export const SortableGrid = (props: Props) => {
@@ -101,7 +100,7 @@ export const SortableGrid = (props: Props) => {
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         {gridItems.map((item) => (
           <SortableItem key={item.id} id={item.id}>
-            {item.render}
+            {item.component}
           </SortableItem>
         ))}
       </SortableContext>
@@ -115,7 +114,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
   });
 
   return (
-    <Slot
+    <div
       ref={setNodeRef}
       style={{
         transition,
@@ -126,7 +125,7 @@ const SortableItem = (props: { id: string } & PropsWithChildren) => {
       }}
     >
       {props.children}
-    </Slot>
+    </div>
   );
 };
 

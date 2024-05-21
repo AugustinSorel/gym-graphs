@@ -33,6 +33,7 @@ export const UpdateWeightLifted = ({ exerciseData }: Props) => {
   );
   const { toast } = useToast();
 
+  //TODO: performance
   const updateWeightLifted = api.exerciseData.updateWeightLifted.useMutation({
     onSuccess: () => {
       setIsDialogOpen(() => false);

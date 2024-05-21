@@ -8,7 +8,7 @@ const Header = (props: ComponentProps<"header">) => {
   return (
     <header
       {...props}
-      className="flex h-14 items-center gap-2 border-b border-border bg-primary px-2"
+      className="flex h-[3rem] max-h-[3rem] min-h-[3rem] items-center gap-2 border-b border-border bg-primary px-2"
     />
   );
 };
@@ -22,9 +22,21 @@ const ActionContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const ActionButton = (props: ComponentProps<typeof Button>) => {
-  return <Button className="h-8 p-1" size="icon" variant="ghost" {...props} />;
-};
+const ActionButton = forwardRef<
+  HTMLButtonElement,
+  ComponentProps<typeof Button>
+>((props, ref) => {
+  return (
+    <Button
+      className="h-8 p-1"
+      size="icon"
+      variant="ghost"
+      {...props}
+      ref={ref}
+    />
+  );
+});
+ActionButton.displayName = "grid item action button";
 
 const Title = (props: ComponentProps<"p">) => {
   return <p {...props} className="mr-auto truncate capitalize" />;

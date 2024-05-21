@@ -57,6 +57,7 @@ import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/db/types";
 import { getErrorMessage } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -341,12 +342,16 @@ const Separator = () => {
   );
 };
 
-//TODO:loader
 const DashboardLink = () => {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return <>loading...</>;
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+      </>
+    );
   }
 
   if (!session) {
@@ -448,7 +453,10 @@ export const Header = () => {
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
-  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+  const showDashboardPath =
+    pathname[1] === "dashboard" ||
+    pathname[1] === "dashboard-new" ||
+    showExecisesPath;
   const exerciseId = pathname[2];
 
   return (

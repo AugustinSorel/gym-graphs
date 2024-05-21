@@ -30,6 +30,7 @@ import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import type { DashboardPageProps } from "../getExercisesWhereClause";
 import { getExercisesWhereClause } from "../getExercisesWhereClause";
 import { RandomFacts } from "../_graphs/randomFacts";
+import { OptimisticExerciseItem } from "./optimisticExerciseItem";
 
 const AllExercisesGrid = async (props: DashboardPageProps) => {
   const session = await getServerSession(authOptions);
@@ -76,6 +77,8 @@ const AllExercisesGrid = async (props: DashboardPageProps) => {
 
   return (
     <GridLayout>
+      <OptimisticExerciseItem />
+
       <SortableGrid
         gridItems={exercises.map((exercise) => ({
           id: exercise.id,

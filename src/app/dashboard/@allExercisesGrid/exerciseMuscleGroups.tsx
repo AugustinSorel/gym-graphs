@@ -1,7 +1,7 @@
 "use client";
 
 import type { Exercise } from "@/db/types";
-import { type PropsWithChildren, useState } from "react";
+import { type PropsWithChildren } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -19,19 +19,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { muscleGroupsEnum } from "@/db/schema";
-import { Loader } from "@/components/ui/loader";
 import { api } from "@/trpc/react";
 
 export const ExerciseMuscleGroupsDropdown = ({
   exercise,
   children,
 }: { exercise: Exercise } & PropsWithChildren) => {
-  const [lastMuscleGroupSelected, setLastMuscleGroupSelected] = useState<
-    (typeof muscleGroupsEnum.enumValues)[number] | null
-  >(null);
+  const utils = api.useUtils();
 
-  //TODO:performance
-  const updateMuscleGroup = api.exercise.muscleGroup.useMutation({});
+  const updateMuscleGroup = api.exercise.muscleGroup.useMutation({
+    onMutate: (exerciseToUpdate) => {
+      const allExercises = utils.exercise.all.getData();
+
+      if (!allExercises) {
+        return;
+      }
+
+      utils.exercise.all.setData(
+        undefined,
+        allExercises.map((exercise) =>
+          exercise.id === exerciseToUpdate.id
+            ? { ...exercise, muscleGroups: exerciseToUpdate.muscleGroups }
+            : exercise,
+        ),
+      );
+    },
+    onSettled: async () => {
+      await utils.exercise.all.invalidate();
+    },
+  });
 
   return (
     <DropdownMenu>
@@ -59,16 +75,10 @@ export const ExerciseMuscleGroupsDropdown = ({
                 key={muscleGroup}
                 checked={isSelected}
                 onSelect={(e) => e.preventDefault()}
-                disabled={
-                  updateMuscleGroup.isPending &&
-                  lastMuscleGroupSelected === muscleGroup
-                }
                 onCheckedChange={() => {
                   const filteredMuscleGroups = isSelected
                     ? exercise.muscleGroups.filter((v) => v !== muscleGroup)
                     : [...exercise.muscleGroups, muscleGroup];
-
-                  setLastMuscleGroupSelected(muscleGroup);
 
                   updateMuscleGroup.mutate({
                     id: exercise.id,
@@ -76,10 +86,6 @@ export const ExerciseMuscleGroupsDropdown = ({
                   });
                 }}
               >
-                {updateMuscleGroup.isPending &&
-                  lastMuscleGroupSelected === muscleGroup && (
-                    <Loader className="mr-1 h-3 w-3" />
-                  )}
                 {muscleGroup}
               </DropdownMenuCheckboxItem>
             );

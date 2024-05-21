@@ -35,6 +35,7 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
   );
   const { toast } = useToast();
 
+  //TODO: perf
   const updateDoneAt = api.exerciseData.updateDoneAt.useMutation({
     onSuccess: () => {
       setIsDialogOpen(() => false);

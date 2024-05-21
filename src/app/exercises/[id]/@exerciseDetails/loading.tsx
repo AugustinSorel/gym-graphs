@@ -35,7 +35,10 @@ const Card = (props: ComponentPropsWithoutRef<"div">) => {
 
 const CardHeader = (props: ComponentPropsWithoutRef<"header">) => {
   return (
-    <header {...props} className="h-12 border-b border-border bg-primary p-3" />
+    <header
+      {...props}
+      className="h-[3rem] border-b border-border bg-primary p-3"
+    />
   );
 };
 

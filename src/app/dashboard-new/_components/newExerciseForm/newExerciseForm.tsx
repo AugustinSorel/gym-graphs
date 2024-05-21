@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { Loader } from "@/components/ui/loader";
 import { useState } from "react";
 import { api } from "@/trpc/react";
@@ -61,9 +60,17 @@ export const NewExerciseForm = () => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div>
-              <SubmitButton />
-            </div>
+            <Button
+              size="icon"
+              aria-label="add"
+              disabled={createExercise.isPending}
+            >
+              {createExercise.isPending ? (
+                <Loader className="h-4 w-4" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+            </Button>
           </TooltipTrigger>
           <TooltipContent>
             <p className="capitalize">add</p>
@@ -71,18 +78,5 @@ export const NewExerciseForm = () => {
         </Tooltip>
       </TooltipProvider>
     </form>
-  );
-};
-
-const SubmitButton = () => {
-  const formStatus = useFormStatus();
-  return (
-    <Button size="icon" aria-label="add" disabled={formStatus.pending}>
-      {formStatus.pending ? (
-        <Loader className="h-4 w-4" />
-      ) : (
-        <Plus className="h-4 w-4" />
-      )}
-    </Button>
   );
 };

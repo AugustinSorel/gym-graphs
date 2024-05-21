@@ -13,7 +13,6 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { Exercise } from "@/db/types";
@@ -27,12 +26,9 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
   const { toast } = useToast();
+  const utils = api.useUtils();
 
-  //TODO:performance
   const updateExercise = api.exercise.update.useMutation({
-    onSuccess: () => {
-      setIsDialogOpen(false);
-    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -47,6 +43,28 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
           </ToastAction>
         ),
       });
+    },
+    onMutate: (exerciseToUpdate) => {
+      const allExercises = utils.exercise.all.getData();
+
+      if (!allExercises) {
+        return;
+      }
+
+      utils.exercise.all.setData(
+        undefined,
+        allExercises.map((exercise) =>
+          exercise.id === exerciseToUpdate.id
+            ? { ...exercise, name: exerciseToUpdate.name }
+            : exercise,
+        ),
+      );
+
+      setIsDialogOpen(false);
+    },
+
+    onSettled: async () => {
+      await utils.exercise.all.invalidate();
     },
   });
 
@@ -83,11 +101,7 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
             onChange={(e) => setUpdatedExerciseName(e.target.value)}
           />
 
-          <Button
-            className="ml-auto space-x-2"
-            disabled={updateExercise.isPending}
-          >
-            {updateExercise.isPending && <Loader />}
+          <Button className="ml-auto space-x-2">
             <span className="capitalize">save change</span>
           </Button>
         </form>
