@@ -1,17 +1,17 @@
 "use client";
 
-import { HeatmapGraph } from "@/app/dashboard/_graphs/heatmapGraph";
-import { prepareHeatmapData } from "@/app/dashboard/_graphs/heatmapUtils";
-import { LineGraph } from "@/app/dashboard/_graphs/lineGraph";
-import { RadarGraph } from "@/app/dashboard/_graphs/radarGraph";
-import { RandomFacts } from "@/app/dashboard/_graphs/randomFacts";
-import { GridItem } from "@/app/dashboard/_grid/gridItem";
-import { GridLayout } from "@/app/dashboard/_grid/gridLayout";
-import { TimelineContainer } from "@/app/dashboard/timelineContainer";
 import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../useExercises";
+import { GridLayout } from "../grid/gridLayout";
+import { GridItem } from "../grid/gridItem";
+import { LineGraph } from "../graphs/lineGraph";
+import { RadarGraph } from "../graphs/radarGraph";
+import { HeatmapGraph } from "../graphs/heatmapGraph";
+import { prepareHeatmapData } from "../graphs/heatmapUtils";
+import { RandomFacts } from "../graphs/randomFacts";
+import { Timeline } from "../timeline";
 
 export const MonthlyExercisesTimeline = () => {
   const exercises = useExercises();
@@ -19,7 +19,7 @@ export const MonthlyExercisesTimeline = () => {
   return (
     <>
       {getExercisesByMonth(exercises).map((group) => (
-        <TimelineContainer key={group.date}>
+        <Timeline key={group.date}>
           <Badge variant="accent" className="w-max">
             <time dateTime={group.date}>
               {new Date(group.date).toLocaleDateString(undefined, {
@@ -82,7 +82,7 @@ export const MonthlyExercisesTimeline = () => {
               <RandomFacts exercises={group.exercises} />
             </GridItem.Root>
           </GridLayout>
-        </TimelineContainer>
+        </Timeline>
       ))}
     </>
   );

@@ -6,15 +6,6 @@ import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { TimelineContainer } from "./dashboard/timelineContainer";
-import { GridItem } from "./dashboard/_grid/gridItem";
-import { LineGraph } from "./dashboard/_graphs/lineGraph";
-import { GridLayout } from "./dashboard/_grid/gridLayout";
-import { Badge } from "@/components/ui/badge";
-import { RadarGraph } from "./dashboard/_graphs/radarGraph";
-import { RandomFacts } from "./dashboard/_graphs/randomFacts";
-import { HeatmapGraph } from "./dashboard/_graphs/heatmapGraph";
-import { prepareHeatmapData } from "./dashboard/_graphs/heatmapUtils";
 import { mockExercises } from "@/lib/mock-data";
 import {
   Tooltip,
@@ -26,6 +17,15 @@ import { ExerciseDetailsProvider } from "./exercises/[id]/@exerciseDetails/exerc
 import { ExerciseGraphCard } from "./exercises/[id]/@exerciseDetails/_graph/exerciseGraphCard";
 import { ExerciseTableCard } from "./exercises/[id]/@exerciseDetails/_table/exerciseTableCard";
 import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseDetails/_table/_table/columns";
+import { Badge } from "@/components/ui/badge";
+import { GridLayout } from "./dashboard/_components/grid/gridLayout";
+import { GridItem } from "./dashboard/_components/grid/gridItem";
+import { LineGraph } from "./dashboard/_components/graphs/lineGraph";
+import { RadarGraph } from "./dashboard/_components/graphs/radarGraph";
+import { HeatmapGraph } from "./dashboard/_components/graphs/heatmapGraph";
+import { prepareHeatmapData } from "./dashboard/_components/graphs/heatmapUtils";
+import { RandomFacts } from "./dashboard/_components/graphs/randomFacts";
+import { Timeline } from "./dashboard/_components/timeline";
 
 const HomePage = async () => {
   await redirectIfSignedIn();
@@ -110,7 +110,7 @@ const FeatureOne = () => {
         breakdown of your achievements each <StrongText>month</StrongText>.
       </Text>
 
-      <TimelineContainer className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
+      <Timeline className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
         <Badge variant="accent" className="mr-auto">
           <time dateTime="all">
             {new Date().toLocaleDateString(undefined, {
@@ -200,7 +200,7 @@ const FeatureOne = () => {
             <RandomFacts exercises={mockExercises} />
           </GridItem.Root>
         </GridLayout>
-      </TimelineContainer>
+      </Timeline>
       <FeaturesGridBackground />
     </FeatureContainer>
   );

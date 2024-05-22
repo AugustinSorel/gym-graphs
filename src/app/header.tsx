@@ -453,10 +453,7 @@ export const Header = () => {
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
-  const showDashboardPath =
-    pathname[1] === "dashboard" ||
-    pathname[1] === "dashboard-new" ||
-    showExecisesPath;
+  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
   const exerciseId = pathname[2];
 
   return (

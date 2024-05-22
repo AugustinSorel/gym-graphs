@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:pg",
+    "db:push": "drizzle-kit push:pg",
     "e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {

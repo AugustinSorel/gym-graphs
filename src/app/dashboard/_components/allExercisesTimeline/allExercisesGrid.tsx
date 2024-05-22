@@ -2,13 +2,7 @@
 
 import { type RouterInputs, type RouterOutputs, api } from "@/trpc/react";
 import { type ComponentPropsWithoutRef } from "react";
-import { GridLayout } from "@/app/dashboard/_grid/gridLayout";
-import { GridItem } from "@/app/dashboard/_grid/gridItem";
-import { ExerciseMuscleGroupsDropdown } from "@/app/dashboard/@allExercisesGrid/exerciseMuscleGroups";
 import { MoreHorizontal, Tag } from "lucide-react";
-import { LineGraph } from "@/app/dashboard/_graphs/lineGraph";
-import { RadarGraph } from "@/app/dashboard/_graphs/radarGraph";
-import { RandomFacts } from "@/app/dashboard/_graphs/randomFacts";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,12 +20,18 @@ import {
 import { useMutationState } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getQueryKey } from "@trpc/react-query";
-import { UpdateExerciseNameDialog } from "@/app/dashboard/_modals/updateExerciseNameDialog";
-import { DeleteExerciseAlertDialog } from "@/app/dashboard/_modals/deleteExerciseAlertDialog";
 import { DragComponent, SortableGrid } from "./sortableGrid";
 import { pluralize } from "@/lib/utils";
 import { useExercises } from "../useExercises";
 import { useDashboardSearchParams } from "../useDashboardSearchParams";
+import { GridLayout } from "../grid/gridLayout";
+import { GridItem } from "../grid/gridItem";
+import { DeleteExerciseAlertDialog } from "../modals/deleteExerciseAlertDialog";
+import { UpdateExerciseNameDialog } from "../modals/updateExerciseNameDialog";
+import { LineGraph } from "../graphs/lineGraph";
+import { RadarGraph } from "../graphs/radarGraph";
+import { RandomFacts } from "../graphs/randomFacts";
+import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 
 export const AllExercisesGrid = () => {
   const dashboardShareParams = useDashboardSearchParams();

@@ -3,7 +3,8 @@ import type { Config } from "drizzle-kit";
 export default {
   schema: "./src/db/schema.ts",
   dbCredentials: {
-    connectionString: process.env.DB_URL!,
+    connectionString: "postgres://postgres:postgres@localhost:5432/gym-graphs",
   },
   out: "./drizzle",
+  driver: "pg",
 } satisfies Config;
