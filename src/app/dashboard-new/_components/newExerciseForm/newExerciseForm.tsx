@@ -46,8 +46,11 @@ export const NewExerciseForm = () => {
 
   return (
     <form
-      action={() => createExercise.mutate({ name })}
       className="mx-auto flex w-full max-w-2xl gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        createExercise.mutate({ name });
+      }}
     >
       <Input
         name="newExerciseName"

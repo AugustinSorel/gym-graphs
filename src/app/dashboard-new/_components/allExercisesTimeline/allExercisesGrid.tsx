@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { type MutationState, useMutationState } from "@tanstack/react-query";
+import { useMutationState } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getQueryKey } from "@trpc/react-query";
 import { UpdateExerciseNameDialog } from "@/app/dashboard/_modals/updateExerciseNameDialog";
@@ -164,34 +164,27 @@ const ExerciseItem = ({
   );
 };
 
-type CreateExerciseMutationState = MutationState<
-  unknown,
-  Error,
-  RouterInputs["exercise"]["create"]
->;
-
 const OptimisticExerciseItem = () => {
-  const createExerciseMutations = useMutationState<CreateExerciseMutationState>(
-    {
-      filters: { mutationKey: getQueryKey(api.exercise.create) },
+  const createExerciseMutations = useMutationState({
+    filters: {
+      mutationKey: getQueryKey(api.exercise.create),
+      status: "pending",
     },
-  );
-
-  const latestMutation = createExerciseMutations?.at(-1);
-  const newExerciseName = latestMutation?.variables?.name;
-
-  if (!newExerciseName || latestMutation?.status !== "pending") {
-    return null;
-  }
+    select: (x) => x.state.variables as RouterInputs["exercise"]["create"],
+  });
 
   return (
-    <Skeleton>
-      <GridItem.Root>
-        <GridItem.Header>
-          <GridItem.Title>{newExerciseName}</GridItem.Title>
-        </GridItem.Header>
-      </GridItem.Root>
-    </Skeleton>
+    <>
+      {createExerciseMutations.map((mutation, i) => (
+        <Skeleton key={i}>
+          <GridItem.Root>
+            <GridItem.Header>
+              <GridItem.Title>{mutation.name}</GridItem.Title>
+            </GridItem.Header>
+          </GridItem.Root>
+        </Skeleton>
+      ))}
+    </>
   );
 };
 

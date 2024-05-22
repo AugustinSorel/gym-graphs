@@ -464,3 +464,4 @@ const FeaturesGridBackground = () => {
 //TODO: remove old auth.ts
 //TODO: add email and psw
 //TODO: move db to server folder
+//TODO: create folder for style
