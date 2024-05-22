@@ -29,56 +29,43 @@ import { getQueryKey } from "@trpc/react-query";
 import { UpdateExerciseNameDialog } from "@/app/dashboard/_modals/updateExerciseNameDialog";
 import { DeleteExerciseAlertDialog } from "@/app/dashboard/_modals/deleteExerciseAlertDialog";
 import { DragComponent, SortableGrid } from "./sortableGrid";
-import { useSearchParams } from "next/navigation";
-import { exerciseSchema } from "@/schemas/exercise.schema";
 import { pluralize } from "@/lib/utils";
+import { useExercises } from "../useExercises";
+import { useDashboardSearchParams } from "../useDashboardSearchParams";
 
 export const AllExercisesGrid = () => {
-  const searchParams = useSearchParams();
+  const dashboardShareParams = useDashboardSearchParams();
+  const exercises = useExercises();
 
-  const exerciseName = searchParams.get("name")?.trim().toLowerCase() ?? "";
-  const muscleGroups = exerciseSchema.shape.muscleGroups
-    //TODO: move this catch to the schema
-    .catch([])
-    .parse(searchParams.get("muscle_groups")?.split(","));
-
-  const [exercises] = api.exercise.all.useSuspenseQuery(undefined, {
-    select: (exercises) => {
-      return exercises.filter((exercise) => {
-        return (
-          exercise.name.toLowerCase().startsWith(exerciseName) &&
-          (!muscleGroups.length ||
-            exercise.muscleGroups.some((muscleGroup) =>
-              muscleGroups.includes(muscleGroup),
-            ))
-        );
-      });
-    },
-  });
-
-  if (!exercises.length && exerciseName) {
+  if (!exercises.length && dashboardShareParams.exerciseName) {
     return (
       <Container>
         <Text>
-          no exercises named <PropsText>{exerciseName}</PropsText> found
+          no exercises named{" "}
+          <PropsText>{dashboardShareParams.exerciseName}</PropsText> found
         </Text>
       </Container>
     );
   }
 
-  if (!exercises.length && muscleGroups) {
+  if (!exercises.length && dashboardShareParams.muscleGroups) {
     return (
       <Container>
         <Text>
           no exercises with the{" "}
-          {pluralize({ count: muscleGroups.length, noun: "tag" })} of{" "}
-          <PropsText>{muscleGroups.join(", ")}</PropsText> found
+          {pluralize({
+            count: dashboardShareParams.muscleGroups.length,
+            noun: "tag",
+          })}{" "}
+          of{" "}
+          <PropsText>{dashboardShareParams.muscleGroups.join(", ")}</PropsText>{" "}
+          found
         </Text>
       </Container>
     );
   }
 
-  if (!exercises.length && !exerciseName) {
+  if (!exercises.length && !dashboardShareParams.exerciseName) {
     return (
       <Container>
         <Text>

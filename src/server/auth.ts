@@ -9,7 +9,7 @@ import {
 } from "next-auth";
 import { db } from "@/db";
 import { env } from "@/env.mjs";
-import { seedUserData } from "./createUser";
+import { seedUserData } from "./seedUserData";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

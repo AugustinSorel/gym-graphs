@@ -1,10 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import type { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
-import type { Exercise } from "@/db/types";
 import { muscleGroupsEnum } from "@/db/schema";
 import {
   Tooltip,
@@ -24,28 +21,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exerciseSchema } from "@/schemas/exercise.schema";
+import { useDashboardSearchParams } from "../useDashboardSearchParams";
 
 export const FilterByExerciseName = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const dashboardSearchParams = useDashboardSearchParams();
 
   const [exerciseName, setExerciseName] = useState(
-    searchParams.get("name") ?? "",
+    dashboardSearchParams.exerciseName,
   );
-
-  const updateExerciseNameUrlParams = (e: ChangeEvent<HTMLInputElement>) => {
-    const params = new URLSearchParams(searchParams);
-
-    if (!e.target.value) {
-      params.delete("name");
-    } else {
-      params.set("name", e.target.value);
-    }
-
-    router.replace(`${pathname}?${params.toString()}`);
-  };
 
   return (
     <div className="flex items-center gap-2">
@@ -54,7 +37,7 @@ export const FilterByExerciseName = () => {
         placeholder="filter exercises..."
         value={exerciseName}
         onChange={(e) => {
-          updateExerciseNameUrlParams(e);
+          dashboardSearchParams.updateExerciseName(e.target.value);
           setExerciseName(e.target.value);
         }}
       />
@@ -63,28 +46,7 @@ export const FilterByExerciseName = () => {
 };
 
 export const FilterByExrerciseMuscleGroups = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const selectedMuscleGroups = exerciseSchema.shape.muscleGroups
-    //TODO: move this catch to the schema
-    .catch([])
-    .parse(searchParams.get("muscle_groups")?.split(","));
-
-  const updateTagsUrlParams = (
-    selectedMuscleGroups: Exercise["muscleGroups"],
-  ) => {
-    const params = new URLSearchParams(searchParams);
-
-    if (!selectedMuscleGroups.length) {
-      params.delete("muscle_groups");
-    } else {
-      params.set("muscle_groups", selectedMuscleGroups.join(","));
-    }
-
-    router.replace(`${pathname}?${params.toString()}`);
-  };
+  const dashboardSearchParams = useDashboardSearchParams();
 
   return (
     <DropdownMenu>
@@ -94,7 +56,7 @@ export const FilterByExrerciseMuscleGroups = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 size="icon"
-                data-filters-number={selectedMuscleGroups.length}
+                data-filters-number={dashboardSearchParams.muscleGroups.length}
                 className="relative h-8 p-1 backdrop-filter after:absolute after:-right-1/3 after:-top-1/3 after:flex after:h-5 after:w-5 after:items-center after:justify-center after:rounded-full after:border after:border-border after:bg-brand-color-two after:text-xs after:backdrop-blur-md after:content-[attr(data-filters-number)] data-[filters-number='0']:after:hidden"
                 aria-label="filters with tags"
               >
@@ -116,7 +78,8 @@ export const FilterByExrerciseMuscleGroups = () => {
 
         <DropdownMenuGroup>
           {muscleGroupsEnum.enumValues.map((muscleGroup) => {
-            const isSelected = selectedMuscleGroups.includes(muscleGroup);
+            const isSelected =
+              dashboardSearchParams.muscleGroups.includes(muscleGroup);
 
             return (
               <DropdownMenuCheckboxItem
@@ -125,10 +88,14 @@ export const FilterByExrerciseMuscleGroups = () => {
                 onSelect={(e) => e.preventDefault()}
                 onCheckedChange={() => {
                   const filteredMuscleGroups = isSelected
-                    ? selectedMuscleGroups.filter((v) => v !== muscleGroup)
-                    : [...selectedMuscleGroups, muscleGroup];
+                    ? dashboardSearchParams.muscleGroups.filter(
+                        (v) => v !== muscleGroup,
+                      )
+                    : [...dashboardSearchParams.muscleGroups, muscleGroup];
 
-                  updateTagsUrlParams(filteredMuscleGroups);
+                  dashboardSearchParams.updateMuscleGroups(
+                    filteredMuscleGroups,
+                  );
                 }}
               >
                 {muscleGroup}
@@ -137,13 +104,13 @@ export const FilterByExrerciseMuscleGroups = () => {
           })}
         </DropdownMenuGroup>
 
-        {selectedMuscleGroups.length > 0 && (
+        {dashboardSearchParams.muscleGroups.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
                 onSelect={() => {
-                  updateTagsUrlParams([]);
+                  dashboardSearchParams.updateMuscleGroups([]);
                 }}
                 className="justify-center text-center"
               >
