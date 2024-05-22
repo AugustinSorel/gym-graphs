@@ -6,181 +6,10 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
-  type User,
 } from "next-auth";
 import { db } from "@/db";
 import { env } from "@/env.mjs";
-import { exerciseGridPosition, exercises, exercisesData } from "@/db/schema";
-import { addDays, addMonths } from "@/lib/date";
-
-//TODO: encapsulate this crap
-const createUser = async ({ user }: { user: User }) => {
-  await db.transaction(async (tx) => {
-    const [benchPress, squat, deadlift] = await tx
-      .insert(exercises)
-      .values([
-        { name: "bench press", userId: user.id },
-        { name: "squat", userId: user.id },
-        { name: "deadlift", userId: user.id },
-      ])
-      .returning();
-
-    if (benchPress) {
-      await tx
-        .insert(exerciseGridPosition)
-        .values({ exerciseId: benchPress.id, userId: user.id });
-
-      await tx.insert(exercisesData).values([
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 20,
-          weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 0),
-          updatedAt: addDays(addMonths(new Date(), -1), 0),
-        },
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 10,
-          weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -1), 1).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 1),
-          updatedAt: addDays(addMonths(new Date(), -1), 1),
-        },
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 30,
-          weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 2),
-          updatedAt: addDays(addMonths(new Date(), -1), 2),
-        },
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 20,
-          weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 0),
-          updatedAt: addDays(addMonths(new Date(), -2), 0),
-        },
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 10,
-          weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -2), 1).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 1),
-          updatedAt: addDays(addMonths(new Date(), -2), 1),
-        },
-        {
-          exerciseId: benchPress.id,
-          numberOfRepetitions: 30,
-          weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 2),
-          updatedAt: addDays(addMonths(new Date(), -2), 2),
-        },
-      ]);
-    }
-
-    if (squat) {
-      await tx
-        .insert(exerciseGridPosition)
-        .values({ exerciseId: squat.id, userId: user.id });
-
-      await tx.insert(exercisesData).values([
-        {
-          exerciseId: squat.id,
-          numberOfRepetitions: 10,
-          weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 0),
-          updatedAt: addDays(addMonths(new Date(), -1), 0),
-        },
-        {
-          exerciseId: squat.id,
-          numberOfRepetitions: 30,
-          weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 1).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 1),
-          updatedAt: addDays(addMonths(new Date(), -1), 1),
-        },
-        {
-          exerciseId: squat.id,
-          numberOfRepetitions: 20,
-          weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 2),
-          updatedAt: addDays(addMonths(new Date(), -1), 2),
-        },
-        {
-          exerciseId: squat.id,
-          numberOfRepetitions: 20,
-          weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 0),
-          updatedAt: addDays(addMonths(new Date(), -2), 0),
-        },
-        {
-          exerciseId: squat.id,
-          numberOfRepetitions: 40,
-          weightLifted: 40,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 2),
-          updatedAt: addDays(addMonths(new Date(), -2), 2),
-        },
-      ]);
-    }
-
-    if (deadlift) {
-      await tx
-        .insert(exerciseGridPosition)
-        .values({ exerciseId: deadlift.id, userId: user.id });
-
-      await tx.insert(exercisesData).values([
-        {
-          exerciseId: deadlift.id,
-          numberOfRepetitions: 30,
-          weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 0),
-          updatedAt: addDays(addMonths(new Date(), -1), 0),
-        },
-        {
-          exerciseId: deadlift.id,
-          numberOfRepetitions: 50,
-          weightLifted: 50,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -1), 2),
-          updatedAt: addDays(addMonths(new Date(), -1), 2),
-        },
-        {
-          exerciseId: deadlift.id,
-          numberOfRepetitions: 40,
-          weightLifted: 40,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 0),
-          updatedAt: addDays(addMonths(new Date(), -2), 0),
-        },
-        {
-          exerciseId: deadlift.id,
-          numberOfRepetitions: 30,
-          weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -2), 1).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 1),
-          updatedAt: addDays(addMonths(new Date(), -2), 1),
-        },
-        {
-          exerciseId: deadlift.id,
-          numberOfRepetitions: 20,
-          weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
-          createdAt: addDays(addMonths(new Date(), -2), 2),
-          updatedAt: addDays(addMonths(new Date(), -2), 2),
-        },
-      ]);
-    }
-  });
-};
+import { seedUserData } from "./createUser";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -255,7 +84,9 @@ export const authOptions: NextAuthOptions = {
     verifyRequest: "/verify-request",
   },
   events: {
-    createUser,
+    createUser: async ({ user }) => {
+      await seedUserData({ id: user.id });
+    },
   },
 };
 
