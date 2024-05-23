@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
@@ -8,7 +9,7 @@ export const Timeline = (props: ComponentProps<"div">) => {
     <div
       {...props}
       className={cn(
-        "relative flex flex-col gap-5 pb-20 text-center before:absolute before:-left-10 before:bottom-0 before:top-0 before:w-1 before:bg-border before:backdrop-blur-md after:absolute after:-left-12 after:top-0 after:aspect-square after:w-5 after:rounded-full after:bg-border after:backdrop-blur-xl first-of-type:mt-10 last-of-type:pb-0 [&:has([data-containsError=true])]:before:bg-destructive [&:has([data-containsError=true])]:after:bg-destructive",
+        "relative flex flex-col gap-5 pb-20 text-center before:absolute before:-left-10 before:bottom-0 before:top-0 before:w-1 before:bg-border before:backdrop-blur-md after:absolute after:-left-12 after:top-0 after:aspect-square after:w-5 after:rounded-full after:bg-border after:backdrop-blur-xl first-of-type:mt-10 last-of-type:pb-0",
         props.className,
       )}
     />
@@ -23,14 +24,18 @@ export const TimelineActionsContainer = (
 
 export const TimelineErrorFallback = (props: FallbackProps) => {
   const errorMessage =
-    props.error instanceof Error ? props.error.message : "something went wrong";
+    props.error instanceof Error
+      ? props.error.message
+      : JSON.stringify(props.error);
 
   return (
-    <div data-containsError className="flex flex-col gap-5">
+    <Timeline className=" before:bg-destructive after:bg-destructive">
+      <Badge variant="accent" className="mr-auto">
+        <time dateTime="all">all</time>
+      </Badge>
+
       <ErrorTitle>Something went wrong</ErrorTitle>
-      <ErrorSubText>
-        Sorry, we could not load all your exercises because:
-      </ErrorSubText>
+      <ErrorSubText>Sorry, we could not load your exercises:</ErrorSubText>
       <ErrorDescription>{errorMessage}</ErrorDescription>
       <Button
         onClick={props.resetErrorBoundary}
@@ -38,7 +43,7 @@ export const TimelineErrorFallback = (props: FallbackProps) => {
       >
         try again
       </Button>
-    </div>
+    </Timeline>
   );
 };
 

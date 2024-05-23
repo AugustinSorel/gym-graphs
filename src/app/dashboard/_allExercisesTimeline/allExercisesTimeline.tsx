@@ -18,28 +18,28 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 
 export const AllExercisesTimeline = () => {
   return (
-    <Timeline>
-      <TimelineActionsContainer>
-        <Badge variant="accent" className="mr-auto">
-          <time dateTime="all">all</time>
-        </Badge>
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary
+          FallbackComponent={TimelineErrorFallback}
+          onReset={reset}
+        >
+          <Timeline>
+            <TimelineActionsContainer>
+              <Badge variant="accent" className="mr-auto">
+                <time dateTime="all">all</time>
+              </Badge>
 
-        <FilterByExerciseName />
-        <FilterByExrerciseMuscleGroups />
-      </TimelineActionsContainer>
+              <FilterByExerciseName />
+              <FilterByExrerciseMuscleGroups />
+            </TimelineActionsContainer>
 
-      <QueryErrorResetBoundary>
-        {({ reset }) => (
-          <ErrorBoundary
-            FallbackComponent={TimelineErrorFallback}
-            onReset={reset}
-          >
             <Suspense fallback={<GridSkeleton />}>
               <AllExercisesGrid />
             </Suspense>
-          </ErrorBoundary>
-        )}
-      </QueryErrorResetBoundary>
-    </Timeline>
+          </Timeline>
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
   );
 };
