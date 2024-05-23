@@ -22,15 +22,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getQueryKey } from "@trpc/react-query";
 import { DragComponent, SortableGrid } from "./sortableGrid";
 import { pluralize } from "@/lib/utils";
-import { useExercises } from "../useExercises";
-import { useDashboardSearchParams } from "../useDashboardSearchParams";
-import { GridLayout } from "../grid/gridLayout";
-import { GridItem } from "../grid/gridItem";
-import { DeleteExerciseAlertDialog } from "../modals/deleteExerciseAlertDialog";
-import { UpdateExerciseNameDialog } from "../modals/updateExerciseNameDialog";
-import { LineGraph } from "../graphs/lineGraph";
-import { RadarGraph } from "../graphs/radarGraph";
-import { RandomFacts } from "../graphs/randomFacts";
+import { useExercises } from "../_components/useExercises";
+import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
+import { GridLayout } from "../_components/grid/gridLayout";
+import { GridItem } from "../_components/grid/gridItem";
+import { DeleteExerciseAlertDialog } from "../_components/modals/deleteExerciseAlertDialog";
+import { UpdateExerciseNameDialog } from "../_components/modals/updateExerciseNameDialog";
+import { LineGraph } from "../_components/graphs/lineGraph";
+import { RadarGraph } from "../_components/graphs/radarGraph";
+import { RandomFacts } from "../_components/graphs/randomFacts";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 
 export const AllExercisesGrid = () => {

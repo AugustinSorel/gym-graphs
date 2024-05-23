@@ -1,4 +1,4 @@
-import { Timeline } from "../timeline";
+import { Timeline } from "../_components/timeline";
 import { Badge } from "@/components/ui/badge";
 import { Suspense, type ComponentPropsWithoutRef } from "react";
 import { AllExercisesGrid } from "./allExercisesGrid";

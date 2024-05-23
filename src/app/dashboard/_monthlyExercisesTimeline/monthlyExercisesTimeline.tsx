@@ -3,15 +3,15 @@
 import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
-import { useExercises } from "../useExercises";
-import { GridLayout } from "../grid/gridLayout";
-import { GridItem } from "../grid/gridItem";
-import { LineGraph } from "../graphs/lineGraph";
-import { RadarGraph } from "../graphs/radarGraph";
-import { HeatmapGraph } from "../graphs/heatmapGraph";
-import { prepareHeatmapData } from "../graphs/heatmapUtils";
-import { RandomFacts } from "../graphs/randomFacts";
-import { Timeline } from "../timeline";
+import { useExercises } from "../_components/useExercises";
+import { GridLayout } from "../_components/grid/gridLayout";
+import { GridItem } from "../_components/grid/gridItem";
+import { LineGraph } from "../_components/graphs/lineGraph";
+import { RadarGraph } from "../_components/graphs/radarGraph";
+import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
+import { prepareHeatmapData } from "../_components/graphs/heatmapUtils";
+import { RandomFacts } from "../_components/graphs/randomFacts";
+import { Timeline } from "../_components/timeline";
 
 export const MonthlyExercisesTimeline = () => {
   const exercises = useExercises();

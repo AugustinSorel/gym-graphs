@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useDashboardSearchParams } from "../useDashboardSearchParams";
+import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 
 export const FilterByExerciseName = () => {
   const dashboardSearchParams = useDashboardSearchParams();
