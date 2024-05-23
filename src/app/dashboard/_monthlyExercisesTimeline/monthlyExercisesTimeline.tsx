@@ -5,13 +5,14 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../_components/useExercises";
 import { GridLayout } from "../_components/grid/gridLayout";
-import { GridItem } from "../_components/grid/gridItem";
+import { GridItem, GridItemErrorBoundary } from "../_components/grid/gridItem";
 import { LineGraph } from "../_components/graphs/lineGraph";
 import { RadarGraph } from "../_components/graphs/radarGraph";
 import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_components/graphs/heatmapUtils";
 import { RandomFacts } from "../_components/graphs/randomFacts";
 import { Timeline } from "../_components/timeline";
+import { ErrorBoundary } from "react-error-boundary";
 
 export const MonthlyExercisesTimeline = () => {
   const exercises = useExercises();
@@ -31,56 +32,67 @@ export const MonthlyExercisesTimeline = () => {
           <GridLayout>
             {group.exercises.map((exercise) => {
               return (
-                <GridItem.Root key={exercise.id}>
-                  <GridItem.Anchor
-                    aria-label={`go to ${exercise.name}`}
-                    href={`/exercises/${exercise.id}?from=${
-                      group.date
-                    }&to=${dateAsYearMonthDayFormat(
-                      new Date(
-                        new Date(group.date).getFullYear(),
-                        new Date(group.date).getMonth() + 1,
-                        0,
-                      ),
-                    )}`}
-                  />
-                  <GridItem.Header>
-                    <GridItem.Title>{exercise.name}</GridItem.Title>
-                  </GridItem.Header>
+                <ErrorBoundary
+                  FallbackComponent={GridItemErrorBoundary}
+                  key={exercise.id}
+                >
+                  <GridItem.Root>
+                    <GridItem.Anchor
+                      aria-label={`go to ${exercise.name}`}
+                      href={`/exercises/${exercise.id}?from=${
+                        group.date
+                      }&to=${dateAsYearMonthDayFormat(
+                        new Date(
+                          new Date(group.date).getFullYear(),
+                          new Date(group.date).getMonth() + 1,
+                          0,
+                        ),
+                      )}`}
+                    />
+                    <GridItem.Header>
+                      <GridItem.Title>{exercise.name}</GridItem.Title>
+                    </GridItem.Header>
 
-                  <LineGraph data={exercise.data} />
-                </GridItem.Root>
+                    <LineGraph data={exercise.data} />
+                  </GridItem.Root>
+                </ErrorBoundary>
               );
             })}
 
-            <GridItem.Root>
-              <GridItem.Header>
-                <GridItem.Title>exercises count</GridItem.Title>
-              </GridItem.Header>
+            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+              <GridItem.Root>
+                <GridItem.Header>
+                  <GridItem.Title>exercises count</GridItem.Title>
+                </GridItem.Header>
 
-              <RadarGraph
-                data={group.exercises.map((exercise) => ({
-                  exerciseName: exercise.name,
-                  frequency: exercise.data.length,
-                }))}
-              />
-            </GridItem.Root>
+                <RadarGraph
+                  data={group.exercises.map((exercise) => ({
+                    exerciseName: exercise.name,
+                    frequency: exercise.data.length,
+                  }))}
+                />
+              </GridItem.Root>
+            </ErrorBoundary>
 
-            <GridItem.Root>
-              <GridItem.Header>
-                <GridItem.Title>heatmap</GridItem.Title>
-              </GridItem.Header>
+            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+              <GridItem.Root>
+                <GridItem.Header>
+                  <GridItem.Title>heatmap</GridItem.Title>
+                </GridItem.Header>
 
-              <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
-            </GridItem.Root>
+                <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
+              </GridItem.Root>
+            </ErrorBoundary>
 
-            <GridItem.Root>
-              <GridItem.Header>
-                <GridItem.Title>random facts</GridItem.Title>
-              </GridItem.Header>
+            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+              <GridItem.Root>
+                <GridItem.Header>
+                  <GridItem.Title>random facts</GridItem.Title>
+                </GridItem.Header>
 
-              <RandomFacts exercises={group.exercises} />
-            </GridItem.Root>
+                <RandomFacts exercises={group.exercises} />
+              </GridItem.Root>
+            </ErrorBoundary>
           </GridLayout>
         </Timeline>
       ))}

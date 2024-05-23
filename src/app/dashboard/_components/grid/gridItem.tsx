@@ -3,12 +3,18 @@ import type { LinkProps } from "next/link";
 import { Button } from "@/components/ui/button";
 import type { ComponentProps } from "react";
 import { forwardRef } from "react";
+import { cn } from "@/lib/utils";
+import type { FallbackProps } from "react-error-boundary";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Header = (props: ComponentProps<"header">) => {
   return (
     <header
       {...props}
-      className="flex h-[3rem] max-h-[3rem] min-h-[3rem] items-center gap-2 border-b border-border bg-primary px-2"
+      className={cn(
+        "flex h-[3rem] max-h-[3rem] min-h-[3rem] items-center gap-2 border-b border-border bg-primary px-2",
+        props.className,
+      )}
     />
   );
 };
@@ -51,7 +57,10 @@ const Root = forwardRef<HTMLDivElement, ComponentProps<"div">>((props, ref) => {
     <div
       {...props}
       ref={ref}
-      className="group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md hover:bg-border"
+      className={cn(
+        "group relative flex h-exercise-card flex-col rounded-md border border-border bg-primary backdrop-blur-md transition-colors hover:bg-border",
+        props.className,
+      )}
     />
   );
 });
@@ -64,4 +73,31 @@ export const GridItem = {
   ActionButton,
   Title,
   Anchor,
+};
+
+export const GridItemErrorBoundary = (props: FallbackProps) => {
+  return (
+    <GridItem.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
+      <GridItem.Header className="border-destructive bg-destructive/10">
+        <GridItem.Title>something went wrong</GridItem.Title>
+      </GridItem.Header>
+
+      <div className="flex h-full flex-col items-center justify-center gap-3 overflow-auto p-5">
+        <code className="flex max-h-full overflow-auto">
+          Error: {JSON.stringify(props.error)}
+        </code>
+        <Button onClick={props.resetErrorBoundary} variant="destructive">
+          try again
+        </Button>
+      </div>
+    </GridItem.Root>
+  );
+};
+
+export const GritItemSkeleton = () => {
+  return (
+    <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
+      <GridItem.Header />
+    </Skeleton>
+  );
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorBoundary } from "react-error-boundary";
 import { type RouterInputs, type RouterOutputs, api } from "@/trpc/react";
 import { type ComponentPropsWithoutRef } from "react";
 import { MoreHorizontal, Tag } from "lucide-react";
@@ -25,7 +26,7 @@ import { pluralize } from "@/lib/utils";
 import { useExercises } from "../_components/useExercises";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "../_components/grid/gridLayout";
-import { GridItem } from "../_components/grid/gridItem";
+import { GridItem, GridItemErrorBoundary } from "../_components/grid/gridItem";
 import { DeleteExerciseAlertDialog } from "../_components/modals/deleteExerciseAlertDialog";
 import { UpdateExerciseNameDialog } from "../_components/modals/updateExerciseNameDialog";
 import { LineGraph } from "../_components/graphs/lineGraph";
@@ -84,12 +85,21 @@ export const AllExercisesGrid = () => {
       <SortableGrid
         gridItems={exercises.map((exercise) => ({
           id: exercise.id,
-          component: <ExerciseItem exercise={exercise} />,
+          component: (
+            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+              <ExerciseItem exercise={exercise} />
+            </ErrorBoundary>
+          ),
         }))}
       />
 
-      <RadarItem exercises={exercises} />
-      <RandomFactsItem exercises={exercises} />
+      <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+        <RadarItem exercises={exercises} />
+      </ErrorBoundary>
+
+      <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+        <RandomFactsItem exercises={exercises} />
+      </ErrorBoundary>
     </GridLayout>
   );
 };
@@ -175,7 +185,6 @@ const OptimisticExerciseItem = () => {
   );
 };
 
-//TODO: add error boundaries
 const RadarItem = ({
   exercises,
 }: {
