@@ -76,6 +76,11 @@ export const GridItem = {
 };
 
 export const GridItemErrorFallback = (props: FallbackProps) => {
+  const errorMessage =
+    props.error instanceof Error
+      ? props.error.message
+      : JSON.stringify(props.error);
+
   return (
     <GridItem.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
       <GridItem.Header className="border-destructive bg-destructive/10">
@@ -84,7 +89,7 @@ export const GridItemErrorFallback = (props: FallbackProps) => {
 
       <div className="flex h-full flex-col items-center justify-center gap-3 overflow-auto p-5">
         <code className="flex max-h-full overflow-auto">
-          Error: {JSON.stringify(props.error)}
+          Error: {errorMessage}
         </code>
         <Button onClick={props.resetErrorBoundary} variant="destructive">
           try again
