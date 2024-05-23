@@ -1,10 +1,12 @@
 import type { Config } from "drizzle-kit";
 
-export default {
+const config: Config = {
   schema: "./src/db/schema.ts",
   dbCredentials: {
-    connectionString: "postgres://postgres:postgres@localhost:5432/gym-graphs",
+    connectionString: process.env.DB_URL!,
   },
   out: "./drizzle",
   driver: "pg",
-} satisfies Config;
+};
+
+export default config;
