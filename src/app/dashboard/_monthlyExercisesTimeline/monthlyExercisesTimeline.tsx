@@ -5,7 +5,7 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../_components/useExercises";
 import { GridLayout } from "../_components/grid/gridLayout";
-import { GridItem, GridItemErrorBoundary } from "../_components/grid/gridItem";
+import { GridItem, GridItemErrorFallback } from "../_components/grid/gridItem";
 import { LineGraph } from "../_components/graphs/lineGraph";
 import { RadarGraph } from "../_components/graphs/radarGraph";
 import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
@@ -33,7 +33,7 @@ export const MonthlyExercisesTimeline = () => {
             {group.exercises.map((exercise) => {
               return (
                 <ErrorBoundary
-                  FallbackComponent={GridItemErrorBoundary}
+                  FallbackComponent={GridItemErrorFallback}
                   key={exercise.id}
                 >
                   <GridItem.Root>
@@ -59,7 +59,7 @@ export const MonthlyExercisesTimeline = () => {
               );
             })}
 
-            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
               <GridItem.Root>
                 <GridItem.Header>
                   <GridItem.Title>exercises count</GridItem.Title>
@@ -74,7 +74,7 @@ export const MonthlyExercisesTimeline = () => {
               </GridItem.Root>
             </ErrorBoundary>
 
-            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
               <GridItem.Root>
                 <GridItem.Header>
                   <GridItem.Title>heatmap</GridItem.Title>
@@ -84,7 +84,7 @@ export const MonthlyExercisesTimeline = () => {
               </GridItem.Root>
             </ErrorBoundary>
 
-            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
               <GridItem.Root>
                 <GridItem.Header>
                   <GridItem.Title>random facts</GridItem.Title>

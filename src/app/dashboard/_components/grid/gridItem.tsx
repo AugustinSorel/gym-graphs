@@ -75,7 +75,7 @@ export const GridItem = {
   Anchor,
 };
 
-export const GridItemErrorBoundary = (props: FallbackProps) => {
+export const GridItemErrorFallback = (props: FallbackProps) => {
   return (
     <GridItem.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
       <GridItem.Header className="border-destructive bg-destructive/10">

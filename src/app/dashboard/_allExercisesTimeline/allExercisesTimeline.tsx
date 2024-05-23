@@ -8,7 +8,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Suspense } from "react";
 import { AllExercisesGrid } from "./allExercisesGrid";
-import { FilterByExerciseName, FilterByExrerciseMuscleGroups } from "./filters";
+import {
+  FilterByExerciseName,
+  FilterByExrerciseMuscleGroups,
+} from "./exerciseFilters";
 import { ErrorBoundary } from "react-error-boundary";
 import { GridSkeleton } from "../_components/grid/gridLayout";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";

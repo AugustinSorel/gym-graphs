@@ -26,7 +26,7 @@ import { pluralize } from "@/lib/utils";
 import { useExercises } from "../_components/useExercises";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "../_components/grid/gridLayout";
-import { GridItem, GridItemErrorBoundary } from "../_components/grid/gridItem";
+import { GridItem, GridItemErrorFallback } from "../_components/grid/gridItem";
 import { DeleteExerciseAlertDialog } from "../_components/modals/deleteExerciseAlertDialog";
 import { UpdateExerciseNameDialog } from "../_components/modals/updateExerciseNameDialog";
 import { LineGraph } from "../_components/graphs/lineGraph";
@@ -86,18 +86,18 @@ export const AllExercisesGrid = () => {
         gridItems={exercises.map((exercise) => ({
           id: exercise.id,
           component: (
-            <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
               <ExerciseItem exercise={exercise} />
             </ErrorBoundary>
           ),
         }))}
       />
 
-      <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+      <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
         <RadarItem exercises={exercises} />
       </ErrorBoundary>
 
-      <ErrorBoundary FallbackComponent={GridItemErrorBoundary}>
+      <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
         <RandomFactsItem exercises={exercises} />
       </ErrorBoundary>
     </GridLayout>
