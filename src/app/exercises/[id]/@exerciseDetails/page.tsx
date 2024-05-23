@@ -1,5 +1,4 @@
-import { authOptions } from "@/lib/auth";
-import { type User, getServerSession } from "next-auth";
+import { type User } from "next-auth";
 import { redirect } from "next/navigation";
 import { exerciseId as exerciseIdSchema } from "@/schemas/exercise.schema";
 import type { Exercise } from "@/db/types";
@@ -8,6 +7,7 @@ import { ExerciseDetailsProvider } from "./exerciseDetailsContext";
 import { ExerciseGraphCard } from "./_graph/exerciseGraphCard";
 import { ExerciseTableCard } from "./_table/exerciseTableCard";
 import { exerciseTableColumns } from "./_table/_table/columns";
+import { getServerAuthSession } from "@/server/auth";
 
 export type ExercisePageProps = {
   params: { id?: Exercise["id"] };
@@ -15,7 +15,7 @@ export type ExercisePageProps = {
 
 const Page = async (unsafeProps: ExercisePageProps) => {
   const props = parseExercisePageProps(unsafeProps);
-  const session = await getServerSession(authOptions);
+  const session = await getServerAuthSession();
 
   if (!props || !session?.user.id) {
     return redirect("/dashboard");

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
-import { redirectIfSignedIn } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
 import Link from "next/link";
@@ -26,9 +25,15 @@ import { HeatmapGraph } from "./dashboard/_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "./dashboard/_components/graphs/heatmapUtils";
 import { RandomFacts } from "./dashboard/_components/graphs/randomFacts";
 import { Timeline } from "./dashboard/_components/timeline";
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 const HomePage = async () => {
-  await redirectIfSignedIn();
+  const session = await getServerAuthSession();
+
+  if (session?.user.id) {
+    return redirect("/dashboard");
+  }
 
   return (
     <MainContainer>

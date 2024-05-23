@@ -131,9 +131,6 @@ importers:
       next-pwa:
         specifier: ^5.6.0
         version: 5.6.0(@babel/core@7.23.2)(esbuild@0.18.20)(next@14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(webpack@5.89.0(esbuild@0.18.20))
-      next-safe-action:
-        specifier: ^4.0.1
-        version: 4.0.1(next@14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(zod@3.23.8)
       next-themes:
         specifier: ^0.2.1
         version: 0.2.1(next@14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3312,14 +3309,6 @@ packages:
     resolution: {integrity: sha512-XV8g8C6B7UmViXU8askMEYhWwQ4qc/XqJGnexbLV68hzKaGHZDMtHsm2TNxFcbR7+ypVuth/wwpiIlMwpRJJ5A==}
     peerDependencies:
       next: '>=9.0.0'
-
-  next-safe-action@4.0.1:
-    resolution: {integrity: sha512-qaZtNJxnkvE9AVQN8sW/OEuYk38gOFMwH4QEYBww/MWM0fVkRMPoHUQK43oSRVdqCDj49wqJrrcyDH9hgv+JrA==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      next: '>= 13.4.2'
-      react: '>= 18.2.0'
-      zod: '>= 3.0.0'
 
   next-themes@0.2.1:
     resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
@@ -7817,12 +7806,6 @@ snapshots:
       - supports-color
       - uglify-js
       - webpack
-
-  next-safe-action@4.0.1(next@14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)(zod@3.23.8):
-    dependencies:
-      next: 14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react: 18.2.0
-      zod: 3.23.8
 
   next-themes@0.2.1(next@14.2.3(@babel/core@7.23.2)(@playwright/test@1.40.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
