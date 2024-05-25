@@ -31,7 +31,7 @@ export const exerciseDataRouter = createTRPCRouter({
           });
         }
 
-        throw new Error("unhanndled server error");
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
 
@@ -67,13 +67,26 @@ export const exerciseDataRouter = createTRPCRouter({
   updateDoneAt: protectedProcedure
     .input(exerciseDataSchema.pick({ id: true, doneAt: true }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(exercisesData)
-        .set({
-          doneAt: input.doneAt,
-          updatedAt: new Date(),
-        })
-        .where(eq(exercisesData.id, input.id));
+      try {
+        await ctx.db
+          .update(exercisesData)
+          .set({
+            doneAt: input.doneAt,
+            updatedAt: new Date(),
+          })
+          .where(eq(exercisesData.id, input.id));
+      } catch (e) {
+        const error = e as object;
+
+        if ("code" in error && error.code === "23505") {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "This date clashes with an existing date",
+          });
+        }
+
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
 
   delete: protectedProcedure

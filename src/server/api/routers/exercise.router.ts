@@ -121,4 +121,21 @@ export const exerciseRouter = createTRPCRouter({
         .set({ muscleGroups: input.muscleGroups })
         .where(eq(exercises.id, input.id));
     }),
+
+  get: protectedProcedure
+    .input(exerciseSchema.pick({ id: true }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.query.exercises.findFirst({
+        with: {
+          data: {
+            orderBy: (data, { asc }) => [asc(data.doneAt)],
+          },
+        },
+        where: (exercise, { eq, and }) =>
+          and(
+            eq(exercise.id, input.id),
+            eq(exercise.userId, ctx.session.user.id),
+          ),
+      });
+    }),
 });

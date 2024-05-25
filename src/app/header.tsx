@@ -29,7 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type PropsWithChildren, useState, Suspense } from "react";
+import { type PropsWithChildren, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -387,9 +387,19 @@ type CurrentExerciseLinkProps = {
 const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {
-  const [exercises] = api.exercise.all.useSuspenseQuery();
+  const exercises = api.exercise.all.useQuery();
 
-  if (!exercises) {
+  if (exercises.isLoading) {
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+        <ChevronsUpDown className="ml-3 h-4 w-4 stroke-muted-foreground" />
+      </>
+    );
+  }
+
+  if (!exercises.data?.length) {
     return null;
   }
 
@@ -398,7 +408,10 @@ const CurrentExeciseLink = ({
       <Separator />
 
       <span className="truncate text-xl font-medium capitalize">
-        {exercises.find((exercise) => exercise.id === selectedExerciseId)?.name}
+        {
+          exercises.data.find((exercise) => exercise.id === selectedExerciseId)
+            ?.name
+        }
       </span>
 
       <DropdownMenu>
@@ -428,7 +441,7 @@ const CurrentExeciseLink = ({
             exercises
           </DropdownMenuLabel>
 
-          {exercises.map((exercise) => (
+          {exercises.data.map((exercise) => (
             <DropdownMenuItem
               key={exercise.id}
               className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
@@ -448,7 +461,6 @@ const CurrentExeciseLink = ({
   );
 };
 
-//TODO:loader
 export const Header = () => {
   const pathname = usePathname().split("/");
 
@@ -466,9 +478,7 @@ export const Header = () => {
         {showDashboardPath && <DashboardLink />}
 
         {showExecisesPath && exerciseId && (
-          <Suspense fallback={<>loading...</>}>
-            <CurrentExeciseLink selectedExerciseId={exerciseId} />
-          </Suspense>
+          <CurrentExeciseLink selectedExerciseId={exerciseId} />
         )}
       </nav>
       <DropDownMenu />

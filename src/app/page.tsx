@@ -464,6 +464,7 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: call trpc server on rsc
+//TODO: test with low end network
 //TODO: error msg
 //TODO: react hook form
 //TODO: remove old auth.ts
