@@ -11,27 +11,53 @@ import { RadarGraph } from "../_components/graphs/radarGraph";
 import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_components/graphs/heatmapUtils";
 import { RandomFacts } from "../_components/graphs/randomFacts";
-import { Timeline } from "../_components/timeline";
+import {
+  Timeline,
+  TimelineErrorFallback,
+  TimelineSkeleton,
+} from "../_components/timeline";
 import { ErrorBoundary } from "react-error-boundary";
+import { QueryErrorResetBoundary } from "@tanstack/react-query";
+import { Suspense } from "react";
 
-export const MonthlyExercisesTimeline = () => {
+export const MonthlyExercisesTimelines = () => {
+  return (
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary
+          FallbackComponent={TimelineErrorFallback}
+          onReset={reset}
+        >
+          <Suspense fallback={<TimelineSkeleton />}>
+            <Content />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
+  );
+};
+
+const Content = () => {
   const exercises = useExercises();
 
   return (
     <>
       {getExercisesByMonth(exercises).map((group) => (
-        <Timeline key={group.date}>
-          <Badge variant="accent" className="w-max">
-            <time dateTime={group.date}>
-              {new Date(group.date).toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-              })}
-            </time>
-          </Badge>
-          <GridLayout>
-            {group.exercises.map((exercise) => {
-              return (
+        <ErrorBoundary
+          FallbackComponent={TimelineErrorFallback}
+          key={group.date}
+        >
+          <Timeline>
+            <Badge variant="accent" className="w-max">
+              <time dateTime={group.date}>
+                {new Date(group.date).toLocaleDateString(undefined, {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </time>
+            </Badge>
+            <GridLayout>
+              {group.exercises.map((exercise) => (
                 <ErrorBoundary
                   FallbackComponent={GridItemErrorFallback}
                   key={exercise.id}
@@ -56,57 +82,55 @@ export const MonthlyExercisesTimeline = () => {
                     <LineGraph data={exercise.data} />
                   </GridItem.Root>
                 </ErrorBoundary>
-              );
-            })}
+              ))}
 
-            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-              <GridItem.Root>
-                <GridItem.Header>
-                  <GridItem.Title>exercises count</GridItem.Title>
-                </GridItem.Header>
+              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
+                <GridItem.Root>
+                  <GridItem.Header>
+                    <GridItem.Title>exercises count</GridItem.Title>
+                  </GridItem.Header>
 
-                <RadarGraph
-                  data={group.exercises.map((exercise) => ({
-                    exerciseName: exercise.name,
-                    frequency: exercise.data.length,
-                  }))}
-                />
-              </GridItem.Root>
-            </ErrorBoundary>
+                  <RadarGraph
+                    data={group.exercises.map((exercise) => ({
+                      exerciseName: exercise.name,
+                      frequency: exercise.data.length,
+                    }))}
+                  />
+                </GridItem.Root>
+              </ErrorBoundary>
 
-            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-              <GridItem.Root>
-                <GridItem.Header>
-                  <GridItem.Title>heatmap</GridItem.Title>
-                </GridItem.Header>
+              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
+                <GridItem.Root>
+                  <GridItem.Header>
+                    <GridItem.Title>heatmap</GridItem.Title>
+                  </GridItem.Header>
 
-                <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
-              </GridItem.Root>
-            </ErrorBoundary>
+                  <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
+                </GridItem.Root>
+              </ErrorBoundary>
 
-            <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-              <GridItem.Root>
-                <GridItem.Header>
-                  <GridItem.Title>random facts</GridItem.Title>
-                </GridItem.Header>
+              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
+                <GridItem.Root>
+                  <GridItem.Header>
+                    <GridItem.Title>random facts</GridItem.Title>
+                  </GridItem.Header>
 
-                <RandomFacts exercises={group.exercises} />
-              </GridItem.Root>
-            </ErrorBoundary>
-          </GridLayout>
-        </Timeline>
+                  <RandomFacts exercises={group.exercises} />
+                </GridItem.Root>
+              </ErrorBoundary>
+            </GridLayout>
+          </Timeline>
+        </ErrorBoundary>
       ))}
     </>
   );
 };
 
-type ExercisesByMonth = Array<{
-  date: string;
-  exercises: RouterOutputs["exercise"]["all"];
-}>;
-
 const getExercisesByMonth = (exercises: RouterOutputs["exercise"]["all"]) => {
-  const exercisesByMonth: ExercisesByMonth = [];
+  const exercisesByMonth: Array<{
+    date: string;
+    exercises: RouterOutputs["exercise"]["all"];
+  }> = [];
 
   for (const exercise of exercises) {
     for (const data of exercise.data) {

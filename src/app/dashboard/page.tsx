@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createSSRHelper } from "@/trpc/server";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { AllExercisesTimeline } from "./_allExercisesTimeline/allExercisesTimeline";
-import { MonthlyExercisesTimeline } from "./_monthlyExercisesTimeline/monthlyExercisesTimeline";
+import { MonthlyExercisesTimelines } from "./_monthlyExercisesTimelines/monthlyExercisesTimelines";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -25,7 +25,7 @@ const Page = async () => {
       </HydrationBoundary>
 
       <HydrationBoundary state={dehydrate(helpers.queryClient)}>
-        <MonthlyExercisesTimeline />
+        <MonthlyExercisesTimelines />
       </HydrationBoundary>
     </>
   );
