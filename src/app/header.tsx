@@ -29,12 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  type PropsWithChildren,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { type PropsWithChildren, useState } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -59,10 +54,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
-import { deleteUserAccountAction } from "@/serverActions/user";
-import { getAllExercises } from "@/serverActions/exercises";
 import type { Exercise } from "@/db/types";
 import { getErrorMessage } from "@/lib/utils";
+import { api } from "@/trpc/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -247,40 +242,31 @@ const SignOutDropDownItem = () => {
 };
 
 const DeleteAccountDropDownItem = () => {
-  const [isDeleteAccountLoading, setIsDeleteAccountLoading] = useState(false);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { toast } = useToast();
 
-  const deleteHandler = async () => {
-    try {
-      setIsDeleteAccountLoading(() => true);
-
-      const res = await deleteUserAccountAction(null);
-
-      if (res.serverError) {
-        throw new Error(res.serverError);
-      }
-
+  const deleteAccount = api.user.delete.useMutation({
+    onSuccess: async () => {
       await signOut({ callbackUrl: "/" });
-      setIsAlertOpen(() => false);
-    } catch (error) {
+    },
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Something went wrong",
         description: getErrorMessage(error),
         action: (
-          <ToastAction altText="Try again" onClick={() => void deleteHandler()}>
+          <ToastAction
+            altText="Try again"
+            onClick={() => void deleteAccount.mutate()}
+          >
             Try again
           </ToastAction>
         ),
       });
-    } finally {
-      setIsDeleteAccountLoading(() => false);
-    }
-  };
+    },
+  });
 
   return (
-    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+    <AlertDialog>
       <AlertDialogTrigger asChild>
         <DropdownMenuItem
           className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive"
@@ -305,10 +291,10 @@ const DeleteAccountDropDownItem = () => {
             className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
             onClick={(e) => {
               e.preventDefault();
-              void deleteHandler();
+              void deleteAccount.mutate();
             }}
           >
-            {isDeleteAccountLoading && <Loader />}
+            {deleteAccount.isPending && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -357,7 +343,16 @@ const Separator = () => {
 };
 
 const DashboardLink = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+      </>
+    );
+  }
 
   if (!session) {
     return null;
@@ -392,19 +387,19 @@ type CurrentExerciseLinkProps = {
 const CurrentExeciseLink = ({
   selectedExerciseId,
 }: CurrentExerciseLinkProps) => {
-  const [exercises, setExercises] = useState<Exercise[] | null>(null);
+  const exercises = api.exercise.all.useQuery();
 
-  const fetch = useCallback(async () => {
-    const res = await getAllExercises(null);
+  if (exercises.isLoading) {
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+        <ChevronsUpDown className="ml-3 h-4 w-4 stroke-muted-foreground" />
+      </>
+    );
+  }
 
-    if (res.data) {
-      setExercises(res.data);
-    }
-  }, []);
-
-  useEffect(() => void fetch(), [fetch]);
-
-  if (!exercises) {
+  if (!exercises.data?.length) {
     return null;
   }
 
@@ -413,7 +408,10 @@ const CurrentExeciseLink = ({
       <Separator />
 
       <span className="truncate text-xl font-medium capitalize">
-        {exercises.find((exercise) => exercise.id === selectedExerciseId)?.name}
+        {
+          exercises.data.find((exercise) => exercise.id === selectedExerciseId)
+            ?.name
+        }
       </span>
 
       <DropdownMenu>
@@ -443,7 +441,7 @@ const CurrentExeciseLink = ({
             exercises
           </DropdownMenuLabel>
 
-          {exercises.map((exercise) => (
+          {exercises.data.map((exercise) => (
             <DropdownMenuItem
               key={exercise.id}
               className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"

@@ -1,33 +1,21 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
-import type { ReactNode, ComponentProps, PropsWithChildren } from "react";
+import type { ComponentPropsWithoutRef, PropsWithChildren } from "react";
 
-type Props = {
-  newExerciseForm: ReactNode;
-  allExercisesGrid: ReactNode;
-  exercisesByMonthGrid: ReactNode;
-} & PropsWithChildren;
-
-const Layout = (props: Props) => {
+const Layout = (props: PropsWithChildren) => {
   return (
     <Container>
-      <ContentContainer>
-        {props.newExerciseForm}
-        {props.allExercisesGrid}
-        {props.exercisesByMonthGrid}
-      </ContentContainer>
+      <ContentContainer>{props.children}</ContentContainer>
 
       <BackgroundContainer>
         <DashboardBackground />
       </BackgroundContainer>
-
-      {props.children}
     </Container>
   );
 };
 
 export default Layout;
 
-const Container = (props: ComponentProps<"main">) => {
+const Container = (props: ComponentPropsWithoutRef<"main">) => {
   return (
     <main
       {...props}
@@ -36,7 +24,7 @@ const Container = (props: ComponentProps<"main">) => {
   );
 };
 
-const ContentContainer = (props: ComponentProps<"div">) => {
+const ContentContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return (
     <div
       {...props}
@@ -45,7 +33,7 @@ const ContentContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const BackgroundContainer = (props: ComponentProps<"div">) => {
+const BackgroundContainer = (props: ComponentPropsWithoutRef<"div">) => {
   return (
     <div
       {...props}

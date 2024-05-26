@@ -1,10 +1,15 @@
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 import type { ComponentProps } from "react";
 import { MailPlus } from "lucide-react";
-import { redirectIfSignedIn } from "@/lib/auth";
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 const Page = async () => {
-  await redirectIfSignedIn();
+  const session = await getServerAuthSession();
+
+  if (session?.user.id) {
+    return redirect("/dashboard");
+  }
 
   return (
     <Container>

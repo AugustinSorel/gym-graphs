@@ -12,6 +12,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
+import { sql } from "drizzle-orm";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -40,7 +41,7 @@ export const accounts = pgTable(
   },
   (account) => ({
     compoundKey: primaryKey(account.provider, account.providerAccountId),
-  })
+  }),
 );
 
 export const sessions = pgTable("session", {
@@ -60,7 +61,7 @@ export const verificationTokens = pgTable(
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
-  })
+  }),
 );
 
 export const muscleGroupsEnum = pgEnum("muscle_groups", [
@@ -89,11 +90,11 @@ export const exercises = pgTable(
     muscleGroups: muscleGroupsEnum("muscle_groups")
       .array()
       .notNull()
-      .default([]),
+      .default(sql`'{}'`),
   },
   (exercise) => ({
     unq: unique().on(exercise.userId, exercise.name),
-  })
+  }),
 );
 
 export const exerciseGridPosition = pgTable("exercise_grid_position", {
@@ -122,5 +123,5 @@ export const exercisesData = pgTable(
   },
   (exerciseData) => ({
     unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
-  })
+  }),
 );
