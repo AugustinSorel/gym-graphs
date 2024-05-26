@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { muscleGroupsEnum } from "@/db/schema";
 
-//TODO: remove this crap
-export const exerciseId = z
-  .string({
-    required_error: "id is required",
-    invalid_type_error: "id must be a uuid",
-  })
-  .uuid("uuid is not valid");
-
 export const exerciseSchema = z.object({
   id: z
     .string({

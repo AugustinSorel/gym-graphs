@@ -462,13 +462,11 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: call trpc server on rsc
 //TODO: test with low end network
 //TODO: error msg
 //TODO: react hook form
-//TODO: remove old auth.ts
 //TODO: add email and psw
 //TODO: move db to server folder
 //TODO: create folder for style
-//TODO: clean the auth dir
+//TODO: clean the auth componennts
 //TODO: add back loader
