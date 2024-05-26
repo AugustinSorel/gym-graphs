@@ -108,6 +108,7 @@ export const exerciseRouter = createTRPCRouter({
           data: { orderBy: (data, { asc }) => [asc(data.doneAt)] },
           position: true,
         },
+        where: eq(exercises.userId, ctx.session.user.id),
       })
     ).sort((a, b) => b.position.gridPosition - a.position.gridPosition);
     //TODO: use order by rather than this crapy sort
