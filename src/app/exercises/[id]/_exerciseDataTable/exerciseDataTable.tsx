@@ -27,11 +27,11 @@ interface DataTableProps<TValue> {
 
 export function ExerciseDataTable<TValue>({ columns }: DataTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const exercisePageCtx = useExercisePageContext();
+  const { exercise } = useExercisePageContext();
 
   const memoisedData = useMemo(
-    () => [...exercisePageCtx.exercise.filteredData].reverse(),
-    [exercisePageCtx.exercise.filteredData],
+    () => [...exercise.filteredData].reverse(),
+    [exercise.filteredData],
   );
 
   const table = useReactTable({

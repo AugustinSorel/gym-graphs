@@ -1,63 +1,73 @@
 "use client";
 
-import { type RouterOutputs, api } from "@/trpc/react";
+import { type RouterOutputs } from "@/trpc/react";
 import {
   type PropsWithChildren,
   createContext,
   useContext,
   useState,
+  type Dispatch,
+  type SetStateAction,
 } from "react";
-import { useExercisePageParams } from "./useExercisePageParams";
 import { useExercisePageSearchParams } from "./useExercisePageSearchParams";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData, ExerciseWithData } from "@/db/types";
 import { convertWeightToLbs } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
 
-const exercisePageContext = createContext<
+const ExercisePageContext = createContext<
   | {
       exercise: RouterOutputs["exercise"]["get"] & {
         filteredData: Array<ExerciseData>;
       };
-      filter: (newParams: object) => void;
+      filter: Dispatch<
+        SetStateAction<{
+          from: string | null | undefined;
+          to: string | null | undefined;
+        }>
+      >;
     }
   | undefined
 >(undefined);
 
-export const ExercisePageContextProvider = (props: PropsWithChildren) => {
-  const params = useExercisePageParams();
+export const ExercisePageContextProvider = (
+  props: PropsWithChildren & { exercise: ExerciseWithData },
+) => {
   const searchParams = useExercisePageSearchParams();
   const weightUnit = useWeightUnit();
-  const [x, setX] = useState(searchParams.values);
-
-  const [exercise] = api.exercise.get.useSuspenseQuery({ id: params.id });
-
-  if (!exercise) {
-    throw new Error(`exercise with id: ${params.id} could not be found`);
-  }
+  const [datesFilter, setDatesFilter] = useState({
+    from: searchParams.values.from,
+    to: searchParams.values.to,
+  });
 
   //TODO:clean this crap
   return (
-    <exercisePageContext.Provider
+    <ExercisePageContext.Provider
       value={{
-        filter: setX,
+        filter: setDatesFilter,
         exercise: {
-          ...exercise,
-          filteredData: exercise.data
+          ...props.exercise,
+          filteredData: props.exercise.data
             .filter((d) => {
-              if (x.from && !x.to) {
+              if (datesFilter.from && !datesFilter.to) {
                 return (
-                  new Date(x.from).getTime() <= new Date(d.doneAt).getTime()
+                  new Date(datesFilter.from).getTime() <=
+                  new Date(d.doneAt).getTime()
                 );
               }
 
-              if (!x.from && x.to) {
-                return new Date(x.to).getTime() >= new Date(d.doneAt).getTime();
+              if (!datesFilter.from && datesFilter.to) {
+                return (
+                  new Date(datesFilter.to).getTime() >=
+                  new Date(d.doneAt).getTime()
+                );
               }
 
-              if (x.from && x.to) {
+              if (datesFilter.from && datesFilter.to) {
                 return (
-                  new Date(x.from).getTime() <= new Date(d.doneAt).getTime() &&
-                  new Date(x.to).getTime() >= new Date(d.doneAt).getTime()
+                  new Date(datesFilter.from).getTime() <=
+                    new Date(d.doneAt).getTime() &&
+                  new Date(datesFilter.to).getTime() >=
+                    new Date(d.doneAt).getTime()
                 );
               }
 
@@ -80,7 +90,7 @@ export const ExercisePageContextProvider = (props: PropsWithChildren) => {
 };
 
 export const useExercisePageContext = () => {
-  const ctx = useContext(exercisePageContext);
+  const ctx = useContext(ExercisePageContext);
 
   if (!ctx) {
     throw new Error(

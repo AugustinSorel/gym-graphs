@@ -56,6 +56,8 @@ export const Card = {
   Footer,
   ErrorMessage,
 };
+
+//TODO: move this to the card obj
 export const CardSkeleton = () => {
   return (
     <Skeleton className="backdrop-blur-md">

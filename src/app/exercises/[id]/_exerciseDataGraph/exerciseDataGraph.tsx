@@ -23,6 +23,7 @@ import { calculateOneRepMax } from "@/lib/math";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import { useExercisePageContext } from "../_components/exercisePageContext";
 import { useExercisePageSearchParams } from "../_components/useExercisePageSearchParams";
+import { useParams } from "next/navigation";
 
 type GraphPoint = Pick<
   ExerciseData,
@@ -286,9 +287,9 @@ const MainGraph = ({
 
 const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
   const brushRef = useRef<BaseBrush | null>(null);
-  const { exercise } = useExercisePageContext();
+  const { exercise, filter } = useExercisePageContext();
   const exercisePageSearchParams = useExercisePageSearchParams();
-  const exercisePageCtx = useExercisePageContext();
+  const params = useParams();
 
   const xBrushMax = Math.max(
     dimensions.width - brushMargin.left - brushMargin.right,
@@ -355,14 +356,14 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
       return;
     }
 
-    exercisePageCtx.filter({
+    filter({
       from: dateAsYearMonthDayFormat(new Date(domain.x0)),
       to: dateAsYearMonthDayFormat(new Date(domain.x1)),
     });
   };
 
   const onBrushEnd = (domain: Bounds | null) => {
-    if (!domain) {
+    if (!domain || !params.id) {
       return;
     }
 
@@ -412,10 +413,11 @@ const BrushGraph = ({ dimensions }: { dimensions: Dimensions }) => {
         onBrushEnd={onBrushEnd}
         onChange={onBrushChange}
         onClick={() => {
-          exercisePageSearchParams.update({
-            from: null,
-            to: null,
-          });
+          if (params.id) {
+            exercisePageSearchParams.update({ from: null, to: null });
+          }
+
+          filter({ from: null, to: null });
         }}
         selectedBoxStyle={{
           fill: "url(#lines)",

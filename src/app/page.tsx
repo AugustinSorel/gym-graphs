@@ -12,10 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ExerciseDetailsProvider } from "./exercises/[id]/@exerciseDetails/exerciseDetailsContext";
-import { ExerciseGraphCard } from "./exercises/[id]/@exerciseDetails/_graph/exerciseGraphCard";
-import { ExerciseTableCard } from "./exercises/[id]/@exerciseDetails/_table/exerciseTableCard";
-import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseDetails/_table/_table/columns";
 import { Badge } from "@/components/ui/badge";
 import { GridLayout } from "./dashboard/_components/grid/gridLayout";
 import { GridItem } from "./dashboard/_components/grid/gridItem";
@@ -27,6 +23,9 @@ import { RandomFacts } from "./dashboard/_components/graphs/randomFacts";
 import { Timeline } from "./dashboard/_components/timeline";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
+import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
+import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/exerciseDataTableCard";
+import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();
@@ -225,10 +224,10 @@ const FeatureTwo = () => {
       </Text>
 
       <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] space-y-10">
-        <ExerciseDetailsProvider exercise={mockExercises[0]!}>
-          <ExerciseGraphCard />
-          <ExerciseTableCard columns={exerciseTableColumnsWithoutActions} />
-        </ExerciseDetailsProvider>
+        <ExercisePageContextProvider exercise={mockExercises[0]!}>
+          <ExerciseDataGraphCard />
+          <ExerciseDataTableCardDummy />
+        </ExercisePageContextProvider>
       </div>
 
       <FeaturesGridBackground />
@@ -471,3 +470,5 @@ const FeaturesGridBackground = () => {
 //TODO: add email and psw
 //TODO: move db to server folder
 //TODO: create folder for style
+//TODO: clean the auth dir
+//TODO: add back loader
