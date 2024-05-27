@@ -17,6 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 import { api } from "@/trpc/react";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   exerciseData: ExerciseData;
@@ -31,6 +32,9 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
   const utils = api.useUtils();
 
   const updateNumberOfReps = api.exerciseData.updateNumberOfReps.useMutation({
+    onSuccess: () => {
+      setIsDialogOpen(() => false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -98,8 +102,6 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
           return exercise;
         }),
       );
-
-      setIsDialogOpen(() => false);
     },
     onSettled: async () => {
       await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
@@ -142,7 +144,11 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
             autoComplete="off"
           />
 
-          <Button className="ml-auto space-x-2">
+          <Button
+            className="ml-auto space-x-2"
+            disabled={updateNumberOfReps.isPending}
+          >
+            {updateNumberOfReps.isPending && <Loader />}
             <span className="capitalize">save change</span>
           </Button>
         </form>

@@ -17,6 +17,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
 import type { Exercise } from "@/db/types";
 import { api } from "@/trpc/react";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   exercise: Exercise;
@@ -28,7 +29,10 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const { toast } = useToast();
   const utils = api.useUtils();
 
-  const updateExercise = api.exercise.update.useMutation({
+  const updateExerciseName = api.exercise.update.useMutation({
+    onSuccess: () => {
+      setIsDialogOpen(false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -37,7 +41,7 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
         action: (
           <ToastAction
             altText="Try again"
-            onClick={() => updateExercise.mutate(variables)}
+            onClick={() => updateExerciseName.mutate(variables)}
           >
             Try again
           </ToastAction>
@@ -59,8 +63,6 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
             : exercise,
         ),
       );
-
-      setIsDialogOpen(false);
     },
 
     onSettled: async () => {
@@ -86,7 +88,7 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
           onSubmit={(e) => {
             e.preventDefault();
 
-            updateExercise.mutate({
+            updateExerciseName.mutate({
               id: exercise.id,
               name: updatedExerciseName,
             });
@@ -101,7 +103,11 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
             onChange={(e) => setUpdatedExerciseName(e.target.value)}
           />
 
-          <Button className="ml-auto space-x-2">
+          <Button
+            className="ml-auto space-x-2"
+            disabled={updateExerciseName.isPending}
+          >
+            {updateExerciseName.isPending && <Loader />}
             <span className="capitalize">save change</span>
           </Button>
         </form>
