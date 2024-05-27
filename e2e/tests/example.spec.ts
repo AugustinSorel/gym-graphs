@@ -8,5 +8,5 @@ test("making sure this works", async ({ page }) => {
     .first()
     .click();
 
-  await page.waitForURL((url) => url.pathname.startsWith("/sign-in"));
+  await page.waitForURL((url) => url.pathname.startsWith("/dashboard"));
 });

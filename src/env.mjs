@@ -27,6 +27,8 @@ const server = z.object({
   EMAIL_SERVER_HOST: z.string().min(1),
   EMAIL_SERVER_PASSWORD: z.string().min(1),
   EMAIL_SERVER_USER: z.string().email(),
+  E2E_GOOGLE_USER_EMAIL: z.string().email().optional(),
+  E2E_GOOGLE_USER_PASSWORD: z.string().min(1).optional(),
 });
 
 /**
@@ -57,6 +59,8 @@ const processEnv = {
   EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
   EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
   EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
+  E2E_GOOGLE_USER_EMAIL: process.env.E2E_USER_EMAIL,
+  E2E_GOOGLE_USER_PASSWORD: process.env.E2E_USER_PASSWORD,
 };
 
 // Don't touch the part below
