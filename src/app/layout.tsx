@@ -1,7 +1,7 @@
+import "../styles/globals.css";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Header } from "./header";
-import { Providers } from "./providers";
+import { Header } from "./_components/header";
+import { Providers } from "./_components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
 import { Analytics } from "@vercel/analytics/react";
