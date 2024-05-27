@@ -54,7 +54,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
-import type { Exercise } from "@/db/types";
+import type { Exercise } from "@/server/db/types";
 import { getErrorMessage } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";

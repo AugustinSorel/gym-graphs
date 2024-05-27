@@ -20,7 +20,7 @@ import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import { UpdateExerciseDataDate } from "./updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData } from "@/server/db/types";
 import { calculateOneRepMax } from "@/lib/math";
 
 const EstimatedPrHeader = ({

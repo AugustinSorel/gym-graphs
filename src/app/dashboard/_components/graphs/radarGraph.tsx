@@ -5,7 +5,7 @@ import { scaleLinear } from "@visx/scale";
 import { Point } from "@visx/point";
 import { Line, LineRadial } from "@visx/shape";
 import { useDimensions } from "@/hooks/useDimensions";
-import type { Exercise } from "@/db/types";
+import type { Exercise } from "@/server/db/types";
 import { Zoom } from "@visx/zoom";
 import { Button } from "@/components/ui/button";
 

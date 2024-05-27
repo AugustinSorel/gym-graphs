@@ -10,7 +10,7 @@ import {
   type SetStateAction,
 } from "react";
 import { useExercisePageSearchParams } from "./useExercisePageSearchParams";
-import type { ExerciseData, ExerciseWithData } from "@/db/types";
+import type { ExerciseData, ExerciseWithData } from "@/server/db/types";
 import { convertWeightToLbs } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
 

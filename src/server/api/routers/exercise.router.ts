@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { exerciseGridPosition, exercises } from "@/db/schema";
 import { exerciseSchema } from "@/schemas/exercise.schema";
+import { exerciseGridPosition, exercises } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 

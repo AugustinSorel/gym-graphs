@@ -18,7 +18,7 @@ import { GridRows } from "@visx/grid";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData } from "@/server/db/types";
 import { calculateOneRepMax } from "@/lib/math";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import { useExercisePageContext } from "../_components/exercisePageContext";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Carousel } from "@/components/ui/carousel";
-import type { ExerciseWithData } from "@/db/types";
+import type { ExerciseWithData } from "@/server/db/types";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import type { ComponentPropsWithoutRef } from "react";
 

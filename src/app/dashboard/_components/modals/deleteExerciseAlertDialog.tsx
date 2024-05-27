@@ -16,7 +16,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { Exercise } from "@/db/types";
+import type { Exercise } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
 
