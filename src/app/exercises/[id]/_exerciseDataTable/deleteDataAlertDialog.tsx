@@ -30,6 +30,9 @@ export const DeleteDataAlertDialog = ({ exerciseData }: Props) => {
   const utils = api.useUtils();
 
   const deleteExerciseData = api.exerciseData.delete.useMutation({
+    onSuccess: () => {
+      setIsAlertDialogOpen(() => false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -84,8 +87,6 @@ export const DeleteDataAlertDialog = ({ exerciseData }: Props) => {
           return exercise;
         }),
       );
-
-      setIsAlertDialogOpen(() => false);
     },
     onSettled: async () => {
       await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
