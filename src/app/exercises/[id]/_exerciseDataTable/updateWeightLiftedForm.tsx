@@ -16,7 +16,7 @@ import { Edit2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData } from "@/server/db/types";
 import { convertWeightToKg } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
 import { api } from "@/trpc/react";

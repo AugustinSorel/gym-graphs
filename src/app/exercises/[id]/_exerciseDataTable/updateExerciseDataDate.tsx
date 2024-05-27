@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { Loader } from "@/components/ui/loader";

@@ -1,4 +1,4 @@
-import type { ExerciseWithData } from "@/db/types";
+import type { ExerciseWithData } from "@/server/db/types";
 
 export const mockExercises: ExerciseWithData[] = [
   {

@@ -17,8 +17,8 @@ import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToKg } from "@/lib/math";
 import { api } from "@/trpc/react";
 import { useExercisePageParams } from "../_components/useExercisePageParams";
-import type { ExerciseData } from "@/db/types";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
+import type { ExerciseData } from "@/server/db/types";
 
 export const NewExerciseDataForm = () => {
   const [numberOfRepetitions, setNumberofRepetitions] = useState("");

@@ -1,5 +1,5 @@
+import { muscleGroupsEnum } from "@/server/db/schema";
 import { z } from "zod";
-import { muscleGroupsEnum } from "@/db/schema";
 
 export const exerciseSchema = z.object({
   id: z

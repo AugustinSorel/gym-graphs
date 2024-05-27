@@ -1,4 +1,4 @@
-import type { Exercise, ExerciseData } from "@/db/types";
+import type { Exercise, ExerciseData } from "@/server/db/types";
 import type { HeatmapData } from "./heatmapGraph";
 
 export const prepareHeatmapData = (

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ExerciseData } from "@/db/types";
+import { type ExerciseData } from "@/server/db/types";
 import { useDimensions } from "@/hooks/useDimensions";
 import { curveMonotoneX } from "@visx/curve";
 import { scaleLinear, scaleTime } from "@visx/scale";

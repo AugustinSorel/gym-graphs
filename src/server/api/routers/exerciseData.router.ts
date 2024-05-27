@@ -1,8 +1,8 @@
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { exercisesData } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
+import { exercisesData } from "@/server/db/schema";
 
 export const exerciseDataRouter = createTRPCRouter({
   create: protectedProcedure

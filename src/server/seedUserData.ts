@@ -1,7 +1,7 @@
-import { db } from "@/db";
-import { exerciseGridPosition, exercises, exercisesData } from "@/db/schema";
 import { addDays, addMonths } from "@/lib/date";
 import type { User } from "next-auth";
+import { db } from "./db";
+import { exerciseGridPosition, exercises, exercisesData } from "./db/schema";
 
 export const seedUserData = async ({ id }: Pick<User, "id">) => {
   await db.transaction(async (tx) => {

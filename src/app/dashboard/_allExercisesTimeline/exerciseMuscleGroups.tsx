@@ -1,6 +1,6 @@
 "use client";
 
-import type { Exercise } from "@/db/types";
+import type { Exercise } from "@/server/db/types";
 import { type PropsWithChildren } from "react";
 import {
   Tooltip,
@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { muscleGroupsEnum } from "@/db/schema";
+import { muscleGroupsEnum } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 
 export const ExerciseMuscleGroupsDropdown = ({

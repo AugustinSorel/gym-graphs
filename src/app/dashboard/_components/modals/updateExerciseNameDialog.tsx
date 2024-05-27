@@ -15,9 +15,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
-import type { Exercise } from "@/db/types";
 import { api } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
+import type { Exercise } from "@/server/db/types";
 
 type Props = {
   exercise: Exercise;

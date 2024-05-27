@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { muscleGroupsEnum } from "@/db/schema";
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +21,7 @@ import {
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
+import { muscleGroupsEnum } from "@/server/db/schema";
 
 export const FilterByExerciseName = () => {
   const dashboardSearchParams = useDashboardSearchParams();

@@ -17,7 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import { ToastAction } from "@/components/ui/toast";
-import type { ExerciseData } from "@/db/types";
+import type { ExerciseData } from "@/server/db/types";
 import { api } from "@/trpc/react";
 
 type Props = {

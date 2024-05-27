@@ -7,9 +7,9 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import { db } from "@/db";
 import { env } from "@/env.mjs";
 import { seedUserData } from "./seedUserData";
+import { db } from "./db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
