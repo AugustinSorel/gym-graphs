@@ -2,7 +2,7 @@ import { HeroBackground } from "@/components/ui/heroBackground";
 import { Icon } from "@/components/ui/icon";
 import type { ComponentProps } from "react";
 
-const Hero = () => {
+export const Hero = () => {
   return (
     <Container>
       <Icon size="lg" />
