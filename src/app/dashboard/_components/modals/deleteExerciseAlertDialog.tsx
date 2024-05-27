@@ -18,6 +18,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { Exercise } from "@/db/types";
 import { api } from "@/trpc/react";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   exercise: Exercise;
@@ -29,6 +30,9 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
   const utils = api.useUtils();
 
   const deleteExercise = api.exercise.delete.useMutation({
+    onSuccess: () => {
+      setIsAlertDialogOpen(false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -55,8 +59,6 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
         undefined,
         allExercises.filter((x) => x.id !== exerciseToDelete.id),
       );
-
-      setIsAlertDialogOpen(false);
     },
     onSettled: async () => {
       await utils.exercise.all.invalidate();
@@ -87,11 +89,13 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
           <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
           <AlertDialogAction
             className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            disabled={deleteExercise.isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteExercise.mutate({ id: exercise.id });
             }}
           >
+            {deleteExercise.isPending && <Loader />}
             <span className="capitalize">delete</span>
           </AlertDialogAction>
         </AlertDialogFooter>
