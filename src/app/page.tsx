@@ -463,7 +463,6 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: error msg
-//TODO: add back loader
 //TODO: fix filtering that is slow
 //TODO: test with low end network
 //TODO: react hook form
