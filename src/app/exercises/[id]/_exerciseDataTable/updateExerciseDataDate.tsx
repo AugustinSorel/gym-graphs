@@ -22,6 +22,7 @@ import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/db/types";
 import { api } from "@/trpc/react";
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   exerciseData: ExerciseData;
@@ -36,6 +37,9 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
   const utils = api.useUtils();
 
   const updateDoneAt = api.exerciseData.updateDoneAt.useMutation({
+    onSuccess: () => {
+      setIsDialogOpen(() => false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -111,8 +115,6 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
           return exercise;
         }),
       );
-
-      setIsDialogOpen(() => false);
     },
     onSettled: async () => {
       await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
@@ -173,7 +175,11 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
             </PopoverContent>
           </Popover>
 
-          <Button className="ml-auto space-x-2">
+          <Button
+            className="ml-auto space-x-2"
+            disabled={updateDoneAt.isPending}
+          >
+            {updateDoneAt.isPending && <Loader />}
             <span className="capitalize">save change</span>
           </Button>
         </form>
