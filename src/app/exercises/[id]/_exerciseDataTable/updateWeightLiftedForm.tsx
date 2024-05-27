@@ -35,6 +35,9 @@ export const UpdateWeightLifted = ({ exerciseData }: Props) => {
   const utils = api.useUtils();
 
   const updateWeightLifted = api.exerciseData.updateWeightLifted.useMutation({
+    onSuccess: () => {
+      setIsDialogOpen(() => false);
+    },
     onError: (error, variables) => {
       toast({
         variant: "destructive",
@@ -102,8 +105,6 @@ export const UpdateWeightLifted = ({ exerciseData }: Props) => {
           return exercise;
         }),
       );
-
-      setIsDialogOpen(() => false);
     },
     onSettled: async () => {
       await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
