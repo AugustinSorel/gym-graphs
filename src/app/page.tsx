@@ -467,3 +467,5 @@ const FeaturesGridBackground = () => {
 //TODO: test with low end network
 //TODO: react hook form
 //TODO: add email and psw
+//TODO: fix light mode
+//TODO: remove all on error cb
