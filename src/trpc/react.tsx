@@ -1,14 +1,54 @@
 "use client";
 
+import { ToastAction } from "@/components/ui/toast";
+import { toast } from "@/components/ui/use-toast";
 import type { AppRouter } from "@/server/api/root";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import { useState } from "react";
 import SuperJSON from "superjson";
 
-const createQueryClient = () => new QueryClient();
+const createQueryClient = () =>
+  new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+          description: error.message,
+          action: (
+            <ToastAction altText="Try again" onClick={() => void query.fetch()}>
+              Try again
+            </ToastAction>
+          ),
+        });
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error, variables, _ctx, mutation) => {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+          description: error.message,
+          action: (
+            <ToastAction
+              altText="Try again"
+              onClick={() => void mutation.execute(variables)}
+            >
+              Try again
+            </ToastAction>
+          ),
+        });
+      },
+    }),
+  });
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
