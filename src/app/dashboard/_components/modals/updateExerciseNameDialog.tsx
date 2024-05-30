@@ -75,7 +75,6 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
         return;
       }
 
-      //TODO: optimistic update for delete
       utils.exercise.get.setData(
         { id: exercise.id },
         { ...exerciseCached, name: exerciseToUpdate.name },
