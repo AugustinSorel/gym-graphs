@@ -49,8 +49,8 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
 
       utils.exercise.get.setData({ id: exercise.id }, undefined);
     },
-    onSettled: async () => {
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.all.invalidate();
     },
   });
 

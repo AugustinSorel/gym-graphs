@@ -113,9 +113,9 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
         }),
       );
     },
-    onSettled: async () => {
-      await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
+      void utils.exercise.all.invalidate();
     },
   });
 

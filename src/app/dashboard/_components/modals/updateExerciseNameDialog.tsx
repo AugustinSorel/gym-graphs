@@ -80,9 +80,9 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
       );
     },
 
-    onSettled: async () => {
-      await utils.exercise.all.invalidate();
-      await utils.exercise.get.invalidate({ id: exercise.id });
+    onSettled: () => {
+      void utils.exercise.all.invalidate();
+      void utils.exercise.get.invalidate({ id: exercise.id });
     },
   });
 
