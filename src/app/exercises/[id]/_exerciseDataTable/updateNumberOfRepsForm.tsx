@@ -10,14 +10,27 @@ import {
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
+
+const formSchema = z
+  .object({ numberOfRepetitions: z.coerce.number() })
+  .pipe(exerciseDataSchema.pick({ numberOfRepetitions: true }));
 
 type Props = {
   exerciseData: ExerciseData;
@@ -25,30 +38,25 @@ type Props = {
 
 export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedNumberOfReps, setUpdatedNumberOfReps] = useState(
-    exerciseData.numberOfRepetitions.toString(),
-  );
-  const { toast } = useToast();
   const utils = api.useUtils();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      numberOfRepetitions: exerciseData.numberOfRepetitions,
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateNumberOfReps.mutate({
+      id: exerciseData.id,
+      numberOfRepetitions: values.numberOfRepetitions,
+    });
+  };
 
   const updateNumberOfReps = api.exerciseData.updateNumberOfReps.useMutation({
     onSuccess: () => {
       setIsDialogOpen(() => false);
-    },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => updateNumberOfReps.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
     },
     onMutate: (variables) => {
       const cachedExercises = utils.exercise.all.getData();
@@ -124,34 +132,39 @@ export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {
             change number of repetitions
           </DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            updateNumberOfReps.mutate({
-              id: exerciseData.id,
-              numberOfRepetitions: +updatedNumberOfReps,
-            });
-          }}
-        >
-          <Label htmlFor="name" className="capitalize">
-            number of reps
-          </Label>
-          <Input
-            id="name"
-            value={updatedNumberOfReps}
-            onChange={(e) => setUpdatedNumberOfReps(e.target.value)}
-            autoComplete="off"
-          />
 
-          <Button
-            className="ml-auto space-x-2"
-            disabled={updateNumberOfReps.isPending}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-2"
           >
-            {updateNumberOfReps.isPending && <Loader />}
-            <span className="capitalize">save change</span>
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="numberOfRepetitions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>number of reps</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="10"
+                      type="number"
+                      autoComplete="off"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className="ml-auto space-x-2"
+              disabled={updateNumberOfReps.isPending}
+            >
+              {updateNumberOfReps.isPending && <Loader />}
+              <span className="capitalize">change</span>
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
