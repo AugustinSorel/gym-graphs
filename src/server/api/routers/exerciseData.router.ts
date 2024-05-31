@@ -1,7 +1,7 @@
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { exercisesData } from "@/server/db/schema";
 
 export const exerciseDataRouter = createTRPCRouter({
@@ -74,7 +74,12 @@ export const exerciseDataRouter = createTRPCRouter({
             doneAt: input.doneAt,
             updatedAt: new Date(),
           })
-          .where(eq(exercisesData.id, input.id));
+          .where(
+            and(
+              eq(exercisesData.id, input.id),
+              ne(exercisesData.doneAt, input.doneAt),
+            ),
+          );
       } catch (e) {
         const error = e as object;
 
