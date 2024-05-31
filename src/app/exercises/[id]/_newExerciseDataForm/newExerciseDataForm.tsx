@@ -103,9 +103,9 @@ export const NewExerciseDataForm = () => {
         }),
       );
     },
-    onSettled: async () => {
-      await utils.exercise.get.invalidate({ id: params.id });
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.get.invalidate({ id: params.id });
+      void utils.exercise.all.invalidate();
     },
   });
 
