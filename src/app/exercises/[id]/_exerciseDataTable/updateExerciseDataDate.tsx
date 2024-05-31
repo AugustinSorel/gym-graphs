@@ -17,12 +17,20 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { Loader } from "@/components/ui/loader";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
 type Props = {
   exerciseData: ExerciseData;
@@ -30,30 +38,27 @@ type Props = {
 
 export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [exerciseDate, setExerciseDate] = useState(
-    new Date(exerciseData.doneAt),
-  );
-  const { toast } = useToast();
   const utils = api.useUtils();
+
+  const formSchema = useFormSchema(exerciseData);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      date: new Date(exerciseData.doneAt),
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateDoneAt.mutate({
+      id: exerciseData.id,
+      doneAt: dateAsYearMonthDayFormat(values.date),
+    });
+  };
 
   const updateDoneAt = api.exerciseData.updateDoneAt.useMutation({
     onSuccess: () => {
       setIsDialogOpen(() => false);
-    },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => updateDoneAt.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
     },
     onMutate: (variables) => {
       const cachedExercises = utils.exercise.all.getData();
@@ -63,14 +68,6 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
 
       if (!cachedExercise) {
         return;
-      }
-
-      const duplicateDoneAtDates = cachedExercise.data.find(
-        (exerciseData) => exerciseData.doneAt === variables.doneAt,
-      );
-
-      if (duplicateDoneAtDates) {
-        throw new Error("This date clashes with an existing date");
       }
 
       const optimisticExerciseData = {
@@ -135,55 +132,96 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
         <DialogHeader>
           <DialogTitle className="capitalize">change exercise date</DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            updateDoneAt.mutate({
-              id: exerciseData.id,
-              doneAt: dateAsYearMonthDayFormat(exerciseDate),
-            });
-          }}
-        >
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(!exerciseDate && "text-muted-foreground")}
-              >
-                {exerciseDate ? (
-                  formatDate(exerciseDate)
-                ) : (
-                  <span>Pick a date</span>
-                )}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <Calendar
-                mode="single"
-                selected={exerciseDate}
-                onSelect={(day) => setExerciseDate(day ?? new Date())}
-                disabled={(date) =>
-                  !exerciseDataSchema
-                    .pick({ doneAt: true })
-                    .safeParse({ doneAt: dateAsYearMonthDayFormat(date) })
-                    .success
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
 
-          <Button
-            className="ml-auto space-x-2"
-            disabled={updateDoneAt.isPending}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-2"
           >
-            {updateDoneAt.isPending && <Loader />}
-            <span className="capitalize">save change</span>
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            formatDate(field.value)
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            !exerciseDataSchema
+                              .pick({ doneAt: true })
+                              .safeParse({
+                                doneAt: dateAsYearMonthDayFormat(date),
+                              }).success
+                          }
+                          initialFocus
+                          autofocus
+                          {...field}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className="ml-auto space-x-2"
+              disabled={updateDoneAt.isPending}
+            >
+              {updateDoneAt.isPending && <Loader />}
+              <span className="capitalize">save</span>
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
+};
+
+const useFormSchema = (exerciseData: ExerciseData) => {
+  const utils = api.useUtils();
+
+  const formSchema = z
+    .object({
+      date: z.date(),
+    })
+    .refine(
+      (data) => {
+        const exerciseCached = utils.exercise.get.getData({
+          id: exerciseData.exerciseId,
+        });
+
+        return !exerciseCached?.data.find(
+          (e) =>
+            e.doneAt === dateAsYearMonthDayFormat(data.date) &&
+            e.id !== exerciseData.id,
+        );
+      },
+      {
+        message: "you have already entered today's data",
+        path: ["date"],
+      },
+    );
+
+  return formSchema;
 };
