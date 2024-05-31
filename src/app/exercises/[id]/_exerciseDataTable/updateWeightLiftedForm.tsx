@@ -10,16 +10,29 @@ import {
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import type { ExerciseData } from "@/server/db/types";
 import { convertWeightToKg } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
 import { api } from "@/trpc/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
+
+const formSchema = z
+  .object({ weightLifted: z.coerce.number() })
+  .pipe(exerciseDataSchema.pick({ weightLifted: true }));
 
 type Props = {
   exerciseData: ExerciseData;
@@ -28,30 +41,25 @@ type Props = {
 export const UpdateWeightLifted = ({ exerciseData }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const weightUnit = useWeightUnit();
-  const [updatedWeightLifted, setUpdatedWeightLifted] = useState(
-    exerciseData.weightLifted.toString(),
-  );
-  const { toast } = useToast();
   const utils = api.useUtils();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      weightLifted: exerciseData.weightLifted,
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateWeightLifted.mutate({
+      id: exerciseData.id,
+      weightLifted: convertWeightToKg(values.weightLifted, weightUnit.get),
+    });
+  };
 
   const updateWeightLifted = api.exerciseData.updateWeightLifted.useMutation({
     onSuccess: () => {
       setIsDialogOpen(() => false);
-    },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => updateWeightLifted.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
     },
     onMutate: (variables) => {
       const cachedExercises = utils.exercise.all.getData();
@@ -106,9 +114,9 @@ export const UpdateWeightLifted = ({ exerciseData }: Props) => {
         }),
       );
     },
-    onSettled: async () => {
-      await utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
+      void utils.exercise.all.invalidate();
     },
   });
 
@@ -125,37 +133,39 @@ export const UpdateWeightLifted = ({ exerciseData }: Props) => {
         <DialogHeader>
           <DialogTitle className="capitalize">change weight lifted</DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            updateWeightLifted.mutate({
-              id: exerciseData.id,
-              weightLifted: convertWeightToKg(
-                +updatedWeightLifted,
-                weightUnit.get,
-              ),
-            });
-          }}
-        >
-          <Label htmlFor="name" className="capitalize">
-            number of reps
-          </Label>
-          <Input
-            id="name"
-            value={updatedWeightLifted}
-            onChange={(e) => setUpdatedWeightLifted(e.target.value)}
-            autoComplete="off"
-          />
 
-          <Button
-            className="ml-auto space-x-2"
-            disabled={updateWeightLifted.isPending}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-2"
           >
-            {updateWeightLifted.isPending && <Loader />}
-            <span className="capitalize">save change</span>
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="weightLifted"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>weight lifted</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="10"
+                      type="number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className="ml-auto space-x-2"
+              disabled={updateWeightLifted.isPending}
+            >
+              {updateWeightLifted.isPending && <Loader className="mr-2" />}
+              <span className="capitalize">save</span>
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

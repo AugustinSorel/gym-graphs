@@ -12,8 +12,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
 import type { Exercise } from "@/server/db/types";
@@ -26,30 +24,15 @@ type Props = {
 
 export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const { toast } = useToast();
   const utils = api.useUtils();
 
   const deleteExercise = api.exercise.delete.useMutation({
     onSuccess: () => {
       setIsAlertDialogOpen(false);
     },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => deleteExercise.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    },
     onMutate: (exerciseToDelete) => {
       const allExercises = utils.exercise.all.getData();
+      const exerciseCached = utils.exercise.get.getData({ id: exercise.id });
 
       if (!allExercises) {
         return;
@@ -59,9 +42,15 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
         undefined,
         allExercises.filter((x) => x.id !== exerciseToDelete.id),
       );
+
+      if (!exerciseCached) {
+        return;
+      }
+
+      utils.exercise.get.setData({ id: exercise.id }, undefined);
     },
-    onSettled: async () => {
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.all.invalidate();
     },
   });
 

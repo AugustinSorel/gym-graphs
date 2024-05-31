@@ -10,43 +10,43 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Plus } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import { useWeightUnit } from "@/context/weightUnit";
 import { convertWeightToKg } from "@/lib/math";
 import { api } from "@/trpc/react";
 import { useExercisePageParams } from "../_components/useExercisePageParams";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { ExerciseData } from "@/server/db/types";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 
 export const NewExerciseDataForm = () => {
-  const [numberOfRepetitions, setNumberofRepetitions] = useState("");
-  const [weightLifted, setWeightLifted] = useState("");
-  const { toast } = useToast();
   const weightUnit = useWeightUnit();
   const utils = api.useUtils();
   const params = useExercisePageParams();
+  const formSchema = useFormSchema();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      numberOfRepetitions: 0,
+      weightLifted: 0,
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    addExerciseData.mutate({
+      numberOfRepetitions: values.numberOfRepetitions,
+      weightLifted: convertWeightToKg(values.weightLifted, weightUnit.get),
+      exerciseId: params.id,
+    });
+  };
 
   const addExerciseData = api.exerciseData.create.useMutation({
     onSuccess: () => {
-      setNumberofRepetitions("");
-      setWeightLifted("");
-    },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => addExerciseData.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
+      form.reset();
     },
     onMutate: (variables) => {
       const cachedExercises = utils.exercise.all.getData();
@@ -103,59 +103,102 @@ export const NewExerciseDataForm = () => {
         }),
       );
     },
-    onSettled: async () => {
-      await utils.exercise.get.invalidate({ id: params.id });
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.get.invalidate({ id: params.id });
+      void utils.exercise.all.invalidate();
     },
   });
 
   return (
-    <form
-      className="mx-auto flex max-w-2xl gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-
-        addExerciseData.mutate({
-          numberOfRepetitions: +numberOfRepetitions,
-          weightLifted: convertWeightToKg(+weightLifted, weightUnit.get),
-          exerciseId: params.id,
-        });
-      }}
-    >
-      <Input
-        placeholder="№ of reps..."
-        value={numberOfRepetitions}
-        onChange={(e) => setNumberofRepetitions(e.target.value)}
-        name="numberOfRepetitions"
-        autoComplete="off"
-      />
-      <Input
-        placeholder={`Weight - (${weightUnit.get})`}
-        value={weightLifted}
-        onChange={(e) => setWeightLifted(e.target.value)}
-        name="weightLifted"
-        autoComplete="off"
-      />
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label="add"
-              disabled={addExerciseData.isPending}
-            >
-              {addExerciseData.isPending ? (
-                <Loader className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="capitalize">add</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </form>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mx-auto flex max-w-2xl gap-2"
+      >
+        <FormField
+          control={form.control}
+          name="numberOfRepetitions"
+          render={({ field }) => (
+            <FormItem>
+              <Input
+                placeholder="№ of reps..."
+                autoComplete="off"
+                type="number"
+                {...field}
+                value={field.value || ""}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="weightLifted"
+          render={({ field }) => (
+            <FormItem>
+              <Input
+                placeholder={`Weight - (${weightUnit.get})`}
+                autoComplete="off"
+                type="number"
+                {...field}
+                value={field.value || ""}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                aria-label="add"
+                disabled={addExerciseData.isPending}
+              >
+                {addExerciseData.isPending ? (
+                  <Loader className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="capitalize">add</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </form>
+    </Form>
   );
+};
+
+const useFormSchema = () => {
+  const utils = api.useUtils();
+  const params = useExercisePageParams();
+
+  const formSchema = z
+    .object({
+      numberOfRepetitions: z.coerce.number(),
+      weightLifted: z.coerce.number(),
+    })
+    .pipe(
+      exerciseDataSchema.pick({
+        numberOfRepetitions: true,
+        weightLifted: true,
+      }),
+    )
+    .refine(
+      () => {
+        const exerciseCached = utils.exercise.get.getData({ id: params.id });
+        const todaysDate = dateAsYearMonthDayFormat(new Date());
+
+        return !exerciseCached?.data.find((e) => e.doneAt === todaysDate);
+      },
+      {
+        message: "you have already entered today's data",
+        path: ["numberOfRepetitions"],
+      },
+    );
+
+  return formSchema;
 };

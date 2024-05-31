@@ -8,9 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -18,6 +15,18 @@ import { Edit2 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
 import type { Exercise } from "@/server/db/types";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { exerciseSchema } from "@/schemas/exercise.schema";
+import type { z } from "zod";
 
 type Props = {
   exercise: Exercise;
@@ -25,31 +34,28 @@ type Props = {
 
 export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [updatedExerciseName, setUpdatedExerciseName] = useState(exercise.name);
-  const { toast } = useToast();
   const utils = api.useUtils();
+  const formSchema = useFormSchema();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: exercise.name },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    updateExerciseName.mutate({
+      id: exercise.id,
+      name: values.name,
+    });
+  };
 
   const updateExerciseName = api.exercise.update.useMutation({
     onSuccess: () => {
       setIsDialogOpen(false);
     },
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => updateExerciseName.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    },
     onMutate: (exerciseToUpdate) => {
       const allExercises = utils.exercise.all.getData();
+      const exerciseCached = utils.exercise.get.getData({ id: exercise.id });
 
       if (!allExercises) {
         return;
@@ -63,10 +69,20 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
             : exercise,
         ),
       );
+
+      if (!exerciseCached) {
+        return;
+      }
+
+      utils.exercise.get.setData(
+        { id: exercise.id },
+        { ...exerciseCached, name: exerciseToUpdate.name },
+      );
     },
 
-    onSettled: async () => {
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.all.invalidate();
+      void utils.exercise.get.invalidate({ id: exercise.id });
     },
   });
 
@@ -83,35 +99,61 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
         <DialogHeader>
           <DialogTitle className="capitalize">change exercise name</DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            updateExerciseName.mutate({
-              id: exercise.id,
-              name: updatedExerciseName,
-            });
-          }}
-        >
-          <Label htmlFor="name" className="capitalize">
-            exercise name
-          </Label>
-          <Input
-            id="name"
-            value={updatedExerciseName}
-            onChange={(e) => setUpdatedExerciseName(e.target.value)}
-          />
-
-          <Button
-            className="ml-auto space-x-2"
-            disabled={updateExerciseName.isPending}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
           >
-            {updateExerciseName.isPending && <Loader />}
-            <span className="capitalize">save change</span>
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>exercise name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="exercise name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={updateExerciseName.isPending}
+              className="ml-auto"
+            >
+              {updateExerciseName.isPending && <Loader className="mr-2" />}
+              <span className="capitalize">save</span>
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
+};
+
+const useFormSchema = () => {
+  const utils = api.useUtils();
+
+  const formSchema = exerciseSchema
+    .pick({
+      name: true,
+    })
+    .refine(
+      (data) => {
+        const exercises = utils.exercise.all.getData();
+
+        return !exercises?.find(
+          (exercise) => exercise.name.toLowerCase() === data.name.toLowerCase(),
+        );
+      },
+      (data) => {
+        return {
+          message: `${data.name} is already used`,
+          path: ["name"],
+        };
+      },
+    );
+
+  return formSchema;
 };

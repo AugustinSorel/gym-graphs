@@ -2,84 +2,114 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ToastAction } from "@/components/ui/toast";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
-import { useState } from "react";
 import { api } from "@/trpc/react";
+import { exerciseSchema } from "@/schemas/exercise.schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
 export const NewExerciseForm = () => {
-  const [name, setName] = useState("");
-  const { toast } = useToast();
   const utils = api.useUtils();
+  const formSchema = useFormSchema();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: "" },
+  });
 
   const createExercise = api.exercise.create.useMutation({
     onSuccess: () => {
-      setName("");
+      form.reset();
     },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.message,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void createExercise.mutate({ name })}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    },
-    onSettled: async () => {
-      await utils.exercise.all.invalidate();
+    onSettled: () => {
+      void utils.exercise.all.invalidate();
     },
   });
 
-  return (
-    <form
-      className="mx-auto flex w-full max-w-2xl gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        createExercise.mutate({ name });
-      }}
-    >
-      <Input
-        name="newExerciseName"
-        placeholder="new exercise name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        autoComplete="off"
-      />
+  const onSubmit = (newExercise: z.infer<typeof formSchema>) => {
+    createExercise.mutate(newExercise);
+  };
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              aria-label="add"
-              disabled={createExercise.isPending}
-            >
-              {createExercise.isPending ? (
-                <Loader className="h-4 w-4" />
-              ) : (
-                <Plus className="h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="capitalize">add</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </form>
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mx-auto grid w-full max-w-2xl grid-cols-[1fr_auto] gap-2"
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="new exercise name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                aria-label="add"
+                disabled={createExercise.isPending}
+              >
+                {createExercise.isPending ? (
+                  <Loader className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="capitalize">add</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </form>
+    </Form>
   );
+};
+
+const useFormSchema = () => {
+  const utils = api.useUtils();
+
+  const formSchema = exerciseSchema
+    .pick({
+      name: true,
+    })
+    .refine(
+      (data) => {
+        const exercises = utils.exercise.all.getData();
+
+        return !exercises?.find(
+          (exercise) => exercise.name.toLowerCase() === data.name.toLowerCase(),
+        );
+      },
+      (data) => {
+        return {
+          message: `${data.name} is already used`,
+          path: ["name"],
+        };
+      },
+    );
+
+  return formSchema;
 };

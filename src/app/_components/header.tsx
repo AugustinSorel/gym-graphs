@@ -55,7 +55,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
-import { getErrorMessage } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -242,26 +241,9 @@ const SignOutDropDownItem = () => {
 };
 
 const DeleteAccountDropDownItem = () => {
-  const { toast } = useToast();
-
   const deleteAccount = api.user.delete.useMutation({
     onSuccess: async () => {
       await signOut({ callbackUrl: "/" });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: getErrorMessage(error),
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void deleteAccount.mutate()}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
     },
   });
 

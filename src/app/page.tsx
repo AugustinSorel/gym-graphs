@@ -462,8 +462,9 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: error msg
 //TODO: fix filtering that is slow
 //TODO: test with low end network
-//TODO: react hook form
 //TODO: add email and psw
+//TODO: fix light mode
+//TODO: show points in brush line
+//TODO: trim strings
