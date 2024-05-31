@@ -39,7 +39,7 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    values: { name: exercise.name },
+    defaultValues: { name: exercise.name },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -52,7 +52,6 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const updateExerciseName = api.exercise.update.useMutation({
     onSuccess: () => {
       setIsDialogOpen(false);
-      form.reset();
     },
     onMutate: (exerciseToUpdate) => {
       const allExercises = utils.exercise.all.getData();
