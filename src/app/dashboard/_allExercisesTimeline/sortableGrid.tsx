@@ -31,8 +31,6 @@ import { Loader } from "@/components/ui/loader";
 import { api } from "@/trpc/react";
 import { useMutationState } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 
 type Props = {
   gridItems: { component: ReactNode; id: string }[];
@@ -40,25 +38,9 @@ type Props = {
 
 export const SortableGrid = (props: Props) => {
   const [gridItems, setGridItems] = useState(props.gridItems);
-  const { toast } = useToast();
   const utils = api.useUtils();
 
   const moveExercise = api.exercise.move.useMutation({
-    onError: (error, variables) => {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: error.shape?.data.zodError?.fieldErrors?.name?.at(0),
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => moveExercise.mutate(variables)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    },
     onSettled: async () => {
       await utils.exercise.all.invalidate();
     },
