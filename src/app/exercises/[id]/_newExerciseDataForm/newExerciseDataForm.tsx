@@ -20,6 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 
 export const NewExerciseDataForm = () => {
   const weightUnit = useWeightUnit();
@@ -172,35 +173,26 @@ export const NewExerciseDataForm = () => {
 };
 
 const useFormSchema = () => {
-  const weightUnit = useWeightUnit();
   const utils = api.useUtils();
+  const params = useExercisePageParams();
 
   const formSchema = z
     .object({
-      numberOfRepetitions: z.coerce
-        .number({
-          required_error: "number of repetitions is required",
-          invalid_type_error: "number of repetitions must be a number",
-        })
-        .min(1, "number of repetitions must be at least 1")
-        .max(200, "number of repetitions must at most 200")
-        .int({
-          message: "number of repetitions must be an integer",
-        }),
-      weightLifted: z.coerce
-        .number({
-          required_error: "weight lifted is required",
-          invalid_type_error: "weight lifted must be a number",
-        })
-        .min(1, `weight lifted must be at least 1${weightUnit.get}`)
-        .max(1000, `weight lifted must be at most 1000${weightUnit.get}`),
+      numberOfRepetitions: z.coerce.number(),
+      weightLifted: z.coerce.number(),
     })
+    .pipe(
+      exerciseDataSchema.pick({
+        numberOfRepetitions: true,
+        weightLifted: true,
+      }),
+    )
     .refine(
       () => {
-        const exerciseCached = utils.exercise.get.getData({ id: "" });
+        const exerciseCached = utils.exercise.get.getData({ id: params.id });
         const todaysDate = dateAsYearMonthDayFormat(new Date());
 
-        return exerciseCached?.data.find((e) => e.doneAt === todaysDate);
+        return !exerciseCached?.data.find((e) => e.doneAt === todaysDate);
       },
       {
         message: "you have already entered today's data",

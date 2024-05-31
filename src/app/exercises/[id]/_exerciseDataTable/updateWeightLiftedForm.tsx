@@ -28,16 +28,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 
-const formSchema = z.object({
-  weightLifted: z.coerce
-    .number({
-      required_error: "weight lifted is required",
-      invalid_type_error: "weight lifted must be a number",
-    })
-    .min(1, "weight lifted must be at least 1kg")
-    .max(1000, "weight lifted must be at most 1000 kg"),
-});
+const formSchema = z
+  .object({ weightLifted: z.coerce.number() })
+  .pipe(exerciseDataSchema.pick({ weightLifted: true }));
 
 type Props = {
   exerciseData: ExerciseData;
