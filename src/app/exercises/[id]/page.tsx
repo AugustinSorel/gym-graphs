@@ -31,6 +31,11 @@ const Page = async (unsafeProps: Props) => {
 
   const helpers = await createSSRHelper();
   await helpers.exercise.get.prefetch({ id: params.data.id });
+  const data = dehydrate(helpers.queryClient);
+
+  if (!data.queries.at(0)) {
+    return redirect("/dashboard");
+  }
 
   return (
     <>
@@ -38,7 +43,7 @@ const Page = async (unsafeProps: Props) => {
         <NewExerciseDataForm />
       </FormContainer>
 
-      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+      <HydrationBoundary state={data}>
         <Content />
       </HydrationBoundary>
     </>

@@ -126,7 +126,7 @@ export const exerciseRouter = createTRPCRouter({
   get: protectedProcedure
     .input(exerciseSchema.pick({ id: true }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.exercises.findFirst({
+      const exercise = await ctx.db.query.exercises.findFirst({
         with: {
           data: {
             orderBy: (data, { asc }) => [asc(data.doneAt)],
@@ -138,5 +138,11 @@ export const exerciseRouter = createTRPCRouter({
             eq(exercise.userId, ctx.session.user.id),
           ),
       });
+
+      if (!exercise) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return exercise;
     }),
 });
