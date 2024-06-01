@@ -467,4 +467,3 @@ const FeaturesGridBackground = () => {
 //TODO: add email and psw
 //TODO: fix light mode
 //TODO: show points in brush line
-//TODO: trim strings
