@@ -7,12 +7,14 @@ export const exerciseDataSchema = z.object({
       required_error: "id is required",
       invalid_type_error: "id must be a uuid",
     })
+    .trim()
     .uuid("uuid is not valid"),
   exerciseId: z
     .string({
       required_error: "exercise id is required",
       invalid_type_error: "exercise id must be a uuid",
     })
+    .trim()
     .uuid("uuid is not valid"),
   numberOfRepetitions: z
     .number({
@@ -33,6 +35,7 @@ export const exerciseDataSchema = z.object({
     .max(1000, "weight lifted must be at most 1000 kg"),
   doneAt: z
     .string()
+    .trim()
     .date("done at date must be a valide string date")
     .refine((dateStr) => {
       return new Date(dateStr).getTime() > new Date("1900-01-01").getTime();
