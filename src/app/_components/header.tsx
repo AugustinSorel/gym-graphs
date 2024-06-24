@@ -29,7 +29,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type PropsWithChildren, useState } from "react";
+import { type PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -40,8 +40,6 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
 import { usePathname } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +55,7 @@ import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMutation } from "@tanstack/react-query";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -199,41 +198,21 @@ const SignInDropDownItem = () => {
 };
 
 const SignOutDropDownItem = () => {
-  const [isSignOutLoading, setIsSignOutLoading] = useState(false);
-  const { toast } = useToast();
-
-  const signOutHandler = async () => {
-    try {
-      setIsSignOutLoading(() => true);
-      await signOut({ callbackUrl: "/" });
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "We could not sign you out,",
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void signOutHandler()}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    } finally {
-      setIsSignOutLoading(() => false);
-    }
-  };
+  const signOutMutation = useMutation({
+    mutationFn: async () => {
+      return signOut({ callbackUrl: "/" });
+    },
+  });
 
   return (
     <DropdownMenuItem
       className="space-x-2"
       onClick={(e) => {
         e.preventDefault();
-        void signOutHandler();
+        signOutMutation.mutate();
       }}
     >
-      {isSignOutLoading && <Loader />}
+      {signOutMutation.isPending && <Loader />}
       <LogOut className="h-4 w-4" />
       <span className="capitalize">sign out</span>
     </DropdownMenuItem>
