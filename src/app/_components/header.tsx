@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronsUpDown,
   Check,
+  Megaphone,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -430,7 +431,7 @@ export const Header = () => {
   const exerciseId = pathname[2];
 
   return (
-    <header className="sticky top-0 z-20 flex h-header items-center justify-between border-b border-border bg-primary pr-4 backdrop-blur-md">
+    <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
       <nav className="flex h-full w-full items-center overflow-hidden p-4">
         <HomeIcon>
           <Icon className="hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] dark:hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]" />
@@ -442,7 +443,47 @@ export const Header = () => {
           <CurrentExeciseLink selectedExerciseId={exerciseId} />
         )}
       </nav>
+      <FeatureRequest />
       <DropDownMenu />
     </header>
+  );
+};
+
+const FeatureRequest = () => {
+  return (
+    <DropdownMenu>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" aria-label="menu" variant="ghost">
+                <Megaphone className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">feature request</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <DropdownMenuContent className="mr-4 w-56">
+        <DropdownMenuLabel className="first-letter:capitalize">
+          request a new feature
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild>
+          <Link
+            href="https://github.com/AugustinSorel/gym-graphs/issues"
+            className="flex items-center gap-2"
+            target="_blank"
+          >
+            <Github className="h-4 w-4" />
+            <span className="capitalize">github</span>
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
