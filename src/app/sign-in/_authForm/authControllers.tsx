@@ -2,45 +2,34 @@
 
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import type { FormEvent } from "react";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { useMutation } from "@tanstack/react-query";
 
 export const GoogleSignIn = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const clickHandler = async () => {
-    try {
-      setIsLoading(() => true);
-      await signIn("google", { callbackUrl: "/dashboard" });
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "We could not sign you in with your Google account",
-        action: (
-          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
-            Try again
-          </ToastAction>
-        ),
-      });
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
+  const googleSignIn = useMutation({
+    mutationFn: async () => {
+      return signIn("google", { callbackUrl: "/dashboard" });
+    },
+  });
 
   return (
     <Button
       className="flex w-full items-center gap-2 border-border bg-white text-sm font-bold uppercase text-black hover:bg-neutral-100 disabled:opacity-50 dark:hover:bg-neutral-300 dark:focus-visible:ring-red-500"
-      onClick={() => void clickHandler()}
-      disabled={isLoading}
+      onClick={() => googleSignIn.mutate()}
+      disabled={googleSignIn.isPending}
     >
-      {isLoading && <Loader />}
+      {googleSignIn.isPending && <Loader />}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 186.69 190.5"
@@ -71,36 +60,19 @@ export const GoogleSignIn = () => {
 };
 
 export const GithubSignIn = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const clickHandler = async () => {
-    try {
-      setIsLoading(() => true);
-      await signIn("github", { callbackUrl: "/dashboard" });
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "We could not sign you in with your Github account",
-        action: (
-          <ToastAction altText="Try again" onClick={() => void clickHandler()}>
-            Try again
-          </ToastAction>
-        ),
-      });
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
+  const githubSignIn = useMutation({
+    mutationFn: async () => {
+      return signIn("github", { callbackUrl: "/dashboard" });
+    },
+  });
 
   return (
     <Button
-      onClick={() => void clickHandler()}
+      onClick={() => githubSignIn.mutate()}
       className="flex w-full items-center gap-2 border-border bg-black text-sm font-bold uppercase text-white hover:bg-neutral-700 focus-visible:ring-red-500 disabled:opacity-50 dark:hover:bg-neutral-900 dark:focus-visible:ring-ring"
-      disabled={isLoading}
+      disabled={githubSignIn.isPending}
     >
-      {isLoading && <Loader />}
+      {githubSignIn.isPending && <Loader />}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4"
@@ -119,78 +91,55 @@ export const GithubSignIn = () => {
   );
 };
 
-export const EmailSignIn = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const schema = z.object({
-    email: z
-      .string({ required_error: "email is required" })
-      .email({ message: "email must be valid" })
-      .min(1, { message: "email must be at leat one charater" })
-      .max(255, { message: "email must be at most 255 charaters" }),
+const emailSchema = z.object({
+  email: z
+    .string({ required_error: "email is required" })
+    .email({ message: "email must be valid" })
+    .min(1, { message: "email must be at leat one charater" })
+    .max(255, { message: "email must be at most 255 charaters" }),
+});
+
+export const EmailSignInForm = () => {
+  const emailSignIn = useMutation({
+    mutationFn: (email: string) => {
+      return signIn("email", { callbackUrl: "/dashboard", email });
+    },
   });
 
-  const emailSignInHandler = async () => {
-    try {
-      setIsLoading(() => true);
+  const form = useForm<z.infer<typeof emailSchema>>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-      await signIn("email", { callbackUrl: "/dashboard", email });
-    } catch (e) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: `We could not sign you in with ${email}`,
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => void emailSignInHandler()}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    } finally {
-      setIsLoading(() => false);
-    }
-  };
-
-  const submitHandler = (e: FormEvent) => {
-    e.preventDefault();
-
-    const data = schema.safeParse({ email });
-
-    if (!data.success) {
-      return toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: data.error.issues[0]?.message ?? "try again",
-        action: (
-          <ToastAction altText="Try again" onClick={submitHandler}>
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
-    void emailSignInHandler();
+  const onSubmit = (values: z.infer<typeof emailSchema>) => {
+    return emailSignIn.mutate(values.email);
   };
 
   return (
-    <form className="space-y-2" onSubmit={submitHandler}>
-      <Input
-        type="text"
-        placeholder="name@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Button
-        disabled={isLoading}
-        className="w-full space-x-2 font-medium lowercase"
-      >
-        {isLoading && <Loader />}
-        <span>sign in with email</span>
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="name@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          className="w-full space-x-2 font-medium lowercase"
+          disabled={emailSignIn.isPending}
+        >
+          {emailSignIn.isPending && <Loader />}
+          <span>sign in with email</span>
+        </Button>
+      </form>
+    </Form>
   );
 };
