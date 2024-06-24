@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { EmailSignIn, GithubSignIn, GoogleSignIn } from "./authControllers";
+import { EmailSignInForm, GithubSignIn, GoogleSignIn } from "./authControllers";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
 
 const AuthForm = () => {
@@ -11,7 +11,7 @@ const AuthForm = () => {
           <Paragraph>enter your email below to create an account</Paragraph>
         </AuthTextsContainer>
 
-        <EmailSignIn />
+        <EmailSignInForm />
 
         <SeparatorText>or continue with</SeparatorText>
 
