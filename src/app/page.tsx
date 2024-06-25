@@ -464,6 +464,6 @@ const FeaturesGridBackground = () => {
 
 //TODO: fix filtering that is slow
 //TODO: test with low end network
-//TODO: add email and psw
-//TODO: fix light mode
+//TODO: add e2e tests
+//TODO: fix light mode colors
 //TODO: show points in brush line
