@@ -16,6 +16,10 @@ export const exerciseDatasRelations = relations(exercisesData, ({ one }) => ({
 }));
 
 export const exercsiesRelations = relations(exercises, ({ many, one }) => ({
+  user: one(users, {
+    fields: [exercises.userId],
+    references: [users.id],
+  }),
   data: many(exercisesData),
   position: one(exerciseGridPosition, {
     fields: [exercises.id],
@@ -25,6 +29,7 @@ export const exercsiesRelations = relations(exercises, ({ many, one }) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   usersToTeams: many(usersToTeams),
+  exercises: many(exercises),
 }));
 
 export const teamsRelations = relations(teams, ({ many }) => ({
