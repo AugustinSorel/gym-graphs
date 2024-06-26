@@ -462,6 +462,7 @@ const FeaturesGridBackground = () => {
   );
 };
 
+//TODO: install t3 env and change drizzle config
 //TODO: fix filtering that is slow
 //TODO: test with low end network
 //TODO: add e2e tests
