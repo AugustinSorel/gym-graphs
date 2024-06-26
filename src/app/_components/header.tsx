@@ -55,7 +55,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { type RouterOutputs, api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -327,7 +327,7 @@ const Separator = () => {
 
 const DashboardLink = () => {
   const { data: session, status } = useSession();
-  const teams = api.team.get.useQuery();
+  const teams = api.team.all.useQuery();
 
   if (status === "loading" || teams.isLoading) {
     return (
@@ -392,7 +392,7 @@ const DashboardLink = () => {
           )}
           {teams.data?.map((team) => (
             <DropdownMenuItem asChild key={team.teamId}>
-              <Link href={`/teams${team.teamId}`}>
+              <Link href={`/teams/${team.teamId}`}>
                 <span className="truncate text-sm">{team.team.name}</span>
               </Link>
             </DropdownMenuItem>
@@ -488,12 +488,43 @@ const CurrentExeciseLink = ({
   );
 };
 
+const CurrentTeam = ({ id }: { id: string }) => {
+  const team = api.team.get.useQuery({ id });
+
+  if (team.isLoading) {
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+      </>
+    );
+  }
+
+  if (!team.data) {
+    return null;
+  }
+
+  return (
+    <>
+      <Separator />
+
+      <span className="truncate text-xl font-medium capitalize">
+        {team.data.name}
+      </span>
+    </>
+  );
+};
+
 export const Header = () => {
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
-  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+  const showTeamPath = pathname[1] === "teams";
+  const showDashboardPath =
+    pathname[1] === "dashboard" || showExecisesPath || showTeamPath;
+
   const exerciseId = pathname[2];
+  const teamId = pathname[2];
 
   return (
     <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
@@ -507,6 +538,8 @@ export const Header = () => {
         {showExecisesPath && exerciseId && (
           <CurrentExeciseLink selectedExerciseId={exerciseId} />
         )}
+
+        {showTeamPath && teamId && <CurrentTeam id={teamId} />}
       </nav>
       <FeatureRequest />
       <DropDownMenu />
@@ -568,13 +601,13 @@ const CreateTeamDialog = () => {
       setIsDialogOpen(false);
     },
     onMutate: (variables) => {
-      const teams = utils.team.get.getData();
+      const teams = utils.team.all.getData();
 
       if (!teams) {
         return;
       }
 
-      const optimisticTeam: (typeof teams)[number] = {
+      const optimisticTeam: RouterOutputs["team"]["all"][number] = {
         memberId: Math.random().toString(),
         teamId: Math.random().toString(),
         team: {
@@ -588,10 +621,10 @@ const CreateTeamDialog = () => {
         updatedAt: new Date(),
       };
 
-      utils.team.get.setData(undefined, [...teams, optimisticTeam]);
+      utils.team.all.setData(undefined, [...teams, optimisticTeam]);
     },
     onSettled: () => {
-      void utils.team.get.invalidate();
+      void utils.team.all.invalidate();
     },
   });
 
