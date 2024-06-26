@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -15,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMutation } from "@tanstack/react-query";
+import { userSchema } from "@/schemas/user.schema";
 
 export const GoogleSignIn = () => {
   const googleSignIn = useMutation({
@@ -91,29 +91,23 @@ export const GithubSignIn = () => {
   );
 };
 
-const emailSchema = z.object({
-  email: z
-    .string({ required_error: "email is required" })
-    .email({ message: "email must be valid" })
-    .min(1, { message: "email must be at leat one charater" })
-    .max(255, { message: "email must be at most 255 charaters" }),
-});
-
 export const EmailSignInForm = () => {
+  const formSchema = userSchema.pick({ email: true });
+
   const emailSignIn = useMutation({
     mutationFn: (email: string) => {
       return signIn("email", { callbackUrl: "/dashboard", email });
     },
   });
 
-  const form = useForm<z.infer<typeof emailSchema>>({
-    resolver: zodResolver(emailSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof emailSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     return emailSignIn.mutate(values.email);
   };
 
