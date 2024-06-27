@@ -1,5 +1,5 @@
 import { teamInvites, teams, usersToTeams } from "@/server/db/schema";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { teamSchema } from "@/schemas/team.schemas";
 import { TRPCError } from "@trpc/server";
 import { userSchema } from "@/schemas/user.schema";
@@ -30,6 +30,8 @@ export const teamRouter = createTRPCRouter({
         memberId: ctx.session.user.id,
         teamId: team.id,
       });
+
+      return team;
     }),
 
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -70,7 +72,7 @@ export const teamRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7); // Token expires in 7 days
+      expiresAt.setDate(expiresAt.getDate() + 7);
 
       const [invite] = await ctx.db
         .insert(teamInvites)
