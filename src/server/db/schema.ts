@@ -10,9 +10,11 @@ import {
   date,
   real,
   pgEnum,
+  boolean,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import { sql } from "drizzle-orm";
+import { usersToTeamsRelations } from "./relations";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),
@@ -152,3 +154,15 @@ export const usersToTeams = pgTable(
     compoundKey: primaryKey(table.teamId, table.memberId),
   }),
 );
+
+export const teamInvites = pgTable("team_invite", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: text("email").notNull(),
+  teamId: uuid("team_id")
+    .notNull()
+    .references(() => teams.id, { onDelete: "cascade" }),
+  token: uuid("token").defaultRandom().notNull(),
+  accepted: boolean("accepted").default(false).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

@@ -6,6 +6,7 @@ import {
   teams,
   usersToTeams,
   users,
+  teamInvites,
 } from "./schema";
 
 export const exerciseDatasRelations = relations(exercisesData, ({ one }) => ({
@@ -32,8 +33,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   exercises: many(exercises),
 }));
 
-export const teamsRelations = relations(teams, ({ many }) => ({
+export const teamsRelations = relations(teams, ({ many, one }) => ({
   usersToTeams: many(usersToTeams),
+  teamInvite: one(teamInvites),
 }));
 
 export const usersToTeamsRelations = relations(usersToTeams, ({ one }) => ({
