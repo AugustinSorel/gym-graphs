@@ -1,5 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
-import type { exercises, exercisesData, users } from "./schema";
+import type { exercises, exercisesData, teamInvites, users } from "./schema";
 
 //TODO: use the outputRouter type instead
 export type Exercise = InferSelectModel<typeof exercises>;
@@ -10,3 +10,5 @@ export type User = InferSelectModel<typeof users>;
 
 //TODO: use the outputRouter type instead
 export type ExerciseWithData = Exercise & { data: ExerciseData[] };
+
+export type TeamInvite = typeof teamInvites.$inferSelect;
