@@ -36,9 +36,9 @@ export const InviteUserForm = () => {
       console.log(error);
     },
 
-    onMutate: () => {},
+    // onMutate: () => {},
 
-    onSettled: () => {},
+    // onSettled: () => {},
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
