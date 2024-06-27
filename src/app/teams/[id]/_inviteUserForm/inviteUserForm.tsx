@@ -25,15 +25,12 @@ import type { z } from "zod";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 
 export const InviteUserForm = () => {
-  const formSchema = userSchema.pick({ email: true });
   const pageParams = useTeamPageParams();
+  const formSchema = useFormSchema();
 
   const invite = api.team.invite.useMutation({
     onSuccess: () => {
       form.reset();
-    },
-    onError: (error) => {
-      console.log(error);
     },
 
     // onMutate: () => {},
@@ -87,4 +84,28 @@ export const InviteUserForm = () => {
       </form>
     </Form>
   );
+};
+
+const useFormSchema = () => {
+  const utils = api.useUtils();
+  const pageParams = useTeamPageParams();
+
+  const formSchema = userSchema.pick({ email: true }).refine(
+    (vals) => {
+      const userAcceptedInvite = utils.team.get
+        .getData({ id: pageParams.id })
+        ?.usersToTeams.find(
+          (idk) =>
+            idk.team.teamInvite.accepted && idk.user.email === vals.email,
+        );
+
+      return !userAcceptedInvite;
+    },
+    (vals) => ({
+      message: `user ${vals.email} has already accepted the invitation`,
+      path: ["email"],
+    }),
+  );
+
+  return formSchema;
 };

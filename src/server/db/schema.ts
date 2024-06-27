@@ -14,7 +14,6 @@ import {
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import { sql } from "drizzle-orm";
-import { usersToTeamsRelations } from "./relations";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),

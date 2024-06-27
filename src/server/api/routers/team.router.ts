@@ -51,6 +51,11 @@ export const teamRouter = createTRPCRouter({
         with: {
           usersToTeams: {
             with: {
+              team: {
+                with: {
+                  teamInvite: true,
+                },
+              },
               user: {
                 with: {
                   exercises: {
