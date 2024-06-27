@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
+    "db:bash": "docker exec -it gym_graphs_db bash",
     "e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {
