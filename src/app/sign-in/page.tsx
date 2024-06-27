@@ -4,8 +4,16 @@ import { type ComponentPropsWithoutRef } from "react";
 import Hero from "./_hero/hero";
 import AuthForm from "./_authForm/authForm";
 
-const Page = async () => {
+type Props = {
+  searchParams: {
+    cb?: string;
+  };
+};
+
+const Page = async (props: Props) => {
   const session = await getServerAuthSession();
+
+  console.log(props);
 
   if (session?.user.id) {
     return redirect("/dashboard");
@@ -14,7 +22,7 @@ const Page = async () => {
   return (
     <Container className="flex min-h-[calc(100dvh-var(--header-height))]">
       <Hero />
-      <AuthForm />
+      <AuthForm callbackUrl={props.searchParams.cb ?? "/dashboard"} />
     </Container>
   );
 };
