@@ -28,3 +28,9 @@ type PluralizeProps = {
 export const pluralize = ({ count, noun, suffix = "s" }: PluralizeProps) => {
   return `${noun}${count !== 1 ? suffix : ""}`;
 };
+
+export const getBaseUrl = () => {
+  if (typeof window !== "undefined") return window.location.origin;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return `http://localhost:${process.env.PORT ?? 3000}`;
+};
