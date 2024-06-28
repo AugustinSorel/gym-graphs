@@ -40,13 +40,14 @@ export const teamRouter = createTRPCRouter({
       with: {
         team: true,
       },
+      orderBy: (table, { desc }) => desc(table.createdAt),
     });
   }),
 
   get: protectedProcedure
     .input(teamSchema.pick({ id: true }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.teams.findFirst({
+      const team = await ctx.db.query.teams.findFirst({
         where: (teams, { eq }) => eq(teams.id, input.id),
         with: {
           usersToTeams: {
@@ -69,6 +70,12 @@ export const teamRouter = createTRPCRouter({
           },
         },
       });
+
+      if (!team) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "team not found" });
+      }
+
+      return team;
     }),
 
   invite: protectedProcedure
