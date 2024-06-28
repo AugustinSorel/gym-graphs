@@ -92,12 +92,14 @@ const useFormSchema = () => {
 
   const formSchema = userSchema.pick({ email: true }).refine(
     (vals) => {
-      const userAcceptedInvite = utils.team.get
-        .getData({ id: pageParams.id })
-        ?.usersToTeams.find(
-          (idk) =>
-            idk.team.teamInvite.accepted && idk.user.email === vals.email,
+      const team = utils.team.get.getData({ id: pageParams.id });
+
+      const userAcceptedInvite = team?.usersToTeams.find((userToTeam) => {
+        return (
+          userToTeam.team.teamInvite.accepted &&
+          userToTeam.user.email === vals.email
         );
+      });
 
       return !userAcceptedInvite;
     },

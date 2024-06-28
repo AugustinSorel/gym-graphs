@@ -7,6 +7,7 @@ import {
   type TeamPageParamsSchema,
   teamPageParamsSchema,
 } from "./_components/teamPageParams";
+import { TeamMetadata } from "./_teamMetedata/teamMetadata";
 
 type Props = {
   params: TeamPageParamsSchema;
@@ -31,6 +32,8 @@ const Page = async (unsafeProps: Props) => {
       <FormContainer>
         <InviteUserForm />
       </FormContainer>
+
+      <TeamMetadata />
 
       <p>here</p>
       <code>{JSON.stringify(team, undefined, 2)}</code>

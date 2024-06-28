@@ -1,9 +1,9 @@
+import { GridSkeleton } from "@/components/ui/gridLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import type { FallbackProps } from "react-error-boundary";
-import { GridSkeleton } from "./grid/gridLayout";
 
 export const Timeline = (props: ComponentProps<"div">) => {
   return (
