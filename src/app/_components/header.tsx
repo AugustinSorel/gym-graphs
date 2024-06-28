@@ -78,6 +78,7 @@ import { Input } from "@/components/ui/input";
 import { teamSchema } from "@/schemas/team.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
+import { useRouter } from "next/navigation";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -590,6 +591,7 @@ const CreateTeamDialog = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const formSchema = teamSchema.pick({ name: true });
   const utils = api.useUtils();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -597,8 +599,9 @@ const CreateTeamDialog = () => {
   });
 
   const createTeam = api.team.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (team) => {
       setIsDialogOpen(false);
+      router.push(`/teams/${team.id}`);
     },
     onMutate: (variables) => {
       const teams = utils.team.all.getData();
