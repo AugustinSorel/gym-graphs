@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardSkeleton } from "@/components/ui/card";
+import { Card, CardErrorFallback, CardSkeleton } from "@/components/ui/card";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Badge } from "@/components/ui/badge";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
@@ -8,10 +8,9 @@ import { type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
-import { api } from "@/trpc/react";
-import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User } from "next-auth";
+import { useTeam } from "../_components/useTeam";
 
 export const TeamMetadata = () => {
   return (
@@ -37,19 +36,15 @@ export const TeamMetadata = () => {
 const Content = () => {
   return (
     <GridLayout>
-      <TeamNameCard />
-      <TeamMembers />
+      <ErrorBoundary FallbackComponent={CardErrorFallback}>
+        <TeamNameCard />
+      </ErrorBoundary>
+
+      <ErrorBoundary FallbackComponent={CardErrorFallback}>
+        <TeamMembers />
+      </ErrorBoundary>
     </GridLayout>
   );
-};
-
-//FIXME: https://github.com/t3-oss/create-t3-app/issues/1765
-// use the useSuspenseQuery rather
-const useTeam = () => {
-  const searchParams = useTeamPageParams();
-  const team = api.team.get.useQuery({ id: searchParams.id });
-
-  return team;
 };
 
 const TeamNameCard = () => {
