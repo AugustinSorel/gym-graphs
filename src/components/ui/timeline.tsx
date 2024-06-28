@@ -69,15 +69,3 @@ const ErrorDescription = (props: ComponentPropsWithoutRef<"code">) => {
     />
   );
 };
-
-export const TimelineSkeleton = () => {
-  return (
-    <Timeline>
-      <Badge variant="accent" className="w-max">
-        months
-      </Badge>
-
-      <GridSkeleton />
-    </Timeline>
-  );
-};
