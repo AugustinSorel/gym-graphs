@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/tooltip";
 import { signOut, useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,6 +79,7 @@ import { teamSchema } from "@/schemas/team.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useTeamPageParams } from "../teams/[id]/_components/useTeamPageParams";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -329,6 +330,7 @@ const Separator = () => {
 const DashboardLink = () => {
   const { data: session, status } = useSession();
   const teams = api.team.all.useQuery();
+  const params = useParams();
 
   if (status === "loading" || teams.isLoading) {
     return (
@@ -392,9 +394,15 @@ const DashboardLink = () => {
             <p className="text-center text-sm text-muted-foreground">0 teams</p>
           )}
           {teams.data?.map((team) => (
-            <DropdownMenuItem asChild key={team.teamId}>
+            <DropdownMenuItem
+              asChild
+              key={team.teamId}
+              className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
+            >
               <Link href={`/teams/${team.teamId}`}>
                 <span className="truncate text-sm">{team.team.name}</span>
+
+                {params.id === team.teamId && <Check className="h-4 w-4" />}
               </Link>
             </DropdownMenuItem>
           ))}
