@@ -462,6 +462,9 @@ const FeaturesGridBackground = () => {
   );
 };
 
+//TODO: update header ui
+//TODO: add teams feat in main page
+//TODO: better sign in and join team email
 //TODO: install t3 env and change drizzle config
 //TODO: fix filtering that is slow
 //TODO: test with low end network
