@@ -61,7 +61,9 @@ export const teamRouter = createTRPCRouter({
                 with: {
                   exercises: {
                     with: {
-                      data: true,
+                      data: {
+                        orderBy: (data, { asc }) => [asc(data.doneAt)],
+                      },
                     },
                   },
                 },
