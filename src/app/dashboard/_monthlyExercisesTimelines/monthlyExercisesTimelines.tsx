@@ -4,18 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../_components/useExercises";
-import { GridLayout } from "@/components/ui/gridLayout";
+import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
 import { LineGraph } from "../_components/graphs/lineGraph";
 import { RadarGraph } from "../_components/graphs/radarGraph";
 import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_components/graphs/heatmapUtils";
 import { RandomFacts } from "../_components/graphs/randomFacts";
-import {
-  Timeline,
-  TimelineErrorFallback,
-  TimelineSkeleton,
-} from "@/components/ui/timeline";
+import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -165,5 +161,17 @@ const getExercisesByMonth = (exercises: RouterOutputs["exercise"]["all"]) => {
 
   return exercisesByMonth.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+};
+
+const TimelineSkeleton = () => {
+  return (
+    <Timeline>
+      <Badge variant="accent" className="w-max">
+        month
+      </Badge>
+
+      <GridSkeleton />
+    </Timeline>
   );
 };

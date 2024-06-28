@@ -77,7 +77,7 @@ export const InviteUserForm = () => {
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="capitalize">add</p>
+              <p className="capitalize">invite</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -96,7 +96,7 @@ const useFormSchema = () => {
 
       const userAcceptedInvite = team?.usersToTeams.find((userToTeam) => {
         return (
-          userToTeam.team.teamInvite.accepted &&
+          userToTeam.team?.teamInvite?.accepted &&
           userToTeam.user.email === vals.email
         );
       });
