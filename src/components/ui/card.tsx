@@ -99,7 +99,7 @@ export const CardErrorFallback = (props: FallbackProps) => {
   );
 };
 
-export const Cardkeleton = () => {
+export const CardSkeleton = () => {
   return (
     <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
       <Card.Header />
