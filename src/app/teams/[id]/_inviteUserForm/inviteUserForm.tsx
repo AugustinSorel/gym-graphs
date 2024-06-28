@@ -23,19 +23,22 @@ import { Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
+import { toast } from "@/components/ui/use-toast";
 
 export const InviteUserForm = () => {
   const pageParams = useTeamPageParams();
   const formSchema = useFormSchema();
 
   const invite = api.team.invite.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       form.reset();
+
+      toast({
+        variant: "success",
+        title: "Invite sent successfully",
+        description: `An email has been sent to ${variables.email}`,
+      });
     },
-
-    // onMutate: () => {},
-
-    // onSettled: () => {},
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
