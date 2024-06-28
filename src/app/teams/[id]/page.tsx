@@ -9,6 +9,7 @@ import {
 } from "./_components/teamPageParams";
 import { TeamMetadata } from "./_teamMetedata/teamMetadata";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { TeamMembersExercises } from "./_teamMembersExercises/teamMembersExercises";
 
 type Props = {
   params: TeamPageParamsSchema;
@@ -38,6 +39,10 @@ const Page = async (unsafeProps: Props) => {
 
       <HydrationBoundary state={dehydrate(helpers.queryClient)}>
         <TeamMetadata />
+      </HydrationBoundary>
+
+      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+        <TeamMembersExercises />
       </HydrationBoundary>
     </>
   );
