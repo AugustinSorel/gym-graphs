@@ -462,6 +462,7 @@ const FeaturesGridBackground = () => {
   );
 };
 
+//TODO: leaving team
 //TODO: update header ui
 //TODO: add teams feat in main page
 //TODO: better sign in and join team email
