@@ -197,6 +197,13 @@
       "when": 1716402256605,
       "tag": "0027_sloppy_firebrand",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1719659955685,
+      "tag": "0028_shiny_jack_power",
+      "breakpoints": true
     }
   ]
 }
