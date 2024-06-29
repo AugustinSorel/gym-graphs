@@ -1,3 +1,4 @@
+import { env } from "@/env.mjs";
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -30,7 +31,19 @@ export const pluralize = ({ count, noun, suffix = "s" }: PluralizeProps) => {
 };
 
 export const getBaseUrl = () => {
-  if (typeof window !== "undefined") return window.location.origin;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (env.NODE_ENV === "production") {
+    return `https://gym-graphs.vercel.app`;
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  //TODO: add this to the env obj
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  //TODO: add this to the env obj
   return `http://localhost:${process.env.PORT ?? 3000}`;
 };
