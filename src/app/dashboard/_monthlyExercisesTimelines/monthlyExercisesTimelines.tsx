@@ -4,18 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../_components/useExercises";
-import { GridLayout } from "../_components/grid/gridLayout";
-import { GridItem, GridItemErrorFallback } from "../_components/grid/gridItem";
+import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
+import { Card, CardErrorFallback } from "@/components/ui/card";
 import { LineGraph } from "../_components/graphs/lineGraph";
 import { RadarGraph } from "../_components/graphs/radarGraph";
 import { HeatmapGraph } from "../_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "../_components/graphs/heatmapUtils";
 import { RandomFacts } from "../_components/graphs/randomFacts";
-import {
-  Timeline,
-  TimelineErrorFallback,
-  TimelineSkeleton,
-} from "../_components/timeline";
+import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
@@ -59,11 +55,11 @@ const Content = () => {
             <GridLayout>
               {group.exercises.map((exercise) => (
                 <ErrorBoundary
-                  FallbackComponent={GridItemErrorFallback}
+                  FallbackComponent={CardErrorFallback}
                   key={exercise.id}
                 >
-                  <GridItem.Root>
-                    <GridItem.Anchor
+                  <Card.Root>
+                    <Card.Anchor
                       aria-label={`go to ${exercise.name}`}
                       href={`/exercises/${exercise.id}?from=${
                         group.date
@@ -75,20 +71,20 @@ const Content = () => {
                         ),
                       )}`}
                     />
-                    <GridItem.Header>
-                      <GridItem.Title>{exercise.name}</GridItem.Title>
-                    </GridItem.Header>
+                    <Card.Header>
+                      <Card.Title>{exercise.name}</Card.Title>
+                    </Card.Header>
 
                     <LineGraph data={exercise.data} />
-                  </GridItem.Root>
+                  </Card.Root>
                 </ErrorBoundary>
               ))}
 
-              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-                <GridItem.Root>
-                  <GridItem.Header>
-                    <GridItem.Title>exercises count</GridItem.Title>
-                  </GridItem.Header>
+              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+                <Card.Root>
+                  <Card.Header>
+                    <Card.Title>exercises count</Card.Title>
+                  </Card.Header>
 
                   <RadarGraph
                     data={group.exercises.map((exercise) => ({
@@ -96,27 +92,27 @@ const Content = () => {
                       frequency: exercise.data.length,
                     }))}
                   />
-                </GridItem.Root>
+                </Card.Root>
               </ErrorBoundary>
 
-              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-                <GridItem.Root>
-                  <GridItem.Header>
-                    <GridItem.Title>heatmap</GridItem.Title>
-                  </GridItem.Header>
+              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+                <Card.Root>
+                  <Card.Header>
+                    <Card.Title>heatmap</Card.Title>
+                  </Card.Header>
 
                   <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
-                </GridItem.Root>
+                </Card.Root>
               </ErrorBoundary>
 
-              <ErrorBoundary FallbackComponent={GridItemErrorFallback}>
-                <GridItem.Root>
-                  <GridItem.Header>
-                    <GridItem.Title>random facts</GridItem.Title>
-                  </GridItem.Header>
+              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+                <Card.Root>
+                  <Card.Header>
+                    <Card.Title>random facts</Card.Title>
+                  </Card.Header>
 
                   <RandomFacts exercises={group.exercises} />
-                </GridItem.Root>
+                </Card.Root>
               </ErrorBoundary>
             </GridLayout>
           </Timeline>
@@ -165,5 +161,17 @@ const getExercisesByMonth = (exercises: RouterOutputs["exercise"]["all"]) => {
 
   return exercisesByMonth.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+};
+
+const TimelineSkeleton = () => {
+  return (
+    <Timeline>
+      <Badge variant="accent" className="w-max">
+        month
+      </Badge>
+
+      <GridSkeleton />
+    </Timeline>
   );
 };

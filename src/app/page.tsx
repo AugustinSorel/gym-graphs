@@ -13,19 +13,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import { GridLayout } from "./dashboard/_components/grid/gridLayout";
-import { GridItem } from "./dashboard/_components/grid/gridItem";
+import { GridLayout } from "@/components/ui/gridLayout";
+import { Card } from "@/components/ui/card";
 import { LineGraph } from "./dashboard/_components/graphs/lineGraph";
 import { RadarGraph } from "./dashboard/_components/graphs/radarGraph";
 import { HeatmapGraph } from "./dashboard/_components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "./dashboard/_components/graphs/heatmapUtils";
 import { RandomFacts } from "./dashboard/_components/graphs/randomFacts";
-import { Timeline } from "./dashboard/_components/timeline";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
 import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/exerciseDataTableCard";
 import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
+import { Timeline } from "@/components/ui/timeline";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();
@@ -125,12 +125,12 @@ const FeatureOne = () => {
         </Badge>
         <GridLayout>
           {mockExercises.map((exercise) => (
-            <GridItem.Root key={exercise.id}>
-              <GridItem.Header>
-                <GridItem.Title>{exercise.name}</GridItem.Title>
+            <Card.Root key={exercise.id}>
+              <Card.Header>
+                <Card.Title>{exercise.name}</Card.Title>
 
-                <GridItem.ActionContainer>
-                  <GridItem.ActionButton aria-label="view exercise tags">
+                <Card.ActionContainer>
+                  <Card.ActionButton aria-label="view exercise tags">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -141,9 +141,9 @@ const FeatureOne = () => {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </GridItem.ActionButton>
+                  </Card.ActionButton>
 
-                  <GridItem.ActionButton aria-label="view more">
+                  <Card.ActionButton aria-label="view more">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -154,9 +154,9 @@ const FeatureOne = () => {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </GridItem.ActionButton>
+                  </Card.ActionButton>
 
-                  <GridItem.ActionButton aria-label="view more">
+                  <Card.ActionButton aria-label="view more">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -167,18 +167,18 @@ const FeatureOne = () => {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                  </GridItem.ActionButton>
-                </GridItem.ActionContainer>
-              </GridItem.Header>
+                  </Card.ActionButton>
+                </Card.ActionContainer>
+              </Card.Header>
 
               <LineGraph data={exercise.data} />
-            </GridItem.Root>
+            </Card.Root>
           ))}
 
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>exercises count</GridItem.Title>
-            </GridItem.Header>
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>exercises count</Card.Title>
+            </Card.Header>
 
             <RadarGraph
               data={mockExercises.map((exercise) => ({
@@ -186,23 +186,23 @@ const FeatureOne = () => {
                 frequency: exercise.data.length,
               }))}
             />
-          </GridItem.Root>
+          </Card.Root>
 
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>heatmap</GridItem.Title>
-            </GridItem.Header>
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>heatmap</Card.Title>
+            </Card.Header>
 
             <HeatmapGraph data={prepareHeatmapData(mockExercises)} />
-          </GridItem.Root>
+          </Card.Root>
 
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>random facts</GridItem.Title>
-            </GridItem.Header>
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>random facts</Card.Title>
+            </Card.Header>
 
             <RandomFacts exercises={mockExercises} />
-          </GridItem.Root>
+          </Card.Root>
         </GridLayout>
       </Timeline>
       <FeaturesGridBackground />
@@ -241,15 +241,15 @@ const FeatuesGrid = () => {
       <HeroTitle>what we offer</HeroTitle>
 
       <GridContainer>
-        <Card className="lg:[grid-area:card-one]">
+        <I className="lg:[grid-area:card-one]">
           <CardIcon>📈</CardIcon>
           <CardTitle>insights & analytics</CardTitle>
           <CardText>
             Keep track of your progress every session and watch your results
             soar! Get ready to see amazing results!
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-two]">
+        </I>
+        <I className="lg:[grid-area:card-two]">
           <CardIcon>💻</CardIcon>
           <CardTitle>cross platform</CardTitle>
           <CardText>
@@ -258,8 +258,8 @@ const FeatuesGrid = () => {
             and tablet devices, ensuring you can stay connected and motivated on
             the go.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-three]">
+        </I>
+        <I className="lg:[grid-area:card-three]">
           <CardIcon>🤝</CardIcon>
           <CardTitle>open source</CardTitle>
           <CardText>
@@ -279,8 +279,8 @@ const FeatuesGrid = () => {
             our platform, and we appreciate the collaborative spirit that drives
             us forward.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-four]">
+        </I>
+        <I className="lg:[grid-area:card-four]">
           <CardIcon>🧩</CardIcon>
           <CardTitle>customizable</CardTitle>
           <CardText>
@@ -288,8 +288,8 @@ const FeatuesGrid = () => {
             exercises! Customize your workout experience to fit your preferences
             and needs.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-five]">
+        </I>
+        <I className="lg:[grid-area:card-five]">
           <CardIcon>🎁</CardIcon>
           <CardTitle>100% free</CardTitle>
           <CardText>
@@ -297,7 +297,7 @@ const FeatuesGrid = () => {
             fees or charges. We value your privacy and do not collect any
             personal information.
           </CardText>
-        </Card>
+        </I>
       </GridContainer>
 
       <GetStartedAction />
@@ -365,7 +365,7 @@ const GridContainer = (props: ComponentProps<"ul">) => {
   );
 };
 
-const Card = (props: ComponentProps<"li">) => {
+const I = (props: ComponentProps<"li">) => {
   return (
     <li
       {...props}
@@ -462,8 +462,13 @@ const FeaturesGridBackground = () => {
   );
 };
 
+//TODO: leaving team
+//TODO: update header ui
+//TODO: add teams feat in main page
+//TODO: better sign in and join team email
+//TODO: install t3 env and change drizzle config
 //TODO: fix filtering that is slow
 //TODO: test with low end network
-//TODO: add email and psw
-//TODO: fix light mode
+//TODO: add e2e tests
+//TODO: fix light mode colors
 //TODO: show points in brush line

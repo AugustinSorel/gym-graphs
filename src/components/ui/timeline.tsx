@@ -1,9 +1,9 @@
+import { GridSkeleton } from "@/components/ui/gridLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import type { FallbackProps } from "react-error-boundary";
-import { GridSkeleton } from "./grid/gridLayout";
 
 export const Timeline = (props: ComponentProps<"div">) => {
   return (
@@ -67,17 +67,5 @@ const ErrorDescription = (props: ComponentPropsWithoutRef<"code">) => {
       className="block rounded-md border border-border bg-primary px-2 py-4 backdrop-blur-md"
       {...props}
     />
-  );
-};
-
-export const TimelineSkeleton = () => {
-  return (
-    <Timeline>
-      <Badge variant="accent" className="w-max">
-        months
-      </Badge>
-
-      <GridSkeleton />
-    </Timeline>
   );
 };

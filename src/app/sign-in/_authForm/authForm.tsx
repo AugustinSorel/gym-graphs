@@ -1,8 +1,9 @@
 import type { ComponentProps } from "react";
 import { EmailSignInForm, GithubSignIn, GoogleSignIn } from "./authControllers";
 import { DashboardBackground } from "@/components/ui/dashboardBackground";
+import type { SignInOptions } from "next-auth/react";
 
-const AuthForm = () => {
+const AuthForm = ({ callbackUrl }: Pick<SignInOptions, "callbackUrl">) => {
   return (
     <Container>
       <AuthContainer>
@@ -11,13 +12,13 @@ const AuthForm = () => {
           <Paragraph>enter your email below to create an account</Paragraph>
         </AuthTextsContainer>
 
-        <EmailSignInForm />
+        <EmailSignInForm callbackUrl={callbackUrl} />
 
         <SeparatorText>or continue with</SeparatorText>
 
         <AuthControllersContainer>
-          <GoogleSignIn />
-          <GithubSignIn />
+          <GoogleSignIn callbackUrl={callbackUrl} />
+          <GithubSignIn callbackUrl={callbackUrl} />
         </AuthControllersContainer>
       </AuthContainer>
 

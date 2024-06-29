@@ -64,9 +64,9 @@ const Root = forwardRef<HTMLDivElement, ComponentProps<"div">>((props, ref) => {
     />
   );
 });
-Root.displayName = "GridItem";
+Root.displayName = "Card";
 
-export const GridItem = {
+export const Card = {
   Root,
   Header,
   ActionContainer,
@@ -75,17 +75,17 @@ export const GridItem = {
   Anchor,
 };
 
-export const GridItemErrorFallback = (props: FallbackProps) => {
+export const CardErrorFallback = (props: FallbackProps) => {
   const errorMessage =
     props.error instanceof Error
       ? props.error.message
       : JSON.stringify(props.error);
 
   return (
-    <GridItem.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
-      <GridItem.Header className="border-destructive bg-destructive/10">
-        <GridItem.Title>something went wrong</GridItem.Title>
-      </GridItem.Header>
+    <Card.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
+      <Card.Header className="border-destructive bg-destructive/10">
+        <Card.Title>something went wrong</Card.Title>
+      </Card.Header>
 
       <div className="flex h-full flex-col items-center justify-center gap-3 overflow-auto p-5">
         <code className="flex max-h-full overflow-auto">
@@ -95,14 +95,14 @@ export const GridItemErrorFallback = (props: FallbackProps) => {
           try again
         </Button>
       </div>
-    </GridItem.Root>
+    </Card.Root>
   );
 };
 
-export const GritItemSkeleton = () => {
+export const CardSkeleton = () => {
   return (
     <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
-      <GridItem.Header />
+      <Card.Header />
     </Skeleton>
   );
 };

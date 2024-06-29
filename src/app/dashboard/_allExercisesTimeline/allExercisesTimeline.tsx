@@ -4,7 +4,7 @@ import {
   Timeline,
   TimelineActionsContainer,
   TimelineErrorFallback,
-} from "../_components/timeline";
+} from "@/components/ui/timeline";
 import { Badge } from "@/components/ui/badge";
 import { Suspense } from "react";
 import { AllExercisesGrid } from "./allExercisesGrid";
@@ -13,7 +13,7 @@ import {
   FilterByExrerciseMuscleGroups,
 } from "./exerciseFilters";
 import { ErrorBoundary } from "react-error-boundary";
-import { GridSkeleton } from "../_components/grid/gridLayout";
+import { GridSkeleton } from "@/components/ui/gridLayout";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 
 export const AllExercisesTimeline = () => {

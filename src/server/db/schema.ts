@@ -10,6 +10,7 @@ import {
   date,
   real,
   pgEnum,
+  boolean,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 import { sql } from "drizzle-orm";
@@ -125,3 +126,42 @@ export const exercisesData = pgTable(
     unq: unique().on(exerciseData.doneAt, exerciseData.exerciseId),
   }),
 );
+
+export const teams = pgTable("team", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  authorId: text("member_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const usersToTeams = pgTable(
+  "users_to_teams",
+  {
+    teamId: uuid("team_id")
+      .references(() => teams.id, { onDelete: "cascade" })
+      .notNull(),
+    memberId: text("member_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    compoundKey: primaryKey(table.teamId, table.memberId),
+  }),
+);
+
+export const teamInvites = pgTable("team_invite", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: text("email").notNull(),
+  teamId: uuid("team_id")
+    .notNull()
+    .references(() => teams.id, { onDelete: "cascade" }),
+  token: uuid("token").defaultRandom().notNull(),
+  accepted: boolean("accepted").default(false).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

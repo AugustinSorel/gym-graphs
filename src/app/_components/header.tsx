@@ -14,6 +14,7 @@ import {
   ChevronsUpDown,
   Check,
   Megaphone,
+  Plus,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,7 +31,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type PropsWithChildren } from "react";
+import { useState, type PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import {
   Tooltip,
@@ -40,7 +41,7 @@ import {
 } from "@/components/ui/tooltip";
 import { signOut, useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,9 +55,31 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { type RouterOutputs, api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { teamSchema } from "@/schemas/team.schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
+import { useRouter } from "next/navigation";
+import { useTeamPageParams } from "../teams/[id]/_components/useTeamPageParams";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -306,12 +329,15 @@ const Separator = () => {
 
 const DashboardLink = () => {
   const { data: session, status } = useSession();
+  const teams = api.team.all.useQuery();
+  const params = useParams();
 
-  if (status === "loading") {
+  if (status === "loading" || teams.isLoading) {
     return (
       <>
         <Separator />
         <Skeleton className="h-4 w-32 bg-primary" />
+        <ChevronsUpDown className="ml-3 h-4 w-4 stroke-muted-foreground" />
       </>
     );
   }
@@ -338,6 +364,54 @@ const DashboardLink = () => {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
+
+      <DropdownMenu>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  role="combobox"
+                  aria-label="change exercises"
+                  className="z-10 ml-2 h-8 p-1"
+                >
+                  <ChevronsUpDown className="h-4 w-4 stroke-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="capitalize">teams</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <DropdownMenuContent className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1">
+          <DropdownMenuLabel className="capitalize">teams</DropdownMenuLabel>
+
+          {!teams.data?.length && (
+            <p className="text-center text-sm text-muted-foreground">0 teams</p>
+          )}
+          {teams.data?.map((team) => (
+            <DropdownMenuItem
+              asChild
+              key={team.teamId}
+              className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
+            >
+              <Link href={`/teams/${team.teamId}`}>
+                <span className="truncate text-sm">{team.team.name}</span>
+
+                {params.id === team.teamId && <Check className="h-4 w-4" />}
+              </Link>
+            </DropdownMenuItem>
+          ))}
+
+          <DropdownMenuSeparator />
+
+          <CreateTeamDialog />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 };
@@ -423,12 +497,43 @@ const CurrentExeciseLink = ({
   );
 };
 
+const CurrentTeam = ({ id }: { id: string }) => {
+  const team = api.team.get.useQuery({ id });
+
+  if (team.isLoading) {
+    return (
+      <>
+        <Separator />
+        <Skeleton className="h-4 w-32 bg-primary" />
+      </>
+    );
+  }
+
+  if (!team.data) {
+    return null;
+  }
+
+  return (
+    <>
+      <Separator />
+
+      <span className="truncate text-xl font-medium capitalize">
+        {team.data.name}
+      </span>
+    </>
+  );
+};
+
 export const Header = () => {
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
-  const showDashboardPath = pathname[1] === "dashboard" || showExecisesPath;
+  const showTeamPath = pathname[1] === "teams";
+  const showDashboardPath =
+    pathname[1] === "dashboard" || showExecisesPath || showTeamPath;
+
   const exerciseId = pathname[2];
+  const teamId = pathname[2];
 
   return (
     <header className="sticky top-0 z-20 flex h-header items-center justify-between gap-2 border-b border-border bg-primary pr-4 backdrop-blur-md">
@@ -442,6 +547,8 @@ export const Header = () => {
         {showExecisesPath && exerciseId && (
           <CurrentExeciseLink selectedExerciseId={exerciseId} />
         )}
+
+        {showTeamPath && teamId && <CurrentTeam id={teamId} />}
       </nav>
       <FeatureRequest />
       <DropDownMenu />
@@ -485,5 +592,101 @@ const FeatureRequest = () => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+};
+
+const CreateTeamDialog = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const formSchema = teamSchema.pick({ name: true });
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: "" },
+  });
+
+  const createTeam = api.team.create.useMutation({
+    onSuccess: (team) => {
+      setIsDialogOpen(false);
+      router.push(`/teams/${team.id}`);
+    },
+    onMutate: (variables) => {
+      const teams = utils.team.all.getData();
+
+      if (!teams) {
+        return;
+      }
+
+      const optimisticTeam: RouterOutputs["team"]["all"][number] = {
+        memberId: Math.random().toString(),
+        teamId: Math.random().toString(),
+        team: {
+          id: Math.random().toString(),
+          authorId: Math.random().toString(),
+          name: variables.name,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      utils.team.all.setData(undefined, [...teams, optimisticTeam]);
+    },
+    onSettled: () => {
+      void utils.team.all.invalidate();
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    createTeam.mutate(values);
+  };
+
+  return (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <Plus className="mr-2 h-4 w-4" />
+          <span className="first-letter:capitalize">create a team</span>
+        </DropdownMenuItem>
+      </DialogTrigger>
+
+      <DialogContent className="space-y-5 sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="first-letter:capitalize">
+            create a team
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>team name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="friends" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={createTeam.isPending}
+              className="ml-auto"
+            >
+              {createTeam.isPending && <Loader className="mr-2" />}
+              <span className="capitalize">save</span>
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
