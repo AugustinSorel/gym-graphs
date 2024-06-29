@@ -463,6 +463,9 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: leaving team
+//TODO: renaming team
+//TODO: deleting team
+//TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: update header ui
 //TODO: add teams feat in main page
 //TODO: better sign in and join team email
