@@ -13,28 +13,26 @@ export const teamRouter = createTRPCRouter({
   create: protectedProcedure
     .input(teamSchema.pick({ name: true }))
     .mutation(async ({ ctx, input }) => {
-      let team = null;
+      const [team] = await (async () => {
+        try {
+          return await ctx.db
+            .insert(teams)
+            .values({
+              name: input.name,
+              authorId: ctx.session.user.id,
+            })
+            .returning();
+        } catch (e) {
+          if (isPgError(e) && e.code === "23505") {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `${input.name} is already used`,
+            });
+          }
 
-      try {
-        const res = await ctx.db
-          .insert(teams)
-          .values({
-            name: input.name,
-            authorId: ctx.session.user.id,
-          })
-          .returning();
-
-        team = res.at(0);
-      } catch (e) {
-        if (isPgError(e) && e.code === "23505") {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: `${input.name} is already used`,
-          });
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         }
-
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      }
+      })();
 
       if (!team) {
         throw new TRPCError({
@@ -178,5 +176,21 @@ export const teamRouter = createTRPCRouter({
           .delete(teamInvites)
           .where(eq(teamInvites.teamId, input.teamId));
       });
+    }),
+
+  rename: protectedProcedure
+    .input(teamSchema.pick({ id: true, name: true }))
+    .mutation(async ({ ctx, input }) => {
+      const [team] = await ctx.db
+        .update(teams)
+        .set({ name: input.name })
+        .where(eq(teams.id, input.id))
+        .returning();
+
+      if (!team) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "team not found" });
+      }
+
+      return team;
     }),
 });

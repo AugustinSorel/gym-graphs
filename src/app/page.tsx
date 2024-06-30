@@ -462,7 +462,7 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: renaming team
+//TODO: refactor onMutate cb
 //TODO: deleting team
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: update header ui

@@ -28,9 +28,30 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Edit, LogOut, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Fragment, type ComponentPropsWithoutRef, useState } from "react";
+import { type ComponentPropsWithoutRef, useState } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { Card } from "./card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { teamSchema } from "@/schemas/team.schemas";
+import type { z } from "zod";
 
 export const UserTeamsCard = () => {
   return (
@@ -99,7 +120,7 @@ const Content = () => {
               </TeamItemBody>
 
               {!isAuthor && <LeaveTeam team={team.team} />}
-              {isAuthor && <RenameTeam />}
+              {isAuthor && <RenameTeam team={team.team} />}
               {isAuthor && <DeleteTeam />}
             </TeamItem>
           </ErrorBoundary>
@@ -157,7 +178,8 @@ const TeamItemErrorFallback = (props: FallbackProps) => {
       : JSON.stringify(props.error);
 
   return (
-    <TeamItem className="border border-destructive bg-destructive/10 p-2">
+    <TeamItem className="border-destructive bg-destructive/10 p-2 first:border-t">
+      <TeamIndex />
       <TeamItemBody>
         <TeamItemTitle>something went wrong</TeamItemTitle>
 
@@ -173,32 +195,125 @@ const TeamItemErrorFallback = (props: FallbackProps) => {
   );
 };
 
-const RenameTeam = () => {
+const RenameTeam = ({ team }: { team: Team }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const formSchema = useRenameTeamSchema();
+  const utils = api.useUtils();
+
+  const renameTeam = api.team.rename.useMutation({
+    onSuccess: () => {
+      setIsDialogOpen(false);
+    },
+    onMutate: async (variables) => {
+      await utils.team.all.cancel();
+      await utils.team.get.cancel({ id: variables.id });
+
+      utils.team.all.setData(
+        undefined,
+        (teams) =>
+          teams?.map((team) =>
+            team.teamId === variables.id
+              ? { ...team, team: { ...team.team, name: variables.name } }
+              : team,
+          ),
+      );
+
+      utils.team.get.setData({ id: variables.id }, (team) =>
+        !team ? undefined : { ...team, name: variables.name },
+      );
+    },
+    onSettled: (_data, _error, variables) => {
+      void utils.team.all.invalidate();
+      void utils.team.get.invalidate({ id: variables.id });
+    },
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: team.name },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    renameTeam.mutate({
+      id: team.id,
+      name: values.name,
+    });
+  };
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <Edit className="h-3.5 w-3.5" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">rename</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <DialogContent className="space-y-5 sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="capitalize">change team name</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>exercise name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="team name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={renameTeam.isPending}
+              className="ml-auto"
+            >
+              {renameTeam.isPending && <Loader className="mr-2" />}
+              <span className="capitalize">save</span>
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const useRenameTeamSchema = () => {
+  const utils = api.useUtils();
+
+  return teamSchema.pick({ name: true }).refine(
+    (data) => {
+      const teams = utils.team.all.getData();
+
+      return !teams?.find(
+        (team) => team.team.name.toLowerCase() === data.name.toLowerCase(),
+      );
+    },
+    (data) => {
+      return {
+        message: `${data.name} is already used`,
+        path: ["name"],
+      };
+    },
   );
 };
 
@@ -236,15 +351,25 @@ const LeaveTeam = ({ team }: { team: Team }) => {
 
   return (
     <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-        </Button>
-      </AlertDialogTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </AlertDialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">leave</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
