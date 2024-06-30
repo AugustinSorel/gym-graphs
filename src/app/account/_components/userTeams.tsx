@@ -76,36 +76,33 @@ const Content = () => {
         const isAuthor = team.team.author.id === session.data?.user.id;
 
         return (
-          <Fragment key={team.teamId}>
-            <ErrorBoundary FallbackComponent={TeamItemErrorFallback}>
-              <TeamItem>
-                <TeamIndex>{i + 1}</TeamIndex>
+          <ErrorBoundary
+            FallbackComponent={TeamItemErrorFallback}
+            key={team.teamId}
+          >
+            <TeamItem>
+              <TeamIndex>{i + 1}</TeamIndex>
 
-                <TeamItemBody>
-                  <TeamItemTitle>
-                    <Button variant="link" className="h-auto p-0" asChild>
-                      <Link href={`/teams/${team.teamId}`}>
-                        {team.team.name}
-                      </Link>
-                    </Button>
-                  </TeamItemTitle>
-                  <TeamItemSubTitle>
-                    created by{" "}
-                    {isAuthor
-                      ? "you"
-                      : team.team.author.name ??
-                        team.team.author.email.split("@").at(0)}
-                  </TeamItemSubTitle>
-                </TeamItemBody>
+              <TeamItemBody>
+                <TeamItemTitle>
+                  <Button variant="link" className="h-auto p-0" asChild>
+                    <Link href={`/teams/${team.teamId}`}>{team.team.name}</Link>
+                  </Button>
+                </TeamItemTitle>
+                <TeamItemSubTitle>
+                  created by{" "}
+                  {isAuthor
+                    ? "you"
+                    : team.team.author.name ??
+                      team.team.author.email.split("@").at(0)}
+                </TeamItemSubTitle>
+              </TeamItemBody>
 
-                {!isAuthor && <LeaveTeam team={team.team} />}
-                {isAuthor && <RenameTeam />}
-                {isAuthor && <DeleteTeam />}
-              </TeamItem>
-            </ErrorBoundary>
-
-            {i < teams.data.length - 1 && <hr />}
-          </Fragment>
+              {!isAuthor && <LeaveTeam team={team.team} />}
+              {isAuthor && <RenameTeam />}
+              {isAuthor && <DeleteTeam />}
+            </TeamItem>
+          </ErrorBoundary>
         );
       })}
     </>
@@ -115,7 +112,7 @@ const Content = () => {
 const List = (props: ComponentPropsWithoutRef<"ul">) => {
   return (
     <ul
-      className="divide-y-muted flex flex-col gap-4 rounded-sm border border-border bg-background p-4"
+      className="divide-y-muted flex flex-col gap-4 divide-y rounded-sm border border-border bg-background p-3 [&>*:not(:first-child)]:pt-4"
       {...props}
     />
   );
@@ -123,7 +120,10 @@ const List = (props: ComponentPropsWithoutRef<"ul">) => {
 
 const TeamItem = (props: ComponentPropsWithoutRef<"li">) => {
   return (
-    <li {...props} className={cn("flex items-center gap-2", props.className)} />
+    <li
+      {...props}
+      className={cn("flex items-center gap-2 p-1", props.className)}
+    />
   );
 };
 
@@ -248,12 +248,11 @@ const LeaveTeam = ({ team }: { team: Team }) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Do you want to leave the {team.name} team?
+            Do you want to leave the {team.name}?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            You are about to leave the {team.name} team. If you want to re join
-            this team, please ask the author of this team to send you another
-            invite.
+            You are about to leave the {team.name}. If you want to re join this
+            team, please ask the author of this team to send you another invite.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -301,21 +300,18 @@ const DeleteTeam = () => {
 
 const TeamsSkeleton = () => {
   const items = 5;
+
   return (
     <>
       {[...Array<unknown>(items)].map((_, i) => (
-        <Fragment key={i}>
-          <TeamItem>
-            <Skeleton className="h-10 w-10 rounded-full bg-primary" />
+        <TeamItem key={i}>
+          <Skeleton className="h-10 w-10 rounded-full bg-primary" />
 
-            <TeamItemBody className="flex flex-col justify-evenly gap-2 py-1">
-              <Skeleton className="h-2 w-32 rounded-md bg-primary" />
-              <Skeleton className="h-2 w-64 rounded-md bg-primary" />
-            </TeamItemBody>
-          </TeamItem>
-
-          {i < items - 1 && <hr />}
-        </Fragment>
+          <TeamItemBody className="flex flex-col justify-evenly gap-2 py-1">
+            <Skeleton className="h-2 w-32 rounded-md bg-primary" />
+            <Skeleton className="h-2 w-64 rounded-md bg-primary" />
+          </TeamItemBody>
+        </TeamItem>
       ))}
     </>
   );
