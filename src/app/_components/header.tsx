@@ -615,7 +615,7 @@ const FeatureRequest = () => {
 
 const CreateTeamDialog = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const formSchema = teamSchema.pick({ name: true });
+  const formSchema = useFormSchema();
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -715,5 +715,25 @@ const CreateTeamDialog = () => {
         </Form>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const useFormSchema = () => {
+  const utils = api.useUtils();
+
+  return teamSchema.pick({ name: true }).refine(
+    (data) => {
+      const teams = utils.team.all.getData();
+
+      return !teams?.find(
+        (team) => team.team.name.toLowerCase() === data.name.toLowerCase(),
+      );
+    },
+    (data) => {
+      return {
+        message: `${data.name} is already used`,
+        path: ["name"],
+      };
+    },
   );
 };
