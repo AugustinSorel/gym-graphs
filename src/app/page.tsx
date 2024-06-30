@@ -462,8 +462,6 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: leaving team
-//TODO: leaving team
 //TODO: renaming team
 //TODO: deleting team
 //TODO: add random facts to team page eg heavier lifter or most active in team
