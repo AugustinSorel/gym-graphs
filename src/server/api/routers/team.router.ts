@@ -36,10 +36,14 @@ export const teamRouter = createTRPCRouter({
 
   all: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.usersToTeams.findMany({
-      where: (table, { eq }) => eq(table.memberId, ctx.session.user.id),
       with: {
-        team: true,
+        team: {
+          with: {
+            author: true,
+          },
+        },
       },
+      where: (table, { eq }) => eq(table.memberId, ctx.session.user.id),
       orderBy: (table, { desc }) => desc(table.createdAt),
     });
   }),
