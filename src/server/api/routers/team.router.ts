@@ -7,18 +7,34 @@ import { sendInviteToTeamEmail } from "@/lib/email";
 import { and, eq } from "drizzle-orm";
 import { teamInviteSchema } from "@/schemas/teamInvite.schema";
 import { z } from "zod";
+import { isPgError } from "@/server/db/utils";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
     .input(teamSchema.pick({ name: true }))
     .mutation(async ({ ctx, input }) => {
-      const [team] = await ctx.db
-        .insert(teams)
-        .values({
-          name: input.name,
-          authorId: ctx.session.user.id,
-        })
-        .returning();
+      let team = null;
+
+      try {
+        const res = await ctx.db
+          .insert(teams)
+          .values({
+            name: input.name,
+            authorId: ctx.session.user.id,
+          })
+          .returning();
+
+        team = res.at(0);
+      } catch (e) {
+        if (isPgError(e) && e.code === "23505") {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `${input.name} is already used`,
+          });
+        }
+
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
 
       if (!team) {
         throw new TRPCError({

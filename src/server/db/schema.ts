@@ -127,15 +127,21 @@ export const exercisesData = pgTable(
   }),
 );
 
-export const teams = pgTable("team", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  authorId: text("member_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const teams = pgTable(
+  "team",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    authorId: text("member_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    unq: unique().on(table.authorId, table.name),
+  }),
+);
 
 export const usersToTeams = pgTable(
   "users_to_teams",
