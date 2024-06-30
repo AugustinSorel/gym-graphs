@@ -629,7 +629,9 @@ const CreateTeamDialog = () => {
       setIsDialogOpen(false);
       router.push(`/teams/${team.id}`);
     },
-    onMutate: (variables) => {
+    onMutate: async (variables) => {
+      await utils.team.all.cancel();
+
       const teams = utils.team.all.getData();
 
       if (!teams) {

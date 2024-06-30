@@ -30,7 +30,10 @@ export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {
     onSuccess: () => {
       setIsAlertDialogOpen(false);
     },
-    onMutate: (exerciseToDelete) => {
+    onMutate: async (exerciseToDelete) => {
+      await utils.exercise.all.cancel();
+      await utils.exercise.get.cancel({ id: exercise.id });
+
       const allExercises = utils.exercise.all.getData();
       const exerciseCached = utils.exercise.get.getData({ id: exercise.id });
 

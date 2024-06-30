@@ -60,7 +60,10 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
     onSuccess: () => {
       setIsDialogOpen(() => false);
     },
-    onMutate: (variables) => {
+    onMutate: async (variables) => {
+      await utils.exercise.all.cancel();
+      await utils.exercise.get.cancel({ id: exerciseData.exerciseId });
+
       const cachedExercises = utils.exercise.all.getData();
       const cachedExercise = utils.exercise.get.getData({
         id: exerciseData.exerciseId,
