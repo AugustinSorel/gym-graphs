@@ -11,6 +11,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User } from "next-auth";
 import { useTeam } from "../_components/useTeam";
+import { useTeamPageParams } from "../_components/useTeamPageParams";
 
 export const TeamMetadata = () => {
   return (
@@ -48,7 +49,8 @@ const Content = () => {
 };
 
 const TeamNameCard = () => {
-  const team = useTeam();
+  const searchParams = useTeamPageParams();
+  const team = useTeam({ id: searchParams.id });
 
   if (team.isLoading) {
     return <CardSkeleton />;
@@ -71,7 +73,8 @@ const TeamNameCard = () => {
 };
 
 const TeamMembers = () => {
-  const team = useTeam();
+  const searchParams = useTeamPageParams();
+  const team = useTeam({ id: searchParams.id });
 
   if (team.isLoading) {
     return <CardSkeleton />;
