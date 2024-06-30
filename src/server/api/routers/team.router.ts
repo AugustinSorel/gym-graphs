@@ -6,7 +6,6 @@ import { userSchema } from "@/schemas/user.schema";
 import { sendInviteToTeamEmail } from "@/lib/email";
 import { and, eq } from "drizzle-orm";
 import { teamInviteSchema } from "@/schemas/teamInvite.schema";
-import { teamsRelations } from "@/server/db/relations";
 import { z } from "zod";
 
 export const teamRouter = createTRPCRouter({
