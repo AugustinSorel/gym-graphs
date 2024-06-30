@@ -25,6 +25,7 @@ export const exerciseRouter = createTRPCRouter({
           return exerciseCreated;
         });
       } catch (e) {
+        //TODO: use pgError fn
         const error = e as object;
 
         if ("code" in error && error.code === "23505") {
@@ -71,6 +72,7 @@ export const exerciseRouter = createTRPCRouter({
       } catch (e) {
         const error = e as object;
 
+        //TODO: use pgError fn
         if ("code" in error && error.code === "23505") {
           throw new TRPCError({
             code: "CONFLICT",
