@@ -98,10 +98,7 @@ const useFormSchema = () => {
       const team = utils.team.get.getData({ id: pageParams.id });
 
       const userAcceptedInvite = team?.usersToTeams.find((userToTeam) => {
-        return (
-          userToTeam.team?.teamInvite?.accepted &&
-          userToTeam.user.email === vals.email
-        );
+        return userToTeam.user.email === vals.email;
       });
 
       return !userAcceptedInvite;

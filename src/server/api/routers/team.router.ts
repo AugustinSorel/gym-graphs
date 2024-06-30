@@ -119,15 +119,17 @@ export const teamRouter = createTRPCRouter({
         .merge(teamInviteSchema.pick({ token: true })),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(usersToTeams).values({
-        memberId: ctx.session.user.id,
-        teamId: input.id,
-      });
+      await ctx.db.transaction(async (tx) => {
+        await tx.insert(usersToTeams).values({
+          memberId: ctx.session.user.id,
+          teamId: input.id,
+        });
 
-      await ctx.db
-        .update(teamInvites)
-        .set({ accepted: true })
-        .where(eq(teamInvites.token, input.token));
+        await tx
+          .update(teamInvites)
+          .set({ accepted: true })
+          .where(eq(teamInvites.token, input.token));
+      });
     }),
 
   getInvite: protectedProcedure
