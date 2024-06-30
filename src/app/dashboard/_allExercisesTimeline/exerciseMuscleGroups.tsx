@@ -28,7 +28,9 @@ export const ExerciseMuscleGroupsDropdown = ({
   const utils = api.useUtils();
 
   const updateMuscleGroup = api.exercise.muscleGroup.useMutation({
-    onMutate: (exerciseToUpdate) => {
+    onMutate: async (exerciseToUpdate) => {
+      await utils.exercise.all.cancel();
+
       const allExercises = utils.exercise.all.getData();
 
       if (!allExercises) {

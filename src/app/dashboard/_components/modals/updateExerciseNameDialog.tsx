@@ -53,7 +53,10 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
     onSuccess: () => {
       setIsDialogOpen(false);
     },
-    onMutate: (exerciseToUpdate) => {
+    onMutate: async (exerciseToUpdate) => {
+      await utils.exercise.all.cancel();
+      await utils.exercise.get.cancel({ id: exercise.id });
+
       const allExercises = utils.exercise.all.getData();
       const exerciseCached = utils.exercise.get.getData({ id: exercise.id });
 

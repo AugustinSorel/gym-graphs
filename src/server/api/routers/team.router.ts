@@ -4,8 +4,9 @@ import { teamSchema } from "@/schemas/team.schemas";
 import { TRPCError } from "@trpc/server";
 import { userSchema } from "@/schemas/user.schema";
 import { sendInviteToTeamEmail } from "@/lib/email";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { teamInviteSchema } from "@/schemas/teamInvite.schema";
+import { z } from "zod";
 
 export const teamRouter = createTRPCRouter({
   create: protectedProcedure
@@ -36,10 +37,14 @@ export const teamRouter = createTRPCRouter({
 
   all: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.usersToTeams.findMany({
-      where: (table, { eq }) => eq(table.memberId, ctx.session.user.id),
       with: {
-        team: true,
+        team: {
+          with: {
+            author: true,
+          },
+        },
       },
+      where: (table, { eq }) => eq(table.memberId, ctx.session.user.id),
       orderBy: (table, { desc }) => desc(table.createdAt),
     });
   }),
@@ -130,6 +135,30 @@ export const teamRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.query.teamInvites.findFirst({
         where: (table, { eq }) => eq(table.token, input.token),
+      });
+    }),
+
+  leave: protectedProcedure
+    .input(
+      z.object({
+        teamId: teamSchema.shape.id,
+        userId: userSchema.shape.id,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(usersToTeams)
+          .where(
+            and(
+              eq(usersToTeams.teamId, input.teamId),
+              eq(usersToTeams.memberId, input.userId),
+            ),
+          );
+
+        await tx
+          .delete(teamInvites)
+          .where(eq(teamInvites.teamId, input.teamId));
       });
     }),
 });

@@ -11,6 +11,7 @@ import { LineGraph } from "@/app/dashboard/_components/graphs/lineGraph";
 import { RadarGraph } from "@/app/dashboard/_components/graphs/radarGraph";
 import { RandomFacts } from "@/app/dashboard/_components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
+import { useTeamPageParams } from "../_components/useTeamPageParams";
 
 export const TeamMembersExercises = () => {
   return (
@@ -28,7 +29,8 @@ export const TeamMembersExercises = () => {
 };
 
 const Content = () => {
-  const team = useTeam();
+  const searchParams = useTeamPageParams();
+  const team = useTeam({ id: searchParams.id });
 
   if (team.isLoading) {
     return <TimelineSkeleton />;

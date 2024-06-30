@@ -48,7 +48,10 @@ export const NewExerciseDataForm = () => {
     onSuccess: () => {
       form.reset();
     },
-    onMutate: (variables) => {
+    onMutate: async (variables) => {
+      await utils.exercise.all.cancel();
+      await utils.exercise.get.cancel({ id: params.id });
+
       const cachedExercises = utils.exercise.all.getData();
       const cachedExercise = utils.exercise.get.getData({
         id: params.id,

@@ -15,6 +15,7 @@ import {
   Check,
   Megaphone,
   Plus,
+  Settings,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -79,7 +80,8 @@ import { teamSchema } from "@/schemas/team.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
-import { useTeamPageParams } from "../teams/[id]/_components/useTeamPageParams";
+import { useTeam } from "../teams/[id]/_components/useTeam";
+import { useTeams } from "../teams/_components/useTeams";
 
 const DropDownMenu = () => {
   const { data: session } = useSession();
@@ -98,6 +100,8 @@ const DropDownMenu = () => {
         <ThemeDropDownItem />
 
         <GitHubDropDownitem />
+
+        <AccountSettingsDropDownItem />
 
         {!session && <SignInDropDownItem />}
 
@@ -205,6 +209,17 @@ const GitHubDropDownitem = () => {
       >
         <Github className="mr-2 h-4 w-4" />
         <span className="capitalize">gitHub</span>
+      </Link>
+    </DropdownMenuItem>
+  );
+};
+
+const AccountSettingsDropDownItem = () => {
+  return (
+    <DropdownMenuItem asChild>
+      <Link href="/account" className="flex w-full items-center">
+        <Settings className="mr-2 h-4 w-4" />
+        <span className="capitalize">settings</span>
       </Link>
     </DropdownMenuItem>
   );
@@ -329,7 +344,7 @@ const Separator = () => {
 
 const DashboardLink = () => {
   const { data: session, status } = useSession();
-  const teams = api.team.all.useQuery();
+  const teams = useTeams();
   const params = useParams();
 
   if (status === "loading" || teams.isLoading) {
@@ -498,7 +513,7 @@ const CurrentExeciseLink = ({
 };
 
 const CurrentTeam = ({ id }: { id: string }) => {
-  const team = api.team.get.useQuery({ id });
+  const team = useTeam({ id });
 
   if (team.isLoading) {
     return (
@@ -530,7 +545,10 @@ export const Header = () => {
   const showExecisesPath = pathname[1] === "exercises";
   const showTeamPath = pathname[1] === "teams";
   const showDashboardPath =
-    pathname[1] === "dashboard" || showExecisesPath || showTeamPath;
+    pathname[1] === "dashboard" ||
+    pathname[1] === "account" ||
+    showExecisesPath ||
+    showTeamPath;
 
   const exerciseId = pathname[2];
   const teamId = pathname[2];
@@ -611,7 +629,9 @@ const CreateTeamDialog = () => {
       setIsDialogOpen(false);
       router.push(`/teams/${team.id}`);
     },
-    onMutate: (variables) => {
+    onMutate: async (variables) => {
+      await utils.team.all.cancel();
+
       const teams = utils.team.all.getData();
 
       if (!teams) {
@@ -627,6 +647,13 @@ const CreateTeamDialog = () => {
           name: variables.name,
           createdAt: new Date(),
           updatedAt: new Date(),
+          author: {
+            email: "",
+            id: Math.random().toString(),
+            emailVerified: null,
+            image: null,
+            name: null,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
