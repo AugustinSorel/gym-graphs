@@ -35,6 +35,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const teamsRelations = relations(teams, ({ many, one }) => ({
   usersToTeams: many(usersToTeams),
+  author: one(users, {
+    fields: [teams.authorId],
+    references: [users.id],
+  }),
   teamInvite: one(teamInvites, {
     fields: [teams.id],
     references: [teamInvites.teamId],
