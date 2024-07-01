@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 export const ThemePreferenceCard = () => {
-  const [selectedTheme, setSelectedTheme] = useState<string>("");
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
   const theme = useTheme();
 
@@ -29,7 +29,7 @@ export const ThemePreferenceCard = () => {
           <ToggleGroup
             type="single"
             disabled={!selectedTheme}
-            value={selectedTheme}
+            value={selectedTheme ?? "no-choice"}
             variant="outline"
             onValueChange={theme.setTheme}
           >

@@ -78,8 +78,6 @@ const DropDownMenu = () => {
 
         <DropdownMenuSeparator />
 
-        {session && <WeightDropDownItem />}
-
         <AccountSettingsDropDownItem />
 
         {!session && <SignInDropDownItem />}
@@ -104,36 +102,6 @@ const MenuIcon = () => {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
-};
-
-const WeightDropDownItem = () => {
-  const weightUnit = useWeightUnit();
-
-  return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>
-        <ArrowLeftRight className="mr-2 h-4 w-4" />
-        <span className="capitalize">unit - ({weightUnit.get})</span>
-      </DropdownMenuSubTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup
-            value={weightUnit.get}
-            onValueChange={(e) =>
-              weightUnit.set(e as Parameters<typeof weightUnit.set>[0])
-            }
-          >
-            <DropdownMenuRadioItem value="kg" className="capitalize">
-              kg
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="lb" className="capitalize">
-              lb
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuPortal>
-    </DropdownMenuSub>
   );
 };
 
