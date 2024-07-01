@@ -28,10 +28,12 @@ const ErrorFallback = (props: FallbackProps) => {
         <code className="flex max-h-full overflow-auto">
           Error: {errorMessage}
         </code>
+      </Card.Body>
+      <Card.Footer className="border-destructive">
         <Button onClick={props.resetErrorBoundary} variant="destructive">
           try again
         </Button>
-      </Card.Body>
+      </Card.Footer>
     </Card.Root>
   );
 };
