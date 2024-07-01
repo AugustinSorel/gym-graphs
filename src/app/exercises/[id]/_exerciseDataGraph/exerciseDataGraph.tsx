@@ -120,16 +120,16 @@ const MainGraph = ({
 
       const { x } = localPoint(event) ?? { x: 0 };
       const x0 = dateScale.invert(x);
-      const index = exercise.data.findIndex(
+      const index = exercise.filteredData.findIndex(
         (d) => getDate(d).getTime() > x0.getTime(),
       );
-      const d0 = exercise.data[index - 1] ??
-        exercise.data.at(-1) ?? {
+      const d0 = exercise.filteredData[index - 1] ??
+        exercise.filteredData.at(-1) ?? {
           doneAt: new Date().toString(),
           numberOfRepetitions: 0,
           weightLifted: 0,
         };
-      const d1 = exercise.data[index];
+      const d1 = exercise.filteredData[index];
       let d = d0;
       if (d1 && getDate(d1)) {
         d =
@@ -144,13 +144,7 @@ const MainGraph = ({
         tooltipTop: oneRepMaxScale(getOneRepMax(d)),
       });
     },
-    [
-      dateScale,
-      tooltip,
-      oneRepMaxScale,
-      exercise.filteredData.length,
-      exercise.data,
-    ],
+    [dateScale, tooltip, oneRepMaxScale, exercise.filteredData],
   );
 
   if (exercise.filteredData.length < 1) {
