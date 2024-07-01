@@ -4,6 +4,7 @@ import { createSSRHelper } from "@/trpc/server";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { DeleteUserAccountCard } from "./_components/deleteUserAccountCard";
+import { UserAccountCard } from "./_components/userAccountTeam";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -17,9 +18,12 @@ const Page = async () => {
 
   return (
     <>
+      <UserAccountCard />
+
       <HydrationBoundary state={dehydrate(helpers.queryClient)}>
         <UserTeamsCard />
       </HydrationBoundary>
+
       <DeleteUserAccountCard />
     </>
   );

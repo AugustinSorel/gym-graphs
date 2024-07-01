@@ -69,6 +69,9 @@ export const UserTeamsCard = () => {
                 <Content />
               </List>
             </Card.Body>
+            <Card.Footer className="flex">
+              <Button className="ml-auto">new team</Button>
+            </Card.Footer>
           </Card.Root>
         </ErrorBoundary>
       )}

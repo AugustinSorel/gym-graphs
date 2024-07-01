@@ -50,7 +50,7 @@ const Description = (props: ComponentPropsWithoutRef<"p">) => {
 };
 
 const Body = (props: ComponentPropsWithoutRef<"div">) => {
-  return <div {...props} className="space-y-3 p-5" />;
+  return <div {...props} className={cn("space-y-3 p-5", props.className)} />;
 };
 
 const Footer = (props: ComponentPropsWithoutRef<"footer">) => {
