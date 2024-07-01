@@ -462,13 +462,13 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: refactor onMutate cb
-//TODO: deleting team
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: update header ui
 //TODO: add teams feat in main page
 //TODO: better sign in and join team email
 //TODO: install t3 env and change drizzle config
+//TODO: reanme exercise router update to rename
+//TODO: move graphs to @/compnent
 //TODO: fix filtering that is slow
 //TODO: test with low end network
 //TODO: add e2e tests
