@@ -58,6 +58,7 @@ import { useRouter } from "next/navigation";
 import { useTeam } from "../teams/[id]/_components/useTeam";
 import { useTeams } from "../teams/_components/useTeams";
 
+//TODO: remove this
 const DropDownMenu = () => {
   const { data: session } = useSession();
 
@@ -355,6 +356,7 @@ const CurrentTeam = ({ id }: { id: string }) => {
   );
 };
 
+//TODO:error handling here
 export const Header = () => {
   const pathname = usePathname().split("/");
 
