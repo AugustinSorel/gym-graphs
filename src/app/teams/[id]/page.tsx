@@ -21,6 +21,10 @@ const Page = async (unsafeProps: Props) => {
   const helpers = await createSSRHelper();
   const team = await helpers.team.get.fetch({ id: unsafeProps.params.id });
 
+  if (!team) {
+    return redirect("/dashboard");
+  }
+
   const session = await getServerAuthSession();
 
   const userInTeam = team?.usersToTeams.find(

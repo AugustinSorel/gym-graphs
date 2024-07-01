@@ -38,7 +38,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -121,7 +120,7 @@ const Content = () => {
 
               {!isAuthor && <LeaveTeam team={team.team} />}
               {isAuthor && <RenameTeam team={team.team} />}
-              {isAuthor && <DeleteTeam />}
+              {isAuthor && <DeleteTeam team={team.team} />}
             </TeamItem>
           </ErrorBoundary>
         );
@@ -402,24 +401,80 @@ const LeaveTeam = ({ team }: { team: Team }) => {
   );
 };
 
-const DeleteTeam = () => {
+const DeleteTeam = ({ team }: { team: Team }) => {
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const utils = api.useUtils();
+
+  const deleteTeam = api.team.delete.useMutation({
+    onSuccess: () => {
+      setIsAlertDialogOpen(false);
+    },
+    onMutate: async (variables) => {
+      await utils.team.all.cancel();
+      await utils.team.get.cancel({ id: variables.id });
+
+      utils.team.all.setData(
+        undefined,
+        (teams) => teams?.filter((team) => team.teamId !== variables.id),
+      );
+
+      utils.team.get.setData({ id: variables.id }, undefined);
+    },
+    onSettled: (_data, _error, variables) => {
+      void utils.team.all.invalidate();
+      void utils.team.get.invalidate({ id: variables.id });
+    },
+  });
+
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive/80 hover:bg-destructive/10 hover:text-destructive"
+    <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-destructive/80 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </AlertDialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">delete</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Do you really want to delete the {team.name}?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete{" "}
+            {team.name} from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            disabled={deleteTeam.isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteTeam.mutate({
+                id: team.id,
+              });
+            }}
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>delete</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+            {deleteTeam.isPending && <Loader />}
+            <span>Delete</span>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
