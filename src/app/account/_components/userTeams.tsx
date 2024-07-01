@@ -58,15 +58,17 @@ export const UserTeamsCard = () => {
       {({ reset }) => (
         <ErrorBoundary FallbackComponent={Card.ErrorFallback} onReset={reset}>
           <Card.Root>
-            <Card.Title>teams</Card.Title>
-            <Card.Description>
-              Manage the Teams that you&apos;re a part of, join suggested ones,
-              or create a new one.
-            </Card.Description>
+            <Card.Body>
+              <Card.Title>teams</Card.Title>
+              <Card.Description>
+                Manage the Teams that you&apos;re a part of, join suggested
+                ones, or create a new one.
+              </Card.Description>
 
-            <List>
-              <Content />
-            </List>
+              <List>
+                <Content />
+              </List>
+            </Card.Body>
           </Card.Root>
         </ErrorBoundary>
       )}

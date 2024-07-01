@@ -8,7 +8,7 @@ const Root = (props: ComponentPropsWithoutRef<"section">) => {
     <section
       {...props}
       className={cn(
-        "w-full space-y-3 border border-border bg-primary p-5 sm:rounded-md",
+        "w-full border border-border bg-primary sm:rounded-md",
         props.className,
       )}
     />
@@ -23,13 +23,15 @@ const ErrorFallback = (props: FallbackProps) => {
 
   return (
     <Card.Root className="border-destructive bg-destructive/5 hover:bg-destructive/10">
-      <Card.Title>Something else wrong</Card.Title>
-      <code className="flex max-h-full overflow-auto">
-        Error: {errorMessage}
-      </code>
-      <Button onClick={props.resetErrorBoundary} variant="destructive">
-        try again
-      </Button>
+      <Card.Body>
+        <Card.Title>Something else wrong</Card.Title>
+        <code className="flex max-h-full overflow-auto">
+          Error: {errorMessage}
+        </code>
+        <Button onClick={props.resetErrorBoundary} variant="destructive">
+          try again
+        </Button>
+      </Card.Body>
     </Card.Root>
   );
 };
@@ -47,9 +49,24 @@ const Description = (props: ComponentPropsWithoutRef<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
+const Body = (props: ComponentPropsWithoutRef<"div">) => {
+  return <div {...props} className="space-y-3 p-5" />;
+};
+
+const Footer = (props: ComponentPropsWithoutRef<"footer">) => {
+  return (
+    <footer
+      {...props}
+      className={cn("border-t border-border px-5 py-2", props.className)}
+    />
+  );
+};
+
 export const Card = {
   Root,
+  Body,
   ErrorFallback,
   Title,
   Description,
+  Footer,
 };

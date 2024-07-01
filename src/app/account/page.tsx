@@ -3,6 +3,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { createSSRHelper } from "@/trpc/server";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
+import { DeleteUserAccountCard } from "./_components/deleteUserAccountCard";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -15,9 +16,12 @@ const Page = async () => {
   await helpers.team.all.prefetch();
 
   return (
-    <HydrationBoundary state={dehydrate(helpers.queryClient)}>
-      <UserTeamsCard />
-    </HydrationBoundary>
+    <>
+      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+        <UserTeamsCard />
+      </HydrationBoundary>
+      <DeleteUserAccountCard />
+    </>
   );
 };
 

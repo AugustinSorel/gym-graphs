@@ -9,7 +9,6 @@ import {
   Palette,
   Github,
   User,
-  Trash,
   LogOut,
   ChevronsUpDown,
   Check,
@@ -43,17 +42,6 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
 import { useParams, usePathname } from "next/navigation";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
 import { type RouterOutputs, api } from "@/trpc/react";
@@ -113,8 +101,6 @@ const DropDownMenu = () => {
             </DropdownMenuLabel>
 
             <SignOutDropDownItem />
-
-            <DeleteAccountDropDownItem />
           </DropdownMenuGroup>
         )}
       </DropdownMenuContent>
@@ -255,51 +241,6 @@ const SignOutDropDownItem = () => {
       <LogOut className="h-4 w-4" />
       <span className="capitalize">sign out</span>
     </DropdownMenuItem>
-  );
-};
-
-const DeleteAccountDropDownItem = () => {
-  const deleteAccount = api.user.delete.useMutation({
-    onSuccess: async () => {
-      await signOut({ callbackUrl: "/" });
-    },
-  });
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <DropdownMenuItem
-          className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive"
-          onSelect={(e) => e.preventDefault()}
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          <span className="capitalize">delete account</span>
-        </DropdownMenuItem>
-      </AlertDialogTrigger>
-
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
-            onClick={(e) => {
-              e.preventDefault();
-              void deleteAccount.mutate();
-            }}
-          >
-            {deleteAccount.isPending && <Loader />}
-            <span className="capitalize">delete</span>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 };
 

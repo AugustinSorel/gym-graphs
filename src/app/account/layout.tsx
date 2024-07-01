@@ -7,7 +7,7 @@ const Layout = (props: PropsWithChildren) => {
         account settings
       </h1>
 
-      <div className="flex flex-col items-center justify-center sm:px-[max(calc((100vw-50rem)/2),1rem)]">
+      <div className="flex flex-col items-center justify-center gap-5 sm:px-[max(calc((100vw-50rem)/2),1rem)]">
         {props.children}
       </div>
     </main>
