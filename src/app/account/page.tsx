@@ -5,6 +5,7 @@ import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { DeleteUserAccountCard } from "./_components/deleteUserAccountCard";
 import { UserAccountCard } from "./_components/userAccountTeam";
+import { GithubCard } from "./_components/githubCard";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -23,6 +24,8 @@ const Page = async () => {
       <HydrationBoundary state={dehydrate(helpers.queryClient)}>
         <UserTeamsCard />
       </HydrationBoundary>
+
+      <GithubCard />
 
       <DeleteUserAccountCard />
     </>

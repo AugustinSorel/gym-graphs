@@ -87,8 +87,6 @@ const DropDownMenu = () => {
 
         <ThemeDropDownItem />
 
-        <GitHubDropDownitem />
-
         <AccountSettingsDropDownItem />
 
         {!session && <SignInDropDownItem />}
@@ -182,21 +180,6 @@ const ThemeDropDownItem = () => {
         </DropdownMenuSubContent>
       </DropdownMenuPortal>
     </DropdownMenuSub>
-  );
-};
-
-const GitHubDropDownitem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link
-        href="https://github.com/augustinsorel/gym-graphs"
-        target="_blank"
-        className="flex w-full items-center"
-      >
-        <Github className="mr-2 h-4 w-4" />
-        <span className="capitalize">gitHub</span>
-      </Link>
-    </DropdownMenuItem>
   );
 };
 

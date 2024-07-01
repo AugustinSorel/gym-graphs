@@ -21,9 +21,9 @@ export const UserAccountCard = () => {
           Email: <strong>sorelaugstin@gmail.com</strong>
         </Card.Description>
       </Card.Body>
-      <Card.Footer className="flex">
+      <Card.Footer>
         <Button
-          className="ml-auto space-x-2"
+          className="space-x-2"
           disabled={signOutMutation.isPending}
           onClick={() => {
             signOutMutation.mutate();

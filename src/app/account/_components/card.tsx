@@ -57,7 +57,10 @@ const Footer = (props: ComponentPropsWithoutRef<"footer">) => {
   return (
     <footer
       {...props}
-      className={cn("border-t border-border px-5 py-2", props.className)}
+      className={cn(
+        "flex justify-end border-t border-border px-5 py-2",
+        props.className,
+      )}
     />
   );
 };

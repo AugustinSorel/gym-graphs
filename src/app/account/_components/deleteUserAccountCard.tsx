@@ -37,12 +37,10 @@ export const DeleteUserAccountCard = () => {
           </Card.Description>
         </Card.Body>
 
-        <Card.Footer className="flex border-destructive bg-destructive/10">
+        <Card.Footer className="border-destructive bg-destructive/10">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="ml-auto">
-                delete account
-              </Button>
+              <Button variant="destructive">delete account</Button>
             </AlertDialogTrigger>
 
             <AlertDialogContent>
