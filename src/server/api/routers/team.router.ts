@@ -193,4 +193,14 @@ export const teamRouter = createTRPCRouter({
 
       return team;
     }),
+
+  delete: protectedProcedure
+    .input(teamSchema.pick({ id: true }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db
+        .delete(teams)
+        .where(
+          and(eq(teams.id, input.id), eq(teams.authorId, ctx.session.user.id)),
+        );
+    }),
 });
