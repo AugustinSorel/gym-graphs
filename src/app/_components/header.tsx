@@ -4,7 +4,6 @@ import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeftRight,
   Menu,
   Github,
   User,
@@ -19,13 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, type PropsWithChildren } from "react";
@@ -38,7 +31,6 @@ import {
 import { useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
 import { useParams, usePathname } from "next/navigation";
-import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
 import { type RouterOutputs, api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
