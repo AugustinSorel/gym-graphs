@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { DeleteUserAccountCard } from "./_components/deleteUserAccountCard";
 import { UserAccountCard } from "./_components/userAccountTeam";
 import { GithubCard } from "./_components/githubCard";
+import { ThemePreferenceCard } from "./_components/themePreferenceCard";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -20,6 +21,8 @@ const Page = async () => {
   return (
     <>
       <UserAccountCard />
+
+      <ThemePreferenceCard />
 
       <HydrationBoundary state={dehydrate(helpers.queryClient)}>
         <UserTeamsCard />

@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowLeftRight,
   Menu,
-  Palette,
   Github,
   User,
-  LogOut,
   ChevronsUpDown,
   Check,
   Megaphone,
@@ -19,7 +17,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
@@ -32,21 +29,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, type PropsWithChildren } from "react";
-import { useTheme } from "next-themes";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Loader } from "@/components/ui/loader";
 import { useParams, usePathname } from "next/navigation";
 import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
 import { type RouterOutputs, api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMutation } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -85,22 +80,9 @@ const DropDownMenu = () => {
 
         {session && <WeightDropDownItem />}
 
-        <ThemeDropDownItem />
-
         <AccountSettingsDropDownItem />
 
         {!session && <SignInDropDownItem />}
-
-        {session && (
-          <DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="capitalize">
-              danger zone
-            </DropdownMenuLabel>
-
-            <SignOutDropDownItem />
-          </DropdownMenuGroup>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -155,34 +137,6 @@ const WeightDropDownItem = () => {
   );
 };
 
-const ThemeDropDownItem = () => {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>
-        <Palette className="mr-2 h-4 w-4" />
-        <span className="capitalize">theme</span>
-      </DropdownMenuSubTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-            <DropdownMenuRadioItem value="light" className="capitalize">
-              light
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="dark" className="capitalize">
-              dark
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="system" className="capitalize">
-              system
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuPortal>
-    </DropdownMenuSub>
-  );
-};
-
 const AccountSettingsDropDownItem = () => {
   return (
     <DropdownMenuItem asChild>
@@ -201,28 +155,6 @@ const SignInDropDownItem = () => {
         <User className="mr-2 h-4 w-4" />
         <span className="capitalize">sign in</span>
       </Link>
-    </DropdownMenuItem>
-  );
-};
-
-const SignOutDropDownItem = () => {
-  const signOutMutation = useMutation({
-    mutationFn: async () => {
-      return signOut({ callbackUrl: "/" });
-    },
-  });
-
-  return (
-    <DropdownMenuItem
-      className="space-x-2"
-      onClick={(e) => {
-        e.preventDefault();
-        signOutMutation.mutate();
-      }}
-    >
-      {signOutMutation.isPending && <Loader />}
-      <LogOut className="h-4 w-4" />
-      <span className="capitalize">sign out</span>
     </DropdownMenuItem>
   );
 };
