@@ -51,6 +51,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "@/schemas/team.schemas";
 import type { z } from "zod";
+import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
 
 export const UserTeamsCard = () => {
   return (
@@ -58,15 +59,22 @@ export const UserTeamsCard = () => {
       {({ reset }) => (
         <ErrorBoundary FallbackComponent={Card.ErrorFallback} onReset={reset}>
           <Card.Root>
-            <Card.Title>teams</Card.Title>
-            <Card.Description>
-              Manage the Teams that you&apos;re a part of, join suggested ones,
-              or create a new one.
-            </Card.Description>
+            <Card.Body>
+              <Card.Title>teams</Card.Title>
+              <Card.Description>
+                Manage the Teams that you&apos;re a part of, join suggested
+                ones, or create a new one.
+              </Card.Description>
 
-            <List>
-              <Content />
-            </List>
+              <List>
+                <Content />
+              </List>
+            </Card.Body>
+            <Card.Footer>
+              <CreateTeamDialog>
+                <Button>new team</Button>
+              </CreateTeamDialog>
+            </Card.Footer>
           </Card.Root>
         </ErrorBoundary>
       )}

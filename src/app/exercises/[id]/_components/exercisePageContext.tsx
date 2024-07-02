@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useExercisePageSearchParams } from "./useExercisePageSearchParams";
 import type { ExerciseData, ExerciseWithData } from "@/server/db/types";
-import { convertWeightToLbs } from "@/lib/math";
+import { convertWeight } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
 
 const ExercisePageContext = createContext<
@@ -46,6 +46,12 @@ export const ExercisePageContextProvider = (
         filter: setDatesFilter,
         exercise: {
           ...props.exercise,
+          data: props.exercise.data.map((d) => {
+            return {
+              ...d,
+              weightLifted: convertWeight(d.weightLifted, weightUnit.get),
+            };
+          }),
           filteredData: props.exercise.data
             .filter((d) => {
               if (datesFilter.from && !datesFilter.to) {
@@ -76,10 +82,7 @@ export const ExercisePageContextProvider = (
             .map((d) => {
               return {
                 ...d,
-                weightLifted: convertWeightToLbs(
-                  d.weightLifted,
-                  weightUnit.get,
-                ),
+                weightLifted: convertWeight(d.weightLifted, weightUnit.get),
               };
             }),
         },

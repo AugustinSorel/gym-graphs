@@ -365,6 +365,7 @@ const GridContainer = (props: ComponentProps<"ul">) => {
   );
 };
 
+//TODO: rename me
 const I = (props: ComponentProps<"li">) => {
   return (
     <li
@@ -463,7 +464,6 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: add random facts to team page eg heavier lifter or most active in team
-//TODO: update header ui
 //TODO: add teams feat in main page
 //TODO: better sign in and join team email
 //TODO: install t3 env and change drizzle config

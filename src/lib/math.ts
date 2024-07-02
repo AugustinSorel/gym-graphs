@@ -10,7 +10,7 @@ export const calculateOneRepMax = (
   return +(weightLifted * (1 + numberOfReps / 30)).toFixed(2);
 };
 
-export const convertWeightToLbs = (weight: number, unit: WeightUnit) => {
+export const convertWeight = (weight: number, unit: WeightUnit) => {
   if (unit === "lb") {
     return +(weight * LBS_CONVERTION).toFixed(2);
   }

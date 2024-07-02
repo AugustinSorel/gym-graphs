@@ -4,304 +4,36 @@ import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeftRight,
-  Menu,
-  Palette,
   Github,
-  User,
-  Trash,
-  LogOut,
   ChevronsUpDown,
   Check,
   Megaphone,
-  Plus,
   Settings,
+  Plus,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, type PropsWithChildren } from "react";
-import { useTheme } from "next-themes";
+import { type PropsWithChildren } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { signOut, useSession } from "next-auth/react";
-import { Loader } from "@/components/ui/loader";
+import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useWeightUnit } from "@/context/weightUnit";
 import type { Exercise } from "@/server/db/types";
-import { type RouterOutputs, api } from "@/trpc/react";
+import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMutation } from "@tanstack/react-query";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { teamSchema } from "@/schemas/team.schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { z } from "zod";
-import { useRouter } from "next/navigation";
 import { useTeam } from "../teams/[id]/_components/useTeam";
 import { useTeams } from "../teams/_components/useTeams";
-
-const DropDownMenu = () => {
-  const { data: session } = useSession();
-
-  return (
-    <DropdownMenu>
-      <MenuIcon />
-
-      <DropdownMenuContent className="mr-4 w-56">
-        <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
-
-        {session && <WeightDropDownItem />}
-
-        <ThemeDropDownItem />
-
-        <GitHubDropDownitem />
-
-        <AccountSettingsDropDownItem />
-
-        {!session && <SignInDropDownItem />}
-
-        {session && (
-          <DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="capitalize">
-              danger zone
-            </DropdownMenuLabel>
-
-            <SignOutDropDownItem />
-
-            <DeleteAccountDropDownItem />
-          </DropdownMenuGroup>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-const MenuIcon = () => {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" aria-label="menu">
-              <Menu className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">menu</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
-const WeightDropDownItem = () => {
-  const weightUnit = useWeightUnit();
-
-  return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>
-        <ArrowLeftRight className="mr-2 h-4 w-4" />
-        <span className="capitalize">unit - ({weightUnit.get})</span>
-      </DropdownMenuSubTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup
-            value={weightUnit.get}
-            onValueChange={(e) =>
-              weightUnit.set(e as Parameters<typeof weightUnit.set>[0])
-            }
-          >
-            <DropdownMenuRadioItem value="kg" className="capitalize">
-              kg
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="lb" className="capitalize">
-              lb
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuPortal>
-    </DropdownMenuSub>
-  );
-};
-
-const ThemeDropDownItem = () => {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>
-        <Palette className="mr-2 h-4 w-4" />
-        <span className="capitalize">theme</span>
-      </DropdownMenuSubTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-            <DropdownMenuRadioItem value="light" className="capitalize">
-              light
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="dark" className="capitalize">
-              dark
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="system" className="capitalize">
-              system
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuPortal>
-    </DropdownMenuSub>
-  );
-};
-
-const GitHubDropDownitem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link
-        href="https://github.com/augustinsorel/gym-graphs"
-        target="_blank"
-        className="flex w-full items-center"
-      >
-        <Github className="mr-2 h-4 w-4" />
-        <span className="capitalize">gitHub</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
-
-const AccountSettingsDropDownItem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link href="/account" className="flex w-full items-center">
-        <Settings className="mr-2 h-4 w-4" />
-        <span className="capitalize">settings</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
-
-const SignInDropDownItem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link href="/sign-in" className="flex w-full items-center">
-        <User className="mr-2 h-4 w-4" />
-        <span className="capitalize">sign in</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
-
-const SignOutDropDownItem = () => {
-  const signOutMutation = useMutation({
-    mutationFn: async () => {
-      return signOut({ callbackUrl: "/" });
-    },
-  });
-
-  return (
-    <DropdownMenuItem
-      className="space-x-2"
-      onClick={(e) => {
-        e.preventDefault();
-        signOutMutation.mutate();
-      }}
-    >
-      {signOutMutation.isPending && <Loader />}
-      <LogOut className="h-4 w-4" />
-      <span className="capitalize">sign out</span>
-    </DropdownMenuItem>
-  );
-};
-
-const DeleteAccountDropDownItem = () => {
-  const deleteAccount = api.user.delete.useMutation({
-    onSuccess: async () => {
-      await signOut({ callbackUrl: "/" });
-    },
-  });
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <DropdownMenuItem
-          className="text-destructive/80 focus:bg-destructive/20 focus:text-destructive"
-          onSelect={(e) => e.preventDefault()}
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          <span className="capitalize">delete account</span>
-        </DropdownMenuItem>
-      </AlertDialogTrigger>
-
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="capitalize">cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className="space-x-2 bg-destructive text-destructive-foreground hover:bg-destructive/80"
-            onClick={(e) => {
-              e.preventDefault();
-              void deleteAccount.mutate();
-            }}
-          >
-            {deleteAccount.isPending && <Loader />}
-            <span className="capitalize">delete</span>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
+import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
 
 const HomeIcon = ({ children }: PropsWithChildren) => {
   const { data: session } = useSession();
@@ -424,7 +156,12 @@ const DashboardLink = () => {
 
           <DropdownMenuSeparator />
 
-          <CreateTeamDialog />
+          <CreateTeamDialog>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="first-letter:capitalize">create a team</span>
+            </DropdownMenuItem>
+          </CreateTeamDialog>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -539,7 +276,9 @@ const CurrentTeam = ({ id }: { id: string }) => {
   );
 };
 
+//TODO:error handling here
 export const Header = () => {
+  const session = useSession();
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
@@ -568,9 +307,33 @@ export const Header = () => {
 
         {showTeamPath && teamId && <CurrentTeam id={teamId} />}
       </nav>
-      <FeatureRequest />
-      <DropDownMenu />
+
+      {session.status === "authenticated" && (
+        <>
+          <FeatureRequest />
+          <SettingsLink />
+        </>
+      )}
     </header>
+  );
+};
+
+const SettingsLink = () => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button size="icon" aria-label="menu" variant="ghost" asChild>
+            <Link href="/account">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">settings</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
@@ -610,130 +373,5 @@ const FeatureRequest = () => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
-
-const CreateTeamDialog = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const formSchema = useFormSchema();
-  const utils = api.useUtils();
-  const router = useRouter();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: "" },
-  });
-
-  const createTeam = api.team.create.useMutation({
-    onSuccess: (team) => {
-      setIsDialogOpen(false);
-      router.push(`/teams/${team.id}`);
-    },
-    onMutate: async (variables) => {
-      await utils.team.all.cancel();
-
-      const teams = utils.team.all.getData();
-
-      if (!teams) {
-        return;
-      }
-
-      const optimisticTeam: RouterOutputs["team"]["all"][number] = {
-        memberId: Math.random().toString(),
-        teamId: Math.random().toString(),
-        team: {
-          id: Math.random().toString(),
-          authorId: Math.random().toString(),
-          name: variables.name,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          author: {
-            email: "",
-            id: Math.random().toString(),
-            emailVerified: null,
-            image: null,
-            name: null,
-          },
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      utils.team.all.setData(undefined, [...teams, optimisticTeam]);
-    },
-    onSettled: () => {
-      void utils.team.all.invalidate();
-    },
-  });
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    createTeam.mutate(values);
-  };
-
-  return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          <Plus className="mr-2 h-4 w-4" />
-          <span className="first-letter:capitalize">create a team</span>
-        </DropdownMenuItem>
-      </DialogTrigger>
-
-      <DialogContent className="space-y-5 sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="first-letter:capitalize">
-            create a team
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>team name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="friends" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              disabled={createTeam.isPending}
-              className="ml-auto"
-            >
-              {createTeam.isPending && <Loader className="mr-2" />}
-              <span className="capitalize">save</span>
-            </Button>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const useFormSchema = () => {
-  const utils = api.useUtils();
-
-  return teamSchema.pick({ name: true }).refine(
-    (data) => {
-      const teams = utils.team.all.getData();
-
-      return !teams?.find(
-        (team) => team.team.name.toLowerCase() === data.name.toLowerCase(),
-      );
-    },
-    (data) => {
-      return {
-        message: `${data.name} is already used`,
-        path: ["name"],
-      };
-    },
   );
 };
