@@ -4,9 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Menu,
   Github,
-  User,
   ChevronsUpDown,
   Check,
   Megaphone,
@@ -57,68 +55,6 @@ import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useTeam } from "../teams/[id]/_components/useTeam";
 import { useTeams } from "../teams/_components/useTeams";
-
-//TODO: remove this
-const DropDownMenu = () => {
-  const { data: session } = useSession();
-
-  return (
-    <DropdownMenu>
-      <MenuIcon />
-
-      <DropdownMenuContent className="mr-4 w-56">
-        <DropdownMenuLabel className="capitalize">settings</DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
-
-        <AccountSettingsDropDownItem />
-
-        {!session && <SignInDropDownItem />}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-const MenuIcon = () => {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" aria-label="menu">
-              <Menu className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="capitalize">menu</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
-
-const AccountSettingsDropDownItem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link href="/account" className="flex w-full items-center">
-        <Settings className="mr-2 h-4 w-4" />
-        <span className="capitalize">settings</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
-
-const SignInDropDownItem = () => {
-  return (
-    <DropdownMenuItem asChild>
-      <Link href="/sign-in" className="flex w-full items-center">
-        <User className="mr-2 h-4 w-4" />
-        <span className="capitalize">sign in</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-};
 
 const HomeIcon = ({ children }: PropsWithChildren) => {
   const { data: session } = useSession();
@@ -358,6 +294,7 @@ const CurrentTeam = ({ id }: { id: string }) => {
 
 //TODO:error handling here
 export const Header = () => {
+  const session = useSession();
   const pathname = usePathname().split("/");
 
   const showExecisesPath = pathname[1] === "exercises";
@@ -386,9 +323,33 @@ export const Header = () => {
 
         {showTeamPath && teamId && <CurrentTeam id={teamId} />}
       </nav>
-      <FeatureRequest />
-      <DropDownMenu />
+
+      {session.status === "authenticated" && (
+        <>
+          <FeatureRequest />
+          <SettingsLink />
+        </>
+      )}
     </header>
+  );
+};
+
+const SettingsLink = () => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button size="icon" aria-label="menu" variant="ghost" asChild>
+            <Link href="/account">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="capitalize">settings</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
