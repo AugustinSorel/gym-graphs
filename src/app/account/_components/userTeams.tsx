@@ -51,6 +51,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "@/schemas/team.schemas";
 import type { z } from "zod";
+import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
 
 export const UserTeamsCard = () => {
   return (
@@ -70,7 +71,9 @@ export const UserTeamsCard = () => {
               </List>
             </Card.Body>
             <Card.Footer>
-              <Button>new team</Button>
+              <CreateTeamDialog>
+                <Button>new team</Button>
+              </CreateTeamDialog>
             </Card.Footer>
           </Card.Root>
         </ErrorBoundary>
