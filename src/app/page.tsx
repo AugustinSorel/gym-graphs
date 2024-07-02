@@ -365,6 +365,7 @@ const GridContainer = (props: ComponentProps<"ul">) => {
   );
 };
 
+//TODO: rename me
 const I = (props: ComponentProps<"li">) => {
   return (
     <li
