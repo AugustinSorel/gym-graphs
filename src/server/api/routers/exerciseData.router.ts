@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { and, eq, ne } from "drizzle-orm";
 import { exercisesData } from "@/server/db/schema";
+import { isPgError } from "@/server/db/utils";
 
 export const exerciseDataRouter = createTRPCRouter({
   create: protectedProcedure
@@ -22,10 +23,7 @@ export const exerciseDataRouter = createTRPCRouter({
 
         return res;
       } catch (e) {
-        const error = e as object;
-
-        //TODO: use pgError fn
-        if ("code" in error && error.code === "23505") {
+        if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
             code: "CONFLICT",
             message: "you have already entered today's data",
@@ -82,10 +80,7 @@ export const exerciseDataRouter = createTRPCRouter({
             ),
           );
       } catch (e) {
-        const error = e as object;
-
-        //TODO: use pgError fn
-        if ("code" in error && error.code === "23505") {
+        if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
             code: "CONFLICT",
             message: "This date clashes with an existing date",
