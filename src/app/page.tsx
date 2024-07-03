@@ -26,6 +26,7 @@ import { ExercisePageContextProvider } from "./exercises/[id]/_components/exerci
 import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/exerciseDataTableCard";
 import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
 import { Timeline } from "@/components/ui/timeline";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();
@@ -41,6 +42,8 @@ const HomePage = async () => {
       <FeatureOne />
 
       <FeatureTwo />
+
+      <FeatureThree />
 
       <FeatuesGrid />
     </MainContainer>
@@ -235,6 +238,226 @@ const FeatureTwo = () => {
   );
 };
 
+const FeatureThree = () => {
+  return (
+    <FeatureContainer>
+      <HeroTitle>
+        Empower Your <GradientText>Team!</GradientText>
+      </HeroTitle>
+
+      <Text>
+        Create exercises and track your friends&apos; performance in real-time.
+        Collaborate, compete, and conquer your fitness{" "}
+        <StrongText>goals together</StrongText>, making every workout a shared
+        experience.
+      </Text>
+
+      <Timeline className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
+        <Badge variant="accent" className="mr-auto">
+          metadata
+        </Badge>
+        <GridLayout>
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>team name</Card.Title>
+            </Card.Header>
+            <StrongText className="m-auto overflow-hidden text-4xl capitalize">
+              my team
+            </StrongText>
+          </Card.Root>
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>members (2)</Card.Title>
+            </Card.Header>
+
+            <ul className="divide-y-muted-foreground max-h-full space-y-3 divide-y overflow-auto p-5 [&>*:not(:first-child)]:pt-3">
+              <li className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-3 text-left">
+                <Avatar className="row-span-2">
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+
+                <p className="truncate capitalize">micheal</p>
+
+                <p className="truncate text-sm text-muted-foreground">
+                  micheal@email.com
+                </p>
+              </li>
+              <li className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-3 text-left">
+                <Avatar className="row-span-2">
+                  <AvatarFallback>J</AvatarFallback>
+                </Avatar>
+
+                <p className="truncate capitalize">john</p>
+
+                <p className="truncate text-sm text-muted-foreground">
+                  john@email.com
+                </p>
+              </li>
+            </ul>
+          </Card.Root>
+        </GridLayout>
+      </Timeline>
+
+      <Timeline className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+        <Badge variant="accent" className="mr-auto">
+          micheal
+        </Badge>
+        <GridLayout>
+          {mockExercises.map((exercise) => (
+            <Card.Root key={exercise.id}>
+              <Card.Header>
+                <Card.Title>{exercise.name}</Card.Title>
+
+                <Card.ActionContainer>
+                  <Card.ActionButton aria-label="view exercise tags">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Tag className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">tags</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+
+                  <Card.ActionButton aria-label="view more">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">view more</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+
+                  <Card.ActionButton aria-label="view more">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <GripVertical className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">drag exercise</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+                </Card.ActionContainer>
+              </Card.Header>
+
+              <LineGraph data={exercise.data} />
+            </Card.Root>
+          ))}
+
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>exercises count</Card.Title>
+            </Card.Header>
+
+            <RadarGraph
+              data={mockExercises.map((exercise) => ({
+                exerciseName: exercise.name,
+                frequency: exercise.data.length,
+              }))}
+            />
+          </Card.Root>
+
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>random facts</Card.Title>
+            </Card.Header>
+
+            <RandomFacts exercises={mockExercises} />
+          </Card.Root>
+        </GridLayout>
+      </Timeline>
+      <Timeline className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
+        <Badge variant="accent" className="mr-auto">
+          john
+        </Badge>
+        <GridLayout>
+          {mockExercises.slice(0, 2).map((exercise) => (
+            <Card.Root key={exercise.id}>
+              <Card.Header>
+                <Card.Title>{exercise.name}</Card.Title>
+
+                <Card.ActionContainer>
+                  <Card.ActionButton aria-label="view exercise tags">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Tag className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">tags</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+
+                  <Card.ActionButton aria-label="view more">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">view more</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+
+                  <Card.ActionButton aria-label="view more">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <GripVertical className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="capitalize">drag exercise</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Card.ActionButton>
+                </Card.ActionContainer>
+              </Card.Header>
+
+              <LineGraph data={exercise.data} />
+            </Card.Root>
+          ))}
+
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>exercises count</Card.Title>
+            </Card.Header>
+
+            <RadarGraph
+              data={mockExercises.map((exercise) => ({
+                exerciseName: exercise.name,
+                frequency: exercise.data.length,
+              }))}
+            />
+          </Card.Root>
+
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>random facts</Card.Title>
+            </Card.Header>
+
+            <RandomFacts exercises={mockExercises} />
+          </Card.Root>
+        </GridLayout>
+      </Timeline>
+    </FeatureContainer>
+  );
+};
+
 const FeatuesGrid = () => {
   return (
     <FeaturesGridContainer>
@@ -416,7 +639,12 @@ const GradientText = (props: ComponentProps<"strong">) => {
 };
 
 const StrongText = (props: ComponentProps<"strong">) => {
-  return <strong className="font-semibold text-brand-color-two" {...props} />;
+  return (
+    <strong
+      {...props}
+      className={cn("font-semibold text-brand-color-two", props.className)}
+    />
+  );
 };
 
 const GetStartedAction = () => {
@@ -464,9 +692,7 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: add random facts to team page eg heavier lifter or most active in team
-//TODO: add teams feat in main page
 //TODO: better sign in and join team email
-//TODO: install t3 env and change drizzle config
 //TODO: reanme exercise router update to rename
 //TODO: move graphs to @/compnent
 //TODO: fix filtering that is slow

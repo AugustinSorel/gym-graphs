@@ -130,7 +130,7 @@ const StrongText = (props: ComponentPropsWithoutRef<"strong">) => {
 const MemberList = (props: ComponentPropsWithoutRef<"ul">) => {
   return (
     <ul
-      className=" divide-y-muted-foreground max-h-full space-y-3 divide-y overflow-auto p-5 [&>*:not(:first-child)]:pt-3"
+      className="divide-y-muted-foreground max-h-full space-y-3 divide-y overflow-auto p-5 [&>*:not(:first-child)]:pt-3"
       {...props}
     />
   );
