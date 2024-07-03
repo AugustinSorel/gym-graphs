@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { exerciseSchema } from "@/schemas/exercise.schema";
 import { exerciseGridPosition, exercises } from "@/server/db/schema";
+import { isPgError } from "@/server/db/utils";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 
@@ -25,10 +26,7 @@ export const exerciseRouter = createTRPCRouter({
           return exerciseCreated;
         });
       } catch (e) {
-        //TODO: use pgError fn
-        const error = e as object;
-
-        if ("code" in error && error.code === "23505") {
+        if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
             code: "CONFLICT",
             message: `${input.name} is already used`,
@@ -70,10 +68,7 @@ export const exerciseRouter = createTRPCRouter({
           )
           .returning();
       } catch (e) {
-        const error = e as object;
-
-        //TODO: use pgError fn
-        if ("code" in error && error.code === "23505") {
+        if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
             code: "CONFLICT",
             message: `${input.name} is already used`,
