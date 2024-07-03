@@ -4,7 +4,6 @@ import { Header } from "./_components/header";
 import { Providers } from "./_components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import type { PropsWithChildren } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import Script from "next/script";
 
@@ -27,7 +26,6 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           {children}
         </Providers>
         <Toaster />
-        <Analytics />
         <Script
           data-domain="gym-graphs.vercel.app"
           src="https://analytics.augustin-sorel.com/js/script.js"
