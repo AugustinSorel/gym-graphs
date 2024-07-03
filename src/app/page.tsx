@@ -15,11 +15,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Card } from "@/components/ui/card";
-import { LineGraph } from "./dashboard/_components/graphs/lineGraph";
-import { RadarGraph } from "./dashboard/_components/graphs/radarGraph";
-import { HeatmapGraph } from "./dashboard/_components/graphs/heatmapGraph";
-import { prepareHeatmapData } from "./dashboard/_components/graphs/heatmapUtils";
-import { RandomFacts } from "./dashboard/_components/graphs/randomFacts";
+import { LineGraph } from "@/components/graphs/lineGraph";
+import { RadarGraph } from "@/components/graphs/radarGraph";
+import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
+import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
@@ -694,7 +694,6 @@ const FeaturesGridBackground = () => {
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: better sign in and join team email
 //TODO: reanme exercise router update to rename
-//TODO: move graphs to @/compnent
 //TODO: fix filtering that is slow
 //TODO: test with low end network
 //TODO: add e2e tests
