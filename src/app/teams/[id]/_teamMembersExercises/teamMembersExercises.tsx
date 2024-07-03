@@ -7,9 +7,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useTeam } from "../_components/useTeam";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
-import { LineGraph } from "@/app/dashboard/_components/graphs/lineGraph";
-import { RadarGraph } from "@/app/dashboard/_components/graphs/radarGraph";
-import { RandomFacts } from "@/app/dashboard/_components/graphs/randomFacts";
+import { LineGraph } from "@/components/graphs/lineGraph";
+import { RadarGraph } from "@/components/graphs/radarGraph";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 

@@ -29,9 +29,9 @@ import { GridLayout } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
 import { DeleteExerciseAlertDialog } from "../_components/modals/deleteExerciseAlertDialog";
 import { UpdateExerciseNameDialog } from "../_components/modals/updateExerciseNameDialog";
-import { LineGraph } from "../_components/graphs/lineGraph";
-import { RadarGraph } from "../_components/graphs/radarGraph";
-import { RandomFacts } from "../_components/graphs/randomFacts";
+import { LineGraph } from "@/components/graphs/lineGraph";
+import { RadarGraph } from "@/components/graphs/radarGraph";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 
 export const AllExercisesGrid = () => {
