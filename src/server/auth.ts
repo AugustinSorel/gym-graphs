@@ -20,13 +20,15 @@ import { db } from "./db";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
+    user: {
       id: string;
-    };
+      email: string;
+    } & DefaultSession["user"];
   }
 
   interface User {
-    emailVerified: Date | null;
+    id: string;
+    email: string;
   }
 }
 
