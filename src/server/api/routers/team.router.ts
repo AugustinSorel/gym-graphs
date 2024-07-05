@@ -6,7 +6,6 @@ import { userSchema } from "@/schemas/user.schema";
 import { sendInviteToTeamEmail } from "@/lib/email";
 import { and, eq } from "drizzle-orm";
 import { teamInviteSchema } from "@/schemas/teamInvite.schema";
-import { z } from "zod";
 import { isPgError } from "@/server/db/utils";
 
 export const teamRouter = createTRPCRouter({
@@ -149,26 +148,19 @@ export const teamRouter = createTRPCRouter({
     }),
 
   leave: protectedProcedure
-    .input(
-      z.object({
-        teamId: teamSchema.shape.id,
-        userId: userSchema.shape.id,
-      }),
-    )
+    .input(teamSchema.pick({ id: true }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
         await tx
           .delete(usersToTeams)
           .where(
             and(
-              eq(usersToTeams.teamId, input.teamId),
-              eq(usersToTeams.memberId, input.userId),
+              eq(usersToTeams.teamId, input.id),
+              eq(usersToTeams.memberId, ctx.session.user.id),
             ),
           );
 
-        await tx
-          .delete(teamInvites)
-          .where(eq(teamInvites.teamId, input.teamId));
+        await tx.delete(teamInvites).where(eq(teamInvites.teamId, input.id));
       });
     }),
 
