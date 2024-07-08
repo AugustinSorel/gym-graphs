@@ -38,7 +38,7 @@ export const Header = async () => {
   if (!session?.user) {
     return (
       <Container>
-        <Breadcrumb>
+        <Breadcrumb className="p-4">
           <BreadcrumbList>
             <HomePageBreadcrumb />
           </BreadcrumbList>
