@@ -83,10 +83,10 @@ export const UserTeamsCard = () => {
 };
 
 const Content = () => {
-  const session = useSession();
+  const session = useSession({ required: true });
   const teams = useTeams();
 
-  if (teams.isLoading || session.status === "loading") {
+  if (teams.isLoading) {
     return <TeamsSkeleton />;
   }
 

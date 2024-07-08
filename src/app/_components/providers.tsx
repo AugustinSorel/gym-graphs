@@ -7,16 +7,13 @@ import { WeightUnitProvider } from "@/context/weightUnit";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-//TODO: remove the sessionProvider
 export const Providers = ({ children }: PropsWithChildren) => {
   return (
     <TRPCReactProvider>
       <WeightUnitProvider>
-        <SessionProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-          </ThemeProvider>
-        </SessionProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
       </WeightUnitProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </TRPCReactProvider>
