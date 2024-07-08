@@ -78,9 +78,9 @@ const Content = () => {
       >
         <>
           {!exercises.length && (
-            <p className="text-center text-sm text-muted-foreground">
+            <li className="text-center text-sm text-muted-foreground">
               0 exercises
-            </p>
+            </li>
           )}
 
           {exercises.map((exercise) => (
