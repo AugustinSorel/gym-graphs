@@ -19,16 +19,28 @@ export const DashboardLinkGuard = (props: PropsWithChildren) => {
   return <>{props.children}</>;
 };
 
-export const DashboardLinkItem = (props: Partial<{ user: User }>) => {
-  if (!props.user) {
+export const ExerciseLinkGuard = (props: PropsWithChildren) => {
+  const pathName = usePathname();
+  const routes = ["/exercises"];
+
+  const canShowRoute = routes.some((route) => pathName.startsWith(route));
+
+  if (!canShowRoute) {
     return null;
   }
 
-  const username = getUserDisplayName(props.user);
+  return <>{props.children}</>;
+};
 
-  return (
-    <BreadcrumbItem>
-      <BreadcrumbLink href="/dashboard">{username}</BreadcrumbLink>
-    </BreadcrumbItem>
-  );
+export const TeamLinkGuard = (props: PropsWithChildren) => {
+  const pathName = usePathname();
+  const routes = ["/teams"];
+
+  const canShowRoute = routes.some((route) => pathName.startsWith(route));
+
+  if (!canShowRoute) {
+    return null;
+  }
+
+  return <>{props.children}</>;
 };
