@@ -8,6 +8,7 @@ import { UserAccountCard } from "./_components/userAccountTeam";
 import { GithubCard } from "./_components/githubCard";
 import { ThemePreferenceCard } from "./_components/themePreferenceCard";
 import { WeightUnitPreferenceCard } from "./_components/weightUnitPreference";
+import { AuthProvider } from "../_components/providers";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -27,9 +28,11 @@ const Page = async () => {
 
       <WeightUnitPreferenceCard />
 
-      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
-        <UserTeamsCard />
-      </HydrationBoundary>
+      <AuthProvider session={session}>
+        <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+          <UserTeamsCard />
+        </HydrationBoundary>
+      </AuthProvider>
 
       <GithubCard />
 
