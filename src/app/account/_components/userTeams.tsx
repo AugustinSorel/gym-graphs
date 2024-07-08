@@ -326,7 +326,6 @@ const useRenameTeamSchema = () => {
 
 const LeaveTeam = ({ team }: { team: Team }) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const session = useSession();
   const utils = api.useUtils();
 
   const leaveTeam = api.team.leave.useMutation({
@@ -344,17 +343,13 @@ const LeaveTeam = ({ team }: { team: Team }) => {
 
       utils.team.all.setData(
         undefined,
-        teams.filter((team) => team.teamId !== variables.teamId),
+        teams.filter((team) => team.teamId !== variables.id),
       );
     },
     onSettled: () => {
       void utils.team.all.invalidate();
     },
   });
-
-  if (!session.data?.user.id) {
-    throw new Error("user is not defined");
-  }
 
   return (
     <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
@@ -394,10 +389,7 @@ const LeaveTeam = ({ team }: { team: Team }) => {
             disabled={leaveTeam.isPending}
             onClick={(e) => {
               e.preventDefault();
-              leaveTeam.mutate({
-                teamId: team.id,
-                userId: session.data.user.id,
-              });
+              leaveTeam.mutate({ id: team.id });
             }}
           >
             {leaveTeam.isPending && <Loader />}

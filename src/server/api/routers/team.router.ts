@@ -6,7 +6,6 @@ import { userSchema } from "@/schemas/user.schema";
 import { sendInviteToTeamEmail } from "@/lib/email";
 import { and, eq } from "drizzle-orm";
 import { teamInviteSchema } from "@/schemas/teamInvite.schema";
-import { z } from "zod";
 import { isPgError } from "@/server/db/utils";
 
 export const teamRouter = createTRPCRouter({
@@ -66,7 +65,7 @@ export const teamRouter = createTRPCRouter({
   get: protectedProcedure
     .input(teamSchema.pick({ id: true }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.query.teams.findFirst({
+      const team = await ctx.db.query.teams.findFirst({
         where: (teams, { eq }) => eq(teams.id, input.id),
         with: {
           usersToTeams: {
@@ -91,6 +90,15 @@ export const teamRouter = createTRPCRouter({
           },
         },
       });
+
+      if (!team) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "team not found",
+        });
+      }
+
+      return team;
     }),
 
   invite: protectedProcedure
@@ -149,26 +157,19 @@ export const teamRouter = createTRPCRouter({
     }),
 
   leave: protectedProcedure
-    .input(
-      z.object({
-        teamId: teamSchema.shape.id,
-        userId: userSchema.shape.id,
-      }),
-    )
+    .input(teamSchema.pick({ id: true }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
         await tx
           .delete(usersToTeams)
           .where(
             and(
-              eq(usersToTeams.teamId, input.teamId),
-              eq(usersToTeams.memberId, input.userId),
+              eq(usersToTeams.teamId, input.id),
+              eq(usersToTeams.memberId, ctx.session.user.id),
             ),
           );
 
-        await tx
-          .delete(teamInvites)
-          .where(eq(teamInvites.teamId, input.teamId));
+        await tx.delete(teamInvites).where(eq(teamInvites.teamId, input.id));
       });
     }),
 
