@@ -692,7 +692,6 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: update packages
-//TODO: remove useSession
 //TODO: use useQuerySuspense rather than useQueyr
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: better sign in and join team email
