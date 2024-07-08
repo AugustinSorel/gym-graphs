@@ -64,10 +64,6 @@ const Content = () => {
     throw new Error("Unauthorized");
   }
 
-  if (!teams.length) {
-    return <p className="text-center text-sm text-muted-foreground">0 teams</p>;
-  }
-
   return (
     <>
       <BreadcrumbSeparator />
@@ -86,6 +82,10 @@ const Content = () => {
         align="start"
         className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1"
       >
+        {!teams.length && (
+          <p className="text-center text-sm text-muted-foreground">0 teams</p>
+        )}
+
         {teams.map((team) => (
           <DropdownMenuItem
             key={team.teamId}
