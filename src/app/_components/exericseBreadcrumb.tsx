@@ -60,12 +60,6 @@ const Content = () => {
     throw new Error("exercise not found");
   }
 
-  if (!exercises.length) {
-    return (
-      <p className="text-center text-sm text-muted-foreground">0 exercises</p>
-    );
-  }
-
   return (
     <>
       <BreadcrumbSeparator />
@@ -82,18 +76,26 @@ const Content = () => {
         align="start"
         className="scrollbar max-h-[400px] w-[200px] overflow-auto p-1"
       >
-        {exercises.map((exercise) => (
-          <DropdownMenuItem
-            key={exercise.id}
-            className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
-            asChild
-          >
-            <Link href={`/exercises/${exercise.id}`}>
-              <span className="truncate text-sm">{exercise.name}</span>
-              {params.id === exercise.id && <Check className="h-4 w-4" />}
-            </Link>
-          </DropdownMenuItem>
-        ))}
+        <>
+          {!exercises.length && (
+            <p className="text-center text-sm text-muted-foreground">
+              0 exercises
+            </p>
+          )}
+
+          {exercises.map((exercise) => (
+            <DropdownMenuItem
+              key={exercise.id}
+              className="grid w-full grid-cols-[1fr_1rem] items-center gap-2 rounded-sm bg-transparent px-2 transition-colors hover:bg-primary"
+              asChild
+            >
+              <Link href={`/exercises/${exercise.id}`}>
+                <span className="truncate text-sm">{exercise.name}</span>
+                {params.id === exercise.id && <Check className="h-4 w-4" />}
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </>
       </DropdownMenuContent>
     </>
   );
