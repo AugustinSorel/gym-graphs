@@ -37,8 +37,6 @@ const HomePage = async () => {
 
   return (
     <MainContainer>
-      <HeroSection />
-
       <FeatureOne />
 
       <FeatureTwo />
