@@ -69,8 +69,8 @@ const Content = () => {
       <BreadcrumbSeparator />
 
       <BreadcrumbItem className="max-w-xs truncate">
-        <BreadcrumbLink href="/dashboard" className="truncate">
-          {getUserDisplayName(session.data.user)}
+        <BreadcrumbLink className="truncate" asChild>
+          <Link href="/dashboard">{getUserDisplayName(session.data.user)}</Link>
         </BreadcrumbLink>
       </BreadcrumbItem>
 
