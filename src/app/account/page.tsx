@@ -16,7 +16,7 @@ const Page = async () => {
     return redirect("/");
   }
 
-  await api.team.all.prefetch();
+  void api.team.all.prefetch();
 
   return (
     <>

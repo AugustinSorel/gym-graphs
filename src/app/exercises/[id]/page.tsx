@@ -18,7 +18,7 @@ type Props = {
   searchParams: ExercisePageSearchParams;
 };
 
-const Page = async (unsafeProps: Props) => {
+const Page = (unsafeProps: Props) => {
   const params = exercisePageParamsSchema.safeParse(unsafeProps.params);
   const searchParams = exercisePageSearchParamsSchema.safeParse(
     unsafeProps.searchParams,
@@ -28,7 +28,7 @@ const Page = async (unsafeProps: Props) => {
     return redirect("/dashboard");
   }
 
-  await api.exercise.get.prefetch({ id: params.data.id });
+  void api.exercise.get.prefetch({ id: params.data.id });
 
   return (
     <>

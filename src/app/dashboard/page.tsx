@@ -12,7 +12,7 @@ const Page = async () => {
     return redirect("/");
   }
 
-  await api.exercise.all.prefetch();
+  void api.exercise.all.prefetch();
 
   return (
     <>

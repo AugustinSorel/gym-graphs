@@ -18,7 +18,6 @@ const Page = async (unsafeProps: Props) => {
   const params = teamPageParamsSchema.safeParse(unsafeProps.params);
 
   const team = await api.team.get({ id: unsafeProps.params.id });
-  await api.team.get.prefetch({ id: unsafeProps.params.id });
 
   if (!team) {
     return redirect("/dashboard");

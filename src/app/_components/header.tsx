@@ -29,8 +29,8 @@ import { HydrateClient, api } from "@/trpc/server";
 export const Header = async () => {
   const session = await getServerAuthSession();
 
-  await api.exercise.all.prefetch();
-  await api.team.all.prefetch();
+  void api.exercise.all.prefetch();
+  void api.team.all.prefetch();
 
   if (!session?.user) {
     return (
