@@ -3,6 +3,7 @@
 import { api } from "@/trpc/react";
 import { useDashboardSearchParams } from "./useDashboardSearchParams";
 
+//TODO: remove the select
 export const useExercises = () => {
   const dashboardShareParams = useDashboardSearchParams();
 
