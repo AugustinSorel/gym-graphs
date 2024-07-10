@@ -12,8 +12,8 @@ import {
   pgEnum,
   boolean,
 } from "drizzle-orm/pg-core";
-import type { AdapterAccount } from "@auth/core/adapters";
 import { sql } from "drizzle-orm";
+import { type AdapterAccount } from "next-auth/adapters";
 
 export const users = pgTable("user", {
   id: text("id").notNull().primaryKey(),

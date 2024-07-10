@@ -10,6 +10,7 @@ import {
 import { env } from "@/env.mjs";
 import { seedUserData } from "./seedUserData";
 import { db } from "./db";
+import type { Adapter } from "next-auth/adapters";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,7 +39,8 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db),
+  //FIXME: remove the as... due to a bug in the drizzle adapter fn
+  adapter: DrizzleAdapter(db) as Adapter,
   callbacks: {
     jwt: ({ token, user }) => {
       if (user) {
@@ -68,7 +70,7 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       server: {
         host: env.EMAIL_SERVER_HOST,
-        port: env.EMAIL_SERVER_PORT,
+        port: +env.EMAIL_SERVER_PORT,
         auth: {
           user: env.EMAIL_SERVER_USER,
           pass: env.EMAIL_SERVER_PASSWORD,
