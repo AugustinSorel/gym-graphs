@@ -1,8 +1,5 @@
 "use client";
 
-import { BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
-import { getUserDisplayName } from "@/lib/utils";
-import type { User } from "next-auth";
 import { usePathname } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
