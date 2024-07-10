@@ -4,7 +4,7 @@ import { Card, CardErrorFallback, CardSkeleton } from "@/components/ui/card";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Badge } from "@/components/ui/badge";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
-import { type ComponentPropsWithoutRef } from "react";
+import { Suspense, type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
@@ -38,11 +38,15 @@ const Content = () => {
   return (
     <GridLayout>
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <TeamNameCard />
+        <Suspense fallback={<CardSkeleton />}>
+          <TeamNameCard />
+        </Suspense>
       </ErrorBoundary>
 
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <TeamMembers />
+        <Suspense fallback={<CardSkeleton />}>
+          <TeamMembers />
+        </Suspense>
       </ErrorBoundary>
     </GridLayout>
   );
@@ -50,15 +54,7 @@ const Content = () => {
 
 const TeamNameCard = () => {
   const searchParams = useTeamPageParams();
-  const team = useTeam({ id: searchParams.id });
-
-  if (team.isLoading) {
-    return <CardSkeleton />;
-  }
-
-  if (!team.data) {
-    throw new Error("team not found");
-  }
+  const [team] = useTeam({ id: searchParams.id });
 
   return (
     <Card.Root>
@@ -66,7 +62,7 @@ const TeamNameCard = () => {
         <Card.Title>team name</Card.Title>
       </Card.Header>
       <StrongText className="m-auto overflow-hidden capitalize">
-        {team.data.name}
+        {team.name}
       </StrongText>
     </Card.Root>
   );
@@ -74,17 +70,9 @@ const TeamNameCard = () => {
 
 const TeamMembers = () => {
   const searchParams = useTeamPageParams();
-  const team = useTeam({ id: searchParams.id });
+  const [team] = useTeam({ id: searchParams.id });
 
-  if (team.isLoading) {
-    return <CardSkeleton />;
-  }
-
-  if (!team.data) {
-    throw new Error("team not found");
-  }
-
-  const members = team.data.usersToTeams;
+  const members = team.usersToTeams;
 
   return (
     <Card.Root>

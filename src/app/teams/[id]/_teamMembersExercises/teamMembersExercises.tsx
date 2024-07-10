@@ -12,6 +12,7 @@ import { RadarGraph } from "@/components/graphs/radarGraph";
 import { RandomFacts } from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
+import { Suspense } from "react";
 
 export const TeamMembersExercises = () => {
   return (
@@ -21,7 +22,9 @@ export const TeamMembersExercises = () => {
           FallbackComponent={TimelineErrorFallback}
           onReset={reset}
         >
-          <Content />
+          <Suspense fallback={<TimelineSkeleton />}>
+            <Content />
+          </Suspense>
         </ErrorBoundary>
       )}
     </QueryErrorResetBoundary>
@@ -30,19 +33,11 @@ export const TeamMembersExercises = () => {
 
 const Content = () => {
   const searchParams = useTeamPageParams();
-  const team = useTeam({ id: searchParams.id });
-
-  if (team.isLoading) {
-    return <TimelineSkeleton />;
-  }
-
-  if (!team.data) {
-    throw new Error("team not found");
-  }
+  const [team] = useTeam({ id: searchParams.id });
 
   return (
     <>
-      {team.data.usersToTeams.map((userToTeam) => (
+      {team.usersToTeams.map((userToTeam) => (
         <ErrorBoundary
           FallbackComponent={TimelineErrorFallback}
           key={userToTeam.memberId}
