@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import type { PropsWithChildren } from "react";
-import { SessionProvider, SessionProviderProps } from "next-auth/react";
+import { SessionProvider, type SessionProviderProps } from "next-auth/react";
 import { WeightUnitProvider } from "@/context/weightUnit";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";

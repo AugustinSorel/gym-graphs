@@ -16,7 +16,7 @@ import {
 import { DashboardBreadcrumb } from "./dashboardBreadCrumb";
 import { AuthProvider } from "./providers";
 import { TeamBreadcrumb } from "./teamBreadCrumb";
-import { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Megaphone, Settings } from "lucide-react";
