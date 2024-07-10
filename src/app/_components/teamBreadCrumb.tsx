@@ -6,11 +6,11 @@ import {
   BreadcrumbSeparator,
   BreadcrumbSkeleton,
 } from "@/components/ui/breadcrumb";
-import { api } from "@/trpc/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTeamPageParams } from "../teams/[id]/_components/useTeamPageParams";
+import { useTeam } from "../teams/[id]/_components/useTeam";
 
 export const TeamBreadcrumb = () => {
   return (
@@ -43,7 +43,7 @@ export const TeamBreadcrumb = () => {
 
 const Content = () => {
   const params = useTeamPageParams();
-  const [team] = api.team.get.useSuspenseQuery({ id: params.id });
+  const [team] = useTeam({ id: params.id });
 
   return (
     <>

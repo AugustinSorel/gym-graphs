@@ -10,9 +10,9 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { CardErrorFallback, CardSkeleton } from "./_components/card";
 import { useExercisePageParams } from "./_components/useExercisePageParams";
-import { api } from "@/trpc/react";
 import { ExerciseDataGraphCard } from "./_exerciseDataGraph/exerciseDataGraphCard";
 import { ExerciseDataTableCard } from "./_exerciseDataTable/exerciseDataTableCard";
+import { useExercise } from "./_components/useExercise";
 
 export const Content = () => {
   return (
@@ -68,7 +68,7 @@ const ContentSkeleton = () => {
 
 const PageContext = (props: PropsWithChildren) => {
   const params = useExercisePageParams();
-  const [exercise] = api.exercise.get.useSuspenseQuery({ id: params.id });
+  const [exercise] = useExercise({ id: params.id });
 
   if (!exercise) {
     throw new Error(`exercise with id: ${params.id} could not be found`);

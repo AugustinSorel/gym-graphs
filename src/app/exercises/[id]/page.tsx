@@ -1,8 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { NewExerciseDataForm } from "./_newExerciseDataForm/newExerciseDataForm";
-import { createSSRHelper } from "@/trpc/server";
+import { HydrateClient, api } from "@/trpc/server";
 import { redirect } from "next/navigation";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
 import {
   type ExercisePageParams,
@@ -19,7 +18,7 @@ type Props = {
   searchParams: ExercisePageSearchParams;
 };
 
-const Page = async (unsafeProps: Props) => {
+const Page = (unsafeProps: Props) => {
   const params = exercisePageParamsSchema.safeParse(unsafeProps.params);
   const searchParams = exercisePageSearchParamsSchema.safeParse(
     unsafeProps.searchParams,
@@ -29,13 +28,7 @@ const Page = async (unsafeProps: Props) => {
     return redirect("/dashboard");
   }
 
-  const helpers = await createSSRHelper();
-  await helpers.exercise.get.prefetch({ id: params.data.id });
-  const data = dehydrate(helpers.queryClient);
-
-  if (!data.queries.at(0)) {
-    return redirect("/dashboard");
-  }
+  void api.exercise.get.prefetch({ id: params.data.id });
 
   return (
     <>
@@ -43,9 +36,9 @@ const Page = async (unsafeProps: Props) => {
         <NewExerciseDataForm />
       </FormContainer>
 
-      <HydrationBoundary state={data}>
+      <HydrateClient>
         <Content />
-      </HydrationBoundary>
+      </HydrateClient>
     </>
   );
 };

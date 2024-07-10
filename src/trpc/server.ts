@@ -1,11 +1,12 @@
 import "server-only";
 
-import { appRouter, createCaller } from "@/server/api/root";
+import { createHydrationHelpers } from "@trpc/react-query/rsc";
+import { type AppRouter, createCaller } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 import { headers } from "next/headers";
 import { cache } from "react";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-import { SuperJSON } from "superjson";
+import { createQueryClient } from "./queryClient";
+
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a tRPC call from a React Server Component.
@@ -19,12 +20,10 @@ const createContext = cache(() => {
   });
 });
 
-export const api = createCaller(createContext);
+const getQueryClient = cache(createQueryClient);
+const caller = createCaller(createContext);
 
-export const createSSRHelper = async () => {
-  return createServerSideHelpers({
-    router: appRouter,
-    transformer: SuperJSON,
-    ctx: await createContext(),
-  });
-};
+export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
+  caller,
+  getQueryClient,
+);

@@ -28,7 +28,7 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Edit, LogOut, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { type ComponentPropsWithoutRef, useState } from "react";
+import { type ComponentPropsWithoutRef, useState, Suspense } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { Card } from "./card";
 import {
@@ -67,7 +67,9 @@ export const UserTeamsCard = () => {
               </Card.Description>
 
               <List>
-                <Content />
+                <Suspense fallback={<TeamsSkeleton />}>
+                  <Content />
+                </Suspense>
               </List>
             </Card.Body>
             <Card.Footer>
@@ -84,13 +86,9 @@ export const UserTeamsCard = () => {
 
 const Content = () => {
   const session = useSession({ required: true });
-  const teams = useTeams();
+  const [teams] = useTeams();
 
-  if (teams.isLoading) {
-    return <TeamsSkeleton />;
-  }
-
-  if (!teams.data?.length) {
+  if (!teams.length) {
     return (
       <li>
         <p className="text-center text-muted-foreground">0 teams</p>
@@ -100,7 +98,7 @@ const Content = () => {
 
   return (
     <>
-      {teams.data.map((team, i) => {
+      {teams.map((team, i) => {
         const isAuthor = team.team.author.id === session.data?.user.id;
 
         return (
@@ -215,14 +213,12 @@ const RenameTeam = ({ team }: { team: Team }) => {
       await utils.team.all.cancel();
       await utils.team.get.cancel({ id: variables.id });
 
-      utils.team.all.setData(
-        undefined,
-        (teams) =>
-          teams?.map((team) =>
-            team.teamId === variables.id
-              ? { ...team, team: { ...team.team, name: variables.name } }
-              : team,
-          ),
+      utils.team.all.setData(undefined, (teams) =>
+        teams?.map((team) =>
+          team.teamId === variables.id
+            ? { ...team, team: { ...team.team, name: variables.name } }
+            : team,
+        ),
       );
 
       utils.team.get.setData({ id: variables.id }, (team) =>
@@ -413,9 +409,8 @@ const DeleteTeam = ({ team }: { team: Team }) => {
       await utils.team.all.cancel();
       await utils.team.get.cancel({ id: variables.id });
 
-      utils.team.all.setData(
-        undefined,
-        (teams) => teams?.filter((team) => team.teamId !== variables.id),
+      utils.team.all.setData(undefined, (teams) =>
+        teams?.filter((team) => team.teamId !== variables.id),
       );
 
       utils.team.get.setData({ id: variables.id }, undefined);

@@ -20,9 +20,9 @@ import { useSession } from "next-auth/react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import Link from "next/link";
-import { api } from "@/trpc/react";
 import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
 import { useParams } from "next/navigation";
+import { useTeams } from "../teams/_components/useTeams";
 
 export const DashboardBreadcrumb = () => {
   return (
@@ -57,7 +57,7 @@ export const DashboardBreadcrumb = () => {
 
 const Content = () => {
   const session = useSession({ required: true });
-  const [teams] = api.team.all.useSuspenseQuery();
+  const [teams] = useTeams();
   const params = useParams();
 
   if (!session.data?.user) {
@@ -69,8 +69,8 @@ const Content = () => {
       <BreadcrumbSeparator />
 
       <BreadcrumbItem className="max-w-xs truncate">
-        <BreadcrumbLink href="/dashboard" className="truncate">
-          {getUserDisplayName(session.data.user)}
+        <BreadcrumbLink className="truncate" asChild>
+          <Link href="/dashboard">{getUserDisplayName(session.data.user)}</Link>
         </BreadcrumbLink>
       </BreadcrumbItem>
 

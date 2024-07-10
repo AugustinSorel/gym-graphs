@@ -1,5 +1,4 @@
 import { getServerAuthSession } from "@/server/auth";
-import { createSSRHelper } from "@/trpc/server";
 import { redirect } from "next/navigation";
 import type { ComponentPropsWithoutRef } from "react";
 import { InviteUserForm } from "./_inviteUserForm/inviteUserForm";
@@ -8,8 +7,8 @@ import {
   teamPageParamsSchema,
 } from "./_components/teamPageParams";
 import { TeamMetadata } from "./_teamMetedata/teamMetadata";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { TeamMembersExercises } from "./_teamMembersExercises/teamMembersExercises";
+import { HydrateClient, api } from "@/trpc/server";
 
 type Props = {
   params: TeamPageParamsSchema;
@@ -18,8 +17,7 @@ type Props = {
 const Page = async (unsafeProps: Props) => {
   const params = teamPageParamsSchema.safeParse(unsafeProps.params);
 
-  const helpers = await createSSRHelper();
-  const team = await helpers.team.get.fetch({ id: unsafeProps.params.id });
+  const team = await api.team.get({ id: unsafeProps.params.id });
 
   if (!team) {
     return redirect("/dashboard");
@@ -41,13 +39,10 @@ const Page = async (unsafeProps: Props) => {
         <InviteUserForm />
       </FormContainer>
 
-      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+      <HydrateClient>
         <TeamMetadata />
-      </HydrationBoundary>
-
-      <HydrationBoundary state={dehydrate(helpers.queryClient)}>
         <TeamMembersExercises />
-      </HydrationBoundary>
+      </HydrateClient>
     </>
   );
 };
