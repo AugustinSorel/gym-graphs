@@ -1,6 +1,5 @@
 import { UserTeamsCard } from "./_components/userTeams";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { createSSRHelper } from "@/trpc/server";
+import { HydrateClient, api } from "@/trpc/server";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { DeleteUserAccountCard } from "./_components/deleteUserAccountCard";
@@ -17,8 +16,7 @@ const Page = async () => {
     return redirect("/");
   }
 
-  const helpers = await createSSRHelper();
-  await helpers.team.all.prefetch();
+  await api.team.all.prefetch();
 
   return (
     <>
@@ -29,9 +27,9 @@ const Page = async () => {
       <WeightUnitPreferenceCard />
 
       <AuthProvider session={session}>
-        <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+        <HydrateClient>
           <UserTeamsCard />
-        </HydrationBoundary>
+        </HydrateClient>
       </AuthProvider>
 
       <GithubCard />

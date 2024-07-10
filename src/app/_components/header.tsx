@@ -1,8 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { Breadcrumb, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { ExercisesBreadcrumb } from "./exericseBreadcrumb";
-import { createSSRHelper } from "@/trpc/server";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import {
   GymGraphsIconBreadcrumb,
   HomePageBreadcrumb,
@@ -26,14 +24,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { HydrateClient, api } from "@/trpc/server";
 
 export const Header = async () => {
   const session = await getServerAuthSession();
 
-  const helpers = await createSSRHelper();
-
-  await helpers.exercise.all.prefetch();
-  await helpers.team.all.prefetch();
+  await api.exercise.all.prefetch();
+  await api.team.all.prefetch();
 
   if (!session?.user) {
     return (
@@ -55,26 +52,26 @@ export const Header = async () => {
 
           <DashboardLinkGuard>
             <DropdownMenu>
-              <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+              <HydrateClient>
                 <AuthProvider session={session}>
                   <DashboardBreadcrumb />
                 </AuthProvider>
-              </HydrationBoundary>
+              </HydrateClient>
             </DropdownMenu>
           </DashboardLinkGuard>
 
           <ExerciseLinkGuard>
             <DropdownMenu>
-              <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+              <HydrateClient>
                 <ExercisesBreadcrumb />
-              </HydrationBoundary>
+              </HydrateClient>
             </DropdownMenu>
           </ExerciseLinkGuard>
 
           <TeamLinkGuard>
-            <HydrationBoundary state={dehydrate(helpers.queryClient)}>
+            <HydrateClient>
               <TeamBreadcrumb />
-            </HydrationBoundary>
+            </HydrateClient>
           </TeamLinkGuard>
         </BreadcrumbList>
       </Breadcrumb>
