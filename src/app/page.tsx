@@ -691,8 +691,9 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: update packages
 //TODO: use useQuerySuspense rather than useQueyr
+//TODO: in team page, allow viewing exercises
+//TODO: update user name form
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: better sign in and join team email
 //TODO: reanme exercise router update to rename
