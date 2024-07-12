@@ -13,8 +13,6 @@ type Props = {
 const Page = async (props: Props) => {
   const session = await getServerAuthSession();
 
-  console.log(props);
-
   if (session?.user.id) {
     return redirect("/dashboard");
   }
