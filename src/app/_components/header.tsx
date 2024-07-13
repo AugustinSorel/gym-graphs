@@ -12,7 +12,6 @@ import {
   TeamLinkGuard,
 } from "./headerGuards";
 import { DashboardBreadcrumb } from "./dashboardBreadCrumb";
-import { AuthProvider } from "./providers";
 import { TeamBreadcrumb } from "./teamBreadCrumb";
 import type { ComponentPropsWithoutRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,7 @@ export const Header = async () => {
 
   void api.exercise.all.prefetch();
   void api.team.all.prefetch();
+  void api.user.get.prefetch();
 
   if (!session?.user) {
     return (
@@ -53,9 +53,7 @@ export const Header = async () => {
           <DashboardLinkGuard>
             <DropdownMenu>
               <HydrateClient>
-                <AuthProvider session={session}>
-                  <DashboardBreadcrumb />
-                </AuthProvider>
+                <DashboardBreadcrumb />
               </HydrateClient>
             </DropdownMenu>
           </DashboardLinkGuard>

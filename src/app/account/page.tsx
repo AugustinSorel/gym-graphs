@@ -7,7 +7,7 @@ import { UserAccountCard } from "./_components/userAccountTeam";
 import { GithubCard } from "./_components/githubCard";
 import { ThemePreferenceCard } from "./_components/themePreferenceCard";
 import { WeightUnitPreferenceCard } from "./_components/weightUnitPreference";
-import { AuthProvider } from "../_components/providers";
+import { UsernameCard } from "./_components/usernameCard";
 
 const Page = async () => {
   const session = await getServerAuthSession();
@@ -17,20 +17,25 @@ const Page = async () => {
   }
 
   void api.team.all.prefetch();
+  void api.user.get.prefetch();
 
   return (
     <>
-      <UserAccountCard />
+      <HydrateClient>
+        <UserAccountCard />
+      </HydrateClient>
+
+      <HydrateClient>
+        <UsernameCard />
+      </HydrateClient>
 
       <ThemePreferenceCard />
 
       <WeightUnitPreferenceCard />
 
-      <AuthProvider session={session}>
-        <HydrateClient>
-          <UserTeamsCard />
-        </HydrateClient>
-      </AuthProvider>
+      <HydrateClient>
+        <UserTeamsCard />
+      </HydrateClient>
 
       <GithubCard />
 

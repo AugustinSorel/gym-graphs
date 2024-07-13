@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { ComponentPropsWithoutRef } from "react";
 import type { FallbackProps } from "react-error-boundary";
@@ -38,6 +39,17 @@ const ErrorFallback = (props: FallbackProps) => {
   );
 };
 
+const SkeletonFallback = () => {
+  return (
+    <Skeleton className="w-full">
+      <Card.Root>
+        <Card.Body className="h-32" />
+        <Card.Footer className="h-14" />
+      </Card.Root>
+    </Skeleton>
+  );
+};
+
 const Title = (props: ComponentPropsWithoutRef<"h2">) => {
   return (
     <h2
@@ -74,4 +86,5 @@ export const Card = {
   Title,
   Description,
   Footer,
+  SkeletonFallback,
 };
