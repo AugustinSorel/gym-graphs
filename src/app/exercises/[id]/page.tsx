@@ -12,13 +12,20 @@ import {
   exercisePageSearchParamsSchema,
 } from "./_components/exercisePageSearchParams";
 import { Content } from "./content";
+import { getServerAuthSession } from "@/server/auth";
 
 type Props = {
   params: ExercisePageParams;
   searchParams: ExercisePageSearchParams;
 };
 
-const Page = (unsafeProps: Props) => {
+const Page = async (unsafeProps: Props) => {
+  const session = await getServerAuthSession();
+
+  if (!session?.user) {
+    return redirect("/");
+  }
+
   const params = exercisePageParamsSchema.safeParse(unsafeProps.params);
   const searchParams = exercisePageSearchParamsSchema.safeParse(
     unsafeProps.searchParams,

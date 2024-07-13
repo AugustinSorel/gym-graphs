@@ -15,6 +15,12 @@ type Props = {
 };
 
 const Page = async (unsafeProps: Props) => {
+  const session = await getServerAuthSession();
+
+  if (!session?.user) {
+    return redirect("/");
+  }
+
   const params = teamPageParamsSchema.safeParse(unsafeProps.params);
 
   const team = await api.team.get({ id: unsafeProps.params.id });
@@ -22,8 +28,6 @@ const Page = async (unsafeProps: Props) => {
   if (!team) {
     return redirect("/dashboard");
   }
-
-  const session = await getServerAuthSession();
 
   const userInTeam = team?.usersToTeams.find(
     (team) => team.memberId === session?.user.id,
