@@ -26,7 +26,6 @@ import type { Team } from "@/server/db/types";
 import { api } from "@/trpc/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Edit, LogOut, Trash2 } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { type ComponentPropsWithoutRef, useState, Suspense } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
@@ -52,6 +51,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "@/schemas/team.schemas";
 import type { z } from "zod";
 import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
+import { useUser } from "./useUser";
 
 export const UserTeamsCard = () => {
   return (
@@ -85,8 +85,8 @@ export const UserTeamsCard = () => {
 };
 
 const Content = () => {
-  const session = useSession({ required: true });
   const [teams] = useTeams();
+  const [user] = useUser();
 
   if (!teams.length) {
     return (
@@ -99,7 +99,7 @@ const Content = () => {
   return (
     <>
       {teams.map((team, i) => {
-        const isAuthor = team.team.author.id === session.data?.user.id;
+        const isAuthor = team.team.author.id === user.id;
 
         return (
           <ErrorBoundary
