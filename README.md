@@ -21,13 +21,13 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ![Screenshot from 2023-09-10 14-18-31](https://github.com/AugustinSorel/gym-graphs/assets/48162609/20eca2e6-d8a8-40bc-b99c-d47fddbda1d8)
 
 ### Team Page
-![localhost_3000_account (1)](https://github.com/user-attachments/assets/dd0ef894-29ca-48af-9ae3-a5bb1ab9d09d)
+![gym-graphs vercel app_teams_7fec7337-cc48-4ae8-9963-c6cce797d645](https://github.com/user-attachments/assets/9490a271-c3af-4685-9437-6c7173bcc4a8)
 
 ### Exercise Page
 ![exercise-page-dark](https://github.com/AugustinSorel/gym-graphs/assets/48162609/e804f6f1-2af5-4f40-9be8-aa1d71f93320)
 
 ### Account Page
-![localhost_3000_account](https://github.com/user-attachments/assets/c4cd3d0f-ad19-48d9-9022-93e412b618d5)
+![gym-graphs vercel app_teams_7fec7337-cc48-4ae8-9963-c6cce797d645 (1)](https://github.com/user-attachments/assets/c47a4426-1692-4d29-aaad-c2d6c42be4fb)
 
 ### Light theme
 ![Screenshot from 2023-09-10 14-18-40](https://github.com/AugustinSorel/gym-graphs/assets/48162609/ebcbc7ec-1485-4628-9c9f-dc44a319c49c)
