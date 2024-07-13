@@ -691,7 +691,6 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: update readme
 //TODO: verify id
 //TODO: in team page, allow viewing exercises
 //TODO: add random facts to team page eg heavier lifter or most active in team
