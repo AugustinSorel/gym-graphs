@@ -16,13 +16,13 @@ import {
 import { getUserDisplayName } from "@/lib/utils";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Check, ChevronDownIcon, Plus } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import Link from "next/link";
 import { CreateTeamDialog } from "@/components/teams/createTeamDialog";
 import { useParams } from "next/navigation";
 import { useTeams } from "../teams/_components/useTeams";
+import { useUser } from "../account/_components/useUser";
 
 export const DashboardBreadcrumb = () => {
   return (
@@ -56,13 +56,9 @@ export const DashboardBreadcrumb = () => {
 };
 
 const Content = () => {
-  const session = useSession({ required: true });
   const [teams] = useTeams();
+  const [user] = useUser();
   const params = useParams();
-
-  if (!session.data?.user) {
-    throw new Error("Unauthorized");
-  }
 
   return (
     <>
@@ -70,7 +66,7 @@ const Content = () => {
 
       <BreadcrumbItem className="max-w-xs truncate">
         <BreadcrumbLink className="truncate" asChild>
-          <Link href="/dashboard">{getUserDisplayName(session.data.user)}</Link>
+          <Link href="/dashboard">{getUserDisplayName(user)}</Link>
         </BreadcrumbLink>
       </BreadcrumbItem>
 
