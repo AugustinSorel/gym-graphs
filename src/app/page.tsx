@@ -691,7 +691,7 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: add more data in account page
+//TODO: update readme
 //TODO: verify id
 //TODO: remove middleware
 //TODO: in team page, allow viewing exercises
