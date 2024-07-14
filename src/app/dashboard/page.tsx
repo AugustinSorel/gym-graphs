@@ -9,7 +9,7 @@ const Page = async () => {
   const session = await getServerAuthSession();
 
   if (!session?.user.id) {
-    return redirect("/");
+    return redirect("/sign-in");
   }
 
   void api.exercise.all.prefetch();
