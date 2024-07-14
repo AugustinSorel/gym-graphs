@@ -30,7 +30,7 @@ export const sendSignInEmail = async (props: SendVerificationRequestParams) => {
           <tr>
             <td style="display: flex;">
               <img 
-                src="https://gym-graphs.vercel.app/email-icon.png"
+                src="https://gym-graphs.vercel.app/icon-email.png"
                 height="24"
                 width="24"
                 style="margin-top: auto; margin-bottom: auto; margin-left: auto;"
