@@ -21,7 +21,6 @@ import { api } from "@/trpc/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { useUser } from "./useUser";
-import { getQueryKey } from "@trpc/react-query";
 
 export const UsernameCard = () => {
   return (
@@ -67,7 +66,7 @@ const Content = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    renameUser.mutate({ id: user.id, name: values.name });
+    renameUser.mutate({ name: values.name });
   };
 
   return (
