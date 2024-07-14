@@ -179,7 +179,9 @@ export const teamRouter = createTRPCRouter({
       const [team] = await ctx.db
         .update(teams)
         .set({ name: input.name })
-        .where(eq(teams.id, input.id))
+        .where(
+          and(eq(teams.id, input.id), eq(teams.authorId, ctx.session.user.id)),
+        )
         .returning();
 
       if (!team) {

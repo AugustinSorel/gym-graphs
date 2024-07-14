@@ -7,7 +7,7 @@ import { TRPCError } from "@trpc/server";
 export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.query.users.findFirst({
-      where: (table, { eq }) => eq(table.id, ctx.session.user.id),
+      where: eq(users.id, ctx.session.user.id),
     });
 
     if (!user) {
@@ -21,11 +21,11 @@ export const userRouter = createTRPCRouter({
   }),
 
   rename: protectedProcedure
-    .input(userSchema.pick({ name: true, id: true }))
+    .input(userSchema.pick({ name: true }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(users)
         .set({ name: input.name })
-        .where(eq(users.id, input.id));
+        .where(eq(users.id, ctx.session.user.id));
     }),
 });
