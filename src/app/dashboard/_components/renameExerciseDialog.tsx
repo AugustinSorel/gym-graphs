@@ -32,7 +32,7 @@ type Props = {
   exercise: Exercise;
 };
 
-export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
+export const RenameExerciseDialog = ({ exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const utils = api.useUtils();
   const formSchema = useFormSchema({ id: exercise.id });
@@ -43,13 +43,13 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateExerciseName.mutate({
+    renameExercise.mutate({
       id: exercise.id,
       name: values.name,
     });
   };
 
-  const updateExerciseName = api.exercise.update.useMutation({
+  const renameExercise = api.exercise.rename.useMutation({
     onSuccess: () => {
       setIsDialogOpen(false);
     },
@@ -122,10 +122,10 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
             />
             <Button
               type="submit"
-              disabled={updateExerciseName.isPending}
+              disabled={renameExercise.isPending}
               className="ml-auto"
             >
-              {updateExerciseName.isPending && <Loader className="mr-2" />}
+              {renameExercise.isPending && <Loader className="mr-2" />}
               <span className="capitalize">save</span>
             </Button>
           </form>
