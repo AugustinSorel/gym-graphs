@@ -11,6 +11,7 @@ import { env } from "@/env.mjs";
 import { seedUserData } from "./seedUserData";
 import { db } from "./db";
 import type { Adapter } from "next-auth/adapters";
+import { sendSignInEmail } from "@/lib/email";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -77,6 +78,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
       from: env.EMAIL_FROM,
+      sendVerificationRequest: sendSignInEmail,
     }),
   ],
   secret: env.NEXTAUTH_SECRET,
