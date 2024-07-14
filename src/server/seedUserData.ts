@@ -1,4 +1,4 @@
-import { addDays, addMonths } from "@/lib/date";
+import { addDays, addMonths, dateAsYearMonthDayFormat } from "@/lib/date";
 import type { User } from "next-auth";
 import { db } from "./db";
 import { exerciseGridPosition, exercises, exercisesData } from "./db/schema";
@@ -24,7 +24,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 20,
           weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 0),
           updatedAt: addDays(addMonths(new Date(), -1), 0),
         },
@@ -32,7 +34,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 10,
           weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -1), 1).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 1),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 1),
           updatedAt: addDays(addMonths(new Date(), -1), 1),
         },
@@ -40,7 +44,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 30,
           weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 2),
           updatedAt: addDays(addMonths(new Date(), -1), 2),
         },
@@ -48,7 +54,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 20,
           weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 0),
           updatedAt: addDays(addMonths(new Date(), -2), 0),
         },
@@ -56,7 +64,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 10,
           weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -2), 1).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 1),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 1),
           updatedAt: addDays(addMonths(new Date(), -2), 1),
         },
@@ -64,7 +74,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: benchPress.id,
           numberOfRepetitions: 30,
           weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 2),
           updatedAt: addDays(addMonths(new Date(), -2), 2),
         },
@@ -81,7 +93,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: squat.id,
           numberOfRepetitions: 10,
           weightLifted: 10,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 0),
           updatedAt: addDays(addMonths(new Date(), -1), 0),
         },
@@ -89,7 +103,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: squat.id,
           numberOfRepetitions: 30,
           weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 1).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 1),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 1),
           updatedAt: addDays(addMonths(new Date(), -1), 1),
         },
@@ -97,7 +113,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: squat.id,
           numberOfRepetitions: 20,
           weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 2),
           updatedAt: addDays(addMonths(new Date(), -1), 2),
         },
@@ -105,7 +123,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: squat.id,
           numberOfRepetitions: 20,
           weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 0),
           updatedAt: addDays(addMonths(new Date(), -2), 0),
         },
@@ -113,7 +133,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: squat.id,
           numberOfRepetitions: 40,
           weightLifted: 40,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 2),
           updatedAt: addDays(addMonths(new Date(), -2), 2),
         },
@@ -130,7 +152,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: deadlift.id,
           numberOfRepetitions: 30,
           weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -1), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 0),
           updatedAt: addDays(addMonths(new Date(), -1), 0),
         },
@@ -138,7 +162,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: deadlift.id,
           numberOfRepetitions: 50,
           weightLifted: 50,
-          doneAt: addDays(addMonths(new Date(), -1), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -1), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -1), 2),
           updatedAt: addDays(addMonths(new Date(), -1), 2),
         },
@@ -146,7 +172,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: deadlift.id,
           numberOfRepetitions: 40,
           weightLifted: 40,
-          doneAt: addDays(addMonths(new Date(), -2), 0).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 0),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 0),
           updatedAt: addDays(addMonths(new Date(), -2), 0),
         },
@@ -154,7 +182,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: deadlift.id,
           numberOfRepetitions: 30,
           weightLifted: 30,
-          doneAt: addDays(addMonths(new Date(), -2), 1).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 1),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 1),
           updatedAt: addDays(addMonths(new Date(), -2), 1),
         },
@@ -162,7 +192,9 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
           exerciseId: deadlift.id,
           numberOfRepetitions: 20,
           weightLifted: 20,
-          doneAt: addDays(addMonths(new Date(), -2), 2).toString(),
+          doneAt: dateAsYearMonthDayFormat(
+            addDays(addMonths(new Date(), -2), 2),
+          ),
           createdAt: addDays(addMonths(new Date(), -2), 2),
           updatedAt: addDays(addMonths(new Date(), -2), 2),
         },
