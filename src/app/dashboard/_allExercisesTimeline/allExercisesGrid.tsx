@@ -27,8 +27,8 @@ import { useExercises } from "../_components/useExercises";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
-import { DeleteExerciseAlertDialog } from "../_components/modals/deleteExerciseAlertDialog";
-import { UpdateExerciseNameDialog } from "../_components/modals/updateExerciseNameDialog";
+import { DeleteExerciseAlertDialog } from "../_components/deleteExerciseAlertDialog";
+import { RenameExerciseDialog } from "../_components/renameExerciseDialog";
 import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { RandomFacts } from "@/components/graphs/randomFacts";
@@ -146,7 +146,7 @@ const ExerciseItem = ({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <UpdateExerciseNameDialog exercise={exercise} />
+                <RenameExerciseDialog exercise={exercise} />
                 <DeleteExerciseAlertDialog exercise={exercise} />
               </DropdownMenuGroup>
             </DropdownMenuContent>

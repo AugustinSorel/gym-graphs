@@ -694,7 +694,6 @@ const FeaturesGridBackground = () => {
 //TODO: in team page, allow viewing exercises
 //TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: better sign in and join team email
-//TODO: reanme exercise router update to rename
 //TODO: fix filtering that is slow
 //TODO: test with low end network
 //TODO: add e2e tests
