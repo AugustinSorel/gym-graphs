@@ -1,8 +1,8 @@
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { and, eq, ne } from "drizzle-orm";
-import { exercisesData } from "@/server/db/schema";
+import { and, eq, exists } from "drizzle-orm";
+import { exercises, exercisesData } from "@/server/db/schema";
 import { isPgError } from "@/server/db/utils";
 
 export const exerciseDataRouter = createTRPCRouter({
@@ -42,43 +42,71 @@ export const exerciseDataRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const exercise = ctx.db
+        .select()
+        .from(exercises)
+        .innerJoin(exercisesData, eq(exercisesData.exerciseId, exercises.id))
+        .where(
+          and(
+            eq(exercises.userId, ctx.session.user.id),
+            eq(exercisesData.id, input.id),
+          ),
+        );
+
       await ctx.db
         .update(exercisesData)
         .set({
           numberOfRepetitions: input.numberOfRepetitions,
           updatedAt: new Date(),
         })
-        .where(eq(exercisesData.id, input.id));
+        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
     }),
 
   updateWeightLifted: protectedProcedure
     .input(exerciseDataSchema.pick({ id: true, weightLifted: true }))
     .mutation(async ({ ctx, input }) => {
+      const exercise = ctx.db
+        .select()
+        .from(exercises)
+        .innerJoin(exercisesData, eq(exercisesData.exerciseId, exercises.id))
+        .where(
+          and(
+            eq(exercises.userId, ctx.session.user.id),
+            eq(exercisesData.id, input.id),
+          ),
+        );
+
       await ctx.db
         .update(exercisesData)
         .set({
           weightLifted: input.weightLifted,
           updatedAt: new Date(),
         })
-        .where(eq(exercisesData.id, input.id));
+        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
     }),
 
   updateDoneAt: protectedProcedure
     .input(exerciseDataSchema.pick({ id: true, doneAt: true }))
     .mutation(async ({ ctx, input }) => {
       try {
+        const exercise = ctx.db
+          .select()
+          .from(exercises)
+          .innerJoin(exercisesData, eq(exercisesData.exerciseId, exercises.id))
+          .where(
+            and(
+              eq(exercises.userId, ctx.session.user.id),
+              eq(exercisesData.id, input.id),
+            ),
+          );
+
         await ctx.db
           .update(exercisesData)
           .set({
             doneAt: input.doneAt,
             updatedAt: new Date(),
           })
-          .where(
-            and(
-              eq(exercisesData.id, input.id),
-              ne(exercisesData.doneAt, input.doneAt),
-            ),
-          );
+          .where(and(eq(exercisesData.id, input.id), exists(exercise)));
       } catch (e) {
         if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
@@ -94,6 +122,19 @@ export const exerciseDataRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(exerciseDataSchema.pick({ id: true }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(exercisesData).where(eq(exercisesData.id, input.id));
+      const exercise = ctx.db
+        .select()
+        .from(exercises)
+        .innerJoin(exercisesData, eq(exercisesData.exerciseId, exercises.id))
+        .where(
+          and(
+            eq(exercises.userId, ctx.session.user.id),
+            eq(exercisesData.id, input.id),
+          ),
+        );
+
+      await ctx.db
+        .delete(exercisesData)
+        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
     }),
 });

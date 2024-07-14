@@ -117,7 +117,12 @@ export const exerciseRouter = createTRPCRouter({
       await ctx.db
         .update(exercises)
         .set({ muscleGroups: input.muscleGroups })
-        .where(eq(exercises.id, input.id));
+        .where(
+          and(
+            eq(exercises.id, input.id),
+            eq(exercises.userId, ctx.session.user.id),
+          ),
+        );
     }),
 
   get: protectedProcedure
