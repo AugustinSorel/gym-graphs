@@ -35,7 +35,7 @@ type Props = {
 export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const utils = api.useUtils();
-  const formSchema = useFormSchema();
+  const formSchema = useFormSchema({ id: exercise.id });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -135,7 +135,7 @@ export const UpdateExerciseNameDialog = ({ exercise }: Props) => {
   );
 };
 
-const useFormSchema = () => {
+const useFormSchema = (props: Pick<Exercise, "id">) => {
   const utils = api.useUtils();
 
   const formSchema = exerciseSchema
@@ -147,7 +147,9 @@ const useFormSchema = () => {
         const exercises = utils.exercise.all.getData();
 
         return !exercises?.find(
-          (exercise) => exercise.name.toLowerCase() === data.name.toLowerCase(),
+          (exercise) =>
+            exercise.name.toLowerCase() === data.name.toLowerCase() &&
+            exercise.id !== props.id,
         );
       },
       (data) => {
