@@ -464,15 +464,15 @@ const FeatuesGrid = () => {
       <HeroTitle>what we offer</HeroTitle>
 
       <GridContainer>
-        <I className="lg:[grid-area:card-one]">
+        <CardItem className="lg:[grid-area:card-one]">
           <CardIcon>📈</CardIcon>
           <CardTitle>insights & analytics</CardTitle>
           <CardText>
             Keep track of your progress every session and watch your results
             soar! Get ready to see amazing results!
           </CardText>
-        </I>
-        <I className="lg:[grid-area:card-two]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-two]">
           <CardIcon>💻</CardIcon>
           <CardTitle>cross platform</CardTitle>
           <CardText>
@@ -481,8 +481,8 @@ const FeatuesGrid = () => {
             and tablet devices, ensuring you can stay connected and motivated on
             the go.
           </CardText>
-        </I>
-        <I className="lg:[grid-area:card-three]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-three]">
           <CardIcon>🤝</CardIcon>
           <CardTitle>open source</CardTitle>
           <CardText>
@@ -502,8 +502,8 @@ const FeatuesGrid = () => {
             our platform, and we appreciate the collaborative spirit that drives
             us forward.
           </CardText>
-        </I>
-        <I className="lg:[grid-area:card-four]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-four]">
           <CardIcon>🧩</CardIcon>
           <CardTitle>customizable</CardTitle>
           <CardText>
@@ -511,8 +511,8 @@ const FeatuesGrid = () => {
             exercises! Customize your workout experience to fit your preferences
             and needs.
           </CardText>
-        </I>
-        <I className="lg:[grid-area:card-five]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-five]">
           <CardIcon>🎁</CardIcon>
           <CardTitle>100% free</CardTitle>
           <CardText>
@@ -520,7 +520,7 @@ const FeatuesGrid = () => {
             fees or charges. We value your privacy and do not collect any
             personal information.
           </CardText>
-        </I>
+        </CardItem>
       </GridContainer>
 
       <GetStartedAction />
@@ -588,8 +588,7 @@ const GridContainer = (props: ComponentProps<"ul">) => {
   );
 };
 
-//TODO: rename me
-const I = (props: ComponentProps<"li">) => {
+const CardItem = (props: ComponentProps<"li">) => {
   return (
     <li
       {...props}
@@ -693,7 +692,5 @@ const FeaturesGridBackground = () => {
 
 //TODO: in team page, allow viewing exercises
 //TODO: add random facts to team page eg heavier lifter or most active in team
-//TODO: fix filtering that is slow
-//TODO: test with low end network
 //TODO: add e2e tests
 //TODO: show points in brush line
