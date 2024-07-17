@@ -4,6 +4,7 @@ import { exerciseGridPosition, exercises } from "@/server/db/schema";
 import { isPgError } from "@/server/db/utils";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { syncUserStats } from "./user.router";
 
 export const exerciseRouter = createTRPCRouter({
   create: protectedProcedure
@@ -11,19 +12,26 @@ export const exerciseRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         return await ctx.db.transaction(async (tx) => {
-          const exerciseCreated = await tx
+          const [exercise] = await tx
             .insert(exercises)
             .values({ name: input.name, userId: ctx.session.user.id })
             .returning();
 
-          if (exerciseCreated[0]) {
-            await tx.insert(exerciseGridPosition).values({
-              userId: ctx.session.user.id,
-              exerciseId: exerciseCreated[0].id,
+          if (!exercise) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "exercise return by db is null",
             });
           }
 
-          return exerciseCreated;
+          await tx.insert(exerciseGridPosition).values({
+            userId: ctx.session.user.id,
+            exerciseId: exercise.id,
+          });
+
+          await syncUserStats(tx, ctx.session.user.id);
+
+          return exercise;
         });
       } catch (e) {
         if (isPgError(e) && e.code === "23505") {
@@ -42,15 +50,18 @@ export const exerciseRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(exerciseSchema.pick({ id: true }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .delete(exercises)
-        .where(
-          and(
-            eq(exercises.id, input.id),
-            eq(exercises.userId, ctx.session.user.id),
-          ),
-        )
-        .returning();
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(exercises)
+          .where(
+            and(
+              eq(exercises.id, input.id),
+              eq(exercises.userId, ctx.session.user.id),
+            ),
+          );
+
+        await syncUserStats(tx, ctx.session.user.id);
+      });
     }),
 
   rename: protectedProcedure
