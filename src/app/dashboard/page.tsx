@@ -13,6 +13,7 @@ const Page = async () => {
   }
 
   void api.exercise.all.prefetch();
+  void api.user.get.prefetch();
 
   return (
     <>
