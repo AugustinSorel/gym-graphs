@@ -19,7 +19,10 @@ import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import { RandomFacts } from "@/components/graphs/randomFacts";
+import {
+  prepareRandomFactsData,
+  RandomFacts,
+} from "@/components/graphs/randomFacts";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
@@ -204,7 +207,7 @@ const FeatureOne = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>
@@ -372,7 +375,7 @@ const FeatureThree = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>
@@ -450,7 +453,7 @@ const FeatureThree = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>

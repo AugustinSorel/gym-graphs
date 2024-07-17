@@ -9,7 +9,10 @@ import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
 import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
-import { RandomFacts } from "@/components/graphs/randomFacts";
+import {
+  prepareRandomFactsData,
+  RandomFacts,
+} from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
@@ -119,7 +122,7 @@ const RandomFactsItem = (props: { exercises: Array<ExerciseWithData> }) => {
         <Card.Title>random facts</Card.Title>
       </Card.Header>
 
-      <RandomFacts exercises={props.exercises} />
+      <RandomFacts data={prepareRandomFactsData(props.exercises)} />
     </Card.Root>
   );
 };
