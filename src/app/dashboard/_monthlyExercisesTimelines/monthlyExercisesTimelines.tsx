@@ -10,7 +10,10 @@ import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import { RandomFacts } from "@/components/graphs/randomFacts";
+import {
+  prepareRandomFactsData,
+  RandomFacts,
+} from "@/components/graphs/randomFacts";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
@@ -111,7 +114,7 @@ const Content = () => {
                     <Card.Title>random facts</Card.Title>
                   </Card.Header>
 
-                  <RandomFacts exercises={group.exercises} />
+                  <RandomFacts data={prepareRandomFactsData(group.exercises)} />
                 </Card.Root>
               </ErrorBoundary>
             </GridLayout>

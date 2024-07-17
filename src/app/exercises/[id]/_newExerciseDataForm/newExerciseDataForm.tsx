@@ -51,6 +51,7 @@ export const NewExerciseDataForm = () => {
     onMutate: async (variables) => {
       await utils.exercise.all.cancel();
       await utils.exercise.get.cancel({ id: params.id });
+      await utils.user.get.cancel();
 
       const cachedExercises = utils.exercise.all.getData();
       const cachedExercise = utils.exercise.get.getData({
@@ -109,6 +110,7 @@ export const NewExerciseDataForm = () => {
     onSettled: () => {
       void utils.exercise.get.invalidate({ id: params.id });
       void utils.exercise.all.invalidate();
+      void utils.user.get.invalidate();
     },
   });
 
