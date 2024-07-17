@@ -1,17 +1,14 @@
 "use client";
 
 import { Carousel } from "@/components/ui/carousel";
-import type { ExerciseWithData } from "@/server/db/types";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import type { ComponentPropsWithoutRef } from "react";
+import type { ExerciseWithData } from "@/server/db/types";
 
-type Props = {
-  exercises: ExerciseWithData[];
-};
+type Props = { data: ReturnType<typeof prepareRandomFactsData> };
 
-export const RandomFacts = ({ exercises }: Props) => {
+export const RandomFacts = (props: Props) => {
   const displayWeight = useDisplayWeight();
-  const data = prepareRandomFactsData(exercises);
 
   return (
     <Carousel.Root itemsSize={5}>
@@ -19,23 +16,25 @@ export const RandomFacts = ({ exercises }: Props) => {
       <Carousel.Body>
         <CardContainer>
           <Text>weight lifted</Text>
-          <StrongText>{displayWeight.show(data.totalWeightLifted)}</StrongText>
+          <StrongText>
+            {displayWeight.show(props.data.amountOfWeightLifted)}
+          </StrongText>
         </CardContainer>
         <CardContainer>
           <Text>repetitions made</Text>
-          <StrongText>{data.totalNumberOfRepetitions}</StrongText>
+          <StrongText>{props.data.numberOfRepetitionsMade}</StrongText>
         </CardContainer>
         <CardContainer>
           <Text>number of days</Text>
-          <StrongText>{data.numberOfDays}</StrongText>
+          <StrongText>{props.data.numberOfDays}</StrongText>
         </CardContainer>
         <CardContainer>
           <Text>exercises explored</Text>
-          <StrongText>{data.totalExercises}</StrongText>
+          <StrongText>{props.data.numberOfExercisesCreated}</StrongText>
         </CardContainer>
         <CardContainer>
           <Text>data logged</Text>
-          <StrongText>{data.totalData}</StrongText>
+          <StrongText>{props.data.numberOfDataLogged}</StrongText>
         </CardContainer>
       </Carousel.Body>
       <Carousel.DotsNavigation />
@@ -43,9 +42,9 @@ export const RandomFacts = ({ exercises }: Props) => {
   );
 };
 
-const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
+export const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
   return {
-    totalWeightLifted: exercises.reduce((prev, curr) => {
+    amountOfWeightLifted: exercises.reduce((prev, curr) => {
       return (
         prev +
         curr.data.reduce((prev, curr) => {
@@ -54,7 +53,7 @@ const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
       );
     }, 0),
 
-    totalNumberOfRepetitions: exercises.reduce((prev, curr) => {
+    numberOfRepetitionsMade: exercises.reduce((prev, curr) => {
       return (
         prev +
         curr.data.reduce((prev, curr) => {
@@ -69,9 +68,9 @@ const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
       return prev;
     }, new Set<string>()).size,
 
-    totalExercises: exercises.length,
+    numberOfExercisesCreated: exercises.length,
 
-    totalData: exercises.reduce((prev, curr) => {
+    numberOfDataLogged: exercises.reduce((prev, curr) => {
       return prev + curr.data.length;
     }, 0),
   };
