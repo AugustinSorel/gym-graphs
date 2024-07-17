@@ -7,6 +7,7 @@ import {
   usersToTeams,
   users,
   teamInvites,
+  userStats,
 } from "./schema";
 
 export const exerciseDatasRelations = relations(exercisesData, ({ one }) => ({
@@ -28,9 +29,13 @@ export const exercsiesRelations = relations(exercises, ({ many, one }) => ({
   }),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   usersToTeams: many(usersToTeams),
   exercises: many(exercises),
+  stats: one(userStats, {
+    fields: [users.id],
+    references: [userStats.userId],
+  }),
 }));
 
 export const teamsRelations = relations(teams, ({ many, one }) => ({
