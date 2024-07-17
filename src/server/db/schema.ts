@@ -41,7 +41,9 @@ export const accounts = pgTable(
     session_state: text("session_state"),
   },
   (account) => ({
-    compoundKey: primaryKey(account.provider, account.providerAccountId),
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
   }),
 );
 
@@ -61,7 +63,7 @@ export const verificationTokens = pgTable(
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (vt) => ({
-    compoundKey: primaryKey(vt.identifier, vt.token),
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 );
 
@@ -127,6 +129,18 @@ export const exercisesData = pgTable(
   }),
 );
 
+export const userStats = pgTable("user_stats", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  numberOfExercisesCreated: integer("number_of_exercises_created").notNull(),
+  numberOfDataLogged: integer("number_of_data_logged").notNull(),
+  numberOfDays: integer("number_of_days").notNull(),
+  numberOfRepetitionsMade: integer("number_of_repetitions_made").notNull(),
+  amountOfWeightLifted: integer("amount_of_weight_lifted").notNull(),
+});
+
 export const teams = pgTable(
   "team",
   {
@@ -156,7 +170,7 @@ export const usersToTeams = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    compoundKey: primaryKey(table.teamId, table.memberId),
+    compoundKey: primaryKey({ columns: [table.teamId, table.memberId] }),
   }),
 );
 
