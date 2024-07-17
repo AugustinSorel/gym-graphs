@@ -1,10 +1,8 @@
 {
-  "version": "5",
-  "dialect": "pg",
-  "id": "5e93d04b-111c-4964-98d1-821a8c0ab2a5",
-  "prevId": "963e7f9b-5ffd-48ee-9961-9e894da3fe69",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "account": {
+    "public.account": {
       "name": "account",
       "schema": "",
       "columns": {
@@ -80,15 +78,15 @@
         "account_userId_user_id_fk": {
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
-          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -102,7 +100,7 @@
       },
       "uniqueConstraints": {}
     },
-    "exercise_grid_position": {
+    "public.exercise_grid_position": {
       "name": "exercise_grid_position",
       "schema": "",
       "columns": {
@@ -137,34 +135,34 @@
         "exercise_grid_position_exercise_id_exercise_id_fk": {
           "name": "exercise_grid_position_exercise_id_exercise_id_fk",
           "tableFrom": "exercise_grid_position",
-          "tableTo": "exercise",
           "columnsFrom": [
             "exercise_id"
           ],
+          "tableTo": "exercise",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "exercise_grid_position_user_id_user_id_fk": {
           "name": "exercise_grid_position_user_id_user_id_fk",
           "tableFrom": "exercise_grid_position",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "exercise": {
+    "public.exercise": {
       "name": "exercise",
       "schema": "",
       "columns": {
@@ -214,30 +212,30 @@
         "exercise_user_id_user_id_fk": {
           "name": "exercise_user_id_user_id_fk",
           "tableFrom": "exercise",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "exercise_user_id_name_unique": {
           "name": "exercise_user_id_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "user_id",
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "exercise_data": {
+    "public.exercise_data": {
       "name": "exercise_data",
       "schema": "",
       "columns": {
@@ -293,30 +291,30 @@
         "exercise_data_exercise_id_exercise_id_fk": {
           "name": "exercise_data_exercise_id_exercise_id_fk",
           "tableFrom": "exercise_data",
-          "tableTo": "exercise",
           "columnsFrom": [
             "exercise_id"
           ],
+          "tableTo": "exercise",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "exercise_data_done_at_exercise_id_unique": {
           "name": "exercise_data_done_at_exercise_id_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "done_at",
             "exercise_id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "session": {
+    "public.session": {
       "name": "session",
       "schema": "",
       "columns": {
@@ -344,21 +342,21 @@
         "session_userId_user_id_fk": {
           "name": "session_userId_user_id_fk",
           "tableFrom": "session",
-          "tableTo": "user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "user": {
+    "public.user": {
       "name": "user",
       "schema": "",
       "columns": {
@@ -398,7 +396,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "verificationToken": {
+    "public.verificationToken": {
       "name": "verificationToken",
       "schema": "",
       "columns": {
@@ -441,5 +439,7 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "5e93d04b-111c-4964-98d1-821a8c0ab2a5",
+  "prevId": "963e7f9b-5ffd-48ee-9961-9e894da3fe69"
 }

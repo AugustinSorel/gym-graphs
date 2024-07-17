@@ -204,6 +204,20 @@
       "when": 1719659955685,
       "tag": "0028_shiny_jack_power",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1721152152201,
+      "tag": "0029_luxuriant_rattler",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1721155555770,
+      "tag": "0030_quiet_sunspot",
+      "breakpoints": true
     }
   ]
 }
