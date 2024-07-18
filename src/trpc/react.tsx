@@ -9,6 +9,7 @@ import { useState } from "react";
 import SuperJSON from "superjson";
 import { createQueryClient } from "./queryClient";
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
+import { env } from "@/env.mjs";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
@@ -44,7 +45,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
       links: [
         loggerLink({
           enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
+            env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({
