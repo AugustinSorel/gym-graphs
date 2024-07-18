@@ -25,12 +25,8 @@ const Page = async (unsafeProps: Props) => {
 
   const team = await api.team.get({ id: unsafeProps.params.id });
 
-  if (!team) {
-    return redirect("/dashboard");
-  }
-
-  const userInTeam = team?.usersToTeams.find(
-    (team) => team.memberId === session?.user.id,
+  const userInTeam = team.usersToTeams.find(
+    (team) => team.memberId === session.user.id,
   );
 
   if (!params.success || !userInTeam) {

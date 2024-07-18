@@ -5,17 +5,17 @@ import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { useExercises } from "../_components/useExercises";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
-import { Card, CardErrorFallback } from "@/components/ui/card";
-import { LineGraph } from "@/components/graphs/lineGraph";
-import { RadarGraph } from "@/components/graphs/radarGraph";
-import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
-import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import { RandomFacts } from "@/components/graphs/randomFacts";
+import { CardErrorFallback } from "@/components/ui/card";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { prepareRandomFactsData } from "@/lib/math";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
+import { ExerciseMonthlyOverviewCard } from "@/components/cards/exerciseOverviewCard";
+import { ExerciseHeatmapCard } from "@/components/cards/exerciseHeatmapCard";
+import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
+import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
 
 export const MonthlyExercisesTimelines = () => {
   return (
@@ -59,61 +59,32 @@ const Content = () => {
                   FallbackComponent={CardErrorFallback}
                   key={exercise.id}
                 >
-                  <Card.Root>
-                    <Card.Anchor
-                      aria-label={`go to ${exercise.name}`}
-                      href={`/exercises/${exercise.id}?from=${
-                        group.date
-                      }&to=${dateAsYearMonthDayFormat(
-                        new Date(
-                          new Date(group.date).getFullYear(),
-                          new Date(group.date).getMonth() + 1,
-                          0,
-                        ),
-                      )}`}
-                    />
-                    <Card.Header>
-                      <Card.Title>{exercise.name}</Card.Title>
-                    </Card.Header>
-
-                    <LineGraph data={exercise.data} />
-                  </Card.Root>
+                  <ExerciseMonthlyOverviewCard
+                    exercise={exercise}
+                    month={new Date(group.date)}
+                  />
                 </ErrorBoundary>
               ))}
 
               <ErrorBoundary FallbackComponent={CardErrorFallback}>
-                <Card.Root>
-                  <Card.Header>
-                    <Card.Title>exercises count</Card.Title>
-                  </Card.Header>
-
-                  <RadarGraph
-                    data={group.exercises.map((exercise) => ({
-                      exerciseName: exercise.name,
-                      frequency: exercise.data.length,
-                    }))}
-                  />
-                </Card.Root>
+                <ExercisesRadarCard
+                  data={group.exercises.map((exercise) => ({
+                    exerciseName: exercise.name,
+                    frequency: exercise.data.length,
+                  }))}
+                />
               </ErrorBoundary>
 
               <ErrorBoundary FallbackComponent={CardErrorFallback}>
-                <Card.Root>
-                  <Card.Header>
-                    <Card.Title>heatmap</Card.Title>
-                  </Card.Header>
-
-                  <HeatmapGraph data={prepareHeatmapData(group.exercises)} />
-                </Card.Root>
+                <ExerciseHeatmapCard
+                  data={prepareHeatmapData(group.exercises)}
+                />
               </ErrorBoundary>
 
               <ErrorBoundary FallbackComponent={CardErrorFallback}>
-                <Card.Root>
-                  <Card.Header>
-                    <Card.Title>random facts</Card.Title>
-                  </Card.Header>
-
-                  <RandomFacts data={prepareRandomFactsData(group.exercises)} />
-                </Card.Root>
+                <UserRandomFactsCard
+                  data={prepareUserRandomFactsData(group.exercises)}
+                />
               </ErrorBoundary>
             </GridLayout>
           </Timeline>

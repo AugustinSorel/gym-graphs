@@ -9,11 +9,12 @@ import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
 import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
-import { RandomFacts } from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
-import { prepareRandomFactsData } from "@/lib/math";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { getUserDisplayName } from "@/lib/utils";
+import { UserRandomFacts } from "@/components/graphs/exercisesRandomFacts";
 
 export const TeamMembersExercises = () => {
   return (
@@ -45,7 +46,7 @@ const Content = () => {
         >
           <Timeline>
             <Badge variant="accent" className="w-max">
-              {userToTeam.user.name ?? userToTeam.user.email.split("@")[0]}
+              {getUserDisplayName(userToTeam.user)}
             </Badge>
             <GridLayout>
               {userToTeam.user.exercises.map((exercise) => (
@@ -120,7 +121,7 @@ const RandomFactsItem = (props: { exercises: Array<ExerciseWithData> }) => {
         <Card.Title>random facts</Card.Title>
       </Card.Header>
 
-      <RandomFacts data={prepareRandomFactsData(props.exercises)} />
+      <UserRandomFacts data={prepareUserRandomFactsData(props.exercises)} />
     </Card.Root>
   );
 };
