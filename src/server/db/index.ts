@@ -10,3 +10,5 @@ export const db = drizzle(sql, {
   schema: { ...schema, ...relations },
   logger: env.NODE_ENV === "development",
 });
+
+export type Db = typeof db;
