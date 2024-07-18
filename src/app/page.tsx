@@ -462,6 +462,5 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: in team page, allow viewing exercises
-//TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: add e2e tests
 //TODO: show points in brush line
