@@ -1,43 +1,26 @@
 "use client";
 
 import { ErrorBoundary } from "react-error-boundary";
-import { type RouterInputs, type RouterOutputs, api } from "@/trpc/react";
+import { type RouterInputs, api } from "@/trpc/react";
 import { type ComponentPropsWithoutRef } from "react";
-import { MoreHorizontal, Tag } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useMutationState } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getQueryKey } from "@trpc/react-query";
-import { DragComponent, SortableGrid } from "./sortableGrid";
+import { SortableGrid } from "./sortableGrid";
 import { pluralize } from "@/lib/utils";
 import { useExercises } from "../_components/useExercises";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
-import { DeleteExerciseAlertDialog } from "../_components/deleteExerciseAlertDialog";
-import { RenameExerciseDialog } from "../_components/renameExerciseDialog";
-import { LineGraph } from "@/components/graphs/lineGraph";
-import { RadarGraph } from "@/components/graphs/radarGraph";
-import { RandomFacts } from "@/components/graphs/randomFacts";
-import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
 import { useUser } from "@/app/account/_components/useUser";
+import { ExerciseOverviewCard } from "@/components/cards/exerciseOverviewCard";
+import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
+import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 
 export const AllExercisesGrid = () => {
   const dashboardShareParams = useDashboardSearchParams();
   const exercises = useExercises();
+  const [user] = useUser();
 
   if (!exercises.length && dashboardShareParams.exerciseName) {
     return (
@@ -88,77 +71,25 @@ export const AllExercisesGrid = () => {
           id: exercise.id,
           component: (
             <ErrorBoundary FallbackComponent={CardErrorFallback}>
-              <ExerciseItem exercise={exercise} />
+              <ExerciseOverviewCard exercise={exercise} />
             </ErrorBoundary>
           ),
         }))}
       />
 
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <RadarItem exercises={exercises} />
+        <ExercisesRadarCard
+          data={exercises.map((exercise) => ({
+            exerciseName: exercise.name,
+            frequency: exercise.data.length,
+          }))}
+        />
       </ErrorBoundary>
 
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <RandomFactsItem />
+        <UserRandomFactsCard data={user.stats} />
       </ErrorBoundary>
     </GridLayout>
-  );
-};
-
-const ExerciseItem = ({
-  exercise,
-}: {
-  exercise: RouterOutputs["exercise"]["all"][number];
-}) => {
-  return (
-    <Card.Root>
-      <Card.Anchor
-        aria-label={`go to ${exercise.name}`}
-        href={`/exercises/${exercise.id}`}
-      />
-      <Card.Header>
-        <Card.Title>{exercise.name}</Card.Title>
-
-        <Card.ActionContainer>
-          <ExerciseMuscleGroupsDropdown exercise={exercise}>
-            <Card.ActionButton aria-label="view exercise tags">
-              <Tag className="h-4 w-4" />
-            </Card.ActionButton>
-          </ExerciseMuscleGroupsDropdown>
-
-          <DropdownMenu>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Card.ActionButton aria-label="view more">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Card.ActionButton>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="capitalize">view more</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel className="capitalize">
-                settings
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <RenameExerciseDialog exercise={exercise} />
-                <DeleteExerciseAlertDialog exercise={exercise} />
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DragComponent id={exercise.id} />
-        </Card.ActionContainer>
-      </Card.Header>
-
-      <LineGraph data={exercise.data} />
-    </Card.Root>
   );
 };
 
@@ -183,41 +114,6 @@ const OptimisticExerciseItem = () => {
         </Skeleton>
       ))}
     </>
-  );
-};
-
-const RadarItem = ({
-  exercises,
-}: {
-  exercises: RouterOutputs["exercise"]["all"];
-}) => {
-  return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>exercises count</Card.Title>
-      </Card.Header>
-
-      <RadarGraph
-        data={exercises.map((exercise) => ({
-          exerciseName: exercise.name,
-          frequency: exercise.data.length,
-        }))}
-      />
-    </Card.Root>
-  );
-};
-
-const RandomFactsItem = () => {
-  const [user] = useUser();
-
-  return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>random facts</Card.Title>
-      </Card.Header>
-
-      <RandomFacts data={user.stats} />
-    </Card.Root>
   );
 };
 

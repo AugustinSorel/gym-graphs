@@ -6,14 +6,14 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTeam } from "../_components/useTeam";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
-import { Card, CardErrorFallback } from "@/components/ui/card";
-import { LineGraph } from "@/components/graphs/lineGraph";
-import { RadarGraph } from "@/components/graphs/radarGraph";
-import { RandomFacts } from "@/components/graphs/randomFacts";
-import type { ExerciseWithData } from "@/server/db/types";
+import { CardErrorFallback } from "@/components/ui/card";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
-import { prepareRandomFactsData } from "@/lib/math";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { getUserDisplayName } from "@/lib/utils";
+import { ExerciseOverviewTeamCard } from "@/components/cards/exerciseOverviewCard";
+import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
+import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 
 export const TeamMembersExercises = () => {
   return (
@@ -45,7 +45,7 @@ const Content = () => {
         >
           <Timeline>
             <Badge variant="accent" className="w-max">
-              {userToTeam.user.name ?? userToTeam.user.email.split("@")[0]}
+              {getUserDisplayName(userToTeam.user)}
             </Badge>
             <GridLayout>
               {userToTeam.user.exercises.map((exercise) => (
@@ -53,16 +53,23 @@ const Content = () => {
                   FallbackComponent={CardErrorFallback}
                   key={exercise.id}
                 >
-                  <LineGraphItem exercise={exercise} />
+                  <ExerciseOverviewTeamCard exercise={exercise} />
                 </ErrorBoundary>
               ))}
 
               <ErrorBoundary FallbackComponent={CardErrorFallback}>
-                <RadarItem exercises={userToTeam.user.exercises} />
+                <ExercisesRadarCard
+                  data={userToTeam.user.exercises.map((exercise) => ({
+                    exerciseName: exercise.name,
+                    frequency: exercise.data.length,
+                  }))}
+                />
               </ErrorBoundary>
 
               <ErrorBoundary FallbackComponent={CardErrorFallback}>
-                <RandomFactsItem exercises={userToTeam.user.exercises} />
+                <UserRandomFactsCard
+                  data={prepareUserRandomFactsData(userToTeam.user.exercises)}
+                />
               </ErrorBoundary>
             </GridLayout>
           </Timeline>
@@ -81,46 +88,5 @@ const TimelineSkeleton = () => {
 
       <GridSkeleton />
     </Timeline>
-  );
-};
-
-const LineGraphItem = (props: { exercise: ExerciseWithData }) => {
-  return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>{props.exercise.name}</Card.Title>
-      </Card.Header>
-
-      <LineGraph data={props.exercise.data} />
-    </Card.Root>
-  );
-};
-
-const RadarItem = (props: { exercises: Array<ExerciseWithData> }) => {
-  return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>exercises count</Card.Title>
-      </Card.Header>
-
-      <RadarGraph
-        data={props.exercises.map((exercise) => ({
-          exerciseName: exercise.name,
-          frequency: exercise.data.length,
-        }))}
-      />
-    </Card.Root>
-  );
-};
-
-const RandomFactsItem = (props: { exercises: Array<ExerciseWithData> }) => {
-  return (
-    <Card.Root>
-      <Card.Header>
-        <Card.Title>random facts</Card.Title>
-      </Card.Header>
-
-      <RandomFacts data={prepareRandomFactsData(props.exercises)} />
-    </Card.Root>
   );
 };

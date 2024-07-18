@@ -1,33 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
 import { cn } from "@/lib/utils";
-import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { mockExercises } from "@/lib/mock-data";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { mockExercises, mockTeam } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { GridLayout } from "@/components/ui/gridLayout";
-import { Card } from "@/components/ui/card";
-import { LineGraph } from "@/components/graphs/lineGraph";
-import { RadarGraph } from "@/components/graphs/radarGraph";
-import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import { RandomFacts } from "@/components/graphs/randomFacts";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
 import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/exerciseDataTableCard";
 import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
 import { Timeline } from "@/components/ui/timeline";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { prepareRandomFactsData } from "@/lib/math";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { TeamNameCard } from "@/components/cards/teamNameCard";
+import { TeamMembersCard } from "@/components/cards/teamMembersCard";
+import { TeamRandomFactsCard } from "@/components/cards/teamRandomFactsCard";
+import { ExerciseOverviewDummyCard } from "@/components/cards/exerciseOverviewCard";
+import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
+import { ExerciseHeatmapCard } from "@/components/cards/exerciseHeatmapCard";
+import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();
@@ -129,84 +124,21 @@ const FeatureOne = () => {
         </Badge>
         <GridLayout>
           {mockExercises.map((exercise) => (
-            <Card.Root key={exercise.id}>
-              <Card.Header>
-                <Card.Title>{exercise.name}</Card.Title>
-
-                <Card.ActionContainer>
-                  <Card.ActionButton aria-label="view exercise tags">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Tag className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">tags</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">view more</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <GripVertical className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">drag exercise</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-                </Card.ActionContainer>
-              </Card.Header>
-
-              <LineGraph data={exercise.data} />
-            </Card.Root>
+            <ExerciseOverviewDummyCard key={exercise.id} exercise={exercise} />
           ))}
 
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>exercises count</Card.Title>
-            </Card.Header>
+          <ExercisesRadarCard
+            data={mockExercises.map((exercise) => ({
+              exerciseName: exercise.name,
+              frequency: exercise.data.length,
+            }))}
+          />
 
-            <RadarGraph
-              data={mockExercises.map((exercise) => ({
-                exerciseName: exercise.name,
-                frequency: exercise.data.length,
-              }))}
-            />
-          </Card.Root>
+          <ExerciseHeatmapCard data={prepareHeatmapData(mockExercises)} />
 
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>heatmap</Card.Title>
-            </Card.Header>
-
-            <HeatmapGraph data={prepareHeatmapData(mockExercises)} />
-          </Card.Root>
-
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>random facts</Card.Title>
-            </Card.Header>
-
-            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
-          </Card.Root>
+          <UserRandomFactsCard
+            data={prepareUserRandomFactsData(mockExercises)}
+          />
         </GridLayout>
       </Timeline>
       <FeaturesGridBackground />
@@ -258,203 +190,41 @@ const FeatureThree = () => {
           metadata
         </Badge>
         <GridLayout>
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>team name</Card.Title>
-            </Card.Header>
-            <StrongText className="m-auto overflow-hidden text-4xl capitalize">
-              my team
-            </StrongText>
-          </Card.Root>
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>members (2)</Card.Title>
-            </Card.Header>
-
-            <ul className="divide-y-muted-foreground max-h-full space-y-3 divide-y overflow-auto p-5 [&>*:not(:first-child)]:pt-3">
-              <li className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-3 text-left">
-                <Avatar className="row-span-2">
-                  <AvatarFallback>A</AvatarFallback>
-                </Avatar>
-
-                <p className="truncate capitalize">micheal</p>
-
-                <p className="truncate text-sm text-muted-foreground">
-                  micheal@email.com
-                </p>
-              </li>
-              <li className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-3 text-left">
-                <Avatar className="row-span-2">
-                  <AvatarFallback>J</AvatarFallback>
-                </Avatar>
-
-                <p className="truncate capitalize">john</p>
-
-                <p className="truncate text-sm text-muted-foreground">
-                  john@email.com
-                </p>
-              </li>
-            </ul>
-          </Card.Root>
+          <TeamNameCard name={mockTeam.name} />
+          <TeamMembersCard usersToTeams={mockTeam.usersToTeams} />
+          <TeamRandomFactsCard usersToTeams={mockTeam.usersToTeams} />
         </GridLayout>
       </Timeline>
 
-      <Timeline className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
-        <Badge variant="accent" className="mr-auto">
-          micheal
-        </Badge>
-        <GridLayout>
-          {mockExercises.map((exercise) => (
-            <Card.Root key={exercise.id}>
-              <Card.Header>
-                <Card.Title>{exercise.name}</Card.Title>
+      {mockTeam.usersToTeams.map((userToTeam) => (
+        <Timeline
+          className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]"
+          key={userToTeam.memberId}
+        >
+          <Badge variant="accent" className="mr-auto">
+            {userToTeam.user.name}
+          </Badge>
+          <GridLayout>
+            {userToTeam.user.exercises.map((exercise) => (
+              <ExerciseOverviewDummyCard
+                key={exercise.id}
+                exercise={exercise}
+              />
+            ))}
 
-                <Card.ActionContainer>
-                  <Card.ActionButton aria-label="view exercise tags">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Tag className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">tags</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">view more</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <GripVertical className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">drag exercise</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-                </Card.ActionContainer>
-              </Card.Header>
-
-              <LineGraph data={exercise.data} />
-            </Card.Root>
-          ))}
-
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>exercises count</Card.Title>
-            </Card.Header>
-
-            <RadarGraph
-              data={mockExercises.map((exercise) => ({
+            <ExercisesRadarCard
+              data={userToTeam.user.exercises.map((exercise) => ({
                 exerciseName: exercise.name,
                 frequency: exercise.data.length,
               }))}
             />
-          </Card.Root>
 
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>random facts</Card.Title>
-            </Card.Header>
-
-            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
-          </Card.Root>
-        </GridLayout>
-      </Timeline>
-      <Timeline className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]">
-        <Badge variant="accent" className="mr-auto">
-          john
-        </Badge>
-        <GridLayout>
-          {mockExercises.slice(0, 2).map((exercise) => (
-            <Card.Root key={exercise.id}>
-              <Card.Header>
-                <Card.Title>{exercise.name}</Card.Title>
-
-                <Card.ActionContainer>
-                  <Card.ActionButton aria-label="view exercise tags">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Tag className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">tags</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">view more</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-
-                  <Card.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <GripVertical className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">drag exercise</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </Card.ActionButton>
-                </Card.ActionContainer>
-              </Card.Header>
-
-              <LineGraph data={exercise.data} />
-            </Card.Root>
-          ))}
-
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>exercises count</Card.Title>
-            </Card.Header>
-
-            <RadarGraph
-              data={mockExercises.map((exercise) => ({
-                exerciseName: exercise.name,
-                frequency: exercise.data.length,
-              }))}
+            <UserRandomFactsCard
+              data={prepareUserRandomFactsData(userToTeam.user.exercises)}
             />
-          </Card.Root>
-
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>random facts</Card.Title>
-            </Card.Header>
-
-            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
-          </Card.Root>
-        </GridLayout>
-      </Timeline>
+          </GridLayout>
+        </Timeline>
+      ))}
     </FeatureContainer>
   );
 };
@@ -692,6 +462,5 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: in team page, allow viewing exercises
-//TODO: add random facts to team page eg heavier lifter or most active in team
 //TODO: add e2e tests
 //TODO: show points in brush line

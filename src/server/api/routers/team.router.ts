@@ -77,6 +77,7 @@ export const teamRouter = createTRPCRouter({
               },
               user: {
                 with: {
+                  stats: true,
                   exercises: {
                     with: {
                       data: {

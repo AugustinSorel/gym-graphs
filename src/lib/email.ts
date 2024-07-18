@@ -92,7 +92,7 @@ export const sendInviteToTeamEmail = async (
   return transporter.sendMail({
     from: env.EMAIL_FROM,
     to: props.to,
-    subject: "You're Invited to Join a new Team!",
+    subject: "Sign in to Gym Graphs !",
     html: `
       <body>
         <table 
