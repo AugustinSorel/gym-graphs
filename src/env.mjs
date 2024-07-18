@@ -22,15 +22,19 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
-    GOOGLE_CLIENT_ID: z.string().min(1),
-    GOOGLE_CLIENT_SECRET: z.string().min(1),
-    GITHUB_CLIENT_ID: z.string().min(1),
-    GITHUB_CLIENT_SECRET: z.string().min(1),
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GITHUB_CLIENT_ID: z.string(),
+    GITHUB_CLIENT_SECRET: z.string(),
     EMAIL_FROM: z.string().email(),
-    EMAIL_SERVER_PORT: z.string().min(1),
-    EMAIL_SERVER_HOST: z.string().min(1),
-    EMAIL_SERVER_PASSWORD: z.string().min(1),
+    EMAIL_SERVER_PORT: z.string(),
+    EMAIL_SERVER_HOST: z.string(),
+    EMAIL_SERVER_PASSWORD: z.string(),
     EMAIL_SERVER_USER: z.string().email(),
+    VERCEL_ENV: z
+      .enum(["production", "preview", "development"])
+      .default("development"),
+    VERCEL_URL: z.string().nullish(),
   },
 
   /**
@@ -60,6 +64,8 @@ export const env = createEnv({
     EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
     EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
     EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    VERCEL_URL: process.env.VERCEL_URL,
   },
 
   /**
