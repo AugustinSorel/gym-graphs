@@ -1,5 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import { vercel } from "@t3-oss/env-core/presets";
 
 export const env = createEnv({
   /**
@@ -31,10 +32,6 @@ export const env = createEnv({
     EMAIL_SERVER_HOST: z.string(),
     EMAIL_SERVER_PASSWORD: z.string(),
     EMAIL_SERVER_USER: z.string().email(),
-    VERCEL_ENV: z
-      .enum(["production", "preview", "development"])
-      .default("development"),
-    VERCEL_URL: z.string().nullish(),
   },
 
   /**
@@ -64,8 +61,6 @@ export const env = createEnv({
     EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
     EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
     EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    VERCEL_URL: process.env.VERCEL_URL,
   },
 
   /**
@@ -79,4 +74,6 @@ export const env = createEnv({
    * `SOME_VAR=''` will throw an error.
    */
   emptyStringAsUndefined: true,
+
+  extends: [vercel()],
 });
