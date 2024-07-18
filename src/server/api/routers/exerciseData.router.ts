@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, exists } from "drizzle-orm";
 import { exercises, exercisesData } from "@/server/db/schema";
 import { isPgError } from "@/server/db/utils";
-import { syncUserStats } from "./user.router";
+import { syncUserStats } from "@/server/syncUsersStats";
 
 export const exerciseDataRouter = createTRPCRouter({
   create: protectedProcedure

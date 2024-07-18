@@ -2,9 +2,9 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { exerciseSchema } from "@/schemas/exercise.schema";
 import { exerciseGridPosition, exercises } from "@/server/db/schema";
 import { isPgError } from "@/server/db/utils";
+import { syncUserStats } from "@/server/syncUsersStats";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
-import { syncUserStats } from "./user.router";
 
 export const exerciseRouter = createTRPCRouter({
   create: protectedProcedure
