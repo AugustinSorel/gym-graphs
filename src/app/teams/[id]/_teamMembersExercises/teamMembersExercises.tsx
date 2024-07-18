@@ -11,7 +11,7 @@ import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
 import { prepareUserRandomFactsData } from "@/lib/math";
 import { getUserDisplayName } from "@/lib/utils";
-import { ExerciseOverviewDummyCard } from "@/components/cards/exerciseOverviewCard";
+import { ExerciseOverviewTeamCard } from "@/components/cards/exerciseOverviewCard";
 import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
 import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 
@@ -53,7 +53,7 @@ const Content = () => {
                   FallbackComponent={CardErrorFallback}
                   key={exercise.id}
                 >
-                  <ExerciseOverviewDummyCard exercise={exercise} />
+                  <ExerciseOverviewTeamCard exercise={exercise} />
                 </ErrorBoundary>
               ))}
 

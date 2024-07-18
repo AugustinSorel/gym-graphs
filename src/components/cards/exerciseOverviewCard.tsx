@@ -102,6 +102,18 @@ export const ExerciseMonthlyOverviewCard = ({
   );
 };
 
+export const ExerciseOverviewTeamCard = ({ exercise }: Props) => {
+  return (
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>{exercise.name}</Card.Title>
+      </Card.Header>
+
+      <LineGraph data={exercise.data} />
+    </Card.Root>
+  );
+};
+
 export const ExerciseOverviewDummyCard = ({ exercise }: Props) => {
   return (
     <Card.Root key={exercise.id}>
