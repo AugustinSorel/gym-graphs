@@ -1,9 +1,9 @@
 import type { User } from "next-auth";
-import type { db as Db } from "./db";
+import type { Db } from "./db";
 import { count, eq, sql } from "drizzle-orm";
 import { exercises, exercisesData, userStats } from "./db/schema";
 
-export const syncUserStats = async (db: typeof Db, userId: User["id"]) => {
+export const syncUserStats = async (db: Db, userId: User["id"]) => {
   const exercisesExplored = db
     .select({ count: count() })
     .from(exercises)
