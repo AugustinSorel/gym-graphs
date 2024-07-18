@@ -9,9 +9,6 @@ export const env = createEnv({
    */
   server: {
     DB_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -76,4 +73,9 @@ export const env = createEnv({
   emptyStringAsUndefined: true,
 
   extends: [vercel()],
+  shared: {
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+  },
 });
