@@ -461,6 +461,8 @@ const FeaturesGridBackground = () => {
   );
 };
 
+//TODO: move to type module
+//TODO: force dynamic static
 //TODO: in team page, allow viewing exercises
 //TODO: add e2e tests
 //TODO: show points in brush line

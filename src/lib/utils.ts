@@ -1,3 +1,4 @@
+import { env } from "@/env.mjs";
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import type { User } from "next-auth";
@@ -31,8 +32,7 @@ export const pluralize = ({ count, noun, suffix = "s" }: PluralizeProps) => {
 };
 
 export const getBaseUrl = () => {
-  //TODO: add this to the env obj
-  if (process.env.VERCEL_ENV === "production") {
+  if (env.VERCEL_ENV === "production") {
     return `https://gym-graphs.vercel.app`;
   }
 
@@ -40,13 +40,11 @@ export const getBaseUrl = () => {
     return window.location.origin;
   }
 
-  //TODO: add this to the env obj
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  if (env.VERCEL_URL) {
+    return `https://${env.VERCEL_URL}`;
   }
 
-  //TODO: add this to the env obj
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  return "http://localhost:3000";
 };
 
 export const getUserDisplayName = (user: User) => {
