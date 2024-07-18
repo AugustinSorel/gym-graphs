@@ -133,6 +133,7 @@ export const userStats = pgTable("user_stats", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id")
     .references(() => users.id, { onDelete: "cascade" })
+    .unique()
     .notNull(),
   numberOfExercisesCreated: integer("number_of_exercises_created").notNull(),
   numberOfDataLogged: integer("number_of_data_logged").notNull(),
