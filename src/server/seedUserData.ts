@@ -9,6 +9,7 @@ import {
 } from "./db/schema";
 import { syncUserStats } from "./syncUsersStats";
 
+//TODO: clean this fn
 export const seedUserData = async ({ id }: Pick<User, "id">) => {
   await db.transaction(async (tx) => {
     await tx.insert(userStats).values({
