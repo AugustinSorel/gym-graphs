@@ -3,11 +3,11 @@
 import { Carousel } from "@/components/ui/carousel";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import type { ComponentPropsWithoutRef } from "react";
-import type { prepareRandomFactsData } from "@/lib/math";
+import type { prepareUserRandomFactsData } from "@/lib/math";
 
-type Props = { data: ReturnType<typeof prepareRandomFactsData> };
+type Props = { data: ReturnType<typeof prepareUserRandomFactsData> };
 
-export const RandomFacts = (props: Props) => {
+export const UserRandomFacts = (props: Props) => {
   const displayWeight = useDisplayWeight();
 
   return (
