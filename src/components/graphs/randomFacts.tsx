@@ -3,7 +3,7 @@
 import { Carousel } from "@/components/ui/carousel";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import type { ComponentPropsWithoutRef } from "react";
-import type { ExerciseWithData } from "@/server/db/types";
+import type { prepareRandomFactsData } from "@/lib/math";
 
 type Props = { data: ReturnType<typeof prepareRandomFactsData> };
 
@@ -40,40 +40,6 @@ export const RandomFacts = (props: Props) => {
       <Carousel.DotsNavigation />
     </Carousel.Root>
   );
-};
-
-export const prepareRandomFactsData = (exercises: ExerciseWithData[]) => {
-  return {
-    amountOfWeightLifted: exercises.reduce((prev, curr) => {
-      return (
-        prev +
-        curr.data.reduce((prev, curr) => {
-          return prev + curr.weightLifted;
-        }, 0)
-      );
-    }, 0),
-
-    numberOfRepetitionsMade: exercises.reduce((prev, curr) => {
-      return (
-        prev +
-        curr.data.reduce((prev, curr) => {
-          return prev + curr.numberOfRepetitions;
-        }, 0)
-      );
-    }, 0),
-
-    numberOfDays: exercises.reduce((prev, curr) => {
-      curr.data.forEach((x) => prev.add(x.doneAt));
-
-      return prev;
-    }, new Set<string>()).size,
-
-    numberOfExercisesCreated: exercises.length,
-
-    numberOfDataLogged: exercises.reduce((prev, curr) => {
-      return prev + curr.data.length;
-    }, 0),
-  };
 };
 
 const CardContainer = (props: ComponentPropsWithoutRef<"div">) => {

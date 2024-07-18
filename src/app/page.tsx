@@ -19,10 +19,7 @@ import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import {
-  prepareRandomFactsData,
-  RandomFacts,
-} from "@/components/graphs/randomFacts";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
@@ -30,6 +27,7 @@ import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/
 import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
 import { Timeline } from "@/components/ui/timeline";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { prepareRandomFactsData } from "@/lib/math";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();

@@ -10,14 +10,12 @@ import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { HeatmapGraph } from "@/components/graphs/heatmapGraph";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
-import {
-  prepareRandomFactsData,
-  RandomFacts,
-} from "@/components/graphs/randomFacts";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { prepareRandomFactsData } from "@/lib/math";
 
 export const MonthlyExercisesTimelines = () => {
   return (

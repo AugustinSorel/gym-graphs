@@ -1,6 +1,6 @@
 import { exercises, exercisesData, users, userStats } from "@/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { count, eq, sql, sum } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import { userSchema } from "@/schemas/user.schema";
 import { TRPCError } from "@trpc/server";
 import type { db } from "@/server/db";
@@ -55,13 +55,15 @@ export const syncUserStats = async (idk: typeof db, userId: User["id"]) => {
     .where(eq(exercises.userId, userId));
 
   const repsMade = idk
-    .select({ count: sum(exercisesData.numberOfRepetitions) })
+    .select({
+      count: sql`COALESCE(sum(${exercisesData.numberOfRepetitions}), 0)`,
+    })
     .from(exercises)
     .innerJoin(exercisesData, eq(exercises.id, exercisesData.exerciseId))
     .where(eq(exercises.userId, userId));
 
   const weightLifted = idk
-    .select({ count: sum(exercisesData.weightLifted) })
+    .select({ count: sql`COALESCE(sum(${exercisesData.weightLifted}), 0)` })
     .from(exercises)
     .innerJoin(exercisesData, eq(exercises.id, exercisesData.exerciseId))
     .where(eq(exercises.userId, userId));

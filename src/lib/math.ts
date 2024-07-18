@@ -1,5 +1,5 @@
 import type { WeightUnit } from "@/context/weightUnit";
-import type { ExerciseData } from "@/server/db/types";
+import type { ExerciseData, ExerciseWithData } from "@/server/db/types";
 
 const LBS_CONVERTION = 2.2046244;
 
@@ -24,4 +24,38 @@ export const convertWeightToKg = (weight: number, unit: WeightUnit) => {
   }
 
   return weight;
+};
+
+export const prepareRandomFactsData = (exercises: Array<ExerciseWithData>) => {
+  return {
+    amountOfWeightLifted: exercises.reduce((prev, curr) => {
+      return (
+        prev +
+        curr.data.reduce((prev, curr) => {
+          return prev + curr.weightLifted;
+        }, 0)
+      );
+    }, 0),
+
+    numberOfRepetitionsMade: exercises.reduce((prev, curr) => {
+      return (
+        prev +
+        curr.data.reduce((prev, curr) => {
+          return prev + curr.numberOfRepetitions;
+        }, 0)
+      );
+    }, 0),
+
+    numberOfDays: exercises.reduce((prev, curr) => {
+      curr.data.forEach((x) => prev.add(x.doneAt));
+
+      return prev;
+    }, new Set<string>()).size,
+
+    numberOfExercisesCreated: exercises.length,
+
+    numberOfDataLogged: exercises.reduce((prev, curr) => {
+      return prev + curr.data.length;
+    }, 0),
+  };
 };

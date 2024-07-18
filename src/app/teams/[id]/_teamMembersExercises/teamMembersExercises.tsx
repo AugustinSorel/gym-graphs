@@ -9,13 +9,11 @@ import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
 import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
-import {
-  prepareRandomFactsData,
-  RandomFacts,
-} from "@/components/graphs/randomFacts";
+import { RandomFacts } from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
+import { prepareRandomFactsData } from "@/lib/math";
 
 export const TeamMembersExercises = () => {
   return (
