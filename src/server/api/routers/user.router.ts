@@ -8,6 +8,9 @@ export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.query.users.findFirst({
       where: eq(users.id, ctx.session.user.id),
+      with: {
+        stats: true,
+      },
     });
 
     if (!user) {
@@ -16,6 +19,7 @@ export const userRouter = createTRPCRouter({
 
     return user;
   }),
+
   delete: protectedProcedure.mutation(async ({ ctx }) => {
     await ctx.db.delete(users).where(eq(users.id, ctx.session.user.id));
   }),

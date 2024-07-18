@@ -15,6 +15,7 @@ import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { prepareRandomFactsData } from "@/lib/math";
 
 export const MonthlyExercisesTimelines = () => {
   return (
@@ -111,7 +112,7 @@ const Content = () => {
                     <Card.Title>random facts</Card.Title>
                   </Card.Header>
 
-                  <RandomFacts exercises={group.exercises} />
+                  <RandomFacts data={prepareRandomFactsData(group.exercises)} />
                 </Card.Root>
               </ErrorBoundary>
             </GridLayout>

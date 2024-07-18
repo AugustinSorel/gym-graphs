@@ -1,1 +1,0 @@
-ALTER TABLE "exercise_data" ADD CONSTRAINT "exercise_data_done_at_exercise_id_unique" UNIQUE("done_at","exercise_id");

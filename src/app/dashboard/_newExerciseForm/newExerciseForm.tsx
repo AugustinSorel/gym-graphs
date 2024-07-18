@@ -33,8 +33,14 @@ export const NewExerciseForm = () => {
   });
 
   const createExercise = api.exercise.create.useMutation({
+    onMutate: async () => {
+      await utils.exercise.all.cancel();
+      await utils.user.get.cancel();
+    },
     onSettled: async () => {
       await utils.exercise.all.invalidate();
+      await utils.user.get.invalidate();
+
       form.reset();
     },
   });

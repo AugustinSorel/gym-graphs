@@ -6,10 +6,10 @@ dotenv.config();
 const config: Config = {
   schema: "./src/server/db/schema.ts",
   dbCredentials: {
-    connectionString: process.env.DB_URL!,
+    url: process.env.DB_URL!,
   },
   out: "./drizzle",
-  driver: "pg",
+  dialect: "postgresql",
 };
 
 export default config;

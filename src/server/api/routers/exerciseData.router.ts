@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, exists } from "drizzle-orm";
 import { exercises, exercisesData } from "@/server/db/schema";
 import { isPgError } from "@/server/db/utils";
+import { syncUserStats } from "@/server/syncUsersStats";
 
 export const exerciseDataRouter = createTRPCRouter({
   create: protectedProcedure
@@ -16,10 +17,16 @@ export const exerciseDataRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const res = await ctx.db
-          .insert(exercisesData)
-          .values(input)
-          .returning();
+        const res = await ctx.db.transaction(async (tx) => {
+          const exerciseData = await tx
+            .insert(exercisesData)
+            .values(input)
+            .returning();
+
+          await syncUserStats(tx, ctx.session.user.id);
+
+          return exerciseData;
+        });
 
         return res;
       } catch (e) {
@@ -53,13 +60,17 @@ export const exerciseDataRouter = createTRPCRouter({
           ),
         );
 
-      await ctx.db
-        .update(exercisesData)
-        .set({
-          numberOfRepetitions: input.numberOfRepetitions,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(exercisesData)
+          .set({
+            numberOfRepetitions: input.numberOfRepetitions,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+
+        await syncUserStats(tx, ctx.session.user.id);
+      });
     }),
 
   updateWeightLifted: protectedProcedure
@@ -76,13 +87,17 @@ export const exerciseDataRouter = createTRPCRouter({
           ),
         );
 
-      await ctx.db
-        .update(exercisesData)
-        .set({
-          weightLifted: input.weightLifted,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(exercisesData)
+          .set({
+            weightLifted: input.weightLifted,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+
+        await syncUserStats(tx, ctx.session.user.id);
+      });
     }),
 
   updateDoneAt: protectedProcedure
@@ -100,13 +115,17 @@ export const exerciseDataRouter = createTRPCRouter({
             ),
           );
 
-        await ctx.db
-          .update(exercisesData)
-          .set({
-            doneAt: input.doneAt,
-            updatedAt: new Date(),
-          })
-          .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+        await ctx.db.transaction(async (tx) => {
+          await tx
+            .update(exercisesData)
+            .set({
+              doneAt: input.doneAt,
+              updatedAt: new Date(),
+            })
+            .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+
+          await syncUserStats(tx, ctx.session.user.id);
+        });
       } catch (e) {
         if (isPgError(e) && e.code === "23505") {
           throw new TRPCError({
@@ -133,8 +152,12 @@ export const exerciseDataRouter = createTRPCRouter({
           ),
         );
 
-      await ctx.db
-        .delete(exercisesData)
-        .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(exercisesData)
+          .where(and(eq(exercisesData.id, input.id), exists(exercise)));
+
+        await syncUserStats(tx, ctx.session.user.id);
+      });
     }),
 });

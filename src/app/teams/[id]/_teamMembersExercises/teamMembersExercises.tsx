@@ -13,6 +13,7 @@ import { RandomFacts } from "@/components/graphs/randomFacts";
 import type { ExerciseWithData } from "@/server/db/types";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
+import { prepareRandomFactsData } from "@/lib/math";
 
 export const TeamMembersExercises = () => {
   return (
@@ -119,7 +120,7 @@ const RandomFactsItem = (props: { exercises: Array<ExerciseWithData> }) => {
         <Card.Title>random facts</Card.Title>
       </Card.Header>
 
-      <RandomFacts exercises={props.exercises} />
+      <RandomFacts data={prepareRandomFactsData(props.exercises)} />
     </Card.Root>
   );
 };

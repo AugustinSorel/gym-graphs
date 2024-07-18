@@ -33,6 +33,7 @@ import { LineGraph } from "@/components/graphs/lineGraph";
 import { RadarGraph } from "@/components/graphs/radarGraph";
 import { RandomFacts } from "@/components/graphs/randomFacts";
 import { ExerciseMuscleGroupsDropdown } from "./exerciseMuscleGroups";
+import { useUser } from "@/app/account/_components/useUser";
 
 export const AllExercisesGrid = () => {
   const dashboardShareParams = useDashboardSearchParams();
@@ -98,7 +99,7 @@ export const AllExercisesGrid = () => {
       </ErrorBoundary>
 
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <RandomFactsItem exercises={exercises} />
+        <RandomFactsItem />
       </ErrorBoundary>
     </GridLayout>
   );
@@ -206,18 +207,16 @@ const RadarItem = ({
   );
 };
 
-const RandomFactsItem = ({
-  exercises,
-}: {
-  exercises: RouterOutputs["exercise"]["all"];
-}) => {
+const RandomFactsItem = () => {
+  const [user] = useUser();
+
   return (
     <Card.Root>
       <Card.Header>
         <Card.Title>random facts</Card.Title>
       </Card.Header>
 
-      <RandomFacts exercises={exercises} />
+      <RandomFacts data={user.stats} />
     </Card.Root>
   );
 };

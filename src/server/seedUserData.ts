@@ -1,10 +1,26 @@
 import { addDays, addMonths, dateAsYearMonthDayFormat } from "@/lib/date";
 import type { User } from "next-auth";
 import { db } from "./db";
-import { exerciseGridPosition, exercises, exercisesData } from "./db/schema";
+import {
+  exerciseGridPosition,
+  exercises,
+  exercisesData,
+  userStats,
+} from "./db/schema";
+import { syncUserStats } from "./syncUsersStats";
 
+//TODO: clean this fn
 export const seedUserData = async ({ id }: Pick<User, "id">) => {
   await db.transaction(async (tx) => {
+    await tx.insert(userStats).values({
+      numberOfExercisesCreated: 0,
+      amountOfWeightLifted: 0,
+      numberOfDataLogged: 0,
+      numberOfDays: 0,
+      numberOfRepetitionsMade: 0,
+      userId: id,
+    });
+
     const [benchPress, squat, deadlift] = await tx
       .insert(exercises)
       .values([
@@ -200,5 +216,7 @@ export const seedUserData = async ({ id }: Pick<User, "id">) => {
         },
       ]);
     }
+
+    await syncUserStats(tx, id);
   });
 };

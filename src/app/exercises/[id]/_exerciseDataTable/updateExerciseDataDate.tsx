@@ -63,15 +63,7 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
     onMutate: async (variables) => {
       await utils.exercise.all.cancel();
       await utils.exercise.get.cancel({ id: exerciseData.exerciseId });
-
-      const cachedExercises = utils.exercise.all.getData();
-      const cachedExercise = utils.exercise.get.getData({
-        id: exerciseData.exerciseId,
-      });
-
-      if (!cachedExercise) {
-        return;
-      }
+      await utils.user.get.cancel();
 
       const optimisticExerciseData = {
         ...exerciseData,
@@ -80,25 +72,26 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
 
       utils.exercise.get.setData(
         { id: exerciseData.exerciseId },
-        {
-          ...cachedExercise,
-          data: cachedExercise.data.map((exerciseData) => {
-            if (exerciseData.id === variables.id) {
-              return optimisticExerciseData;
-            }
+        (exercise) => {
+          if (!exercise) {
+            return undefined;
+          }
 
-            return exerciseData;
-          }),
+          return {
+            ...exercise,
+            data: exercise.data.map((exerciseData) => {
+              if (exerciseData.id === variables.id) {
+                return optimisticExerciseData;
+              }
+
+              return exerciseData;
+            }),
+          };
         },
       );
 
-      if (!cachedExercises) {
-        return;
-      }
-
-      utils.exercise.all.setData(
-        undefined,
-        cachedExercises.map((exercise) => {
+      utils.exercise.all.setData(undefined, (exercises) =>
+        exercises?.map((exercise) => {
           if (exercise.id === exerciseData.exerciseId) {
             return {
               ...exercise,
@@ -119,6 +112,7 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
     onSettled: () => {
       void utils.exercise.get.invalidate({ id: exerciseData.exerciseId });
       void utils.exercise.all.invalidate();
+      void utils.user.invalidate();
     },
   });
 

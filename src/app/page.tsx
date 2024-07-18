@@ -27,6 +27,7 @@ import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/
 import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
 import { Timeline } from "@/components/ui/timeline";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { prepareRandomFactsData } from "@/lib/math";
 
 const HomePage = async () => {
   const session = await getServerAuthSession();
@@ -204,7 +205,7 @@ const FeatureOne = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>
@@ -372,7 +373,7 @@ const FeatureThree = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>
@@ -450,7 +451,7 @@ const FeatureThree = () => {
               <Card.Title>random facts</Card.Title>
             </Card.Header>
 
-            <RandomFacts exercises={mockExercises} />
+            <RandomFacts data={prepareRandomFactsData(mockExercises)} />
           </Card.Root>
         </GridLayout>
       </Timeline>

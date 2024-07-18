@@ -1,1 +1,0 @@
-ALTER TABLE "exercise" ALTER COLUMN "muscle_groups" SET DEFAULT '{}';

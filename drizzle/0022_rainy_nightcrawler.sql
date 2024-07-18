@@ -1,1 +1,0 @@
-ALTER TABLE "exercise" ADD COLUMN "tags" text[] DEFAULT '{}' NOT NULL;
