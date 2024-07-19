@@ -26,7 +26,8 @@ export const TeamRandomFacts = (props: TeamRandomFactsProps) => {
       <Carousel.Body>
         <CardContainer>
           <Text>
-            <UserName>{props.facts.userWhoLiftedTheMostWeight.name}</UserName>{" "}
+            <UserName>{props.facts.userWhoLiftedTheMostWeight.name}</UserName>
+            <br />
             lifted the most weight
           </Text>
           <StrongText>
@@ -35,15 +36,17 @@ export const TeamRandomFacts = (props: TeamRandomFactsProps) => {
         </CardContainer>
         <CardContainer>
           <Text>
-            <UserName>{props.facts.userWhoDidTheMostOfReps.name}</UserName> did
-            the most reps
+            <UserName>{props.facts.userWhoDidTheMostOfReps.name}</UserName>
+            <br />
+            did the most reps
           </Text>
           <StrongText>{props.facts.userWhoDidTheMostOfReps.value}</StrongText>
         </CardContainer>
         <CardContainer>
           <Text>
-            <UserName>{props.facts.userWithTheMostActivity.name}</UserName> has
-            the most days
+            <UserName>{props.facts.userWithTheMostActivity.name}</UserName>
+            <br />
+            has the most days
           </Text>
           <StrongText>{props.facts.userWithTheMostActivity.value}</StrongText>
         </CardContainer>
@@ -51,7 +54,8 @@ export const TeamRandomFacts = (props: TeamRandomFactsProps) => {
           <Text>
             <UserName>
               {props.facts.userWhoCreatedTheMostExercises.name}
-            </UserName>{" "}
+            </UserName>
+            <br />
             created the most exercises
           </Text>
           <StrongText>
@@ -60,7 +64,8 @@ export const TeamRandomFacts = (props: TeamRandomFactsProps) => {
         </CardContainer>
         <CardContainer>
           <Text>
-            <UserName>{props.facts.userWhoLiftedTheMostWeight.name}</UserName>{" "}
+            <UserName>{props.facts.userWhoLiftedTheMostWeight.name}</UserName>
+            <br />
             logged the most data
           </Text>
           <StrongText>{props.facts.userWithTheMostdataLogged.value}</StrongText>
