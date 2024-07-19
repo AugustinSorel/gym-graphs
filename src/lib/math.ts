@@ -78,12 +78,12 @@ export const prepareTeamRandomFactsData = (
 
   for (const member of members) {
     if (
-      member.user.stats.numberOfRepetitionsMade >
+      member.user.stats.amountOfWeightLifted >
       facts.userWhoLiftedTheMostWeight.value
     ) {
       facts.userWhoLiftedTheMostWeight.name = getUserDisplayName(member.user);
       facts.userWhoLiftedTheMostWeight.value =
-        member.user.stats.numberOfRepetitionsMade;
+        member.user.stats.amountOfWeightLifted;
     }
 
     if (
