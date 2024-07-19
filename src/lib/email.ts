@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env.js";
 import type { TeamInvite } from "@/server/db/types";
 import nodemailer from "nodemailer";
 import type { Options } from "nodemailer/lib/mailer";

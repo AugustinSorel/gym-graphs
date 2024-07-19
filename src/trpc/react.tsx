@@ -9,7 +9,7 @@ import { useState } from "react";
 import SuperJSON from "superjson";
 import { createQueryClient } from "./queryClient";
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { env } from "@/env.mjs";
+import { env } from "@/env.js";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {

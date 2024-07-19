@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env.js";
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import type { User } from "next-auth";
