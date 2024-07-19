@@ -462,7 +462,6 @@ const FeaturesGridBackground = () => {
 };
 
 //TODO: fix error in team page
-//TODO: force dynamic static
 //TODO: in team page, allow viewing exercises
 //TODO: add e2e tests
 //TODO: show points in brush line
