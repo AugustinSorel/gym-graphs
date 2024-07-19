@@ -19,7 +19,10 @@ import { prepareUserRandomFactsData } from "@/lib/math";
 import { TeamNameCard } from "@/components/cards/teamNameCard";
 import { TeamMembersCard } from "@/components/cards/teamMembersCard";
 import { TeamRandomFactsCard } from "@/components/cards/teamRandomFactsCard";
-import { ExerciseOverviewDummyCard } from "@/components/cards/exerciseOverviewCard";
+import {
+  ExerciseOverviewDummyCard,
+  ExerciseOverviewTeamCard,
+} from "@/components/cards/exerciseOverviewCard";
 import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
 import { ExerciseHeatmapCard } from "@/components/cards/exerciseHeatmapCard";
 import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
@@ -206,10 +209,7 @@ const FeatureThree = () => {
           </Badge>
           <GridLayout>
             {userToTeam.user.exercises.map((exercise) => (
-              <ExerciseOverviewDummyCard
-                key={exercise.id}
-                exercise={exercise}
-              />
+              <ExerciseOverviewTeamCard key={exercise.id} exercise={exercise} />
             ))}
 
             <ExercisesRadarCard
