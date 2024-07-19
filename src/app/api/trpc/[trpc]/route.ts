@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env } from "@/env.js";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";

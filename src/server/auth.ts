@@ -7,7 +7,7 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import { env } from "@/env.mjs";
+import { env } from "@/env.js";
 import { seedUserData } from "./seedUserData";
 import { db } from "./db";
 import type { Adapter } from "next-auth/adapters";
