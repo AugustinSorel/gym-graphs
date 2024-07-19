@@ -461,7 +461,6 @@ const FeaturesGridBackground = () => {
   );
 };
 
-//TODO: fix random facts in team page show incorrect data
 //TODO: text wrap
 //TODO: fix error in team page
 //TODO: move to type module
