@@ -6,7 +6,7 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTeam } from "../_components/useTeam";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
-import { CardErrorFallback } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useTeamPageParams } from "../_components/useTeamPageParams";
 import { Suspense } from "react";
 import { prepareUserRandomFactsData } from "@/lib/math";
@@ -50,14 +50,14 @@ const Content = () => {
             <GridLayout>
               {userToTeam.user.exercises.map((exercise) => (
                 <ErrorBoundary
-                  FallbackComponent={CardErrorFallback}
+                  FallbackComponent={Card.ErrorFallback}
                   key={exercise.id}
                 >
                   <ExerciseOverviewTeamCard exercise={exercise} />
                 </ErrorBoundary>
               ))}
 
-              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+              <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
                 <ExercisesRadarCard
                   data={userToTeam.user.exercises.map((exercise) => ({
                     exerciseName: exercise.name,
@@ -66,7 +66,7 @@ const Content = () => {
                 />
               </ErrorBoundary>
 
-              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+              <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
                 <UserRandomFactsCard
                   data={prepareUserRandomFactsData(userToTeam.user.exercises)}
                 />

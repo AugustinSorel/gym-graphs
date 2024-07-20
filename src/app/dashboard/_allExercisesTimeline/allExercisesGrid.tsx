@@ -10,7 +10,7 @@ import { SortableGrid } from "./sortableGrid";
 import { pluralize } from "@/lib/utils";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "@/components/ui/gridLayout";
-import { Card, CardErrorFallback } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ExerciseOverviewCard } from "@/components/cards/exerciseOverviewCard";
 import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
 import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
@@ -69,14 +69,14 @@ export const AllExercisesGrid = () => {
         gridItems={exercises.map((exercise) => ({
           id: exercise.id,
           component: (
-            <ErrorBoundary FallbackComponent={CardErrorFallback}>
+            <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
               <ExerciseOverviewCard exercise={exercise} />
             </ErrorBoundary>
           ),
         }))}
       />
 
-      <ErrorBoundary FallbackComponent={CardErrorFallback}>
+      <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
         <ExercisesRadarCard
           data={exercises.map((exercise) => ({
             exerciseName: exercise.name,
@@ -85,7 +85,7 @@ export const AllExercisesGrid = () => {
         />
       </ErrorBoundary>
 
-      <ErrorBoundary FallbackComponent={CardErrorFallback}>
+      <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
         <UserRandomFactsCard data={prepareUserRandomFactsData(exercises)} />
       </ErrorBoundary>
     </GridLayout>
