@@ -1,14 +1,14 @@
 "use client";
 
-import { type ExerciseData } from "@/server/db/types";
 import { useDimensions } from "@/hooks/useDimensions";
 import { curveMonotoneX } from "@visx/curve";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { LinePath } from "@visx/shape";
 import { calculateOneRepMax } from "@/lib/math";
+import type { RouterOutputs } from "@/trpc/react";
 
 export type LineGraphData = Pick<
-  ExerciseData,
+  RouterOutputs["exercise"]["get"]["data"][number],
   "weightLifted" | "numberOfRepetitions" | "doneAt"
 >;
 

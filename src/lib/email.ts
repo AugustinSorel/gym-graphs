@@ -1,9 +1,9 @@
 import { env } from "@/env.js";
-import type { TeamInvite } from "@/server/db/types";
 import nodemailer from "nodemailer";
 import type { Options } from "nodemailer/lib/mailer";
 import { getBaseUrl } from "./utils";
 import type { SendVerificationRequestParams } from "next-auth/providers/email";
+import type { RouterOutputs } from "@/trpc/react";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -87,7 +87,8 @@ export const sendSignInEmail = async (props: SendVerificationRequestParams) => {
 };
 
 export const sendInviteToTeamEmail = async (
-  props: Pick<Options, "to"> & Pick<TeamInvite, "token">,
+  props: Pick<Options, "to"> &
+    Pick<NonNullable<RouterOutputs["team"]["getInvite"]>, "token">,
 ) => {
   return transporter.sendMail({
     from: env.EMAIL_FROM,

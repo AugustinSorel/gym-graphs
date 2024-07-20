@@ -12,9 +12,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Edit2 } from "lucide-react";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
-import type { Exercise } from "@/server/db/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -29,7 +28,7 @@ import { exerciseSchema } from "@/schemas/exercise.schema";
 import type { z } from "zod";
 
 type Props = {
-  exercise: Exercise;
+  exercise: RouterOutputs["exercise"]["get"];
 };
 
 export const RenameExerciseDialog = ({ exercise }: Props) => {
@@ -135,7 +134,7 @@ export const RenameExerciseDialog = ({ exercise }: Props) => {
   );
 };
 
-const useFormSchema = (props: Pick<Exercise, "id">) => {
+const useFormSchema = (props: Pick<RouterOutputs["exercise"]["get"], "id">) => {
   const utils = api.useUtils();
 
   const formSchema = exerciseSchema

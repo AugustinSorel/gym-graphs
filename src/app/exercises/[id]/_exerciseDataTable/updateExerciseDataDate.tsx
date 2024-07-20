@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { exerciseDataSchema } from "@/schemas/exerciseData.schemas";
 import { Loader } from "@/components/ui/loader";
 import { z } from "zod";
@@ -33,7 +32,7 @@ import {
 } from "@/components/ui/form";
 
 type Props = {
-  exerciseData: ExerciseData;
+  exerciseData: RouterOutputs["exercise"]["get"]["data"][number];
 };
 
 export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
@@ -195,7 +194,9 @@ export const UpdateExerciseDataDate = ({ exerciseData }: Props) => {
   );
 };
 
-const useFormSchema = (exerciseData: ExerciseData) => {
+const useFormSchema = (
+  exerciseData: RouterOutputs["exercise"]["get"]["data"][number],
+) => {
   const utils = api.useUtils();
 
   const formSchema = z

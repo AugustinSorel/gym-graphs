@@ -22,8 +22,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { Team } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import { Edit, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -200,7 +199,11 @@ const TeamItemErrorFallback = (props: FallbackProps) => {
   );
 };
 
-const RenameTeam = ({ team }: { team: Team }) => {
+const RenameTeam = ({
+  team,
+}: {
+  team: RouterOutputs["team"]["all"][number]["team"];
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const formSchema = useRenameTeamSchema();
   const utils = api.useUtils();
@@ -320,7 +323,11 @@ const useRenameTeamSchema = () => {
   );
 };
 
-const LeaveTeam = ({ team }: { team: Team }) => {
+const LeaveTeam = ({
+  team,
+}: {
+  team: RouterOutputs["team"]["all"][number]["team"];
+}) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const utils = api.useUtils();
 
@@ -397,7 +404,11 @@ const LeaveTeam = ({ team }: { team: Team }) => {
   );
 };
 
-const DeleteTeam = ({ team }: { team: Team }) => {
+const DeleteTeam = ({
+  team,
+}: {
+  team: RouterOutputs["team"]["all"][number]["team"];
+}) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const utils = api.useUtils();
 

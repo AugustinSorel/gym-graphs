@@ -1,14 +1,13 @@
 import type { TeamRandomFactsProps } from "@/components/graphs/teamRandomFacts";
 import type { WeightUnit } from "@/context/weightUnit";
-import type { ExerciseData, ExerciseWithData } from "@/server/db/types";
 import { getUserDisplayName } from "./utils";
 import type { RouterOutputs } from "@/trpc/react";
 
 const LBS_CONVERTION = 2.2046244;
 
 export const calculateOneRepMax = (
-  weightLifted: ExerciseData["weightLifted"],
-  numberOfReps: ExerciseData["numberOfRepetitions"],
+  weightLifted: RouterOutputs["exercise"]["get"]["data"][number]["weightLifted"],
+  numberOfReps: RouterOutputs["exercise"]["get"]["data"][number]["numberOfRepetitions"],
 ) => {
   return +(weightLifted * (1 + numberOfReps / 30)).toFixed(2);
 };
@@ -30,7 +29,7 @@ export const convertWeightToKg = (weight: number, unit: WeightUnit) => {
 };
 
 export const prepareUserRandomFactsData = (
-  exercises: Array<ExerciseWithData>,
+  exercises: Array<RouterOutputs["exercise"]["get"]>,
 ) => {
   return {
     amountOfWeightLifted: exercises.reduce((prev, curr) => {

@@ -18,15 +18,15 @@ import { GridRows } from "@visx/grid";
 import type { UseTooltipParams } from "@visx/tooltip/lib/hooks/useTooltip";
 import { useDimensions as useDimensionsBase } from "@/hooks/useDimensions";
 import { dateAsYearMonthDayFormat, formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/server/db/types";
 import { calculateOneRepMax } from "@/lib/math";
 import { useDisplayWeight } from "@/hooks/useDisplayWeight";
 import { useExercisePageContext } from "../_components/exercisePageContext";
 import { useExercisePageSearchParams } from "../_components/useExercisePageSearchParams";
 import { useParams } from "next/navigation";
+import type { RouterOutputs } from "@/trpc/react";
 
 type GraphPoint = Pick<
-  ExerciseData,
+  RouterOutputs["exercise"]["get"]["data"][number],
   "doneAt" | "weightLifted" | "numberOfRepetitions"
 >;
 

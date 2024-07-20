@@ -20,12 +20,15 @@ import { DeleteDataAlertDialog } from "./deleteDataAlertDialog";
 import { useWeightUnit } from "@/context/weightUnit";
 import { UpdateExerciseDataDate } from "./updateExerciseDataDate";
 import { formatDate } from "@/lib/date";
-import type { ExerciseData } from "@/server/db/types";
 import { calculateOneRepMax } from "@/lib/math";
+import type { RouterOutputs } from "@/trpc/react";
 
 const EstimatedPrHeader = ({
   column,
-}: HeaderContext<ExerciseData, unknown>) => {
+}: HeaderContext<
+  RouterOutputs["exercise"]["get"]["data"][number],
+  unknown
+>) => {
   const weightUnit = useWeightUnit();
   return (
     <TooltipProvider>
@@ -53,7 +56,10 @@ const EstimatedPrHeader = ({
 
 const WeightLiftedHeader = ({
   column,
-}: HeaderContext<ExerciseData, unknown>) => {
+}: HeaderContext<
+  RouterOutputs["exercise"]["get"]["data"][number],
+  unknown
+>) => {
   const weightUnit = useWeightUnit();
 
   return (
@@ -79,7 +85,9 @@ const WeightLiftedHeader = ({
   );
 };
 
-export const exerciseDataTableColumns: ColumnDef<ExerciseData>[] = [
+export const exerciseDataTableColumns: ColumnDef<
+  RouterOutputs["exercise"]["get"]["data"][number]
+>[] = [
   {
     accessorKey: "oneRepMax",
     header: EstimatedPrHeader,

@@ -18,11 +18,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
-import type { ExerciseData } from "@/server/db/types";
 import { useExercisePageContext } from "../_components/exercisePageContext";
+import type { RouterOutputs } from "@/trpc/react";
 
 interface DataTableProps<TValue> {
-  columns: ColumnDef<ExerciseData, TValue>[];
+  columns: ColumnDef<
+    RouterOutputs["exercise"]["get"]["data"][number],
+    TValue
+  >[];
 }
 
 export function ExerciseDataTable<TValue>({ columns }: DataTableProps<TValue>) {
