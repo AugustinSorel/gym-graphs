@@ -10,14 +10,14 @@ import {
   type SetStateAction,
 } from "react";
 import { useExercisePageSearchParams } from "./useExercisePageSearchParams";
-import type { ExerciseData, ExerciseWithData } from "@/server/db/types";
 import { convertWeight } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
+import type { ExercisePageSearchParams } from "./exercisePageSearchParams";
 
 const ExercisePageContext = createContext<
   | {
       exercise: RouterOutputs["exercise"]["get"] & {
-        filteredData: Array<ExerciseData>;
+        filteredData: RouterOutputs["exercise"]["get"]["data"];
       };
       filter: Dispatch<
         SetStateAction<{
@@ -30,7 +30,7 @@ const ExercisePageContext = createContext<
 >(undefined);
 
 export const ExercisePageContextProvider = (
-  props: PropsWithChildren & { exercise: ExerciseWithData },
+  props: PropsWithChildren & { exercise: RouterOutputs["exercise"]["get"] },
 ) => {
   const searchParams = useExercisePageSearchParams();
   const weightUnit = useWeightUnit();
@@ -39,57 +39,51 @@ export const ExercisePageContextProvider = (
     to: searchParams.values.to,
   });
 
-  //TODO:clean this crap
+  props.exercise.data = props.exercise.data.map((d) => {
+    return {
+      ...d,
+      weightLifted: convertWeight(d.weightLifted, weightUnit.get),
+    };
+  });
+
+  const filterExerciseData = useFilterExerciseData(datesFilter);
+
   return (
     <ExercisePageContext.Provider
       value={{
         filter: setDatesFilter,
         exercise: {
           ...props.exercise,
-          data: props.exercise.data.map((d) => {
-            return {
-              ...d,
-              weightLifted: convertWeight(d.weightLifted, weightUnit.get),
-            };
-          }),
-          filteredData: props.exercise.data
-            .filter((d) => {
-              if (datesFilter.from && !datesFilter.to) {
-                return (
-                  new Date(datesFilter.from).getTime() <=
-                  new Date(d.doneAt).getTime()
-                );
-              }
-
-              if (!datesFilter.from && datesFilter.to) {
-                return (
-                  new Date(datesFilter.to).getTime() >=
-                  new Date(d.doneAt).getTime()
-                );
-              }
-
-              if (datesFilter.from && datesFilter.to) {
-                return (
-                  new Date(datesFilter.from).getTime() <=
-                    new Date(d.doneAt).getTime() &&
-                  new Date(datesFilter.to).getTime() >=
-                    new Date(d.doneAt).getTime()
-                );
-              }
-
-              return true;
-            })
-            .map((d) => {
-              return {
-                ...d,
-                weightLifted: convertWeight(d.weightLifted, weightUnit.get),
-              };
-            }),
+          filteredData: props.exercise.data.filter(filterExerciseData),
         },
       }}
       {...props}
     />
   );
+};
+
+const useFilterExerciseData = (
+  dates: Pick<ExercisePageSearchParams, "from" | "to">,
+) => {
+  return (exerciseData: RouterOutputs["exercise"]["get"]["data"][number]) => {
+    const fromTime = dates.from ? new Date(dates.from).getTime() : null;
+    const toTime = dates.to ? new Date(dates.to).getTime() : null;
+    const doneAtTime = new Date(exerciseData.doneAt).getTime();
+
+    if (fromTime && !toTime) {
+      return fromTime <= doneAtTime;
+    }
+
+    if (!fromTime && toTime) {
+      return toTime >= doneAtTime;
+    }
+
+    if (fromTime && toTime) {
+      return fromTime <= doneAtTime && toTime >= doneAtTime;
+    }
+
+    return true;
+  };
 };
 
 export const useExercisePageContext = () => {
