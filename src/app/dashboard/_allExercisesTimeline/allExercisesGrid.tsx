@@ -8,19 +8,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getQueryKey } from "@trpc/react-query";
 import { SortableGrid } from "./sortableGrid";
 import { pluralize } from "@/lib/utils";
-import { useExercises } from "../_components/useExercises";
 import { useDashboardSearchParams } from "../_components/useDashboardSearchParams";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Card, CardErrorFallback } from "@/components/ui/card";
-import { useUser } from "@/app/account/_components/useUser";
 import { ExerciseOverviewCard } from "@/components/cards/exerciseOverviewCard";
 import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
 import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { useDashboardExercises } from "../_components/useDashboardExercises";
 
 export const AllExercisesGrid = () => {
   const dashboardShareParams = useDashboardSearchParams();
-  const exercises = useExercises();
-  const [user] = useUser();
+  const [exercises] = useDashboardExercises();
 
   if (!exercises.length && dashboardShareParams.exerciseName) {
     return (
@@ -87,7 +86,7 @@ export const AllExercisesGrid = () => {
       </ErrorBoundary>
 
       <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <UserRandomFactsCard data={user.stats} />
+        <UserRandomFactsCard data={prepareUserRandomFactsData(exercises)} />
       </ErrorBoundary>
     </GridLayout>
   );

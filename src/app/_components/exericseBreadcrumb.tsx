@@ -51,7 +51,7 @@ export const ExercisesBreadcrumb = () => {
 };
 
 const Content = () => {
-  const exercises = useExercises();
+  const [exercises] = useExercises();
   const params = useExercisePageParams();
 
   const exercise = exercises.find((exercise) => exercise.id === params.id);
