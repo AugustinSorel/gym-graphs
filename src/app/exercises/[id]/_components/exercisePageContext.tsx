@@ -33,56 +33,68 @@ export const ExercisePageContextProvider = (
   props: PropsWithChildren & { exercise: RouterOutputs["exercise"]["get"] },
 ) => {
   const searchParams = useExercisePageSearchParams();
-  const weightUnit = useWeightUnit();
   const [datesFilter, setDatesFilter] = useState({
     from: searchParams.values.from,
     to: searchParams.values.to,
   });
 
-  props.exercise.data = props.exercise.data.map((d) => {
-    return {
-      ...d,
-      weightLifted: convertWeight(d.weightLifted, weightUnit.get),
-    };
-  });
+  const convertExerciseWeight = useConvertExerciseWeight();
+  const injectFilteredData = useInjectFilteredData();
 
-  const filterExerciseData = useFilterExerciseData(datesFilter);
+  const exercise = injectFilteredData(
+    convertExerciseWeight(props.exercise),
+    datesFilter,
+  );
 
   return (
     <ExercisePageContext.Provider
-      value={{
-        filter: setDatesFilter,
-        exercise: {
-          ...props.exercise,
-          filteredData: props.exercise.data.filter(filterExerciseData),
-        },
-      }}
+      value={{ filter: setDatesFilter, exercise }}
       {...props}
     />
   );
 };
 
-const useFilterExerciseData = (
-  dates: Pick<ExercisePageSearchParams, "from" | "to">,
-) => {
-  return (exerciseData: RouterOutputs["exercise"]["get"]["data"][number]) => {
-    const fromTime = dates.from ? new Date(dates.from).getTime() : null;
-    const toTime = dates.to ? new Date(dates.to).getTime() : null;
-    const doneAtTime = new Date(exerciseData.doneAt).getTime();
+const useInjectFilteredData = () => {
+  return (
+    exercise: RouterOutputs["exercise"]["get"],
+    dates: Pick<ExercisePageSearchParams, "to" | "from">,
+  ) => {
+    return {
+      ...exercise,
+      filteredData: exercise.data.filter((exerciseData) => {
+        const fromTime = dates.from ? new Date(dates.from).getTime() : null;
+        const toTime = dates.to ? new Date(dates.to).getTime() : null;
+        const doneAtTime = new Date(exerciseData.doneAt).getTime();
 
-    if (fromTime && !toTime) {
-      return fromTime <= doneAtTime;
-    }
+        if (fromTime && !toTime) {
+          return fromTime <= doneAtTime;
+        }
 
-    if (!fromTime && toTime) {
-      return toTime >= doneAtTime;
-    }
+        if (!fromTime && toTime) {
+          return toTime >= doneAtTime;
+        }
 
-    if (fromTime && toTime) {
-      return fromTime <= doneAtTime && toTime >= doneAtTime;
-    }
+        if (fromTime && toTime) {
+          return fromTime <= doneAtTime && toTime >= doneAtTime;
+        }
 
-    return true;
+        return true;
+      }),
+    };
+  };
+};
+
+const useConvertExerciseWeight = () => {
+  const weightUnit = useWeightUnit();
+
+  return (exercise: RouterOutputs["exercise"]["get"]) => {
+    return {
+      ...exercise,
+      data: exercise.data.map((exerciseData) => ({
+        ...exerciseData,
+        weightLifted: convertWeight(exerciseData.weightLifted, weightUnit.get),
+      })),
+    };
   };
 };
 
