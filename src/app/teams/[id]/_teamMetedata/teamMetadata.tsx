@@ -1,6 +1,6 @@
 "use client";
 
-import { CardErrorFallback, CardSkeleton } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { GridLayout } from "@/components/ui/gridLayout";
 import { Badge } from "@/components/ui/badge";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
@@ -37,20 +37,20 @@ export const TeamMetadata = () => {
 const Content = () => {
   return (
     <GridLayout>
-      <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <Suspense fallback={<CardSkeleton />}>
+      <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
+        <Suspense fallback={<Card.SkeletonFallback />}>
           <TeamName />
         </Suspense>
       </ErrorBoundary>
 
-      <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <Suspense fallback={<CardSkeleton />}>
+      <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
+        <Suspense fallback={<Card.SkeletonFallback />}>
           <TeamMembers />
         </Suspense>
       </ErrorBoundary>
 
-      <ErrorBoundary FallbackComponent={CardErrorFallback}>
-        <Suspense fallback={<CardSkeleton />}>
+      <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
+        <Suspense fallback={<Card.SkeletonFallback />}>
           <RandomFacts />
         </Suspense>
       </ErrorBoundary>

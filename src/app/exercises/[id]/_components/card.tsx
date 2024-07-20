@@ -48,17 +48,7 @@ const ErrorMessage = (props: ComponentPropsWithoutRef<"code">) => {
   return <code {...props} className="flex max-h-full overflow-auto" />;
 };
 
-export const Card = {
-  Root,
-  Header,
-  Body,
-  Title,
-  Footer,
-  ErrorMessage,
-};
-
-//TODO: move this to the card obj
-export const CardSkeleton = () => {
+const SkeletonFallback = () => {
   return (
     <Skeleton className="backdrop-blur-md">
       <Card.Root>
@@ -69,7 +59,7 @@ export const CardSkeleton = () => {
   );
 };
 
-export const CardErrorFallback = (props: FallbackProps) => {
+const ErrorFallback = (props: FallbackProps) => {
   const errorMessage =
     props.error instanceof Error
       ? props.error.message
@@ -88,4 +78,15 @@ export const CardErrorFallback = (props: FallbackProps) => {
       </Card.Body>
     </Card.Root>
   );
+};
+
+export const Card = {
+  Root,
+  Header,
+  Body,
+  Title,
+  Footer,
+  ErrorMessage,
+  SkeletonFallback,
+  ErrorFallback,
 };

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
-import { CardErrorFallback } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
 import { ErrorBoundary } from "react-error-boundary";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
@@ -56,7 +56,7 @@ const Content = () => {
             <GridLayout>
               {group.exercises.map((exercise) => (
                 <ErrorBoundary
-                  FallbackComponent={CardErrorFallback}
+                  FallbackComponent={Card.ErrorFallback}
                   key={exercise.id}
                 >
                   <ExerciseMonthlyOverviewCard
@@ -66,7 +66,7 @@ const Content = () => {
                 </ErrorBoundary>
               ))}
 
-              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+              <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
                 <ExercisesRadarCard
                   data={group.exercises.map((exercise) => ({
                     exerciseName: exercise.name,
@@ -75,13 +75,13 @@ const Content = () => {
                 />
               </ErrorBoundary>
 
-              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+              <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
                 <ExerciseHeatmapCard
                   data={prepareHeatmapData(group.exercises)}
                 />
               </ErrorBoundary>
 
-              <ErrorBoundary FallbackComponent={CardErrorFallback}>
+              <ErrorBoundary FallbackComponent={Card.ErrorFallback}>
                 <UserRandomFactsCard
                   data={prepareUserRandomFactsData(group.exercises)}
                 />

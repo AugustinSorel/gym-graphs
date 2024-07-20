@@ -66,16 +66,7 @@ const Root = forwardRef<HTMLDivElement, ComponentProps<"div">>((props, ref) => {
 });
 Root.displayName = "Card";
 
-export const Card = {
-  Root,
-  Header,
-  ActionContainer,
-  ActionButton,
-  Title,
-  Anchor,
-};
-
-export const CardErrorFallback = (props: FallbackProps) => {
+export const ErrorFallback = (props: FallbackProps) => {
   const errorMessage =
     props.error instanceof Error
       ? props.error.message
@@ -99,10 +90,21 @@ export const CardErrorFallback = (props: FallbackProps) => {
   );
 };
 
-export const CardSkeleton = () => {
+const SkeletonFallback = () => {
   return (
     <Skeleton className="h-exercise-card rounded-md border border-border bg-primary backdrop-blur-md">
       <Card.Header />
     </Skeleton>
   );
+};
+
+export const Card = {
+  Root,
+  Header,
+  ActionContainer,
+  ActionButton,
+  Title,
+  Anchor,
+  SkeletonFallback,
+  ErrorFallback,
 };
