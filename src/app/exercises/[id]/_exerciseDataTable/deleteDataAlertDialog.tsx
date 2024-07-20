@@ -15,11 +15,10 @@ import {
 import { Loader } from "@/components/ui/loader";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { ExerciseData } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 
 type Props = {
-  exerciseData: ExerciseData;
+  exerciseData: RouterOutputs["exercise"]["get"]["data"][number];
 };
 
 export const DeleteDataAlertDialog = ({ exerciseData }: Props) => {

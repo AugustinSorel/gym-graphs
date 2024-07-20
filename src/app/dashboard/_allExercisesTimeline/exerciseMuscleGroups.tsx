@@ -1,6 +1,5 @@
 "use client";
 
-import type { Exercise } from "@/server/db/types";
 import { type PropsWithChildren } from "react";
 import {
   Tooltip,
@@ -19,12 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { muscleGroupsEnum } from "@/server/db/schema";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 
-export const ExerciseMuscleGroupsDropdown = ({
-  exercise,
-  children,
-}: { exercise: Exercise } & PropsWithChildren) => {
+type Props = { exercise: RouterOutputs["exercise"]["get"] } & PropsWithChildren;
+
+export const ExerciseMuscleGroupsDropdown = ({ exercise, children }: Props) => {
   const utils = api.useUtils();
 
   const updateMuscleGroup = api.exercise.muscleGroup.useMutation({

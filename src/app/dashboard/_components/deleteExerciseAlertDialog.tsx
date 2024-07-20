@@ -14,12 +14,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Trash } from "lucide-react";
-import type { Exercise } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
 
 type Props = {
-  exercise: Exercise;
+  exercise: RouterOutputs["exercise"]["get"];
 };
 
 export const DeleteExerciseAlertDialog = ({ exercise }: Props) => {

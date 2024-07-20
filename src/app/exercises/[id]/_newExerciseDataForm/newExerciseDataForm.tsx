@@ -15,7 +15,6 @@ import { convertWeightToKg } from "@/lib/math";
 import { api } from "@/trpc/react";
 import { useExercisePageParams } from "../_components/useExercisePageParams";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
-import type { ExerciseData } from "@/server/db/types";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -71,7 +70,7 @@ export const NewExerciseDataForm = () => {
         throw new Error("you have already entered today's data");
       }
 
-      const optimisticExerciseData: ExerciseData = {
+      const optimisticExerciseData = {
         id: Math.random().toString(),
         createdAt: new Date(),
         doneAt: new Date().toString(),

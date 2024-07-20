@@ -1,8 +1,8 @@
-import type { Exercise, ExerciseData } from "@/server/db/types";
 import type { HeatmapData } from "./heatmapGraph";
+import type { RouterOutputs } from "@/trpc/react";
 
 export const prepareHeatmapData = (
-  exercises: (Exercise & { data: ExerciseData[] })[],
+  exercises: RouterOutputs["exercise"]["all"],
 ) => {
   const res = getDefaultHeatmapData();
 

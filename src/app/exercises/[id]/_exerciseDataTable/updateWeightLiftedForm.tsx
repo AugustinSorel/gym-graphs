@@ -13,10 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/loader";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import type { ExerciseData } from "@/server/db/types";
 import { convertWeightToKg } from "@/lib/math";
 import { useWeightUnit } from "@/context/weightUnit";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -35,7 +34,7 @@ const formSchema = z
   .pipe(exerciseDataSchema.pick({ weightLifted: true }));
 
 type Props = {
-  exerciseData: ExerciseData;
+  exerciseData: RouterOutputs["exercise"]["get"]["data"][number];
 };
 
 export const UpdateWeightLifted = ({ exerciseData }: Props) => {

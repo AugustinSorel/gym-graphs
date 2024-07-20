@@ -12,8 +12,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Edit2 } from "lucide-react";
 import { useState } from "react";
-import type { ExerciseData } from "@/server/db/types";
-import { api } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { Loader } from "@/components/ui/loader";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -33,7 +32,7 @@ const formSchema = z
   .pipe(exerciseDataSchema.pick({ numberOfRepetitions: true }));
 
 type Props = {
-  exerciseData: ExerciseData;
+  exerciseData: RouterOutputs["exercise"]["get"]["data"][number];
 };
 
 export const UpdateNumberOfRepsForm = ({ exerciseData }: Props) => {

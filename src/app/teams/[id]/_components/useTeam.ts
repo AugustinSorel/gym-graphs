@@ -1,8 +1,7 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import type { Team } from "@/server/db/types";
+import { api, type RouterOutputs } from "@/trpc/react";
 
-export const useTeam = (props: Pick<Team, "id">) => {
+export const useTeam = (props: Pick<RouterOutputs["team"]["get"], "id">) => {
   return api.team.get.useSuspenseQuery({ id: props.id });
 };
