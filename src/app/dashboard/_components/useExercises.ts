@@ -1,27 +1,14 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { useDashboardSearchParams } from "./useDashboardSearchParams";
+import { api, type RouterOutputs } from "@/trpc/react";
 
-//TODO: remove the select
-export const useExercises = () => {
-  const dashboardShareParams = useDashboardSearchParams();
+type Props = Parameters<
+  typeof api.exercise.all.useSuspenseQuery<
+    RouterOutputs["exercise"]["all"],
+    RouterOutputs["exercise"]["all"]
+  >
+>[1];
 
-  const [exercises] = api.exercise.all.useSuspenseQuery(undefined, {
-    select: (exercises) => {
-      return exercises.filter((exercise) => {
-        return (
-          exercise.name
-            .toLowerCase()
-            .startsWith(dashboardShareParams.exerciseName) &&
-          (!dashboardShareParams.muscleGroups.length ||
-            exercise.muscleGroups.some((muscleGroup) =>
-              dashboardShareParams.muscleGroups.includes(muscleGroup),
-            ))
-        );
-      });
-    },
-  });
-
-  return exercises;
+export const useExercises = (props?: Props) => {
+  return api.exercise.all.useSuspenseQuery(undefined, props);
 };

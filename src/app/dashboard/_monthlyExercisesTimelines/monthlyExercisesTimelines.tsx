@@ -3,7 +3,6 @@
 import { Badge } from "@/components/ui/badge";
 import { dateAsYearMonthDayFormat } from "@/lib/date";
 import type { RouterOutputs } from "@/trpc/react";
-import { useExercises } from "../_components/useExercises";
 import { GridLayout, GridSkeleton } from "@/components/ui/gridLayout";
 import { CardErrorFallback } from "@/components/ui/card";
 import { Timeline, TimelineErrorFallback } from "@/components/ui/timeline";
@@ -16,6 +15,7 @@ import { ExerciseMonthlyOverviewCard } from "@/components/cards/exerciseOverview
 import { ExerciseHeatmapCard } from "@/components/cards/exerciseHeatmapCard";
 import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
+import { useDashboardExercises } from "../_components/useDashboardExercises";
 
 export const MonthlyExercisesTimelines = () => {
   return (
@@ -35,7 +35,7 @@ export const MonthlyExercisesTimelines = () => {
 };
 
 const Content = () => {
-  const exercises = useExercises();
+  const [exercises] = useDashboardExercises();
 
   return (
     <>
