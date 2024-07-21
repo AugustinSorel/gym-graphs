@@ -1,9 +1,13 @@
 import type { Config } from "drizzle-kit";
+import { env } from "@/env.js";
 
-export default {
-  schema: "./src/db/schema.ts",
+const config: Config = {
+  schema: "./src/server/db/schema.ts",
   dbCredentials: {
-    connectionString: process.env.DB_URL!,
+    url: env.DB_URL,
   },
   out: "./drizzle",
-} satisfies Config;
+  dialect: "postgresql",
+};
+
+export default config;

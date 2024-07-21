@@ -1,6 +1,7 @@
-import type { ExerciseWithData } from "@/db/types";
+import type { RouterOutputs } from "@/trpc/react";
+import { prepareUserRandomFactsData } from "./math";
 
-export const mockExercises: ExerciseWithData[] = [
+export const mockExercises: RouterOutputs["exercise"]["all"] = [
   {
     name: "bench press",
     muscleGroups: ["chest"],
@@ -8,6 +9,7 @@ export const mockExercises: ExerciseWithData[] = [
     id: "",
     createdAt: new Date(),
     updatedAt: new Date(),
+    position: { exerciseId: "", gridPosition: 0, id: "", userId: "" },
     data: [
       {
         doneAt: "01/01/01",
@@ -52,6 +54,7 @@ export const mockExercises: ExerciseWithData[] = [
     muscleGroups: ["legs"],
     userId: "",
     id: "",
+    position: { exerciseId: "", gridPosition: 1, id: "", userId: "" },
     createdAt: new Date(),
     updatedAt: new Date(),
     data: [
@@ -89,6 +92,7 @@ export const mockExercises: ExerciseWithData[] = [
     muscleGroups: ["shoulders"],
     userId: "",
     id: "",
+    position: { exerciseId: "", gridPosition: 2, id: "", userId: "" },
     createdAt: new Date(),
     updatedAt: new Date(),
     data: [
@@ -126,6 +130,7 @@ export const mockExercises: ExerciseWithData[] = [
     muscleGroups: ["biceps"],
     userId: "",
     id: "",
+    position: { exerciseId: "", gridPosition: 3, id: "", userId: "" },
     createdAt: new Date(),
     updatedAt: new Date(),
     data: [
@@ -150,3 +155,83 @@ export const mockExercises: ExerciseWithData[] = [
     ],
   },
 ];
+
+export const mockTeam: RouterOutputs["team"]["get"] = {
+  authorId: "",
+  id: "",
+  name: "my team",
+  usersToTeams: [
+    {
+      team: {
+        authorId: "",
+        id: "",
+        name: "my team",
+        teamInvite: {
+          accepted: true,
+          email: "john@mail.com",
+          id: "",
+          token: "",
+          teamId: "",
+          createdAt: new Date(),
+          expiresAt: new Date(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      user: {
+        id: "",
+        emailVerified: new Date(),
+        image: null,
+        exercises: mockExercises,
+        stats: {
+          id: "",
+          userId: "",
+          ...prepareUserRandomFactsData(mockExercises),
+        },
+        name: "john",
+        email: "john@mail.com",
+      },
+      teamId: "",
+      memberId: "0",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+    },
+    {
+      team: {
+        authorId: "",
+        id: "",
+        name: "my team",
+        teamInvite: {
+          accepted: true,
+          email: "mike@mail.com",
+          id: "",
+          token: "",
+          teamId: "",
+          createdAt: new Date(),
+          expiresAt: new Date(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      user: {
+        id: "",
+        emailVerified: new Date(),
+        image: null,
+        exercises: mockExercises.slice(0, 2),
+        stats: {
+          id: "",
+          userId: "",
+          ...prepareUserRandomFactsData(mockExercises.slice(0, 2)),
+        },
+        name: "mike",
+        email: "mike@mail.com",
+      },
+      teamId: "",
+      memberId: "1",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+    },
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};

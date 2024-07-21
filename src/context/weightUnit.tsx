@@ -5,7 +5,7 @@ import { createContext, useContext } from "react";
 
 const WEIGHT_KEY = "weightUnit";
 
-const weightUnitSchema = z.enum(["kg", "lb"]);
+export const weightUnitSchema = z.enum(["kg", "lb"]).catch("kg");
 export type WeightUnit = z.infer<typeof weightUnitSchema>;
 
 type WeightUnitContext = {
@@ -19,11 +19,7 @@ export const WeightUnitProvider = ({ children }: PropsWithChildren) => {
   const [weightUnit, setWweightUnit] = useState<WeightUnit>("kg");
 
   useEffect(() => {
-    try {
-      setWweightUnit(weightUnitSchema.parse(localStorage.getItem(WEIGHT_KEY)));
-    } catch (error) {
-      setWweightUnit("kg");
-    }
+    setWweightUnit(weightUnitSchema.parse(localStorage.getItem(WEIGHT_KEY)));
   }, []);
 
   return (
@@ -31,7 +27,7 @@ export const WeightUnitProvider = ({ children }: PropsWithChildren) => {
       value={{
         get: weightUnit,
         set: (newWeightValue) => {
-          localStorage.setItem(WEIGHT_KEY, newWeightValue ?? "kg");
+          localStorage.setItem(WEIGHT_KEY, newWeightValue);
           setWweightUnit(newWeightValue);
         },
       }}
@@ -46,7 +42,7 @@ export const useWeightUnit = () => {
 
   if (!currentWeightUnitContext) {
     throw new Error(
-      "useWeightUnit has to be used within <WeightUnitProvider.Provider>"
+      "useWeightUnit has to be used within <WeightUnitProvider.Provider>",
     );
   }
 

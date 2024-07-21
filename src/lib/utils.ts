@@ -1,5 +1,7 @@
+import { env } from "@/env.js";
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
+import type { User } from "next-auth";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
 
@@ -27,4 +29,34 @@ type PluralizeProps = {
 
 export const pluralize = ({ count, noun, suffix = "s" }: PluralizeProps) => {
   return `${noun}${count !== 1 ? suffix : ""}`;
+};
+
+export const getBaseUrl = () => {
+  if (env.VERCEL_ENV === "production") {
+    return `https://gym-graphs.vercel.app`;
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  if (env.VERCEL_URL) {
+    return `https://${env.VERCEL_URL}`;
+  }
+
+  return "http://localhost:3000";
+};
+
+export const getUserDisplayName = (user: User) => {
+  if (user.name) {
+    return user.name;
+  }
+
+  const username = user.email.split("@").at(0);
+
+  if (!username) {
+    throw new Error("email is malformed, usename missing");
+  }
+
+  return username;
 };

@@ -1,180 +1,19 @@
 {
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1691847104361,
-      "tag": "0000_ordinary_phil_sheldon",
+      "version": "7",
+      "when": 1721236328954,
+      "tag": "0000_unique_beyonder",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "5",
-      "when": 1692002070095,
-      "tag": "0001_fuzzy_shinobi_shaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1692002340945,
-      "tag": "0002_dapper_grey_gargoyle",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1692002993274,
-      "tag": "0003_elite_smasher",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1692003530679,
-      "tag": "0004_aspiring_proemial_gods",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1692128142481,
-      "tag": "0005_amazing_thunderball",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1692206444317,
-      "tag": "0006_curved_ma_gnuci",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1692206478638,
-      "tag": "0007_reflective_enchantress",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1692206523718,
-      "tag": "0008_flippant_betty_ross",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1692207492944,
-      "tag": "0009_wonderful_moon_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1692265904634,
-      "tag": "0010_sudden_meltdown",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1692270235604,
-      "tag": "0011_silky_stature",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "5",
-      "when": 1692270506764,
-      "tag": "0012_normal_thanos",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "5",
-      "when": 1692283291340,
-      "tag": "0013_large_luckman",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "5",
-      "when": 1692285865594,
-      "tag": "0014_pink_spectrum",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "5",
-      "when": 1692287199232,
-      "tag": "0015_slow_darkhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "5",
-      "when": 1692287493460,
-      "tag": "0016_sudden_harrier",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "5",
-      "when": 1693500611123,
-      "tag": "0017_strong_skreet",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "5",
-      "when": 1693500781679,
-      "tag": "0018_short_justin_hammer",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "5",
-      "when": 1693501113403,
-      "tag": "0019_fair_queen_noir",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "5",
-      "when": 1693563883286,
-      "tag": "0020_loud_the_renegades",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "5",
-      "when": 1696536685368,
-      "tag": "0021_stiff_the_watchers",
-      "breakpoints": true
-    },
-    {
-      "idx": 22,
-      "version": "5",
-      "when": 1696540326149,
-      "tag": "0022_rainy_nightcrawler",
-      "breakpoints": true
-    },
-    {
-      "idx": 23,
-      "version": "5",
-      "when": 1696583531331,
-      "tag": "0023_smart_namorita",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "5",
-      "when": 1696585145282,
-      "tag": "0024_lowly_blazing_skull",
+      "version": "7",
+      "when": 1721317699684,
+      "tag": "0001_boring_nick_fury",
       "breakpoints": true
     }
   ]

@@ -3,6 +3,8 @@ import { FileWarning } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 
+export const dynamic = "force-static";
+
 const NotFound = () => {
   return (
     <Container>

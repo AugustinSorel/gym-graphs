@@ -1,34 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { HeroBackground } from "@/components/ui/heroBackground";
-import { redirectIfSignedIn } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { ArrowRight, GripVertical, MoreHorizontal, Tag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { TimelineContainer } from "./dashboard/timelineContainer";
-import { GridItem } from "./dashboard/_grid/gridItem";
-import { LineGraph } from "./dashboard/_graphs/lineGraph";
-import { GridLayout } from "./dashboard/_grid/gridLayout";
+import { mockExercises, mockTeam } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
-import { RadarGraph } from "./dashboard/_graphs/radarGraph";
-import { RandomFacts } from "./dashboard/_graphs/randomFacts";
-import { HeatmapGraph } from "./dashboard/_graphs/heatmapGraph";
-import { prepareHeatmapData } from "./dashboard/_graphs/heatmapUtils";
-import { mockExercises } from "@/lib/mock-data";
+import { GridLayout } from "@/components/ui/gridLayout";
+import { prepareHeatmapData } from "@/components/graphs/heatmapUtils";
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
+import { ExercisePageContextProvider } from "./exercises/[id]/_components/exercisePageContext";
+import { ExerciseDataTableCardDummy } from "./exercises/[id]/_exerciseDataTable/exerciseDataTableCard";
+import { ExerciseDataGraphCard } from "./exercises/[id]/_exerciseDataGraph/exerciseDataGraphCard";
+import { Timeline } from "@/components/ui/timeline";
+import { prepareUserRandomFactsData } from "@/lib/math";
+import { TeamNameCard } from "@/components/cards/teamNameCard";
+import { TeamMembersCard } from "@/components/cards/teamMembersCard";
+import { TeamRandomFactsCard } from "@/components/cards/teamRandomFactsCard";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ExerciseDetailsProvider } from "./exercises/[id]/@exerciseDetails/exerciseDetailsContext";
-import { ExerciseGraphCard } from "./exercises/[id]/@exerciseDetails/_graph/exerciseGraphCard";
-import { ExerciseTableCard } from "./exercises/[id]/@exerciseDetails/_table/exerciseTableCard";
-import { exerciseTableColumnsWithoutActions } from "./exercises/[id]/@exerciseDetails/_table/_table/columns";
+  ExerciseOverviewDummyCard,
+  ExerciseOverviewTeamCard,
+} from "@/components/cards/exerciseOverviewCard";
+import { ExercisesRadarCard } from "@/components/cards/exercisesRadarCard";
+import { ExerciseHeatmapCard } from "@/components/cards/exerciseHeatmapCard";
+import { UserRandomFactsCard } from "@/components/cards/userRandomFactsCard";
 
 const HomePage = async () => {
-  await redirectIfSignedIn();
+  const session = await getServerAuthSession();
+
+  if (session?.user.id) {
+    return redirect("/dashboard");
+  }
 
   return (
     <MainContainer>
@@ -37,6 +41,8 @@ const HomePage = async () => {
       <FeatureOne />
 
       <FeatureTwo />
+
+      <FeatureThree />
 
       <FeatuesGrid />
     </MainContainer>
@@ -110,7 +116,7 @@ const FeatureOne = () => {
         breakdown of your achievements each <StrongText>month</StrongText>.
       </Text>
 
-      <TimelineContainer className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
+      <Timeline className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
         <Badge variant="accent" className="mr-auto">
           <time dateTime="all">
             {new Date().toLocaleDateString(undefined, {
@@ -121,86 +127,23 @@ const FeatureOne = () => {
         </Badge>
         <GridLayout>
           {mockExercises.map((exercise) => (
-            <GridItem.Root key={exercise.id}>
-              <GridItem.Header>
-                <GridItem.Title>{exercise.name}</GridItem.Title>
-
-                <GridItem.ActionContainer>
-                  <GridItem.ActionButton aria-label="view exercise tags">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Tag className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">tags</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </GridItem.ActionButton>
-
-                  <GridItem.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">view more</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </GridItem.ActionButton>
-
-                  <GridItem.ActionButton aria-label="view more">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <GripVertical className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="capitalize">drag exercise</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </GridItem.ActionButton>
-                </GridItem.ActionContainer>
-              </GridItem.Header>
-
-              <LineGraph data={exercise.data} />
-            </GridItem.Root>
+            <ExerciseOverviewDummyCard key={exercise.id} exercise={exercise} />
           ))}
 
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>exercises count</GridItem.Title>
-            </GridItem.Header>
+          <ExercisesRadarCard
+            data={mockExercises.map((exercise) => ({
+              exerciseName: exercise.name,
+              frequency: exercise.data.length,
+            }))}
+          />
 
-            <RadarGraph
-              data={mockExercises.map((exercise) => ({
-                exerciseName: exercise.name,
-                frequency: exercise.data.length,
-              }))}
-            />
-          </GridItem.Root>
+          <ExerciseHeatmapCard data={prepareHeatmapData(mockExercises)} />
 
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>heatmap</GridItem.Title>
-            </GridItem.Header>
-
-            <HeatmapGraph data={prepareHeatmapData(mockExercises)} />
-          </GridItem.Root>
-
-          <GridItem.Root>
-            <GridItem.Header>
-              <GridItem.Title>random facts</GridItem.Title>
-            </GridItem.Header>
-
-            <RandomFacts exercises={mockExercises} />
-          </GridItem.Root>
+          <UserRandomFactsCard
+            data={prepareUserRandomFactsData(mockExercises)}
+          />
         </GridLayout>
-      </TimelineContainer>
+      </Timeline>
       <FeaturesGridBackground />
     </FeatureContainer>
   );
@@ -220,13 +163,68 @@ const FeatureTwo = () => {
       </Text>
 
       <div className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] space-y-10">
-        <ExerciseDetailsProvider exercise={mockExercises[0]!}>
-          <ExerciseGraphCard />
-          <ExerciseTableCard columns={exerciseTableColumnsWithoutActions} />
-        </ExerciseDetailsProvider>
+        <ExercisePageContextProvider exercise={mockExercises[0]!}>
+          <ExerciseDataGraphCard />
+          <ExerciseDataTableCardDummy />
+        </ExercisePageContextProvider>
       </div>
 
       <FeaturesGridBackground />
+    </FeatureContainer>
+  );
+};
+
+const FeatureThree = () => {
+  return (
+    <FeatureContainer>
+      <HeroTitle>
+        Empower Your <GradientText>Team!</GradientText>
+      </HeroTitle>
+
+      <Text>
+        Create exercises and track your friends&apos; performance in real-time.
+        Collaborate, compete, and conquer your fitness{" "}
+        <StrongText>goals together</StrongText>, making every workout a shared
+        experience.
+      </Text>
+
+      <Timeline className="w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)] first-of-type:mt-0">
+        <Badge variant="accent" className="mr-auto">
+          metadata
+        </Badge>
+        <GridLayout>
+          <TeamNameCard name={mockTeam.name} />
+          <TeamMembersCard usersToTeams={mockTeam.usersToTeams} />
+          <TeamRandomFactsCard usersToTeams={mockTeam.usersToTeams} />
+        </GridLayout>
+      </Timeline>
+
+      {mockTeam.usersToTeams.map((userToTeam) => (
+        <Timeline
+          className="-mt-14 w-full max-w-[calc(var(--exercise-card-height)*4+20px*5)]"
+          key={userToTeam.memberId}
+        >
+          <Badge variant="accent" className="mr-auto">
+            {userToTeam.user.name}
+          </Badge>
+          <GridLayout>
+            {userToTeam.user.exercises.map((exercise) => (
+              <ExerciseOverviewTeamCard key={exercise.id} exercise={exercise} />
+            ))}
+
+            <ExercisesRadarCard
+              data={userToTeam.user.exercises.map((exercise) => ({
+                exerciseName: exercise.name,
+                frequency: exercise.data.length,
+              }))}
+            />
+
+            <UserRandomFactsCard
+              data={prepareUserRandomFactsData(userToTeam.user.exercises)}
+            />
+          </GridLayout>
+        </Timeline>
+      ))}
     </FeatureContainer>
   );
 };
@@ -237,15 +235,15 @@ const FeatuesGrid = () => {
       <HeroTitle>what we offer</HeroTitle>
 
       <GridContainer>
-        <Card className="lg:[grid-area:card-one]">
+        <CardItem className="lg:[grid-area:card-one]">
           <CardIcon>📈</CardIcon>
           <CardTitle>insights & analytics</CardTitle>
           <CardText>
             Keep track of your progress every session and watch your results
             soar! Get ready to see amazing results!
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-two]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-two]">
           <CardIcon>💻</CardIcon>
           <CardTitle>cross platform</CardTitle>
           <CardText>
@@ -254,8 +252,8 @@ const FeatuesGrid = () => {
             and tablet devices, ensuring you can stay connected and motivated on
             the go.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-three]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-three]">
           <CardIcon>🤝</CardIcon>
           <CardTitle>open source</CardTitle>
           <CardText>
@@ -275,8 +273,8 @@ const FeatuesGrid = () => {
             our platform, and we appreciate the collaborative spirit that drives
             us forward.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-four]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-four]">
           <CardIcon>🧩</CardIcon>
           <CardTitle>customizable</CardTitle>
           <CardText>
@@ -284,8 +282,8 @@ const FeatuesGrid = () => {
             exercises! Customize your workout experience to fit your preferences
             and needs.
           </CardText>
-        </Card>
-        <Card className="lg:[grid-area:card-five]">
+        </CardItem>
+        <CardItem className="lg:[grid-area:card-five]">
           <CardIcon>🎁</CardIcon>
           <CardTitle>100% free</CardTitle>
           <CardText>
@@ -293,7 +291,7 @@ const FeatuesGrid = () => {
             fees or charges. We value your privacy and do not collect any
             personal information.
           </CardText>
-        </Card>
+        </CardItem>
       </GridContainer>
 
       <GetStartedAction />
@@ -361,7 +359,7 @@ const GridContainer = (props: ComponentProps<"ul">) => {
   );
 };
 
-const Card = (props: ComponentProps<"li">) => {
+const CardItem = (props: ComponentProps<"li">) => {
   return (
     <li
       {...props}
@@ -411,7 +409,12 @@ const GradientText = (props: ComponentProps<"strong">) => {
 };
 
 const StrongText = (props: ComponentProps<"strong">) => {
-  return <strong className="font-semibold text-brand-color-two" {...props} />;
+  return (
+    <strong
+      {...props}
+      className={cn("font-semibold text-brand-color-two", props.className)}
+    />
+  );
 };
 
 const GetStartedAction = () => {
@@ -457,3 +460,7 @@ const FeaturesGridBackground = () => {
     </svg>
   );
 };
+
+//TODO: in team page, allow viewing exercises
+//TODO: add e2e tests
+//TODO: show points in brush line
