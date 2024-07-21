@@ -19,6 +19,8 @@ jobs:
       run: pnpm exec playwright test
       env:
         BASE_URL: ${{ github.event.deployment_status.environment_url }}
+        E2E_GITHUB_USER_EMAIL: ${{ secrets.E2E_GITHUB_USER_EMAIL }}
+        E2E_GITHUB_USER_PASSWORD: ${{ secrets.E2E_GITHUB_USER_PASSWORD }}
     - uses: actions/upload-artifact@v3
       if: always()
       with:

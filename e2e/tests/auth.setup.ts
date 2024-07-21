@@ -1,15 +1,22 @@
-import { env } from "@/env";
 import { test as setup } from "@playwright/test";
 
 const authFile = "e2e/.auth/user.json";
 
 const user = {
-  email: env.E2E_GITHUB_USER_EMAIL,
-  password: env.E2E_GITHUB_USER_PASSWORD,
+  email: process.env.E2E_GITHUB_USER_EMAIL,
+  password: process.env.E2E_GITHUB_USER_PASSWORD,
 };
 
 setup("authenticate", async ({ page }) => {
-  await page.goto("/");
+  if (!user.email) {
+    throw new Error("e2e github user email is missing");
+  }
+
+  if (!user.password) {
+    throw new Error("e2e github user password is missing");
+  }
+
+  await page.goto("https://gym-graphs.vercel.app");
 
   await page
     .locator('[href="/dashboard"]', { hasText: "get started" })
@@ -24,7 +31,7 @@ setup("authenticate", async ({ page }) => {
   await page.getByLabel("Password").fill(user.password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await page.waitForURL("/dashboard");
+  await page.waitForURL("https://gym-graphs.vercel.app/dashboard");
 
   await page.context().storageState({ path: authFile });
 });
