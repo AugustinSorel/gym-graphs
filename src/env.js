@@ -28,6 +28,8 @@ export const env = createEnv({
     EMAIL_SERVER_HOST: z.string(),
     EMAIL_SERVER_PASSWORD: z.string(),
     EMAIL_SERVER_USER: z.string().email(),
+    E2E_GITHUB_USER_EMAIL: z.string(),
+    E2E_GITHUB_USER_PASSWORD: z.string(),
   },
 
   /**
@@ -59,6 +61,8 @@ export const env = createEnv({
     EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
     VERCEL_ENV: process.env.VERCEL_ENV,
     VERCEL_URL: process.env.VERCEL_URL,
+    E2E_GITHUB_USER_EMAIL: process.env.E2E_GITHUB_USER_EMAIL,
+    E2E_GITHUB_USER_PASSWORD: process.env.E2E_GITHUB_USER_PASSWORD,
   },
 
   /**
