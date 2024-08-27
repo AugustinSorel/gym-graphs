@@ -67,13 +67,13 @@ importers:
         version: 8.19.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@trpc/client':
         specifier: next
-        version: 11.0.0-rc.452(@trpc/server@11.0.0-rc.452)
+        version: 11.0.0-rc.485(@trpc/server@11.0.0-rc.485)
       '@trpc/react-query':
         specifier: next
-        version: 11.0.0-rc.452(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452))(@trpc/server@11.0.0-rc.452)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 11.0.0-rc.485(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.485(@trpc/server@11.0.0-rc.485))(@trpc/server@11.0.0-rc.485)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@trpc/server':
         specifier: next
-        version: 11.0.0-rc.452
+        version: 11.0.0-rc.485
       '@visx/axis':
         specifier: ^3.10.1
         version: 3.10.1(react@18.2.0)
@@ -208,8 +208,8 @@ importers:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.39)
       drizzle-kit:
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^0.24.2
+        version: 0.24.2
       eslint:
         specifier: 8.57.0
         version: 8.57.0
@@ -862,6 +862,9 @@ packages:
     resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
     peerDependencies:
       react: '>=16.8.0'
+
+  '@drizzle-team/brocli@0.10.1':
+    resolution: {integrity: sha512-AHy0vjc+n/4w/8Mif+w86qpppHuF3AyXbcWW+R/W7GNA3F5/p2nuhlkCJaTXSLZheB4l1rtHzOfr9A7NwoR/Zg==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -1832,22 +1835,22 @@ packages:
     resolution: {integrity: sha512-KpRjhgehIhbfH78ARm/GJDXGnpdw4bCg3qas6yjWSi7czJhI/J6pWln7NHtmBkGE9ZbohiiNtLqwGzKmBfixig==}
     engines: {node: '>=12'}
 
-  '@trpc/client@11.0.0-rc.452':
-    resolution: {integrity: sha512-QAabLHbaqVAc4FOkC5QbDMRy2mEZk+mYdVjAOdeqjIwQ4jUJ/m0Dx6gEM99I7ASnT1TAuPGy6WwIWJixma6QWg==}
+  '@trpc/client@11.0.0-rc.485':
+    resolution: {integrity: sha512-Ld1gQjdYyrku0rjP/4QMg/SdsKgujr0P5XNoWkCyPRjdw3PuJbZFebauQPRC17cbbqGcpJrR+T3vnkhjMb1sgw==}
     peerDependencies:
-      '@trpc/server': 11.0.0-rc.452+8f18c400c
+      '@trpc/server': 11.0.0-rc.485+1c1d824cd
 
-  '@trpc/react-query@11.0.0-rc.452':
-    resolution: {integrity: sha512-R8OhL9YNtMTbE8m7F+0Y+LsWsvXwIz0nuzyxrAiGSzrs8WdiUf4CEnAHoD1SAi+pS1TAc8p1hGWCcyyD0fXB/g==}
+  '@trpc/react-query@11.0.0-rc.485':
+    resolution: {integrity: sha512-gFlJu9CXysfgsrVdKHFeROB8jsI50NjCQRrRimx5Tv4z3qSyT9IOVx+tyMhISDaj2haUPL1pFWhGMUiJGwo+Gg==}
     peerDependencies:
       '@tanstack/react-query': ^5.49.2
-      '@trpc/client': 11.0.0-rc.452+8f18c400c
-      '@trpc/server': 11.0.0-rc.452+8f18c400c
+      '@trpc/client': 11.0.0-rc.485+1c1d824cd
+      '@trpc/server': 11.0.0-rc.485+1c1d824cd
       react: '>=18.2.0'
       react-dom: '>=18.2.0'
 
-  '@trpc/server@11.0.0-rc.452':
-    resolution: {integrity: sha512-sqZ2Nmh9hD/xuW5x/9tLoa7N1k/99B0eCDoVdbVtnMQZ0gH79vlLQXrbIPg6BZxu/h1i/jyHWXBmFMqN2JZ6xw==}
+  '@trpc/server@11.0.0-rc.485':
+    resolution: {integrity: sha512-U9SK9jbqCjR8S9wGSe4UBu2e0fqxhQWriZiDb5BLzdxXzls4Jv+XhAkI65yBzlcTbt6VqXegZDAXB3IARPhUCg==}
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -2613,8 +2616,8 @@ packages:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
 
-  drizzle-kit@0.22.7:
-    resolution: {integrity: sha512-9THPCb2l1GPt7wxhws9LvTR0YG565ZlVgTuqGMwjs590Kch1pXu4GyjEArVijSF5m0OBj3qgdeKmuJXhKXgWFw==}
+  drizzle-kit@0.24.2:
+    resolution: {integrity: sha512-nXOaTSFiuIaTMhS8WJC2d4EBeIcN9OSt2A2cyFbQYBAZbi7lRsVGJNqDpEwPqYfJz38yxbY/UtbvBBahBfnExQ==}
     hasBin: true
 
   drizzle-orm@0.32.0:
@@ -5399,6 +5402,8 @@ snapshots:
       react: 18.2.0
       tslib: 2.6.3
 
+  '@drizzle-team/brocli@0.10.1': {}
+
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
       esbuild: 0.18.20
@@ -6189,19 +6194,19 @@ snapshots:
 
   '@tanstack/table-core@8.19.2': {}
 
-  '@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452)':
+  '@trpc/client@11.0.0-rc.485(@trpc/server@11.0.0-rc.485)':
     dependencies:
-      '@trpc/server': 11.0.0-rc.452
+      '@trpc/server': 11.0.0-rc.485
 
-  '@trpc/react-query@11.0.0-rc.452(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452))(@trpc/server@11.0.0-rc.452)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@trpc/react-query@11.0.0-rc.485(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.485(@trpc/server@11.0.0-rc.485))(@trpc/server@11.0.0-rc.485)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@tanstack/react-query': 5.50.1(react@18.2.0)
-      '@trpc/client': 11.0.0-rc.452(@trpc/server@11.0.0-rc.452)
-      '@trpc/server': 11.0.0-rc.452
+      '@trpc/client': 11.0.0-rc.485(@trpc/server@11.0.0-rc.485)
+      '@trpc/server': 11.0.0-rc.485
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@trpc/server@11.0.0-rc.452': {}
+  '@trpc/server@11.0.0-rc.485': {}
 
   '@types/cookie@0.6.0': {}
 
@@ -7152,8 +7157,9 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  drizzle-kit@0.22.7:
+  drizzle-kit@0.24.2:
     dependencies:
+      '@drizzle-team/brocli': 0.10.1
       '@esbuild-kit/esm-loader': 2.6.5
       esbuild: 0.19.12
       esbuild-register: 3.5.0(esbuild@0.19.12)
