@@ -67,13 +67,13 @@ importers:
         version: 8.19.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@trpc/client':
         specifier: next
-        version: 11.0.0-rc.452(@trpc/server@11.0.0-rc.452)
+        version: 11.0.0-rc.528(@trpc/server@11.0.0-rc.528)
       '@trpc/react-query':
         specifier: next
-        version: 11.0.0-rc.452(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452))(@trpc/server@11.0.0-rc.452)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 11.0.0-rc.528(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.528(@trpc/server@11.0.0-rc.528))(@trpc/server@11.0.0-rc.528)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@trpc/server':
         specifier: next
-        version: 11.0.0-rc.452
+        version: 11.0.0-rc.528
       '@visx/axis':
         specifier: ^3.10.1
         version: 3.10.1(react@18.2.0)
@@ -169,7 +169,7 @@ importers:
         version: 2.4.0
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.4)
+        version: 1.0.7(tailwindcss@3.4.13)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -226,8 +226,8 @@ importers:
         specifier: ^0.6.5
         version: 0.6.5(prettier@3.3.2)
       tailwindcss:
-        specifier: 3.4.4
-        version: 3.4.4
+        specifier: 3.4.13
+        version: 3.4.13
       typescript:
         specifier: 5.5.3
         version: 5.5.3
@@ -1832,22 +1832,22 @@ packages:
     resolution: {integrity: sha512-KpRjhgehIhbfH78ARm/GJDXGnpdw4bCg3qas6yjWSi7czJhI/J6pWln7NHtmBkGE9ZbohiiNtLqwGzKmBfixig==}
     engines: {node: '>=12'}
 
-  '@trpc/client@11.0.0-rc.452':
-    resolution: {integrity: sha512-QAabLHbaqVAc4FOkC5QbDMRy2mEZk+mYdVjAOdeqjIwQ4jUJ/m0Dx6gEM99I7ASnT1TAuPGy6WwIWJixma6QWg==}
+  '@trpc/client@11.0.0-rc.528':
+    resolution: {integrity: sha512-b+9StgzwfXSpC95utdi6rcghRX8W7gJW8TY4w/J9+Bjw+LFmUvO7Kk5krp+RMIx3rMm9/qbPwnFaVtpqX1AlgQ==}
     peerDependencies:
-      '@trpc/server': 11.0.0-rc.452+8f18c400c
+      '@trpc/server': 11.0.0-rc.528+32e6b1285
 
-  '@trpc/react-query@11.0.0-rc.452':
-    resolution: {integrity: sha512-R8OhL9YNtMTbE8m7F+0Y+LsWsvXwIz0nuzyxrAiGSzrs8WdiUf4CEnAHoD1SAi+pS1TAc8p1hGWCcyyD0fXB/g==}
+  '@trpc/react-query@11.0.0-rc.528':
+    resolution: {integrity: sha512-BhVUeuzB+eNbHidSOYW81bsQm3tveVkrkJUZwDMmRGijxKKAlT596pu7miAy8zwQOE3ieUNpgJS9d6VUMFLlEw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.49.2
-      '@trpc/client': 11.0.0-rc.452+8f18c400c
-      '@trpc/server': 11.0.0-rc.452+8f18c400c
+      '@tanstack/react-query': ^5.54.1
+      '@trpc/client': 11.0.0-rc.528+32e6b1285
+      '@trpc/server': 11.0.0-rc.528+32e6b1285
       react: '>=18.2.0'
       react-dom: '>=18.2.0'
 
-  '@trpc/server@11.0.0-rc.452':
-    resolution: {integrity: sha512-sqZ2Nmh9hD/xuW5x/9tLoa7N1k/99B0eCDoVdbVtnMQZ0gH79vlLQXrbIPg6BZxu/h1i/jyHWXBmFMqN2JZ6xw==}
+  '@trpc/server@11.0.0-rc.528':
+    resolution: {integrity: sha512-4+m1gKF7fX/ToorDUo4tPnd4O/kixmSB1ALOOxhwFt5E4qZpKV9ZqMzbTlsQ9zi0dTrZqja8lo64Sxao4blmuw==}
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -4255,8 +4255,8 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
 
-  tailwindcss@3.4.4:
-    resolution: {integrity: sha512-ZoyXOdJjISB7/BcLTR6SEsLgKtDStYyYZVLsUtWChO4Ps20CBad7lfJKVDiejocV4ME1hLmyY0WJE3hSDcmQ2A==}
+  tailwindcss@3.4.13:
+    resolution: {integrity: sha512-KqjHOJKogOUt5Bs752ykCeiwvi0fKVkr5oqsFNt/8px/tA8scFPIlkygsf6jXrfCqGHz7VflA6+yytWuM+XhFw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -6189,19 +6189,19 @@ snapshots:
 
   '@tanstack/table-core@8.19.2': {}
 
-  '@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452)':
+  '@trpc/client@11.0.0-rc.528(@trpc/server@11.0.0-rc.528)':
     dependencies:
-      '@trpc/server': 11.0.0-rc.452
+      '@trpc/server': 11.0.0-rc.528
 
-  '@trpc/react-query@11.0.0-rc.452(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.452(@trpc/server@11.0.0-rc.452))(@trpc/server@11.0.0-rc.452)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@trpc/react-query@11.0.0-rc.528(@tanstack/react-query@5.50.1(react@18.2.0))(@trpc/client@11.0.0-rc.528(@trpc/server@11.0.0-rc.528))(@trpc/server@11.0.0-rc.528)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@tanstack/react-query': 5.50.1(react@18.2.0)
-      '@trpc/client': 11.0.0-rc.452(@trpc/server@11.0.0-rc.452)
-      '@trpc/server': 11.0.0-rc.452
+      '@trpc/client': 11.0.0-rc.528(@trpc/server@11.0.0-rc.528)
+      '@trpc/server': 11.0.0-rc.528
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  '@trpc/server@11.0.0-rc.452': {}
+  '@trpc/server@11.0.0-rc.528': {}
 
   '@types/cookie@0.6.0': {}
 
@@ -8863,11 +8863,11 @@ snapshots:
 
   tailwind-merge@2.4.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@3.4.4):
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.13):
     dependencies:
-      tailwindcss: 3.4.4
+      tailwindcss: 3.4.13
 
-  tailwindcss@3.4.4:
+  tailwindcss@3.4.13:
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
