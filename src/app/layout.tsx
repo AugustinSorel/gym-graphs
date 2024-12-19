@@ -27,8 +27,9 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         </Providers>
         <Toaster />
         <Script
-          data-domain="gym-graphs.vercel.app"
-          src="https://analytics.augustin-sorel.com/js/script.js"
+          defer
+          data-website-id="21a8d799-5f6c-4e6b-b24c-6432d02967d6"
+          src="https://analytics.augustin-sorel.com/script.js"
         />
       </body>
     </html>
