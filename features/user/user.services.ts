@@ -1,5 +1,6 @@
+import { eq } from "drizzle-orm";
 import { Db } from "~/db/db";
-import { userTable } from "~/db/schema";
+import { User, userTable } from "~/db/schema";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,
@@ -12,4 +13,10 @@ export const createUser = async (
   }
 
   return user;
+};
+
+export const selectUserByEmail = async (email: User["email"], db: Db) => {
+  return db.query.userTable.findFirst({
+    where: eq(userTable.email, email),
+  });
 };

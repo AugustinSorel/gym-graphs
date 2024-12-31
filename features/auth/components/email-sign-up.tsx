@@ -1,17 +1,3 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button } from "~/components/ui/button";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { userSchema } from "~/features/user/user.schemas";
 import { createServerFn } from "@tanstack/start";
@@ -27,10 +13,112 @@ import {
 } from "~/features/auth/auth.services";
 import { createSession } from "~/features/session/session.services";
 import { setSessionTokenCookie } from "~/features/cookie/cookie.services";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormAlert,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { useNavigate } from "@tanstack/react-router";
+import { Button } from "~/components/ui/button";
 
-export const Route = createFileRoute("/sign-up/")({
-  component: RouteComponent,
-});
+export const EmailSignUp = () => {
+  const navigate = useNavigate({ from: "/sign-up" });
+  const [isRedirectPending, startRedirectTransition] = useTransition();
+
+  const form = useForm<SignUpFormSchema>({
+    resolver: zodResolver(signUpFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const signUp = useMutation({
+    mutationFn: signUpAction,
+    onSuccess: () => {
+      startRedirectTransition(async () => {
+        await navigate({ to: "/" });
+      });
+    },
+    onError: (error) => {
+      form.setError("root", { message: error.message });
+    },
+  });
+
+  const onSubmit = async (values: SignUpFormSchema) => {
+    await signUp.mutateAsync({ data: values });
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid gap-3 w-full"
+      >
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email:</FormLabel>
+              <FormControl>
+                <Input placeholder="john@example.com" type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password:</FormLabel>
+              <FormControl>
+                <Input placeholder="******" type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password:</FormLabel>
+              <FormControl>
+                <Input placeholder="******" type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormAlert />
+
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting || isRedirectPending}
+          className="font-semibold"
+        >
+          <span>sign up</span>
+          {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
+        </Button>
+      </form>
+    </Form>
+  );
+};
 
 const signUpFormSchema = z
   .object({
@@ -73,91 +161,3 @@ const signUpAction = createServerFn({ method: "POST" })
       throw new Error(e);
     }
   });
-
-function RouteComponent() {
-  const navigate = useNavigate({ from: "/sign-up" });
-  const [isRedirectPending, startRedirectTransition] = useTransition();
-
-  const form = useForm<SignUpFormSchema>({
-    resolver: zodResolver(signUpFormSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  const signUp = useMutation({
-    mutationFn: signUpAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/" });
-      });
-    },
-    onError: (error) => {
-      form.setError("root", { message: error.message });
-    },
-  });
-
-  const onSubmit = async (values: SignUpFormSchema) => {
-    await signUp.mutateAsync({ data: values });
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="john@example.com" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="******" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input placeholder="******" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormAlert />
-
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting || isRedirectPending}
-        >
-          <span>Submit</span>
-          {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
-        </Button>
-      </form>
-    </Form>
-  );
-}

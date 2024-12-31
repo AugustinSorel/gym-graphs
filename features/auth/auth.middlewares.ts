@@ -1,6 +1,6 @@
 import { createMiddleware } from "@tanstack/start";
 import { validateSessionToken } from "./auth.services";
-import { getCookie } from "vinxi/http";
+import { getCookie, setResponseStatus } from "vinxi/http";
 import { db } from "~/db/db";
 
 export const validateRequest = createMiddleware().server(async ({ next }) => {
@@ -24,3 +24,20 @@ export const validateRequest = createMiddleware().server(async ({ next }) => {
     },
   });
 });
+
+export const authGuard = createMiddleware()
+  .middleware([validateRequest])
+  .server(async ({ next, context }) => {
+    if (!context.user || !context.session) {
+      setResponseStatus(401);
+
+      throw new Error("unauthorized");
+    }
+
+    return next({
+      context: {
+        user: context.user,
+        session: context.session,
+      },
+    });
+  });
