@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { Db } from "~/db/db";
-import { User, userTable } from "~/db/schema";
+import type { Db } from "~/features/utils/db";
+import { User, userTable } from "~/features/db/db.schemas";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,

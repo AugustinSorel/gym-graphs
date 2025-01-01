@@ -1,15 +1,13 @@
-import { sessionTable, type Session } from "~/db/schema";
 import { base32, encodeHex } from "oslo/encoding";
-import type { Db } from "~/db/db";
+import type { Db } from "~/features/utils/db";
 import { sha256 } from "oslo/crypto";
-import { eq } from "drizzle-orm";
 import { hash, compare, genSalt } from "bcrypt";
 import {
   deleteSession,
   refreshSessionExpiryDate,
   selectSessionWithUser,
 } from "../session/session.services";
-import { fifteenDaysInMs } from "~/utils/dates";
+import { fifteenDaysInMs } from "~/features/utils/dates";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);
@@ -70,8 +68,4 @@ export const validateSessionToken = async (
   }
 
   return { session, user: session.user };
-};
-
-export const invalidateSession = async (sessionId: Session["id"], db: Db) => {
-  await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 };

@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 export const userSchema = z.object({
+  id: z
+    .number({
+      required_error: "id is required",
+      invalid_type_error: "id must of type number",
+    })
+    .positive("id must be positive"),
   email: z
     .string({
       required_error: "email is required",

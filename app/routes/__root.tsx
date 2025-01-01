@@ -1,13 +1,14 @@
 import {
   Outlet,
   ScrollRestoration,
-  createRootRoute,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { createServerFn, Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense, type PropsWithChildren } from "react";
-import appCss from "~/styles/styles.css?url";
+import appCss from "~/features/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { validateRequest } from "~/features/auth/auth.middlewares";
+import { QueryClient } from "@tanstack/react-query";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -27,32 +28,37 @@ const getValidateRequest = createServerFn({ method: "GET" })
     };
   });
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "TanStack Start Starter",
-      },
-    ],
-    links: [{ rel: "stylesheet", href: appCss }],
-  }),
-  component: RootComponent,
-  beforeLoad: async () => {
-    const { user, session } = await getValidateRequest();
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    head: () => ({
+      meta: [
+        {
+          charSet: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+        {
+          title: "TanStack Start Starter",
+        },
+      ],
+      links: [{ rel: "stylesheet", href: appCss }],
+    }),
+    component: RootComponent,
+    beforeLoad: async () => {
+      const { user, session } = await getValidateRequest();
 
-    return {
-      user,
-      session,
-    };
+      return {
+        user,
+        session,
+      };
+    },
+    notFoundComponent: () => {
+      return <p>404</p>;
+    },
   },
-});
+);
 
 function RootComponent() {
   return (
@@ -70,6 +76,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
       </head>
       <body>
         {props.children}
+
         <ReactQueryDevtools buttonPosition="bottom-left" />
 
         <Suspense>
@@ -84,6 +91,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
   );
 }
 
+//TODO: error boundary
+//TODO: 404 page
 //TODO: prettier
 //TODO: analytics
 //TODO: monitoring

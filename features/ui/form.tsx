@@ -11,8 +11,8 @@ import {
   useFormState,
 } from "react-hook-form";
 
-import { cn } from "~/utils/styles";
-import { Label } from "~/components/ui/label";
+import { cn } from "~/features/utils/styles";
+import { Label } from "~/features/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { CircleAlert } from "lucide-react";
 

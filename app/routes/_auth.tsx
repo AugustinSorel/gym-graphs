@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ComponentProps } from "react";
-import { AppIcon } from "~/components/ui/app-icon";
-import { HeroBackground } from "~/components/ui/hero-background";
+import { AppIcon } from "~/features/ui/app-icon";
+import { HeroBackground } from "~/features/ui/hero-background";
 
-export const Route = createFileRoute("/(auth)/_auth")({
+export const Route = createFileRoute("/_auth")({
   component: RouteComponent,
 });
 

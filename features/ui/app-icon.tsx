@@ -1,5 +1,5 @@
 import { type VariantProps, cva } from "class-variance-authority";
-import { cn } from "~/utils/styles";
+import { cn } from "~/features/utils/styles";
 import type { SVGProps } from "react";
 
 const iconVariants = cva("rounded-full", {

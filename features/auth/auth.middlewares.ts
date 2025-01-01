@@ -1,7 +1,7 @@
 import { createMiddleware } from "@tanstack/start";
 import { validateSessionToken } from "./auth.services";
 import { getCookie, setResponseStatus } from "vinxi/http";
-import { db } from "~/db/db";
+import { db } from "~/features/utils/db";
 
 export const validateRequest = createMiddleware().server(async ({ next }) => {
   const sessionCookie = getCookie("session");

@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { cn } from "~/utils/styles";
+import { cn } from "~/features/utils/styles";
 
 export type SpinnerProps = React.SVGProps<SVGSVGElement>;
 
