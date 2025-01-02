@@ -1,10 +1,17 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import { Input } from "~/features/ui/input";
 import { exerciseKeys } from "~/features/exercise/exercise.keys";
 import { UserProvider } from "~/features/context/user.context";
 import { ExercisesGrid } from "~/features/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/features/exercise/components/create-exercise-dialog";
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
+import { Search } from "lucide-react";
+import { z } from "zod";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => RouteComponent(),
@@ -26,6 +33,9 @@ export const Route = createFileRoute("/dashboard")({
       user: context.user,
     };
   },
+  validateSearch: z.object({
+    name: z.string().optional(),
+  }),
 });
 
 const RouteComponent = () => {
@@ -46,13 +56,29 @@ const RouteComponent = () => {
 };
 
 const SearchExercises = () => {
+  const navigate = useNavigate({ from: "/dashboard" });
+  const search = useSearch({ from: "/dashboard" });
+
+  const [exerciseName, setExerciseName] = useState(search.name || "");
+
   return (
-    <search>
+    <search className="relative">
       <Input
         type="search"
         placeholder="Search exercises..."
-        className="bg-secondary"
+        className="bg-secondary pl-10"
+        value={exerciseName}
+        onChange={(e) => {
+          setExerciseName(e.target.value);
+
+          navigate({
+            search: () => ({
+              name: e.target.value || undefined,
+            }),
+          });
+        }}
       />
+      <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
     </search>
   );
 };

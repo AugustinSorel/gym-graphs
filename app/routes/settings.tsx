@@ -88,7 +88,7 @@ const RenameUserSection = () => {
         <HGroup>
           <SectionTitle>rename yourself</SectionTitle>
           <SectionDescription>
-            feel free to rename yourself to a more confortable name. Your name
+            Feel free to rename yourself to a more confortable name. Your name
             is not public but it will be visible to the members of your teams.
           </SectionDescription>
         </HGroup>
@@ -209,7 +209,7 @@ const SignOutSection = () => {
       <Section>
         <HGroup>
           <SectionTitle>sign out</SectionTitle>
-          <SectionDescription>sign out from this device.</SectionDescription>
+          <SectionDescription>Sign out from this device.</SectionDescription>
         </HGroup>
         <Footer>
           <Button
@@ -235,7 +235,7 @@ const DeleteAccountSection = () => {
         <HGroup>
           <SectionTitle>delete account</SectionTitle>
           <SectionDescription>
-            permanently remove your personal account and all of its contents
+            Permanently remove your personal account and all of its contents
             from our servers. This action is not reversible, so please continue
             with caution.
           </SectionDescription>
@@ -288,7 +288,7 @@ const SectionErrorMsg = (props: ComponentProps<"code">) => {
 };
 
 const SectionDescription = (props: ComponentProps<"p">) => {
-  return <p className="text-sm first-letter:capitalize" {...props} />;
+  return <p className="text-sm" {...props} />;
 };
 
 const Header = (props: ComponentProps<"header">) => {

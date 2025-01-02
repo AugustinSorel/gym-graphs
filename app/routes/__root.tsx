@@ -107,8 +107,11 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: username not refreshing in user dropdown
 //TODO: dark theme
+//TODO: filter by exercise name
+//TODO: infite scroll for exercises
+//TODO: custom exercises filters
+//TODO: good auth
 //TODO: weight unit
-//TODO: populate account
 //TODO: error boundary
 //TODO: 404 page
 //TODO: analytics

@@ -63,6 +63,8 @@ export const exerciseTable = pgTable(
   (table) => [primaryKey({ columns: [table.userId, table.name] })],
 );
 
+export type Exercise = typeof exerciseTable.$inferSelect;
+
 export const exerciseRelations = relations(exerciseTable, ({ one }) => ({
   user: one(userTable, {
     fields: [exerciseTable.userId],
