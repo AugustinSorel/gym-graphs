@@ -20,3 +20,11 @@ export const selectUserByEmail = async (email: User["email"], db: Db) => {
     where: eq(userTable.email, email),
   });
 };
+
+export const renameUser = async (
+  name: User["name"],
+  userId: User["id"],
+  db: Db,
+) => {
+  await db.update(userTable).set({ name }).where(eq(userTable.id, userId));
+};

@@ -46,7 +46,7 @@ export const EmailSignInForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid gap-3 w-full"
+        className="grid w-full gap-3"
       >
         <FormField
           control={form.control}
@@ -55,7 +55,12 @@ export const EmailSignInForm = () => {
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="john@example.com" type="email" {...field} />
+                <Input
+                  placeholder="john@example.com"
+                  type="email"
+                  autoFocus
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

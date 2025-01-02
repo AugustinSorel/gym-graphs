@@ -85,7 +85,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
       </head>
       <body className="bg-background text-foreground">
         {loaderData.user && (
-          <UserProvider value={loaderData.user}>
+          <UserProvider user={loaderData.user}>
             <Header />
           </UserProvider>
         )}

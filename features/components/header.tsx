@@ -1,6 +1,6 @@
 import { signOutAction } from "~/features/auth/auth.actions";
 import { ComponentProps, useState, useTransition } from "react";
-import { Link, LinkComponentProps, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "~/features/ui/button";
 import { Spinner } from "~/features/ui/spinner";
@@ -66,7 +66,7 @@ const DesktopHeader = () => {
 
 const DesktopNav = () => {
   return (
-    <Nav className="ml-10 flex h-full gap-10">
+    <Nav className="flex h-full gap-10">
       <Link
         className="relative flex items-center font-bold capitalize text-muted-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
         to="/dashboard"
@@ -81,7 +81,7 @@ const DesktopNav = () => {
       </Link>
       <Link
         className="relative flex items-center font-bold capitalize text-muted-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
-        to="/"
+        to="/settings"
       >
         settings
       </Link>
@@ -127,7 +127,7 @@ const MobileNav = () => {
           </Link>
           <Link
             className="text-xl font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground data-[status=active]:text-foreground"
-            to="/"
+            to="/settings"
             onClick={() => {
               setIsOpen(false);
             }}
@@ -155,6 +155,8 @@ const UserProfileDropdown = () => {
   const user = useUser();
   const signOut = useSignOut();
 
+  console.log("should rerender");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -169,7 +171,7 @@ const UserProfileDropdown = () => {
         </hgroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="m-2 justify-between px-4 py-2">
-          <Link to="/">
+          <Link to="/settings">
             <span>settings</span>
             <Settings className="size-4" />
           </Link>
@@ -231,7 +233,7 @@ const Container = ({ className, ...props }: ComponentProps<"header">) => {
   return (
     <header
       className={cn(
-        "mx-auto flex h-header items-center gap-4 border-b bg-secondary px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)]",
+        "sticky top-0 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
         className,
       )}
       {...props}

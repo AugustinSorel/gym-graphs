@@ -32,7 +32,7 @@ const RouteComponent = () => {
   const loaderData = Route.useLoaderData();
 
   return (
-    <UserProvider value={loaderData.user}>
+    <UserProvider user={loaderData.user}>
       <Main>
         <Header>
           <SearchExercises />
@@ -60,7 +60,7 @@ const SearchExercises = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto max-w-app py-20 px-4 flex flex-col gap-20"
+      className="mx-auto flex max-w-app flex-col gap-20 px-4 py-20"
       {...props}
     />
   );
