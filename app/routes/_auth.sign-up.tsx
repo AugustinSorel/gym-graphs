@@ -9,6 +9,7 @@ import { ComponentProps } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/features/ui/alert";
 import { Button } from "~/features/ui/button";
 import { EmailSignUpForm } from "~/features/auth/components/email-sign-up-form";
+import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 
 export const Route = createFileRoute("/_auth/sign-up")({
   beforeLoad: ({ context }) => {
@@ -41,13 +42,24 @@ const RouteComponent = () => {
   );
 };
 
-const ErrorComponent = ({ error }: ErrorComponentProps) => {
+const ErrorComponent = (props: ErrorComponentProps) => {
   return (
-    <Alert variant="destructive" className="bg-destructive/5">
-      <CircleAlert className="size-4" />
-      <AlertTitle>Something went wrong</AlertTitle>
-      <AlertDescription>{error.message}</AlertDescription>
-    </Alert>
+    <>
+      <Title>welcome</Title>
+
+      <DefaultErrorFallback {...props} />
+
+      <RedirectText>
+        already have an account?{" "}
+        <Button
+          variant="link"
+          asChild
+          className="h-auto w-auto p-0 text-primary"
+        >
+          <Link to="/sign-in">sign in</Link>
+        </Button>
+      </RedirectText>
+    </>
   );
 };
 

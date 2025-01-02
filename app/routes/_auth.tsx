@@ -1,24 +1,38 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  ErrorComponentProps,
+  Outlet,
+} from "@tanstack/react-router";
 import { ComponentProps } from "react";
+import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 import { AppIcon } from "~/features/ui/app-icon";
 import { HeroBackground } from "~/features/ui/hero-background";
 
 export const Route = createFileRoute("/_auth")({
-  component: RouteComponent,
+  component: () => RouteComponent(),
+  errorComponent: (props) => RouteFallback(props),
 });
 
-function RouteComponent() {
+const RouteComponent = () => {
   return (
     <Main>
       <Hero />
       <Content />
     </Main>
   );
-}
+};
+
+const RouteFallback = (props: ErrorComponentProps) => {
+  return (
+    <main className="m-10">
+      <DefaultErrorFallback {...props} />
+    </main>
+  );
+};
 
 const Hero = () => {
   return (
-    <Section className="relative hidden items-center justify-center overflow-hidden lg:flex gap-5">
+    <Section className="relative hidden items-center justify-center gap-5 overflow-hidden lg:flex">
       <AppIcon size="lg" />
       <Title>gym graphs</Title>
       <BackgroundContainer>
@@ -57,6 +71,6 @@ const Title = (props: ComponentProps<"h2">) => {
 
 const BackgroundContainer = (props: ComponentProps<"div">) => {
   return (
-    <div {...props} className="absolute top-0 bottom-0 left-0 right-0 -z-10" />
+    <div {...props} className="absolute bottom-0 left-0 right-0 top-0 -z-10" />
   );
 };

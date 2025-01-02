@@ -18,9 +18,11 @@ import { signOutAction } from "~/features/auth/auth.actions";
 import { Spinner } from "~/features/ui/spinner";
 import { RenameUserDialog } from "~/features/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/features/user/components/delete-account-dialog";
+import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
+  errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
     if (!context.user || !context.session) {
       throw redirect({ to: "/sign-in" });
@@ -36,6 +38,20 @@ export const Route = createFileRoute("/settings")({
     };
   },
 });
+
+const RouteFallback = (props: ErrorComponentProps) => {
+  return (
+    <Main>
+      <Header>
+        <Title>account settings</Title>
+      </Header>
+
+      <Separator />
+
+      <DefaultErrorFallback {...props} />
+    </Main>
+  );
+};
 
 const RouteComponent = () => {
   const loaderData = Route.useLoaderData();
@@ -65,7 +81,10 @@ const EmailSection = () => {
   const user = useUser();
 
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>email address</SectionTitle>
@@ -83,7 +102,10 @@ const EmailSection = () => {
 
 const RenameUserSection = () => {
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>rename yourself</SectionTitle>
@@ -102,7 +124,10 @@ const RenameUserSection = () => {
 
 const ChangeWeightUnitSection = () => {
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>change weight unit</SectionTitle>
@@ -135,7 +160,10 @@ const ChangeWeightUnitSection = () => {
 
 const ChangeThemeSection = () => {
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>change theme</SectionTitle>
@@ -175,7 +203,10 @@ const ChangeThemeSection = () => {
 
 const GithubLinkSection = () => {
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>github</SectionTitle>
@@ -205,7 +236,10 @@ const SignOutSection = () => {
   const signOut = useSignOut();
 
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section>
         <HGroup>
           <SectionTitle>sign out</SectionTitle>
@@ -230,7 +264,10 @@ const SignOutSection = () => {
 
 const DeleteAccountSection = () => {
   return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
       <Section className="border-destructive">
         <HGroup>
           <SectionTitle>delete account</SectionTitle>
@@ -248,24 +285,6 @@ const DeleteAccountSection = () => {
   );
 };
 
-const SectionFallback = (props: ErrorComponentProps) => {
-  return (
-    <CatchBoundary errorComponent={SectionFallback} getResetKey={() => "reset"}>
-      <Section className="border-destructive bg-destructive/10">
-        <HGroup>
-          <SectionTitle>something went wrong</SectionTitle>
-          <SectionErrorMsg>{props.error.message}</SectionErrorMsg>
-        </HGroup>
-        <Footer className="border-destructive">
-          <Button size="sm" onClick={props.reset} variant="destructive">
-            try again
-          </Button>
-        </Footer>
-      </Section>
-    </CatchBoundary>
-  );
-};
-
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
@@ -275,16 +294,17 @@ const Main = (props: ComponentProps<"main">) => {
   );
 };
 
-const Title = (props: ComponentProps<"h1">) => {
-  return <h1 className="text-3xl font-semibold capitalize" {...props} />;
+const Title = ({ className, ...props }: ComponentProps<"h1">) => {
+  return (
+    <h1
+      className={cn("text-3xl font-semibold capitalize", className)}
+      {...props}
+    />
+  );
 };
 
 const SectionTitle = (props: ComponentProps<"h2">) => {
   return <h2 className="text-xl font-semibold capitalize" {...props} />;
-};
-
-const SectionErrorMsg = (props: ComponentProps<"code">) => {
-  return <code className="flex text-sm" {...props} />;
 };
 
 const SectionDescription = (props: ComponentProps<"p">) => {

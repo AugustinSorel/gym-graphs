@@ -11,6 +11,7 @@ import { validateRequest } from "~/features/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
 import { UserProvider } from "~/features/context/user.context";
 import { Header } from "~/features/components/header";
+import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -48,6 +49,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       links: [{ rel: "stylesheet", href: appCss }],
     }),
     component: RootComponent,
+    errorComponent: (props) => DefaultErrorFallback(props),
     beforeLoad: async () => {
       const { user, session } = await getValidateRequest();
 
@@ -107,15 +109,14 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: username not refreshing in user dropdown
 //TODO: dark theme
-//TODO: filter by exercise name
 //TODO: infite scroll for exercises
 //TODO: custom exercises filters
 //TODO: good auth
 //TODO: weight unit
-//TODO: error boundary
 //TODO: 404 page
 //TODO: analytics
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: docker
 //TODO: deploy to vps
+//TODO: teams

@@ -1,20 +1,20 @@
 import {
   createFileRoute,
+  ErrorComponentProps,
   redirect,
-  useNavigate,
-  useSearch,
 } from "@tanstack/react-router";
-import { Input } from "~/features/ui/input";
 import { exerciseKeys } from "~/features/exercise/exercise.keys";
 import { UserProvider } from "~/features/context/user.context";
 import { ExercisesGrid } from "~/features/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/features/exercise/components/create-exercise-dialog";
-import { ComponentProps, useState } from "react";
-import { Search } from "lucide-react";
+import { ComponentProps } from "react";
 import { z } from "zod";
+import { SearchExercises } from "~/features/exercise/components/search-exercises";
+import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => RouteComponent(),
+  errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
     if (!context.user || !context.session) {
       throw redirect({ to: "/sign-in" });
@@ -38,6 +38,14 @@ export const Route = createFileRoute("/dashboard")({
   }),
 });
 
+const RouteFallback = (props: ErrorComponentProps) => {
+  return (
+    <Main>
+      <DefaultErrorFallback {...props} />
+    </Main>
+  );
+};
+
 const RouteComponent = () => {
   const loaderData = Route.useLoaderData();
 
@@ -52,34 +60,6 @@ const RouteComponent = () => {
         <ExercisesGrid />
       </Main>
     </UserProvider>
-  );
-};
-
-const SearchExercises = () => {
-  const navigate = useNavigate({ from: "/dashboard" });
-  const search = useSearch({ from: "/dashboard" });
-
-  const [exerciseName, setExerciseName] = useState(search.name || "");
-
-  return (
-    <search className="relative">
-      <Input
-        type="search"
-        placeholder="Search exercises..."
-        className="bg-secondary pl-10"
-        value={exerciseName}
-        onChange={(e) => {
-          setExerciseName(e.target.value);
-
-          navigate({
-            search: () => ({
-              name: e.target.value || undefined,
-            }),
-          });
-        }}
-      />
-      <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-    </search>
   );
 };
 
