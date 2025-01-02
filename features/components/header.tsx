@@ -77,7 +77,7 @@ const DesktopNav = () => {
         className="relative flex items-center font-bold capitalize text-muted-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
         to="/"
       >
-        groups
+        teams
       </Link>
       <Link
         className="relative flex items-center font-bold capitalize text-muted-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
@@ -123,7 +123,7 @@ const MobileNav = () => {
               setIsOpen(false);
             }}
           >
-            groups
+            teams
           </Link>
           <Link
             className="text-xl font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground data-[status=active]:text-foreground"

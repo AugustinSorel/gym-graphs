@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { signOutAction } from "~/features/auth/auth.actions";
 import { Spinner } from "~/features/ui/spinner";
 import { RenameUserDialog } from "~/features/user/components/rename-user-dialog";
+import { DeleteAccountDialog } from "~/features/user/components/delete-account-dialog";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -240,9 +241,7 @@ const DeleteAccountSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer className="border-destructive bg-destructive/10">
-          <Button size="sm" variant="destructive">
-            delete account
-          </Button>
+          <DeleteAccountDialog />
         </Footer>
       </Section>
     </CatchBoundary>

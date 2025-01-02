@@ -28,3 +28,7 @@ export const renameUser = async (
 ) => {
   await db.update(userTable).set({ name }).where(eq(userTable.id, userId));
 };
+
+export const deleteUser = async (userId: User["id"], db: Db) => {
+  await db.delete(userTable).where(eq(userTable.id, userId));
+};
