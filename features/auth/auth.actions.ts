@@ -60,6 +60,7 @@ export const signUpAction = createServerFn({ method: "POST" })
           {
             email: data.email,
             password: await hashSecret(data.password),
+            name: data.email.split("@").at(0) ?? "anonymous",
           },
           tx,
         );

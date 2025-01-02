@@ -19,33 +19,27 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "~/features/ui/button";
 import { signUpAction } from "~/features/auth/auth.actions";
 
-export const EmailSignUp = () => {
+export const EmailSignUpForm = () => {
   const navigate = useNavigate({ from: "/sign-up" });
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
-  const form = useForm<SignUpFormSchema>({
-    resolver: zodResolver(signUpFormSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  const signUp = useMutation({
-    mutationFn: signUpAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/dashboard" });
-      });
-    },
-    onError: (error) => {
-      form.setError("root", { message: error.message });
-    },
-  });
+  const form = useEmailSignUpForm();
+  const signUp = useSignUp();
 
   const onSubmit = async (values: SignUpFormSchema) => {
-    await signUp.mutateAsync({ data: values });
+    await signUp.mutateAsync(
+      { data: values },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({ to: "/dashboard" });
+          });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+      },
+    );
   };
 
   return (
@@ -122,3 +116,20 @@ const signUpFormSchema = z
     path: ["confirmPassword"],
   });
 type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
+
+const useEmailSignUpForm = () => {
+  return useForm<SignUpFormSchema>({
+    resolver: zodResolver(signUpFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+};
+
+const useSignUp = () => {
+  return useMutation({
+    mutationFn: signUpAction,
+  });
+};

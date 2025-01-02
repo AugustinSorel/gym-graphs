@@ -19,32 +19,27 @@ import { Spinner } from "~/features/ui/spinner";
 import { userSchema } from "~/features/user/user.schemas";
 import { signInAction } from "~/features/auth/auth.actions";
 
-export const EmailSignIn = () => {
+export const EmailSignInForm = () => {
   const navigate = useNavigate({ from: "/sign-in" });
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
-  const form = useForm<SignInSchema>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const signIn = useMutation({
-    mutationFn: signInAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/dashboard" });
-      });
-    },
-    onError: (error) => {
-      form.setError("root", { message: error.message });
-    },
-  });
+  const form = useEmailSignInForm();
+  const signIn = useSignIn();
 
   const onSubmit = async (values: SignInSchema) => {
-    await signIn.mutateAsync({ data: values });
+    await signIn.mutateAsync(
+      { data: values },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({ to: "/dashboard" });
+          });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+      },
+    );
   };
 
   return (
@@ -98,3 +93,19 @@ export const EmailSignIn = () => {
 
 const signInSchema = userSchema.pick({ email: true, password: true });
 type SignInSchema = z.infer<typeof signInSchema>;
+
+const useEmailSignInForm = () => {
+  return useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+};
+
+const useSignIn = () => {
+  return useMutation({
+    mutationFn: signInAction,
+  });
+};

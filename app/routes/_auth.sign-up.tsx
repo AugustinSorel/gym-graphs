@@ -8,7 +8,7 @@ import { CircleAlert } from "lucide-react";
 import { ComponentProps } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/features/ui/alert";
 import { Button } from "~/features/ui/button";
-import { EmailSignUp } from "~/features/auth/components/email-sign-up";
+import { EmailSignUpForm } from "~/features/auth/components/email-sign-up-form";
 
 export const Route = createFileRoute("/_auth/sign-up")({
   beforeLoad: ({ context }) => {
@@ -25,7 +25,7 @@ const RouteComponent = () => {
     <>
       <Title>welcome</Title>
 
-      <EmailSignUp />
+      <EmailSignUpForm />
 
       <RedirectText>
         already have an account?{" "}

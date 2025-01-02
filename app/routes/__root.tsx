@@ -9,6 +9,8 @@ import appCss from "~/features/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { validateRequest } from "~/features/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
+import { UserProvider } from "~/features/context/user.context";
+import { Header } from "~/features/components/header";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -54,6 +56,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         session,
       };
     },
+    loader: ({ context }) => {
+      return {
+        user: context.user,
+      };
+    },
     notFoundComponent: () => {
       return <p>404</p>;
     },
@@ -69,12 +76,19 @@ function RootComponent() {
 }
 
 function RootDocument(props: Readonly<PropsWithChildren>) {
+  const loaderData = Route.useLoaderData();
+
   return (
     <html>
       <head>
         <Meta />
       </head>
-      <body>
+      <body className="bg-background text-foreground">
+        {loaderData.user && (
+          <UserProvider value={loaderData.user}>
+            <Header />
+          </UserProvider>
+        )}
         {props.children}
 
         <ReactQueryDevtools buttonPosition="bottom-left" />
@@ -91,9 +105,9 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
   );
 }
 
+//TODO: dark theme
 //TODO: error boundary
 //TODO: 404 page
-//TODO: prettier
 //TODO: analytics
 //TODO: monitoring
 //TODO: rate limiter

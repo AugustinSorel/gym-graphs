@@ -16,6 +16,14 @@ export const userSchema = z.object({
     .email("email must be valid")
     .min(3, "email must be at least 3 characters")
     .max(255, "email must be at most 255 characters"),
+  name: z
+    .string({
+      required_error: "name is required",
+      invalid_type_error: "name must of type string",
+    })
+    .trim()
+    .min(3, "name must be at least 3 characters")
+    .max(255, "name must be at most 255 characters"),
   password: z
     .string({
       required_error: "password is required",

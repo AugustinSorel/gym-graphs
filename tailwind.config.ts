@@ -41,6 +41,18 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      maxWidth: {
+        app: "var(--max-width-app)",
+      },
+      width: {
+        "dashboard-card": "var(--dashboard-card-width)",
+      },
+      height: {
+        header: "var(--header-height)",
+      },
+      minHeight: {
+        header: "var(--header-height)",
+      },
       borderRadius: {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,
