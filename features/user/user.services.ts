@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "~/features/utils/db";
 import { User, userTable } from "~/features/db/db.schemas";
+import { createExercises } from "../exercise/exercise.services";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,
@@ -31,4 +32,15 @@ export const renameUser = async (
 
 export const deleteUser = async (userId: User["id"], db: Db) => {
   await db.delete(userTable).where(eq(userTable.id, userId));
+};
+
+export const seedUserAccount = async (userId: User["id"], db: Db) => {
+  await createExercises(
+    [
+      { name: "bench press", userId },
+      { name: "squat", userId },
+      { name: "deadlift", userId },
+    ],
+    db,
+  );
 };

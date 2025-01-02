@@ -146,22 +146,22 @@ const ChangeThemeSection = () => {
         <Footer>
           <ToggleGroup type="single">
             <ToggleGroupItem
-              value="kilo"
-              aria-label="Change weight unit to kg"
+              value="system"
+              aria-label="Change theme to system"
               variant="outline"
             >
               <Laptop className="size-4" />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="pounds"
-              aria-label="Change weight unit to lbs"
+              value="light"
+              aria-label="Change theme to light"
               variant="outline"
             >
               <Sun className="size-4" />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="pounds"
-              aria-label="Change weight unit to lbs"
+              value="dark"
+              aria-label="Change theme to dark"
               variant="outline"
             >
               <Moon className="size-4" />
@@ -312,7 +312,7 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   return (
     <footer
       className={cn(
-        "flex items-center justify-end border-t px-6 py-4",
+        "flex items-center justify-end border-t bg-background px-6 py-4",
         className,
       )}
       {...props}

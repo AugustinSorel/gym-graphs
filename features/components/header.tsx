@@ -155,8 +155,6 @@ const UserProfileDropdown = () => {
   const user = useUser();
   const signOut = useSignOut();
 
-  console.log("should rerender");
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

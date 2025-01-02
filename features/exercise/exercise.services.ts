@@ -21,3 +21,10 @@ export const createExercise = async (
 
   return exercise;
 };
+
+export const createExercises = async (
+  data: Array<typeof exerciseTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(exerciseTable).values(data).returning();
+};

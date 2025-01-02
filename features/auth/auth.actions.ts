@@ -1,5 +1,9 @@
 import { createServerFn } from "@tanstack/start";
-import { createUser, selectUserByEmail } from "~/features/user/user.services";
+import {
+  createUser,
+  seedUserAccount,
+  selectUserByEmail,
+} from "~/features/user/user.services";
 import { db } from "~/features/utils/db";
 import {
   generateSessionToken,
@@ -64,6 +68,8 @@ export const signUpAction = createServerFn({ method: "POST" })
           },
           tx,
         );
+
+        await seedUserAccount(user.id, tx);
 
         const sessionToken = generateSessionToken();
         const session = await createSession(sessionToken, user.id, tx);
