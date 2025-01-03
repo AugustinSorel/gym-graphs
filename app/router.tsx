@@ -3,7 +3,6 @@ import {
   createRouter as createTanStackRouter,
   ErrorComponentProps,
   Link,
-  NotFoundError,
   NotFoundRouteProps,
 } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";

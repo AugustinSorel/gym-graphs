@@ -8,6 +8,110 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { cn } from "~/features/utils/styles";
+import { ExerciseOverviewGraph } from "./exercise-overview-graph";
+
+const data = [
+  {
+    date: new Date("2025-01-02T09:51:33.261Z"),
+    weightLifted: 37,
+  },
+  {
+    date: new Date("2025-01-02T10:51:33.261Z"),
+    weightLifted: 741,
+  },
+  {
+    date: new Date("2025-01-02T11:51:33.261Z"),
+    weightLifted: 1200,
+  },
+  {
+    date: new Date("2025-01-02T12:51:33.261Z"),
+    weightLifted: 1625,
+  },
+  {
+    date: new Date("2025-01-02T13:51:33.261Z"),
+    weightLifted: 1574,
+  },
+  {
+    date: new Date("2025-01-02T14:51:33.261Z"),
+    weightLifted: 1934,
+  },
+  {
+    date: new Date("2025-01-02T15:51:33.261Z"),
+    weightLifted: 1152,
+  },
+  {
+    date: new Date("2025-01-02T16:51:33.261Z"),
+    weightLifted: 935,
+  },
+  {
+    date: new Date("2025-01-02T17:51:33.261Z"),
+    weightLifted: 2123,
+  },
+  {
+    date: new Date("2025-01-02T18:51:33.261Z"),
+    weightLifted: 1544,
+  },
+  {
+    date: new Date("2025-01-02T19:51:33.261Z"),
+    weightLifted: 20,
+  },
+  {
+    date: new Date("2025-01-02T20:51:33.261Z"),
+    weightLifted: 2655,
+  },
+  {
+    date: new Date("2025-01-02T21:51:33.261Z"),
+    weightLifted: 1841,
+  },
+  {
+    date: new Date("2025-01-02T22:51:33.261Z"),
+    weightLifted: 2212,
+  },
+  {
+    date: new Date("2025-01-02T23:51:33.261Z"),
+    weightLifted: 2390,
+  },
+  {
+    date: new Date("2025-01-03T00:51:33.261Z"),
+    weightLifted: 1745,
+  },
+  {
+    date: new Date("2025-01-03T01:51:33.261Z"),
+    weightLifted: 1523,
+  },
+  {
+    date: new Date("2025-01-03T02:51:33.261Z"),
+    weightLifted: 1920,
+  },
+  {
+    date: new Date("2025-01-03T03:51:33.261Z"),
+    weightLifted: 1031,
+  },
+  {
+    date: new Date("2025-01-03T04:51:33.261Z"),
+    weightLifted: 1865,
+  },
+  {
+    date: new Date("2025-01-03T05:51:33.261Z"),
+    weightLifted: 1152,
+  },
+  {
+    date: new Date("2025-01-03T06:51:33.261Z"),
+    weightLifted: 2003,
+  },
+  {
+    date: new Date("2025-01-03T07:51:33.261Z"),
+    weightLifted: 2458,
+  },
+  {
+    date: new Date("2025-01-03T08:51:33.261Z"),
+    weightLifted: 835,
+  },
+  {
+    date: new Date("2025-01-03T09:51:33.261Z"),
+    weightLifted: 708,
+  },
+];
 
 export const ExercisesGrid = () => {
   const exercises = useExercises();
@@ -26,6 +130,7 @@ export const ExercisesGrid = () => {
         >
           <Exercise>
             <Name>{exercise.name}</Name>
+            <ExerciseOverviewGraph exercises={data} />
           </Exercise>
         </CatchBoundary>
       ))}

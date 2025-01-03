@@ -115,18 +115,17 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
+//TODO: exercise page
+//TODO: exercise page graph
+//TODO: exercise table
+//TODO: exercise page add data point
 //TODO: dark theme
-//TODO: dashboard graphs
 //TODO: analytics
 //TODO: analytics events
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: docker
 //TODO: deploy to vps
-//TODO: exercise page
-//TODO: exercise page graph
-//TODO: exercise table
-//TODO: exercise page add data point
 
 //TODO: infite scroll for exercises
 //TODO: custom exercises filters
@@ -136,3 +135,4 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: dashboard fun facts
 //TODO: dashboard heat map
 //TODO: dashboard exercises count
+//TODO: reorder dashboard grid
