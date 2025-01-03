@@ -63,9 +63,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         user: context.user,
       };
     },
-    notFoundComponent: () => {
-      return <p>404</p>;
-    },
   },
 );
 
@@ -120,7 +117,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //TODO: dark theme
 //TODO: dashboard graphs
-//TODO: 404 page
 //TODO: analytics
 //TODO: analytics events
 //TODO: monitoring
