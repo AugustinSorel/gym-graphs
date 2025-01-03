@@ -5,7 +5,7 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router";
-import { UserProvider, useUser } from "~/features/context/user.context";
+import { useUser } from "~/features/context/user.context";
 import { ComponentProps, useTransition } from "react";
 import { Separator } from "~/features/ui/separator";
 import { Button } from "~/features/ui/button";
@@ -27,15 +27,6 @@ export const Route = createFileRoute("/settings")({
     if (!context.user || !context.session) {
       throw redirect({ to: "/sign-in" });
     }
-
-    return {
-      user: context.user,
-    };
-  },
-  loader: ({ context }) => {
-    return {
-      user: context.user,
-    };
   },
 });
 
@@ -54,26 +45,22 @@ const RouteFallback = (props: ErrorComponentProps) => {
 };
 
 const RouteComponent = () => {
-  const loaderData = Route.useLoaderData();
-
   return (
-    <UserProvider user={loaderData.user}>
-      <Main>
-        <Header>
-          <Title>account settings</Title>
-        </Header>
+    <Main>
+      <Header>
+        <Title>account settings</Title>
+      </Header>
 
-        <Separator />
+      <Separator />
 
-        <EmailSection />
-        <RenameUserSection />
-        <ChangeWeightUnitSection />
-        <ChangeThemeSection />
-        <GithubLinkSection />
-        <SignOutSection />
-        <DeleteAccountSection />
-      </Main>
-    </UserProvider>
+      <EmailSection />
+      <RenameUserSection />
+      <ChangeWeightUnitSection />
+      <ChangeThemeSection />
+      <GithubLinkSection />
+      <SignOutSection />
+      <DeleteAccountSection />
+    </Main>
   );
 };
 

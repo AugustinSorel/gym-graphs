@@ -31,8 +31,6 @@ export const RenameUserForm = (props: Props) => {
       { data },
       {
         onSuccess: () => {
-          form.reset();
-
           if (props.onSuccess) {
             props.onSuccess();
           }

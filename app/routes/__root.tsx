@@ -70,10 +70,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 function RootComponent() {
+  const loaderData = Route.useLoaderData();
+
+  if (!loaderData.user) {
+    return (
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    );
+  }
+
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <UserProvider user={loaderData.user}>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </UserProvider>
   );
 }
 
@@ -86,11 +98,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
         <Meta />
       </head>
       <body className="bg-background text-foreground">
-        {loaderData.user && (
-          <UserProvider user={loaderData.user}>
-            <Header />
-          </UserProvider>
-        )}
+        {loaderData.user && <Header />}
+
         {props.children}
 
         <ReactQueryDevtools buttonPosition="bottom-left" />
@@ -107,16 +116,27 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
   );
 }
 
-//BUG: username not refreshing in user dropdown
+//BUG: error handling not finished
+
 //TODO: dark theme
-//TODO: infite scroll for exercises
-//TODO: custom exercises filters
-//TODO: good auth
-//TODO: weight unit
+//TODO: dashboard graphs
 //TODO: 404 page
 //TODO: analytics
+//TODO: analytics events
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: docker
 //TODO: deploy to vps
+//TODO: exercise page
+//TODO: exercise page graph
+//TODO: exercise table
+//TODO: exercise page add data point
+
+//TODO: infite scroll for exercises
+//TODO: custom exercises filters
+//TODO: good auth
+//TODO: weight unit
 //TODO: teams
+//TODO: dashboard fun facts
+//TODO: dashboard heat map
+//TODO: dashboard exercises count

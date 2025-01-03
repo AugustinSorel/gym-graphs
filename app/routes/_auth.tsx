@@ -1,16 +1,10 @@
-import {
-  createFileRoute,
-  ErrorComponentProps,
-  Outlet,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ComponentProps } from "react";
-import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
 import { AppIcon } from "~/features/ui/app-icon";
 import { HeroBackground } from "~/features/ui/hero-background";
 
 export const Route = createFileRoute("/_auth")({
   component: () => RouteComponent(),
-  errorComponent: (props) => RouteFallback(props),
 });
 
 const RouteComponent = () => {
@@ -19,14 +13,6 @@ const RouteComponent = () => {
       <Hero />
       <Content />
     </Main>
-  );
-};
-
-const RouteFallback = (props: ErrorComponentProps) => {
-  return (
-    <main className="m-10">
-      <DefaultErrorFallback {...props} />
-    </main>
   );
 };
 

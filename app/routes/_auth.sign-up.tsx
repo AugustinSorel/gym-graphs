@@ -4,9 +4,7 @@ import {
   Link,
   redirect,
 } from "@tanstack/react-router";
-import { CircleAlert } from "lucide-react";
 import { ComponentProps } from "react";
-import { Alert, AlertDescription, AlertTitle } from "~/features/ui/alert";
 import { Button } from "~/features/ui/button";
 import { EmailSignUpForm } from "~/features/auth/components/email-sign-up-form";
 import { DefaultErrorFallback } from "~/features/components/default-error-fallback";

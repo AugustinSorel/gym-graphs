@@ -4,7 +4,6 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { exerciseKeys } from "~/features/exercise/exercise.keys";
-import { UserProvider } from "~/features/context/user.context";
 import { ExercisesGrid } from "~/features/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/features/exercise/components/create-exercise-dialog";
 import { ComponentProps } from "react";
@@ -28,10 +27,6 @@ export const Route = createFileRoute("/dashboard")({
     await context.queryClient.ensureQueryData(
       exerciseKeys.all(context.user.id),
     );
-
-    return {
-      user: context.user,
-    };
   },
   validateSearch: z.object({
     name: z.string().optional(),
@@ -47,19 +42,15 @@ const RouteFallback = (props: ErrorComponentProps) => {
 };
 
 const RouteComponent = () => {
-  const loaderData = Route.useLoaderData();
-
   return (
-    <UserProvider user={loaderData.user}>
-      <Main>
-        <Header>
-          <SearchExercises />
-          <CreateExerciseDialog />
-        </Header>
+    <Main>
+      <Header>
+        <SearchExercises />
+        <CreateExerciseDialog />
+      </Header>
 
-        <ExercisesGrid />
-      </Main>
-    </UserProvider>
+      <ExercisesGrid />
+    </Main>
   );
 };
 
