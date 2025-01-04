@@ -119,6 +119,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: exercise page graph
 //TODO: exercise table
 //TODO: exercise page add data point
+//TODO: rename exercise
+//TODO: delete exercise
 //TODO: dark theme
 //TODO: analytics
 //TODO: analytics events

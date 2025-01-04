@@ -44,7 +44,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
           x={(d) => timeSchema(getDate(d))}
           y={(d) => weightLiftedScale(getWeightLifted(d))}
           className="stroke-primary"
-          strokeWidth={2}
+          strokeWidth={3}
           shapeRendering="geometricPrecision"
         />
       </svg>

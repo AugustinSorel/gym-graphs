@@ -3,7 +3,7 @@ import {
   Dispatch,
   PropsWithChildren,
   SetStateAction,
-  useContext,
+  use,
   useState,
 } from "react";
 import type { User } from "../db/db.schemas";
@@ -15,15 +15,11 @@ const UserCtx = createContext<UserCtx | undefined>(undefined);
 export const UserProvider = (props: PropsWithChildren<{ user: User }>) => {
   const [user, setUser] = useState(props.user);
 
-  return (
-    <UserCtx.Provider value={{ ...user, set: setUser }}>
-      {props.children}
-    </UserCtx.Provider>
-  );
+  return <UserCtx value={{ ...user, set: setUser }}>{props.children}</UserCtx>;
 };
 
 export const useUser = () => {
-  const ctx = useContext(UserCtx);
+  const ctx = use(UserCtx);
 
   if (!ctx) {
     throw new Error("useUser must be wrapped inside of a UserProvider");
