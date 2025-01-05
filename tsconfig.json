@@ -6,6 +6,10 @@
     "target": "ES2022",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "checkJs": true,
+    "lib": ["ESNext.Array", "DOM", "ESNext"],
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"]

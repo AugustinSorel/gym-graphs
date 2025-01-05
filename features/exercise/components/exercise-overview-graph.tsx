@@ -21,7 +21,7 @@ type Props = Readonly<{
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
 
-  const data = [...props.exercises].sort(
+  const data = props.exercises.toSorted(
     (a, b) => a.date.getTime() - b.date.getTime(),
   );
 

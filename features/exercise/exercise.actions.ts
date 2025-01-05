@@ -32,6 +32,6 @@ export const createExerciseAction = createServerFn({ method: "POST" })
         throw new Error("exercise already created");
       }
 
-      throw new Error(e);
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
   });

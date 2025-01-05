@@ -84,7 +84,7 @@ export const signUpAction = createServerFn({ method: "POST" })
         throw new Error("email is already used");
       }
 
-      throw new Error(e);
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
   });
 
