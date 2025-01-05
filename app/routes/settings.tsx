@@ -5,20 +5,20 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router";
-import { useUser } from "~/features/context/user.context";
+import { useUser } from "~/context/user.context";
 import { ComponentProps, useTransition } from "react";
-import { Separator } from "~/features/ui/separator";
-import { Button } from "~/features/ui/button";
-import { Badge } from "~/features/ui/badge";
-import { cn } from "~/features/utils/styles";
+import { Separator } from "~/ui/separator";
+import { Button } from "~/ui/button";
+import { Badge } from "~/ui/badge";
+import { cn } from "~/styles/styles.utils";
 import { Github, Laptop, Moon, Sun } from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "~/features/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useMutation } from "@tanstack/react-query";
-import { signOutAction } from "~/features/auth/auth.actions";
-import { Spinner } from "~/features/ui/spinner";
-import { RenameUserDialog } from "~/features/user/components/rename-user-dialog";
-import { DeleteAccountDialog } from "~/features/user/components/delete-account-dialog";
-import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
+import { signOutAction } from "~/auth/auth.actions";
+import { Spinner } from "~/ui/spinner";
+import { RenameUserDialog } from "~/user/components/rename-user-dialog";
+import { DeleteAccountDialog } from "~/user/components/delete-account-dialog";
+import { DefaultErrorFallback } from "~/components/default-error-fallback";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),

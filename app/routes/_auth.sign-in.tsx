@@ -5,9 +5,9 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { ComponentProps } from "react";
-import { Button } from "~/features/ui/button";
-import { EmailSignInForm } from "~/features/auth/components/email-sign-in-form";
-import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
+import { Button } from "~/ui/button";
+import { EmailSignInForm } from "~/auth/components/email-sign-in-form";
+import { DefaultErrorFallback } from "~/components/default-error-fallback";
 
 export const Route = createFileRoute("/_auth/sign-in")({
   beforeLoad: ({ context }) => {

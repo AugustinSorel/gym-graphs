@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ComponentProps } from "react";
-import { useUser } from "~/features/context/user.context";
-import { exerciseKeys } from "~/features/exercise/exercise.keys";
-import { Separator } from "~/features/ui/separator";
+import { useUser } from "~/context/user.context";
+import { exerciseKeys } from "~/exercise/exercise.keys";
+import { Separator } from "~/ui/separator";
 
 export const Route = createFileRoute("/exercises/$name")({
   component: () => RouteComponent(),

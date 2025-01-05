@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
-import { getDbUrl } from "~/features/utils/db";
+import { getDbUrl } from "~/db/db.utils";
 
 const config = defineConfig({
   out: "./drizzle",

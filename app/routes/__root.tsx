@@ -5,13 +5,13 @@ import {
 } from "@tanstack/react-router";
 import { createServerFn, Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense, type PropsWithChildren } from "react";
-import appCss from "~/features/styles/styles.css?url";
+import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { validateRequest } from "~/features/auth/auth.middlewares";
+import { validateRequest } from "~/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
-import { UserProvider } from "~/features/context/user.context";
-import { Header } from "~/features/components/header";
-import { DefaultErrorFallback } from "~/features/components/default-error-fallback";
+import { UserProvider } from "~/context/user.context";
+import { Header } from "~/components/header";
+import { DefaultErrorFallback } from "~/components/default-error-fallback";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -115,7 +115,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
-//TODO: exercise page
+//TODO: move all folders into app
+//TODO: split files with .utils.ts
 //TODO: exercise page graph
 //TODO: exercise table
 //TODO: exercise page add data point
