@@ -33,12 +33,6 @@ export const Route = createFileRoute("/settings")({
 const RouteFallback = (props: ErrorComponentProps) => {
   return (
     <Main>
-      <Header>
-        <Title>account settings</Title>
-      </Header>
-
-      <Separator />
-
       <DefaultErrorFallback {...props} />
     </Main>
   );
@@ -281,13 +275,8 @@ const Main = (props: ComponentProps<"main">) => {
   );
 };
 
-const Title = ({ className, ...props }: ComponentProps<"h1">) => {
-  return (
-    <h1
-      className={cn("text-3xl font-semibold capitalize", className)}
-      {...props}
-    />
-  );
+const Title = (props: ComponentProps<"h1">) => {
+  return <h1 className="text-3xl font-semibold capitalize" {...props} />;
 };
 
 const SectionTitle = (props: ComponentProps<"h2">) => {

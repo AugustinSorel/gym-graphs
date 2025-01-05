@@ -5,10 +5,12 @@ import { ComponentProps } from "react";
 import {
   CatchBoundary,
   ErrorComponentProps,
+  Link,
   useSearch,
 } from "@tanstack/react-router";
 import { cn } from "~/features/utils/styles";
 import { ExerciseOverviewGraph } from "./exercise-overview-graph";
+import { Button } from "~/features/ui/button";
 
 const data = [
   {
@@ -129,8 +131,16 @@ export const ExercisesGrid = () => {
           key={exercise.name + exercise.userId}
         >
           <Exercise>
-            <Name>{exercise.name}</Name>
-            <ExerciseOverviewGraph exercises={data} />
+            <Button
+              variant="ghost"
+              asChild
+              className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch p-0 [&_svg]:size-auto"
+            >
+              <Link to="/exercises/$name" params={{ name: exercise.name }}>
+                <Name>{exercise.name}</Name>
+                <ExerciseOverviewGraph exercises={data} />
+              </Link>
+            </Button>
           </Exercise>
         </CatchBoundary>
       ))}
@@ -168,10 +178,7 @@ const List = (props: ComponentProps<"ol">) => {
 const Exercise = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
-      className={cn(
-        "grid h-[300px] grid-rows-[auto_1fr] rounded-md border bg-secondary",
-        className,
-      )}
+      className={cn("rounded-md border bg-secondary", className)}
       {...props}
     />
   );
