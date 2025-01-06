@@ -138,7 +138,7 @@ export const ExercisesGrid = () => {
             >
               <Link to="/exercises/$name" params={{ name: exercise.name }}>
                 <Name>{exercise.name}</Name>
-                <ExerciseOverviewGraph exercises={data} />
+                <ExerciseOverviewGraph exercisePoints={data} />
               </Link>
             </Button>
           </Exercise>

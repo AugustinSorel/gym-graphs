@@ -115,8 +115,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
-//TODO: move all folders into app
-//TODO: split files with .utils.ts
+//TODO: fix auth ctx with docs
 //TODO: exercise page graph
 //TODO: exercise table
 //TODO: exercise page add data point
