@@ -15,7 +15,7 @@ import { Route as SettingsImport } from './routes/settings'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
-import { Route as ExercisesNameImport } from './routes/exercises.$name'
+import { Route as ExercisesExerciseIdImport } from './routes/exercises.$exerciseId'
 import { Route as AuthSignUpImport } from './routes/_auth.sign-up'
 import { Route as AuthSignInImport } from './routes/_auth.sign-in'
 
@@ -44,9 +44,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ExercisesNameRoute = ExercisesNameImport.update({
-  id: '/exercises/$name',
-  path: '/exercises/$name',
+const ExercisesExerciseIdRoute = ExercisesExerciseIdImport.update({
+  id: '/exercises/$exerciseId',
+  path: '/exercises/$exerciseId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -108,11 +108,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignUpImport
       parentRoute: typeof AuthImport
     }
-    '/exercises/$name': {
-      id: '/exercises/$name'
-      path: '/exercises/$name'
-      fullPath: '/exercises/$name'
-      preLoaderRoute: typeof ExercisesNameImport
+    '/exercises/$exerciseId': {
+      id: '/exercises/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof ExercisesExerciseIdImport
       parentRoute: typeof rootRoute
     }
   }
@@ -139,7 +139,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
-  '/exercises/$name': typeof ExercisesNameRoute
+  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -149,7 +149,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
-  '/exercises/$name': typeof ExercisesNameRoute
+  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
 }
 
 export interface FileRoutesById {
@@ -160,7 +160,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/_auth/sign-in': typeof AuthSignInRoute
   '/_auth/sign-up': typeof AuthSignUpRoute
-  '/exercises/$name': typeof ExercisesNameRoute
+  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
 }
 
 export interface FileRouteTypes {
@@ -172,7 +172,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
-    | '/exercises/$name'
+    | '/exercises/$exerciseId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -181,7 +181,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sign-in'
     | '/sign-up'
-    | '/exercises/$name'
+    | '/exercises/$exerciseId'
   id:
     | '__root__'
     | '/'
@@ -190,7 +190,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/_auth/sign-in'
     | '/_auth/sign-up'
-    | '/exercises/$name'
+    | '/exercises/$exerciseId'
   fileRoutesById: FileRoutesById
 }
 
@@ -199,7 +199,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   SettingsRoute: typeof SettingsRoute
-  ExercisesNameRoute: typeof ExercisesNameRoute
+  ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -207,7 +207,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   DashboardRoute: DashboardRoute,
   SettingsRoute: SettingsRoute,
-  ExercisesNameRoute: ExercisesNameRoute,
+  ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -224,7 +224,7 @@ export const routeTree = rootRoute
         "/_auth",
         "/dashboard",
         "/settings",
-        "/exercises/$name"
+        "/exercises/$exerciseId"
       ]
     },
     "/": {
@@ -251,8 +251,8 @@ export const routeTree = rootRoute
       "filePath": "_auth.sign-up.tsx",
       "parent": "/_auth"
     },
-    "/exercises/$name": {
-      "filePath": "exercises.$name.tsx"
+    "/exercises/$exerciseId": {
+      "filePath": "exercises.$exerciseId.tsx"
     }
   }
 }

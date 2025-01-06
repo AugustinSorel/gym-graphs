@@ -1,11 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import {
-  integer,
-  pgTable,
-  timestamp,
-  text,
-  primaryKey,
-} from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, text } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -50,18 +44,15 @@ export const sessionRelations = relations(sessionTable, ({ one }) => ({
   }),
 }));
 
-export const exerciseTable = pgTable(
-  "exercise",
-  {
-    userId: integer("user_id")
-      .notNull()
-      .references(() => userTable.id, { onDelete: "cascade" }),
-    name: text("").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [primaryKey({ columns: [table.userId, table.name] })],
-);
+export const exerciseTable = pgTable("exercise", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  name: text("").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export type Exercise = typeof exerciseTable.$inferSelect;
 

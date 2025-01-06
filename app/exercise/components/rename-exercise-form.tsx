@@ -1,5 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -11,25 +15,28 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { createExerciseAction } from "~/exercise/exercise.actions";
+import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/context/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
+import { getRouteApi } from "@tanstack/react-router";
 
-type Props = {
-  onSuccess?: () => void;
-};
-
-export const CreateExerciseForm = (props: Readonly<Props>) => {
+export const RenameExerciseForm = (props: Props) => {
   const form = useCreateExerciseForm();
-  const createExercise = useCreateExercise();
+  const renameExercise = useRenameExercise();
+  const exercise = useExercise();
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await createExercise.mutateAsync(
-      { data },
+    await renameExercise.mutateAsync(
+      {
+        data: {
+          exerciseId: exercise.data.id,
+          name: data.name,
+        },
+      },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -68,7 +75,7 @@ export const CreateExerciseForm = (props: Readonly<Props>) => {
             disabled={form.formState.isSubmitting}
             className="font-semibold"
           >
-            <span>create</span>
+            <span>rename</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -77,8 +84,15 @@ export const CreateExerciseForm = (props: Readonly<Props>) => {
   );
 };
 
+type Props = Readonly<{
+  onSuccess?: () => void;
+}>;
+
+const routeApi = getRouteApi("/exercises/$exerciseId");
+
 const useFormSchema = () => {
   const queryClient = useQueryClient();
+  const params = routeApi.useParams();
   const user = useUser();
 
   return exerciseSchema.pick({ name: true }).refine(
@@ -87,7 +101,7 @@ const useFormSchema = () => {
       const cachedExercises = queryClient.getQueryData(key);
 
       const nameTaken = cachedExercises?.find((exercise) => {
-        return exercise.name === data.name;
+        return exercise.name === data.name && exercise.id !== params.exerciseId;
       });
 
       return !nameTaken;
@@ -99,46 +113,80 @@ const useFormSchema = () => {
   );
 };
 
-type CreateExerciseSchema = z.infer<ReturnType<typeof useFormSchema>>;
+const useExercise = () => {
+  const user = useUser();
+  const params = routeApi.useParams();
+  const exercise = useSuspenseQuery(
+    exerciseKeys.get(user.id, params.exerciseId),
+  );
+
+  return exercise;
+};
+
+type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
+  const exercise = useExercise();
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: exercise.data.name,
     },
   });
 };
 
-const useCreateExercise = () => {
-  const user = useUser();
+const useRenameExercise = () => {
   const queryClient = useQueryClient();
+  const exercise = useExercise();
+  const user = useUser();
 
   return useMutation({
-    mutationFn: createExerciseAction,
+    mutationFn: renameExerciseAction,
     onMutate: (variables) => {
-      const key = exerciseKeys.all(user.id).queryKey;
+      const keys = {
+        all: exerciseKeys.all(user.id).queryKey,
+        get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
+      } as const;
 
       const optimisticExercise = {
-        id: Math.random(),
-        userId: user.id,
         name: variables.data.name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(key, (exercises) => {
+      queryClient.setQueryData(keys.all, (exercises) => {
         if (!exercises) {
           return [];
         }
 
-        return [optimisticExercise, ...exercises];
+        return exercises.map((exercise) => {
+          if (exercise.id === variables.data.exerciseId) {
+            return {
+              ...exercise,
+              ...optimisticExercise,
+            };
+          }
+
+          return exercise;
+        });
+      });
+
+      queryClient.setQueryData(keys.get, (exercise) => {
+        if (!exercise) {
+          return exercise;
+        }
+
+        return {
+          ...exercise,
+          ...optimisticExercise,
+        };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
       void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(
+        exerciseKeys.get(user.id, variables.data.exerciseId),
+      );
     },
   });
 };

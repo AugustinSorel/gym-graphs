@@ -136,7 +136,10 @@ export const ExercisesGrid = () => {
               asChild
               className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch p-0 [&_svg]:size-auto"
             >
-              <Link to="/exercises/$name" params={{ name: exercise.name }}>
+              <Link
+                to="/exercises/$exerciseId"
+                params={{ exerciseId: exercise.id }}
+              >
                 <Name>{exercise.name}</Name>
                 <ExerciseOverviewGraph exercisePoints={data} />
               </Link>

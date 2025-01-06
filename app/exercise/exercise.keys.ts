@@ -9,10 +9,10 @@ const all = (userId: User["id"]) => {
   });
 };
 
-const get = (userId: Exercise["userId"], name: Exercise["name"]) => {
+const get = (userId: Exercise["userId"], exerciseId: Exercise["id"]) => {
   return queryOptions({
-    queryKey: [userId, "exercises", name],
-    queryFn: () => fetchExerciseAction({ data: { name } }),
+    queryKey: [userId, "exercises", exerciseId],
+    queryFn: () => fetchExerciseAction({ data: { id: exerciseId } }),
   });
 };
 

@@ -115,8 +115,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
-//TODO: fix auth ctx with docs
-//TODO: exercise page graph
 //TODO: exercise table
 //TODO: exercise page add data point
 //TODO: rename exercise

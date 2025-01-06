@@ -1,13 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ComponentProps } from "react";
+import { z } from "zod";
 import { useUser } from "~/context/user.context";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
-import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
+import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
 import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { Separator } from "~/ui/separator";
 
-export const Route = createFileRoute("/exercises/$name")({
+export const Route = createFileRoute("/exercises/$exerciseId")({
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
     if (!context.user || !context.session) {
@@ -18,22 +20,27 @@ export const Route = createFileRoute("/exercises/$name")({
       user: context.user,
     };
   },
+  params: z.object({
+    exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
+  }),
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(
-      exerciseKeys.get(context.user.id, params.name),
-    );
+    const key = exerciseKeys.get(context.user.id, params.exerciseId);
+
+    await context.queryClient.ensureQueryData(key);
   },
 });
 
 const RouteComponent = () => {
   const user = useUser();
   const params = Route.useParams();
-  const exercise = useSuspenseQuery(exerciseKeys.get(user.id, params.name));
+  const key = exerciseKeys.get(user.id, params.exerciseId);
+  const exercise = useSuspenseQuery(key);
 
   return (
     <Main>
       <Header>
         <Title>{exercise.data.name}</Title>
+        <RenameExerciseDialog />
       </Header>
 
       <Separator />
