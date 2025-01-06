@@ -41,11 +41,23 @@ export const renameExercise = async (
   name: Exercise["name"],
   db: Db,
 ) => {
-  await db
+  return db
     .update(exerciseTable)
     .set({ name })
     .where(
       and(eq(exerciseTable.id, exerciseId), eq(exerciseTable.userId, userId)),
+    );
+};
+
+export const deleteExercise = async (
+  userId: Exercise["userId"],
+  exerciseId: Exercise["id"],
+  db: Db,
+) => {
+  return db
+    .delete(exerciseTable)
+    .where(
+      and(eq(exerciseTable.userId, userId), eq(exerciseTable.id, exerciseId)),
     );
 };
 

@@ -20,14 +20,17 @@ export const DeleteAccountDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = useNavigate();
 
-  const deleteAccount = useMutation({
-    mutationFn: deleteAccountAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/sign-up" });
-      });
-    },
-  });
+  const deleteAccount = useDeleteAccount();
+
+  const deleteAccountHandler = () => {
+    deleteAccount.mutate(undefined, {
+      onSuccess: () => {
+        startRedirectTransition(async () => {
+          await navigate({ to: "/sign-up" });
+        });
+      },
+    });
+  };
 
   return (
     <AlertDialog>
@@ -50,7 +53,7 @@ export const DeleteAccountDialog = () => {
             disabled={deleteAccount.isPending || isRedirectPending}
             onClick={(e) => {
               e.preventDefault();
-              deleteAccount.mutate(undefined);
+              deleteAccountHandler();
             }}
           >
             <span>Delete</span>
@@ -60,4 +63,10 @@ export const DeleteAccountDialog = () => {
       </AlertDialogContent>
     </AlertDialog>
   );
+};
+
+const useDeleteAccount = () => {
+  return useMutation({
+    mutationFn: deleteAccountAction,
+  });
 };

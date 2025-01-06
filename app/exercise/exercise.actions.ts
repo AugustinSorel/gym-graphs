@@ -3,6 +3,7 @@ import { authGuard } from "../auth/auth.middlewares";
 import { db } from "~/utils/db";
 import {
   createExercise,
+  deleteExercise,
   renameExercise,
   selectDashboardExercises,
   selectExercise,
@@ -72,11 +73,18 @@ export const renameExerciseAction = createServerFn({ method: "POST" })
     }
   });
 
+export const deleteExerciseAction = createServerFn({ method: "POST" })
+  .middleware([authGuard])
+  .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    return await deleteExercise(context.user.id, data.exerciseId, db);
+  });
+
 export const fetchExerciseAction = createServerFn({ method: "GET" })
   .middleware([authGuard])
-  .validator(exerciseSchema.pick({ id: true }))
+  .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    const exercise = await selectExercise(context.user.id, data.id, db);
+    const exercise = await selectExercise(context.user.id, data.exerciseId, db);
 
     if (!exercise) {
       throw redirect({ to: "/dashboard" });

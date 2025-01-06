@@ -139,7 +139,6 @@ const useCreateExerciseForm = () => {
 
 const useRenameExercise = () => {
   const queryClient = useQueryClient();
-  const exercise = useExercise();
   const user = useUser();
 
   return useMutation({
@@ -147,7 +146,7 @@ const useRenameExercise = () => {
     onMutate: (variables) => {
       const keys = {
         all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
+        get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
       } as const;
 
       const optimisticExercise = {

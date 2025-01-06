@@ -12,7 +12,7 @@ const all = (userId: User["id"]) => {
 const get = (userId: Exercise["userId"], exerciseId: Exercise["id"]) => {
   return queryOptions({
     queryKey: [userId, "exercises", exerciseId],
-    queryFn: () => fetchExerciseAction({ data: { id: exerciseId } }),
+    queryFn: () => fetchExerciseAction({ data: { exerciseId } }),
   });
 };
 

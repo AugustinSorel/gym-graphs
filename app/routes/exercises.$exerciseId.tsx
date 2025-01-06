@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { useUser } from "~/context/user.context";
+import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
 import { exerciseKeys } from "~/exercise/exercise.keys";
@@ -41,6 +42,7 @@ const RouteComponent = () => {
       <Header>
         <Title>{exercise.data.name}</Title>
         <RenameExerciseDialog />
+        <DeleteExerciseDialog />
       </Header>
 
       <Separator />
@@ -165,7 +167,7 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid gap-2" {...props} />;
+  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
 };
 
 const Title = (props: ComponentProps<"h1">) => {
