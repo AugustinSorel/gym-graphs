@@ -3,6 +3,7 @@ import type { Db } from "~/utils/db";
 import { User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createExerciseSets } from "~/exercise-set/exercise-set.services";
+import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,
@@ -48,15 +49,15 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   await Promise.resolve(
     exercises.map((exercise) => {
       const sets = [...Array(3).keys()].map((i) => {
-        const repetitionCount = Math.floor(Math.random() * 10 * (i + 1));
-        const weightLifted = Math.floor(Math.random() * 30 * (i + 1));
-        //todo: insert good formula
+        const repetitions = Math.floor((Math.random() || 1) * 10 * (i + 1));
+        const weightInKg = Math.floor((Math.random() || 1) * 30 * (i + 1));
 
         return {
           exerciseId: exercise.id,
-          repetitionCount,
-          weightLifted,
-          oneRepMax: repetitionCount + weightLifted,
+          repetitions,
+          weightInKg,
+          doneAt: new Date(new Date().setDate(new Date().getDate() - i)),
+          oneRepMax: getOneRepMaxEplay(weightInKg, repetitions),
         };
       });
 

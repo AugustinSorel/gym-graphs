@@ -12,25 +12,24 @@ import {
 } from "~/ui/alert-dialog";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
-import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { deleteExerciseAction } from "../exercise.actions";
 import { useUser } from "~/context/user.context";
 import { exerciseKeys } from "../exercise.keys";
-
-const routeApi = getRouteApi("/exercises/$exerciseId");
+import { useExercise } from "../hooks/useExercise";
 
 export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = useNavigate();
-  const params = routeApi.useParams();
+  const exercise = useExercise();
   const deleteExercise = useDeleteExercise();
 
   const deleteExerciseHandler = () => {
     deleteExercise.mutate(
       {
         data: {
-          exerciseId: params.exerciseId,
+          exerciseId: exercise.data.id,
         },
       },
       {

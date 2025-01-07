@@ -11,6 +11,11 @@ export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
   return db.query.exerciseTable.findMany({
     where: eq(exerciseTable.userId, userId),
     orderBy: desc(exerciseTable.createdAt),
+    with: {
+      sets: {
+        orderBy: desc(exerciseSetTable.createdAt),
+      },
+    },
   });
 };
 

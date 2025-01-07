@@ -4,6 +4,7 @@ import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { ExerciseSet } from "~/db/db.schemas";
+import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -40,11 +41,14 @@ export const ExerciseOverviewGraph = (props: Props) => {
 };
 
 const getDoneAt = (d: Point) => d.doneAt;
-const getOneRepMax = (d: Point) => d.oneRepMax;
+const getOneRepMax = (d: Point) =>
+  getOneRepMaxEplay(d.weightInKg, d.repetitions);
 
 const margin = { top: 20, bottom: 20, left: 0, right: 0 } as const;
 
-type Point = Readonly<Pick<ExerciseSet, "oneRepMax" | "doneAt">>;
+type Point = Readonly<
+  Pick<ExerciseSet, "weightInKg" | "repetitions" | "doneAt">
+>;
 
 type Props = Readonly<{
   exercisePoints: ReadonlyArray<Point>;

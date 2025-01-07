@@ -125,6 +125,7 @@ const useCreateExercise = () => {
         id: Math.random(),
         userId: user.id,
         name: variables.data.name,
+        sets: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       };

@@ -2,7 +2,7 @@ import type { Db } from "~/utils/db";
 import { Session, sessionTable, User } from "~/db/db.schemas";
 import { sha256Encode } from "../auth/auth.services";
 import { eq } from "drizzle-orm";
-import { thirtyDaysInMs } from "~/auth/auth.utils";
+import { thirtyDaysInMs } from "~/utils/date.utils";
 
 export const createSession = async (
   sessionToken: string,

@@ -18,6 +18,7 @@ import {
 } from "react";
 import { z } from "zod";
 import { ExerciseSet } from "~/db/db.schemas";
+import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -51,7 +52,8 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
       const d0 = data.at(index - 1) ?? {
         doneAt: new Date(),
-        oneRepMax: 0,
+        repetitions: 0,
+        weightInKg: 0,
       };
 
       const d1 = data.at(index);
@@ -77,7 +79,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
   return (
     <>
-      <div ref={parentRef}>
+      <div ref={parentRef} className="overflow-hidden">
         <svg width={width} height={height}>
           {/*bottom axis*/}
           <Group top={margin.top} left={margin.left}>
@@ -88,8 +90,9 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
               tickFormat={(value) => {
                 const date = z
                   .number()
-                  .catch(Date.now())
                   .transform((d) => new Date(d))
+                  .or(z.date())
+                  .catch(new Date())
                   .parse(value);
 
                 return date.toLocaleDateString("en-US", {
@@ -178,15 +181,34 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
       {tooltip.tooltipData && (
         <TooltipWithBounds
-          top={tooltip.tooltipTop ?? 0}
-          left={tooltip.tooltipLeft ?? 0}
+          top={(tooltip.tooltipTop ?? 0) - tooltipMargin.top}
+          left={(tooltip.tooltipLeft ?? 0) - tooltipMargin.left}
           style={tooltipStyles}
         >
-          <span className="size-3 rounded-sm bg-primary" />
-          <span className="text-sm text-muted-foreground">one rep max</span>
-          <span className="text-sm font-semibold">
-            {tooltip.tooltipData.oneRepMax}
-          </span>
+          <time
+            dateTime={tooltip.tooltipData.doneAt.toString()}
+            className="text-xs font-bold"
+          >
+            {tooltip.tooltipData.doneAt.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </time>
+
+          <dl className="grid grid-cols-[1fr_auto] gap-x-2 text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
+            <dt>1 rep max</dt>
+            <dd>
+              {getOneRepMaxEplay(
+                tooltip.tooltipData.weightInKg,
+                tooltip.tooltipData.repetitions,
+              )}{" "}
+              kg
+            </dd>
+            <dt>weight</dt>
+            <dd>{tooltip.tooltipData.repetitions} kg</dd>
+            <dt>repetitions</dt>
+            <dd>{tooltip.tooltipData.weightInKg}</dd>
+          </dl>
         </TooltipWithBounds>
       )}
     </>
@@ -194,7 +216,8 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 };
 
 const getDoneAt = (d: Point) => d.doneAt;
-const getOneRepMax = (d: Point) => d.oneRepMax;
+const getOneRepMax = (d: Point) =>
+  getOneRepMaxEplay(d.weightInKg, d.repetitions);
 const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {
@@ -204,16 +227,26 @@ const margin = {
   right: 50,
 } as const;
 
+const tooltipMargin = {
+  top: 60,
+  bottom: 0,
+  left: 30,
+  right: 0,
+} as const;
+
 const tooltipStyles: Readonly<CSSProperties> = {
   ...defaultStyles,
   borderRadius: "0.5rem",
   border: "1px solid hsl(var(--border))",
   display: "flex",
+  flexDirection: "column",
   gap: "0.5rem",
-  alignItems: "center",
+  color: "hsl(var(--foreground))",
 };
 
-type Point = Readonly<Pick<ExerciseSet, "oneRepMax" | "doneAt">>;
+type Point = Readonly<
+  Pick<ExerciseSet, "weightInKg" | "repetitions" | "doneAt">
+>;
 
 type Props = Readonly<{
   exercisePoints: ReadonlyArray<Point>;

@@ -1,9 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -23,6 +19,7 @@ import { useUser } from "~/context/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
+import { useExercise } from "../hooks/useExercise";
 
 export const RenameExerciseForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -111,16 +108,6 @@ const useFormSchema = () => {
       path: ["name"],
     },
   );
-};
-
-const useExercise = () => {
-  const user = useUser();
-  const params = routeApi.useParams();
-  const exercise = useSuspenseQuery(
-    exerciseKeys.get(user.id, params.exerciseId),
-  );
-
-  return exercise;
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;

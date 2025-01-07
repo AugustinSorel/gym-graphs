@@ -116,6 +116,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //BUG: error handling not finished
 
 //TODO: exercise table
+//TODO: dashboard view layout
 //TODO: exercise page add set
 //TODO: dark theme
 //TODO: analytics

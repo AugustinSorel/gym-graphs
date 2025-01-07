@@ -1,5 +1,12 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, pgTable, timestamp, text, unique } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  timestamp,
+  text,
+  unique,
+  date,
+} from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -44,6 +51,7 @@ export const sessionRelations = relations(sessionTable, ({ one }) => ({
   }),
 }));
 
+//BUG: unique constraint does not work with new drizzle sintax
 export const exerciseTable = pgTable(
   "exercise",
   {
@@ -55,11 +63,9 @@ export const exerciseTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [
-    {
-      unq: unique().on(table.userId, table.name),
-    },
-  ],
+  (table) => ({
+    unq: unique().on(table.userId, table.name),
+  }),
 );
 
 export type Exercise = typeof exerciseTable.$inferSelect;
@@ -72,18 +78,24 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   sets: many(exerciseSetTable),
 }));
 
-export const exerciseSetTable = pgTable("exercise_set", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  exerciseId: integer("exercise_id")
-    .notNull()
-    .references(() => exerciseTable.id, { onDelete: "cascade" }),
-  weightLifted: integer("weight_lifted").notNull(),
-  repetitionCount: integer("repetition_count").notNull(),
-  oneRepMax: integer("one_rep_max").notNull(),
-  doneAt: timestamp("done_at").notNull().defaultNow(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+//BUG: unique constraint does not work with new drizzle sintax
+export const exerciseSetTable = pgTable(
+  "exercise_set",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    exerciseId: integer("exercise_id")
+      .notNull()
+      .references(() => exerciseTable.id, { onDelete: "cascade" }),
+    weightInKg: integer("weight_in_kg").notNull(),
+    repetitions: integer("repetition_count").notNull(),
+    doneAt: date("done_at", { mode: "date" }).notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    unq: unique().on(table.doneAt, table.exerciseId),
+  }),
+);
 
 export type ExerciseSet = typeof exerciseSetTable.$inferSelect;
 

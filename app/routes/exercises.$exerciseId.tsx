@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { useUser } from "~/context/user.context";
+import { AddExerciseSetDialog } from "~/exercise-set/components/add-exercise-set-dialog";
 import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
@@ -42,6 +43,7 @@ const RouteComponent = () => {
       <Header>
         <Title>{exercise.data.name}</Title>
         <RenameExerciseDialog />
+        <AddExerciseSetDialog />
         <DeleteExerciseDialog />
       </Header>
 
@@ -63,103 +65,128 @@ const RouteComponent = () => {
 const data = [
   {
     doneAt: new Date("2025-01-02T09:51:33.261Z"),
-    oneRepMax: 37,
+    weightInKg: 37,
+    repetitions: 37,
   },
   {
     doneAt: new Date("2025-01-02T10:51:33.261Z"),
-    oneRepMax: 741,
+    weightInKg: 741,
+    repetitions: 741,
   },
   {
     doneAt: new Date("2025-01-02T11:51:33.261Z"),
-    oneRepMax: 1200,
+    weightInKg: 1200,
+    repetitions: 1200,
   },
   {
     doneAt: new Date("2025-01-02T12:51:33.261Z"),
-    oneRepMax: 1625,
+    weightInKg: 1625,
+    repetitions: 1625,
   },
   {
     doneAt: new Date("2025-01-02T13:51:33.261Z"),
-    oneRepMax: 1574,
+    weightInKg: 1574,
+    repetitions: 1574,
   },
   {
     doneAt: new Date("2025-01-02T14:51:33.261Z"),
-    oneRepMax: 1934,
+    weightInKg: 1934,
+    repetitions: 1934,
   },
   {
     doneAt: new Date("2025-01-02T15:51:33.261Z"),
-    oneRepMax: 1152,
+    weightInKg: 1152,
+    repetitions: 1152,
   },
   {
     doneAt: new Date("2025-01-02T16:51:33.261Z"),
-    oneRepMax: 935,
+    weightInKg: 935,
+    repetitions: 935,
   },
   {
     doneAt: new Date("2025-01-02T17:51:33.261Z"),
-    oneRepMax: 2123,
+    weightInKg: 2123,
+    repetitions: 2123,
   },
   {
     doneAt: new Date("2025-01-02T18:51:33.261Z"),
-    oneRepMax: 1544,
+    weightInKg: 1544,
+    repetitions: 1544,
   },
   {
     doneAt: new Date("2025-01-02T19:51:33.261Z"),
-    oneRepMax: 20,
+    weightInKg: 20,
+    repetitions: 20,
   },
   {
     doneAt: new Date("2025-01-02T20:51:33.261Z"),
-    oneRepMax: 2655,
+    weightInKg: 2655,
+    repetitions: 2655,
   },
   {
     doneAt: new Date("2025-01-02T21:51:33.261Z"),
-    oneRepMax: 1841,
+    weightInKg: 1841,
+    repetitions: 1841,
   },
   {
     doneAt: new Date("2025-01-02T22:51:33.261Z"),
-    oneRepMax: 2212,
+    weightInKg: 2212,
+    repetitions: 2212,
   },
   {
     doneAt: new Date("2025-01-02T23:51:33.261Z"),
-    oneRepMax: 2390,
+    weightInKg: 2390,
+    repetitions: 2390,
   },
   {
     doneAt: new Date("2025-01-03T00:51:33.261Z"),
-    oneRepMax: 1745,
+    weightInKg: 1745,
+    repetitions: 1745,
   },
   {
     doneAt: new Date("2025-01-03T01:51:33.261Z"),
-    oneRepMax: 1523,
+    weightInKg: 1523,
+    repetitions: 1523,
   },
   {
     doneAt: new Date("2025-01-03T02:51:33.261Z"),
-    oneRepMax: 1920,
+    weightInKg: 1920,
+    repetitions: 1920,
   },
   {
     doneAt: new Date("2025-01-03T03:51:33.261Z"),
-    oneRepMax: 1031,
+    weightInKg: 1031,
+    repetitions: 1031,
   },
   {
     doneAt: new Date("2025-01-03T04:51:33.261Z"),
-    oneRepMax: 1865,
+    weightInKg: 1865,
+    repetitions: 1865,
   },
   {
     doneAt: new Date("2025-01-03T05:51:33.261Z"),
-    oneRepMax: 1152,
+    weightInKg: 1152,
+    repetitions: 1152,
   },
   {
     doneAt: new Date("2025-01-03T06:51:33.261Z"),
-    oneRepMax: 2003,
+    weightInKg: 2003,
+    repetitions: 2003,
   },
   {
     doneAt: new Date("2025-01-03T07:51:33.261Z"),
-    oneRepMax: 2458,
+    weightInKg: 2458,
+    repetitions: 2458,
   },
   {
     doneAt: new Date("2025-01-03T08:51:33.261Z"),
-    oneRepMax: 835,
+    weightInKg: 835,
+    repetitions: 835,
   },
   {
     doneAt: new Date("2025-01-03T09:51:33.261Z"),
-    oneRepMax: 708,
+    weightInKg: 708,
+    repetitions: 708,
   },
 ];
 
@@ -173,7 +200,9 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
+  return (
+    <header className="grid grid-cols-[1fr_auto_auto_auto] gap-2" {...props} />
+  );
 };
 
 const Title = (props: ComponentProps<"h1">) => {

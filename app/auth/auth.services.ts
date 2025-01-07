@@ -7,7 +7,7 @@ import {
   refreshSessionExpiryDate,
   selectSessionWithUser,
 } from "~/session/session.services";
-import { fifteenDaysInMs } from "~/auth/auth.utils";
+import { fifteenDaysInMs } from "~/utils/date.utils";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);
