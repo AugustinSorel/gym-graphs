@@ -11,6 +11,7 @@ import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import {
   CSSProperties,
+  memo,
   MouseEvent,
   TouchEvent,
   useCallback,
@@ -24,7 +25,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
   const tooltip = useTooltip<Point>();
 
-  const data = useMemo(() => {
+  const sets = useMemo(() => {
     return props.sets.toSorted(
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
@@ -32,14 +33,14 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
   const timeScale = useMemo(() => {
     return scaleTime({
-      domain: extent(data, getDoneAt) as [Date, Date],
+      domain: extent(sets, getDoneAt) as [Date, Date],
       range: [0, width - margin.right - margin.left],
     });
   }, [margin, width]);
 
-  const weightLiftedScale = useMemo(() => {
+  const oneRepMaxScale = useMemo(() => {
     return scaleLinear({
-      domain: [0, max(data, getOneRepMax) ?? 0],
+      domain: [0, max(sets, getOneRepMax) ?? 0],
       range: [height - margin.top - margin.bottom, 0],
     });
   }, [margin, height]);
@@ -48,15 +49,15 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
       const { x } = localPoint(event) || { x: 0 };
       const x0 = timeScale.invert(x - margin.right);
-      const index = bisectDate(data, x0, 1);
+      const index = bisectDate(sets, x0, 1);
 
-      const d0 = data.at(index - 1) ?? {
+      const d0 = sets.at(index - 1) ?? {
         doneAt: new Date(),
         repetitions: 0,
         weightInKg: 0,
       };
 
-      const d1 = data.at(index);
+      const d1 = sets.at(index);
 
       let d = d0;
 
@@ -71,10 +72,10 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
       tooltip.showTooltip({
         tooltipData: d,
         tooltipLeft: timeScale(getDoneAt(d)),
-        tooltipTop: weightLiftedScale(getOneRepMax(d)),
+        tooltipTop: oneRepMaxScale(getOneRepMax(d)),
       });
     },
-    [tooltip, weightLiftedScale, timeScale],
+    [tooltip, oneRepMaxScale, timeScale],
   );
 
   return (
@@ -111,7 +112,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
           {/*background horizontal line*/}
           <Group top={margin.top} left={margin.left}>
             <GridRows
-              scale={weightLiftedScale}
+              scale={oneRepMaxScale}
               width={width - margin.left - margin.right}
               height={height - margin.top - margin.bottom}
               className="stroke-muted"
@@ -130,10 +131,10 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
             />
 
             <AreaClosed<Point>
-              data={data}
+              data={sets}
               x={(d) => timeScale(getDoneAt(d))}
-              y={(d) => weightLiftedScale(getOneRepMax(d))}
-              yScale={weightLiftedScale}
+              y={(d) => oneRepMaxScale(getOneRepMax(d))}
+              yScale={oneRepMaxScale}
               strokeWidth={0}
               stroke="url(#area-gradient)"
               fill="url(#area-gradient)"
@@ -142,9 +143,9 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
             <LinePath<Point>
               curve={curveMonotoneX}
-              data={data}
+              data={sets}
               x={(d) => timeScale(getDoneAt(d))}
-              y={(d) => weightLiftedScale(getOneRepMax(d))}
+              y={(d) => oneRepMaxScale(getOneRepMax(d))}
               className="stroke-primary"
               strokeWidth={2}
               shapeRendering="geometricPrecision"
