@@ -46,22 +46,27 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     db,
   );
 
-  await Promise.resolve(
-    exercises.map((exercise) => {
-      const sets = [...Array(3).keys()].map((i) => {
-        const repetitions = Math.floor((Math.random() || 1) * 10 * (i + 1));
-        const weightInKg = Math.floor((Math.random() || 1) * 30 * (i + 1));
+  const addingSetsPromise = exercises.map((exercise) => {
+    const sets = [...Array(6).keys()].map((i) => {
+      const values = [10, 20, 30, 40];
 
-        return {
-          exerciseId: exercise.id,
-          repetitions,
-          weightInKg,
-          doneAt: new Date(new Date().setDate(new Date().getDate() - i)),
-          oneRepMax: getOneRepMaxEplay(weightInKg, repetitions),
-        };
-      });
+      const randomIndex = Math.floor(Math.random() * values.length);
+      const randomValue = values.at(randomIndex);
 
-      return createExerciseSets(sets, db);
-    }),
-  );
+      if (!randomValue) {
+        throw new Error("random values is undefined");
+      }
+
+      return {
+        exerciseId: exercise.id,
+        repetitions: randomValue,
+        weightInKg: randomValue,
+        doneAt: new Date(new Date().setDate(new Date().getDate() - i)),
+      };
+    });
+
+    return createExerciseSets(sets, db);
+  });
+
+  await Promise.resolve(addingSetsPromise);
 };

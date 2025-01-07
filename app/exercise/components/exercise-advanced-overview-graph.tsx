@@ -25,7 +25,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const tooltip = useTooltip<Point>();
 
   const data = useMemo(() => {
-    return props.exercisePoints.toSorted(
+    return props.sets.toSorted(
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
   }, []);
@@ -249,5 +249,5 @@ type Point = Readonly<
 >;
 
 type Props = Readonly<{
-  exercisePoints: ReadonlyArray<Point>;
+  sets: ReadonlyArray<Point>;
 }>;

@@ -9,7 +9,7 @@ import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
 
-  const data = props.exercisePoints.toSorted(
+  const data = props.sets.toSorted(
     (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
   );
 
@@ -44,12 +44,17 @@ const getDoneAt = (d: Point) => d.doneAt;
 const getOneRepMax = (d: Point) =>
   getOneRepMaxEplay(d.weightInKg, d.repetitions);
 
-const margin = { top: 20, bottom: 20, left: 0, right: 0 } as const;
+const margin = {
+  top: 20,
+  bottom: 20,
+  left: 0,
+  right: 0,
+} as const;
 
 type Point = Readonly<
   Pick<ExerciseSet, "weightInKg" | "repetitions" | "doneAt">
 >;
 
 type Props = Readonly<{
-  exercisePoints: ReadonlyArray<Point>;
+  sets: ReadonlyArray<Point>;
 }>;
