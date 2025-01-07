@@ -115,11 +115,11 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
-//TODO: exercise table
 //TODO: dashboard view layout
 //TODO: change weight lifted
 //TODO: change repetitiosn
 //TODO: change done at
+//TODO: delete set
 //TODO: add weight unit
 //TODO: dark theme
 //TODO: analytics

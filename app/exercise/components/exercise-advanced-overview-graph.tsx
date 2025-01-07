@@ -11,7 +11,6 @@ import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import {
   CSSProperties,
-  memo,
   MouseEvent,
   TouchEvent,
   useCallback,
@@ -29,7 +28,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
     return props.sets.toSorted(
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
-  }, []);
+  }, [props.sets]);
 
   const timeScale = useMemo(() => {
     return scaleTime({

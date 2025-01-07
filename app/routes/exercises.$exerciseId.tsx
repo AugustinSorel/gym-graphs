@@ -4,10 +4,12 @@ import { z } from "zod";
 import { AddExerciseSetDialog } from "~/exercise-set/components/add-exercise-set-dialog";
 import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
+import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
+import { cn } from "~/styles/styles.utils";
 import { Separator } from "~/ui/separator";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
@@ -45,15 +47,13 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <section className="relative grid h-[500px] rounded-md border bg-secondary">
+      <Section className="h-[500px]">
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
-      </section>
+      </Section>
 
-      <section className="relative grid h-[500px] rounded-md border bg-secondary">
-        <code>
-          <pre>{JSON.stringify(exercise.data.sets, null, 2)}</pre>
-        </code>
-      </section>
+      <Section>
+        <ExerciseTable sets={exercise.data.sets} />
+      </Section>
     </Main>
   );
 };
@@ -62,6 +62,15 @@ const Main = (props: ComponentProps<"main">) => {
   return (
     <main
       className="mx-auto flex max-w-app flex-col gap-10 px-4 py-20"
+      {...props}
+    />
+  );
+};
+
+const Section = ({ className, ...props }: ComponentProps<"section">) => {
+  return (
+    <section
+      className={cn("relative grid rounded-md border bg-secondary", className)}
       {...props}
     />
   );

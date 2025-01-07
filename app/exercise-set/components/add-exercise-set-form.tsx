@@ -165,6 +165,7 @@ const useCreateExerciseSet = () => {
         if (!exercises) {
           return [];
         }
+
         return exercises.map((exercise) => {
           if (exercise.id === variables.data.exerciseId) {
             return {

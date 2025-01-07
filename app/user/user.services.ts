@@ -3,7 +3,6 @@ import type { Db } from "~/utils/db";
 import { User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createExerciseSets } from "~/exercise-set/exercise-set.services";
-import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,
