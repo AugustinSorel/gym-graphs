@@ -17,6 +17,7 @@ import {
   useMemo,
 } from "react";
 import { z } from "zod";
+import { ExerciseSet } from "~/db/db.schemas";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -24,20 +25,20 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
   const data = useMemo(() => {
     return props.exercisePoints.toSorted(
-      (a, b) => a.date.getTime() - b.date.getTime(),
+      (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
   }, []);
 
   const timeScale = useMemo(() => {
     return scaleTime({
-      domain: extent(data, getDate) as [Date, Date],
+      domain: extent(data, getDoneAt) as [Date, Date],
       range: [0, width - margin.right - margin.left],
     });
   }, [margin, width]);
 
   const weightLiftedScale = useMemo(() => {
     return scaleLinear({
-      domain: [0, max(data, getWeightLifted) ?? 0],
+      domain: [0, max(data, getOneRepMax) ?? 0],
       range: [height - margin.top - margin.bottom, 0],
     });
   }, [margin, height]);
@@ -49,26 +50,26 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
       const index = bisectDate(data, x0, 1);
 
       const d0 = data.at(index - 1) ?? {
-        date: new Date(),
-        weightLifted: 0,
+        doneAt: new Date(),
+        oneRepMax: 0,
       };
 
       const d1 = data.at(index);
 
       let d = d0;
 
-      if (d1 && getDate(d1)) {
+      if (d1 && getDoneAt(d1)) {
         d =
-          x0.valueOf() - getDate(d0).valueOf() >
-          getDate(d1).valueOf() - x0.valueOf()
+          x0.valueOf() - getDoneAt(d0).valueOf() >
+          getDoneAt(d1).valueOf() - x0.valueOf()
             ? d1
             : d0;
       }
 
       tooltip.showTooltip({
         tooltipData: d,
-        tooltipLeft: timeScale(getDate(d)),
-        tooltipTop: weightLiftedScale(getWeightLifted(d)),
+        tooltipLeft: timeScale(getDoneAt(d)),
+        tooltipTop: weightLiftedScale(getOneRepMax(d)),
       });
     },
     [tooltip, weightLiftedScale, timeScale],
@@ -127,8 +128,8 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
             <AreaClosed<Point>
               data={data}
-              x={(d) => timeScale(getDate(d))}
-              y={(d) => weightLiftedScale(getWeightLifted(d))}
+              x={(d) => timeScale(getDoneAt(d))}
+              y={(d) => weightLiftedScale(getOneRepMax(d))}
               yScale={weightLiftedScale}
               strokeWidth={0}
               stroke="url(#area-gradient)"
@@ -139,8 +140,8 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
             <LinePath<Point>
               curve={curveMonotoneX}
               data={data}
-              x={(d) => timeScale(getDate(d))}
-              y={(d) => weightLiftedScale(getWeightLifted(d))}
+              x={(d) => timeScale(getDoneAt(d))}
+              y={(d) => weightLiftedScale(getOneRepMax(d))}
               className="stroke-primary"
               strokeWidth={2}
               shapeRendering="geometricPrecision"
@@ -182,9 +183,9 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
           style={tooltipStyles}
         >
           <span className="size-3 rounded-sm bg-primary" />
-          <span className="text-sm text-muted-foreground">weight lifted</span>
+          <span className="text-sm text-muted-foreground">one rep max</span>
           <span className="text-sm font-semibold">
-            {tooltip.tooltipData.weightLifted}
+            {tooltip.tooltipData.oneRepMax}
           </span>
         </TooltipWithBounds>
       )}
@@ -192,9 +193,9 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   );
 };
 
-const getDate = (d: Point) => d.date;
-const getWeightLifted = (d: Point) => d.weightLifted;
-const bisectDate = bisector<Point, Date>((d) => new Date(d.date)).left;
+const getDoneAt = (d: Point) => d.doneAt;
+const getOneRepMax = (d: Point) => d.oneRepMax;
+const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {
   top: 50,
@@ -212,11 +213,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
   alignItems: "center",
 };
 
-//TODO: infer type
-type Point = Readonly<{
-  date: Date;
-  weightLifted: number;
-}>;
+type Point = Readonly<Pick<ExerciseSet, "oneRepMax" | "doneAt">>;
 
 type Props = Readonly<{
   exercisePoints: ReadonlyArray<Point>;

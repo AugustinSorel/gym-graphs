@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, pgTable, timestamp, text } from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, text, unique } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -44,21 +44,52 @@ export const sessionRelations = relations(sessionTable, ({ one }) => ({
   }),
 }));
 
-export const exerciseTable = pgTable("exercise", {
+export const exerciseTable = pgTable(
+  "exercise",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    name: text("").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    {
+      unq: unique().on(table.userId, table.name),
+    },
+  ],
+);
+
+export type Exercise = typeof exerciseTable.$inferSelect;
+
+export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
+  user: one(userTable, {
+    fields: [exerciseTable.userId],
+    references: [userTable.id],
+  }),
+  sets: many(exerciseSetTable),
+}));
+
+export const exerciseSetTable = pgTable("exercise_set", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id")
+  exerciseId: integer("exercise_id")
     .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  name: text("").notNull().unique(),
+    .references(() => exerciseTable.id, { onDelete: "cascade" }),
+  weightLifted: integer("weight_lifted").notNull(),
+  repetitionCount: integer("repetition_count").notNull(),
+  oneRepMax: integer("one_rep_max").notNull(),
+  doneAt: timestamp("done_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type Exercise = typeof exerciseTable.$inferSelect;
+export type ExerciseSet = typeof exerciseSetTable.$inferSelect;
 
-export const exerciseRelations = relations(exerciseTable, ({ one }) => ({
-  user: one(userTable, {
-    fields: [exerciseTable.userId],
-    references: [userTable.id],
+export const exerciseSetRelations = relations(exerciseSetTable, ({ one }) => ({
+  exercise: one(exerciseTable, {
+    fields: [exerciseSetTable.exerciseId],
+    references: [exerciseTable.id],
   }),
 }));

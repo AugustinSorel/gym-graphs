@@ -3,21 +3,22 @@ import { curveBasis } from "@visx/curve";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
+import { ExerciseSet } from "~/db/db.schemas";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
 
   const data = props.exercisePoints.toSorted(
-    (a, b) => a.date.getTime() - b.date.getTime(),
+    (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
   );
 
   const timeScale = scaleTime({
-    domain: extent(data, getDate) as [Date, Date],
+    domain: extent(data, getDoneAt) as [Date, Date],
     range: [0, width],
   });
 
-  const weightLiftedScale = scaleLinear({
-    domain: [0, max(data, getWeightLifted) ?? 0],
+  const oneRepMaxScale = scaleLinear({
+    domain: [0, max(data, getOneRepMax) ?? 0],
     range: [height - margin.top, margin.bottom],
   });
 
@@ -27,8 +28,8 @@ export const ExerciseOverviewGraph = (props: Props) => {
         <LinePath<Point>
           curve={curveBasis}
           data={data}
-          x={(d) => timeScale(getDate(d))}
-          y={(d) => weightLiftedScale(getWeightLifted(d))}
+          x={(d) => timeScale(getDoneAt(d))}
+          y={(d) => oneRepMaxScale(getOneRepMax(d))}
           className="stroke-primary"
           strokeWidth={3}
           shapeRendering="geometricPrecision"
@@ -38,16 +39,12 @@ export const ExerciseOverviewGraph = (props: Props) => {
   );
 };
 
-const getDate = (d: Point) => d.date;
-const getWeightLifted = (d: Point) => d.weightLifted;
+const getDoneAt = (d: Point) => d.doneAt;
+const getOneRepMax = (d: Point) => d.oneRepMax;
 
 const margin = { top: 20, bottom: 20, left: 0, right: 0 } as const;
 
-//TODO: infer type
-type Point = Readonly<{
-  date: Date;
-  weightLifted: number;
-}>;
+type Point = Readonly<Pick<ExerciseSet, "oneRepMax" | "doneAt">>;
 
 type Props = Readonly<{
   exercisePoints: ReadonlyArray<Point>;

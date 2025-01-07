@@ -116,9 +116,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //BUG: error handling not finished
 
 //TODO: exercise table
-//TODO: exercise page add data point
-//TODO: rename exercise
-//TODO: delete exercise
+//TODO: exercise page add set
 //TODO: dark theme
 //TODO: analytics
 //TODO: analytics events
@@ -126,6 +124,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: rate limiter
 //TODO: docker
 //TODO: deploy to vps
+//TODO: mobile nav bar
+//TODO: mobile exercise page
 
 //TODO: infite scroll for exercises
 //TODO: custom exercises filters

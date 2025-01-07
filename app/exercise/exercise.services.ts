@@ -1,6 +1,11 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
-import { Exercise, exerciseTable, User } from "~/db/db.schemas";
+import {
+  Exercise,
+  exerciseSetTable,
+  exerciseTable,
+  User,
+} from "~/db/db.schemas";
 
 export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
   return db.query.exerciseTable.findMany({
@@ -19,6 +24,11 @@ export const selectExercise = async (
       eq(exerciseTable.userId, userId),
       eq(exerciseTable.id, exerciseId),
     ),
+    with: {
+      sets: {
+        orderBy: desc(exerciseSetTable.createdAt),
+      },
+    },
   });
 };
 
