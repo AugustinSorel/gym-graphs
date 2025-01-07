@@ -33,6 +33,8 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import { useState } from "react";
+import { UpdateExerciseSetWeightDialog } from "~/exercise-set/components/update-exercise-set-weight-dialog";
+import { ExerciseSetProvider } from "~/exercise-set/exercise-set.context";
 
 type Props = Readonly<{
   sets: Array<ExerciseSet>;
@@ -229,16 +231,16 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => {}}>
-              update weight
-            </DropdownMenuItem>
-            <DropdownMenuItem>update reptitions</DropdownMenuItem>
-            <DropdownMenuItem>update date</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-              delete set
-            </DropdownMenuItem>
+            <ExerciseSetProvider value={exerciseSet}>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <UpdateExerciseSetWeightDialog />
+              <DropdownMenuItem>update reptitions</DropdownMenuItem>
+              <DropdownMenuItem>update date</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                delete set
+              </DropdownMenuItem>
+            </ExerciseSetProvider>
           </DropdownMenuContent>
         </DropdownMenu>
       );

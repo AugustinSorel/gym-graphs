@@ -216,7 +216,7 @@ const Container = ({ className, ...props }: ComponentProps<"header">) => {
   return (
     <header
       className={cn(
-        "sticky top-0 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
+        "sticky top-0 z-20 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
         className,
       )}
       {...props}

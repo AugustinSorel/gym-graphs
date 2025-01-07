@@ -1,4 +1,3 @@
-import { Button } from "~/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,29 +7,28 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { Plus } from "lucide-react";
-import { RenameExerciseForm } from "~/exercise/components/rename-exercise-form";
+import { DropdownMenuItem } from "~/ui/dropdown-menu";
+import { UpdateExerciseSetWeightForm } from "./update-exercise-set-weight-form";
 
-export const RenameExerciseDialog = () => {
+export const UpdateExerciseSetWeightDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <span className="hidden sm:block">rename</span>
-          <Plus className="size-4 sm:hidden" />
-        </Button>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          update weight
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Rename exercise</DialogTitle>
+          <DialogTitle>Update weight</DialogTitle>
           <DialogDescription>
-            feel free to rename this exercise.
+            feel free to update the weight lifted.
           </DialogDescription>
         </DialogHeader>
 
-        <RenameExerciseForm
+        <UpdateExerciseSetWeightForm
           onSuccess={() => {
             setIsOpen(false);
           }}

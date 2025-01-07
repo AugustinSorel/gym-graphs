@@ -58,7 +58,7 @@ export const renameExercise = async (
 ) => {
   return db
     .update(exerciseTable)
-    .set({ name })
+    .set({ name, updatedAt: new Date() })
     .where(
       and(eq(exerciseTable.id, exerciseId), eq(exerciseTable.userId, userId)),
     );

@@ -27,21 +27,16 @@ export const deleteSession = async (sessionId: Session["id"], db: Db) => {
   await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 };
 
-export const updateSession = async (
-  data: Partial<typeof sessionTable.$inferSelect>,
-  sessionId: Session["id"],
-  db: Db,
-) => {
-  await db.update(sessionTable).set(data).where(eq(sessionTable.id, sessionId));
-};
-
 export const refreshSessionExpiryDate = async (
   sessionId: Session["id"],
   db: Db,
 ) => {
   await db
     .update(sessionTable)
-    .set({ expiresAt: new Date(Date.now() + thirtyDaysInMs) })
+    .set({
+      expiresAt: new Date(Date.now() + thirtyDaysInMs),
+      updatedAt: new Date(),
+    })
     .where(eq(sessionTable.id, sessionId));
 };
 

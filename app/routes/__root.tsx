@@ -116,7 +116,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //BUG: error handling not finished
 
 //TODO: dashboard view layout
-//TODO: change weight lifted
 //TODO: change repetitiosn
 //TODO: change done at
 //TODO: delete set
