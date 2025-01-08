@@ -7,6 +7,7 @@ import pg from "pg";
 import {
   createExerciseSet,
   deleteExerciseSet,
+  updateExerciseSetDoneAt,
   updateExerciseSetRepetitions,
   updateExerciseSetWeight,
 } from "~/exercise-set/exercise-set.services";
@@ -88,6 +89,37 @@ export const updateExerciseSetRepetitionsAction = createServerFn({
       data.repetitions,
       db,
     );
+  });
+
+export const updateExerciseSetDoneAtAction = createServerFn({
+  method: "POST",
+})
+  .middleware([authGuard])
+  .validator(
+    z.object({
+      doneAt: exerciseSetSchema.shape.doneAt,
+      exerciseSetId: exerciseSetSchema.shape.id,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    try {
+      await updateExerciseSetDoneAt(
+        data.exerciseSetId,
+        context.user.id,
+        data.doneAt,
+        db,
+      );
+    } catch (e) {
+      const dbError = e instanceof pg.DatabaseError;
+      const duplicateSet =
+        dbError && e.constraint === "exercise_set_done_at_exercise_id_unique";
+
+      if (duplicateSet) {
+        throw new Error("set already created for this date");
+      }
+
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
+    }
   });
 
 export const deleteExerciseSetAction = createServerFn({

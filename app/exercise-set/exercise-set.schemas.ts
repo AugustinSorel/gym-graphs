@@ -28,6 +28,12 @@ export const exerciseSetSchema = z.object({
       required_error: "done at is required",
       invalid_type_error: "done at must of type date",
     })
-    .min(new Date(), "done at cannot be less than 01/01/1900")
-    .max(new Date(), "done at cannot be more than new Date()"),
+    .min(
+      new Date("01/01/1900"),
+      `done at cannot be less than ${new Date("01/01/1900").toLocaleDateString()}`,
+    )
+    .max(
+      new Date(),
+      `done at cannot be after the ${new Date().toLocaleDateString()}`,
+    ),
 });

@@ -37,6 +37,7 @@ import { UpdateExerciseSetWeightDialog } from "~/exercise-set/components/update-
 import { ExerciseSetProvider } from "~/exercise-set/exercise-set.context";
 import { UpdateExerciseSetRepetitionsDialog } from "~/exercise-set/components/update-exercise-set-repetitions-dialog";
 import { DeleteExerciseSetDialog } from "~/exercise-set/components/delete-exercise-set-dialog";
+import { UpdateExerciseSetDoneAtDialog } from "~/exercise-set/components/update-exercise-set-done-at-dialog";
 
 type Props = Readonly<{
   sets: Array<ExerciseSet>;
@@ -237,7 +238,7 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <UpdateExerciseSetWeightDialog />
               <UpdateExerciseSetRepetitionsDialog />
-              <DropdownMenuItem>update date</DropdownMenuItem>
+              <UpdateExerciseSetDoneAtDialog />
               <DropdownMenuSeparator />
               <DeleteExerciseSetDialog />
             </ExerciseSetProvider>
