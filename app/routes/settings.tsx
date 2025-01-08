@@ -311,7 +311,10 @@ const Header = (props: ComponentProps<"header">) => {
 const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
-      className={cn("rounded-md border bg-secondary", className)}
+      className={cn(
+        "overflow-hidden rounded-md border bg-secondary",
+        className,
+      )}
       {...props}
     />
   );

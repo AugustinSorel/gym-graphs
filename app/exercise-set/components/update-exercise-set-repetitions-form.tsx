@@ -20,6 +20,7 @@ import { useExercise } from "~/exercise/hooks/useExercise";
 import { updateExerciseSetRepetitionsAction } from "../exercise-set.actions";
 import { exerciseSetSchema } from "../exercise-set.schemas";
 import { useExerciseSet } from "../exercise-set.context";
+import { getRouteApi } from "@tanstack/react-router";
 
 export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -81,6 +82,8 @@ export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
   );
 };
 
+const routeApi = getRouteApi("/exercises/$exerciseId");
+
 type Props = Readonly<{
   onSuccess?: () => void;
 }>;
@@ -108,7 +111,8 @@ const useCreateExerciseForm = () => {
 const useUpdateExerciseSetRepetitions = () => {
   const queryClient = useQueryClient();
   const user = useUser();
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
     mutationFn: updateExerciseSetRepetitionsAction,

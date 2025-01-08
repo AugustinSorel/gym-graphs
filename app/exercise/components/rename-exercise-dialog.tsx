@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import { RenameExerciseForm } from "~/exercise/components/rename-exercise-form";
 
 export const RenameExerciseDialog = () => {
@@ -17,10 +16,7 @@ export const RenameExerciseDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <span className="hidden sm:block">rename</span>
-          <Plus className="size-4 sm:hidden" />
-        </Button>
+        <Button size="sm">rename </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

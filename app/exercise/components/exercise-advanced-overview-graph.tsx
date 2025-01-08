@@ -24,13 +24,22 @@ import { WeightValue } from "~/weight-unit/components/weight-value";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
-  const tooltip = useTooltip<Point>();
 
   const sets = useMemo(() => {
     return props.sets.toSorted(
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
   }, [props.sets]);
+
+  return (
+    <div ref={parentRef} className="flex overflow-hidden">
+      <Graph height={height} width={width} sets={sets} />
+    </div>
+  );
+};
+
+const Graph = ({ height, width, sets }: GraphProps) => {
+  const tooltip = useTooltip<Point>();
 
   const timeScale = useMemo(() => {
     return scaleTime({
@@ -79,107 +88,109 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
     [tooltip, oneRepMaxScale, timeScale],
   );
 
+  if (!sets.length) {
+    return <p className="m-auto text-muted-foreground">no sets</p>;
+  }
+
   return (
     <>
-      <div ref={parentRef} className="overflow-hidden">
-        <svg width={width} height={height}>
-          {/*bottom axis*/}
-          <Group top={margin.top} left={margin.left}>
-            <AxisBottom
-              top={height - margin.top - margin.bottom}
-              scale={timeScale}
-              numTicks={width > 520 ? 10 : 5}
-              tickFormat={(value) => {
-                const date = z
-                  .number()
-                  .transform((d) => new Date(d))
-                  .or(z.date())
-                  .catch(new Date())
-                  .parse(value);
+      <svg width={width} height={height}>
+        {/*bottom axis*/}
+        <Group top={margin.top} left={margin.left}>
+          <AxisBottom
+            top={height - margin.top - margin.bottom}
+            scale={timeScale}
+            numTicks={width > 520 ? 10 : 5}
+            tickFormat={(value) => {
+              const date = z
+                .number()
+                .transform((d) => new Date(d))
+                .or(z.date())
+                .catch(new Date())
+                .parse(value);
 
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
-              tickLabelProps={{
-                className: "fill-muted-foreground text-xs",
-              }}
-              hideTicks
-              axisLineClassName="stroke-[2px] stroke-muted"
+              return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+            }}
+            tickLabelProps={{
+              className: "fill-muted-foreground text-xs",
+            }}
+            hideTicks
+            axisLineClassName="stroke-[2px] stroke-muted"
+          />
+        </Group>
+
+        {/*background horizontal line*/}
+        <Group top={margin.top} left={margin.left}>
+          <GridRows
+            scale={oneRepMaxScale}
+            width={width - margin.left - margin.right}
+            height={height - margin.top - margin.bottom}
+            className="stroke-muted"
+            numTicks={4}
+            strokeWidth={2}
+          />
+        </Group>
+
+        {/*line graph + the gradient underneath*/}
+        <Group top={margin.top} left={margin.left}>
+          <LinearGradient
+            id="area-gradient"
+            from="hsl(var(--primary))"
+            to="hsl(var(--primary))"
+            toOpacity={0.2}
+          />
+
+          <AreaClosed<Point>
+            data={sets}
+            x={(d) => timeScale(getDoneAt(d))}
+            y={(d) => oneRepMaxScale(getOneRepMax(d))}
+            yScale={oneRepMaxScale}
+            strokeWidth={0}
+            stroke="url(#area-gradient)"
+            fill="url(#area-gradient)"
+            curve={curveMonotoneX}
+          />
+
+          <LinePath<Point>
+            curve={curveMonotoneX}
+            data={sets}
+            x={(d) => timeScale(getDoneAt(d))}
+            y={(d) => oneRepMaxScale(getOneRepMax(d))}
+            className="stroke-primary"
+            strokeWidth={2}
+            shapeRendering="geometricPrecision"
+          />
+        </Group>
+
+        {/*hit zone for tooltip*/}
+        <Group top={margin.top} left={margin.left}>
+          <Bar
+            width={width}
+            height={height}
+            fill="transparent"
+            onMouseMove={handleTooltip}
+            onTouchStart={handleTooltip}
+            onTouchMove={handleTooltip}
+            onMouseLeave={tooltip.hideTooltip}
+          />
+        </Group>
+
+        {/*tooltip circle indicator*/}
+        {tooltip.tooltipData && (
+          <Group top={margin.top} left={margin.left}>
+            <circle
+              cx={tooltip.tooltipLeft ?? 0}
+              cy={tooltip.tooltipTop ?? 0}
+              r={6}
+              className="fill-primary"
+              pointerEvents="none"
             />
           </Group>
-
-          {/*background horizontal line*/}
-          <Group top={margin.top} left={margin.left}>
-            <GridRows
-              scale={oneRepMaxScale}
-              width={width - margin.left - margin.right}
-              height={height - margin.top - margin.bottom}
-              className="stroke-muted"
-              numTicks={4}
-              strokeWidth={2}
-            />
-          </Group>
-
-          {/*line graph + the gradient underneath*/}
-          <Group top={margin.top} left={margin.left}>
-            <LinearGradient
-              id="area-gradient"
-              from="hsl(var(--primary))"
-              to="hsl(var(--primary))"
-              toOpacity={0.2}
-            />
-
-            <AreaClosed<Point>
-              data={sets}
-              x={(d) => timeScale(getDoneAt(d))}
-              y={(d) => oneRepMaxScale(getOneRepMax(d))}
-              yScale={oneRepMaxScale}
-              strokeWidth={0}
-              stroke="url(#area-gradient)"
-              fill="url(#area-gradient)"
-              curve={curveMonotoneX}
-            />
-
-            <LinePath<Point>
-              curve={curveMonotoneX}
-              data={sets}
-              x={(d) => timeScale(getDoneAt(d))}
-              y={(d) => oneRepMaxScale(getOneRepMax(d))}
-              className="stroke-primary"
-              strokeWidth={2}
-              shapeRendering="geometricPrecision"
-            />
-          </Group>
-
-          {/*hit zone for tooltip*/}
-          <Group top={margin.top} left={margin.left}>
-            <Bar
-              width={width}
-              height={height}
-              fill="transparent"
-              onMouseMove={handleTooltip}
-              onTouchStart={handleTooltip}
-              onTouchMove={handleTooltip}
-              onMouseLeave={tooltip.hideTooltip}
-            />
-          </Group>
-
-          {/*tooltip circle indicator*/}
-          {tooltip.tooltipData && (
-            <Group top={margin.top} left={margin.left}>
-              <circle
-                cx={tooltip.tooltipLeft ?? 0}
-                cy={tooltip.tooltipTop ?? 0}
-                r={6}
-                className="fill-primary"
-                pointerEvents="none"
-              />
-            </Group>
-          )}
-        </svg>
-      </div>
+        )}
+      </svg>
 
       {tooltip.tooltipData && (
         <TooltipWithBounds
@@ -256,5 +267,10 @@ type Point = Readonly<
 >;
 
 type Props = Readonly<{
-  sets: ReadonlyArray<Point>;
+  sets: Array<Point>;
 }>;
+
+type GraphProps = {
+  height: number;
+  width: number;
+} & Pick<Props, "sets">;

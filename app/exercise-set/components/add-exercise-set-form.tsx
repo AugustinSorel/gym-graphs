@@ -20,6 +20,7 @@ import { useExercise } from "~/exercise/hooks/useExercise";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/context/user.context";
+import { getRouteApi, useParams } from "@tanstack/react-router";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -28,7 +29,8 @@ type Props = Readonly<{
 export const AddExerciseSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
   const createExerciseSet = useCreateExerciseSet();
-  const exericse = useExercise();
+  const params = routeApi.useParams();
+  const exericse = useExercise({ id: params.exerciseId });
 
   const onSubmit = async (data: CreateExerciseSchema) => {
     await createExerciseSet.mutateAsync(
@@ -100,8 +102,11 @@ export const AddExerciseSetForm = (props: Props) => {
   );
 };
 
+const routeApi = getRouteApi("/exercises/$exerciseId");
+
 const useFormSchema = () => {
-  const exericse = useExercise();
+  const params = routeApi.useParams();
+  const exericse = useExercise({ id: params.exerciseId });
 
   return z
     .object({
@@ -140,7 +145,8 @@ const useCreateExerciseSetForm = () => {
 
 const useCreateExerciseSet = () => {
   const user = useUser();
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -1,15 +1,19 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { AddExerciseSetDialog } from "~/exercise-set/components/add-exercise-set-dialog";
-import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
-import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
 import { cn } from "~/styles/styles.utils";
+import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
@@ -34,15 +38,19 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
 });
 
 const RouteComponent = () => {
-  const exercise = useExercise();
+  const params = Route.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return (
     <Main>
       <Header>
         <Title>{exercise.data.name}</Title>
-        <RenameExerciseDialog />
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/exercises/$exerciseId/settings" from={Route.fullPath}>
+            settings
+          </Link>
+        </Button>
         <AddExerciseSetDialog />
-        <DeleteExerciseDialog />
       </Header>
 
       <Separator />
@@ -78,7 +86,10 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 
 const Header = (props: ComponentProps<"header">) => {
   return (
-    <header className="grid grid-cols-[1fr_auto_auto_auto] gap-2" {...props} />
+    <header
+      className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-5 lg:grid-cols-[1fr_auto_auto] [&>h1]:col-span-3 lg:[&>h1]:col-span-1"
+      {...props}
+    />
   );
 };
 

@@ -146,6 +146,9 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
         </Button>
       );
     },
+    accessorFn: (row) => {
+      return getOneRepMaxEplay(row.weightInKg, row.repetitions);
+    },
     cell: ({ row }) => {
       const oneRepMax = getOneRepMaxEplay(
         row.original.weightInKg,

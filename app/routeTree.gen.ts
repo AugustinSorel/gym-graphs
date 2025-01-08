@@ -18,6 +18,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ExercisesExerciseIdImport } from './routes/exercises.$exerciseId'
 import { Route as AuthSignUpImport } from './routes/_auth.sign-up'
 import { Route as AuthSignInImport } from './routes/_auth.sign-in'
+import { Route as ExercisesExerciseIdSettingsImport } from './routes/exercises_/$exerciseId.settings'
 
 // Create/Update Routes
 
@@ -61,6 +62,13 @@ const AuthSignInRoute = AuthSignInImport.update({
   path: '/sign-in',
   getParentRoute: () => AuthRoute,
 } as any)
+
+const ExercisesExerciseIdSettingsRoute =
+  ExercisesExerciseIdSettingsImport.update({
+    id: '/exercises_/$exerciseId/settings',
+    path: '/exercises/$exerciseId/settings',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -115,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExercisesExerciseIdImport
       parentRoute: typeof rootRoute
     }
+    '/exercises_/$exerciseId/settings': {
+      id: '/exercises_/$exerciseId/settings'
+      path: '/exercises/$exerciseId/settings'
+      fullPath: '/exercises/$exerciseId/settings'
+      preLoaderRoute: typeof ExercisesExerciseIdSettingsImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -140,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
 export interface FileRoutesByTo {
@@ -150,6 +166,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof AuthSignInRoute
   '/sign-up': typeof AuthSignUpRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
 export interface FileRoutesById {
@@ -161,6 +178,7 @@ export interface FileRoutesById {
   '/_auth/sign-in': typeof AuthSignInRoute
   '/_auth/sign-up': typeof AuthSignUpRoute
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/exercises_/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
 export interface FileRouteTypes {
@@ -173,6 +191,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/exercises/$exerciseId'
+    | '/exercises/$exerciseId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -182,6 +201,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/exercises/$exerciseId'
+    | '/exercises/$exerciseId/settings'
   id:
     | '__root__'
     | '/'
@@ -191,6 +211,7 @@ export interface FileRouteTypes {
     | '/_auth/sign-in'
     | '/_auth/sign-up'
     | '/exercises/$exerciseId'
+    | '/exercises_/$exerciseId/settings'
   fileRoutesById: FileRoutesById
 }
 
@@ -200,6 +221,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   SettingsRoute: typeof SettingsRoute
   ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
+  ExercisesExerciseIdSettingsRoute: typeof ExercisesExerciseIdSettingsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -208,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   SettingsRoute: SettingsRoute,
   ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
+  ExercisesExerciseIdSettingsRoute: ExercisesExerciseIdSettingsRoute,
 }
 
 export const routeTree = rootRoute
@@ -224,7 +247,8 @@ export const routeTree = rootRoute
         "/_auth",
         "/dashboard",
         "/settings",
-        "/exercises/$exerciseId"
+        "/exercises/$exerciseId",
+        "/exercises_/$exerciseId/settings"
       ]
     },
     "/": {
@@ -253,6 +277,9 @@ export const routeTree = rootRoute
     },
     "/exercises/$exerciseId": {
       "filePath": "exercises.$exerciseId.tsx"
+    },
+    "/exercises_/$exerciseId/settings": {
+      "filePath": "exercises_/$exerciseId.settings.tsx"
     }
   }
 }

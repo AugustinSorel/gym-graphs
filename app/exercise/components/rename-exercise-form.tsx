@@ -24,7 +24,8 @@ import { useExercise } from "~/exercise/hooks/useExercise";
 export const RenameExerciseForm = (props: Props) => {
   const form = useCreateExerciseForm();
   const renameExercise = useRenameExercise();
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   const onSubmit = async (data: CreateExerciseSchema) => {
     await renameExercise.mutateAsync(
@@ -85,7 +86,7 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/exercises/$exerciseId");
+const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
 
 const useFormSchema = () => {
   const queryClient = useQueryClient();
@@ -114,7 +115,8 @@ type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),

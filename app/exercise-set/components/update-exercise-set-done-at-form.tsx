@@ -21,6 +21,7 @@ import { updateExerciseSetDoneAtAction } from "../exercise-set.actions";
 import { exerciseSetSchema } from "../exercise-set.schemas";
 import { useExerciseSet } from "../exercise-set.context";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
+import { getRouteApi } from "@tanstack/react-router";
 
 export const UpdateExerciseSetDoneAtForm = (props: Props) => {
   const form = useUpdateExerciseSetDoneAtForm();
@@ -88,12 +89,15 @@ export const UpdateExerciseSetDoneAtForm = (props: Props) => {
   );
 };
 
+const routeApi = getRouteApi("/exercises/$exerciseId");
+
 type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
 const useFormSchema = () => {
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
   const exerciseSet = useExerciseSet();
 
   return exerciseSetSchema.pick({ doneAt: true }).refine(
@@ -130,7 +134,8 @@ const useUpdateExerciseSetDoneAtForm = () => {
 const useUpdateExerciseSetDoneAt = () => {
   const queryClient = useQueryClient();
   const user = useUser();
-  const exercise = useExercise();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
     mutationFn: updateExerciseSetDoneAtAction,
