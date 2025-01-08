@@ -9,17 +9,17 @@ import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
 
-  const data = props.sets.toSorted(
+  const sets = props.sets.toSorted(
     (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
   );
 
   const timeScale = scaleTime({
-    domain: extent(data, getDoneAt) as [Date, Date],
+    domain: extent(sets, getDoneAt) as [Date, Date],
     range: [0, width],
   });
 
   const oneRepMaxScale = scaleLinear({
-    domain: [0, max(data, getOneRepMax) ?? 0],
+    domain: [0, max(sets, getOneRepMax) ?? 0],
     range: [height - margin.top, margin.bottom],
   });
 
@@ -28,7 +28,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
       <svg width={width} height={height}>
         <LinePath<Point>
           curve={curveBasis}
-          data={data}
+          data={sets}
           x={(d) => timeScale(getDoneAt(d))}
           y={(d) => oneRepMaxScale(getOneRepMax(d))}
           className="stroke-primary"

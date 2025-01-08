@@ -35,6 +35,8 @@ import {
 } from "~/ui/sheet";
 import { AppIcon } from "~/ui/app-icon";
 import { cn } from "~/styles/styles.utils";
+import { useWeightUnit } from "~/weight-unit/weight-unit.context";
+import { weightUnitSchema } from "~/weight-unit/weight-unit.schemas";
 
 export const Header = () => {
   return (
@@ -139,6 +141,7 @@ const MobileNav = () => {
 const UserProfileDropdown = () => {
   const user = useUser();
   const signOut = useSignOut();
+  const weightUnit = useWeightUnit();
 
   return (
     <DropdownMenu>
@@ -159,12 +162,31 @@ const UserProfileDropdown = () => {
             <Settings className="size-4" />
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="m-2 justify-between px-4 py-2">
-          <a href="https://github.com/augustinsorel/gym-graphs" target="_blank">
-            <span>github</span>
-            <Github className="size-4" />
-          </a>
-        </DropdownMenuItem>
+        <DropdownMenuGroup className="m-2 flex items-center justify-between gap-2 px-4 py-2">
+          <p className="text-sm">weight unit</p>
+          <DropdownMenuRadioGroup
+            className="flex gap-2"
+            value={weightUnit.value}
+            onValueChange={(e) => {
+              weightUnit.set(weightUnitSchema.catch("kg").parse(e));
+            }}
+          >
+            <DropdownMenuRadioItem
+              value={weightUnitSchema.Values.kg}
+              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <span className="text-xs">kg</span>
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem
+              value={weightUnitSchema.Values.lbs}
+              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <span className="text-xs">lbs</span>
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuGroup>
         <DropdownMenuGroup className="m-2 flex items-center justify-between gap-2 px-4 py-2">
           <p className="text-sm">theme</p>
           <DropdownMenuRadioGroup
@@ -174,21 +196,21 @@ const UserProfileDropdown = () => {
           >
             <DropdownMenuRadioItem
               value="system"
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent"
+              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Laptop className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value="light"
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent"
+              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Sun className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value="dark"
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent"
+              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Moon className="size-4" />

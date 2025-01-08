@@ -19,6 +19,8 @@ import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/user/components/delete-account-dialog";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import { useWeightUnit } from "~/weight-unit/weight-unit.context";
+import { weightUnitSchema } from "~/weight-unit/weight-unit.schemas";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -104,6 +106,8 @@ const RenameUserSection = () => {
 };
 
 const ChangeWeightUnitSection = () => {
+  const weightUnit = useWeightUnit();
+
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
@@ -117,18 +121,31 @@ const ChangeWeightUnitSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer>
-          <ToggleGroup type="single">
+          <ToggleGroup
+            type="single"
+            value={weightUnit.value}
+            variant="outline"
+            onValueChange={(unsafeWeightUnit: string | null) => {
+              if (!unsafeWeightUnit) {
+                return;
+              }
+
+              weightUnit.set(weightUnitSchema.parse(unsafeWeightUnit));
+            }}
+          >
             <ToggleGroupItem
-              value="kilo"
+              value={weightUnitSchema.Values.kg}
               aria-label="Change weight unit to kg"
               variant="outline"
+              suppressHydrationWarning
             >
               kg
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="pounds"
+              value={weightUnitSchema.Values.lbs}
               aria-label="Change weight unit to lbs"
               variant="outline"
+              suppressHydrationWarning
             >
               lbs
             </ToggleGroupItem>

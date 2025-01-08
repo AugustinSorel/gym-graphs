@@ -12,6 +12,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { UserProvider } from "~/context/user.context";
 import { Header } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import { WeightUnitProvider } from "~/weight-unit/weight-unit.context";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -71,18 +72,22 @@ function RootComponent() {
 
   if (!loaderData.user) {
     return (
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
+      <WeightUnitProvider>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </WeightUnitProvider>
     );
   }
 
   return (
-    <UserProvider user={loaderData.user}>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </UserProvider>
+    <WeightUnitProvider>
+      <UserProvider user={loaderData.user}>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </UserProvider>
+    </WeightUnitProvider>
   );
 }
 
@@ -114,11 +119,9 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 }
 
 //BUG: error handling not finished
+//BUG: hydration error with weight unit (settings page weight unit not working properly, exercise table)
 
 //TODO: redo homepage
-//TODO: route masking
-//TODO: dashboard view layout
-//TODO: add weight unit
 //TODO: dark theme
 //TODO: analytics
 //TODO: analytics events
@@ -129,6 +132,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: mobile nav bar
 //TODO: mobile exercise page
 
+//TODO: route masking
 //TODO: infite scroll for exercises
 //TODO: custom exercises filters
 //TODO: good auth

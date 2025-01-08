@@ -27,7 +27,6 @@ import { Button } from "~/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -38,6 +37,8 @@ import { ExerciseSetProvider } from "~/exercise-set/exercise-set.context";
 import { UpdateExerciseSetRepetitionsDialog } from "~/exercise-set/components/update-exercise-set-repetitions-dialog";
 import { DeleteExerciseSetDialog } from "~/exercise-set/components/delete-exercise-set-dialog";
 import { UpdateExerciseSetDoneAtDialog } from "~/exercise-set/components/update-exercise-set-done-at-dialog";
+import { WeightUnit } from "~/weight-unit/components/weight-unit";
+import { WeightValue } from "~/weight-unit/components/weight-value";
 
 type Props = Readonly<{
   sets: Array<ExerciseSet>;
@@ -146,10 +147,14 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
       );
     },
     cell: ({ row }) => {
+      const oneRepMax = getOneRepMaxEplay(
+        row.original.weightInKg,
+        row.original.repetitions,
+      );
+
       return (
         <>
-          {getOneRepMaxEplay(row.original.weightInKg, row.original.repetitions)}{" "}
-          kg
+          <WeightValue weightInKg={oneRepMax} /> <WeightUnit />
         </>
       );
     },
@@ -174,7 +179,11 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
       );
     },
     cell: ({ row }) => {
-      return <>{row.original.weightInKg} kg</>;
+      return (
+        <>
+          <WeightValue weightInKg={row.original.weightInKg} /> <WeightUnit />
+        </>
+      );
     },
   },
   {

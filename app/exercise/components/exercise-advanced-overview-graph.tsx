@@ -19,6 +19,8 @@ import {
 import { z } from "zod";
 import { ExerciseSet } from "~/db/db.schemas";
 import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
+import { WeightUnit } from "~/weight-unit/components/weight-unit";
+import { WeightValue } from "~/weight-unit/components/weight-value";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -198,16 +200,21 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
           <dl className="grid grid-cols-[1fr_auto] gap-x-2 text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
             <dt>1 rep max</dt>
             <dd>
-              {getOneRepMaxEplay(
-                tooltip.tooltipData.weightInKg,
-                tooltip.tooltipData.repetitions,
-              )}{" "}
-              kg
+              <WeightValue
+                weightInKg={getOneRepMaxEplay(
+                  tooltip.tooltipData.weightInKg,
+                  tooltip.tooltipData.repetitions,
+                )}
+              />{" "}
+              <WeightUnit />
             </dd>
             <dt>weight</dt>
-            <dd>{tooltip.tooltipData.repetitions} kg</dd>
+            <dd>
+              <WeightValue weightInKg={tooltip.tooltipData.weightInKg} />{" "}
+              <WeightUnit />
+            </dd>
             <dt>repetitions</dt>
-            <dd>{tooltip.tooltipData.weightInKg}</dd>
+            <dd>{tooltip.tooltipData.repetitions}</dd>
           </dl>
         </TooltipWithBounds>
       )}
