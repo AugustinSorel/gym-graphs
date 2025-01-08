@@ -6,6 +6,7 @@ import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
 import {
   createExerciseSet,
+  deleteExerciseSet,
   updateExerciseSetRepetitions,
   updateExerciseSetWeight,
 } from "~/exercise-set/exercise-set.services";
@@ -87,4 +88,13 @@ export const updateExerciseSetRepetitionsAction = createServerFn({
       data.repetitions,
       db,
     );
+  });
+
+export const deleteExerciseSetAction = createServerFn({
+  method: "POST",
+})
+  .middleware([authGuard])
+  .validator(z.object({ exerciseSetId: exerciseSetSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    await deleteExerciseSet(data.exerciseSetId, context.user.id, db);
   });

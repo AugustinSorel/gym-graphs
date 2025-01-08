@@ -36,6 +36,7 @@ import { useState } from "react";
 import { UpdateExerciseSetWeightDialog } from "~/exercise-set/components/update-exercise-set-weight-dialog";
 import { ExerciseSetProvider } from "~/exercise-set/exercise-set.context";
 import { UpdateExerciseSetRepetitionsDialog } from "~/exercise-set/components/update-exercise-set-repetitions-dialog";
+import { DeleteExerciseSetDialog } from "~/exercise-set/components/delete-exercise-set-dialog";
 
 type Props = Readonly<{
   sets: Array<ExerciseSet>;
@@ -238,9 +239,7 @@ const columns: Array<ColumnDef<ExerciseSet>> = [
               <UpdateExerciseSetRepetitionsDialog />
               <DropdownMenuItem>update date</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                delete set
-              </DropdownMenuItem>
+              <DeleteExerciseSetDialog />
             </ExerciseSetProvider>
           </DropdownMenuContent>
         </DropdownMenu>

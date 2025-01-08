@@ -35,14 +35,14 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
       domain: extent(sets, getDoneAt) as [Date, Date],
       range: [0, width - margin.right - margin.left],
     });
-  }, [margin, width]);
+  }, [margin, width, sets]);
 
   const oneRepMaxScale = useMemo(() => {
     return scaleLinear({
       domain: [0, max(sets, getOneRepMax) ?? 0],
       range: [height - margin.top - margin.bottom, 0],
     });
-  }, [margin, height]);
+  }, [margin, height, sets]);
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
