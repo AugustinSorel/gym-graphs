@@ -129,7 +129,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: rate limiter
 //TODO: docker
 //TODO: deploy to vps
-//TODO: mobile nav bar
 //TODO: mobile exercise page
 
 //TODO: route masking

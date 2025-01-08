@@ -1,4 +1,3 @@
-import { Separator } from "@radix-ui/react-separator";
 import {
   CatchBoundary,
   createFileRoute,
@@ -13,6 +12,7 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
 import { cn } from "~/styles/styles.utils";
+import { Separator } from "~/ui/separator";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   component: () => RouteComponent(),
@@ -56,7 +56,7 @@ const RouteComponent = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto flex max-w-app flex-col gap-10 px-4 py-20"
+      className="mx-auto flex max-w-app flex-col gap-10 px-4 pb-20 pt-10 lg:gap-20 lg:pt-20"
       {...props}
     />
   );

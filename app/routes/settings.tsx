@@ -286,7 +286,7 @@ const DeleteAccountSection = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto flex max-w-app flex-col gap-10 px-4 py-20"
+      className="mx-auto flex max-w-app flex-col gap-10 px-4 pb-20 pt-10 lg:gap-20 lg:pt-20"
       {...props}
     />
   );

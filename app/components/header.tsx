@@ -1,5 +1,5 @@
 import { signOutAction } from "~/auth/auth.actions";
-import { ComponentProps, useState, useTransition } from "react";
+import { ComponentProps, useTransition } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "~/ui/button";
@@ -12,7 +12,8 @@ import {
   Laptop,
   Sun,
   Moon,
-  Menu,
+  Home,
+  UsersRound,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,15 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import { useUser } from "~/context/user.context";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/ui/sheet";
-import { AppIcon } from "~/ui/app-icon";
 import { cn } from "~/styles/styles.utils";
 import { useWeightUnit } from "~/weight-unit/weight-unit.context";
 import { weightUnitSchema } from "~/weight-unit/weight-unit.schemas";
@@ -49,9 +41,7 @@ export const Header = () => {
 
 const MobileHeader = () => {
   return (
-    <Container className="lg:hidden">
-      <AppIcon />
-      <Title>gym graphs</Title>
+    <Container className="fixed bottom-0 top-auto border-b-0 border-t lg:hidden">
       <MobileNav />
     </Container>
   );
@@ -86,55 +76,36 @@ const DesktopNav = () => {
 };
 
 const MobileNav = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const signOut = useSignOut();
-
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetHeader className="sr-only">
-        <SheetTitle>menu</SheetTitle>
-        <SheetDescription>navigation menu</SheetDescription>
-      </SheetHeader>
-
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="ml-auto">
-          <Menu className="size-4" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="bottom" className="rounded-t-lg">
-        <Nav className="mt-10 grid gap-10">
-          <Link
-            className="text-xl font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground data-[status=active]:text-foreground"
-            to="/dashboard"
-            onClick={() => {
-              setIsOpen(false);
-            }}
-          >
-            dashbaord
-          </Link>
-          <Link
-            className="text-xl font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground data-[status=active]:text-foreground"
-            to="/settings"
-            onClick={() => {
-              setIsOpen(false);
-            }}
-          >
-            settings
-          </Link>
-          <Button
-            className="justify-start p-0 text-xl font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground hover:no-underline data-[status=active]:text-foreground"
-            disabled={signOut.isPending}
-            variant="link"
-            onClick={() => {
-              signOut.mutate(undefined);
-            }}
-          >
-            <span>sign out</span>
-            {signOut.isPending && <Spinner />}
-          </Button>
-        </Nav>
-      </SheetContent>
-    </Sheet>
+    <Nav className="flex w-full items-center justify-evenly gap-4 [&_a_svg]:size-6">
+      <Button
+        asChild
+        variant="ghost"
+        className="data-[status=active]:bg-accent"
+      >
+        <Link to="/settings">
+          <UsersRound />
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        className="data-[status=active]:bg-accent"
+      >
+        <Link to="/dashboard">
+          <Home />
+        </Link>
+      </Button>
+      <Button
+        asChild
+        variant="ghost"
+        className="data-[status=active]:bg-accent"
+      >
+        <Link to="/settings">
+          <User2 />
+        </Link>
+      </Button>
+    </Nav>
   );
 };
 
@@ -238,16 +209,12 @@ const Container = ({ className, ...props }: ComponentProps<"header">) => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
+        "sticky left-0 right-0 top-0 z-20 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
         className,
       )}
       {...props}
     />
   );
-};
-
-const Title = (props: ComponentProps<"h1">) => {
-  return <h1 className="font-bold capitalize" {...props} />;
 };
 
 const Nav = (props: ComponentProps<"nav">) => {
