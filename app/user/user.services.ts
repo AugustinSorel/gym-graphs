@@ -6,9 +6,9 @@ import { createExerciseSets } from "~/exercise-set/exercise-set.services";
 
 export const createUser = async (
   data: typeof userTable.$inferInsert,
-  store: Db,
+  db: Db,
 ) => {
-  const [user] = await store.insert(userTable).values(data).returning();
+  const [user] = await db.insert(userTable).values(data).returning();
 
   if (!user) {
     throw new Error("user returned by db is null");

@@ -47,7 +47,13 @@ export const selectSessionWithUser = async (
   return db.query.sessionTable.findFirst({
     where: eq(sessionTable.id, sessionId),
     with: {
-      user: true,
+      user: {
+        columns: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
     },
   });
 };

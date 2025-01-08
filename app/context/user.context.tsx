@@ -6,20 +6,23 @@ import {
   use,
   useState,
 } from "react";
-import type { User } from "../db/db.schemas";
+import { validateSessionToken } from "~/auth/auth.services";
 
-type UserCtx = User & { set: Dispatch<SetStateAction<User>> };
+type User = NonNullable<
+  Awaited<ReturnType<typeof validateSessionToken>>["user"]
+>;
 
-const UserCtx = createContext<UserCtx | undefined>(undefined);
+type Context = User & { set: Dispatch<SetStateAction<User>> };
+const Context = createContext<Context | undefined>(undefined);
 
 export const UserProvider = (props: PropsWithChildren<{ user: User }>) => {
   const [user, setUser] = useState(props.user);
 
-  return <UserCtx value={{ ...user, set: setUser }}>{props.children}</UserCtx>;
+  return <Context value={{ ...user, set: setUser }}>{props.children}</Context>;
 };
 
 export const useUser = () => {
-  const ctx = use(UserCtx);
+  const ctx = use(Context);
 
   if (!ctx) {
     throw new Error("useUser must be wrapped inside of a UserProvider");

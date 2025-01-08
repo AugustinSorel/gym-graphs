@@ -117,9 +117,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //TODO: redo homepage
 //TODO: route masking
-//TODO: strip user sensitive user data
 //TODO: dashboard view layout
-//TODO: change done at
 //TODO: add weight unit
 //TODO: dark theme
 //TODO: analytics
