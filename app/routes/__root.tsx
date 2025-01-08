@@ -115,6 +115,9 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
+//TODO: redo homepage
+//TODO: route masking
+//TODO: strip user sensitive user data
 //TODO: dashboard view layout
 //TODO: change repetitiosn
 //TODO: change done at

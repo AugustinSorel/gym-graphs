@@ -6,6 +6,7 @@ import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
 import {
   createExerciseSet,
+  updateExerciseSetRepetitions,
   updateExerciseSetWeight,
 } from "~/exercise-set/exercise-set.services";
 import { z } from "zod";
@@ -65,6 +66,25 @@ export const updateExerciseSetWeightAction = createServerFn({ method: "POST" })
       data.exerciseSetId,
       context.user.id,
       data.weightInKg,
+      db,
+    );
+  });
+
+export const updateExerciseSetRepetitionsAction = createServerFn({
+  method: "POST",
+})
+  .middleware([authGuard])
+  .validator(
+    z.object({
+      repetitions: exerciseSetSchema.shape.repetitions,
+      exerciseSetId: exerciseSetSchema.shape.id,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    await updateExerciseSetRepetitions(
+      data.exerciseSetId,
+      context.user.id,
+      data.repetitions,
       db,
     );
   });

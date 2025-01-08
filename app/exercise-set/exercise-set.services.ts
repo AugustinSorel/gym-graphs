@@ -54,3 +54,37 @@ export const updateExerciseSetWeight = async (
 
   return updatedExerciseSets;
 };
+
+export const updateExerciseSetRepetitions = async (
+  exerciseSetId: ExerciseSet["id"],
+  userId: User["id"],
+  repetitions: ExerciseSet["repetitions"],
+  db: Db,
+) => {
+  const exercise = db
+    .select()
+    .from(exerciseSetTable)
+    .where(eq(exerciseSetTable.id, exerciseSetId))
+    .innerJoin(
+      exerciseTable,
+      and(
+        eq(exerciseTable.id, exerciseSetTable.exerciseId),
+        eq(exerciseTable.userId, userId),
+      ),
+    );
+
+  const updatedExerciseSets = await db
+    .update(exerciseSetTable)
+    .set({
+      repetitions,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(exerciseSetTable.id, exerciseSetId), exists(exercise)))
+    .returning();
+
+  if (!updatedExerciseSets.length) {
+    throw new Error("exercise set not found");
+  }
+
+  return updatedExerciseSets;
+};
