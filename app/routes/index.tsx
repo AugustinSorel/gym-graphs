@@ -103,7 +103,7 @@ const FeatureTwo = () => {
       </Text>
 
       <UserProvider user={userMock}>
-        <CardTwo className="p-0 sm:p-10">
+        <CardTwo>
           <ExerciseAdvanceOverviewGraph sets={sets} />
         </CardTwo>
         <CardTwo>
@@ -270,10 +270,16 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   return <div {...props} className="absolute inset-0 -z-10" />;
 };
 
-const FeatureContainer = (props: ComponentProps<"section">) => {
+const FeatureContainer = ({
+  className,
+  ...props
+}: ComponentProps<"section">) => {
   return (
     <section
-      className="mx-auto flex w-full max-w-app flex-col items-center gap-14 p-5"
+      className={cn(
+        "mx-auto flex w-full max-w-app flex-col items-center gap-14 p-5",
+        className,
+      )}
       {...props}
     />
   );
