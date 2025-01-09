@@ -22,6 +22,20 @@ const TanStackRouterDevtools =
         })),
       );
 
+const AnalyticScript = () => {
+  if (process.env.NODE_ENV !== "production") {
+    return null;
+  }
+
+  return (
+    <script
+      defer
+      src="https://analytics.augustin-sorel.com/script.js"
+      data-website-id="b60bb4f0-344d-4896-94af-3aebcb6b295e"
+    />
+  );
+};
+
 const getValidateRequest = createServerFn({ method: "GET" })
   .middleware([validateRequest])
   .handler(({ context }) => {
@@ -43,7 +57,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: "width=device-width, initial-scale=1",
         },
         {
-          title: "TanStack Start Starter",
+          title: "Gym Graphs",
         },
       ],
       links: [{ rel: "stylesheet", href: appCss }],
@@ -93,11 +107,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
     <html>
       <head>
         <Meta />
-        <script
-          defer
-          src="https://analytics.augustin-sorel.com/script.js"
-          data-website-id="b60bb4f0-344d-4896-94af-3aebcb6b295e"
-        ></script>
+        <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
         {loaderData.user && <Header />}
@@ -127,6 +137,8 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: fix graph ui home page
 //TODO: fix exercise page overflow issue
 //TODO: fix mobile header
+//TODO: add back btn
+//TODO: add header for not signed user
 
 //TODO: route masking
 //TODO: infite scroll for exercises
