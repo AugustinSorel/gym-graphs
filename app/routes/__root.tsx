@@ -93,6 +93,11 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
     <html>
       <head>
         <Meta />
+        <script
+          defer
+          src="https://analytics.augustin-sorel.com/script.js"
+          data-website-id="b60bb4f0-344d-4896-94af-3aebcb6b295e"
+        ></script>
       </head>
       <body className="bg-background text-foreground">
         {loaderData.user && <Header />}
@@ -116,10 +121,13 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //BUG: error handling not finished
 
 //TODO: dark theme
-//TODO: analytics
 //TODO: analytics events
 //TODO: monitoring
 //TODO: rate limiter
+//TODO: fix home page overflow issue
+//TODO: fix graph ui home page
+//TODO: fix exercise page overflow issue
+//TODO: fix mobile header
 
 //TODO: route masking
 //TODO: infite scroll for exercises
