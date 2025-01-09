@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger,
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/context/user.context";
+import { useUser } from "~/user/user.context";
 import { useExerciseSet } from "~/exercise-set/exercise-set.context";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteExerciseSetAction } from "../exercise-set.actions";

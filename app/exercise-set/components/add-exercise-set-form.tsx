@@ -19,8 +19,8 @@ import { exerciseSetSchema } from "../exercise-set.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/context/user.context";
-import { getRouteApi, useParams } from "@tanstack/react-router";
+import { useUser } from "~/user/user.context";
+import { getRouteApi } from "@tanstack/react-router";
 
 type Props = Readonly<{
   onSuccess?: () => void;

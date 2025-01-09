@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "../exercise.keys";
-import { useUser } from "~/context/user.context";
+import { useUser } from "~/user/user.context";
 import { ComponentProps } from "react";
 import {
   CatchBoundary,

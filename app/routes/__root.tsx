@@ -9,10 +9,9 @@ import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { validateRequest } from "~/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
-import { UserProvider } from "~/context/user.context";
+import { UserProvider } from "~/user/user.context";
 import { Header } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { WeightUnitProvider } from "~/weight-unit/weight-unit.context";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -72,22 +71,18 @@ function RootComponent() {
 
   if (!loaderData.user) {
     return (
-      <WeightUnitProvider>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </WeightUnitProvider>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
     );
   }
 
   return (
-    <WeightUnitProvider>
-      <UserProvider user={loaderData.user}>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </UserProvider>
-    </WeightUnitProvider>
+    <UserProvider user={loaderData.user}>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </UserProvider>
   );
 }
 
@@ -119,7 +114,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 }
 
 //BUG: error handling not finished
-//BUG: hydration error with weight unit (settings page weight unit not working properly, exercise table)
 
 //TODO: redo homepage
 //TODO: dark theme
@@ -135,7 +129,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: infite scroll for exercises
 //TODO: custom exercises filters
 //TODO: good auth
-//TODO: weight unit
 //TODO: teams
 //TODO: dashboard fun facts
 //TODO: dashboard heat map

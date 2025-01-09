@@ -51,6 +51,7 @@ export const selectSessionWithUser = async (
         columns: {
           id: true,
           email: true,
+          weightUnit: true,
           name: true,
         },
       },

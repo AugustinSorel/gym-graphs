@@ -5,7 +5,7 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router";
-import { useUser } from "~/context/user.context";
+import { useUser } from "~/user/user.context";
 import { ComponentProps, useTransition } from "react";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
@@ -19,8 +19,9 @@ import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/user/components/delete-account-dialog";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { useWeightUnit } from "~/weight-unit/weight-unit.context";
-import { weightUnitSchema } from "~/weight-unit/weight-unit.schemas";
+import { weightUnitEnum } from "~/db/db.schemas";
+import { userSchema } from "~/user/user.schemas";
+import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -106,7 +107,8 @@ const RenameUserSection = () => {
 };
 
 const ChangeWeightUnitSection = () => {
-  const weightUnit = useWeightUnit();
+  const updateWeightUnit = useUpdateWeightUnit();
+  const user = useUser();
 
   return (
     <CatchBoundary
@@ -123,32 +125,30 @@ const ChangeWeightUnitSection = () => {
         <Footer>
           <ToggleGroup
             type="single"
-            value={weightUnit.value}
+            value={user.weightUnit}
             variant="outline"
             onValueChange={(unsafeWeightUnit: string | null) => {
-              if (!unsafeWeightUnit) {
-                return;
-              }
+              updateWeightUnit.mutate({
+                data: {
+                  weightUnit: userSchema.shape.weightUnit
+                    .catch(user.weightUnit)
+                    .parse(unsafeWeightUnit),
+                },
+              });
 
-              weightUnit.set(weightUnitSchema.parse(unsafeWeightUnit));
+              // weightUnit.set(weightUnitSchema.parse(unsafeWeightUnit));
             }}
           >
-            <ToggleGroupItem
-              value={weightUnitSchema.Values.kg}
-              aria-label="Change weight unit to kg"
-              variant="outline"
-              suppressHydrationWarning
-            >
-              kg
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value={weightUnitSchema.Values.lbs}
-              aria-label="Change weight unit to lbs"
-              variant="outline"
-              suppressHydrationWarning
-            >
-              lbs
-            </ToggleGroupItem>
+            {weightUnitEnum.enumValues.map((weightUnit) => (
+              <ToggleGroupItem
+                key={weightUnit}
+                value={weightUnit}
+                aria-label={`Change weight unit to ${weightUnit}`}
+                variant="outline"
+              >
+                {weightUnit}
+              </ToggleGroupItem>
+            ))}
           </ToggleGroup>
         </Footer>
       </Section>

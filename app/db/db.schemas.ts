@@ -6,13 +6,17 @@ import {
   text,
   unique,
   date,
+  pgEnum,
 } from "drizzle-orm/pg-core";
+
+export const weightUnitEnum = pgEnum("weight_unit", ["kg", "lbs"]);
 
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   name: text("name").notNull().unique(),
   password: text("password").notNull(),
+  weightUnit: weightUnitEnum().notNull().default("kg"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

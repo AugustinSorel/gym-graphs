@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { weightUnitEnum } from "~/db/db.schemas";
 
 export const userSchema = z.object({
   id: z
@@ -24,6 +25,10 @@ export const userSchema = z.object({
     .trim()
     .min(3, "name must be at least 3 characters")
     .max(255, "name must be at most 255 characters"),
+  weightUnit: z.enum(weightUnitEnum.enumValues, {
+    required_error: "weight unit is required",
+    invalid_type_error: "weight unit must be valid",
+  }),
   password: z
     .string({
       required_error: "password is required",

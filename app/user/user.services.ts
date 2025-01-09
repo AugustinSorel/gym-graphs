@@ -34,6 +34,17 @@ export const renameUser = async (
     .where(eq(userTable.id, userId));
 };
 
+export const updateWeightUnit = async (
+  weightUnit: User["weightUnit"],
+  userId: User["id"],
+  db: Db,
+) => {
+  await db
+    .update(userTable)
+    .set({ weightUnit, updatedAt: new Date() })
+    .where(eq(userTable.id, userId));
+};
+
 export const deleteUser = async (userId: User["id"], db: Db) => {
   await db.delete(userTable).where(eq(userTable.id, userId));
 };

@@ -13,7 +13,7 @@ import { Spinner } from "~/ui/spinner";
 import { userSchema } from "../user.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useUser } from "~/context/user.context";
+import { useUser } from "~/user/user.context";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { renameUserAction } from "../user.actions";

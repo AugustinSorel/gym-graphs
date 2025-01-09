@@ -1,14 +1,14 @@
-import { useWeightUnit } from "~/weight-unit/weight-unit.context";
+import { useUser } from "~/user/user.context";
 
 export const WeightUnit = () => {
-  const weightUnit = useWeightUnit();
+  const user = useUser();
 
-  switch (weightUnit.value) {
+  switch (user.weightUnit) {
     case "kg":
       return "kg";
     case "lbs":
       return "lbs";
   }
 
-  weightUnit.value satisfies never;
+  user.weightUnit satisfies never;
 };

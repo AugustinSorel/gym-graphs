@@ -25,10 +25,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
-import { useUser } from "~/context/user.context";
+import { useUser } from "~/user/user.context";
 import { cn } from "~/styles/styles.utils";
-import { useWeightUnit } from "~/weight-unit/weight-unit.context";
-import { weightUnitSchema } from "~/weight-unit/weight-unit.schemas";
+import { weightUnitEnum } from "~/db/db.schemas";
+import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
+import { userSchema } from "~/user/user.schemas";
 
 export const Header = () => {
   return (
@@ -112,7 +113,7 @@ const MobileNav = () => {
 const UserProfileDropdown = () => {
   const user = useUser();
   const signOut = useSignOut();
-  const weightUnit = useWeightUnit();
+  const updateWeightUnit = useUpdateWeightUnit();
 
   return (
     <DropdownMenu>
@@ -137,25 +138,24 @@ const UserProfileDropdown = () => {
           <p className="text-sm">weight unit</p>
           <DropdownMenuRadioGroup
             className="flex gap-2"
-            value={weightUnit.value}
-            onValueChange={(e) => {
-              weightUnit.set(weightUnitSchema.catch("kg").parse(e));
+            value={user.weightUnit}
+            onValueChange={(unsafeWeightUnit) => {
+              const weightUnit =
+                userSchema.shape.weightUnit.parse(unsafeWeightUnit);
+
+              updateWeightUnit.mutate({ data: { weightUnit } });
             }}
           >
-            <DropdownMenuRadioItem
-              value={weightUnitSchema.Values.kg}
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
-              onSelect={(e) => e.preventDefault()}
-            >
-              <span className="text-xs">kg</span>
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              value={weightUnitSchema.Values.lbs}
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
-              onSelect={(e) => e.preventDefault()}
-            >
-              <span className="text-xs">lbs</span>
-            </DropdownMenuRadioItem>
+            {weightUnitEnum.enumValues.map((weightUnit) => (
+              <DropdownMenuRadioItem
+                key={weightUnit}
+                value={weightUnit}
+                className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <span className="text-xs">{weightUnit}</span>
+              </DropdownMenuRadioItem>
+            ))}
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
         <DropdownMenuGroup className="m-2 flex items-center justify-between gap-2 px-4 py-2">
