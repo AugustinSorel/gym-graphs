@@ -103,7 +103,7 @@ const FeatureTwo = () => {
       </Text>
 
       <UserProvider user={userMock}>
-        <CardTwo>
+        <CardTwo className="p-0 sm:p-10">
           <ExerciseAdvanceOverviewGraph sets={sets} />
         </CardTwo>
         <CardTwo>
@@ -146,13 +146,13 @@ const FeatuesGrid = () => {
           <BentoText>
             If you&apos;re interested in the behind-the-scenes development of
             our platform, we invite you to explore the code on our{" "}
-            <Link
+            <a
               href="https://github.com/augustinsorel/gym-graphs"
               className="underline decoration-wavy"
               target="_blank"
             >
               Github
-            </Link>
+            </a>
             ! We highly value feedback and contributions from our community.
             <br />
             <br />
@@ -279,10 +279,13 @@ const FeatureContainer = (props: ComponentProps<"section">) => {
   );
 };
 
-const CardTwo = (props: ComponentProps<"div">) => {
+const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
   return (
     <div
-      className="relative w-full rounded-md border bg-secondary"
+      className={cn(
+        "relative w-full rounded-md border bg-secondary",
+        className,
+      )}
       {...props}
     />
   );
