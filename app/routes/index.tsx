@@ -215,7 +215,10 @@ const Name = (props: ComponentProps<"h2">) => {
 
 const Main = (props: ComponentProps<"main">) => {
   return (
-    <main {...props} className="relative flex flex-col gap-32 sm:gap-56" />
+    <main
+      {...props}
+      className="relative flex flex-col gap-32 overflow-x-hidden sm:gap-56"
+    />
   );
 };
 
