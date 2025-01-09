@@ -8,6 +8,7 @@ import { exerciseTableColumns } from "~/exercise/components/exercise-table-colum
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
+import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 
@@ -50,7 +51,7 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section>
+      <Section className="p-0 sm:p-10">
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
       </Section>
 
@@ -73,10 +74,13 @@ const Main = (props: ComponentProps<"main">) => {
   );
 };
 
-const Section = (props: ComponentProps<"section">) => {
+const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
-      className="relative grid rounded-md border bg-secondary"
+      className={cn(
+        "relative -mx-4 grid rounded-none border bg-secondary sm:mx-0 sm:rounded-md",
+        className,
+      )}
       {...props}
     />
   );

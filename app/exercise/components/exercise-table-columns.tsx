@@ -31,8 +31,11 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          size="sm"
         >
-          one rep max
+          <span className="hidden sm:block">one rep max</span>
+          <span className="sm:hidden">pr</span>
+
           {column.getIsSorted() === "desc" ? (
             <ArrowDown />
           ) : column.getIsSorted() === "asc" ? (
@@ -66,6 +69,7 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          size="sm"
         >
           weight
           {column.getIsSorted() === "desc" ? (
@@ -93,8 +97,11 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          size="sm"
         >
-          repetitions
+          <span className="hidden sm:block">repetitions</span>
+          <span className="sm:hidden">reps</span>
+
           {column.getIsSorted() === "desc" ? (
             <ArrowDown />
           ) : column.getIsSorted() === "asc" ? (
@@ -113,6 +120,7 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          size="sm"
         >
           date
           {column.getIsSorted() === "desc" ? (
@@ -126,7 +134,11 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
       );
     },
     cell: ({ row }) => {
-      return <>{row.original.doneAt.toLocaleDateString()}</>;
+      return (
+        <span suppressHydrationWarning>
+          {row.original.doneAt.toLocaleDateString()}
+        </span>
+      );
     },
   },
   {

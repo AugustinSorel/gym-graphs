@@ -121,7 +121,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: deploy to vps
-//TODO: mobile exercise page
 
 //TODO: route masking
 //TODO: infite scroll for exercises

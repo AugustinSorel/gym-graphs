@@ -17,7 +17,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./app:/app/app
+      - ./:/app
     ports:
       - 3000:3000
     depends_on:

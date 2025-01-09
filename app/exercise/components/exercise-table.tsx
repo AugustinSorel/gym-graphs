@@ -68,7 +68,7 @@ export const ExerciseTable = ({ sets, columns }: Props) => {
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell className="pl-6" key={cell.id}>
+                  <TableCell className="pl-4" key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
