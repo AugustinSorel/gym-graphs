@@ -120,7 +120,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: analytics events
 //TODO: monitoring
 //TODO: rate limiter
-//TODO: docker
 //TODO: deploy to vps
 //TODO: mobile exercise page
 

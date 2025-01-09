@@ -8,3 +8,17 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
+
+  server:
+    container_name: gym_graphs_server
+    build:
+      context: ./
+      dockerfile: dev.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
