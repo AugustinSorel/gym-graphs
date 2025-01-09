@@ -260,6 +260,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
   flexDirection: "column",
   gap: "0.5rem",
   color: "hsl(var(--foreground))",
+  transition: "all 0.1s ease-in-out",
 };
 
 type Point = Readonly<
