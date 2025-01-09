@@ -30,7 +30,7 @@ const Home = () => {
 
       <FeatureTwo />
 
-      <FeatuesGrid />
+      <HeroSectionTwo />
     </Main>
   );
 };
@@ -50,7 +50,16 @@ const HeroSection = () => {
           <StrongText>dashboard</StrongText>, for you for free.
         </Text>
 
-        <GetStartedAction />
+        <Button
+          asChild
+          variant="secondary"
+          className="bg-foreground capitalize text-background hover:bg-foreground/80"
+        >
+          <Link to="/sign-in">
+            <span className="sm:text-xl">get started</span>
+            <ArrowRight />
+          </Link>
+        </Button>
       </HeroContent>
 
       <HeroBackgroundContainer>
@@ -114,75 +123,28 @@ const FeatureTwo = () => {
   );
 };
 
-const FeatuesGrid = () => {
+const HeroSectionTwo = () => {
   return (
-    <FeatureContainer>
+    <HeroContainerTwo>
       <HeroTitle>
-        what <GradientText>we offer</GradientText>
+        <GradientText>Effortlessly </GradientText>Track Your Fitness Journey
       </HeroTitle>
 
-      <BentoGrid>
-        <BentoItem className="lg:[grid-area:card-one]">
-          <BentoIcon>📈</BentoIcon>
-          <BentoTitle>insights & analytics</BentoTitle>
-          <BentoText>
-            Keep track of your progress every session and watch your results
-            soar! Get ready to see amazing results!
-          </BentoText>
-        </BentoItem>
-        <BentoItem className="lg:[grid-area:card-two]">
-          <BentoIcon>💻</BentoIcon>
-          <BentoTitle>cross platform</BentoTitle>
-          <BentoText>
-            Seamlessly switch between devices and access your workout data
-            anytime, anywhere. Our platform is compatible with desktop, mobile,
-            and tablet devices, ensuring you can stay connected and motivated on
-            the go.
-          </BentoText>
-        </BentoItem>
-        <BentoItem className="lg:[grid-area:card-three]">
-          <BentoIcon>🤝</BentoIcon>
-          <BentoTitle>open source</BentoTitle>
-          <BentoText>
-            If you&apos;re interested in the behind-the-scenes development of
-            our platform, we invite you to explore the code on our{" "}
-            <a
-              href="https://github.com/augustinsorel/gym-graphs"
-              className="underline decoration-wavy"
-              target="_blank"
-            >
-              Github
-            </a>
-            ! We highly value feedback and contributions from our community.
-            <br />
-            <br />
-            Your input and ideas play a crucial role in shaping the future of
-            our platform, and we appreciate the collaborative spirit that drives
-            us forward.
-          </BentoText>
-        </BentoItem>
-        <BentoItem className="lg:[grid-area:card-four]">
-          <BentoIcon>🧩</BentoIcon>
-          <BentoTitle>customizable</BentoTitle>
-          <BentoText>
-            With our modular dashboards, you&apos;re in charge of your
-            exercises! Customize your workout experience to fit your preferences
-            and needs.
-          </BentoText>
-        </BentoItem>
-        <BentoItem className="lg:[grid-area:card-five]">
-          <BentoIcon>🎁</BentoIcon>
-          <BentoTitle>100% free</BentoTitle>
-          <BentoText>
-            Great news! Our project is completely free to use, with no hidden
-            fees or charges. We value your privacy and do not collect any
-            personal information.
-          </BentoText>
-        </BentoItem>
-      </BentoGrid>
+      <Text className="max-w-3xl">
+        Gym-tracker is a <StrongText>free</StrongText>, intuitive platform
+        designed to simplify your workout monitoring. Featuring interactive
+        graphs, detailed heat maps, and customizable dashboards.
+      </Text>
 
-      <GetStartedAction />
-    </FeatureContainer>
+      <Button className="font-semibold" asChild>
+        <Link to="/sign-in">
+          <span>Get started</span>
+          <ArrowRight aria-label="arrow-right" />
+        </Link>
+      </Button>
+
+      <CirclesBluredBg />
+    </HeroContainerTwo>
   );
 };
 
@@ -217,20 +179,29 @@ const Main = (props: ComponentProps<"main">) => {
   return (
     <main
       {...props}
-      className="relative flex flex-col gap-32 overflow-x-hidden sm:gap-56"
+      className="relative flex flex-col gap-32 overflow-x-clip pb-10 sm:gap-56"
     />
   );
 };
 
 const HeroContainer = (props: ComponentProps<"section">) => {
-  return <section {...props} className="relative flex min-h-[100dvh]" />;
+  return <section {...props} className="relative" />;
+};
+
+const HeroContainerTwo = (props: ComponentProps<"section">) => {
+  return (
+    <section
+      className="relative mx-auto flex max-w-md flex-col items-center justify-center gap-6 p-5 sm:max-w-3xl"
+      {...props}
+    />
+  );
 };
 
 const HeroContent = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="m-auto flex max-w-md flex-col items-center justify-center gap-14 p-5 sm:max-w-3xl"
+      className="mx-auto flex min-h-[calc(100dvh-var(--header-height))] max-w-md flex-col items-center justify-center gap-6 p-5 sm:max-w-3xl"
     />
   );
 };
@@ -265,12 +236,22 @@ const StrongText = (props: ComponentProps<"strong">) => {
   );
 };
 
-const Text = (props: ComponentProps<"p">) => {
-  return <p className="max-w-xl text-center sm:text-2xl" {...props} />;
+const Text = ({ className, ...props }: ComponentProps<"p">) => {
+  return (
+    <p
+      className={cn("max-w-xl text-center sm:text-2xl", className)}
+      {...props}
+    />
+  );
 };
 
 const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
-  return <div {...props} className="absolute inset-0 -z-10" />;
+  return (
+    <div
+      {...props}
+      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+    />
+  );
 };
 
 const FeatureContainer = ({
@@ -325,50 +306,22 @@ const Separator = () => {
   );
 };
 
-const GetStartedAction = () => {
+const CirclesBluredBg = () => {
   return (
-    <Button
-      asChild
-      variant="secondary"
-      className="bg-foreground capitalize text-background hover:bg-foreground/80"
-    >
-      <Link to="/sign-in">
-        <span className="sm:text-xl">get started</span>
-        <ArrowRight />
-      </Link>
-    </Button>
+    <>
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 right-[calc(50%-6rem)] top-auto -z-10 flex justify-end blur-3xl dark:opacity-30"
+      >
+        <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-25 [clipPath:polygon(73.6%_48.6%,_91.7%_88.5%,_100%_53.9%,_97.4%_18.1%,_92.5%_15.4%,_75.7%_36.3%,_55.3%_52.8%,_46.5%_50.9%,_45%_37.4%,_50.3%_13.1%,_21.3%_36.2%,_0.1%_0.1%,_5.4%_49.1%,_21.4%_36.4%,_58.9%_100%,_73.6%_48.6%)]" />
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-3/4 blur-3xl dark:opacity-30 lg:block"
+      >
+        <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-30 [clipPath:polygon(74.1%_44.1%,_100%_61.6%,_97.5%_26.9%,_85.5%_0.1%,_80.7%_2%,_72.5%_32.5%,_60.2%_62.4%,_52.4%_68.1%,_47.5%_58.3%,_45.2%_34.5%,_27.5%_76.7%,_0.1%_64.9%,_17.9%_100%,_27.6%_76.8%,_76.1%_97.7%,_74.1%_44.1%)]" />
+      </div>
+    </>
   );
-};
-
-const BentoGrid = (props: ComponentProps<"ul">) => {
-  return (
-    <ul
-      {...props}
-      className='grid grid-cols-1 gap-5 lg:grid-cols-7 lg:grid-rows-2 lg:[grid-template-areas:"card-one_card-one_card-two_card-two_card-two_card-three_card-three""card-four_card-four_card-four_card-five_card-five_card-three_card-three"]'
-    />
-  );
-};
-
-const BentoItem = (props: ComponentProps<"li">) => {
-  return (
-    <li
-      {...props}
-      className={cn(
-        "space-y-3 rounded-md border border-border bg-secondary p-7 text-2xl font-semibold",
-        props.className,
-      )}
-    />
-  );
-};
-
-const BentoIcon = (props: ComponentProps<"span">) => {
-  return <span className="" {...props} />;
-};
-
-const BentoTitle = (props: ComponentProps<"h2">) => {
-  return <h2 {...props} className="capitalize" />;
-};
-
-const BentoText = (props: ComponentProps<"p">) => {
-  return <p className="text-lg font-normal text-muted-foreground" {...props} />;
 };

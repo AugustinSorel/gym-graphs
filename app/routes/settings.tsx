@@ -3,18 +3,15 @@ import {
   createFileRoute,
   ErrorComponentProps,
   redirect,
-  useNavigate,
 } from "@tanstack/react-router";
 import { useUser } from "~/user/user.context";
-import { ComponentProps, useTransition } from "react";
+import { ComponentProps } from "react";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";
 import { cn } from "~/styles/styles.utils";
 import { Github, Laptop, Moon, Sun } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-import { useMutation } from "@tanstack/react-query";
-import { signOutAction } from "~/auth/auth.actions";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/user/components/delete-account-dialog";
@@ -22,6 +19,7 @@ import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { weightUnitEnum } from "~/db/db.schemas";
 import { userSchema } from "~/user/user.schemas";
 import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
+import { useSignOut } from "~/auth/hooks/use-sign-out";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -334,23 +332,4 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
       {...props}
     />
   );
-};
-
-const useSignOut = () => {
-  const [isRedirectPending, startRedirectTransition] = useTransition();
-  const navigate = useNavigate();
-
-  const signOut = useMutation({
-    mutationFn: signOutAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/sign-in" });
-      });
-    },
-  });
-
-  return {
-    ...signOut,
-    isPending: signOut.isPending || isRedirectPending,
-  };
 };

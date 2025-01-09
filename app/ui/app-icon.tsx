@@ -35,7 +35,7 @@ export const AppIcon = ({ size, className }: AppIconProps) => {
           y2="50%"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="hsl(329 82% 65%)" />
+          <stop offset="0" stopColor="hsl(270 82% 70%)" />
           <stop offset="1" stopColor="hsl(236 82% 70%)" />
         </linearGradient>
       </defs>

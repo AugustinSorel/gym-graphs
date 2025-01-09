@@ -1,7 +1,5 @@
-import { signOutAction } from "~/auth/auth.actions";
-import { ComponentProps, useTransition } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { ComponentProps } from "react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
 import {
@@ -14,6 +12,7 @@ import {
   Moon,
   Home,
   UsersRound,
+  ArrowRight,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,8 +29,35 @@ import { cn } from "~/styles/styles.utils";
 import { weightUnitEnum } from "~/db/db.schemas";
 import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
 import { userSchema } from "~/user/user.schemas";
+import { AppIcon } from "~/ui/app-icon";
+import { useSignOut } from "~/auth/hooks/use-sign-out";
 
-export const Header = () => {
+export const HeaderPublic = () => {
+  return (
+    <Container className="border-none bg-transparent backdrop-blur-sm">
+      <AppIcon />
+      <Button
+        variant="link"
+        asChild
+        className="text-base font-semibold capitalize"
+      >
+        <Link to="/">gym graphs</Link>
+      </Button>
+      <Button
+        variant="link"
+        className="ml-auto flex items-center font-semibold capitalize"
+        asChild
+      >
+        <Link to="/sign-up">
+          <span>sign up</span>
+          <ArrowRight />
+        </Link>
+      </Button>
+    </Container>
+  );
+};
+
+export const HeaderPrivate = () => {
   return (
     <>
       <MobileHeader />
@@ -219,23 +245,4 @@ const Container = ({ className, ...props }: ComponentProps<"header">) => {
 
 const Nav = (props: ComponentProps<"nav">) => {
   return <nav {...props} />;
-};
-
-const useSignOut = () => {
-  const [isRedirectPending, startRedirectTransition] = useTransition();
-  const navigate = useNavigate();
-
-  const signOut = useMutation({
-    mutationFn: signOutAction,
-    onSuccess: () => {
-      startRedirectTransition(async () => {
-        await navigate({ to: "/sign-in" });
-      });
-    },
-  });
-
-  return {
-    ...signOut,
-    isPending: signOut.isPending || isRedirectPending,
-  };
 };

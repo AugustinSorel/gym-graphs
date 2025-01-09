@@ -10,7 +10,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { validateRequest } from "~/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
 import { UserProvider } from "~/user/user.context";
-import { Header } from "~/components/header";
+import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 
 const TanStackRouterDevtools =
@@ -110,7 +110,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {loaderData.user && <Header />}
+        {loaderData.user ? <HeaderPrivate /> : <HeaderPublic />}
 
         {props.children}
 
@@ -137,7 +137,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: fix exercise page overflow issue
 //TODO: fix mobile header
 //TODO: add back btn
-//TODO: add header for not signed user
 
 //TODO: route masking
 //TODO: infite scroll for exercises

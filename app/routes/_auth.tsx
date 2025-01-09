@@ -18,7 +18,7 @@ const RouteComponent = () => {
 
 const Hero = () => {
   return (
-    <Section className="relative hidden items-center justify-center gap-5 overflow-hidden lg:flex">
+    <Section className="relative hidden items-center justify-center gap-5 overflow-x-clip lg:flex">
       <AppIcon size="lg" />
       <Title>gym graphs</Title>
       <BackgroundContainer>
@@ -39,7 +39,7 @@ const Content = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="grid min-h-screen grid-cols-[1fr] lg:grid-cols-[1fr_1fr]"
+      className="grid min-h-[calc(100dvh-var(--header-height))] grid-cols-[1fr] lg:grid-cols-[1fr_1fr]"
       {...props}
     />
   );
@@ -57,6 +57,9 @@ const Title = (props: ComponentProps<"h2">) => {
 
 const BackgroundContainer = (props: ComponentProps<"div">) => {
   return (
-    <div {...props} className="absolute bottom-0 left-0 right-0 top-0 -z-10" />
+    <div
+      {...props}
+      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+    />
   );
 };
