@@ -179,7 +179,7 @@ const Main = (props: ComponentProps<"main">) => {
   return (
     <main
       {...props}
-      className="relative flex flex-col gap-32 overflow-x-clip pb-10 sm:gap-56"
+      className="relative flex flex-col gap-32 overflow-x-clip pb-32 sm:gap-56"
     />
   );
 };
