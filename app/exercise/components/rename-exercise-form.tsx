@@ -71,6 +71,7 @@ export const RenameExerciseForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
+            data-umami-event="rename exercise"
             className="font-semibold"
           >
             <span>rename</span>

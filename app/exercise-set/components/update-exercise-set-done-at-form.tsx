@@ -78,6 +78,7 @@ export const UpdateExerciseSetDoneAtForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
+            data-umami-event="update exercise set done at"
             className="font-semibold"
           >
             <span>update</span>

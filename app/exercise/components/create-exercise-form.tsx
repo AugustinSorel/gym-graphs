@@ -67,6 +67,7 @@ export const CreateExerciseForm = (props: Readonly<Props>) => {
             type="submit"
             disabled={form.formState.isSubmitting}
             className="font-semibold"
+            data-umami-event="exercise created"
           >
             <span>create</span>
             {form.formState.isSubmitting && <Spinner />}

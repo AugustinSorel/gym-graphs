@@ -66,6 +66,7 @@ export const RenameUserForm = (props: Props) => {
             type="submit"
             disabled={form.formState.isSubmitting}
             className="font-semibold"
+            data-umami-event="user renamed"
           >
             <span>rename</span>
             {form.formState.isSubmitting && <Spinner />}

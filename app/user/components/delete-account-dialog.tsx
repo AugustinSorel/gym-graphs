@@ -50,6 +50,7 @@ export const DeleteAccountDialog = () => {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
+            data-umami-event="user account deleted"
             disabled={deleteAccount.isPending || isRedirectPending}
             onClick={(e) => {
               e.preventDefault();

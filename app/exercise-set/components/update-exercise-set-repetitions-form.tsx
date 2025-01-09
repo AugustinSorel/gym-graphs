@@ -71,6 +71,7 @@ export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
+            data-umami-event="update exercise set repetitions"
             className="font-semibold"
           >
             <span>update</span>
