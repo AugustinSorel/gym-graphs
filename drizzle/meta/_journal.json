@@ -8,6 +8,13 @@
       "when": 1736249734005,
       "tag": "0000_equal_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1736447045342,
+      "tag": "0001_silent_santa_claus",
+      "breakpoints": true
     }
   ]
 }

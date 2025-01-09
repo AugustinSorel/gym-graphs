@@ -8,6 +8,8 @@ RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 COPY . .
 
+RUN pnpm run db:migrate
+
 RUN pnpm run build
 
 ENV NODE_ENV=production
