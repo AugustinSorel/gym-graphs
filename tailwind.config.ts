@@ -57,6 +57,10 @@ const config: Config = {
       minHeight: {
         header: "var(--header-height)",
       },
+      backgroundImage: {
+        "brand-gradient":
+          "linear-gradient(to right, hsl(var(--primary)), hsl(270 82% 70%))",
+      },
       borderRadius: {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,

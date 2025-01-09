@@ -1,18 +1,13 @@
-import {
-  createFileRoute,
-  Link,
-  Outlet,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { AddExerciseSetDialog } from "~/exercise-set/components/add-exercise-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
+import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
-import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 
@@ -55,12 +50,15 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section className="h-[500px]">
+      <Section>
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
       </Section>
 
       <Section>
-        <ExerciseTable sets={exercise.data.sets} />
+        <ExerciseTable
+          sets={exercise.data.sets}
+          columns={exerciseTableColumns}
+        />
       </Section>
     </Main>
   );
@@ -75,10 +73,10 @@ const Main = (props: ComponentProps<"main">) => {
   );
 };
 
-const Section = ({ className, ...props }: ComponentProps<"section">) => {
+const Section = (props: ComponentProps<"section">) => {
   return (
     <section
-      className={cn("relative grid rounded-md border bg-secondary", className)}
+      className="relative grid rounded-md border bg-secondary"
       {...props}
     />
   );

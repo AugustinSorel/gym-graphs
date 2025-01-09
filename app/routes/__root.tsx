@@ -115,7 +115,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 
 //BUG: error handling not finished
 
-//TODO: redo homepage
 //TODO: dark theme
 //TODO: analytics
 //TODO: analytics events

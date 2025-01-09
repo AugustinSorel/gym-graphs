@@ -20,14 +20,14 @@ export const ExercisesGrid = () => {
   }
 
   return (
-    <List>
+    <Grid>
       {exercises.data.map((exercise) => (
         <CatchBoundary
           errorComponent={ExerciseFallback}
           getResetKey={() => "reset"}
           key={exercise.id}
         >
-          <Exercise>
+          <Card>
             <Button
               variant="ghost"
               asChild
@@ -41,10 +41,10 @@ export const ExercisesGrid = () => {
                 <ExerciseOverviewGraph sets={exercise.sets} />
               </Link>
             </Button>
-          </Exercise>
+          </Card>
         </CatchBoundary>
       ))}
-    </List>
+    </Grid>
   );
 };
 
@@ -66,7 +66,7 @@ const useExercises = () => {
   });
 };
 
-const List = (props: ComponentProps<"ol">) => {
+const Grid = (props: ComponentProps<"ol">) => {
   return (
     <ol
       className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
@@ -75,7 +75,7 @@ const List = (props: ComponentProps<"ol">) => {
   );
 };
 
-const Exercise = ({ className, ...props }: ComponentProps<"li">) => {
+const Card = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
       className={cn("rounded-md border bg-secondary", className)}
@@ -86,10 +86,10 @@ const Exercise = ({ className, ...props }: ComponentProps<"li">) => {
 
 const ExerciseFallback = (props: ErrorComponentProps) => {
   return (
-    <Exercise className="border-destructive bg-destructive/10">
+    <Card className="border-destructive bg-destructive/10">
       <Name className="border-destructive">Something went wrong</Name>
       <ErrorMsg>{props.error.message}</ErrorMsg>
-    </Exercise>
+    </Card>
   );
 };
 

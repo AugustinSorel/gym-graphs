@@ -32,7 +32,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   }, [props.sets]);
 
   return (
-    <div ref={parentRef} className="flex overflow-hidden">
+    <div ref={parentRef} className="flex min-h-[500px] overflow-hidden">
       <Graph height={height} width={width} sets={sets} />
     </div>
   );
