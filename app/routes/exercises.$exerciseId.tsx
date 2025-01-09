@@ -78,7 +78,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
       className={cn(
-        "relative -mx-4 grid rounded-none border bg-secondary sm:mx-0 sm:rounded-md",
+        "relative -mx-4 grid overflow-hidden rounded-none border bg-secondary sm:mx-0 sm:rounded-md",
         className,
       )}
       {...props}

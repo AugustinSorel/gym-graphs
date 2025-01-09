@@ -273,7 +273,7 @@ const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
   return (
     <div
       className={cn(
-        "relative w-full rounded-md border bg-secondary",
+        "relative w-full overflow-hidden rounded-md border bg-secondary",
         className,
       )}
       {...props}
