@@ -1,10 +1,10 @@
 import { extent, max } from "@visx/vendor/d3-array";
-import { curveBasis } from "@visx/curve";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { ExerciseSet } from "~/db/db.schemas";
 import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
+import { curveMonotoneX } from "@visx/curve";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -27,7 +27,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
     <div ref={parentRef} className="overflow-hidden">
       <svg width={width} height={height}>
         <LinePath<Point>
-          curve={curveBasis}
+          curve={curveMonotoneX}
           data={sets}
           x={(d) => timeScale(getDoneAt(d))}
           y={(d) => oneRepMaxScale(getOneRepMax(d))}

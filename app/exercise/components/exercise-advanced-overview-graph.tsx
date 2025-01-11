@@ -118,7 +118,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
               className: "fill-muted-foreground text-xs",
             }}
             hideTicks
-            axisLineClassName="stroke-[2px] stroke-muted"
+            axisLineClassName=" stroke-muted"
           />
         </Group>
 
@@ -130,7 +130,6 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             height={height - margin.top - margin.bottom}
             className="stroke-muted"
             numTicks={4}
-            strokeWidth={2}
           />
         </Group>
 
