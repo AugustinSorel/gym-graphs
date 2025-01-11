@@ -5,10 +5,10 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
 
-  DB_PASSWORD: z.string(),
-  DB_USER: z.string(),
-  DB_NAME: z.string(),
-  DB_HOST: z.string(),
+  DB_PASSWORD: z.string().trim().nonempty(),
+  DB_USER: z.string().trim().nonempty(),
+  DB_NAME: z.string().trim().nonempty(),
+  DB_HOST: z.string().trim().nonempty(),
   DB_PORT: z.coerce.number(),
 });
 

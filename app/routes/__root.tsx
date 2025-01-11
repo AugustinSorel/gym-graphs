@@ -129,12 +129,14 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 }
 
 //BUG: error handling not finished
+//BUG: middleware inject code into client bundler
 
 //TODO: dark theme
 //TODO: monitoring
 //TODO: rate limiter
-//TODO: fix mobile header
-//TODO: add back btn
+//TODO: inject db in global ctx
+//TODO: remove padding in advanced graph
+//TODO: header on mobile moves up and down
 
 //TODO: route masking
 //TODO: infite scroll for exercises
