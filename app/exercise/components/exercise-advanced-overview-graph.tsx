@@ -6,12 +6,7 @@ import { scaleTime, scaleLinear } from "@visx/scale";
 import { ParentSize } from "@visx/responsive";
 import { AxisBottom } from "@visx/axis";
 import { Group } from "@visx/group";
-import {
-  defaultStyles,
-  Tooltip,
-  useTooltip,
-  useTooltipInPortal,
-} from "@visx/tooltip";
+import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import {
@@ -35,7 +30,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   }, [props.sets]);
 
   return (
-    <ParentSize className="flex min-h-[500px] overflow-hidden">
+    <ParentSize className="relative flex min-h-[500px]">
       {({ height, width }) => (
         <Graph height={height} width={width} sets={sets} />
       )}
@@ -99,7 +94,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
   return (
     <>
-      <svg width={width} height={height}>
+      <svg width={width} height={height} className="max-w-full">
         {/*bottom axis*/}
         <Group top={margin.top} left={margin.left}>
           <AxisBottom
@@ -201,8 +196,8 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         <Tooltip
           top={(tooltip.tooltipTop ?? 0) - tooltipMargin.top}
           left={Math.min(
-            Math.max((tooltip.tooltipLeft ?? 0) - tooltipMargin.left, 50),
-            width - 100,
+            Math.max((tooltip.tooltipLeft ?? 0) - tooltipMargin.left, 0),
+            width - 125,
           )}
           style={tooltipStyles}
         >
@@ -216,7 +211,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             })}
           </time>
 
-          <dl className="grid grid-cols-[1fr_auto] gap-x-2 text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
+          <dl className="grid grid-cols-[1fr_auto] gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
             <dt>1 rep max</dt>
             <dd>
               <WeightValue
@@ -254,9 +249,9 @@ const margin = {
 } as const;
 
 const tooltipMargin = {
-  top: 60,
+  top: 100,
   bottom: 0,
-  left: 0,
+  left: 35,
   right: 0,
 } as const;
 
