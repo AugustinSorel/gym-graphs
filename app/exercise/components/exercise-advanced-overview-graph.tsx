@@ -30,7 +30,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   }, [props.sets]);
 
   return (
-    <ParentSize className="relative flex min-h-[300px] sm:min-h-[500px]">
+    <ParentSize className="relative flex min-h-[400px] sm:min-h-[500px]">
       {({ height, width }) => (
         <Graph height={height} width={width} sets={sets} />
       )}

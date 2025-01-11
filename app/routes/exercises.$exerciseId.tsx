@@ -51,7 +51,7 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section className="p-2 sm:p-10">
+      <Section className="py-2 sm:p-10">
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
       </Section>
 
