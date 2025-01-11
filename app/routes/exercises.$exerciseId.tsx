@@ -51,7 +51,7 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section className="-mx-10">
+      <Section className="p-0 sm:p-10">
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
       </Section>
 
@@ -68,7 +68,7 @@ const RouteComponent = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto flex max-w-app flex-col gap-10 px-4 pb-20 pt-10 lg:gap-20 lg:pt-20"
+      className="mx-auto flex max-w-app flex-col gap-10 px-2 pb-20 pt-10 lg:gap-20 lg:px-4 lg:pt-20"
       {...props}
     />
   );
@@ -77,10 +77,7 @@ const Main = (props: ComponentProps<"main">) => {
 const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
-      className={cn(
-        "relative -mx-4 grid overflow-hidden rounded-none border bg-secondary sm:mx-0 sm:rounded-md",
-        className,
-      )}
+      className={cn("relative grid rounded-md border bg-secondary", className)}
       {...props}
     />
   );

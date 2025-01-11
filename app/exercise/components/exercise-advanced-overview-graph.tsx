@@ -3,10 +3,15 @@ import { curveMonotoneX } from "@visx/curve";
 import { GridRows } from "@visx/grid";
 import { LinePath, AreaClosed, Bar } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import { useParentSize } from "@visx/responsive";
+import { ParentSize } from "@visx/responsive";
 import { AxisBottom } from "@visx/axis";
 import { Group } from "@visx/group";
-import { defaultStyles, TooltipWithBounds, useTooltip } from "@visx/tooltip";
+import {
+  defaultStyles,
+  Tooltip,
+  useTooltip,
+  useTooltipInPortal,
+} from "@visx/tooltip";
 import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import {
@@ -23,8 +28,6 @@ import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
-  const { parentRef, width, height } = useParentSize();
-
   const sets = useMemo(() => {
     return props.sets.toSorted(
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
@@ -32,9 +35,11 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   }, [props.sets]);
 
   return (
-    <div ref={parentRef} className="flex min-h-[500px] overflow-hidden">
-      <Graph height={height} width={width} sets={sets} />
-    </div>
+    <ParentSize className="flex min-h-[500px] overflow-hidden">
+      {({ height, width }) => (
+        <Graph height={height} width={width} sets={sets} />
+      )}
+    </ParentSize>
   );
 };
 
@@ -100,7 +105,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           <AxisBottom
             top={height - margin.top - margin.bottom}
             scale={timeScale}
-            numTicks={width > 520 ? 10 : 5}
+            numTicks={5}
             tickFormat={(value) => {
               const date = z
                 .number()
@@ -166,7 +171,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         </Group>
 
         {/*hit zone for tooltip*/}
-        <Group top={margin.top} left={margin.left}>
+        <Group top={0} left={0}>
           <Bar
             width={width}
             height={height}
@@ -193,9 +198,12 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       </svg>
 
       {tooltip.tooltipData && (
-        <TooltipWithBounds
+        <Tooltip
           top={(tooltip.tooltipTop ?? 0) - tooltipMargin.top}
-          left={(tooltip.tooltipLeft ?? 0) - tooltipMargin.left}
+          left={Math.min(
+            Math.max((tooltip.tooltipLeft ?? 0) - tooltipMargin.left, 50),
+            width - 100,
+          )}
           style={tooltipStyles}
         >
           <time
@@ -227,7 +235,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             <dt>repetitions</dt>
             <dd>{tooltip.tooltipData.repetitions}</dd>
           </dl>
-        </TooltipWithBounds>
+        </Tooltip>
       )}
     </>
   );
@@ -239,16 +247,16 @@ const getOneRepMax = (d: Point) =>
 const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {
-  top: 50,
-  bottom: 50,
-  left: 50,
-  right: 50,
+  top: 10,
+  bottom: 30,
+  left: 30,
+  right: 30,
 } as const;
 
 const tooltipMargin = {
   top: 60,
   bottom: 0,
-  left: 30,
+  left: 0,
   right: 0,
 } as const;
 

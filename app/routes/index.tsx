@@ -112,7 +112,7 @@ const FeatureTwo = () => {
       </Text>
 
       <UserProvider user={userMock}>
-        <CardTwo>
+        <CardTwo className="p-0 sm:p-10">
           <ExerciseAdvanceOverviewGraph sets={sets} />
         </CardTwo>
         <CardTwo>
@@ -273,7 +273,7 @@ const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-md border bg-secondary",
+        "relative w-full rounded-md border bg-secondary",
         className,
       )}
       {...props}
