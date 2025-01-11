@@ -133,8 +133,6 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 //TODO: dark theme
 //TODO: monitoring
 //TODO: rate limiter
-//TODO: fix graph ui home page
-//TODO: fix exercise page overflow issue
 //TODO: fix mobile header
 //TODO: add back btn
 

@@ -34,7 +34,7 @@ import { useSignOut } from "~/auth/hooks/use-sign-out";
 
 export const HeaderPublic = () => {
   return (
-    <Container className="border-none bg-transparent backdrop-blur-sm">
+    <Container className="gap-0 border-none bg-transparent backdrop-blur-sm">
       <AppIcon />
       <Button
         variant="link"
