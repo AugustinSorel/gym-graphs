@@ -8,10 +8,14 @@ import {
 import { Db } from "~/utils/db";
 
 export const createExerciseSet = async (
-  set: typeof exerciseSetTable.$inferInsert,
+  weightInKg: ExerciseSet["weightInKg"],
+  repetitions: ExerciseSet["repetitions"],
+  exerciseId: ExerciseSet["exerciseId"],
   db: Db,
 ) => {
-  return db.insert(exerciseSetTable).values(set);
+  return db
+    .insert(exerciseSetTable)
+    .values({ weightInKg, repetitions, exerciseId });
 };
 
 export const createExerciseSets = async (

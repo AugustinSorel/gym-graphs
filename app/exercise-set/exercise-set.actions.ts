@@ -35,11 +35,9 @@ export const createExerciseSetAction = createServerFn({ method: "POST" })
       }
 
       await createExerciseSet(
-        {
-          exerciseId: data.exerciseId,
-          repetitions: data.repetitions,
-          weightInKg: data.weightInKg,
-        },
+        data.weightInKg,
+        data.repetitions,
+        data.exerciseId,
         db,
       );
     } catch (e) {

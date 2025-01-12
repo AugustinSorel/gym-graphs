@@ -24,13 +24,7 @@ export const createExerciseAction = createServerFn({ method: "POST" })
   .validator(exerciseSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      return await createExercise(
-        {
-          name: data.name,
-          userId: context.user.id,
-        },
-        db,
-      );
+      return await createExercise(data.name, context.user.id, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateExercise =

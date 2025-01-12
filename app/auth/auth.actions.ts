@@ -57,14 +57,10 @@ export const signUpAction = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     try {
       await db.transaction(async (tx) => {
-        const user = await createUser(
-          {
-            email: data.email,
-            password: await hashSecret(data.password),
-            name: data.email.split("@").at(0) ?? "anonymous",
-          },
-          tx,
-        );
+        const hashedPassword = await hashSecret(data.password);
+        const name = data.email.split("@").at(0) ?? "anonymous";
+
+        const user = await createUser(data.email, hashedPassword, name, tx);
 
         await seedUserAccount(user.id, tx);
 

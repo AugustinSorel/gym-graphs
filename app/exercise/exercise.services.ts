@@ -38,10 +38,14 @@ export const selectExercise = async (
 };
 
 export const createExercise = async (
-  data: typeof exerciseTable.$inferInsert,
+  name: Exercise["name"],
+  userId: Exercise["userId"],
   db: Db,
 ) => {
-  const [exercise] = await db.insert(exerciseTable).values(data).returning();
+  const [exercise] = await db
+    .insert(exerciseTable)
+    .values({ name, userId })
+    .returning();
 
   if (!exercise) {
     throw new Error("exercise returned by db is null");

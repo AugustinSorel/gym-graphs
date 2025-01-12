@@ -5,10 +5,15 @@ import { createExercises } from "~/exercise/exercise.services";
 import { createExerciseSets } from "~/exercise-set/exercise-set.services";
 
 export const createUser = async (
-  data: typeof userTable.$inferInsert,
+  email: User["email"],
+  password: User["password"],
+  name: User["name"],
   db: Db,
 ) => {
-  const [user] = await db.insert(userTable).values(data).returning();
+  const [user] = await db
+    .insert(userTable)
+    .values({ email, password, name })
+    .returning();
 
   if (!user) {
     throw new Error("user returned by db is null");

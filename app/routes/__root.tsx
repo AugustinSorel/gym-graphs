@@ -129,6 +129,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
 }
 
 //BUG: error handling not finished
+//BUG: dev docker not working
 
 //TODO: dark theme
 //BUG: remove padding in advanced graph
