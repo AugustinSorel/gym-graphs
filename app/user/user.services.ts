@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
-import { User, userTable } from "~/db/db.schemas";
+import { tagTable, User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createExerciseSets } from "~/exercise-set/exercise-set.services";
+import { createTags } from "~/tag/tag.services";
 
 export const createUser = async (
   email: User["email"],
@@ -64,6 +65,21 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     db,
   );
 
+  await createTags(
+    [
+      { name: "legs", userId },
+      { name: "chest", userId },
+      { name: "biceps", userId },
+      { name: "triceps", userId },
+      { name: "back", userId },
+      { name: "shoulders", userId },
+      { name: "calfs", userId },
+      { name: "abs", userId },
+      { name: "traps", userId },
+    ],
+    db,
+  );
+
   const addingSetsPromise = exercises.map((exercise) => {
     const sets = [...Array(6).keys()].map((i) => {
       const values = [10, 20, 30, 40];
@@ -86,5 +102,5 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     return createExerciseSets(sets, db);
   });
 
-  await Promise.resolve(addingSetsPromise);
+  await Promise.all(addingSetsPromise);
 };

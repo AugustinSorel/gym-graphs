@@ -67,5 +67,7 @@ export const validateSessionToken = async (
     refreshSessionExpiryDate(session.id, db);
   }
 
-  return { session, user: session.user };
+  const { user, ...sessionRest } = session;
+
+  return { session: sessionRest, user };
 };

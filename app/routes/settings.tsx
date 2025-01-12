@@ -10,7 +10,7 @@ import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";
 import { cn } from "~/styles/styles.utils";
-import { Github, Laptop, Moon, Sun } from "lucide-react";
+import { Github, Laptop, Moon, MoreHorizontal, Sun } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/user/components/rename-user-dialog";
@@ -20,6 +20,15 @@ import { weightUnitEnum } from "~/db/db.schemas";
 import { userSchema } from "~/user/user.schemas";
 import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
+import { pluralize } from "~/utils/string.utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "~/ui/dropdown-menu";
+import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
+import { DeleteTagDialog } from "~/tag/components/delete-tag-dialog";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -50,6 +59,7 @@ const RouteComponent = () => {
 
       <EmailSection />
       <RenameUserSection />
+      <TagsSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
       <GithubLinkSection />
@@ -98,6 +108,55 @@ const RenameUserSection = () => {
         </HGroup>
         <Footer>
           <RenameUserDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
+
+const TagsSection = () => {
+  const user = useUser();
+
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>tags</SectionTitle>
+          <SectionDescription>Manage your exercise tags</SectionDescription>
+
+          <List>
+            {user.tags.map((tag) => (
+              <ListItem
+                key={tag.name + tag.userId}
+                className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
+              >
+                <ListItemTitle>{tag.name}</ListItemTitle>
+
+                <ListItemSubtitle>
+                  {pluralize(1, "exercise")} linked
+                </ListItemSubtitle>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="row-span-3 h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DeleteTagDialog name={tag.name} />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </ListItem>
+            ))}
+          </List>
+        </HGroup>
+        <Footer>
+          <CreateTagDialog />
         </Footer>
       </Section>
     </CatchBoundary>
@@ -332,4 +391,33 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
       {...props}
     />
   );
+};
+
+const List = (props: ComponentProps<"ul">) => {
+  return (
+    <ul
+      className="max-h-96 items-center overflow-auto rounded-md border [counter-reset:item]"
+      {...props}
+    />
+  );
+};
+
+const ListItem = ({ className, ...props }: ComponentProps<"li">) => {
+  return (
+    <li
+      className={cn(
+        "relative grid grid-cols-[auto_1fr_auto] items-center gap-x-4 p-4 text-sm transition-colors hover:bg-accent",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
+
+const ListItemTitle = (props: ComponentProps<"h3">) => {
+  return <h3 className="truncate font-semibold capitalize" {...props} />;
+};
+
+const ListItemSubtitle = (props: ComponentProps<"p">) => {
+  return <p className="col-start-2 row-start-2 truncate text-xs" {...props} />;
 };

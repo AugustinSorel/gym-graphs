@@ -18,7 +18,16 @@ import {
 import { userSchema } from "~/user/user.schemas";
 import { z } from "zod";
 import pg from "pg";
-import { authGuard } from "~/auth/auth.middlewares";
+import { authGuard, validateRequest } from "~/auth/auth.middlewares";
+
+export const validateRequestAction = createServerFn({ method: "GET" })
+  .middleware([validateRequest])
+  .handler(({ context }) => {
+    return {
+      user: context.user,
+      session: context.session,
+    };
+  });
 
 export const signInAction = createServerFn()
   .validator(userSchema.pick({ email: true, password: true }))

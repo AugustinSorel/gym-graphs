@@ -1,12 +1,13 @@
-import { relations, sql } from "drizzle-orm";
+import { relations, sql, Table } from "drizzle-orm";
 import {
   integer,
-  pgTable,
   timestamp,
   text,
   unique,
   date,
   pgEnum,
+  primaryKey,
+  pgTable,
 } from "drizzle-orm/pg-core";
 
 export const weightUnitEnum = pgEnum("weight_unit", ["kg", "lbs"]);
@@ -29,6 +30,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
     references: [sessionTable.userId],
   }),
   exercises: many(exerciseTable),
+  tags: many(tagTable),
 }));
 
 export const sessionTable = pgTable("session", {
@@ -107,5 +109,48 @@ export const exerciseSetRelations = relations(exerciseSetTable, ({ one }) => ({
   exercise: one(exerciseTable, {
     fields: [exerciseSetTable.exerciseId],
     references: [exerciseTable.id],
+  }),
+}));
+
+//BUG: unique constraint does not work with new drizzle sintax
+// export const exerciseTagTable = pgTable(
+//   "exercise_tag",
+//   {
+//     exerciseId: integer("exercise_id")
+//       .notNull()
+//       .references(() => exerciseTable.id, { onDelete: "cascade" }),
+//     tagId: integer("tag_id")
+//       .notNull()
+//       .references(() => userExerciseTagTable.id, { onDelete: "cascade" }),
+//     createdAt: timestamp("created_at").notNull().defaultNow(),
+//     updatedAt: timestamp("updated_at").notNull().defaultNow(),
+//   },
+//   (table) => ({
+//     pk: primaryKey({ columns: [table.exerciseId, table.tagId] }),
+//   }),
+// );
+
+//BUG: unique constraint does not work with new drizzle sintax
+export const tagTable = pgTable(
+  "tag",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.name, table.userId] }),
+  }),
+);
+
+export type Tag = typeof tagTable.$inferSelect;
+
+export const tagRelations = relations(tagTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [tagTable.userId],
+    references: [userTable.id],
   }),
 }));

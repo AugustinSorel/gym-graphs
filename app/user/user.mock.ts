@@ -5,6 +5,7 @@ export const userMock = {
   email: "john@email.com",
   name: "john",
   id: 1,
+  tags: [],
 } as const satisfies NonNullable<
   Awaited<ReturnType<typeof validateSessionToken>>["user"]
 >;

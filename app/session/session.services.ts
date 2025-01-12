@@ -48,6 +48,9 @@ export const selectSessionWithUser = async (
     where: eq(sessionTable.id, sessionId),
     with: {
       user: {
+        with: {
+          tags: true,
+        },
         columns: {
           id: true,
           email: true,

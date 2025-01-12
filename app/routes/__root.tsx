@@ -3,15 +3,15 @@ import {
   ScrollRestoration,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { createServerFn, Meta, Scripts } from "@tanstack/start";
+import { Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense, type PropsWithChildren } from "react";
 import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { validateRequest } from "~/auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
 import { UserProvider } from "~/user/user.context";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import { validateRequestAction } from "~/auth/auth.actions";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -36,15 +36,6 @@ const AnalyticScript = () => {
   );
 };
 
-const getValidateRequest = createServerFn({ method: "GET" })
-  .middleware([validateRequest])
-  .handler(({ context }) => {
-    return {
-      user: context.user,
-      session: context.session,
-    };
-  });
-
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     head: () => ({
@@ -62,10 +53,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
       links: [{ rel: "stylesheet", href: appCss }],
     }),
-    component: RootComponent,
+    component: () => RootComponent(),
     errorComponent: (props) => DefaultErrorFallback(props),
     beforeLoad: async () => {
-      const { user, session } = await getValidateRequest();
+      const { user, session } = await validateRequestAction();
 
       return {
         user,
@@ -80,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   },
 );
 
-function RootComponent() {
+const RootComponent = () => {
   const loaderData = Route.useLoaderData();
 
   if (!loaderData.user) {
@@ -98,9 +89,9 @@ function RootComponent() {
       </RootDocument>
     </UserProvider>
   );
-}
+};
 
-function RootDocument(props: Readonly<PropsWithChildren>) {
+const RootDocument = (props: Readonly<PropsWithChildren>) => {
   const loaderData = Route.useLoaderData();
 
   return (
@@ -126,7 +117,7 @@ function RootDocument(props: Readonly<PropsWithChildren>) {
       </body>
     </html>
   );
-}
+};
 
 //BUG: error handling not finished
 //BUG: dev docker not working
