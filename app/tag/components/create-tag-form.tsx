@@ -120,12 +120,12 @@ const useCreateTag = () => {
       };
 
       //TODO: use proper optimistic handler
-      // user.set((u) => {
-      //   return {
-      //     ...u,
-      //     tags: [...u.tags, optimisticTag],
-      //   };
-      // });
+      user.set((u) => {
+        return {
+          ...u,
+          tags: [...u.tags, optimisticTag],
+        };
+      });
     },
   });
 };

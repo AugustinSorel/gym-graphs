@@ -14,11 +14,11 @@ export const createTags = async (
 };
 
 export const deleteTag = async (
-  name: Tag["name"],
+  tagId: Tag["id"],
   userId: Tag["userId"],
   db: Db,
 ) => {
   return db
     .delete(tagTable)
-    .where(and(eq(tagTable.name, name), eq(tagTable.userId, userId)));
+    .where(and(eq(tagTable.id, tagId), eq(tagTable.userId, userId)));
 };

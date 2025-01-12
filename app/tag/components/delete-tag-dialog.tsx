@@ -25,7 +25,7 @@ export const DeleteTagDialog = (props: Props) => {
     deleteTag.mutate(
       {
         data: {
-          name: props.name,
+          tagId: props.tagId,
         },
       },
       {
@@ -81,11 +81,11 @@ const useDeleteTag = () => {
       user.set((user) => {
         return {
           ...user,
-          tags: user.tags.filter((tag) => tag.name !== variables.data.name),
+          tags: user.tags.filter((tag) => tag.id !== variables.data.tagId),
         };
       });
     },
   });
 };
 
-type Props = Readonly<Pick<Tag, "name">>;
+type Props = Readonly<{ tagId: Tag["id"] }>;

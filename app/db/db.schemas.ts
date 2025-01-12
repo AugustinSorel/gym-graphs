@@ -113,27 +113,28 @@ export const exerciseSetRelations = relations(exerciseSetTable, ({ one }) => ({
 }));
 
 //BUG: unique constraint does not work with new drizzle sintax
-// export const exerciseTagTable = pgTable(
-//   "exercise_tag",
-//   {
-//     exerciseId: integer("exercise_id")
-//       .notNull()
-//       .references(() => exerciseTable.id, { onDelete: "cascade" }),
-//     tagId: integer("tag_id")
-//       .notNull()
-//       .references(() => userExerciseTagTable.id, { onDelete: "cascade" }),
-//     createdAt: timestamp("created_at").notNull().defaultNow(),
-//     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-//   },
-//   (table) => ({
-//     pk: primaryKey({ columns: [table.exerciseId, table.tagId] }),
-//   }),
-// );
+export const exerciseTagTable = pgTable(
+  "exercise_tag",
+  {
+    exerciseId: integer("exercise_id")
+      .notNull()
+      .references(() => exerciseTable.id, { onDelete: "cascade" }),
+    tagId: integer("tag_id")
+      .notNull()
+      .references(() => tagTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.exerciseId, table.tagId] }),
+  }),
+);
 
 //BUG: unique constraint does not work with new drizzle sintax
 export const tagTable = pgTable(
   "tag",
   {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
@@ -142,7 +143,7 @@ export const tagTable = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.name, table.userId] }),
+    unq: unique().on(table.name, table.userId),
   }),
 );
 

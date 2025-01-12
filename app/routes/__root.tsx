@@ -122,6 +122,8 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: error handling not finished
 //BUG: dev docker not working
 
+//TODO: remove the exercise prefeix of set
+
 //TODO: dark theme
 //TODO: remove user context to the query client
 //BUG: remove padding in advanced graph

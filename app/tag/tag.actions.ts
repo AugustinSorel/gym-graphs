@@ -4,6 +4,7 @@ import { tagSchema } from "./tag.schemas";
 import { db } from "~/utils/db";
 import { createTag, deleteTag } from "./tag.services";
 import pg from "pg";
+import { z } from "zod";
 
 export const createTagAction = createServerFn({ method: "POST" })
   .middleware([authGuard])
@@ -25,7 +26,7 @@ export const createTagAction = createServerFn({ method: "POST" })
 
 export const deleteTagAction = createServerFn({ method: "POST" })
   .middleware([authGuard])
-  .validator(tagSchema.pick({ name: true }))
+  .validator(z.object({ tagId: tagSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteTag(data.name, context.user.id, db);
+    await deleteTag(data.tagId, context.user.id, db);
   });

@@ -128,6 +128,9 @@ const TagsSection = () => {
           <SectionDescription>Manage your exercise tags</SectionDescription>
 
           <List>
+            {!user.tags.length && (
+              <p className="p-6 text-center text-muted-foreground">no tags</p>
+            )}
             {user.tags.map((tag) => (
               <ListItem
                 key={tag.name + tag.userId}
@@ -148,7 +151,7 @@ const TagsSection = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DeleteTagDialog name={tag.name} />
+                    <DeleteTagDialog tagId={tag.id} />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </ListItem>
