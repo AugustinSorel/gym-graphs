@@ -1,10 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { signOutAction } from "~/auth/auth.actions";
 
 export const useSignOut = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const signOut = useMutation({
@@ -12,6 +13,7 @@ export const useSignOut = () => {
     onSuccess: () => {
       startRedirectTransition(async () => {
         await navigate({ to: "/sign-in" });
+        queryClient.clear();
       });
     },
   });

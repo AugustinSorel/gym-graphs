@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,7 @@ import { useTransition } from "react";
 export const DeleteAccountDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const deleteAccount = useDeleteAccount();
 
@@ -27,6 +28,7 @@ export const DeleteAccountDialog = () => {
       onSuccess: () => {
         startRedirectTransition(async () => {
           await navigate({ to: "/sign-up" });
+          queryClient.clear();
         });
       },
     });
