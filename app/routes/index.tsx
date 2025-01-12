@@ -112,7 +112,7 @@ const FeatureTwo = () => {
       </Text>
 
       <UserProvider user={userMock}>
-        <CardTwo className="py-2 sm:p-10">
+        <CardTwo className="py-2 sm:p-4">
           <ExerciseAdvanceOverviewGraph sets={sets} />
         </CardTwo>
         <CardTwo>

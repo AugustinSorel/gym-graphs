@@ -123,6 +123,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: dev docker not working
 
 //TODO: dark theme
+//TODO: remove user context to the query client
 //BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
 
