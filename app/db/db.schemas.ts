@@ -1,4 +1,4 @@
-import { relations, sql, Table } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   integer,
   timestamp,
@@ -82,6 +82,7 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
     references: [userTable.id],
   }),
   sets: many(exerciseSetTable),
+  tags: many(exerciseTagTable),
 }));
 
 //BUG: unique constraint does not work with new drizzle sintax
@@ -130,6 +131,17 @@ export const exerciseTagTable = pgTable(
   }),
 );
 
+export const exerciseTagRelations = relations(exerciseTagTable, ({ one }) => ({
+  exercise: one(exerciseTable, {
+    fields: [exerciseTagTable.exerciseId],
+    references: [exerciseTable.id],
+  }),
+  tag: one(tagTable, {
+    fields: [exerciseTagTable.tagId],
+    references: [tagTable.id],
+  }),
+}));
+
 //BUG: unique constraint does not work with new drizzle sintax
 export const tagTable = pgTable(
   "tag",
@@ -149,9 +161,10 @@ export const tagTable = pgTable(
 
 export type Tag = typeof tagTable.$inferSelect;
 
-export const tagRelations = relations(tagTable, ({ one }) => ({
+export const tagRelations = relations(tagTable, ({ one, many }) => ({
   user: one(userTable, {
     fields: [tagTable.userId],
     references: [userTable.id],
   }),
+  exercises: many(exerciseTagTable),
 }));

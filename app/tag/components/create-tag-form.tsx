@@ -113,6 +113,7 @@ const useCreateTag = () => {
     mutationFn: createTagAction,
     onMutate: (variables) => {
       const optimisticTag = {
+        id: Math.random(),
         userId: user.id,
         name: variables.data.name,
         createdAt: new Date(),

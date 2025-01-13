@@ -123,6 +123,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: dev docker not working
 
 //TODO: remove the exercise prefeix of set
+//TODO: add user to usercontext
 
 //TODO: dark theme
 //TODO: remove user context to the query client

@@ -1,8 +1,10 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CatchBoundary,
   createFileRoute,
   redirect,
 } from "@tanstack/react-router";
+import { AlertCircle, Check } from "lucide-react";
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
@@ -12,7 +14,13 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
 import { cn } from "~/styles/styles.utils";
+import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
+import { updateExerciseTagsAction } from "~/tag/tag.actions";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { Badge } from "~/ui/badge";
 import { Separator } from "~/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
+import { useUser } from "~/user/user.context";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   component: () => RouteComponent(),
@@ -48,8 +56,127 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameExerciseSection />
+      <ExerciseTagsSection />
       <DeleteExerciseSection />
     </Main>
+  );
+};
+
+const RenameExerciseSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>rename exercise</SectionTitle>
+          <SectionDescription>
+            Feel free to rename this exercise to somehting more comfortable.
+            Your exercises name are not public.
+          </SectionDescription>
+        </HGroup>
+        <Footer>
+          <RenameExerciseDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
+
+const ExerciseTagsSection = () => {
+  const user = useUser();
+  const params = Route.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
+
+  const updateExerciseTags = useUpdateExerciseTags();
+
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>exercise tags</SectionTitle>
+          <SectionDescription>
+            Feel free to rename this exercise to somehting more comfortable.
+            Your exercises name are not public.
+          </SectionDescription>
+
+          <ToggleGroup
+            className="flex flex-wrap justify-start gap-4 rounded-md border p-4"
+            type="multiple"
+            value={exercise.data.tags.map((tag) => tag.tagId.toString())}
+            onValueChange={(e) => {
+              updateExerciseTags.mutate({
+                data: {
+                  newTags: e.map(Number),
+                  exerciseId: exercise.data.id,
+                },
+              });
+            }}
+          >
+            {!user.tags.length && (
+              <p className="w-full p-6 text-center text-muted-foreground">
+                no tags
+              </p>
+            )}
+            {user.tags.map((tag) => (
+              <ToggleGroupItem
+                key={tag.userId + tag.name}
+                className="group hover:bg-transparent data-[state=on]:bg-transparent"
+                value={tag.id.toString()}
+              >
+                <Badge
+                  className="bg-transparent text-foreground hover:bg-transparent group-aria-pressed:bg-primary group-aria-pressed:text-primary-foreground group-aria-pressed:hover:bg-primary/80"
+                  variant="outline"
+                >
+                  <Check className="mr-1 hidden !size-3 group-aria-pressed:block" />
+                  {tag.name}
+                </Badge>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+
+          {updateExerciseTags.error && (
+            <Alert variant="destructive">
+              <AlertCircle className="size-4" />
+              <AlertTitle>Heads up!</AlertTitle>
+              <AlertDescription>
+                {updateExerciseTags.error.message}
+              </AlertDescription>
+            </Alert>
+          )}
+        </HGroup>
+        <Footer>
+          <CreateTagDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
+
+const DeleteExerciseSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section className="border-destructive">
+        <HGroup>
+          <SectionTitle>delete exercise</SectionTitle>
+          <SectionDescription>
+            Permanently remove your this exercise and all of its contents from
+            our servers. This action is not reversible, so please continue with
+            caution.
+          </SectionDescription>
+        </HGroup>
+        <Footer className="border-destructive bg-destructive/10">
+          <DeleteExerciseDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
   );
 };
 
@@ -110,47 +237,48 @@ const SectionDescription = (props: ComponentProps<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
-const RenameExerciseSection = () => {
-  return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
-      <Section>
-        <HGroup>
-          <SectionTitle>rename exercise</SectionTitle>
-          <SectionDescription>
-            Feel free to rename this exercise to somehting more comfortable.
-            Your exercises name are not public.
-          </SectionDescription>
-        </HGroup>
-        <Footer>
-          <RenameExerciseDialog />
-        </Footer>
-      </Section>
-    </CatchBoundary>
-  );
-};
+const useUpdateExerciseTags = () => {
+  const user = useUser();
+  const queryClient = useQueryClient();
 
-const DeleteExerciseSection = () => {
-  return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
-      <Section className="border-destructive">
-        <HGroup>
-          <SectionTitle>delete exercise</SectionTitle>
-          <SectionDescription>
-            Permanently remove your this exercise and all of its contents from
-            our servers. This action is not reversible, so please continue with
-            caution.
-          </SectionDescription>
-        </HGroup>
-        <Footer className="border-destructive bg-destructive/10">
-          <DeleteExerciseDialog />
-        </Footer>
-      </Section>
-    </CatchBoundary>
-  );
+  return useMutation({
+    mutationFn: updateExerciseTagsAction,
+    onMutate: (variables) => {
+      const keys = {
+        all: exerciseKeys.all(user.id).queryKey,
+        get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
+      };
+
+      queryClient.setQueryData(keys.get, (exercise) => {
+        if (!exercise) {
+          return exercise;
+        }
+
+        const exerciseTags = new Set(exercise.tags.map((t) => t.tagId));
+        const newExerciseTags = new Set(variables.data.newTags);
+
+        const tagsToAdd = newExerciseTags.difference(exerciseTags);
+        const tagsToRemove = exerciseTags.difference(newExerciseTags);
+
+        const optimisticTags = [...tagsToAdd].map((tag) => ({
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          exerciseId: variables.data.exerciseId,
+          tagId: tag,
+        }));
+
+        return {
+          ...exercise,
+          tags: exercise.tags
+            .filter((tag) => !tagsToRemove.has(tag.tagId))
+            .concat(optimisticTags),
+        };
+      });
+    },
+    onSettled: (_data, _error, variables) => {
+      void queryClient.invalidateQueries(
+        exerciseKeys.get(user.id, variables.data.exerciseId),
+      );
+    },
+  });
 };

@@ -1,9 +1,10 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
 import {
   Exercise,
   exerciseSetTable,
   exerciseTable,
+  tagTable,
   User,
 } from "~/db/db.schemas";
 
@@ -32,6 +33,9 @@ export const selectExercise = async (
     with: {
       sets: {
         orderBy: desc(exerciseSetTable.createdAt),
+      },
+      tags: {
+        orderBy: asc(tagTable.createdAt),
       },
     },
   });
