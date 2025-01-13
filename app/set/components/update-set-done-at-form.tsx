@@ -12,33 +12,28 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
-import { Input } from "~/ui/input";
-import { Button } from "~/ui/button";
-import { createExerciseSetAction } from "../exercise-set.actions";
-import { exerciseSetSchema } from "../exercise-set.schemas";
-import { useExercise } from "~/exercise/hooks/useExercise";
-import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/user.context";
+import { Input } from "~/ui/input";
+import { Button } from "~/ui/button";
+import { useExercise } from "~/exercise/hooks/useExercise";
+import { updateSetDoneAtAction } from "~/set/set.actions";
+import { setSchema } from "~/set/set.schemas";
+import { useSet } from "~/set/set.context";
+import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { getRouteApi } from "@tanstack/react-router";
 
-type Props = Readonly<{
-  onSuccess?: () => void;
-}>;
-
-export const AddExerciseSetForm = (props: Props) => {
-  const form = useCreateExerciseSetForm();
-  const createExerciseSet = useCreateExerciseSet();
-  const params = routeApi.useParams();
-  const exericse = useExercise({ id: params.exerciseId });
+export const UpdateSetDoneAtForm = (props: Props) => {
+  const form = useUpdateSetDoneAtForm();
+  const updateDoneAt = useUpdateSetDoneAt();
+  const set = useSet();
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await createExerciseSet.mutateAsync(
+    await updateDoneAt.mutateAsync(
       {
         data: {
-          exerciseId: exericse.data.id,
-          repetitions: data.repetitions,
-          weightInKg: data.weightInKg,
+          setId: set.id,
+          doneAt: data.doneAt,
         },
       },
       {
@@ -59,26 +54,18 @@ export const AddExerciseSetForm = (props: Props) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="weightInKg"
+          name="doneAt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>weight:</FormLabel>
+              <FormLabel>done at:</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="75" autoFocus {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="repetitions"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>repetitions:</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="10" {...field} />
+                <Input
+                  type="date"
+                  autoFocus
+                  {...field}
+                  value={field.value ? dateAsYYYYMMDD(field.value) : ""}
+                  onChange={(e) => field.onChange(e.target.valueAsDate)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,10 +78,10 @@ export const AddExerciseSetForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            data-umami-event="exercise set created"
+            data-umami-event="update exercise set done at"
             className="font-semibold"
           >
-            <span>add</span>
+            <span>update</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -105,67 +92,62 @@ export const AddExerciseSetForm = (props: Props) => {
 
 const routeApi = getRouteApi("/exercises/$exerciseId");
 
+type Props = Readonly<{
+  onSuccess?: () => void;
+}>;
+
 const useFormSchema = () => {
   const params = routeApi.useParams();
-  const exericse = useExercise({ id: params.exerciseId });
+  const exercise = useExercise({ id: params.exerciseId });
+  const set = useSet();
 
-  return z
-    .object({
-      repetitions: z.coerce.number(),
-      weightInKg: z.coerce.number(),
-    })
-    .pipe(exerciseSetSchema.pick({ repetitions: true, weightInKg: true }))
-    .refine(
-      () => {
-        const setAlreadyExists = exericse.data.sets.find(
-          (set) => dateAsYYYYMMDD(set.doneAt) === dateAsYYYYMMDD(new Date()),
-        );
+  return setSchema.pick({ doneAt: true }).refine(
+    (data) => {
+      const duplicateSet = exercise.data.sets.find(
+        (s) =>
+          dateAsYYYYMMDD(s.doneAt) === dateAsYYYYMMDD(data.doneAt) &&
+          s.id !== set.id,
+      );
 
-        return !setAlreadyExists;
-      },
-      {
-        message: "set already created for today",
-        path: ["repetitions"],
-      },
-    );
+      return !duplicateSet;
+    },
+    {
+      message: "set already created for this date",
+      path: ["doneAt"],
+    },
+  );
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
-const useCreateExerciseSetForm = () => {
+const useUpdateSetDoneAtForm = () => {
   const formSchema = useFormSchema();
+  const set = useSet();
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repetitions: 0,
-      weightInKg: 0,
+      doneAt: set.doneAt,
     },
   });
 };
 
-const useCreateExerciseSet = () => {
+const useUpdateSetDoneAt = () => {
+  const queryClient = useQueryClient();
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
-  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createExerciseSetAction,
+    mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const keys = {
         all: exerciseKeys.all(user.id).queryKey,
         get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
-      };
+      } as const;
 
       const optimisticExerciseSet = {
-        id: Math.random(),
-        exerciseId: variables.data.exerciseId,
-        weightInKg: variables.data.weightInKg,
-        repetitions: variables.data.repetitions,
-        createdAt: new Date(),
-        doneAt: new Date(),
-        updatedAt: new Date(),
+        doneAt: variables.data.doneAt,
       };
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -173,26 +155,44 @@ const useCreateExerciseSet = () => {
           return [];
         }
 
-        return exercises.map((exercise) => {
-          if (exercise.id === variables.data.exerciseId) {
+        return exercises.map((ex) => {
+          if (ex.id === exercise.data.id) {
             return {
-              ...exercise,
-              sets: [optimisticExerciseSet, ...exercise.sets],
+              ...ex,
+              sets: ex.sets.map((set) => {
+                if (set.id === variables.data.setId) {
+                  return {
+                    ...set,
+                    ...optimisticExerciseSet,
+                  };
+                }
+
+                return set;
+              }),
             };
           }
 
-          return exercise;
+          return ex;
         });
       });
 
-      queryClient.setQueryData(keys.get, (exercise) => {
-        if (!exercise) {
-          return exercise;
+      queryClient.setQueryData(keys.get, (ex) => {
+        if (!ex) {
+          return ex;
         }
 
         return {
-          ...exercise,
-          sets: [optimisticExerciseSet, ...exercise.sets],
+          ...ex,
+          sets: ex.sets.map((set) => {
+            if (set.id === variables.data.setId) {
+              return {
+                ...set,
+                ...optimisticExerciseSet,
+              };
+            }
+
+            return set;
+          }),
         };
       });
     },

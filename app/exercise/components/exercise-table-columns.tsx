@@ -1,8 +1,8 @@
-import { UpdateExerciseSetWeightDialog } from "~/exercise-set/components/update-exercise-set-weight-dialog";
-import { ExerciseSetProvider } from "~/exercise-set/exercise-set.context";
-import { UpdateExerciseSetRepetitionsDialog } from "~/exercise-set/components/update-exercise-set-repetitions-dialog";
-import { DeleteExerciseSetDialog } from "~/exercise-set/components/delete-exercise-set-dialog";
-import { UpdateExerciseSetDoneAtDialog } from "~/exercise-set/components/update-exercise-set-done-at-dialog";
+import { UpdateSetWeightDialog } from "~/set/components/update-set-weight-dialog";
+import { SetProvider } from "~/set/set.context";
+import { UpdateSetRepetitionsDialog } from "~/set/components/update-set-repetitions-dialog";
+import { DeleteSetDialog } from "~/set/components/delete-set-dialog";
+import { UpdateSetDoneAtDialog } from "~/set/components/update-set-done-at-dialog";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import {
@@ -18,12 +18,12 @@ import {
   ChevronsUpDown,
   MoreHorizontal,
 } from "lucide-react";
-import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
+import { getOneRepMaxEplay } from "~/set/set.utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ExerciseSet } from "~/db/db.schemas";
+import { Set } from "~/db/db.schemas";
 import { Button } from "~/ui/button";
 
-export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
+export const exerciseTableColumns: Array<ColumnDef<Set>> = [
   {
     accessorKey: "oneRepMax",
     header: ({ column }) => {
@@ -144,7 +144,7 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const exerciseSet = row.original;
+      const set = row.original;
 
       return (
         <DropdownMenu>
@@ -155,14 +155,14 @@ export const exerciseTableColumns: Array<ColumnDef<ExerciseSet>> = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <ExerciseSetProvider value={exerciseSet}>
+            <SetProvider value={set}>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <UpdateExerciseSetWeightDialog />
-              <UpdateExerciseSetRepetitionsDialog />
-              <UpdateExerciseSetDoneAtDialog />
+              <UpdateSetWeightDialog />
+              <UpdateSetRepetitionsDialog />
+              <UpdateSetDoneAtDialog />
               <DropdownMenuSeparator />
-              <DeleteExerciseSetDialog />
-            </ExerciseSetProvider>
+              <DeleteSetDialog />
+            </SetProvider>
           </DropdownMenuContent>
         </DropdownMenu>
       );

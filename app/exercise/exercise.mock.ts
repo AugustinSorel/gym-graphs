@@ -7,6 +7,7 @@ export const exercisesMock = [
     name: "bench press",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
+    tags: [],
     sets: [
       {
         id: 78,
@@ -70,6 +71,7 @@ export const exercisesMock = [
     name: "squat",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
+    tags: [],
     sets: [
       {
         id: 84,
@@ -133,6 +135,7 @@ export const exercisesMock = [
     name: "deadlift",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
+    tags: [],
     sets: [
       {
         id: 90,
@@ -196,6 +199,7 @@ export const exercisesMock = [
     name: "biceps curls",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
+    tags: [],
     sets: [
       {
         id: 90,

@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
 import {
   Exercise,
-  exerciseSetTable,
+  setTable,
   exerciseTable,
   tagTable,
   User,
@@ -14,7 +14,7 @@ export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
     orderBy: desc(exerciseTable.createdAt),
     with: {
       sets: {
-        orderBy: desc(exerciseSetTable.createdAt),
+        orderBy: desc(setTable.createdAt),
       },
       tags: {
         orderBy: asc(tagTable.createdAt),
@@ -38,7 +38,7 @@ export const selectExercise = async (
     ),
     with: {
       sets: {
-        orderBy: desc(exerciseSetTable.createdAt),
+        orderBy: desc(setTable.createdAt),
       },
       tags: {
         orderBy: asc(tagTable.createdAt),

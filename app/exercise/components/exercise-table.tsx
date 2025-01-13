@@ -15,13 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from "~/ui/table";
-import { ExerciseSet } from "~/db/db.schemas";
+import { Set } from "~/db/db.schemas";
 import { Button } from "~/ui/button";
 import { useState } from "react";
 
 type Props = Readonly<{
-  sets: Array<ExerciseSet>;
-  columns: Array<ColumnDef<ExerciseSet>>;
+  sets: Array<Set>;
+  columns: Array<ColumnDef<Set>>;
 }>;
 
 export const ExerciseTable = ({ sets, columns }: Props) => {

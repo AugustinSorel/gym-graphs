@@ -17,22 +17,22 @@ import { useUser } from "~/user/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/useExercise";
-import { updateExerciseSetRepetitionsAction } from "../exercise-set.actions";
-import { exerciseSetSchema } from "../exercise-set.schemas";
-import { useExerciseSet } from "../exercise-set.context";
+import { updateSetWeightAction } from "~/set/set.actions";
+import { setSchema } from "~/set/set.schemas";
+import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
 
-export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
+export const UpdateSetWeightForm = (props: Props) => {
   const form = useCreateExerciseForm();
-  const renameExercise = useUpdateExerciseSetRepetitions();
-  const exerciseSet = useExerciseSet();
+  const updateWeight = useUpdateWeight();
+  const set = useSet();
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await renameExercise.mutateAsync(
+    await updateWeight.mutateAsync(
       {
         data: {
-          exerciseSetId: exerciseSet.id,
-          repetitions: data.repetitions,
+          setId: set.id,
+          weightInKg: data.weightInKg,
         },
       },
       {
@@ -53,12 +53,12 @@ export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="repetitions"
+          name="weightInKg"
           render={({ field }) => (
             <FormItem>
               <FormLabel>weight:</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10" autoFocus {...field} />
+                <Input type="number" placeholder="75" autoFocus {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -71,7 +71,7 @@ export const UpdateExerciseSetRepetitionsForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            data-umami-event="update exercise set repetitions"
+            data-umami-event="update exercise set weight"
             className="font-semibold"
           >
             <span>update</span>
@@ -91,32 +91,32 @@ type Props = Readonly<{
 
 const useFormSchema = () => {
   return z
-    .object({ repetitions: z.coerce.number() })
-    .pipe(exerciseSetSchema.pick({ repetitions: true }));
+    .object({ weightInKg: z.coerce.number() })
+    .pipe(setSchema.pick({ weightInKg: true }));
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
-  const exerciseSet = useExerciseSet();
+  const set = useSet();
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repetitions: exerciseSet.repetitions,
+      weightInKg: set.weightInKg,
     },
   });
 };
 
-const useUpdateExerciseSetRepetitions = () => {
+const useUpdateWeight = () => {
   const queryClient = useQueryClient();
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
-    mutationFn: updateExerciseSetRepetitionsAction,
+    mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
       const keys = {
         all: exerciseKeys.all(user.id).queryKey,
@@ -124,7 +124,7 @@ const useUpdateExerciseSetRepetitions = () => {
       } as const;
 
       const optimisticExerciseSet = {
-        repetitions: variables.data.repetitions,
+        weightInKg: variables.data.weightInKg,
       };
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -137,7 +137,7 @@ const useUpdateExerciseSetRepetitions = () => {
             return {
               ...ex,
               sets: ex.sets.map((set) => {
-                if (set.id === variables.data.exerciseSetId) {
+                if (set.id === variables.data.setId) {
                   return {
                     ...set,
                     ...optimisticExerciseSet,
@@ -161,7 +161,7 @@ const useUpdateExerciseSetRepetitions = () => {
         return {
           ...ex,
           sets: ex.sets.map((set) => {
-            if (set.id === variables.data.exerciseSetId) {
+            if (set.id === variables.data.setId) {
               return {
                 ...set,
                 ...optimisticExerciseSet,

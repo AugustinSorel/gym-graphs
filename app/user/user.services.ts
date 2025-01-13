@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
-import { tagTable, User, userTable } from "~/db/db.schemas";
+import { User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
-import { createExerciseSets } from "~/exercise-set/exercise-set.services";
+import { createSets } from "~/set/set.services";
 import { createTags } from "~/tag/tag.services";
 
 export const createUser = async (
@@ -99,7 +99,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       };
     });
 
-    return createExerciseSets(sets, db);
+    return createSets(sets, db);
   });
 
   await Promise.all(addingSetsPromise);

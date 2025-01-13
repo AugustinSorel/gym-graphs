@@ -2,8 +2,8 @@ import { extent, max } from "@visx/vendor/d3-array";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
-import { ExerciseSet } from "~/db/db.schemas";
-import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
+import { Set } from "~/db/db.schemas";
+import { getOneRepMaxEplay } from "~/set/set.utils";
 import { curveMonotoneX } from "@visx/curve";
 
 export const ExerciseOverviewGraph = (props: Props) => {
@@ -51,9 +51,7 @@ const margin = {
   right: 0,
 } as const;
 
-type Point = Readonly<
-  Pick<ExerciseSet, "weightInKg" | "repetitions" | "doneAt">
->;
+type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
 
 type Props = Readonly<{
   sets: ReadonlyArray<Point>;

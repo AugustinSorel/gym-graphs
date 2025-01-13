@@ -81,13 +81,13 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
     fields: [exerciseTable.userId],
     references: [userTable.id],
   }),
-  sets: many(exerciseSetTable),
+  sets: many(setTable),
   tags: many(exerciseTagTable),
 }));
 
 //BUG: unique constraint does not work with new drizzle sintax
-export const exerciseSetTable = pgTable(
-  "exercise_set",
+export const setTable = pgTable(
+  "set",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     exerciseId: integer("exercise_id")
@@ -104,11 +104,11 @@ export const exerciseSetTable = pgTable(
   }),
 );
 
-export type ExerciseSet = typeof exerciseSetTable.$inferSelect;
+export type Set = typeof setTable.$inferSelect;
 
-export const exerciseSetRelations = relations(exerciseSetTable, ({ one }) => ({
+export const setRelations = relations(setTable, ({ one }) => ({
   exercise: one(exerciseTable, {
-    fields: [exerciseSetTable.exerciseId],
+    fields: [setTable.exerciseId],
     references: [exerciseTable.id],
   }),
 }));

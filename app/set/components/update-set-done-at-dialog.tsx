@@ -1,4 +1,3 @@
-import { Button } from "~/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,23 +7,28 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { AddExerciseSetForm } from "~/exercise-set/components/add-exercise-set-form";
+import { DropdownMenuItem } from "~/ui/dropdown-menu";
+import { UpdateSetDoneAtForm } from "./update-set-done-at-form";
 
-export const AddExerciseSetDialog = () => {
+export const UpdateSetDoneAtDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">add set</Button>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          update done at
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add a new set</DialogTitle>
-          <DialogDescription>Add a new set to the exercise</DialogDescription>
+          <DialogTitle>Update done at</DialogTitle>
+          <DialogDescription>
+            feel free to update the done at date.
+          </DialogDescription>
         </DialogHeader>
 
-        <AddExerciseSetForm
+        <UpdateSetDoneAtForm
           onSuccess={() => {
             setIsOpen(false);
           }}

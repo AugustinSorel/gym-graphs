@@ -1,22 +1,22 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuard } from "~/auth/auth.middlewares";
-import { exerciseSetSchema } from "./exercise-set.schemas";
+import { setSchema } from "~/set/set.schemas";
 import { db } from "~/utils/db";
 import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
 import {
-  createExerciseSet,
-  deleteExerciseSet,
-  updateExerciseSetDoneAt,
-  updateExerciseSetRepetitions,
-  updateExerciseSetWeight,
-} from "~/exercise-set/exercise-set.services";
+  createSet,
+  deleteSet,
+  updateSetDoneAt,
+  updateSetRepetitions,
+  updateSetWeight,
+} from "~/set/set.services";
 import { z } from "zod";
 
-export const createExerciseSetAction = createServerFn({ method: "POST" })
+export const createSetAction = createServerFn({ method: "POST" })
   .middleware([authGuard])
   .validator(
-    exerciseSetSchema.pick({
+    setSchema.pick({
       exerciseId: true,
       repetitions: true,
       weightInKg: true,
@@ -34,12 +34,7 @@ export const createExerciseSetAction = createServerFn({ method: "POST" })
         throw new Error("exercise not found");
       }
 
-      await createExerciseSet(
-        data.weightInKg,
-        data.repetitions,
-        data.exerciseId,
-        db,
-      );
+      await createSet(data.weightInKg, data.repetitions, data.exerciseId, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =
@@ -53,60 +48,50 @@ export const createExerciseSetAction = createServerFn({ method: "POST" })
     }
   });
 
-export const updateExerciseSetWeightAction = createServerFn({ method: "POST" })
+export const updateSetWeightAction = createServerFn({ method: "POST" })
   .middleware([authGuard])
   .validator(
     z.object({
-      weightInKg: exerciseSetSchema.shape.weightInKg,
-      exerciseSetId: exerciseSetSchema.shape.id,
+      weightInKg: setSchema.shape.weightInKg,
+      setId: setSchema.shape.id,
     }),
   )
   .handler(async ({ context, data }) => {
-    await updateExerciseSetWeight(
-      data.exerciseSetId,
-      context.user.id,
-      data.weightInKg,
-      db,
-    );
+    await updateSetWeight(data.setId, context.user.id, data.weightInKg, db);
   });
 
-export const updateExerciseSetRepetitionsAction = createServerFn({
+export const updateSetRepetitionsAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuard])
   .validator(
     z.object({
-      repetitions: exerciseSetSchema.shape.repetitions,
-      exerciseSetId: exerciseSetSchema.shape.id,
+      repetitions: setSchema.shape.repetitions,
+      setId: setSchema.shape.id,
     }),
   )
   .handler(async ({ context, data }) => {
-    await updateExerciseSetRepetitions(
-      data.exerciseSetId,
+    await updateSetRepetitions(
+      data.setId,
       context.user.id,
       data.repetitions,
       db,
     );
   });
 
-export const updateExerciseSetDoneAtAction = createServerFn({
+export const updateSetDoneAtAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuard])
   .validator(
     z.object({
-      doneAt: exerciseSetSchema.shape.doneAt,
-      exerciseSetId: exerciseSetSchema.shape.id,
+      doneAt: setSchema.shape.doneAt,
+      setId: setSchema.shape.id,
     }),
   )
   .handler(async ({ context, data }) => {
     try {
-      await updateExerciseSetDoneAt(
-        data.exerciseSetId,
-        context.user.id,
-        data.doneAt,
-        db,
-      );
+      await updateSetDoneAt(data.setId, context.user.id, data.doneAt, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =
@@ -120,11 +105,11 @@ export const updateExerciseSetDoneAtAction = createServerFn({
     }
   });
 
-export const deleteExerciseSetAction = createServerFn({
+export const deleteSetAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuard])
-  .validator(z.object({ exerciseSetId: exerciseSetSchema.shape.id }))
+  .validator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteExerciseSet(data.exerciseSetId, context.user.id, db);
+    await deleteSet(data.setId, context.user.id, db);
   });

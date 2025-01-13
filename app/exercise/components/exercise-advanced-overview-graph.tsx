@@ -17,8 +17,8 @@ import {
   useMemo,
 } from "react";
 import { z } from "zod";
-import { ExerciseSet } from "~/db/db.schemas";
-import { getOneRepMaxEplay } from "~/exercise-set/exercise-set.utils";
+import { Set } from "~/db/db.schemas";
+import { getOneRepMaxEplay } from "~/set/set.utils";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 
@@ -265,9 +265,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
   transition: "all 0.1s ease-in-out",
 };
 
-type Point = Readonly<
-  Pick<ExerciseSet, "weightInKg" | "repetitions" | "doneAt">
->;
+type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
 
 type Props = Readonly<{
   sets: Array<Point>;

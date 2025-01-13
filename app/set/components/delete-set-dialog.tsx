@@ -12,22 +12,22 @@ import {
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
 import { useUser } from "~/user/user.context";
-import { useExerciseSet } from "~/exercise-set/exercise-set.context";
+import { useSet } from "~/set/set.context";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { deleteExerciseSetAction } from "../exercise-set.actions";
+import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 
-export const DeleteExerciseSetDialog = () => {
-  const exerciseSet = useExerciseSet();
-  const deleteExerciseSet = useDeleteExerciseSet();
+export const DeleteSetDialog = () => {
+  const set = useSet();
+  const deleteSet = useDeleteSet();
   const [isOpen, setIsOpen] = useState(false);
 
   const deleteExerciseHandler = () => {
-    deleteExerciseSet.mutate(
+    deleteSet.mutate(
       {
         data: {
-          exerciseSetId: exerciseSet.id,
+          setId: set.id,
         },
       },
       {
@@ -59,14 +59,14 @@ export const DeleteExerciseSetDialog = () => {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={deleteExerciseSet.isPending}
+            disabled={deleteSet.isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteExerciseHandler();
             }}
           >
             <span>Delete</span>
-            {deleteExerciseSet.isPending && <Spinner />}
+            {deleteSet.isPending && <Spinner />}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -74,17 +74,17 @@ export const DeleteExerciseSetDialog = () => {
   );
 };
 
-const useDeleteExerciseSet = () => {
+const useDeleteSet = () => {
   const queryClient = useQueryClient();
   const user = useUser();
-  const exerciseSet = useExerciseSet();
+  const set = useSet();
 
   return useMutation({
-    mutationFn: deleteExerciseSetAction,
+    mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
         all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, exerciseSet.exerciseId).queryKey,
+        get: exerciseKeys.get(user.id, set.exerciseId).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -96,7 +96,7 @@ const useDeleteExerciseSet = () => {
           return {
             ...exercise,
             sets: exercise.sets.filter((set) => {
-              return set.id !== variables.data.exerciseSetId;
+              return set.id !== variables.data.setId;
             }),
           };
         });
@@ -110,7 +110,7 @@ const useDeleteExerciseSet = () => {
         return {
           ...exercise,
           sets: exercise.sets.filter((set) => {
-            return set.id !== variables.data.exerciseSetId;
+            return set.id !== variables.data.setId;
           }),
         };
       });
@@ -118,7 +118,7 @@ const useDeleteExerciseSet = () => {
     onSettled: () => {
       void queryClient.invalidateQueries(exerciseKeys.all(user.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, exerciseSet.exerciseId),
+        exerciseKeys.get(user.id, set.exerciseId),
       );
     },
   });

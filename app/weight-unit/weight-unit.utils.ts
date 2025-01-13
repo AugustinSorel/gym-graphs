@@ -1,7 +1,7 @@
-import { ExerciseSet } from "~/db/db.schemas";
+import { Set } from "~/db/db.schemas";
 
 export const convertWeight = (
-  weightInKg: ExerciseSet["weightInKg"],
+  weightInKg: Set["weightInKg"],
   unit: "kg" | "lbs",
 ) => {
   switch (unit) {

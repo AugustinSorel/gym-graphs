@@ -8,9 +8,9 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { UpdateExerciseSetRepetitionsForm } from "./update-exercise-set-repetitions-form";
+import { UpdateSetRepetitionsForm } from "./update-set-repetitions-form";
 
-export const UpdateExerciseSetRepetitionsDialog = () => {
+export const UpdateSetRepetitionsDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -28,7 +28,7 @@ export const UpdateExerciseSetRepetitionsDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <UpdateExerciseSetRepetitionsForm
+        <UpdateSetRepetitionsForm
           onSuccess={() => {
             setIsOpen(false);
           }}

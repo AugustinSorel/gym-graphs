@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 
-export const exerciseSetSchema = z.object({
+export const setSchema = z.object({
   id: z
     .number({
       required_error: "id is required",

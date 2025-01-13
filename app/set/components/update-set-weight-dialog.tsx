@@ -8,9 +8,9 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { UpdateExerciseSetWeightForm } from "./update-exercise-set-weight-form";
+import { UpdateSetWeightForm } from "./update-set-weight-form";
 
-export const UpdateExerciseSetWeightDialog = () => {
+export const UpdateSetWeightDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -28,7 +28,7 @@ export const UpdateExerciseSetWeightDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <UpdateExerciseSetWeightForm
+        <UpdateSetWeightForm
           onSuccess={() => {
             setIsOpen(false);
           }}

@@ -12,26 +12,32 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
-import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
+import { createSetAction } from "~/set/set.actions";
+import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
-import { updateExerciseSetWeightAction } from "../exercise-set.actions";
-import { exerciseSetSchema } from "../exercise-set.schemas";
-import { useExerciseSet } from "../exercise-set.context";
+import { dateAsYYYYMMDD } from "~/utils/date.utils";
+import { exerciseKeys } from "~/exercise/exercise.keys";
+import { useUser } from "~/user/user.context";
 import { getRouteApi } from "@tanstack/react-router";
 
-export const UpdateExerciseSetWeightForm = (props: Props) => {
-  const form = useCreateExerciseForm();
-  const renameExercise = useRenameExercise();
-  const exerciseSet = useExerciseSet();
+type Props = Readonly<{
+  onSuccess?: () => void;
+}>;
+
+export const AddSetForm = (props: Props) => {
+  const form = useCreateExerciseSetForm();
+  const createSet = useCreateSet();
+  const params = routeApi.useParams();
+  const exericse = useExercise({ id: params.exerciseId });
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await renameExercise.mutateAsync(
+    await createSet.mutateAsync(
       {
         data: {
-          exerciseSetId: exerciseSet.id,
+          exerciseId: exericse.data.id,
+          repetitions: data.repetitions,
           weightInKg: data.weightInKg,
         },
       },
@@ -65,16 +71,30 @@ export const UpdateExerciseSetWeightForm = (props: Props) => {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="repetitions"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>repetitions:</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="10" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormAlert />
 
         <footer className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            data-umami-event="update exercise set weight"
+            data-umami-event="exercise set created"
             className="font-semibold"
           >
-            <span>update</span>
+            <span>add</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -85,46 +105,67 @@ export const UpdateExerciseSetWeightForm = (props: Props) => {
 
 const routeApi = getRouteApi("/exercises/$exerciseId");
 
-type Props = Readonly<{
-  onSuccess?: () => void;
-}>;
-
 const useFormSchema = () => {
+  const params = routeApi.useParams();
+  const exericse = useExercise({ id: params.exerciseId });
+
   return z
-    .object({ weightInKg: z.coerce.number() })
-    .pipe(exerciseSetSchema.pick({ weightInKg: true }));
+    .object({
+      repetitions: z.coerce.number(),
+      weightInKg: z.coerce.number(),
+    })
+    .pipe(setSchema.pick({ repetitions: true, weightInKg: true }))
+    .refine(
+      () => {
+        const setAlreadyExists = exericse.data.sets.find(
+          (set) => dateAsYYYYMMDD(set.doneAt) === dateAsYYYYMMDD(new Date()),
+        );
+
+        return !setAlreadyExists;
+      },
+      {
+        message: "set already created for today",
+        path: ["repetitions"],
+      },
+    );
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
-const useCreateExerciseForm = () => {
+const useCreateExerciseSetForm = () => {
   const formSchema = useFormSchema();
-  const exerciseSet = useExerciseSet();
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      weightInKg: exerciseSet.weightInKg,
+      repetitions: 0,
+      weightInKg: 0,
     },
   });
 };
 
-const useRenameExercise = () => {
-  const queryClient = useQueryClient();
+const useCreateSet = () => {
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateExerciseSetWeightAction,
+    mutationFn: createSetAction,
     onMutate: (variables) => {
       const keys = {
         all: exerciseKeys.all(user.id).queryKey,
         get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
-      } as const;
+      };
 
       const optimisticExerciseSet = {
+        id: Math.random(),
+        exerciseId: variables.data.exerciseId,
         weightInKg: variables.data.weightInKg,
+        repetitions: variables.data.repetitions,
+        createdAt: new Date(),
+        doneAt: new Date(),
+        updatedAt: new Date(),
       };
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -132,44 +173,26 @@ const useRenameExercise = () => {
           return [];
         }
 
-        return exercises.map((ex) => {
-          if (ex.id === exercise.data.id) {
+        return exercises.map((exercise) => {
+          if (exercise.id === variables.data.exerciseId) {
             return {
-              ...ex,
-              sets: ex.sets.map((set) => {
-                if (set.id === variables.data.exerciseSetId) {
-                  return {
-                    ...set,
-                    ...optimisticExerciseSet,
-                  };
-                }
-
-                return set;
-              }),
+              ...exercise,
+              sets: [optimisticExerciseSet, ...exercise.sets],
             };
           }
 
-          return ex;
+          return exercise;
         });
       });
 
-      queryClient.setQueryData(keys.get, (ex) => {
-        if (!ex) {
-          return ex;
+      queryClient.setQueryData(keys.get, (exercise) => {
+        if (!exercise) {
+          return exercise;
         }
 
         return {
-          ...ex,
-          sets: ex.sets.map((set) => {
-            if (set.id === variables.data.exerciseSetId) {
-              return {
-                ...set,
-                ...optimisticExerciseSet,
-              };
-            }
-
-            return set;
-          }),
+          ...exercise,
+          sets: [optimisticExerciseSet, ...exercise.sets],
         };
       });
     },

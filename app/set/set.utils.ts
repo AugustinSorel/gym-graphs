@@ -1,8 +1,8 @@
-import { ExerciseSet } from "~/db/db.schemas";
+import { Set } from "~/db/db.schemas";
 
 export const getOneRepMaxEplay = (
-  weight: ExerciseSet["weightInKg"],
-  repetitions: ExerciseSet["repetitions"],
+  weight: Set["weightInKg"],
+  repetitions: Set["repetitions"],
 ) => {
   if (repetitions <= 0) {
     throw new Error("repetitions must be above 0");
