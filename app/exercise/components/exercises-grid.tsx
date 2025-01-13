@@ -116,7 +116,7 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 const NoExercisesText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="flex h-32 items-center justify-center rounded-md border"
+      className="flex h-32 items-center justify-center rounded-md border bg-secondary"
       {...props}
     />
   );
