@@ -136,7 +136,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: inject db in global ctx
 
 //TODO: infite scroll for exercises
-//TODO: custom exercises filters
 //TODO: good auth
 //TODO: teams
 //TODO: dashboard fun facts

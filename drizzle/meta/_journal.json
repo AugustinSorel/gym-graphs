@@ -22,6 +22,13 @@
       "when": 1736707899200,
       "tag": "0002_black_hitman",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1736774989603,
+      "tag": "0003_friendly_surge",
+      "breakpoints": true
     }
   ]
 }
