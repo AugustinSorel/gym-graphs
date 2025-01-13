@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
-import { User, userTable } from "~/db/db.schemas";
+import { Exercise, User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
-import { createTags } from "~/tag/tag.services";
+import { addExerciseTags, createTags } from "~/tag/tag.services";
 
 export const createUser = async (
   email: User["email"],
@@ -56,31 +56,56 @@ export const deleteUser = async (userId: User["id"], db: Db) => {
 };
 
 export const seedUserAccount = async (userId: User["id"], db: Db) => {
-  const exercises = await createExercises(
-    [
-      { name: "bench press", userId },
-      { name: "squat", userId },
-      { name: "deadlift", userId },
-    ],
-    db,
-  );
+  const defaultExercises = ["bench press", "squat", "deadlift"] as const;
 
-  await createTags(
-    [
-      { name: "legs", userId },
-      { name: "chest", userId },
-      { name: "biceps", userId },
-      { name: "triceps", userId },
-      { name: "back", userId },
-      { name: "shoulders", userId },
-      { name: "calfs", userId },
-      { name: "abs", userId },
-      { name: "traps", userId },
-    ],
-    db,
-  );
+  const defaultTags = [
+    "legs",
+    "chest",
+    "biceps",
+    "triceps",
+    "back",
+    "shoulders",
+    "calfs",
+    "abs",
+    "traps",
+  ] as const;
 
-  const addingSetsPromise = exercises.map((exercise) => {
+  const exerciseTagMapping = new Map([
+    ["bench press", ["chest"]],
+    ["squat", ["legs"]],
+    ["deadlift", ["legs", "calfs"]],
+  ]);
+
+  const [exercises, tags] = await Promise.all([
+    createExercises(
+      defaultExercises.map((name) => ({ name, userId })),
+      db,
+    ),
+    createTags(
+      defaultTags.map((name) => ({ name, userId })),
+      db,
+    ),
+  ]);
+
+  const getTagIdsForExercise = (exerciseName: Exercise["name"]) => {
+    const tagNames = exerciseTagMapping.get(exerciseName);
+
+    if (!tagNames) {
+      throw new Error(`No tag mapping found for exercise: ${exerciseName}`);
+    }
+
+    return tagNames.map((tagName) => {
+      const tagId = tags.find((tag) => tag.name === tagName)?.id;
+
+      if (!tagId) {
+        throw new Error(`Tag ID not found for tag name: ${tagName}`);
+      }
+
+      return tagId;
+    });
+  };
+
+  const getSetsForExercise = (exerciseId: number) => {
     const sets = [...Array(6).keys()].map((i) => {
       const values = [10, 20, 30, 40];
 
@@ -92,15 +117,25 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       }
 
       return {
-        exerciseId: exercise.id,
+        exerciseId,
         repetitions: randomValue,
         weightInKg: randomValue,
         doneAt: new Date(new Date().setDate(new Date().getDate() - i)),
       };
     });
 
-    return createSets(sets, db);
-  });
+    return sets;
+  };
 
-  await Promise.all(addingSetsPromise);
+  const operations = exercises.flatMap((exercise) => [
+    addExerciseTags(
+      userId,
+      exercise.id,
+      getTagIdsForExercise(exercise.name),
+      db,
+    ),
+    createSets(getSetsForExercise(exercise.id), db),
+  ]);
+
+  await Promise.all(operations);
 };

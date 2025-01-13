@@ -33,7 +33,7 @@ export const createTags = async (
   data: Array<typeof tagTable.$inferInsert>,
   db: Db,
 ) => {
-  return db.insert(tagTable).values(data);
+  return db.insert(tagTable).values(data).returning();
 };
 
 export const deleteTag = async (
