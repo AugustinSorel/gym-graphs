@@ -5,7 +5,7 @@ import { StartClient } from "@tanstack/start";
 import { createRouter } from "./router";
 
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-  scan({ enabled: true });
+  scan({ enabled: false });
 }
 const router = createRouter();
 

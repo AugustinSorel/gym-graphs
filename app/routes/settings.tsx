@@ -133,7 +133,7 @@ const TagsSection = () => {
             )}
             {user.tags.map((tag) => (
               <ListItem
-                key={tag.name + tag.userId}
+                key={tag.id}
                 className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
               >
                 <ListItemTitle>{tag.name}</ListItemTitle>

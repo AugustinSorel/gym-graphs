@@ -124,12 +124,12 @@ const ExerciseTagsSection = () => {
             )}
             {user.tags.map((tag) => (
               <ToggleGroupItem
-                key={tag.userId + tag.name}
+                key={tag.id}
                 className="group hover:bg-transparent data-[state=on]:bg-transparent"
                 value={tag.id.toString()}
               >
                 <Badge
-                  className="bg-transparent text-foreground hover:bg-transparent group-aria-pressed:bg-primary group-aria-pressed:text-primary-foreground group-aria-pressed:hover:bg-primary/80"
+                  className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary group-aria-pressed:hover:bg-primary/30"
                   variant="outline"
                 >
                   <Check className="mr-1 hidden !size-3 group-aria-pressed:block" />

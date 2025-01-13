@@ -122,11 +122,11 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: error handling not finished
 //BUG: dev docker not working
 
-//TODO: remove the exercise prefeix of set
-//TODO: add user to usercontext
+//TODO: seed user tada with tags
+//TODO: make tag prettier
 
 //TODO: dark theme
-//TODO: remove user context to the query client
+//TODO: move user context to the query client
 //BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
 
