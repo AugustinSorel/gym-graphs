@@ -10,6 +10,7 @@ import { ComponentProps } from "react";
 import { z } from "zod";
 import { SearchExercises } from "~/exercise/components/search-exercises";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
 
 export const Route = createFileRoute("/dashboard")({
   component: () => RouteComponent(),
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/dashboard")({
   },
   validateSearch: z.object({
     name: z.string().optional(),
+    tags: z.string().array().optional(),
   }),
 });
 
@@ -46,6 +48,7 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <SearchExercises />
+        <FilterExercisesByTag />
         <CreateExerciseDialog />
       </Header>
 
@@ -64,5 +67,5 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid grid-cols-[1fr_auto] gap-2" {...props} />;
+  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
 };

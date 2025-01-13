@@ -16,6 +16,12 @@ export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
       sets: {
         orderBy: desc(exerciseSetTable.createdAt),
       },
+      tags: {
+        orderBy: asc(tagTable.createdAt),
+        with: {
+          tag: true,
+        },
+      },
     },
   });
 };

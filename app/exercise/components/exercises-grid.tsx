@@ -16,7 +16,7 @@ export const ExercisesGrid = () => {
   const exercises = useExercises();
 
   if (!exercises.data.length) {
-    return <p className="text-center">no exercises</p>;
+    return <NoExercisesText>no exercises</NoExercisesText>;
   }
 
   return (
@@ -56,11 +56,15 @@ const useExercises = () => {
     ...exerciseKeys.all(user.id),
     select: (exercises) => {
       return exercises.filter((exercise) => {
-        if (!search.name) {
-          return exercises;
-        }
+        const nameMatches = exercise.name.includes(search.name ?? "");
 
-        return exercise.name.includes(search.name);
+        const tagsMatch =
+          !search.tags?.length ||
+          exercise.tags.find((exerciseTag) =>
+            search.tags?.includes(exerciseTag.tag.name),
+          );
+
+        return nameMatches && tagsMatch;
       });
     },
   });
@@ -107,4 +111,13 @@ const Name = ({ className, ...props }: ComponentProps<"h2">) => {
 
 const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="overflow-auto p-4" {...props} />;
+};
+
+const NoExercisesText = (props: ComponentProps<"p">) => {
+  return (
+    <p
+      className="flex h-32 items-center justify-center rounded-md border"
+      {...props}
+    />
+  );
 };

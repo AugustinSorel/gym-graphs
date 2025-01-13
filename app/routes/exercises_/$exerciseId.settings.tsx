@@ -249,33 +249,54 @@ const useUpdateExerciseTags = () => {
         get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
       };
 
+      const newExerciseTags = new Set(variables.data.newTags);
+
+      const optimisticTags = user.tags
+        .filter((tag) => {
+          if (!newExerciseTags.has(tag.id)) {
+            return false;
+          }
+
+          return true;
+        })
+        .map((tag) => ({
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          exerciseId: variables.data.exerciseId,
+          tagId: tag.id,
+          tag,
+        }));
+
+      queryClient.setQueryData(keys.all, (exercises) => {
+        if (!exercises) {
+          return exercises;
+        }
+
+        return exercises.map((exercise) => {
+          if (exercise.id === variables.data.exerciseId) {
+            return {
+              ...exercise,
+              tags: optimisticTags,
+            };
+          }
+
+          return exercise;
+        });
+      });
+
       queryClient.setQueryData(keys.get, (exercise) => {
         if (!exercise) {
           return exercise;
         }
 
-        const exerciseTags = new Set(exercise.tags.map((t) => t.tagId));
-        const newExerciseTags = new Set(variables.data.newTags);
-
-        const tagsToAdd = newExerciseTags.difference(exerciseTags);
-        const tagsToRemove = exerciseTags.difference(newExerciseTags);
-
-        const optimisticTags = [...tagsToAdd].map((tag) => ({
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          exerciseId: variables.data.exerciseId,
-          tagId: tag,
-        }));
-
         return {
           ...exercise,
-          tags: exercise.tags
-            .filter((tag) => !tagsToRemove.has(tag.tagId))
-            .concat(optimisticTags),
+          tags: optimisticTags,
         };
       });
     },
     onSettled: (_data, _error, variables) => {
+      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
       void queryClient.invalidateQueries(
         exerciseKeys.get(user.id, variables.data.exerciseId),
       );

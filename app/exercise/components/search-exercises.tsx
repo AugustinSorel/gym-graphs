@@ -22,7 +22,8 @@ export const SearchExercises = () => {
           value={search.name ?? ""}
           onChange={(e) => {
             navigate({
-              search: () => ({
+              search: (search) => ({
+                ...search,
                 name: e.target.value || undefined,
               }),
             });
