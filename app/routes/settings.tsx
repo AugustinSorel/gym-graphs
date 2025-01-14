@@ -134,7 +134,7 @@ const TagsSection = () => {
             {user.tags.map((tag) => (
               <ListItem
                 key={tag.id}
-                className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
+                className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:border-border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
               >
                 <ListItemTitle>{tag.name}</ListItemTitle>
 
@@ -195,8 +195,6 @@ const ChangeWeightUnitSection = () => {
                     .parse(unsafeWeightUnit),
                 },
               });
-
-              // weightUnit.set(weightUnitSchema.parse(unsafeWeightUnit));
             }}
           >
             {weightUnitEnum.enumValues.map((weightUnit) => (

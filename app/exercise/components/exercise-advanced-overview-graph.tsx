@@ -118,7 +118,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
               className: "fill-muted-foreground text-xs",
             }}
             hideTicks
-            axisLineClassName=" stroke-muted"
+            axisLineClassName="stroke-muted"
           />
         </Group>
 
@@ -128,7 +128,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             scale={oneRepMaxScale}
             width={width - margin.left - margin.right}
             height={height - margin.top - margin.bottom}
-            className="stroke-muted"
+            stroke="hsl(var(--border))"
             numTicks={4}
           />
         </Group>
@@ -140,6 +140,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             from="hsl(var(--primary))"
             to="hsl(var(--primary))"
             toOpacity={0.2}
+            fromOpacity={0.8}
           />
 
           <AreaClosed<Point>
@@ -263,6 +264,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
   gap: "0.5rem",
   color: "hsl(var(--foreground))",
   transition: "all 0.1s ease-in-out",
+  backgroundColor: "hsl(var(--secondary))",
 };
 
 type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;

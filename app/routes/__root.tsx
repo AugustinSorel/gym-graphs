@@ -124,6 +124,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //TODO: dark theme
 //TODO: move user context to the query client
+//TODO: fix settings tags showing hard coded value
 //BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
 
