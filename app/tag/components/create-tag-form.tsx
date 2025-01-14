@@ -15,8 +15,8 @@ import { z } from "zod";
 import { useUser } from "~/user/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { createTagAction } from "../tag.actions";
-import { tagSchema } from "../tag.schemas";
+import { createTagAction } from "~/tag/tag.actions";
+import { tagSchema } from "~/tag/tag.schemas";
 
 type Props = {
   onSuccess?: () => void;

@@ -8,7 +8,7 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { UpdateSetRepetitionsForm } from "./update-set-repetitions-form";
+import { UpdateSetRepetitionsForm } from "~/set/components/update-set-repetitions-form";
 
 export const UpdateSetRepetitionsDialog = () => {
   const [isOpen, setIsOpen] = useState(false);

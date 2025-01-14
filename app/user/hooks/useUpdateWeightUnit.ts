@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { updateWeightUnitAction } from "../user.actions";
+import { updateWeightUnitAction } from "~/user/user.actions";
 import { useUser } from "~/user/user.context";
 
 export const useUpdateWeightUnit = () => {

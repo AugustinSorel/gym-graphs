@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/start";
-import { authGuard } from "../auth/auth.middlewares";
-import { userSchema } from "./user.schemas";
-import { deleteUser, renameUser, updateWeightUnit } from "./user.services";
-import { db } from "../utils/db";
-import { deleteSessionTokenCookie } from "../cookie/cookie.services";
+import { authGuard } from "~/auth/auth.middlewares";
+import { userSchema } from "~/user/user.schemas";
+import { deleteUser, renameUser, updateWeightUnit } from "~/user/user.services";
+import { db } from "~/utils/db";
+import { deleteSessionTokenCookie } from "~/cookie/cookie.services";
 
 export const renameUserAction = createServerFn({ method: "POST" })
   .middleware([authGuard])

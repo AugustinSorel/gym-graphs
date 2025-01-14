@@ -14,7 +14,7 @@ import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
-import { deleteExerciseAction } from "../exercise.actions";
+import { deleteExerciseAction } from "~/exercise/exercise.actions";
 import { useUser } from "~/user/user.context";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/useExercise";

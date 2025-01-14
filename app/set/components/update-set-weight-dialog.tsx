@@ -8,7 +8,7 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { UpdateSetWeightForm } from "./update-set-weight-form";
+import { UpdateSetWeightForm } from "~/set/components/update-set-weight-form";
 
 export const UpdateSetWeightDialog = () => {
   const [isOpen, setIsOpen] = useState(false);

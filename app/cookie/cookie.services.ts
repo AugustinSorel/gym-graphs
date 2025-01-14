@@ -1,6 +1,6 @@
 import { getEvent, setCookie } from "vinxi/http";
 import { env } from "~/env";
-import type { SessionToken } from "../auth/auth.services";
+import type { SessionToken } from "~/auth/auth.services";
 
 export const setSessionTokenCookie = (
   sessionToken: SessionToken,

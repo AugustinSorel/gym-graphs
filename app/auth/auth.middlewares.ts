@@ -1,5 +1,5 @@
 import { createMiddleware } from "@tanstack/start";
-import { validateSessionToken } from "./auth.services";
+import { validateSessionToken } from "~/auth/auth.services";
 import { getCookie, setResponseStatus } from "vinxi/http";
 import { db } from "~/utils/db";
 

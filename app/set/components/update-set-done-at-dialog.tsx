@@ -8,7 +8,7 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { UpdateSetDoneAtForm } from "./update-set-done-at-form";
+import { UpdateSetDoneAtForm } from "~/set/components/update-set-done-at-form";
 
 export const UpdateSetDoneAtDialog = () => {
   const [isOpen, setIsOpen] = useState(false);

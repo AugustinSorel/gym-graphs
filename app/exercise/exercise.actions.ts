@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/start";
-import { authGuard } from "../auth/auth.middlewares";
+import { authGuard } from "~/auth/auth.middlewares";
 import { db } from "~/utils/db";
 import {
   createExercise,
@@ -8,7 +8,7 @@ import {
   selectDashboardExercises,
   selectExercise,
 } from "./exercise.services";
-import { exerciseSchema } from "./exericse.schemas";
+import { exerciseSchema } from "~/exercise/exericse.schemas";
 import pg from "pg";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";

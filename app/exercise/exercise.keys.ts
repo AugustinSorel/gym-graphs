@@ -1,5 +1,8 @@
 import type { Exercise, User } from "~/db/db.schemas";
-import { fetchExerciseAction, fetchExercisesAction } from "./exercise.actions";
+import {
+  fetchExerciseAction,
+  fetchExercisesAction,
+} from "~/exercise/exercise.actions";
 import { queryOptions } from "@tanstack/react-query";
 
 const all = (userId: User["id"]) => {

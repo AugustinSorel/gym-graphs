@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { CreateTagForm } from "./create-tag-form";
+import { CreateTagForm } from "~/tag/components/create-tag-form";
 
 export const CreateTagDialog = () => {
   const [isOpen, setIsOpen] = useState(false);

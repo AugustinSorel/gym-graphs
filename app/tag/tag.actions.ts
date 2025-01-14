@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuard } from "~/auth/auth.middlewares";
-import { tagSchema } from "./tag.schemas";
+import { tagSchema } from "~/tag/tag.schemas";
 import { db } from "~/utils/db";
 import {
   addExerciseTags,

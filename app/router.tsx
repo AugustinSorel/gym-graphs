@@ -5,7 +5,7 @@ import {
   Link,
   NotFoundRouteProps,
 } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
+import { routeTree } from "~/routeTree.gen";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Map } from "lucide-react";

@@ -13,7 +13,7 @@ import {
 
 import { cn } from "~/styles/styles.utils";
 import { Label } from "~/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "./alert";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
 
 const Form = FormProvider;

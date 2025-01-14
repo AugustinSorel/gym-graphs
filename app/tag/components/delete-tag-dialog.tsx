@@ -14,7 +14,7 @@ import { Spinner } from "~/ui/spinner";
 import { useUser } from "~/user/user.context";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
-import { deleteTagAction } from "../tag.actions";
+import { deleteTagAction } from "~/tag/tag.actions";
 import { Tag } from "~/db/db.schemas";
 
 export const DeleteTagDialog = (props: Props) => {
