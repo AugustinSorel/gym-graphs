@@ -283,23 +283,12 @@ const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
 
 const Separator = () => {
   return (
-    <svg className="absolute bottom-0 left-0 -z-10 h-[200px] w-full translate-y-[100px]">
-      <filter
-        id="homePageSeparatorBlur"
-        x="-50%"
-        y="-50%"
-        width="200%"
-        height="200%"
-      >
-        <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
-      </filter>
-
+    <svg className="absolute bottom-0 left-0 -z-10 h-[200px] w-[150%] -translate-x-1/4 translate-y-[100px] blur-md">
       <ellipse
         cx="50%"
         cy="50%"
         rx="60%"
         ry="40px"
-        filter="url(#homePageSeparatorBlur)"
         className="fill-background sm:[ry:80px]"
       />
     </svg>
@@ -311,14 +300,14 @@ const CirclesBluredBg = () => {
     <>
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 right-[calc(50%-6rem)] top-auto -z-10 flex justify-end blur-3xl dark:opacity-30"
+        className="absolute bottom-0 left-0 right-[calc(50%-6rem)] top-auto -z-10 flex justify-end blur-3xl dark:opacity-50"
       >
         <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-25 [clipPath:polygon(73.6%_48.6%,_91.7%_88.5%,_100%_53.9%,_97.4%_18.1%,_92.5%_15.4%,_75.7%_36.3%,_55.3%_52.8%,_46.5%_50.9%,_45%_37.4%,_50.3%_13.1%,_21.3%_36.2%,_0.1%_0.1%,_5.4%_49.1%,_21.4%_36.4%,_58.9%_100%,_73.6%_48.6%)]" />
       </div>
 
       <div
         aria-hidden="true"
-        className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-3/4 blur-3xl dark:opacity-30 lg:block"
+        className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-3/4 blur-3xl dark:opacity-50 lg:block"
       >
         <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-30 [clipPath:polygon(74.1%_44.1%,_100%_61.6%,_97.5%_26.9%,_85.5%_0.1%,_80.7%_2%,_72.5%_32.5%,_60.2%_62.4%,_52.4%_68.1%,_47.5%_58.3%,_45.2%_34.5%,_27.5%_76.7%,_0.1%_64.9%,_17.9%_100%,_27.6%_76.8%,_76.1%_97.7%,_74.1%_44.1%)]" />
       </div>

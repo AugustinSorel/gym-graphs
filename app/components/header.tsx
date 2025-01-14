@@ -31,6 +31,8 @@ import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
 import { userSchema } from "~/user/user.schemas";
 import { AppIcon } from "~/ui/app-icon";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
+import { useTheme } from "~/theme/theme.context";
+import { themeSchema } from "~/theme/theme.schemas";
 
 export const HeaderPublic = () => {
   return (
@@ -140,6 +142,7 @@ const UserProfileDropdown = () => {
   const user = useUser();
   const signOut = useSignOut();
   const updateWeightUnit = useUpdateWeightUnit();
+  const theme = useTheme();
 
   return (
     <DropdownMenu>
@@ -188,25 +191,27 @@ const UserProfileDropdown = () => {
           <p className="text-sm">theme</p>
           <DropdownMenuRadioGroup
             className="flex gap-2"
-            // value={theme.theme}
-            // onValueChange={theme.setTheme}
+            value={theme.value}
+            onValueChange={(unsafeTheme) => {
+              theme.set(themeSchema.parse(unsafeTheme));
+            }}
           >
             <DropdownMenuRadioItem
-              value="system"
+              value={themeSchema.Values.system}
               className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Laptop className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
-              value="light"
+              value={themeSchema.Values.light}
               className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Sun className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
-              value="dark"
+              value={themeSchema.Values.dark}
               className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-none transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent [&_[data-state=checked]]:hidden"
               onSelect={(e) => e.preventDefault()}
             >

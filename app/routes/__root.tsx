@@ -12,6 +12,7 @@ import { UserProvider } from "~/user/user.context";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { validateRequestAction } from "~/auth/auth.actions";
+import { ThemeProvider } from "~/theme/theme.context";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -76,18 +77,22 @@ const RootComponent = () => {
 
   if (!loaderData.user) {
     return (
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
+      <ThemeProvider>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </ThemeProvider>
     );
   }
 
   return (
-    <UserProvider user={loaderData.user}>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider user={loaderData.user}>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </UserProvider>
+    </ThemeProvider>
   );
 };
 
@@ -95,7 +100,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   const loaderData = Route.useLoaderData();
 
   return (
-    <html>
+    <html suppressHydrationWarning>
       <head>
         <Meta />
         <AnalyticScript />
@@ -122,11 +127,11 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: error handling not finished
 //BUG: dev docker not working
 
-//TODO: dark theme
 //TODO: move user context to the query client
 //TODO: fix settings tags showing hard coded value
 //BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
+//BUG: dark theme makes the page flicker
 
 //BUG: middleware inject code into client bundler
 //TODO: monitoring

@@ -29,6 +29,8 @@ import {
 } from "~/ui/dropdown-menu";
 import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { DeleteTagDialog } from "~/tag/components/delete-tag-dialog";
+import { useTheme } from "~/theme/theme.context";
+import { themeSchema } from "~/theme/theme.schemas";
 
 export const Route = createFileRoute("/settings")({
   component: () => RouteComponent(),
@@ -215,6 +217,8 @@ const ChangeWeightUnitSection = () => {
 };
 
 const ChangeThemeSection = () => {
+  const theme = useTheme();
+
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
@@ -228,23 +232,33 @@ const ChangeThemeSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer>
-          <ToggleGroup type="single">
+          <ToggleGroup
+            type="single"
+            value={theme.value}
+            onValueChange={(newTheme: string | null) => {
+              if (!newTheme) {
+                return;
+              }
+
+              theme.set(themeSchema.parse(newTheme));
+            }}
+          >
             <ToggleGroupItem
-              value="system"
+              value={themeSchema.Values.system}
               aria-label="Change theme to system"
               variant="outline"
             >
               <Laptop className="size-4" />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="light"
+              value={themeSchema.Values.light}
               aria-label="Change theme to light"
               variant="outline"
             >
               <Sun className="size-4" />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value="dark"
+              value={themeSchema.Values.dark}
               aria-label="Change theme to dark"
               variant="outline"
             >
