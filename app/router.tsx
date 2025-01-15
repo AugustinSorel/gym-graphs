@@ -12,7 +12,13 @@ import { Map } from "lucide-react";
 import { Button } from "~/ui/button";
 
 export function createRouter() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1_000,
+      },
+    },
+  });
 
   return routerWithQueryClient(
     createTanStackRouter({

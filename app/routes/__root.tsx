@@ -8,11 +8,11 @@ import { lazy, Suspense, type PropsWithChildren } from "react";
 import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
-import { UserProvider } from "~/user/user.context";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { validateRequestAction } from "~/auth/auth.actions";
 import { ThemeProvider } from "~/theme/theme.context";
+import { userKey } from "~/user/user.key";
+import { selectSessionTokenAction } from "~/session/session.actions";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -56,12 +56,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     }),
     component: () => RootComponent(),
     errorComponent: (props) => DefaultErrorFallback(props),
-    beforeLoad: async () => {
-      const { user, session } = await validateRequestAction();
+    beforeLoad: async ({ context }) => {
+      const session = await selectSessionTokenAction();
+
+      if (!session) {
+        return {
+          session: null,
+          user: null,
+        };
+      }
+
+      const user = await context.queryClient.ensureQueryData(userKey.get);
 
       return {
-        user,
         session,
+        user,
       };
     },
     loader: ({ context }) => {
@@ -73,25 +82,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 const RootComponent = () => {
-  const loaderData = Route.useLoaderData();
-
-  if (!loaderData.user) {
-    return (
-      <ThemeProvider>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider>
-      <UserProvider user={loaderData.user}>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </UserProvider>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
     </ThemeProvider>
   );
 };
@@ -127,8 +122,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: error handling not finished
 //BUG: dev docker not working
 
-//TODO: move user context to the query client
-//TODO: fix settings tags showing hard coded value
 //BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
 //BUG: dark theme makes the page flicker

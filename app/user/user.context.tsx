@@ -1,32 +1,17 @@
-import {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
-  use,
-  useState,
-} from "react";
-import { validateSessionToken } from "~/auth/auth.services";
-
-type User = NonNullable<
-  Awaited<ReturnType<typeof validateSessionToken>>["user"]
->;
-
-type Context = User & { set: Dispatch<SetStateAction<User>> };
-const Context = createContext<Context | undefined>(undefined);
-
-export const UserProvider = (props: PropsWithChildren<{ user: User }>) => {
-  const [user, setUser] = useState(props.user);
-
-  return <Context value={{ ...user, set: setUser }}>{props.children}</Context>;
-};
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userKey } from "./user.key";
 
 export const useUser = () => {
-  const ctx = use(Context);
+  const user = useSuspenseQuery(userKey.get);
 
-  if (!ctx) {
-    throw new Error("useUser must be wrapped inside of a UserProvider");
+  //TODO: remove \.data
+  return user.data;
+};
+
+export const useUnsafeUser = () => {
+  try {
+    return useUser();
+  } catch {
+    return null;
   }
-
-  return ctx;
 };

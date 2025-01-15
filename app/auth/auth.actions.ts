@@ -18,16 +18,7 @@ import {
 import { userSchema } from "~/user/user.schemas";
 import { z } from "zod";
 import pg from "pg";
-import { authGuard, validateRequest } from "~/auth/auth.middlewares";
-
-export const validateRequestAction = createServerFn({ method: "GET" })
-  .middleware([validateRequest])
-  .handler(({ context }) => {
-    return {
-      user: context.user,
-      session: context.session,
-    };
-  });
+import { authGuardMiddleware } from "~/auth/auth.middlewares";
 
 export const signInAction = createServerFn()
   .validator(userSchema.pick({ email: true, password: true }))
@@ -91,7 +82,7 @@ export const signUpAction = createServerFn({ method: "POST" })
   });
 
 export const signOutAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .handler(async ({ context }) => {
     await deleteSession(context.session.id, db);
     deleteSessionTokenCookie();

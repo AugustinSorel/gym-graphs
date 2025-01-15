@@ -1,6 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { ComponentProps } from "react";
+import { ComponentProps, useEffect } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
@@ -9,7 +10,7 @@ import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
-import { UserProvider } from "~/user/user.context";
+import { userKey } from "~/user/user.key";
 import { userMock } from "~/user/user.mock";
 
 export const Route = createFileRoute("/")({
@@ -99,6 +100,19 @@ const FeatureOne = () => {
 const FeatureTwo = () => {
   const sets = exercisesMock[0].sets;
 
+  const queryClient = useQueryClient();
+
+  queryClient.setQueryData(userKey.get.queryKey, userMock);
+  queryClient.setQueryDefaults(userKey.get.queryKey, {
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    return () => {
+      queryClient.setQueryDefaults(userKey.get.queryKey, { staleTime: 1000 });
+    };
+  }, []);
+
   return (
     <FeatureContainer>
       <HeroTitle>
@@ -111,14 +125,12 @@ const FeatureTwo = () => {
         journey like never before.
       </Text>
 
-      <UserProvider user={userMock}>
-        <CardTwo className="py-2 sm:p-4">
-          <ExerciseAdvanceOverviewGraph sets={sets} />
-        </CardTwo>
-        <CardTwo>
-          <ExerciseTable sets={sets} columns={homePageExerciseTableColumns} />
-        </CardTwo>
-      </UserProvider>
+      <CardTwo className="py-2 sm:p-4">
+        <ExerciseAdvanceOverviewGraph sets={sets} />
+      </CardTwo>
+      <CardTwo>
+        <ExerciseTable sets={sets} columns={homePageExerciseTableColumns} />
+      </CardTwo>
     </FeatureContainer>
   );
 };

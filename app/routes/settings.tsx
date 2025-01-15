@@ -141,7 +141,7 @@ const TagsSection = () => {
                 <ListItemTitle>{tag.name}</ListItemTitle>
 
                 <ListItemSubtitle>
-                  {pluralize(1, "exercise")} linked
+                  {pluralize(tag.exercises.length, "exercise")} linked
                 </ListItemSubtitle>
 
                 <DropdownMenu>

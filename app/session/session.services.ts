@@ -40,24 +40,8 @@ export const refreshSessionExpiryDate = async (
     .where(eq(sessionTable.id, sessionId));
 };
 
-export const selectSessionWithUser = async (
-  sessionId: Session["id"],
-  db: Db,
-) => {
+export const selectSession = async (sessionId: Session["id"], db: Db) => {
   return db.query.sessionTable.findFirst({
     where: eq(sessionTable.id, sessionId),
-    with: {
-      user: {
-        with: {
-          tags: true,
-        },
-        columns: {
-          id: true,
-          email: true,
-          weightUnit: true,
-          name: true,
-        },
-      },
-    },
   });
 };

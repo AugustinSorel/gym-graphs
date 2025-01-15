@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/start";
-import { authGuard } from "~/auth/auth.middlewares";
+import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { db } from "~/utils/db";
 import {
   createExercise,
@@ -14,17 +14,17 @@ import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
 export const fetchExercisesAction = createServerFn({ method: "GET" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .handler(async ({ context }) => {
-    return selectDashboardExercises(context.user.id, db);
+    return selectDashboardExercises(context.session.userId, db);
   });
 
 export const createExerciseAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(exerciseSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      return await createExercise(data.name, context.user.id, db);
+      return await createExercise(data.name, context.session.userId, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateExercise =
@@ -39,7 +39,7 @@ export const createExerciseAction = createServerFn({ method: "POST" })
   });
 
 export const renameExerciseAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(
     z.object({
       exerciseId: exerciseSchema.shape.id,
@@ -49,7 +49,7 @@ export const renameExerciseAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       return await renameExercise(
-        context.user.id,
+        context.session.userId,
         data.exerciseId,
         data.name,
         db,
@@ -68,17 +68,21 @@ export const renameExerciseAction = createServerFn({ method: "POST" })
   });
 
 export const deleteExerciseAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    return await deleteExercise(context.user.id, data.exerciseId, db);
+    return await deleteExercise(context.session.userId, data.exerciseId, db);
   });
 
 export const fetchExerciseAction = createServerFn({ method: "GET" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    const exercise = await selectExercise(context.user.id, data.exerciseId, db);
+    const exercise = await selectExercise(
+      context.session.userId,
+      data.exerciseId,
+      db,
+    );
 
     if (!exercise) {
       throw redirect({ to: "/dashboard" });

@@ -1,4 +1,4 @@
-import { validateSessionToken } from "~/auth/auth.services";
+import type { selectClientUser } from "./user.services";
 
 export const userMock = {
   weightUnit: "kg",
@@ -6,6 +6,4 @@ export const userMock = {
   name: "john",
   id: 1,
   tags: [],
-} as const satisfies NonNullable<
-  Awaited<ReturnType<typeof validateSessionToken>>["user"]
->;
+} as const satisfies Awaited<ReturnType<typeof selectClientUser>>;

@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import type { Db } from "~/utils/db";
-import { Exercise, User, userTable } from "~/db/db.schemas";
+import { Exercise, tagTable, User, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
@@ -26,6 +26,26 @@ export const createUser = async (
 export const selectUserByEmail = async (email: User["email"], db: Db) => {
   return db.query.userTable.findFirst({
     where: eq(userTable.email, email),
+  });
+};
+
+export const selectClientUser = async (userId: User["id"], db: Db) => {
+  return db.query.userTable.findFirst({
+    where: eq(userTable.id, userId),
+    columns: {
+      id: true,
+      email: true,
+      weightUnit: true,
+      name: true,
+    },
+    with: {
+      tags: {
+        orderBy: [asc(tagTable.createdAt)],
+        with: {
+          exercises: true,
+        },
+      },
+    },
   });
 };
 

@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/start";
-import { authGuard } from "~/auth/auth.middlewares";
+import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { tagSchema } from "~/tag/tag.schemas";
 import { db } from "~/utils/db";
 import {
@@ -14,11 +14,11 @@ import { z } from "zod";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 
 export const createTagAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(tagSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      await createTag(data.name, context.user.id, db);
+      await createTag(data.name, context.session.userId, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateName = dbError && e.constraint === "tag_name_user_id_pk";
@@ -32,14 +32,14 @@ export const createTagAction = createServerFn({ method: "POST" })
   });
 
 export const deleteTagAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(z.object({ tagId: tagSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteTag(data.tagId, context.user.id, db);
+    await deleteTag(data.tagId, context.session.userId, db);
   });
 
 export const updateExerciseTagsAction = createServerFn({ method: "POST" })
-  .middleware([authGuard])
+  .middleware([authGuardMiddleware])
   .validator(
     z.object({
       exerciseId: exerciseSchema.shape.id,
@@ -50,7 +50,7 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
     try {
       await db.transaction(async (tx) => {
         const exerciseTags = await selectExerciseTags(
-          context.user.id,
+          context.session.userId,
           data.exerciseId,
           tx,
         );
@@ -62,14 +62,14 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
         const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
 
         await addExerciseTags(
-          context.user.id,
+          context.session.userId,
           data.exerciseId,
           [...tagsToAddSet],
           tx,
         );
 
         await deleteExerciseTags(
-          context.user.id,
+          context.session.userId,
           data.exerciseId,
           [...tagsToRemoveSet],
           tx,

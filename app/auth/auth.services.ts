@@ -5,7 +5,7 @@ import { hash, compare, genSalt } from "bcrypt";
 import {
   deleteSession,
   refreshSessionExpiryDate,
-  selectSessionWithUser,
+  selectSession,
 } from "~/session/session.services";
 import { fifteenDaysInMs } from "~/utils/date.utils";
 
@@ -46,10 +46,10 @@ export const validateSessionToken = async (
 ) => {
   const sessionId = await sha256Encode(candidateSessionToken);
 
-  const session = await selectSessionWithUser(sessionId, db);
+  const session = await selectSession(sessionId, db);
 
   if (!session) {
-    return { session: null, user: null };
+    return null;
   }
 
   const sessionExpired = Date.now() >= session.expiresAt.getTime();
@@ -57,7 +57,7 @@ export const validateSessionToken = async (
   if (sessionExpired) {
     await deleteSession(session.id, db);
 
-    return { session: null, user: null };
+    return null;
   }
 
   const sessionNearExpiry =
@@ -67,7 +67,5 @@ export const validateSessionToken = async (
     refreshSessionExpiryDate(session.id, db);
   }
 
-  const { user, ...sessionRest } = session;
-
-  return { session: sessionRest, user };
+  return session;
 };

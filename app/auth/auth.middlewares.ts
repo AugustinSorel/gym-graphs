@@ -1,42 +1,17 @@
 import { createMiddleware } from "@tanstack/start";
-import { validateSessionToken } from "~/auth/auth.services";
-import { getCookie, setResponseStatus } from "vinxi/http";
-import { db } from "~/utils/db";
+import { setResponseStatus } from "vinxi/http";
+import { selectSessionTokenMiddleware } from "~/session/session.middlewares";
 
-export const validateRequest = createMiddleware().server(async ({ next }) => {
-  const sessionCookie = getCookie("session");
-
-  if (!sessionCookie) {
-    return next({
-      context: {
-        user: null,
-        session: null,
-      },
-    });
-  }
-
-  const { session, user } = await validateSessionToken(sessionCookie, db);
-
-  return next({
-    context: {
-      user,
-      session,
-    },
-  });
-});
-
-export const authGuard = createMiddleware()
-  .middleware([validateRequest])
+export const authGuardMiddleware = createMiddleware()
+  .middleware([selectSessionTokenMiddleware])
   .server(async ({ next, context }) => {
-    if (!context.user || !context.session) {
+    if (!context.session) {
       setResponseStatus(401);
-
       throw new Error("unauthorized");
     }
 
     return next({
       context: {
-        user: context.user,
         session: context.session,
       },
     });

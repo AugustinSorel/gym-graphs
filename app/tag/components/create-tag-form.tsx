@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -17,6 +17,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
+import { userKey } from "~/user/user.key";
 
 type Props = {
   onSuccess?: () => void;
@@ -108,6 +109,7 @@ const useCreateTagForm = () => {
 
 const useCreateTag = () => {
   const user = useUser();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createTagAction,
@@ -118,15 +120,22 @@ const useCreateTag = () => {
         name: variables.data.name,
         createdAt: new Date(),
         updatedAt: new Date(),
+        exercises: [],
       };
 
-      //TODO: use proper optimistic handler
-      user.set((u) => {
+      queryClient.setQueryData(userKey.get.queryKey, (user) => {
+        if (!user) {
+          return user;
+        }
+
         return {
-          ...u,
-          tags: [...u.tags, optimisticTag],
+          ...user,
+          tags: [...user.tags, optimisticTag],
         };
       });
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries(userKey.get);
     },
   });
 };

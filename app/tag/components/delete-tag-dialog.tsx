@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,11 +11,11 @@ import {
   AlertDialogTrigger,
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/user/user.context";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
 import { Tag } from "~/db/db.schemas";
+import { userKey } from "~/user/user.key";
 
 export const DeleteTagDialog = (props: Props) => {
   const deleteTag = useDeleteTag();
@@ -73,17 +73,24 @@ export const DeleteTagDialog = (props: Props) => {
 };
 
 const useDeleteTag = () => {
-  const user = useUser();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteTagAction,
     onSuccess: (_data, variables) => {
-      user.set((user) => {
+      queryClient.setQueryData(userKey.get.queryKey, (user) => {
+        if (!user) {
+          return user;
+        }
+
         return {
           ...user,
           tags: user.tags.filter((tag) => tag.id !== variables.data.tagId),
         };
       });
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries(userKey.get);
     },
   });
 };
