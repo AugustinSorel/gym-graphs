@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { ComponentProps, useEffect } from "react";
+import { type ComponentProps, useEffect } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";

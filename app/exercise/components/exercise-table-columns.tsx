@@ -19,8 +19,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { getOneRepMaxEplay } from "~/set/set.utils";
-import { ColumnDef } from "@tanstack/react-table";
-import { Set } from "~/db/db.schemas";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { Set } from "~/db/db.schemas";
 import { Button } from "~/ui/button";
 
 export const exerciseTableColumns: Array<ColumnDef<Set>> = [

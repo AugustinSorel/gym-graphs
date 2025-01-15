@@ -1,4 +1,4 @@
-import { selectDashboardExercises } from "~/exercise/exercise.services";
+import type { selectDashboardExercises } from "~/exercise/exercise.services";
 
 export const exercisesMock = [
   {

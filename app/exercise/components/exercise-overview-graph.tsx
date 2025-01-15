@@ -2,7 +2,7 @@ import { extent, max } from "@visx/vendor/d3-array";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
-import { Set } from "~/db/db.schemas";
+import type { Set } from "~/db/db.schemas";
 import { getOneRepMaxEplay } from "~/set/set.utils";
 import { curveMonotoneX } from "@visx/curve";
 

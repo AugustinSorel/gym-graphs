@@ -1,9 +1,5 @@
-import {
-  CatchBoundary,
-  ErrorComponentProps,
-  useNavigate,
-  useSearch,
-} from "@tanstack/react-router";
+import { CatchBoundary, useNavigate, useSearch } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertCircle, Search } from "lucide-react";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
@@ -21,7 +17,7 @@ export const SearchExercises = () => {
           className="bg-secondary pl-10"
           value={search.name ?? ""}
           onChange={(e) => {
-            navigate({
+            void navigate({
               search: (search) => ({
                 ...search,
                 name: e.target.value || undefined,

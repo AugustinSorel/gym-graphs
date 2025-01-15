@@ -7,7 +7,7 @@ import { Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense, type PropsWithChildren } from "react";
 import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { ThemeProvider } from "~/theme/theme.context";

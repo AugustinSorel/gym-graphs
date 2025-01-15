@@ -13,7 +13,7 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { z } from "zod";
+import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/user.context";
 import { Input } from "~/ui/input";

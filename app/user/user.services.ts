@@ -1,9 +1,10 @@
 import { asc, eq } from "drizzle-orm";
-import type { Db } from "~/utils/db";
-import { Exercise, tagTable, User, userTable } from "~/db/db.schemas";
+import { tagTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
+import type { Db } from "~/utils/db";
+import type { Exercise, User } from "~/db/db.schemas";
 
 export const createUser = async (
   email: User["email"],

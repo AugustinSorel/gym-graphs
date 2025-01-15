@@ -14,7 +14,7 @@ import { userSchema } from "~/user/user.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useUser } from "~/user/user.context";
-import { z } from "zod";
+import type { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
 import { userKey } from "../user.key";

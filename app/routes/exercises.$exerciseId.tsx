@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { z } from "zod";
 import { AddSetDialog } from "~/set/components/add-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
@@ -13,6 +13,9 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
+  params: z.object({
+    exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
+  }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
     if (!context.user || !context.session) {
@@ -23,9 +26,6 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
       user: context.user,
     };
   },
-  params: z.object({
-    exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
-  }),
   loader: async ({ context, params }) => {
     const key = exerciseKeys.get(context.user.id, params.exerciseId);
 

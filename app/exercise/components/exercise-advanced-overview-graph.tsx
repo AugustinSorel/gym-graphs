@@ -9,15 +9,10 @@ import { Group } from "@visx/group";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
-import {
-  CSSProperties,
-  MouseEvent,
-  TouchEvent,
-  useCallback,
-  useMemo,
-} from "react";
+import { useCallback, useMemo } from "react";
+import type { CSSProperties, MouseEvent, TouchEvent } from "react";
 import { z } from "zod";
-import { Set } from "~/db/db.schemas";
+import type { Set } from "~/db/db.schemas";
 import { getOneRepMaxEplay } from "~/set/set.utils";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
@@ -57,7 +52,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
-      const { x } = localPoint(event) || { x: 0 };
+      const { x } = localPoint(event) ?? { x: 0 };
       const x0 = timeScale.invert(x - margin.right);
       const index = bisectDate(sets, x0, 1);
 

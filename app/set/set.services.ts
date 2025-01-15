@@ -1,6 +1,7 @@
 import { eq, and, exists } from "drizzle-orm";
-import { Set, setTable, exerciseTable, User } from "~/db/db.schemas";
-import { Db } from "~/utils/db";
+import { setTable, exerciseTable } from "~/db/db.schemas";
+import type { Set, User } from "~/db/db.schemas";
+import type { Db } from "~/utils/db";
 
 export const createSet = async (
   weightInKg: Set["weightInKg"],

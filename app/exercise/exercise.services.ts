@@ -1,12 +1,7 @@
 import { and, asc, desc, eq } from "drizzle-orm";
+import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
+import type { Exercise, User } from "~/db/db.schemas";
 import type { Db } from "~/utils/db";
-import {
-  Exercise,
-  setTable,
-  exerciseTable,
-  tagTable,
-  User,
-} from "~/db/db.schemas";
 
 export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
   return db.query.exerciseTable.findMany({

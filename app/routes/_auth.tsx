@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { ComponentProps } from "react";
+import { type ComponentProps } from "react";
 import { AppIcon } from "~/ui/app-icon";
 import { HeroBackground } from "~/ui/hero-background";
 

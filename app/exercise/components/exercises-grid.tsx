@@ -1,13 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/user.context";
-import { ComponentProps } from "react";
-import {
-  CatchBoundary,
-  ErrorComponentProps,
-  Link,
-  useSearch,
-} from "@tanstack/react-router";
+import type { ComponentProps } from "react";
+import { CatchBoundary, Link, useSearch } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";

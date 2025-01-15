@@ -1,5 +1,5 @@
-import { ComponentProps, createContext, use } from "react";
-import { Set } from "~/db/db.schemas";
+import { type ComponentProps, createContext, use } from "react";
+import type { Set } from "~/db/db.schemas";
 
 const SetCtx = createContext<Set | undefined>(undefined);
 

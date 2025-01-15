@@ -1,11 +1,11 @@
 import {
   CatchBoundary,
   createFileRoute,
-  ErrorComponentProps,
   redirect,
 } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useUser } from "~/user/user.context";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";

@@ -64,7 +64,7 @@ export const validateSessionToken = async (
     Date.now() >= session.expiresAt.getTime() - fifteenDaysInMs;
 
   if (sessionNearExpiry) {
-    refreshSessionExpiryDate(session.id, db);
+    await refreshSessionExpiryDate(session.id, db);
   }
 
   return session;

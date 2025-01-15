@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { ZodSchema } from "zod";
+import type { ZodSchema } from "zod";
 
 export const useLocalStorage = <TSchema extends ZodSchema>(
   key: string,

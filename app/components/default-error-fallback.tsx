@@ -1,5 +1,5 @@
-import { ErrorComponentProps } from "@tanstack/react-router";
-import { ComponentProps } from "react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { ComponentProps } from "react";
 import { Button } from "~/ui/button";
 
 export const DefaultErrorFallback = (props: ErrorComponentProps) => {

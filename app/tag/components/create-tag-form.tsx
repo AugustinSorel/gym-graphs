@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { z } from "zod";
+import type { z } from "zod";
 import { useUser } from "~/user/user.context";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";

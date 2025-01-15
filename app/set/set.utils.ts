@@ -1,4 +1,4 @@
-import { Set } from "~/db/db.schemas";
+import type { Set } from "~/db/db.schemas";
 
 export const getOneRepMaxEplay = (
   weight: Set["weightInKg"],

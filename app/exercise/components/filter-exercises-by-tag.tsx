@@ -47,7 +47,7 @@ const TagsItem = () => {
   const tags = new Set(search.tags);
 
   const updateSearchTags = () => {
-    navigate({
+    void navigate({
       search: (search) => ({
         ...search,
         tags: tags.size ? [...tags] : undefined,
@@ -91,7 +91,7 @@ const ClearTagsItem = () => {
   const tags = new Set(search.tags);
 
   const clearTags = () => {
-    navigate({
+    void navigate({
       search: (search) => ({
         ...search,
         tags: undefined,

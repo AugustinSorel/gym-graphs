@@ -1,10 +1,6 @@
-import {
-  createFileRoute,
-  ErrorComponentProps,
-  Link,
-  redirect,
-} from "@tanstack/react-router";
-import { ComponentProps } from "react";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { ComponentProps } from "react";
 import { Button } from "~/ui/button";
 import { EmailSignInForm } from "~/auth/components/email-sign-in-form";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";

@@ -2,7 +2,7 @@ import { ScriptOnce } from "@tanstack/react-router";
 import { createContext, use, useEffect, useState } from "react";
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 import { useLocalStorage } from "~/hooks/use-local-storage";
-import { Theme, themeSchema } from "~/theme/theme.schemas";
+import { type Theme, themeSchema } from "~/theme/theme.schemas";
 
 const themeKey = "theme";
 
