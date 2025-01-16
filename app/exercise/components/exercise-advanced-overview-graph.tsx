@@ -109,9 +109,12 @@ const Graph = ({ height, width, sets }: GraphProps) => {
                 day: "numeric",
               });
             }}
-            tickLabelProps={{
-              className: "fill-muted-foreground text-xs",
-            }}
+            tickLabelProps={(_value, index) => ({
+              className:
+                "fill-muted-foreground text-xs data-[first=true]:translate-x-2 data-[last=true]:-translate-x-10",
+              "data-first": index === 0,
+              "data-last": index === sets.length - 1 && width > 500,
+            })}
             hideTicks
             axisLineClassName="stroke-muted"
           />
@@ -237,10 +240,10 @@ const getOneRepMax = (d: Point) =>
 const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {
-  top: 10,
+  top: 30,
   bottom: 30,
-  left: 30,
-  right: 30,
+  left: 10,
+  right: 10,
 } as const;
 
 const tooltipMargin = {

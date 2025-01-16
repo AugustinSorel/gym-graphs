@@ -122,7 +122,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: error handling not finished
 //BUG: dev docker not working
 
-//BUG: remove padding in advanced graph
 //BUG: header on mobile moves up and down
 //BUG: dark theme makes the page flicker
 
