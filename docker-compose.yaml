@@ -13,7 +13,7 @@ services:
     container_name: gym_graphs_server
     build:
       context: ./
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile.dev
     env_file:
       - .env
     volumes:

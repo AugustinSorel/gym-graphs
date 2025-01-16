@@ -8,12 +8,6 @@ RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 COPY . .
 
-RUN pnpm run build
+RUN pnpm db:generate
 
-ENV NODE_ENV=production
-
-EXPOSE 3000
-
-ENV PORT=3000
-
-CMD ["node", ".output/server/index.mjs"]
+CMD ["pnpm", "db:migrate"]
