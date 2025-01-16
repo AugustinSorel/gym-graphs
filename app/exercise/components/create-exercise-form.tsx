@@ -15,7 +15,7 @@ import { createExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 
@@ -84,7 +84,7 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = exerciseKeys.all(user.id).queryKey;
+      const key = exerciseKeys.all(user.data.id).queryKey;
       const cachedExercises = queryClient.getQueryData(key);
 
       const nameTaken = cachedExercises?.find((exercise) => {
@@ -120,11 +120,11 @@ const useCreateExercise = () => {
   return useMutation({
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
-      const key = exerciseKeys.all(user.id).queryKey;
+      const key = exerciseKeys.all(user.data.id).queryKey;
 
       const optimisticExercise = {
         id: Math.random(),
-        userId: user.id,
+        userId: user.data.id,
         name: variables.data.name,
         tags: [],
         sets: [],
@@ -141,7 +141,7 @@ const useCreateExercise = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
     },
   });
 };

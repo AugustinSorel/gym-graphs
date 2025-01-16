@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import type { ComponentProps } from "react";
 import { CatchBoundary, Link, useSearch } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -49,7 +49,7 @@ const useExercises = () => {
   const search = useSearch({ from: "/dashboard" });
 
   return useSuspenseQuery({
-    ...exerciseKeys.all(user.id),
+    ...exerciseKeys.all(user.data.id),
     select: (exercises) => {
       return exercises.filter((exercise) => {
         const nameMatches = exercise.name.includes(search.name ?? "");

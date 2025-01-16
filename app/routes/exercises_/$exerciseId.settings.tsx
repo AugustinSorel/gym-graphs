@@ -20,7 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { Badge } from "~/ui/badge";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   params: z.object({
@@ -117,12 +117,12 @@ const ExerciseTagsSection = () => {
               });
             }}
           >
-            {!user.tags.length && (
+            {!user.data.tags.length && (
               <p className="w-full p-6 text-center text-muted-foreground">
                 no tags
               </p>
             )}
-            {user.tags.map((tag) => (
+            {user.data.tags.map((tag) => (
               <ToggleGroupItem
                 key={tag.id}
                 className="group hover:bg-transparent data-[state=on]:bg-transparent"
@@ -245,13 +245,13 @@ const useUpdateExerciseTags = () => {
     mutationFn: updateExerciseTagsAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
 
-      const optimisticTags = user.tags
+      const optimisticTags = user.data.tags
         .filter((tag) => {
           if (!newExerciseTags.has(tag.id)) {
             return false;
@@ -296,9 +296,9 @@ const useUpdateExerciseTags = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, variables.data.exerciseId),
+        exerciseKeys.get(user.data.id, variables.data.exerciseId),
       );
     },
   });

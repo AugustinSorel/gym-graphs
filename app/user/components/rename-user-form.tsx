@@ -13,7 +13,7 @@ import { Spinner } from "~/ui/spinner";
 import { userSchema } from "~/user/user.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import type { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
@@ -87,7 +87,7 @@ const useCreateExerciseForm = () => {
   return useForm<RenameUserSchema>({
     resolver: zodResolver(renameUserSchema),
     defaultValues: {
-      name: user.name,
+      name: user.data.name,
     },
   });
 };

@@ -4,7 +4,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import type { ComponentProps } from "react";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
@@ -83,7 +83,7 @@ const EmailSection = () => {
         <HGroup>
           <SectionTitle>email address</SectionTitle>
           <SectionDescription>
-            {user.email}{" "}
+            {user.data.email}{" "}
             <Badge className="ml-1" variant="success">
               verified
             </Badge>
@@ -130,10 +130,10 @@ const TagsSection = () => {
           <SectionDescription>Manage your exercise tags</SectionDescription>
 
           <List>
-            {!user.tags.length && (
+            {!user.data.tags.length && (
               <p className="p-6 text-center text-muted-foreground">no tags</p>
             )}
-            {user.tags.map((tag) => (
+            {user.data.tags.map((tag) => (
               <ListItem
                 key={tag.id}
                 className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:border-border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
@@ -187,13 +187,13 @@ const ChangeWeightUnitSection = () => {
         <Footer>
           <ToggleGroup
             type="single"
-            value={user.weightUnit}
+            value={user.data.weightUnit}
             variant="outline"
             onValueChange={(unsafeWeightUnit: string | null) => {
               updateWeightUnit.mutate({
                 data: {
                   weightUnit: userSchema.shape.weightUnit
-                    .catch(user.weightUnit)
+                    .catch(user.data.weightUnit)
                     .parse(unsafeWeightUnit),
                 },
               });

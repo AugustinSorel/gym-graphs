@@ -11,7 +11,7 @@ import {
   AlertDialogTrigger,
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { useSet } from "~/set/set.context";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteSetAction } from "~/set/set.actions";
@@ -83,8 +83,8 @@ const useDeleteSet = () => {
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, set.exerciseId).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -116,9 +116,9 @@ const useDeleteSet = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, set.exerciseId),
+        exerciseKeys.get(user.data.id, set.exerciseId),
       );
     },
   });

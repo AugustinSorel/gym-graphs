@@ -15,7 +15,7 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { deleteExerciseAction } from "~/exercise/exercise.actions";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/useExercise";
 
@@ -86,8 +86,8 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.all, (exercises) => {
@@ -103,9 +103,9 @@ const useDeleteExercise = () => {
       queryClient.setQueryData(keys.get, undefined);
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, variables.data.exerciseId),
+        exerciseKeys.get(user.data.id, variables.data.exerciseId),
       );
     },
   });

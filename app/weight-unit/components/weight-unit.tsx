@@ -1,14 +1,14 @@
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 
 export const WeightUnit = () => {
   const user = useUser();
 
-  switch (user.weightUnit) {
+  switch (user.data.weightUnit) {
     case "kg":
       return "kg";
     case "lbs":
       return "lbs";
   }
 
-  user.weightUnit satisfies never;
+  user.data.weightUnit satisfies never;
 };

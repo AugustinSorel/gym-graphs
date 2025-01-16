@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import { Button } from "~/ui/button";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { Filter } from "lucide-react";
 import { getRouteApi } from "@tanstack/react-router";
 
@@ -55,7 +55,7 @@ const TagsItem = () => {
     });
   };
 
-  if (!user.tags.length) {
+  if (!user.data.tags.length) {
     return (
       <p className="py-4 text-center text-sm text-muted-foreground">no tags</p>
     );
@@ -63,7 +63,7 @@ const TagsItem = () => {
 
   return (
     <>
-      {user.tags.map((tag) => (
+      {user.data.tags.map((tag) => (
         <DropdownMenuCheckboxItem
           key={tag.id}
           checked={tags.has(tag.name)}

@@ -13,7 +13,7 @@ import {
 import { Spinner } from "~/ui/spinner";
 import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/useExercise";
@@ -142,8 +142,8 @@ const useUpdateSetDoneAt = () => {
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -197,9 +197,9 @@ const useUpdateSetDoneAt = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, exercise.data.id),
+        exerciseKeys.get(user.data.id, exercise.data.id),
       );
     },
   });

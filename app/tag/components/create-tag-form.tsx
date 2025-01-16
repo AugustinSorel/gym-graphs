@@ -12,7 +12,7 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import type { z } from "zod";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
@@ -83,7 +83,7 @@ const useFormSchema = () => {
 
   return tagSchema.pick({ name: true }).refine(
     (data) => {
-      const nameTaken = user.tags.find((tag) => tag.name === data.name);
+      const nameTaken = user.data.tags.find((tag) => tag.name === data.name);
 
       return !nameTaken;
     },
@@ -116,7 +116,7 @@ const useCreateTag = () => {
     onMutate: (variables) => {
       const optimisticTag = {
         id: Math.random(),
-        userId: user.id,
+        userId: user.data.id,
         name: variables.data.name,
         createdAt: new Date(),
         updatedAt: new Date(),

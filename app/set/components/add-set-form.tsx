@@ -19,7 +19,7 @@ import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/useExercise";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
 
 type Props = Readonly<{
@@ -154,8 +154,8 @@ const useCreateSet = () => {
     mutationFn: createSetAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, exercise.data.id).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       };
 
       const optimisticExerciseSet = {
@@ -197,9 +197,9 @@ const useCreateSet = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, exercise.data.id),
+        exerciseKeys.get(user.data.id, exercise.data.id),
       );
     },
   });

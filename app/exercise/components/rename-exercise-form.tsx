@@ -15,7 +15,7 @@ import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
@@ -96,7 +96,7 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = exerciseKeys.all(user.id).queryKey;
+      const key = exerciseKeys.all(user.data.id).queryKey;
       const cachedExercises = queryClient.getQueryData(key);
 
       const nameTaken = cachedExercises?.find((exercise) => {
@@ -135,8 +135,8 @@ const useRenameExercise = () => {
     mutationFn: renameExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.id).queryKey,
-        get: exerciseKeys.get(user.id, variables.data.exerciseId).queryKey,
+        all: exerciseKeys.all(user.data.id).queryKey,
+        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
       } as const;
 
       const optimisticExercise = {
@@ -172,9 +172,9 @@ const useRenameExercise = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.id));
+      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
       void queryClient.invalidateQueries(
-        exerciseKeys.get(user.id, variables.data.exerciseId),
+        exerciseKeys.get(user.data.id, variables.data.exerciseId),
       );
     },
   });

@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
-import { useUser } from "~/user/user.context";
+import { useUser } from "~/user/hooks/use-user";
 import { cn } from "~/styles/styles.utils";
 import { weightUnitEnum } from "~/db/db.schemas";
 import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
@@ -153,8 +153,10 @@ const UserProfileDropdown = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-72" align="end">
         <hgroup className="m-2 p-2">
-          <h1 className="truncate font-semibold">{user.name}</h1>
-          <p className="font-muted-foreground truncate text-sm">{user.email}</p>
+          <h1 className="truncate font-semibold">{user.data.name}</h1>
+          <p className="font-muted-foreground truncate text-sm">
+            {user.data.email}
+          </p>
         </hgroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="m-2 justify-between px-4 py-2">
@@ -167,7 +169,7 @@ const UserProfileDropdown = () => {
           <p className="text-sm">weight unit</p>
           <DropdownMenuRadioGroup
             className="flex gap-2"
-            value={user.weightUnit}
+            value={user.data.weightUnit}
             onValueChange={(unsafeWeightUnit) => {
               const weightUnit =
                 userSchema.shape.weightUnit.parse(unsafeWeightUnit);
