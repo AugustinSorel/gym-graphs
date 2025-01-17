@@ -8,8 +8,6 @@ export const setSessionTokenCookie = (
 ) => {
   const event = getEvent();
 
-  console.log(env.NODE_ENV);
-
   setCookie(event, "session", sessionToken, {
     httpOnly: true,
     sameSite: "lax",
@@ -21,8 +19,6 @@ export const setSessionTokenCookie = (
 
 export const deleteSessionTokenCookie = () => {
   const event = getEvent();
-
-  console.log(env.NODE_ENV);
 
   setCookie(event, "session", "", {
     httpOnly: true,

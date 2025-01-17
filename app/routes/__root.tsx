@@ -125,6 +125,8 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: header on mobile moves up and down
 //BUG: dark theme makes the page flicker
 
+//TODO: add session to auth
+//TODO: add lib folder
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter
