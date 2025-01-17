@@ -8,7 +8,7 @@ import {
   updateWeightUnit,
 } from "~/user/user.services";
 import { db } from "~/utils/db";
-import { deleteSessionTokenCookie } from "~/cookie/cookie.services";
+import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
 import { setResponseStatus } from "vinxi/http";
 
 export const getUserAction = createServerFn({ method: "GET" })

@@ -14,7 +14,7 @@ import { createSession, deleteSession } from "~/session/session.services";
 import {
   deleteSessionTokenCookie,
   setSessionTokenCookie,
-} from "~/cookie/cookie.services";
+} from "~/auth/auth.cookies";
 import { userSchema } from "~/user/user.schemas";
 import { z } from "zod";
 import pg from "pg";
