@@ -121,17 +121,19 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //BUG: error handling not finished
 //BUG: dev docker not working
-
-//BUG: header on mobile moves up and down
 //BUG: dark theme makes the page flicker
-
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: inject db in global ctx
 
+//BUG: header on mobile moves up and down
+//TODO: clean up the routes directory
+//TODO: back button
 //TODO: infite scroll for exercises
-//TODO: good auth
+//TODO: auth, verify email
+//TODO: auth, github
+//TODO: auth, reset password
 //TODO: teams
 //TODO: dashboard fun facts
 //TODO: dashboard heat map
