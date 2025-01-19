@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
-import { db } from "~/utils/db";
+import { db } from "~/libs/db.lib";
 import {
   createExercise,
   deleteExercise,

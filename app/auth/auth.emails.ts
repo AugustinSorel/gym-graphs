@@ -1,5 +1,5 @@
 import type { User } from "~/db/db.schemas";
-import { email, emailConfig } from "~/utils/email";
+import { email, emailConfig } from "~/libs/email.lib";
 
 export const sendVerificationCodeEmail = async (
   toAddress: User["email"],

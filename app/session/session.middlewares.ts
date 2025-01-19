@@ -1,7 +1,7 @@
 import { createMiddleware } from "@tanstack/start";
 import { getCookie } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
-import { db } from "~/utils/db";
+import { db } from "~/libs/db.lib";
 
 export const selectSessionTokenMiddleware = createMiddleware().server(
   async ({ next }) => {

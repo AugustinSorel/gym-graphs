@@ -1,4 +1,4 @@
-import type { Db } from "~/utils/db";
+import type { Db } from "~/libs/db.lib";
 import { sessionTable } from "~/db/db.schemas";
 import type { Session, User } from "~/db/db.schemas";
 import { sha256Encode } from "~/auth/auth.services";

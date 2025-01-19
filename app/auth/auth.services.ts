@@ -1,5 +1,5 @@
 import { base32, encodeHex } from "oslo/encoding";
-import type { Db } from "~/utils/db";
+import type { Db } from "~/libs/db.lib";
 import { sha256 } from "oslo/crypto";
 import { hash, compare, genSalt } from "bcrypt";
 import {

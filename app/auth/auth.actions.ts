@@ -4,7 +4,7 @@ import {
   seedUserAccount,
   selectUserByEmail,
 } from "~/user/user.services";
-import { db } from "~/utils/db";
+import { db } from "~/libs/db.lib";
 import {
   generateSessionToken,
   hashSecret,

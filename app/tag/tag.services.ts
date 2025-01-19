@@ -1,7 +1,7 @@
 import { and, eq, exists, inArray } from "drizzle-orm";
 import { exerciseTable, exerciseTagTable, tagTable } from "~/db/db.schemas";
 import type { Exercise, Tag } from "~/db/db.schemas";
-import type { Db } from "~/utils/db";
+import type { Db } from "~/libs/db.lib";
 
 export const selectExerciseTags = async (
   userId: Exercise["userId"],
