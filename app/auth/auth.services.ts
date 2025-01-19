@@ -1,13 +1,11 @@
 import { base32, encodeHex } from "oslo/encoding";
-import type { Db } from "~/libs/db.lib";
 import { sha256 } from "oslo/crypto";
 import { hash, compare, genSalt } from "bcrypt";
-import {
-  deleteSession,
-  refreshSessionExpiryDate,
-  selectSession,
-} from "~/session/session.services";
-import { fifteenDaysInMs } from "~/utils/date.utils";
+import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date.utils";
+import { eq } from "drizzle-orm";
+import { sessionTable } from "~/db/db.schemas";
+import type { Session, User } from "~/db/db.schemas";
+import type { Db } from "~/libs/db.lib";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);
@@ -68,4 +66,46 @@ export const validateSessionToken = async (
   }
 
   return session;
+};
+
+export const createSession = async (
+  sessionToken: string,
+  userId: User["id"],
+  db: Db,
+) => {
+  const sessionId = await sha256Encode(sessionToken);
+
+  const [session] = await db
+    .insert(sessionTable)
+    .values({ id: sessionId, userId })
+    .returning();
+
+  if (!session) {
+    throw new Error("session returned by db is null");
+  }
+
+  return session;
+};
+
+export const deleteSession = async (sessionId: Session["id"], db: Db) => {
+  await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+};
+
+export const refreshSessionExpiryDate = async (
+  sessionId: Session["id"],
+  db: Db,
+) => {
+  await db
+    .update(sessionTable)
+    .set({
+      expiresAt: new Date(Date.now() + thirtyDaysInMs),
+      updatedAt: new Date(),
+    })
+    .where(eq(sessionTable.id, sessionId));
+};
+
+export const selectSession = async (sessionId: Session["id"], db: Db) => {
+  return db.query.sessionTable.findFirst({
+    where: eq(sessionTable.id, sessionId),
+  });
 };

@@ -12,7 +12,7 @@ import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userKey } from "~/user/user.key";
-import { selectSessionTokenAction } from "~/session/session.actions";
+import { selectSessionTokenAction } from "~/auth/auth.actions";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -125,8 +125,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: header on mobile moves up and down
 //BUG: dark theme makes the page flicker
 
-//TODO: add session to auth
-//TODO: add lib folder
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter

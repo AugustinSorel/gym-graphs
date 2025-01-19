@@ -6,11 +6,12 @@ import {
 } from "~/user/user.services";
 import { db } from "~/libs/db.lib";
 import {
+  createSession,
+  deleteSession,
   generateSessionToken,
   hashSecret,
   verifySecret,
 } from "~/auth/auth.services";
-import { createSession, deleteSession } from "~/session/session.services";
 import {
   deleteSessionTokenCookie,
   setSessionTokenCookie,
@@ -18,7 +19,10 @@ import {
 import { userSchema } from "~/user/user.schemas";
 import { z } from "zod";
 import pg from "pg";
-import { authGuardMiddleware } from "~/auth/auth.middlewares";
+import {
+  authGuardMiddleware,
+  selectSessionTokenMiddleware,
+} from "~/auth/auth.middlewares";
 
 export const signInAction = createServerFn()
   .validator(userSchema.pick({ email: true, password: true }))
@@ -86,4 +90,10 @@ export const signOutAction = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await deleteSession(context.session.id, db);
     deleteSessionTokenCookie();
+  });
+
+export const selectSessionTokenAction = createServerFn({ method: "GET" })
+  .middleware([selectSessionTokenMiddleware])
+  .handler(({ context }) => {
+    return context.session;
   });
