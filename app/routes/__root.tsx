@@ -128,7 +128,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: inject db in global ctx
 
 //BUG: header on mobile moves up and down
-//TODO: back button
 //TODO: show tags in exercise page
 //TODO: infite scroll for exercises
 //TODO: auth, verify email

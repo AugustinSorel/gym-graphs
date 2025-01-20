@@ -2,9 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CatchBoundary,
   createFileRoute,
+  Link,
   redirect,
 } from "@tanstack/react-router";
-import { AlertCircle, Check } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
@@ -18,6 +19,7 @@ import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { updateExerciseTagsAction } from "~/tag/tag.actions";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { Badge } from "~/ui/badge";
+import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
@@ -51,6 +53,16 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <Title>{exercise.data.name} settings</Title>
+        <Button
+          asChild
+          variant="link"
+          className="w-max p-0 text-muted-foreground"
+        >
+          <Link to="..">
+            <ArrowLeft />
+            <span>back</span>
+          </Link>
+        </Button>
       </Header>
 
       <Separator />
@@ -202,9 +214,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return (
-    <header className="grid grid-cols-[1fr_auto_auto_auto] gap-2" {...props} />
-  );
+  return <header className="grid gap-x-2" {...props} />;
 };
 
 const Title = (props: ComponentProps<"h1">) => {
