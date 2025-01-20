@@ -111,7 +111,7 @@ const useVerifyEmail = () => {
   // });
 };
 
-const routeApi = getRouteApi("/_auth/verify-email");
+const routeApi = getRouteApi("/(auth)/_layout/verify-email");
 
 const verifyEmailFormSchema = emailVerificationSchema.pick({ code: true });
 

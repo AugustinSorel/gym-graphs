@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
-import type { ComponentProps } from "react";
-import { CatchBoundary, Link, useSearch } from "@tanstack/react-router";
-import type { ErrorComponentProps } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";
+import type { ComponentProps } from "react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const ExercisesGrid = () => {
   const exercises = useExercises();
@@ -44,9 +44,11 @@ export const ExercisesGrid = () => {
   );
 };
 
+const routeApi = getRouteApi("/dashboard/");
+
 const useExercises = () => {
   const user = useUser();
-  const search = useSearch({ from: "/dashboard" });
+  const search = routeApi.useSearch();
 
   return useSuspenseQuery({
     ...exerciseKeys.all(user.data.id),

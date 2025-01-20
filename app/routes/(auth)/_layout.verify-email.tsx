@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { VerifyEmailForm } from "~/auth/components/verify-email-form";
-import { Button } from "~/ui/button";
-import type { ComponentProps } from "react";
+import { createFileRoute } from '@tanstack/react-router'
+import { VerifyEmailForm } from '~/auth/components/verify-email-form'
+import { Button } from '~/ui/button'
+import type { ComponentProps } from 'react'
 
-export const Route = createFileRoute("/_auth/verify-email")({
+export const Route = createFileRoute('/(auth)/_layout/verify-email')({
   component: () => RouteComponent(),
-});
+})
 
 const RouteComponent = () => {
   return (
@@ -14,8 +14,8 @@ const RouteComponent = () => {
       <VerifyEmailForm />
       <GetNewEmailVerificationCode />
     </>
-  );
-};
+  )
+}
 
 //TODO: get new email verification code
 const GetNewEmailVerificationCode = () => {
@@ -26,23 +26,23 @@ const GetNewEmailVerificationCode = () => {
         Get another code
       </Button>
     </RedirectText>
-  );
-};
+  )
+}
 
-const Title = (props: ComponentProps<"h2">) => {
+const Title = (props: ComponentProps<'h2'>) => {
   return (
     <h2
       className="mb-16 text-center text-2xl font-semibold capitalize"
       {...props}
     />
-  );
-};
+  )
+}
 
-const RedirectText = (props: ComponentProps<"p">) => {
+const RedirectText = (props: ComponentProps<'p'>) => {
   return (
     <p
       className="mt-16 text-center text-sm text-accent-foreground"
       {...props}
     />
-  );
-};
+  )
+}

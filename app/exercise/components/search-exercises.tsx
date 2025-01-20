@@ -1,12 +1,12 @@
-import { CatchBoundary, useNavigate, useSearch } from "@tanstack/react-router";
-import type { ErrorComponentProps } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import { AlertCircle, Search } from "lucide-react";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const SearchExercises = () => {
-  const navigate = useNavigate({ from: "/dashboard" });
-  const search = useSearch({ from: "/dashboard" });
+  const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
 
   return (
     <CatchBoundary getResetKey={() => "reset"} errorComponent={SearchFallback}>
@@ -30,6 +30,8 @@ export const SearchExercises = () => {
     </CatchBoundary>
   );
 };
+
+const routeApi = getRouteApi("/dashboard/");
 
 const SearchFallback = (props: ErrorComponentProps) => {
   return (

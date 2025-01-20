@@ -8,35 +8,29 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SettingsImport } from './routes/settings'
-import { Route as DashboardImport } from './routes/dashboard'
-import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
-import { Route as ExercisesExerciseIdImport } from './routes/exercises.$exerciseId'
-import { Route as AuthVerifyEmailImport } from './routes/_auth.verify-email'
-import { Route as AuthSignUpImport } from './routes/_auth.sign-up'
-import { Route as AuthSignInImport } from './routes/_auth.sign-in'
+import { Route as SettingsIndexImport } from './routes/settings/index'
+import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as ExercisesExerciseIdImport } from './routes/exercises/$exerciseId'
+import { Route as authLayoutImport } from './routes/(auth)/_layout'
 import { Route as ExercisesExerciseIdSettingsImport } from './routes/exercises_/$exerciseId.settings'
+import { Route as authLayoutVerifyEmailImport } from './routes/(auth)/_layout.verify-email'
+import { Route as authLayoutSignUpImport } from './routes/(auth)/_layout.sign-up'
+import { Route as authLayoutSignInImport } from './routes/(auth)/_layout.sign-in'
+
+// Create Virtual Routes
+
+const authImport = createFileRoute('/(auth)')()
 
 // Create/Update Routes
 
-const SettingsRoute = SettingsImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DashboardRoute = DashboardImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthRoute = AuthImport.update({
-  id: '/_auth',
+const authRoute = authImport.update({
+  id: '/(auth)',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,28 +40,27 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const SettingsIndexRoute = SettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashboardIndexRoute = DashboardIndexImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ExercisesExerciseIdRoute = ExercisesExerciseIdImport.update({
   id: '/exercises/$exerciseId',
   path: '/exercises/$exerciseId',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthVerifyEmailRoute = AuthVerifyEmailImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthSignUpRoute = AuthSignUpImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => AuthRoute,
-} as any)
-
-const AuthSignInRoute = AuthSignInImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => AuthRoute,
+const authLayoutRoute = authLayoutImport.update({
+  id: '/_layout',
+  getParentRoute: () => authRoute,
 } as any)
 
 const ExercisesExerciseIdSettingsRoute =
@@ -76,6 +69,24 @@ const ExercisesExerciseIdSettingsRoute =
     path: '/exercises/$exerciseId/settings',
     getParentRoute: () => rootRoute,
   } as any)
+
+const authLayoutVerifyEmailRoute = authLayoutVerifyEmailImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+
+const authLayoutSignUpRoute = authLayoutSignUpImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+
+const authLayoutSignInRoute = authLayoutSignInImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => authLayoutRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -88,47 +99,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthImport
+    '/(auth)': {
+      id: '/(auth)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authImport
       parentRoute: typeof rootRoute
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardImport
-      parentRoute: typeof rootRoute
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsImport
-      parentRoute: typeof rootRoute
-    }
-    '/_auth/sign-in': {
-      id: '/_auth/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof AuthSignInImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/sign-up': {
-      id: '/_auth/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof AuthSignUpImport
-      parentRoute: typeof AuthImport
-    }
-    '/_auth/verify-email': {
-      id: '/_auth/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof AuthVerifyEmailImport
-      parentRoute: typeof AuthImport
+    '/(auth)/_layout': {
+      id: '/(auth)/_layout'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authLayoutImport
+      parentRoute: typeof authRoute
     }
     '/exercises/$exerciseId': {
       id: '/exercises/$exerciseId'
@@ -136,6 +119,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/exercises/$exerciseId'
       preLoaderRoute: typeof ExercisesExerciseIdImport
       parentRoute: typeof rootRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/_layout/sign-in': {
+      id: '/(auth)/_layout/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof authLayoutSignInImport
+      parentRoute: typeof authLayoutImport
+    }
+    '/(auth)/_layout/sign-up': {
+      id: '/(auth)/_layout/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof authLayoutSignUpImport
+      parentRoute: typeof authLayoutImport
+    }
+    '/(auth)/_layout/verify-email': {
+      id: '/(auth)/_layout/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authLayoutVerifyEmailImport
+      parentRoute: typeof authLayoutImport
     }
     '/exercises_/$exerciseId/settings': {
       id: '/exercises_/$exerciseId/settings'
@@ -149,54 +167,65 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-interface AuthRouteChildren {
-  AuthSignInRoute: typeof AuthSignInRoute
-  AuthSignUpRoute: typeof AuthSignUpRoute
-  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
+interface authLayoutRouteChildren {
+  authLayoutSignInRoute: typeof authLayoutSignInRoute
+  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
+  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
 }
 
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthSignInRoute: AuthSignInRoute,
-  AuthSignUpRoute: AuthSignUpRoute,
-  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
+const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authLayoutSignInRoute: authLayoutSignInRoute,
+  authLayoutSignUpRoute: authLayoutSignUpRoute,
+  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
 }
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
+  authLayoutRouteChildren,
+)
+
+interface authRouteChildren {
+  authLayoutRoute: typeof authLayoutRouteWithChildren
+}
+
+const authRouteChildren: authRouteChildren = {
+  authLayoutRoute: authLayoutRouteWithChildren,
+}
+
+const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '': typeof AuthRouteWithChildren
-  '/dashboard': typeof DashboardRoute
-  '/settings': typeof SettingsRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/verify-email': typeof AuthVerifyEmailRoute
+  '/': typeof authLayoutRouteWithChildren
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/sign-in': typeof authLayoutSignInRoute
+  '/sign-up': typeof authLayoutSignUpRoute
+  '/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '': typeof AuthRouteWithChildren
-  '/dashboard': typeof DashboardRoute
-  '/settings': typeof SettingsRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/verify-email': typeof AuthVerifyEmailRoute
+  '/': typeof authLayoutRouteWithChildren
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/sign-in': typeof authLayoutSignInRoute
+  '/sign-up': typeof authLayoutSignUpRoute
+  '/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/_auth': typeof AuthRouteWithChildren
-  '/dashboard': typeof DashboardRoute
-  '/settings': typeof SettingsRoute
-  '/_auth/sign-in': typeof AuthSignInRoute
-  '/_auth/sign-up': typeof AuthSignUpRoute
-  '/_auth/verify-email': typeof AuthVerifyEmailRoute
+  '/(auth)': typeof authRouteWithChildren
+  '/(auth)/_layout': typeof authLayoutRouteWithChildren
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
+  '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
+  '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises_/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
 }
 
@@ -204,54 +233,53 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | ''
+    | '/exercises/$exerciseId'
     | '/dashboard'
     | '/settings'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
-    | '/exercises/$exerciseId'
     | '/exercises/$exerciseId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | ''
+    | '/exercises/$exerciseId'
     | '/dashboard'
     | '/settings'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
-    | '/exercises/$exerciseId'
     | '/exercises/$exerciseId/settings'
   id:
     | '__root__'
     | '/'
-    | '/_auth'
-    | '/dashboard'
-    | '/settings'
-    | '/_auth/sign-in'
-    | '/_auth/sign-up'
-    | '/_auth/verify-email'
+    | '/(auth)'
+    | '/(auth)/_layout'
     | '/exercises/$exerciseId'
+    | '/dashboard/'
+    | '/settings/'
+    | '/(auth)/_layout/sign-in'
+    | '/(auth)/_layout/sign-up'
+    | '/(auth)/_layout/verify-email'
     | '/exercises_/$exerciseId/settings'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRouteWithChildren
-  DashboardRoute: typeof DashboardRoute
-  SettingsRoute: typeof SettingsRoute
+  authRoute: typeof authRouteWithChildren
   ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
   ExercisesExerciseIdSettingsRoute: typeof ExercisesExerciseIdSettingsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRouteWithChildren,
-  DashboardRoute: DashboardRoute,
-  SettingsRoute: SettingsRoute,
+  authRoute: authRouteWithChildren,
   ExercisesExerciseIdRoute: ExercisesExerciseIdRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
   ExercisesExerciseIdSettingsRoute: ExercisesExerciseIdSettingsRoute,
 }
 
@@ -266,44 +294,51 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_auth",
-        "/dashboard",
-        "/settings",
+        "/(auth)",
         "/exercises/$exerciseId",
+        "/dashboard/",
+        "/settings/",
         "/exercises_/$exerciseId/settings"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/_auth": {
-      "filePath": "_auth.tsx",
+    "/(auth)": {
+      "filePath": "(auth)",
       "children": [
-        "/_auth/sign-in",
-        "/_auth/sign-up",
-        "/_auth/verify-email"
+        "/(auth)/_layout"
       ]
     },
-    "/dashboard": {
-      "filePath": "dashboard.tsx"
-    },
-    "/settings": {
-      "filePath": "settings.tsx"
-    },
-    "/_auth/sign-in": {
-      "filePath": "_auth.sign-in.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/sign-up": {
-      "filePath": "_auth.sign-up.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/verify-email": {
-      "filePath": "_auth.verify-email.tsx",
-      "parent": "/_auth"
+    "/(auth)/_layout": {
+      "filePath": "(auth)/_layout.tsx",
+      "parent": "/(auth)",
+      "children": [
+        "/(auth)/_layout/sign-in",
+        "/(auth)/_layout/sign-up",
+        "/(auth)/_layout/verify-email"
+      ]
     },
     "/exercises/$exerciseId": {
-      "filePath": "exercises.$exerciseId.tsx"
+      "filePath": "exercises/$exerciseId.tsx"
+    },
+    "/dashboard/": {
+      "filePath": "dashboard/index.tsx"
+    },
+    "/settings/": {
+      "filePath": "settings/index.tsx"
+    },
+    "/(auth)/_layout/sign-in": {
+      "filePath": "(auth)/_layout.sign-in.tsx",
+      "parent": "/(auth)/_layout"
+    },
+    "/(auth)/_layout/sign-up": {
+      "filePath": "(auth)/_layout.sign-up.tsx",
+      "parent": "/(auth)/_layout"
+    },
+    "/(auth)/_layout/verify-email": {
+      "filePath": "(auth)/_layout.verify-email.tsx",
+      "parent": "/(auth)/_layout"
     },
     "/exercises_/$exerciseId/settings": {
       "filePath": "exercises_/$exerciseId.settings.tsx"
