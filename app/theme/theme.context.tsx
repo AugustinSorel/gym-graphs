@@ -26,33 +26,41 @@ export const ThemeProvider = (props: PropsWithChildren) => {
       return;
     }
 
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      if (e.matches) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style.colorScheme = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style.colorScheme = "light";
-      }
-    };
+    const abortController = new AbortController();
 
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener(
+      "change",
+      (e) => {
+        if (e.matches) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+        }
+      },
+      {
+        signal: abortController.signal,
+      },
+    );
 
-    media.addEventListener("change", handleSystemThemeChange);
-
-    return () => media.removeEventListener("change", handleSystemThemeChange);
+    return () => abortController.abort();
   }, [theme]);
 
   useEffect(() => {
-    const handleStorageListener = () => {
-      setTheme(localStorage.get());
-    };
+    const abortController = new AbortController();
 
-    handleStorageListener();
+    window.addEventListener(
+      "storage",
+      () => {
+        setTheme(localStorage.get());
+      },
+      {
+        signal: abortController.signal,
+      },
+    );
 
-    window.addEventListener("storage", handleStorageListener);
-
-    return () => window.removeEventListener("storage", handleStorageListener);
+    return () => abortController.abort();
   }, []);
 
   useEffect(() => {
