@@ -37,6 +37,9 @@ export const selectExercise = async (
       },
       tags: {
         orderBy: asc(tagTable.createdAt),
+        with: {
+          tag: true,
+        },
       },
     },
   });

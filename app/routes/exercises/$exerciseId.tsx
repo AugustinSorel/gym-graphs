@@ -1,5 +1,4 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import type { ComponentProps } from "react";
 import { z } from "zod";
 import { AddSetDialog } from "~/set/components/add-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
@@ -12,6 +11,8 @@ import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeft } from "lucide-react";
+import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
   params: z.object({
@@ -64,6 +65,10 @@ const RouteComponent = () => {
 
       <Section className="py-2 sm:p-4">
         <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+      </Section>
+
+      <Section>
+        <ExerciseTagsList />
       </Section>
 
       <Section>
