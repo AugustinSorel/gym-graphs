@@ -6,6 +6,7 @@ import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-adv
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/exercise/components/exercise-table-columns";
+import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
 import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -92,6 +93,15 @@ const FeatureOne = () => {
             <ExerciseOverviewGraph sets={exercise.sets} />
           </Card>
         ))}
+        <Card>
+          <Name>exercises frequency</Name>
+          <ExercisesRadarGraph
+            data={exercisesMock.map((e) => ({
+              frequency: e.sets.length,
+              name: e.name,
+            }))}
+          />
+        </Card>
       </Grid>
     </FeatureContainer>
   );

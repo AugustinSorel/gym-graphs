@@ -128,6 +128,8 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: inject db in global ctx
 
 //BUG: header on mobile moves up and down
+//TODO: custom algorithm
+//TODO: allow multiple sets
 //TODO: infite scroll for exercises
 //TODO: auth, verify email
 //TODO: auth, github
@@ -135,5 +137,4 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: teams
 //TODO: dashboard fun facts
 //TODO: dashboard heat map
-//TODO: dashboard exercises count
 //TODO: reorder dashboard grid

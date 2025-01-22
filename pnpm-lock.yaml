@@ -74,6 +74,9 @@ importers:
       '@visx/group':
         specifier: ^3.12.0
         version: 3.12.0(react@19.0.0)
+      '@visx/point':
+        specifier: ^3.12.0
+        version: 3.12.0
       '@visx/responsive':
         specifier: ^3.12.0
         version: 3.12.0(react@19.0.0)

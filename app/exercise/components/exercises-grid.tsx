@@ -5,6 +5,7 @@ import { CatchBoundary, getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";
+import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -40,6 +41,15 @@ export const ExercisesGrid = () => {
           </Card>
         </CatchBoundary>
       ))}
+      <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch p-0 [&_svg]:size-auto">
+        <Name>exercises frequency</Name>
+        <ExercisesRadarGraph
+          data={exercises.data.map((exercise) => ({
+            frequency: exercise.sets.length,
+            name: exercise.name,
+          }))}
+        />
+      </Card>
     </Grid>
   );
 };

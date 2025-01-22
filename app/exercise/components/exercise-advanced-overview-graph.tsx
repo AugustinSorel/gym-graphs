@@ -10,12 +10,12 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import { useCallback, useMemo } from "react";
-import type { CSSProperties, MouseEvent, TouchEvent } from "react";
 import { z } from "zod";
-import type { Set } from "~/db/db.schemas";
 import { getOneRepMaxEplay } from "~/set/set.utils";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
+import type { Set } from "~/db/db.schemas";
+import type { CSSProperties, MouseEvent, TouchEvent } from "react";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useMemo(() => {
