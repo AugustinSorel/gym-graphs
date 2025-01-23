@@ -38,6 +38,7 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
       email: true,
       weightUnit: true,
       name: true,
+      oneRepMaxAlgo: true,
     },
     with: {
       tags: {
@@ -69,6 +70,17 @@ export const updateWeightUnit = async (
   await db
     .update(userTable)
     .set({ weightUnit, updatedAt: new Date() })
+    .where(eq(userTable.id, userId));
+};
+
+export const updateOneRepMaxAlgo = async (
+  oneRepMaxAlgo: User["oneRepMaxAlgo"],
+  userId: User["id"],
+  db: Db,
+) => {
+  await db
+    .update(userTable)
+    .set({ oneRepMaxAlgo, updatedAt: new Date() })
     .where(eq(userTable.id, userId));
 };
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { weightUnitEnum } from "~/db/db.schemas";
+import { oneRepMaxAlgoEnum, weightUnitEnum } from "~/db/db.schemas";
 
 export const userSchema = z.object({
   id: z
@@ -37,4 +37,8 @@ export const userSchema = z.object({
     .trim()
     .min(3, "password must be at least 3 characters")
     .max(255, "password must be at most 255 characters"),
+  oneRepMaxAlgo: z.enum(oneRepMaxAlgoEnum.enumValues, {
+    required_error: "one rep max algo is required",
+    invalid_type_error: "one rep max algo must be valid",
+  }),
 });

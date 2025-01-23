@@ -2,12 +2,14 @@ import { extent, max } from "@visx/vendor/d3-array";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
-import type { Set } from "~/db/db.schemas";
-import { getOneRepMaxEplay } from "~/set/set.utils";
 import { curveMonotoneX } from "@visx/curve";
+import { calculateOneRepMax } from "~/set/set.utils";
+import type { Set } from "~/db/db.schemas";
+import { useUser } from "~/user/hooks/use-user";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
+  const user = useUser();
 
   const sets = props.sets.toSorted(
     (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
@@ -19,7 +21,10 @@ export const ExerciseOverviewGraph = (props: Props) => {
   });
 
   const oneRepMaxScale = scaleLinear({
-    domain: [0, max(sets, getOneRepMax) ?? 0],
+    domain: [
+      0,
+      max(sets, (d) => getOneRepMax(d, user.data.oneRepMaxAlgo)) ?? 0,
+    ],
     range: [height - margin.top, margin.bottom],
   });
 
@@ -30,7 +35,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
           curve={curveMonotoneX}
           data={sets}
           x={(d) => timeScale(getDoneAt(d))}
-          y={(d) => oneRepMaxScale(getOneRepMax(d))}
+          y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
           className="stroke-primary"
           strokeWidth={3}
           shapeRendering="geometricPrecision"
@@ -41,8 +46,10 @@ export const ExerciseOverviewGraph = (props: Props) => {
 };
 
 const getDoneAt = (d: Point) => d.doneAt;
-const getOneRepMax = (d: Point) =>
-  getOneRepMaxEplay(d.weightInKg, d.repetitions);
+const getOneRepMax = (
+  d: Point,
+  algo: Parameters<typeof calculateOneRepMax>[2],
+) => calculateOneRepMax(d.weightInKg, d.repetitions, algo);
 
 const margin = {
   top: 20,

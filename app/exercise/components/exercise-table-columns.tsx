@@ -18,10 +18,11 @@ import {
   ChevronsUpDown,
   MoreHorizontal,
 } from "lucide-react";
-import { getOneRepMaxEplay } from "~/set/set.utils";
+import { Button } from "~/ui/button";
+import { useUser } from "~/user/hooks/use-user";
+import { calculateOneRepMax } from "~/set/set.utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Set } from "~/db/db.schemas";
-import { Button } from "~/ui/button";
 
 export const exerciseTableColumns: Array<ColumnDef<Set>> = [
   {
@@ -47,12 +48,21 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
       );
     },
     accessorFn: (row) => {
-      return getOneRepMaxEplay(row.weightInKg, row.repetitions);
+      const user = useUser();
+
+      return calculateOneRepMax(
+        row.weightInKg,
+        row.repetitions,
+        user.data.oneRepMaxAlgo,
+      );
     },
     cell: ({ row }) => {
-      const oneRepMax = getOneRepMaxEplay(
+      const user = useUser();
+
+      const oneRepMax = calculateOneRepMax(
         row.original.weightInKg,
         row.original.repetitions,
+        user.data.oneRepMaxAlgo,
       );
 
       return (

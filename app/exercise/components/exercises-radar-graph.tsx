@@ -178,9 +178,10 @@ const Graph = ({ width, height, data }: GraphProps) => {
           <p className="text-xs font-bold capitalize">
             {tooltip.tooltipData.name}
           </p>
-          <dl className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
-            <span className="size-2 bg-primary" />
-            <dt className="text-muted-foreground">frequency</dt>
+          <dl className="grid grid-cols-[1fr_auto] items-center gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
+            <dt className="flex items-center text-muted-foreground before:mr-2 before:block before:size-2 before:bg-primary">
+              frequency
+            </dt>
             <dd>{tooltip.tooltipData.frequency}</dd>
           </dl>
         </Tooltip>

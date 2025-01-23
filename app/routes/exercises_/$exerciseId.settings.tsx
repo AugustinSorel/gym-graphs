@@ -115,52 +115,53 @@ const ExerciseTagsSection = () => {
             Feel free to rename this exercise to somehting more comfortable.
             Your exercises name are not public.
           </SectionDescription>
-
-          <ToggleGroup
-            className="flex flex-wrap justify-start gap-4 rounded-md border p-4"
-            type="multiple"
-            value={exercise.data.tags.map((tag) => tag.tagId.toString())}
-            onValueChange={(e) => {
-              updateExerciseTags.mutate({
-                data: {
-                  newTags: e.map(Number),
-                  exerciseId: exercise.data.id,
-                },
-              });
-            }}
-          >
-            {!user.data.tags.length && (
-              <p className="w-full p-6 text-center text-muted-foreground">
-                no tags
-              </p>
-            )}
-            {user.data.tags.map((tag) => (
-              <ToggleGroupItem
-                key={tag.id}
-                className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
-                value={tag.id.toString()}
-              >
-                <Badge
-                  className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary group-aria-pressed:hover:bg-primary/30"
-                  variant="outline"
-                >
-                  <Check className="mr-1 hidden group-aria-pressed:block" />
-                  {tag.name}
-                </Badge>
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-
-          {updateExerciseTags.error && (
-            <Alert variant="destructive">
-              <AlertCircle className="size-4" />
-              <AlertTitle>Heads up!</AlertTitle>
-              <AlertDescription>
-                {updateExerciseTags.error.message}
-              </AlertDescription>
-            </Alert>
-          )}
         </HGroup>
+
+        <ToggleGroup
+          className="m-6 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4"
+          type="multiple"
+          value={exercise.data.tags.map((tag) => tag.tagId.toString())}
+          onValueChange={(e) => {
+            updateExerciseTags.mutate({
+              data: {
+                newTags: e.map(Number),
+                exerciseId: exercise.data.id,
+              },
+            });
+          }}
+        >
+          {!user.data.tags.length && (
+            <p className="w-full p-6 text-center text-muted-foreground">
+              no tags
+            </p>
+          )}
+          {user.data.tags.map((tag) => (
+            <ToggleGroupItem
+              key={tag.id}
+              className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
+              value={tag.id.toString()}
+            >
+              <Badge
+                className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary group-aria-pressed:hover:bg-primary/30"
+                variant="outline"
+              >
+                <Check className="mr-1 hidden group-aria-pressed:block" />
+                {tag.name}
+              </Badge>
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+
+        {updateExerciseTags.error && (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {updateExerciseTags.error.message}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Footer>
           <CreateTagDialog />
         </Footer>

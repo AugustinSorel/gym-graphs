@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { type ComponentProps, useEffect } from "react";
+import { useEffect } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
@@ -13,6 +13,7 @@ import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
 import { userKey } from "~/user/user.key";
 import { userMock } from "~/user/user.mock";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),

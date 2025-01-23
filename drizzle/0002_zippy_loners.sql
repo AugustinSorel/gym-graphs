@@ -1,0 +1,2 @@
+CREATE TYPE "public"."one_rep_max_algo" AS ENUM('adams', 'baechle', 'berger', 'brown', 'brzycki', 'epley', 'kemmler', 'landers', 'lombardi', 'mayhew', 'naclerio', 'oConner', 'wathen');--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "oneRepMaxAlgo" "one_rep_max_algo" DEFAULT 'epley' NOT NULL;

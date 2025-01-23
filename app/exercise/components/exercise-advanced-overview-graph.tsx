@@ -11,9 +11,10 @@ import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import { useCallback, useMemo } from "react";
 import { z } from "zod";
-import { getOneRepMaxEplay } from "~/set/set.utils";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
+import { calculateOneRepMax } from "~/set/set.utils";
+import { useUser } from "~/user/hooks/use-user";
 import type { Set } from "~/db/db.schemas";
 import type { CSSProperties, MouseEvent, TouchEvent } from "react";
 
@@ -35,6 +36,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
 const Graph = ({ height, width, sets }: GraphProps) => {
   const tooltip = useTooltip<Point>();
+  const user = useUser();
 
   const timeScale = useMemo(() => {
     return scaleTime({
@@ -45,7 +47,10 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
   const oneRepMaxScale = useMemo(() => {
     return scaleLinear({
-      domain: [0, max(sets, getOneRepMax) ?? 0],
+      domain: [
+        0,
+        max(sets, (d) => getOneRepMax(d, user.data.oneRepMaxAlgo)) ?? 0,
+      ],
       range: [height - margin.top - margin.bottom, 0],
     });
   }, [margin, height, sets]);
@@ -77,7 +82,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       tooltip.showTooltip({
         tooltipData: d,
         tooltipLeft: timeScale(getDoneAt(d)),
-        tooltipTop: oneRepMaxScale(getOneRepMax(d)),
+        tooltipTop: oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo)),
       });
     },
     [tooltip, oneRepMaxScale, timeScale],
@@ -144,7 +149,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           <AreaClosed<Point>
             data={sets}
             x={(d) => timeScale(getDoneAt(d))}
-            y={(d) => oneRepMaxScale(getOneRepMax(d))}
+            y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             yScale={oneRepMaxScale}
             strokeWidth={0}
             stroke="url(#area-gradient)"
@@ -156,7 +161,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             curve={curveMonotoneX}
             data={sets}
             x={(d) => timeScale(getDoneAt(d))}
-            y={(d) => oneRepMaxScale(getOneRepMax(d))}
+            y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             className="stroke-primary"
             strokeWidth={2}
             shapeRendering="geometricPrecision"
@@ -213,9 +218,10 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             <dt>1 rep max</dt>
             <dd>
               <WeightValue
-                weightInKg={getOneRepMaxEplay(
+                weightInKg={calculateOneRepMax(
                   tooltip.tooltipData.weightInKg,
                   tooltip.tooltipData.repetitions,
+                  user.data.oneRepMaxAlgo,
                 )}
               />{" "}
               <WeightUnit />
@@ -235,8 +241,10 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 };
 
 const getDoneAt = (d: Point) => d.doneAt;
-const getOneRepMax = (d: Point) =>
-  getOneRepMaxEplay(d.weightInKg, d.repetitions);
+const getOneRepMax = (
+  d: Point,
+  algo: Parameters<typeof calculateOneRepMax>[2],
+) => calculateOneRepMax(d.weightInKg, d.repetitions, algo);
 const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {

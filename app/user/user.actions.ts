@@ -5,6 +5,7 @@ import {
   deleteUser,
   renameUser,
   selectClientUser,
+  updateOneRepMaxAlgo,
   updateWeightUnit,
 } from "~/user/user.services";
 import { db } from "~/libs/db.lib";
@@ -43,4 +44,11 @@ export const updateWeightUnitAction = createServerFn({ method: "POST" })
   .validator(userSchema.pick({ weightUnit: true }))
   .handler(async ({ context, data }) => {
     await updateWeightUnit(data.weightUnit, context.session.userId, db);
+  });
+
+export const updateOneRepMaxAlgoAction = createServerFn({ method: "POST" })
+  .middleware([authGuardMiddleware])
+  .validator(userSchema.pick({ oneRepMaxAlgo: true }))
+  .handler(async ({ context, data }) => {
+    await updateOneRepMaxAlgo(data.oneRepMaxAlgo, context.session.userId, db);
   });

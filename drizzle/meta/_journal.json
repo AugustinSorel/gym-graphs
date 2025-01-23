@@ -15,6 +15,13 @@
       "when": 1736795266779,
       "tag": "0001_wakeful_sharon_carter",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737626119020,
+      "tag": "0002_zippy_loners",
+      "breakpoints": true
     }
   ]
 }

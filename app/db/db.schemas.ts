@@ -12,12 +12,29 @@ import {
 
 export const weightUnitEnum = pgEnum("weight_unit", ["kg", "lbs"]);
 
+export const oneRepMaxAlgoEnum = pgEnum("one_rep_max_algo", [
+  "adams",
+  "baechle",
+  "berger",
+  "brown",
+  "brzycki",
+  "epley",
+  "kemmler",
+  "landers",
+  "lombardi",
+  "mayhew",
+  "naclerio",
+  "oConner",
+  "wathen",
+]);
+
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   password: text("password").notNull(),
   weightUnit: weightUnitEnum().notNull().default("kg"),
+  oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
