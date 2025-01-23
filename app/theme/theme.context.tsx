@@ -1,8 +1,9 @@
 import { ScriptOnce } from "@tanstack/react-router";
 import { createContext, use, useEffect, useState } from "react";
-import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 import { useLocalStorage } from "~/hooks/use-local-storage";
-import { type Theme, themeSchema } from "~/theme/theme.schemas";
+import { themeSchema } from "~/theme/theme.schemas";
+import type { Theme } from "~/theme/theme.schemas";
+import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
 const themeKey = "theme";
 
@@ -123,7 +124,7 @@ export const useTheme = () => {
   const ctx = use(ThemeContext);
 
   if (!ctx) {
-    throw new Error("n otheme");
+    throw new Error("useTheme must be wrapped inside <ThemeProvide/>");
   }
 
   return ctx;
