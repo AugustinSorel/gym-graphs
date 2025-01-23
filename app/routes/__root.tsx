@@ -4,15 +4,16 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { Meta, Scripts } from "@tanstack/start";
-import { lazy, Suspense, type PropsWithChildren } from "react";
+import { lazy, Suspense } from "react";
 import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { QueryClient } from "@tanstack/react-query";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userKey } from "~/user/user.key";
 import { selectSessionTokenAction } from "~/auth/auth.actions";
+import type { PropsWithChildren } from "react";
+import type { QueryClient } from "@tanstack/react-query";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === "production"
@@ -128,7 +129,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: inject db in global ctx
 
 //BUG: header on mobile moves up and down
-//TODO: custom algorithm
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
 //TODO: auth, verify email
