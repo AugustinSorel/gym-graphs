@@ -36,6 +36,7 @@ export const authGuardMiddleware = createMiddleware()
     return next({
       context: {
         session: context.session,
+        user: context.session.user,
       },
     });
   });

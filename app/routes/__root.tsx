@@ -60,23 +60,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     beforeLoad: async ({ context }) => {
       const session = await selectSessionTokenAction();
 
-      if (!session) {
+      if (!session?.user?.emailVerifiedAt) {
         return {
           session: null,
-          user: null,
         };
       }
 
-      const user = await context.queryClient.ensureQueryData(userKey.get);
+      await context.queryClient.ensureQueryData(userKey.get);
 
       return {
         session,
-        user,
+        user: session.user,
       };
     },
     loader: ({ context }) => {
       return {
-        user: context.user,
+        user: context.session?.user,
       };
     },
   },
@@ -102,7 +101,11 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {loaderData.user ? <HeaderPrivate /> : <HeaderPublic />}
+        {loaderData.user?.emailVerifiedAt ? (
+          <HeaderPrivate />
+        ) : (
+          <HeaderPublic />
+        )}
 
         {props.children}
 
@@ -131,7 +134,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: header on mobile moves up and down
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
-//TODO: auth, verify email
 //TODO: auth, github
 //TODO: auth, reset password
 //TODO: teams

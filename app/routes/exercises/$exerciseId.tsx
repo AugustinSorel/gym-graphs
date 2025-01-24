@@ -20,7 +20,7 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    if (!context.user || !context.session) {
+    if (!context.user?.emailVerifiedAt) {
       throw redirect({ to: "/sign-in" });
     }
 

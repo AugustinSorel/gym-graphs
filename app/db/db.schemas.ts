@@ -35,6 +35,7 @@ export const userTable = pgTable("user", {
   password: text("password").notNull(),
   weightUnit: weightUnitEnum().notNull().default("kg"),
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
+  emailVerifiedAt: timestamp("email_verified_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -46,9 +47,36 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
     fields: [userTable.id],
     references: [sessionTable.userId],
   }),
+  emailVerification: one(emailVerificationCodeTable),
   exercises: many(exerciseTable),
   tags: many(tagTable),
 }));
+
+export const emailVerificationCodeTable = pgTable("email_verification_code", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  code: text("code").notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + (15 * interval '1 min')`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type EmailVerificationCode =
+  typeof emailVerificationCodeTable.$inferSelect;
+
+export const emailVerificationRelations = relations(
+  emailVerificationCodeTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [emailVerificationCodeTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
 
 export const sessionTable = pgTable("session", {
   id: text("id").notNull().primaryKey(),

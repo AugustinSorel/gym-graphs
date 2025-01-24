@@ -84,6 +84,13 @@ export const updateOneRepMaxAlgo = async (
     .where(eq(userTable.id, userId));
 };
 
+export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
+  return db
+    .update(userTable)
+    .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
+    .where(eq(userTable.id, userId));
+};
+
 export const deleteUser = async (userId: User["id"], db: Db) => {
   await db.delete(userTable).where(eq(userTable.id, userId));
 };

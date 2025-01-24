@@ -1,19 +1,19 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import type { ErrorComponentProps } from '@tanstack/react-router'
-import type { ComponentProps } from 'react'
-import { Button } from '~/ui/button'
-import { EmailSignInForm } from '~/auth/components/email-sign-in-form'
-import { DefaultErrorFallback } from '~/components/default-error-fallback'
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Button } from "~/ui/button";
+import { EmailSignInForm } from "~/auth/components/email-sign-in-form";
+import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { ComponentProps } from "react";
 
-export const Route = createFileRoute('/(auth)/_layout/sign-in')({
+export const Route = createFileRoute("/(auth)/_layout/sign-in")({
   beforeLoad: ({ context }) => {
-    if (context.user && context.session) {
-      throw redirect({ to: '/dashboard' })
+    if (context.session?.user.emailVerifiedAt) {
+      throw redirect({ to: "/dashboard" });
     }
   },
   component: () => RouteComponent(),
   errorComponent: (props) => ErrorComponent(props),
-})
+});
 
 const RouteComponent = () => {
   return (
@@ -23,7 +23,7 @@ const RouteComponent = () => {
       <EmailSignInForm />
 
       <RedirectText>
-        don't have an account?{' '}
+        don't have an account?{" "}
         <Button
           variant="link"
           asChild
@@ -33,8 +33,8 @@ const RouteComponent = () => {
         </Button>
       </RedirectText>
     </>
-  )
-}
+  );
+};
 
 const ErrorComponent = (props: ErrorComponentProps) => {
   return (
@@ -44,7 +44,7 @@ const ErrorComponent = (props: ErrorComponentProps) => {
       <DefaultErrorFallback {...props} />
 
       <RedirectText>
-        don't have an account?{' '}
+        don't have an account?{" "}
         <Button
           variant="link"
           asChild
@@ -54,23 +54,23 @@ const ErrorComponent = (props: ErrorComponentProps) => {
         </Button>
       </RedirectText>
     </>
-  )
-}
+  );
+};
 
-const Title = (props: ComponentProps<'h2'>) => {
+const Title = (props: ComponentProps<"h2">) => {
   return (
     <h2
       className="mb-16 text-center text-2xl font-semibold capitalize"
       {...props}
     />
-  )
-}
+  );
+};
 
-const RedirectText = (props: ComponentProps<'p'>) => {
+const RedirectText = (props: ComponentProps<"p">) => {
   return (
     <p
       className="mt-16 text-center text-sm text-accent-foreground"
       {...props}
     />
-  )
-}
+  );
+};

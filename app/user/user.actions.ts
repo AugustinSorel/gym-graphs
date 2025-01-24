@@ -15,7 +15,7 @@ import { setResponseStatus } from "vinxi/http";
 export const getUserAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware])
   .handler(async ({ context }) => {
-    const user = await selectClientUser(context.session.userId, db);
+    const user = await selectClientUser(context.user.id, db);
 
     if (!user) {
       setResponseStatus(404);
@@ -29,13 +29,13 @@ export const renameUserAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])
   .validator(userSchema.pick({ name: true }))
   .handler(async ({ data, context }) => {
-    await renameUser(data.name, context.session.userId, db);
+    await renameUser(data.name, context.user.id, db);
   });
 
 export const deleteAccountAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])
   .handler(async ({ context }) => {
-    await deleteUser(context.session.userId, db);
+    await deleteUser(context.user.id, db);
     deleteSessionTokenCookie();
   });
 
@@ -43,12 +43,12 @@ export const updateWeightUnitAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])
   .validator(userSchema.pick({ weightUnit: true }))
   .handler(async ({ context, data }) => {
-    await updateWeightUnit(data.weightUnit, context.session.userId, db);
+    await updateWeightUnit(data.weightUnit, context.user.id, db);
   });
 
 export const updateOneRepMaxAlgoAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])
   .validator(userSchema.pick({ oneRepMaxAlgo: true }))
   .handler(async ({ context, data }) => {
-    await updateOneRepMaxAlgo(data.oneRepMaxAlgo, context.session.userId, db);
+    await updateOneRepMaxAlgo(data.oneRepMaxAlgo, context.user.id, db);
   });

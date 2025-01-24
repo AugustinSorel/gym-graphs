@@ -18,7 +18,7 @@ export const createTagAction = createServerFn({ method: "POST" })
   .validator(tagSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      await createTag(data.name, context.session.userId, db);
+      await createTag(data.name, context.user.id, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateName = dbError && e.constraint === "tag_name_user_id_pk";
@@ -35,7 +35,7 @@ export const deleteTagAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])
   .validator(z.object({ tagId: tagSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteTag(data.tagId, context.session.userId, db);
+    await deleteTag(data.tagId, context.user.id, db);
   });
 
 export const updateExerciseTagsAction = createServerFn({ method: "POST" })
@@ -50,7 +50,7 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
     try {
       await db.transaction(async (tx) => {
         const exerciseTags = await selectExerciseTags(
-          context.session.userId,
+          context.user.id,
           data.exerciseId,
           tx,
         );
@@ -62,14 +62,14 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
         const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
 
         await addExerciseTags(
-          context.session.userId,
+          context.user.id,
           data.exerciseId,
           [...tagsToAddSet],
           tx,
         );
 
         await deleteExerciseTags(
-          context.session.userId,
+          context.user.id,
           data.exerciseId,
           [...tagsToRemoveSet],
           tx,

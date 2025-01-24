@@ -49,7 +49,7 @@ export const Route = createFileRoute("/settings/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    if (!context.user || !context.session) {
+    if (!context.session?.user?.emailVerifiedAt) {
       throw redirect({ to: "/sign-in" });
     }
   },

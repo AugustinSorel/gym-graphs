@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
-import { emailVerificationSchema } from "~/auth/auth.schemas";
+import { emailVerificationCodeSchema } from "~/auth/auth.schemas";
 import { Button } from "~/ui/button";
 import {
   Form,
@@ -10,7 +9,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "~/ui/form";
 import {
@@ -22,6 +20,8 @@ import {
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Spinner } from "~/ui/spinner";
+import { verifyEmailAction } from "~/auth/auth.actions";
+import type { z } from "zod";
 
 export const VerifyEmailForm = () => {
   const navigate = routeApi.useNavigate();
@@ -31,19 +31,19 @@ export const VerifyEmailForm = () => {
   const verifyEmail = useVerifyEmail();
 
   const onSubmit = async (data: VerifyEmailForm) => {
-    // await verifyEmail.mutateAsync(
-    //   { data },
-    //   {
-    //     onError: (error) => {
-    //       form.setError("root", { message: error.message });
-    //     },
-    //     onSuccess: () => {
-    //       startRedirectTransition(async () => {
-    //         await navigate({ to: "/dashboard" });
-    //       });
-    //     },
-    //   },
-    // );
+    await verifyEmail.mutateAsync(
+      { data },
+      {
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({ to: "/dashboard" });
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -53,8 +53,7 @@ export const VerifyEmailForm = () => {
           control={form.control}
           name="code"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>One time code:</FormLabel>
+            <FormItem className="flex flex-col gap-2">
               <FormControl>
                 <InputOTP
                   maxLength={6}
@@ -106,13 +105,13 @@ const useVerifyEmailForm = () => {
 };
 
 const useVerifyEmail = () => {
-  // return useMutation({
-  //   mutationFn: verifyEmailAction,
-  // });
+  return useMutation({
+    mutationFn: verifyEmailAction,
+  });
 };
 
 const routeApi = getRouteApi("/(auth)/_layout/verify-email");
 
-const verifyEmailFormSchema = emailVerificationSchema.pick({ code: true });
+const verifyEmailFormSchema = emailVerificationCodeSchema.pick({ code: true });
 
 type VerifyEmailForm = z.infer<typeof verifyEmailFormSchema>;

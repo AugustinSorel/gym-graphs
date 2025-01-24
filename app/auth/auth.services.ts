@@ -1,10 +1,10 @@
 import { base32, encodeHex } from "oslo/encoding";
-import { sha256 } from "oslo/crypto";
+import { alphabet, generateRandomString, sha256 } from "oslo/crypto";
 import { hash, compare, genSalt } from "bcrypt";
 import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date.utils";
 import { eq } from "drizzle-orm";
-import { sessionTable } from "~/db/db.schemas";
-import type { Session, User } from "~/db/db.schemas";
+import { emailVerificationCodeTable, sessionTable } from "~/db/db.schemas";
+import type { EmailVerificationCode, Session, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db.lib";
 
 export const hashSecret = async (input: string) => {
@@ -30,6 +30,10 @@ export const generateSessionToken = () => {
   const token = base32.encode(bytes, { includePadding: false });
 
   return token;
+};
+
+export const generateEmailVerificationCode = () => {
+  return generateRandomString(6, alphabet("0-9"));
 };
 
 export type SessionToken = ReturnType<typeof generateSessionToken>;
@@ -91,6 +95,10 @@ export const deleteSession = async (sessionId: Session["id"], db: Db) => {
   await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 };
 
+export const deleteSessionByUserId = async (userId: User["id"], db: Db) => {
+  return db.delete(sessionTable).where(eq(sessionTable.userId, userId));
+};
+
 export const refreshSessionExpiryDate = async (
   sessionId: Session["id"],
   db: Db,
@@ -107,5 +115,68 @@ export const refreshSessionExpiryDate = async (
 export const selectSession = async (sessionId: Session["id"], db: Db) => {
   return db.query.sessionTable.findFirst({
     where: eq(sessionTable.id, sessionId),
+    with: {
+      user: {
+        columns: {
+          id: true,
+          emailVerifiedAt: true,
+          email: true,
+        },
+      },
+    },
+  });
+};
+
+export const deleteEmailVerificationCodeById = async (
+  id: EmailVerificationCode["id"],
+  db: Db,
+) => {
+  return db
+    .delete(emailVerificationCodeTable)
+    .where(eq(emailVerificationCodeTable.id, id));
+};
+
+export const deleteEmailVerificationCodesByUserId = async (
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  return db
+    .delete(emailVerificationCodeTable)
+    .where(eq(emailVerificationCodeTable.userId, userId));
+};
+
+export const createEmailVerificationCode = async (
+  code: EmailVerificationCode["code"],
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  const [emailVerification] = await db
+    .insert(emailVerificationCodeTable)
+    .values({
+      userId,
+      code,
+    })
+    .returning();
+
+  if (!emailVerification) {
+    throw new Error("email verification returned by db is null");
+  }
+
+  return emailVerification;
+};
+
+export const selectEmailVerificationCode = async (
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  return db.query.emailVerificationCodeTable.findFirst({
+    where: eq(emailVerificationCodeTable.userId, userId),
+    with: {
+      user: {
+        columns: {
+          email: true,
+        },
+      },
+    },
   });
 };

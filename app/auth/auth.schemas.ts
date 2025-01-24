@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const emailVerificationSchema = z.object({
+export const emailVerificationCodeSchema = z.object({
   id: z
     .number({
       required_error: "id is required",

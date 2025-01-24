@@ -25,7 +25,7 @@ export const createSetAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       const exercise = await selectExercise(
-        context.session.userId,
+        context.user.id,
         data.exerciseId,
         db,
       );
@@ -57,12 +57,7 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    await updateSetWeight(
-      data.setId,
-      context.session.userId,
-      data.weightInKg,
-      db,
-    );
+    await updateSetWeight(data.setId, context.user.id, data.weightInKg, db);
   });
 
 export const updateSetRepetitionsAction = createServerFn({
@@ -78,7 +73,7 @@ export const updateSetRepetitionsAction = createServerFn({
   .handler(async ({ context, data }) => {
     await updateSetRepetitions(
       data.setId,
-      context.session.userId,
+      context.user.id,
       data.repetitions,
       db,
     );
@@ -96,12 +91,7 @@ export const updateSetDoneAtAction = createServerFn({
   )
   .handler(async ({ context, data }) => {
     try {
-      await updateSetDoneAt(
-        data.setId,
-        context.session.userId,
-        data.doneAt,
-        db,
-      );
+      await updateSetDoneAt(data.setId, context.user.id, data.doneAt, db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =
@@ -121,5 +111,5 @@ export const deleteSetAction = createServerFn({
   .middleware([authGuardMiddleware])
   .validator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteSet(data.setId, context.session.userId, db);
+    await deleteSet(data.setId, context.user.id, db);
   });

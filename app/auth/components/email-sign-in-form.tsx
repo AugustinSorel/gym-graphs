@@ -3,7 +3,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
 import { Button } from "~/ui/button";
 import {
   Form,
@@ -18,6 +17,7 @@ import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "~/user/user.schemas";
 import { signInAction } from "~/auth/auth.actions";
+import type { z } from "zod";
 
 export const EmailSignInForm = () => {
   const navigate = useNavigate({ from: "/sign-in" });
