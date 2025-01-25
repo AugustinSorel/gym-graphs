@@ -94,7 +94,7 @@ const useFormSchema = () => {
   );
 };
 
-type CreateTagSchema = z.infer<ReturnType<typeof useFormSchema>>;
+type CreateTagSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateTagForm = () => {
   const formSchema = useFormSchema();

@@ -81,7 +81,9 @@ export const RequestResetPasswordForm = () => {
 };
 
 const requestResetPasswordSchema = userSchema.pick({ email: true });
-type RequestResetPassword = z.infer<typeof requestResetPasswordSchema>;
+type RequestResetPassword = Readonly<
+  z.infer<typeof requestResetPasswordSchema>
+>;
 
 const useRequestResetPasswordForm = () => {
   return useForm<RequestResetPassword>({

@@ -79,7 +79,7 @@ export const RenameUserForm = (props: Props) => {
 };
 
 const renameUserSchema = userSchema.pick({ name: true });
-type RenameUserSchema = z.infer<typeof renameUserSchema>;
+type RenameUserSchema = Readonly<z.infer<typeof renameUserSchema>>;
 
 const useCreateExerciseForm = () => {
   const user = useUser();

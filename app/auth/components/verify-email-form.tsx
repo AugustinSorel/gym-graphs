@@ -114,4 +114,4 @@ const routeApi = getRouteApi("/(auth)/_layout/verify-email");
 
 const verifyEmailFormSchema = emailVerificationCodeSchema.pick({ code: true });
 
-type VerifyEmailForm = z.infer<typeof verifyEmailFormSchema>;
+type VerifyEmailForm = Readonly<z.infer<typeof verifyEmailFormSchema>>;

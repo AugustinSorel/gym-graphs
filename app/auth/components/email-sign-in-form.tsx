@@ -106,7 +106,7 @@ export const EmailSignInForm = () => {
 };
 
 const signInSchema = userSchema.pick({ email: true, password: true });
-type SignInSchema = z.infer<typeof signInSchema>;
+type SignInSchema = Readonly<z.infer<typeof signInSchema>>;
 
 const useEmailSignInForm = () => {
   return useForm<SignInSchema>({

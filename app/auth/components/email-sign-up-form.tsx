@@ -120,7 +120,7 @@ const signUpFormSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
-type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
+type SignUpFormSchema = Readonly<z.infer<typeof signUpFormSchema>>;
 
 const useEmailSignUpForm = () => {
   return useForm<SignUpFormSchema>({

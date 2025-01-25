@@ -100,7 +100,7 @@ const useFormSchema = () => {
   );
 };
 
-type CreateExerciseSchema = z.infer<ReturnType<typeof useFormSchema>>;
+type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
