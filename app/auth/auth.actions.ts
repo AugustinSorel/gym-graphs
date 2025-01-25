@@ -10,6 +10,7 @@ import {
   createEmailVerificationCode,
   createSession,
   deleteEmailVerificationCodeById,
+  deleteEmailVerificationCodesByUserId,
   deleteSession,
   deleteSessionByUserId,
   generateEmailVerificationCode,
@@ -150,5 +151,28 @@ export const verifyEmailAction = createServerFn()
       const session = await createSession(sessionToken, context.user.id, tx);
 
       setSessionTokenCookie(sessionToken, session.expiresAt);
+    });
+  });
+
+export const sendEmailVerificationCodeAction = createServerFn({
+  method: "POST",
+})
+  .middleware([authGuardMiddleware])
+  .handler(async ({ context }) => {
+    await db.transaction(async (tx) => {
+      await deleteEmailVerificationCodesByUserId(context.user.id, tx);
+
+      const emailVerificationCode = generateEmailVerificationCode();
+
+      await createEmailVerificationCode(
+        emailVerificationCode,
+        context.user.id,
+        tx,
+      );
+
+      await sendVerificationCodeEmail(
+        context.user.email,
+        emailVerificationCode,
+      );
     });
   });
