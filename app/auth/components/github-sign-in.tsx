@@ -3,7 +3,7 @@ import { Button } from "~/ui/button";
 import { githubSignInAction } from "../auth.actions";
 import { Spinner } from "~/ui/spinner";
 import { useTransition } from "react";
-import { getRouteApi, useRouter } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
 

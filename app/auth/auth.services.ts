@@ -9,15 +9,17 @@ import {
   sessionTable,
 } from "~/db/db.schemas";
 import { generateState } from "arctic";
+import { github } from "~/libs/github.lib";
+import { z } from "zod";
+import { passwordResetTokenTable } from "~/db/db.schemas";
 import type {
   EmailVerificationCode,
   OauthAccount,
+  PasswordResetToken,
   Session,
   User,
 } from "~/db/db.schemas";
 import type { Db } from "~/libs/db.lib";
-import { github } from "~/libs/github.lib";
-import { z } from "zod";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);
@@ -35,6 +37,16 @@ export const verifySecret = async (
 };
 
 export const generateSessionToken = () => {
+  const bytes = new Uint8Array(20);
+
+  crypto.getRandomValues(bytes);
+
+  const token = base32.encode(bytes, { includePadding: false });
+
+  return token;
+};
+
+export const generatePasswordResetToken = () => {
   const bytes = new Uint8Array(20);
 
   crypto.getRandomValues(bytes);
@@ -267,4 +279,40 @@ export const fetchGithubUserEmail = async (token: GithubOauthToken) => {
   }
 
   return primaryEmail;
+};
+
+export const deletePasswordResetTokenByUserId = async (
+  userId: PasswordResetToken["userId"],
+  db: Db,
+) => {
+  return db
+    .delete(passwordResetTokenTable)
+    .where(eq(passwordResetTokenTable.userId, userId));
+};
+
+export const deletePasswordResetTokenByToken = async (
+  token: PasswordResetToken["token"],
+  db: Db,
+) => {
+  return db
+    .delete(passwordResetTokenTable)
+    .where(eq(passwordResetTokenTable.token, token));
+};
+
+export const selectPasswordResetToken = async (
+  token: PasswordResetToken["token"],
+  db: Db,
+) => {
+  return db
+    .select()
+    .from(passwordResetTokenTable)
+    .where(eq(passwordResetTokenTable.token, token));
+};
+
+export const createPasswordResetToken = async (
+  token: PasswordResetToken["token"],
+  userId: PasswordResetToken["userId"],
+  db: Db,
+) => {
+  return db.insert(passwordResetTokenTable).values({ token, userId });
 };

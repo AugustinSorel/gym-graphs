@@ -4,21 +4,28 @@ import {
   seedUserAccount,
   selectUserByEmail,
   updateEmailVerifiedAt,
+  updatePassword,
 } from "~/user/user.services";
 import { db } from "~/libs/db.lib";
 import {
   createEmailVerificationCode,
+  createPasswordResetToken,
   createSession,
   deleteEmailVerificationCodeById,
   deleteEmailVerificationCodesByUserId,
+  deletePasswordResetTokenByToken,
+  deletePasswordResetTokenByUserId,
   deleteSession,
   deleteSessionByUserId,
   generateEmailVerificationCode,
   generateGithubOauthToken,
   generateGithubOauthUrl,
+  generatePasswordResetToken,
   generateSessionToken,
   hashSecret,
   selectEmailVerificationCode,
+  selectPasswordResetToken,
+  sha256Encode,
   verifySecret,
 } from "~/auth/auth.services";
 import {
@@ -33,10 +40,18 @@ import {
   authGuardMiddleware,
   selectSessionTokenMiddleware,
 } from "~/auth/auth.middlewares";
-import { sendVerificationCodeEmail } from "./auth.emails";
-import { emailVerificationCodeSchema } from "./auth.schemas";
+import {
+  sendResetPasswordEmail,
+  sendVerificationCodeEmail,
+} from "./auth.emails";
+import {
+  emailVerificationCodeSchema,
+  passwordResetTokenSchema,
+} from "./auth.schemas";
 import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
+import { passwordResetTokenTable, userTable } from "~/db/db.schemas";
+import { eq } from "drizzle-orm";
 
 export const signInAction = createServerFn()
   .validator(userSchema.pick({ email: true, password: true }))
@@ -200,3 +215,69 @@ export const githubSignInAction = createServerFn({ method: "POST" }).handler(
     return url.toString();
   },
 );
+
+export const requestResetPasswordAction = createServerFn({ method: "POST" })
+  .validator(userSchema.pick({ email: true }))
+  .handler(async ({ data }) => {
+    return await db.transaction(async (tx) => {
+      const user = await selectUserByEmail(data.email, tx);
+
+      if (!user) {
+        setResponseStatus(404);
+        throw new Error("user not found");
+      }
+
+      await deletePasswordResetTokenByUserId(user.id, tx);
+
+      const token = generatePasswordResetToken();
+      const tokenHash = await sha256Encode(token);
+
+      await createPasswordResetToken(tokenHash, user.id, tx);
+
+      await sendResetPasswordEmail(user.email, token);
+    });
+  });
+
+export const resetPasswordAction = createServerFn({ method: "POST" })
+  .validator(
+    z
+      .object({
+        password: userSchema.shape.password,
+        confirmPassword: userSchema.shape.password,
+        token: passwordResetTokenSchema.shape.token,
+      })
+      .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+      }),
+  )
+  .handler(async ({ data }) => {
+    return db.transaction(async (tx) => {
+      const tokenHash = await sha256Encode(data.token);
+
+      const [token] = await selectPasswordResetToken(tokenHash, tx);
+
+      if (token) {
+        await deletePasswordResetTokenByToken(tokenHash, tx);
+      }
+
+      if (!token) {
+        setResponseStatus(404);
+        throw new Error("token not found");
+      }
+
+      if (!isWithinExpirationDate(token.expiresAt)) {
+        throw new Error("token expired");
+      }
+
+      await deleteSessionByUserId(token.userId, tx);
+      const passwordHash = await hashSecret(data.password);
+
+      await updatePassword(passwordHash, tx);
+
+      const sessionToken = generateSessionToken();
+      const session = await createSession(sessionToken, token.userId, tx);
+
+      setSessionTokenCookie(sessionToken, session.expiresAt);
+    });
+  });

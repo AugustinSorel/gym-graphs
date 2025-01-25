@@ -1,5 +1,3 @@
-import * as React from "react";
-import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import {
   Controller,
@@ -7,11 +5,13 @@ import {
   useFormContext,
   useFormState,
 } from "react-hook-form";
-import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
 import { cn } from "~/styles/styles.utils";
 import { Label } from "~/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
+import { createContext, use, useId } from "react";
+import type * as LabelPrimitive from "@radix-ui/react-label";
+import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
 
 const Form = FormProvider;
 
@@ -22,7 +22,7 @@ type FormFieldContextValue<
   name: TName;
 };
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
+const FormFieldContext = createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,
 );
 
@@ -40,8 +40,8 @@ const FormField = <
 };
 
 const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext);
-  const itemContext = React.useContext(FormItemContext);
+  const fieldContext = use(FormFieldContext);
+  const itemContext = use(FormItemContext);
   const { getFieldState, formState } = useFormContext();
 
   const fieldState = getFieldState(fieldContext.name, formState);
@@ -66,7 +66,7 @@ type FormItemContextValue = {
   id: string;
 };
 
-const FormItemContext = React.createContext<FormItemContextValue>(
+const FormItemContext = createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
@@ -74,7 +74,7 @@ const FormItem = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
-  const id = React.useId();
+  const id = useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>

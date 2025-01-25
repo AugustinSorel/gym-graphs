@@ -135,7 +135,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: header on mobile moves up and down
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
-//TODO: auth, reset password
 //TODO: teams
 //TODO: dashboard fun facts
 //TODO: dashboard heat map

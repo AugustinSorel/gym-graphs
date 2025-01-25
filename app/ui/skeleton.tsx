@@ -1,15 +1,14 @@
 import { cn } from "~/styles/styles.utils";
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
+
+const Skeleton = ({ className, ...props }: SkeletonProps) => {
   return (
     <div
       className={cn("animate-pulse rounded-md bg-primary/10", className)}
       {...props}
     />
   );
-}
+};
 
 export { Skeleton };

@@ -1,7 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import {
@@ -16,19 +14,28 @@ import {
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "~/user/user.schemas";
-import { signInAction } from "~/auth/auth.actions";
-import type { z } from "zod";
+import { resetPasswordAction } from "~/auth/auth.actions";
+import { z } from "zod";
+import { useTransition } from "react";
+import { getRouteApi } from "@tanstack/react-router";
 
-export const EmailSignInForm = () => {
-  const navigate = useNavigate({ from: "/sign-in" });
+export const ResetPasswordForm = () => {
+  const form = useResetPasswordForm();
+  const resetPassword = useResetPassword();
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
-  const form = useEmailSignInForm();
-  const signIn = useSignIn();
+  const navigate = routeApi.useNavigate();
+  const params = routeApi.useParams();
 
-  const onSubmit = async (values: SignInSchema) => {
-    await signIn.mutateAsync(
-      { data: values },
+  const onSubmit = async (data: ResetPasswordForm) => {
+    await resetPassword.mutateAsync(
+      {
+        data: {
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+          token: params.token,
+        },
+      },
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
@@ -50,15 +57,15 @@ export const EmailSignInForm = () => {
       >
         <FormField
           control={form.control}
-          name="email"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Password:</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="john@example.com"
-                  type="email"
                   autoFocus
+                  placeholder="******"
+                  type="password"
                   {...field}
                 />
               </FormControl>
@@ -69,19 +76,10 @@ export const EmailSignInForm = () => {
 
         <FormField
           control={form.control}
-          name="password"
+          name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <Button
-                  asChild
-                  variant="link"
-                  className="h-auto p-0 text-primary"
-                >
-                  <Link to="/reset-password">reset password</Link>
-                </Button>
-              </div>
+              <FormLabel>Confirm Password:</FormLabel>
               <FormControl>
                 <Input placeholder="******" type="password" {...field} />
               </FormControl>
@@ -97,7 +95,7 @@ export const EmailSignInForm = () => {
           disabled={form.formState.isSubmitting || isRedirectPending}
           className="font-semibold"
         >
-          <span>sign in</span>
+          <span>reset password</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
         </Button>
       </form>
@@ -105,21 +103,31 @@ export const EmailSignInForm = () => {
   );
 };
 
-const signInSchema = userSchema.pick({ email: true, password: true });
-type SignInSchema = z.infer<typeof signInSchema>;
+const routeApi = getRouteApi("/(auth)/_layout/reset-password_/$token");
 
-const useEmailSignInForm = () => {
-  return useForm<SignInSchema>({
-    resolver: zodResolver(signInSchema),
+const resetPasswordFormSchema = z
+  .object({
+    password: userSchema.shape.password,
+    confirmPassword: userSchema.shape.password,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+type ResetPasswordForm = Readonly<z.infer<typeof resetPasswordFormSchema>>;
+
+const useResetPasswordForm = () => {
+  return useForm<ResetPasswordForm>({
+    resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
-      email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 };
 
-const useSignIn = () => {
+const useResetPassword = () => {
   return useMutation({
-    mutationFn: signInAction,
+    mutationFn: resetPasswordAction,
   });
 };

@@ -47,7 +47,8 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
     fields: [userTable.id],
     references: [sessionTable.userId],
   }),
-  emailVerification: one(emailVerificationCodeTable),
+  emailVerificationCode: one(emailVerificationCodeTable),
+  passwordResetToken: one(passwordResetTokenTable),
   exercises: many(exerciseTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
@@ -133,6 +134,30 @@ export const sessionRelations = relations(sessionTable, ({ one }) => ({
     references: [userTable.id],
   }),
 }));
+
+export const passwordResetTokenTable = pgTable("password_reset_token", {
+  token: text("token").notNull().primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + (15 * interval '2 hour')`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokenTable.$inferSelect;
+
+export const resetPasswordRelations = relations(
+  passwordResetTokenTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [passwordResetTokenTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
 
 //BUG: unique constraint does not work with new drizzle sintax
 export const exerciseTable = pgTable(

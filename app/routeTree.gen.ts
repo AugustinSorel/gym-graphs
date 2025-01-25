@@ -22,6 +22,8 @@ import { Route as ExercisesExerciseIdSettingsImport } from './routes/exercises_/
 import { Route as authLayoutVerifyEmailImport } from './routes/(auth)/_layout.verify-email'
 import { Route as authLayoutSignUpImport } from './routes/(auth)/_layout.sign-up'
 import { Route as authLayoutSignInImport } from './routes/(auth)/_layout.sign-in'
+import { Route as authLayoutResetPasswordImport } from './routes/(auth)/_layout.reset-password'
+import { Route as authLayoutResetPasswordTokenImport } from './routes/(auth)/_layout.reset-password_.$token'
 
 // Create Virtual Routes
 
@@ -88,6 +90,19 @@ const authLayoutSignInRoute = authLayoutSignInImport.update({
   getParentRoute: () => authLayoutRoute,
 } as any)
 
+const authLayoutResetPasswordRoute = authLayoutResetPasswordImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+
+const authLayoutResetPasswordTokenRoute =
+  authLayoutResetPasswordTokenImport.update({
+    id: '/reset-password_/$token',
+    path: '/reset-password/$token',
+    getParentRoute: () => authLayoutRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -134,6 +149,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/_layout/reset-password': {
+      id: '/(auth)/_layout/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authLayoutResetPasswordImport
+      parentRoute: typeof authLayoutImport
+    }
     '/(auth)/_layout/sign-in': {
       id: '/(auth)/_layout/sign-in'
       path: '/sign-in'
@@ -162,21 +184,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExercisesExerciseIdSettingsImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/_layout/reset-password_/$token': {
+      id: '/(auth)/_layout/reset-password_/$token'
+      path: '/reset-password/$token'
+      fullPath: '/reset-password/$token'
+      preLoaderRoute: typeof authLayoutResetPasswordTokenImport
+      parentRoute: typeof authLayoutImport
+    }
   }
 }
 
 // Create and export the route tree
 
 interface authLayoutRouteChildren {
+  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
   authLayoutSignInRoute: typeof authLayoutSignInRoute
   authLayoutSignUpRoute: typeof authLayoutSignUpRoute
   authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
+  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
 }
 
 const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
   authLayoutSignInRoute: authLayoutSignInRoute,
   authLayoutSignUpRoute: authLayoutSignUpRoute,
   authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
+  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
 }
 
 const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
@@ -198,10 +231,12 @@ export interface FileRoutesByFullPath {
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
   '/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
+  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 
 export interface FileRoutesByTo {
@@ -209,10 +244,12 @@ export interface FileRoutesByTo {
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
   '/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
+  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 
 export interface FileRoutesById {
@@ -223,10 +260,12 @@ export interface FileRoutesById {
   '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
   '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
   '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
   '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
   '/exercises_/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
+  '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
 }
 
 export interface FileRouteTypes {
@@ -236,20 +275,24 @@ export interface FileRouteTypes {
     | '/exercises/$exerciseId'
     | '/dashboard'
     | '/settings'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
     | '/exercises/$exerciseId/settings'
+    | '/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/exercises/$exerciseId'
     | '/dashboard'
     | '/settings'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
     | '/exercises/$exerciseId/settings'
+    | '/reset-password/$token'
   id:
     | '__root__'
     | '/'
@@ -258,10 +301,12 @@ export interface FileRouteTypes {
     | '/exercises/$exerciseId'
     | '/dashboard/'
     | '/settings/'
+    | '/(auth)/_layout/reset-password'
     | '/(auth)/_layout/sign-in'
     | '/(auth)/_layout/sign-up'
     | '/(auth)/_layout/verify-email'
     | '/exercises_/$exerciseId/settings'
+    | '/(auth)/_layout/reset-password_/$token'
   fileRoutesById: FileRoutesById
 }
 
@@ -314,9 +359,11 @@ export const routeTree = rootRoute
       "filePath": "(auth)/_layout.tsx",
       "parent": "/(auth)",
       "children": [
+        "/(auth)/_layout/reset-password",
         "/(auth)/_layout/sign-in",
         "/(auth)/_layout/sign-up",
-        "/(auth)/_layout/verify-email"
+        "/(auth)/_layout/verify-email",
+        "/(auth)/_layout/reset-password_/$token"
       ]
     },
     "/exercises/$exerciseId": {
@@ -327,6 +374,10 @@ export const routeTree = rootRoute
     },
     "/settings/": {
       "filePath": "settings/index.tsx"
+    },
+    "/(auth)/_layout/reset-password": {
+      "filePath": "(auth)/_layout.reset-password.tsx",
+      "parent": "/(auth)/_layout"
     },
     "/(auth)/_layout/sign-in": {
       "filePath": "(auth)/_layout.sign-in.tsx",
@@ -342,6 +393,10 @@ export const routeTree = rootRoute
     },
     "/exercises_/$exerciseId/settings": {
       "filePath": "exercises_/$exerciseId.settings.tsx"
+    },
+    "/(auth)/_layout/reset-password_/$token": {
+      "filePath": "(auth)/_layout.reset-password_.$token.tsx",
+      "parent": "/(auth)/_layout"
     }
   }
 }

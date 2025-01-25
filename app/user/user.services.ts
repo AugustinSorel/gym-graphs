@@ -122,6 +122,16 @@ export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
   return user;
 };
 
+export const updatePassword = async (
+  password: NonNullable<User["password"]>,
+  db: Db,
+) => {
+  return await db.update(userTable).set({
+    password,
+    updatedAt: new Date(),
+  });
+};
+
 export const deleteUser = async (userId: User["id"], db: Db) => {
   await db.delete(userTable).where(eq(userTable.id, userId));
 };

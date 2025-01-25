@@ -1,6 +1,6 @@
 import { useUser } from "~/user/hooks/use-user";
-import type { Set } from "~/db/db.schemas";
 import { convertWeight } from "~/weight-unit/weight-unit.utils";
+import type { Set } from "~/db/db.schemas";
 
 export const WeightValue = (props: Pick<Set, "weightInKg">) => {
   const user = useUser();

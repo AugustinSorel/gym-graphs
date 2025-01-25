@@ -13,7 +13,7 @@ import type {
   NotFoundRouteProps,
 } from "@tanstack/react-router";
 
-export function createRouter() {
+export const createRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -31,7 +31,7 @@ export function createRouter() {
     }),
     queryClient,
   );
-}
+};
 
 const RouterFallback = (props: Readonly<ErrorComponentProps>) => {
   return (
