@@ -3,9 +3,21 @@ import { alphabet, generateRandomString, sha256 } from "oslo/crypto";
 import { hash, compare, genSalt } from "bcrypt";
 import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date.utils";
 import { eq } from "drizzle-orm";
-import { emailVerificationCodeTable, sessionTable } from "~/db/db.schemas";
-import type { EmailVerificationCode, Session, User } from "~/db/db.schemas";
+import {
+  emailVerificationCodeTable,
+  oauthAccountTable,
+  sessionTable,
+} from "~/db/db.schemas";
+import { generateState } from "arctic";
+import type {
+  EmailVerificationCode,
+  OauthAccount,
+  Session,
+  User,
+} from "~/db/db.schemas";
 import type { Db } from "~/libs/db.lib";
+import { github } from "~/libs/github.lib";
+import { z } from "zod";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);
@@ -36,7 +48,16 @@ export const generateEmailVerificationCode = () => {
   return generateRandomString(6, alphabet("0-9"));
 };
 
+export const generateGithubOauthToken = () => {
+  return generateState();
+};
+
+export const generateGithubOauthUrl = (token: GithubOauthToken) => {
+  return github.createAuthorizationURL(token, []);
+};
+
 export type SessionToken = ReturnType<typeof generateSessionToken>;
+export type GithubOauthToken = ReturnType<typeof generateGithubOauthToken>;
 
 export const sha256Encode = async (input: string) => {
   return encodeHex(await sha256(new TextEncoder().encode(input)));
@@ -179,4 +200,71 @@ export const selectEmailVerificationCode = async (
       },
     },
   });
+};
+
+export const createOauthAccount = async (
+  providerId: OauthAccount["providerId"],
+  providerUserId: OauthAccount["providerUserId"],
+  userId: OauthAccount["userId"],
+  db: Db,
+) => {
+  await db.insert(oauthAccountTable).values({
+    providerId,
+    providerUserId,
+    userId,
+  });
+};
+
+export const fetchGithubUser = async (token: GithubOauthToken) => {
+  const githubUserSchema = z.object({
+    id: z.number(),
+    name: z.string().nullable(),
+    avatar_url: z.string(),
+  });
+
+  const res = await fetch("https://api.github.com/user", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "Gym-Graphs app",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("could not fetch github user");
+  }
+
+  const candidateUser = await res.json();
+
+  return githubUserSchema.parse(candidateUser);
+};
+
+export const fetchGithubUserEmail = async (token: GithubOauthToken) => {
+  const githubUserEmailSchema = z.object({
+    email: z.string(),
+    primary: z.boolean(),
+    verified: z.boolean(),
+  });
+
+  const res = await fetch("https://api.github.com/user/emails", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "Gym-Graphs app",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("could not fetch github user email");
+  }
+
+  const candidateEmails = await res.json();
+
+  const emails = githubUserEmailSchema.array().parse(candidateEmails);
+
+  const primaryEmail = emails.find((email) => email.primary) ?? null;
+
+  if (!primaryEmail) {
+    throw new Error("could not fetch github user email");
+  }
+
+  return primaryEmail;
 };

@@ -6,15 +6,36 @@ import { addExerciseTags, createTags } from "~/tag/tag.services";
 import type { Db } from "~/libs/db.lib";
 import type { Exercise, User } from "~/db/db.schemas";
 
-export const createUser = async (
+export const createUserWithEmailAndPassword = async (
   email: User["email"],
-  password: User["password"],
+  password: NonNullable<User["password"]>,
   name: User["name"],
   db: Db,
 ) => {
   const [user] = await db
     .insert(userTable)
     .values({ email, password, name })
+    .returning();
+
+  if (!user) {
+    throw new Error("user returned by db is null");
+  }
+
+  return user;
+};
+
+export const createUserWithEmailOnly = async (
+  email: User["email"],
+  name: User["name"],
+  db: Db,
+) => {
+  const [user] = await db
+    .insert(userTable)
+    .values({
+      email,
+      name,
+      emailVerifiedAt: new Date(),
+    })
     .returning();
 
   if (!user) {
@@ -85,10 +106,20 @@ export const updateOneRepMaxAlgo = async (
 };
 
 export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
-  return db
+  const [user] = await db
     .update(userTable)
-    .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
-    .where(eq(userTable.id, userId));
+    .set({
+      emailVerifiedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(userTable.id, userId))
+    .returning();
+
+  if (!user) {
+    throw new Error("user returned by db is null");
+  }
+
+  return user;
 };
 
 export const deleteUser = async (userId: User["id"], db: Db) => {

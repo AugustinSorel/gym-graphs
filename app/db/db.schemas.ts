@@ -32,7 +32,7 @@ export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
-  password: text("password").notNull(),
+  password: text("password"),
   weightUnit: weightUnitEnum().notNull().default("kg"),
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
   emailVerifiedAt: timestamp("email_verified_at"),
@@ -50,6 +50,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   emailVerification: one(emailVerificationCodeTable),
   exercises: many(exerciseTable),
   tags: many(tagTable),
+  oauthAccounts: many(oauthAccountTable),
 }));
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
@@ -73,6 +74,37 @@ export const emailVerificationRelations = relations(
   ({ one }) => ({
     user: one(userTable, {
       fields: [emailVerificationCodeTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
+
+export const oauthProviders = pgEnum("oauth_provider", ["github"]);
+
+//BUG: unique constraint does not work with new drizzle sintax
+export const oauthAccountTable = pgTable(
+  "oauth_account",
+  {
+    providerId: oauthProviders("provider_id").notNull(),
+    providerUserId: text("provider_user_id").notNull(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.providerId, table.providerUserId] }),
+  }),
+);
+
+export type OauthAccount = typeof oauthAccountTable.$inferSelect;
+
+export const oauthAccountRelations = relations(
+  oauthAccountTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [oauthAccountTable.providerUserId],
       references: [userTable.id],
     }),
   }),

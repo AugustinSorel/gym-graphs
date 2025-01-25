@@ -1,9 +1,13 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AppIcon } from "~/ui/app-icon";
 import { HeroBackground } from "~/ui/hero-background";
+import { z } from "zod";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(auth)/_layout")({
+  validateSearch: z.object({
+    error: z.string().optional(),
+  }),
   component: () => RouteComponent(),
 });
 

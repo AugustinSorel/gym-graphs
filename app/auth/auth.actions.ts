@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import {
-  createUser,
+  createUserWithEmailAndPassword,
   seedUserAccount,
   selectUserByEmail,
   updateEmailVerifiedAt,
@@ -14,6 +14,8 @@ import {
   deleteSession,
   deleteSessionByUserId,
   generateEmailVerificationCode,
+  generateGithubOauthToken,
+  generateGithubOauthUrl,
   generateSessionToken,
   hashSecret,
   selectEmailVerificationCode,
@@ -21,6 +23,7 @@ import {
 } from "~/auth/auth.services";
 import {
   deleteSessionTokenCookie,
+  setGithubTokenCookie,
   setSessionTokenCookie,
 } from "~/auth/auth.cookies";
 import { userSchema } from "~/user/user.schemas";
@@ -46,6 +49,10 @@ export const signInAction = createServerFn()
 
     if (!user.emailVerifiedAt) {
       throw new Error("email address not verified");
+    }
+
+    if (!user.password) {
+      throw new Error("this account has been set up using oauth");
     }
 
     const validPassword = await verifySecret(data.password, user.password);
@@ -79,7 +86,12 @@ export const signUpAction = createServerFn({ method: "POST" })
         const hashedPassword = await hashSecret(data.password);
         const name = data.email.split("@").at(0) ?? "anonymous";
 
-        const user = await createUser(data.email, hashedPassword, name, tx);
+        const user = await createUserWithEmailAndPassword(
+          data.email,
+          hashedPassword,
+          name,
+          tx,
+        );
 
         await seedUserAccount(user.id, tx);
 
@@ -176,3 +188,15 @@ export const sendEmailVerificationCodeAction = createServerFn({
       );
     });
   });
+
+export const githubSignInAction = createServerFn({ method: "POST" }).handler(
+  async () => {
+    const token = generateGithubOauthToken();
+
+    const url = generateGithubOauthUrl(token);
+
+    setGithubTokenCookie(token);
+
+    return url.toString();
+  },
+);

@@ -16,6 +16,9 @@ const envSchema = z.object({
   SMTP_PASSWORD: z.string().trim().nonempty(),
   SMTP_FROM: z.string().trim().nonempty(),
 
+  GITHUB_CLIENT_ID: z.string().trim().nonempty(),
+  GITHUB_CLIENT_SECRET: z.string().trim().nonempty(),
+
   APP_URL: z.string().trim().nonempty().url(),
 });
 
@@ -32,6 +35,9 @@ export const env = envSchema.parse({
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SMTP_FROM: process.env.SMTP_FROM,
+
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
 
   APP_URL: process.env.APP_URL,
 });

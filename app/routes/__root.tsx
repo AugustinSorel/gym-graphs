@@ -130,11 +130,11 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: monitoring
 //TODO: rate limiter
 //TODO: inject db in global ctx
+//TODO: remove window.location.herf in github-sign-in.tsx
 
 //BUG: header on mobile moves up and down
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
-//TODO: auth, github
 //TODO: auth, reset password
 //TODO: teams
 //TODO: dashboard fun facts
