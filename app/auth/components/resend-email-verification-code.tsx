@@ -16,6 +16,7 @@ export const ResendEmailVerificationCode = () => {
         variant="link"
         disabled={sendEmailVerification.isPending}
         onClick={() => sendEmailVerification.mutate(undefined)}
+        data-umami-event="resend email verification code"
       >
         <span>Get another code</span>
         {sendEmailVerification.isPending && <Spinner />}
