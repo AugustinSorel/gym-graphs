@@ -11,19 +11,19 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import type { z } from "zod";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
 import { userKey } from "~/user/user.key";
+import type { z } from "zod";
 
-type Props = {
+type Props = Readonly<{
   onSuccess?: () => void;
-};
+}>;
 
-export const CreateTagForm = (props: Readonly<Props>) => {
+export const CreateTagForm = (props: Props) => {
   const form = useCreateTagForm();
   const createTag = useCreateTag();
 

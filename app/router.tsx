@@ -3,15 +3,15 @@ import {
   createRouter as createTanStackRouter,
   Link,
 } from "@tanstack/react-router";
-import type {
-  ErrorComponentProps,
-  NotFoundRouteProps,
-} from "@tanstack/react-router";
 import { routeTree } from "~/routeTree.gen";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Map } from "lucide-react";
 import { Button } from "~/ui/button";
+import type {
+  ErrorComponentProps,
+  NotFoundRouteProps,
+} from "@tanstack/react-router";
 
 export function createRouter() {
   const queryClient = new QueryClient({

@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
@@ -22,6 +21,7 @@ import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { getRouteApi } from "@tanstack/react-router";
+import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
   const form = useUpdateSetDoneAtForm();

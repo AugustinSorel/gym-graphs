@@ -1,4 +1,3 @@
-import type { ComponentProps } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
@@ -33,6 +32,7 @@ import { AppIcon } from "~/ui/app-icon";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
+import type { ComponentProps } from "react";
 
 export const HeaderPublic = () => {
   return (

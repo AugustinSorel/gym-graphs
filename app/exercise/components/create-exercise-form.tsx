@@ -13,17 +13,17 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { createExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
+import type { z } from "zod";
 
-type Props = {
+type Props = Readonly<{
   onSuccess?: () => void;
-};
+}>;
 
-export const CreateExerciseForm = (props: Readonly<Props>) => {
+export const CreateExerciseForm = (props: Props) => {
   const form = useCreateExerciseForm();
   const createExercise = useCreateExercise();
 

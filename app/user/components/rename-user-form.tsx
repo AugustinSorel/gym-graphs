@@ -14,14 +14,14 @@ import { userSchema } from "~/user/user.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useUser } from "~/user/hooks/use-user";
-import type { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
 import { userKey } from "../user.key";
+import type { z } from "zod";
 
-type Props = {
+type Props = Readonly<{
   onSuccess?: () => void;
-};
+}>;
 
 export const RenameUserForm = (props: Props) => {
   const form = useCreateExerciseForm();

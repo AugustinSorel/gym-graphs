@@ -5,7 +5,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -14,9 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "~/ui/table";
-import type { Set } from "~/db/db.schemas";
 import { Button } from "~/ui/button";
 import { useState } from "react";
+import type { Set } from "~/db/db.schemas";
+import type { ColumnDef, SortingState } from "@tanstack/react-table";
 
 type Props = Readonly<{
   sets: Array<Set>;

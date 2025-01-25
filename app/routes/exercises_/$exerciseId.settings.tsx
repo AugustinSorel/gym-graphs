@@ -6,7 +6,6 @@ import {
   redirect,
 } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Check } from "lucide-react";
-import type { ComponentProps } from "react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
@@ -23,6 +22,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   params: z.object({

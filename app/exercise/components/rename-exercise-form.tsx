@@ -13,13 +13,13 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import type { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/exercise/hooks/useExercise";
+import type { z } from "zod";
 
 export const RenameExerciseForm = (props: Props) => {
   const form = useCreateExerciseForm();

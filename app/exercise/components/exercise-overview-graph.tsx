@@ -4,8 +4,8 @@ import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/set/set.utils";
-import type { Set } from "~/db/db.schemas";
 import { useUser } from "~/user/hooks/use-user";
+import type { Set } from "~/db/db.schemas";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();

@@ -1,7 +1,7 @@
 import { Badge } from "~/ui/badge";
 import { useExercise } from "../hooks/useExercise";
-import type { ComponentProps } from "react";
 import { getRouteApi } from "@tanstack/react-router";
+import type { ComponentProps } from "react";
 
 export const ExerciseTagsList = () => {
   const params = routeApi.useParams();
