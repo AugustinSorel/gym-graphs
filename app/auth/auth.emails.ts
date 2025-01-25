@@ -1,9 +1,10 @@
-import type { User } from "~/db/db.schemas";
+import { env } from "~/env";
 import { email, emailConfig } from "~/libs/email.lib";
+import type { EmailVerificationCode, User } from "~/db/db.schemas";
 
 export const sendVerificationCodeEmail = async (
   toAddress: User["email"],
-  code: string,
+  code: EmailVerificationCode["code"],
 ) => {
   const config = emailConfig(
     [toAddress],
@@ -11,14 +12,12 @@ export const sendVerificationCodeEmail = async (
     emailTemplates.verifyAccount(code),
   );
 
-  return await email.send(config);
+  return email.send(config);
 };
 
 const emailTemplates = {
   verifyAccount: (code: string) => {
-    //TODO: clean this
-    // const url = `${env.NEXT_PUBLIC_CLIENT_URL}/verify-email`;
-    const url = `http://localhost:3000/verify-email`;
+    const url = `${env.APP_URL}/verify-email`;
 
     return `
       <!doctype html>

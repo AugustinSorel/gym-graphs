@@ -22,21 +22,21 @@ export const OneRepMaxAlgorithmsGraph = () => {
 
 const Graph = ({ height, width }: GraphProps) => {
   const user = useUser();
-  const tooltip = useTooltip<{ name: string }>();
+  const tooltip = useTooltip<TooltipData>();
 
   const xScale = useMemo(() => {
     return scaleLinear({
       domain: [0, maxX],
       range: [0, width],
     });
-  }, [data, width]);
+  }, [algoLines, width]);
 
   const yScale = useMemo(() => {
     return scaleLinear({
       domain: [0, maxY],
       range: [height, 0],
     });
-  }, [data, height]);
+  }, [algoLines, height]);
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
@@ -46,7 +46,7 @@ const Graph = ({ height, width }: GraphProps) => {
       const index = Math.round(xValue);
       const minDistanceThreshold = 50;
 
-      const { closestLine, minDistance } = data.reduce(
+      const { closestLine, minDistance } = algoLines.reduce(
         (acc, curr) => {
           const line = curr.data.at(index);
 
@@ -67,7 +67,7 @@ const Graph = ({ height, width }: GraphProps) => {
           return acc;
         },
         {
-          closestLine: data.at(0),
+          closestLine: algoLines.at(0),
           minDistance: Infinity,
         },
       );
@@ -83,21 +83,21 @@ const Graph = ({ height, width }: GraphProps) => {
         tooltipTop: y,
       });
     },
-    [tooltip, xScale, yScale, data, mockPoints.length],
+    [tooltip, xScale, yScale, algoLines, mockPoints.length],
   );
   return (
     <>
       <svg width={width} height={height}>
-        {data.map((x) => (
+        {algoLines.map((algoLine) => (
           <LinePath<Point>
-            key={x.name}
+            key={algoLine.name}
             curve={curveMonotoneX}
-            data={x.data}
+            data={algoLine.data}
             x={(d) => xScale(getX(d))}
             y={(d) => yScale(getY(d))}
             className="stroke-primary"
-            strokeWidth={user.data.oneRepMaxAlgo === x.name ? 3 : 1}
-            opacity={user.data.oneRepMaxAlgo === x.name ? 1 : 0.5}
+            strokeWidth={user.data.oneRepMaxAlgo === algoLine.name ? 3 : 1}
+            opacity={user.data.oneRepMaxAlgo === algoLine.name ? 1 : 0.5}
             shapeRendering="geometricPrecision"
           />
         ))}
@@ -108,8 +108,8 @@ const Graph = ({ height, width }: GraphProps) => {
             <LinePath<Point>
               curve={curveMonotoneX}
               data={
-                data.find((d) => d.name === tooltip.tooltipData?.name)?.data ??
-                []
+                algoLines.find((d) => d.name === tooltip.tooltipData?.name)
+                  ?.data ?? []
               }
               x={(d) => xScale(getX(d))}
               y={(d) => yScale(getY(d))}
@@ -164,6 +164,8 @@ type Point = Readonly<{
   y: number;
 }>;
 
+type TooltipData = Pick<(typeof algoLines)[number], "name">;
+
 const mockPoints = [
   {
     repetitions: 1,
@@ -194,7 +196,7 @@ const mockPoints = [
 const getX = (point: Point) => point.x;
 const getY = (point: Point) => point.y;
 
-const data = oneRepMaxAlgoEnum.enumValues.map((algo) => ({
+const algoLines = oneRepMaxAlgoEnum.enumValues.map((algo) => ({
   name: algo,
   data: mockPoints.map((point, i) => ({
     x: i,
@@ -204,13 +206,13 @@ const data = oneRepMaxAlgoEnum.enumValues.map((algo) => ({
 
 const maxX =
   max(
-    data.flatMap((x) => x.data),
+    algoLines.flatMap((x) => x.data),
     getX,
   ) ?? 0;
 
 const maxY =
   max(
-    data.flatMap((x) => x.data),
+    algoLines.flatMap((x) => x.data),
     getY,
   ) ?? 0;
 

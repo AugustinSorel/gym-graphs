@@ -15,6 +15,8 @@ const envSchema = z.object({
   SMTP_USER: z.string().trim().nonempty(),
   SMTP_PASSWORD: z.string().trim().nonempty(),
   SMTP_FROM: z.string().trim().nonempty(),
+
+  APP_URL: z.string().trim().nonempty().url(),
 });
 
 export const env = envSchema.parse({
@@ -30,4 +32,6 @@ export const env = envSchema.parse({
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SMTP_FROM: process.env.SMTP_FROM,
+
+  APP_URL: process.env.APP_URL,
 });
