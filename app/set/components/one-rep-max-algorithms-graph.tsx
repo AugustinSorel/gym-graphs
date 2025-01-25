@@ -164,7 +164,7 @@ type Point = Readonly<{
   y: number;
 }>;
 
-type TooltipData = Pick<(typeof algoLines)[number], "name">;
+type TooltipData = Readonly<Pick<(typeof algoLines)[number], "name">>;
 
 const mockPoints = [
   {

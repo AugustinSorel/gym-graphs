@@ -279,7 +279,9 @@ type Props = Readonly<{
   sets: Array<Point>;
 }>;
 
-type GraphProps = {
-  height: number;
-  width: number;
-} & Pick<Props, "sets">;
+type GraphProps = Readonly<
+  {
+    height: number;
+    width: number;
+  } & Pick<Props, "sets">
+>;

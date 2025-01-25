@@ -40,7 +40,7 @@ export const userTable = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type User = typeof userTable.$inferSelect;
+export type User = Readonly<typeof userTable.$inferSelect>;
 
 export const userRelations = relations(userTable, ({ one, many }) => ({
   session: one(sessionTable, {
@@ -67,8 +67,9 @@ export const emailVerificationCodeTable = pgTable("email_verification_code", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type EmailVerificationCode =
-  typeof emailVerificationCodeTable.$inferSelect;
+export type EmailVerificationCode = Readonly<
+  typeof emailVerificationCodeTable.$inferSelect
+>;
 
 export const emailVerificationRelations = relations(
   emailVerificationCodeTable,
@@ -99,7 +100,7 @@ export const oauthAccountTable = pgTable(
   }),
 );
 
-export type OauthAccount = typeof oauthAccountTable.$inferSelect;
+export type OauthAccount = Readonly<typeof oauthAccountTable.$inferSelect>;
 
 export const oauthAccountRelations = relations(
   oauthAccountTable,
@@ -126,7 +127,7 @@ export const sessionTable = pgTable("session", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type Session = typeof sessionTable.$inferSelect;
+export type Session = Readonly<typeof sessionTable.$inferSelect>;
 
 export const sessionRelations = relations(sessionTable, ({ one }) => ({
   user: one(userTable, {
@@ -147,7 +148,9 @@ export const passwordResetTokenTable = pgTable("password_reset_token", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type PasswordResetToken = typeof passwordResetTokenTable.$inferSelect;
+export type PasswordResetToken = Readonly<
+  typeof passwordResetTokenTable.$inferSelect
+>;
 
 export const resetPasswordRelations = relations(
   passwordResetTokenTable,
@@ -176,7 +179,7 @@ export const exerciseTable = pgTable(
   }),
 );
 
-export type Exercise = typeof exerciseTable.$inferSelect;
+export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
 export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   user: one(userTable, {
@@ -206,7 +209,7 @@ export const setTable = pgTable(
   }),
 );
 
-export type Set = typeof setTable.$inferSelect;
+export type Set = Readonly<typeof setTable.$inferSelect>;
 
 export const setRelations = relations(setTable, ({ one }) => ({
   exercise: one(exerciseTable, {
@@ -261,7 +264,7 @@ export const tagTable = pgTable(
   }),
 );
 
-export type Tag = typeof tagTable.$inferSelect;
+export type Tag = Readonly<typeof tagTable.$inferSelect>;
 
 export const tagRelations = relations(tagTable, ({ one, many }) => ({
   user: one(userTable, {

@@ -7,10 +7,10 @@ import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
 const themeKey = "theme";
 
-type Context = {
+type Context = Readonly<{
   value: Theme;
   set: Dispatch<SetStateAction<Theme>>;
-};
+}>;
 
 const ThemeContext = createContext<Context | undefined>(undefined);
 
