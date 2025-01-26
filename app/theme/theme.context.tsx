@@ -25,10 +25,6 @@ export const ThemeProvider = (props: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    setTheme(localStorage.get());
-  }, [setTheme]);
-
-  useEffect(() => {
     if (theme !== themeSchema.Values.system) {
       return;
     }
