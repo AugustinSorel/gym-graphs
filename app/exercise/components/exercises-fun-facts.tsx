@@ -1,14 +1,14 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselDot,
-  CarouselItem,
-} from "~/ui/carousel";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { useExercises } from "~/exercise/hooks/use-exericses";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { CatchBoundary } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import {
+  Carousel,
+  CarouselBody,
+  CarouselDot,
+  CarouselItem,
+} from "~/ui/carousel-temp";
 import type { ComponentProps } from "react";
 
 export const ExercisesFunFacts = () => {
@@ -20,8 +20,8 @@ export const ExercisesFunFacts = () => {
   ];
 
   return (
-    <Carousel opts={{ align: "start" }} className="flex w-full">
-      <CarouselContent className="h-full w-full">
+    <Carousel>
+      <CarouselBody>
         {FunFacts.map((FunFact, i) => (
           <CarouselItem
             className="grid select-none grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center"
@@ -35,7 +35,7 @@ export const ExercisesFunFacts = () => {
             </CatchBoundary>
           </CarouselItem>
         ))}
-      </CarouselContent>
+      </CarouselBody>
 
       <CarouselDotsContainer>
         {FunFacts.map((_FunFact, i) => (
