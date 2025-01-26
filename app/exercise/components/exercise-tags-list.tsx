@@ -1,5 +1,5 @@
 import { Badge } from "~/ui/badge";
-import { useExercise } from "../hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { getRouteApi } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 

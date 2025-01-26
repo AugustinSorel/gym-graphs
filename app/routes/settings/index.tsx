@@ -24,7 +24,7 @@ import { DeleteAccountDialog } from "~/user/components/delete-account-dialog";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { oneRepMaxAlgoEnum, weightUnitEnum } from "~/db/db.schemas";
 import { userSchema } from "~/user/user.schemas";
-import { useUpdateWeightUnit } from "~/user/hooks/useUpdateWeightUnit";
+import { useUpdateWeightUnit } from "~/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
 import { pluralize } from "~/utils/string.utils";
 import {

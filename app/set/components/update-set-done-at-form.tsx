@@ -15,7 +15,7 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { useExercise } from "~/exercise/hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { updateSetDoneAtAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";

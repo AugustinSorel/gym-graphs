@@ -16,7 +16,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
-import { useExercise } from "~/exercise/hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";

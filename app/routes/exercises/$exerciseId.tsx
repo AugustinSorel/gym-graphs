@@ -6,7 +6,7 @@ import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { useExercise } from "~/exercise/hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";

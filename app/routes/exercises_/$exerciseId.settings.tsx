@@ -12,7 +12,7 @@ import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dial
 import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { useExercise } from "~/exercise/hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { updateExerciseTagsAction } from "~/tag/tag.actions";

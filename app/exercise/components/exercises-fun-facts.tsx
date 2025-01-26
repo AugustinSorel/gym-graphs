@@ -5,7 +5,7 @@ import {
   CarouselItem,
 } from "~/ui/carousel";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
-import { useExercises } from "../hooks/useExericses";
+import { useExercises } from "~/exercise/hooks/use-exericses";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { CatchBoundary } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";

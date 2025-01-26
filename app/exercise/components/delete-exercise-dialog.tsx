@@ -17,7 +17,7 @@ import { useTransition } from "react";
 import { deleteExerciseAction } from "~/exercise/exercise.actions";
 import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useExercise } from "~/exercise/hooks/useExercise";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 
 export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();

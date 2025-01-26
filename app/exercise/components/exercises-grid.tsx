@@ -4,7 +4,7 @@ import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-g
 import { Button } from "~/ui/button";
 import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
-import { useExercises } from "~/exercise/hooks/useExericses";
+import { useExercises } from "~/exercise/hooks/use-exericses";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
