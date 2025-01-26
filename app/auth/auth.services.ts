@@ -65,7 +65,7 @@ export const generateGithubOauthToken = () => {
 };
 
 export const generateGithubOauthUrl = (token: GithubOauthToken) => {
-  return github.createAuthorizationURL(token, []);
+  return github.createAuthorizationURL(token, ["user:email"]);
 };
 
 export type SessionToken = ReturnType<typeof generateSessionToken>;

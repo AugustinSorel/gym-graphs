@@ -50,8 +50,6 @@ import {
 } from "./auth.schemas";
 import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
-import { passwordResetTokenTable, userTable } from "~/db/db.schemas";
-import { eq } from "drizzle-orm";
 
 export const signInAction = createServerFn()
   .validator(userSchema.pick({ email: true, password: true }))
