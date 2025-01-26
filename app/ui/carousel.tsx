@@ -173,6 +173,10 @@ export const CarouselBody = (props: Readonly<ComponentProps<"ul">>) => {
     carousel.rootWidth * carousel.index * -1 -
     (carouselDrag.isDragging() ? carouselDrag.draggingDistance : 0);
 
+  if (!carousel.itemsCount) {
+    return null;
+  }
+
   return (
     <ul
       className="absolute inset-0 -z-10 grid select-none transition-[translate]"

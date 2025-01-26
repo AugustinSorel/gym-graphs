@@ -138,3 +138,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: dashboard heat map
 //TODO: reorder dashboard grid
 //TODO: add limit
+//TODO: readme
+//TODO: tags pie
