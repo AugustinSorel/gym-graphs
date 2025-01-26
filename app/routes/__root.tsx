@@ -125,7 +125,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //BUG: error handling not finished
 //BUG: dev docker not working
-//BUG: dark theme makes the page flicker
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter

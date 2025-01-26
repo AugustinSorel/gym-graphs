@@ -15,8 +15,14 @@ type Context = Readonly<{
 const ThemeContext = createContext<Context | undefined>(undefined);
 
 export const ThemeProvider = (props: PropsWithChildren) => {
-  const [theme, setTheme] = useState<Theme>("system");
   const localStorage = useLocalStorage(themeKey, themeSchema.catch("system"));
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") {
+      return "system";
+    }
+
+    return localStorage.get();
+  });
 
   useEffect(() => {
     setTheme(localStorage.get());
