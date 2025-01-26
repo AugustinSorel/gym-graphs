@@ -1,11 +1,10 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
-import { CatchBoundary, getRouteApi, Link } from "@tanstack/react-router";
+import { CatchBoundary, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";
 import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
+import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
+import { useExercises } from "~/exercise/hooks/useExericses";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -18,6 +17,18 @@ export const ExercisesGrid = () => {
 
   return (
     <Grid>
+      <ExercisesCards />
+      <ExercisesFrequencyCard />
+      <ExercisesFunFactsCard />
+    </Grid>
+  );
+};
+
+const ExercisesCards = () => {
+  const exercises = useExercises();
+
+  return (
+    <>
       {exercises.data.map((exercise) => (
         <CatchBoundary
           errorComponent={ExerciseFallback}
@@ -41,6 +52,18 @@ export const ExercisesGrid = () => {
           </Card>
         </CatchBoundary>
       ))}
+    </>
+  );
+};
+
+const ExercisesFrequencyCard = () => {
+  const exercises = useExercises();
+
+  return (
+    <CatchBoundary
+      errorComponent={ExerciseFallback}
+      getResetKey={() => "reset"}
+    >
       <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch p-0 [&_svg]:size-auto">
         <Name>exercises frequency</Name>
         <ExercisesRadarGraph
@@ -50,32 +73,22 @@ export const ExercisesGrid = () => {
           }))}
         />
       </Card>
-    </Grid>
+    </CatchBoundary>
   );
 };
 
-const routeApi = getRouteApi("/dashboard/");
-
-const useExercises = () => {
-  const user = useUser();
-  const search = routeApi.useSearch();
-
-  return useSuspenseQuery({
-    ...exerciseKeys.all(user.data.id),
-    select: (exercises) => {
-      return exercises.filter((exercise) => {
-        const nameMatches = exercise.name.includes(search.name ?? "");
-
-        const tagsMatch =
-          !search.tags?.length ||
-          exercise.tags.find((exerciseTag) =>
-            search.tags?.includes(exerciseTag.tag.name),
-          );
-
-        return nameMatches && tagsMatch;
-      });
-    },
-  });
+const ExercisesFunFactsCard = () => {
+  return (
+    <CatchBoundary
+      errorComponent={ExerciseFallback}
+      getResetKey={() => "reset"}
+    >
+      <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch overflow-hidden p-0 [&_svg]:size-auto">
+        <Name>fun facts</Name>
+        <ExercisesFunFacts />
+      </Card>
+    </CatchBoundary>
+  );
 };
 
 const Grid = (props: ComponentProps<"ol">) => {

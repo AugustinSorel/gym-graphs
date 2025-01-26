@@ -86,6 +86,7 @@ const githubSignIn = async (token: GithubOauthToken) => {
 
   if (existingUser) {
     const user = await updateEmailVerifiedAt(existingUser.id, db);
+
     return user;
   }
 

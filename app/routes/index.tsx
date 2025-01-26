@@ -13,6 +13,8 @@ import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
 import { userKey } from "~/user/user.key";
 import { userMock } from "~/user/user.mock";
+import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
+import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -25,6 +27,8 @@ export const Route = createFileRoute("/")({
 });
 
 const Home = () => {
+  useMockHomePageData();
+
   return (
     <Main>
       <HeroSection />
@@ -103,6 +107,10 @@ const FeatureOne = () => {
             }))}
           />
         </Card>
+        <Card>
+          <Name>fun facts</Name>
+          <ExercisesFunFacts />
+        </Card>
       </Grid>
     </FeatureContainer>
   );
@@ -110,19 +118,6 @@ const FeatureOne = () => {
 
 const FeatureTwo = () => {
   const sets = exercisesMock[0].sets;
-
-  const queryClient = useQueryClient();
-
-  queryClient.setQueryData(userKey.get.queryKey, userMock);
-  queryClient.setQueryDefaults(userKey.get.queryKey, {
-    staleTime: Infinity,
-  });
-
-  useEffect(() => {
-    return () => {
-      queryClient.setQueryDefaults(userKey.get.queryKey, { staleTime: 1000 });
-    };
-  }, []);
 
   return (
     <FeatureContainer>
@@ -336,4 +331,31 @@ const CirclesBluredBg = () => {
       </div>
     </>
   );
+};
+
+const useMockHomePageData = () => {
+  const queryClient = useQueryClient();
+
+  const keys = {
+    user: userKey.get.queryKey,
+    exercises: exerciseKeys.all(userMock.id).queryKey,
+  };
+
+  queryClient.setQueryData(keys.user, userMock);
+  queryClient.setQueryDefaults(keys.user, { staleTime: Infinity });
+
+  queryClient.setQueryData(keys.exercises, exercisesMock);
+  queryClient.setQueryDefaults(keys.exercises, {
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    return () => {
+      queryClient.setQueryDefaults(keys.user, { staleTime: 1000 });
+      queryClient.setQueryDefaults(keys.exercises, { staleTime: 1000 });
+
+      queryClient.setQueryData(keys.user, undefined);
+      queryClient.setQueryData(keys.exercises, undefined);
+    };
+  }, [queryClient]);
 };
