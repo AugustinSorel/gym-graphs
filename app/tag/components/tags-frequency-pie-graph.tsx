@@ -36,7 +36,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
   const centerX = innerWidth / 2;
   const top = centerY + margin.top;
   const left = centerX + margin.left;
-  const maxY = height / 2.35;
+  const maxY = height / 2.4;
   const tooltip = useTooltip<Point>();
   let tooltipTimeout: number;
 
