@@ -8,7 +8,7 @@ import {
   CarouselBody,
   CarouselDot,
   CarouselItem,
-} from "~/ui/carousel-temp";
+} from "~/ui/carousel";
 import type { ComponentProps } from "react";
 
 export const ExercisesFunFacts = () => {
