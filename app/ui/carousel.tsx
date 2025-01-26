@@ -226,10 +226,9 @@ export const CarouselDot = ({
         "size-4 rounded-full data-[selected=true]:bg-primary",
         className,
       )}
-      onClick={() => {
-        carousel.goTo(index);
-      }}
+      onClick={() => carousel.goTo(index)}
       data-selected={index === carousel.index}
+      aria-label={`go to ${index}`}
       {...props}
     >
       <span className="sr-only">go to {index}</span>
