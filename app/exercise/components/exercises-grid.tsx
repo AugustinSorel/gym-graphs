@@ -7,6 +7,7 @@ import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { useExercises } from "~/exercise/hooks/use-exericses";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 
 export const ExercisesGrid = () => {
   const exercises = useExercises();
@@ -19,6 +20,7 @@ export const ExercisesGrid = () => {
     <Grid>
       <ExercisesCards />
       <ExercisesFrequencyCard />
+      <TagsFrequencyCard />
       <ExercisesFunFactsCard />
     </Grid>
   );
@@ -53,6 +55,20 @@ const ExercisesCards = () => {
         </CatchBoundary>
       ))}
     </>
+  );
+};
+
+const TagsFrequencyCard = () => {
+  return (
+    <CatchBoundary
+      errorComponent={ExerciseFallback}
+      getResetKey={() => "reset"}
+    >
+      <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch p-0 [&_svg]:size-auto">
+        <Name>tags frequency</Name>
+        <TagsFrequencyPieGraph />
+      </Card>
+    </CatchBoundary>
   );
 };
 

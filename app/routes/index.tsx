@@ -16,6 +16,7 @@ import { userMock } from "~/user/user.mock";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
+import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -106,6 +107,10 @@ const FeatureOne = () => {
               name: e.name,
             }))}
           />
+        </Card>
+        <Card>
+          <Name>tags frequency</Name>
+          <TagsFrequencyPieGraph />
         </Card>
         <Card>
           <Name>fun facts</Name>
