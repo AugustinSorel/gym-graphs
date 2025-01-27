@@ -17,6 +17,7 @@ import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
+import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -115,6 +116,10 @@ const FeatureOne = () => {
         <Card>
           <Name>fun facts</Name>
           <ExercisesFunFacts />
+        </Card>
+        <Card>
+          <Name>heat map - January</Name>
+          <SetsHeatMapGraph />
         </Card>
       </Grid>
     </FeatureContainer>
