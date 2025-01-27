@@ -10,31 +10,31 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ### Home Page
 
-![localhost_3000_sign-in](https://github.com/user-attachments/assets/94576d8a-1d43-4f93-a5f5-44bf7230c8d9)
+![home page of Gym Graphs](https://github.com/user-attachments/assets/39813eea-b21b-40c9-a4f2-b0fc84294f41)
 
 ### Sign in page
 
-![gym-graphs augustin-sorel com_dashboard](https://github.com/user-attachments/assets/1898ffa4-4239-48fa-bb4f-b1587a883816)
+![sign in page of Gym Graphs](https://github.com/user-attachments/assets/1898ffa4-4239-48fa-bb4f-b1587a883816)
 
 ### Sign up page
 
-![gym-graphs augustin-sorel com_dashboard](https://github.com/user-attachments/assets/d178b5d8-fe99-4a0e-beab-a4bca43a5fbf)
+![sign up page of Gym Graphs](https://github.com/user-attachments/assets/d178b5d8-fe99-4a0e-beab-a4bca43a5fbf)
 
 ### Dashboard Page
 
-![localhost_3000_dashboard](https://github.com/user-attachments/assets/7a61b29a-7209-4d23-bdde-b624c11316f5)
+![dashboard page of Gym Graphs](https://github.com/user-attachments/assets/7a61b29a-7209-4d23-bdde-b624c11316f5)
 
 ### Settings Page
 
-![localhost_3000_settings](https://github.com/user-attachments/assets/7240ae54-5df3-49fe-a97a-31059b184d30)
+![settings page of Gym Graphs](https://github.com/user-attachments/assets/7240ae54-5df3-49fe-a97a-31059b184d30)
 
 ### Exercise Page
 
-![localhost_3000_dashboard](https://github.com/user-attachments/assets/65cc7d61-376f-4dfb-a708-f564ba734ce2)
+![exercise page of Gym Graphs](https://github.com/user-attachments/assets/65cc7d61-376f-4dfb-a708-f564ba734ce2)
 
 ### Exercise Settings Page
 
-![gym-graphs augustin-sorel com_dashboard](https://github.com/user-attachments/assets/e0a08b7a-0f2a-4a29-9018-6d6afc093f27)
+![exercise settings page of Gym Graphs](https://github.com/user-attachments/assets/e0a08b7a-0f2a-4a29-9018-6d6afc093f27)
 
 ## Tech Stack
 
