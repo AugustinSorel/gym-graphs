@@ -8,6 +8,7 @@ import { useExercises } from "~/exercise/hooks/use-exericses";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
+import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 
 export const ExercisesGrid = () => {
   const exercises = useExercises();
@@ -22,6 +23,7 @@ export const ExercisesGrid = () => {
       <ExercisesFrequencyCard />
       <TagsFrequencyCard />
       <ExercisesFunFactsCard />
+      <SetsHeatMapCard />
     </Grid>
   );
 };
@@ -102,6 +104,22 @@ const ExercisesFunFactsCard = () => {
       <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch overflow-hidden p-0 [&_svg]:size-auto">
         <Name>fun facts</Name>
         <ExercisesFunFacts />
+      </Card>
+    </CatchBoundary>
+  );
+};
+
+const SetsHeatMapCard = () => {
+  const monthName = new Date().toLocaleString("default", { month: "long" });
+
+  return (
+    <CatchBoundary
+      errorComponent={ExerciseFallback}
+      getResetKey={() => "reset"}
+    >
+      <Card className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch overflow-hidden p-0 [&_svg]:size-auto">
+        <Name>Heat map - {monthName}</Name>
+        <SetsHeatMapGraph />
       </Card>
     </CatchBoundary>
   );

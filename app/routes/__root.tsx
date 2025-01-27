@@ -135,6 +135,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
 //TODO: teams
-//TODO: dashboard heat map
 //TODO: reorder dashboard grid
 //TODO: add limit
