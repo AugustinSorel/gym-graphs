@@ -12,27 +12,21 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ### Sign in page
 
-![gym-graphs augustin-sorel com_sign-in](https://github.com/user-attachments/assets/dea19317-7f07-4a38-bdd6-7f1a89920f38)
+![gym-graphs augustin-sorel com_dashboard (3)](https://github.com/user-attachments/assets/1898ffa4-4239-48fa-bb4f-b1587a883816)
 
 ### Sign up page
 
-![gym-graphs augustin-sorel com_sign-in (1)](https://github.com/user-attachments/assets/9e84d7f3-3cff-4c4d-86ee-67ad8102a121)
+![gym-graphs augustin-sorel com_dashboard (4)](https://github.com/user-attachments/assets/d178b5d8-fe99-4a0e-beab-a4bca43a5fbf)
 
 ### Dashboard Page
 
 ### Settings Page
 
-![gym-graphs augustin-sorel com_dashboard](https://github.com/user-attachments/assets/ca9c7af1-7b9f-4d87-8133-45e5ca9c222e)
-
 ### Exercise Page
-
-![gym-graphs augustin-sorel com_dashboard (1)](https://github.com/user-attachments/assets/83968dff-3ba4-4bcf-ba76-f08ee97b08c1)
 
 ### Exercise Settings Page
 
-![gym-graphs augustin-sorel com_dashboard (2)](https://github.com/user-attachments/assets/f0cc363e-ddd5-4062-97cd-aa388f857f1c)
-
-### Light theme
+![gym-graphs augustin-sorel com_dashboard (5)](https://github.com/user-attachments/assets/e0a08b7a-0f2a-4a29-9018-6d6afc093f27)
 
 ## Tech Stack
 
