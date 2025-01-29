@@ -39,7 +39,7 @@ import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
-import { userKey } from "~/user/user.key";
+import { userKeys } from "~/user/user.key";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
 import type { ComponentProps } from "react";
@@ -188,7 +188,7 @@ const useUpdateOneRepMaxAlgo = () => {
   return useMutation({
     mutationFn: updateOneRepMaxAlgoAction,
     onMutate: (variables) => {
-      queryClient.setQueryData(userKey.get.queryKey, (user) => {
+      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -200,7 +200,7 @@ const useUpdateOneRepMaxAlgo = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKey.get);
+      void queryClient.invalidateQueries(userKeys.get);
     },
   });
 };

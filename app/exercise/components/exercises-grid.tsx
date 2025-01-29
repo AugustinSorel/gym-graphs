@@ -27,7 +27,7 @@ import {
 import { GripVertical } from "lucide-react";
 import { Fragment, useRef, useState } from "react";
 import { useUser } from "~/user/hooks/use-user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDashboardTilesOrderAction } from "~/user/user.actions";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -37,17 +37,18 @@ import type {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 import type { DashboardTile } from "~/db/db.schemas";
+import { userKeys } from "~/user/user.key";
 
 export const ExercisesGrid = () => {
   const items = useGridItems();
 
-  if (!items) {
+  if (!items.length) {
     return <NoExercisesText>no exercises</NoExercisesText>;
   }
 
   return (
     <Grid>
-      <SortableGrid items={items}>
+      <SortableGrid>
         {(item) => (
           <CatchBoundary
             errorComponent={ExerciseFallback}
@@ -63,13 +64,13 @@ export const ExercisesGrid = () => {
 };
 
 const SortableGrid = (props: {
-  items: Array<DashboardTile>;
   children: (item: DashboardTile) => ReactNode;
 }) => {
-  const [items, setItems] = useState(() => props.items);
+  const items = useGridItems();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
   const udpateDashboardTilesOrder = useUpdateDashboardTilesOrder();
+  const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
     return items.findIndex((item) => item.id === id);
@@ -143,11 +144,20 @@ const SortableGrid = (props: {
       if (activeIndex !== overIndex) {
         const itemsOrdered = arrayMove(items, activeIndex, overIndex);
 
-        udpateDashboardTilesOrder.mutate({
-          data: itemsOrdered,
+        queryClient.setQueryData(userKeys.get.queryKey, (user) => {
+          if (!user) {
+            return user;
+          }
+
+          return {
+            ...user,
+            dashboardTiles: itemsOrdered,
+          };
         });
 
-        setItems(itemsOrdered);
+        udpateDashboardTilesOrder.mutate({
+          data: itemsOrdered.toReversed(),
+        });
       }
     }
   };
@@ -181,11 +191,6 @@ const Tile = (props: { item: DashboardTile }) => {
   switch (props.item.type) {
     case "exercise":
       const exerciseId = props.item.exerciseId;
-
-      if (!exerciseId) {
-        throw new Error("exercise id is missing in exercise tile");
-      }
-
       return <ExerciseTile exerciseId={exerciseId} tileId={props.item.id} />;
     case "exercisesFrequency":
       return <ExercisesFrequencyTile tileId={props.item.id} />;
@@ -201,9 +206,7 @@ const Tile = (props: { item: DashboardTile }) => {
 };
 
 const ExerciseTile = (
-  props: TileProps & {
-    exerciseId: NonNullable<DashboardTile["exerciseId"]>;
-  },
+  props: TileProps & { exerciseId: DashboardTile["exerciseId"] },
 ) => {
   const exercises = useExercises();
   const sortable = useSortable({ id: props.tileId });
@@ -396,7 +399,7 @@ const useGridItems = () => {
   const exercises = useExercises();
   const user = useUser();
 
-  if (!exercises.data) {
+  if (!exercises.data.length) {
     return [];
   }
 

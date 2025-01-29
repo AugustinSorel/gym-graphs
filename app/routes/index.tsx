@@ -11,7 +11,7 @@ import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
-import { userKey } from "~/user/user.key";
+import { userKeys } from "~/user/user.key";
 import { userMock } from "~/user/user.mock";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { exerciseKeys } from "~/exercise/exercise.keys";
@@ -347,7 +347,7 @@ const useMockHomePageData = () => {
   const queryClient = useQueryClient();
 
   const keys = {
-    user: userKey.get.queryKey,
+    user: userKeys.get.queryKey,
     exercises: exerciseKeys.all(userMock.id).queryKey,
   };
 

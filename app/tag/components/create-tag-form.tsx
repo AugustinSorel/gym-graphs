@@ -16,7 +16,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
-import { userKey } from "~/user/user.key";
+import { userKeys } from "~/user/user.key";
 import type { z } from "zod";
 
 type Props = Readonly<{
@@ -123,7 +123,7 @@ const useCreateTag = () => {
         exercises: [],
       };
 
-      queryClient.setQueryData(userKey.get.queryKey, (user) => {
+      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -135,7 +135,7 @@ const useCreateTag = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKey.get);
+      void queryClient.invalidateQueries(userKeys.get);
     },
   });
 };

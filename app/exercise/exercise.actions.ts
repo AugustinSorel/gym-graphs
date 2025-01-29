@@ -12,6 +12,7 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import pg from "pg";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
+import { insertDashboardTile } from "~/user/user.services";
 
 export const fetchExercisesAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware])
@@ -24,7 +25,10 @@ export const createExerciseAction = createServerFn({ method: "POST" })
   .validator(exerciseSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      return await createExercise(data.name, context.user.id, db);
+      await db.transaction(async (tx) => {
+        const exercise = await createExercise(data.name, context.user.id, tx);
+        await insertDashboardTile("exercise", exercise.id, exercise.userId, tx);
+      });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateExercise =

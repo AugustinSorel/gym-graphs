@@ -18,6 +18,7 @@ import { deleteExerciseAction } from "~/exercise/exercise.actions";
 import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/use-exercise";
+import { userKeys } from "~/user/user.key";
 
 export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -86,11 +87,13 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
+        exercises: exerciseKeys.all(user.data.id).queryKey,
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
+          .queryKey,
+        user: userKeys.get.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.all, (exercises) => {
+      queryClient.setQueryData(keys.exercises, (exercises) => {
         if (!exercises) {
           return [];
         }
@@ -100,10 +103,24 @@ const useDeleteExercise = () => {
         });
       });
 
-      queryClient.setQueryData(keys.get, undefined);
+      queryClient.setQueryData(keys.user, (user) => {
+        if (!user) {
+          return user;
+        }
+
+        return {
+          ...user,
+          dashboardTiles: user.dashboardTiles.filter(
+            (tile) => tile.exerciseId !== variables.data.exerciseId,
+          ),
+        };
+      });
+
+      queryClient.setQueryData(keys.exercise, undefined);
     },
     onSettled: (_data, _error, variables) => {
       void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
+      void queryClient.invalidateQueries(userKeys.get);
       void queryClient.invalidateQueries(
         exerciseKeys.get(user.data.id, variables.data.exerciseId),
       );

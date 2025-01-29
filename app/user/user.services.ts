@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { dashboardTileTable, tagTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
@@ -64,7 +64,7 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
     },
     with: {
       dashboardTiles: {
-        orderBy: [asc(dashboardTileTable.index)],
+        orderBy: [desc(dashboardTileTable.index)],
       },
       tags: {
         orderBy: [asc(tagTable.createdAt)],
@@ -147,6 +147,15 @@ export const insertDashboardTiles = async (
   return db.insert(dashboardTileTable).values(values);
 };
 
+export const insertDashboardTile = async (
+  type: DashboardTile["type"],
+  exerciseId: DashboardTile["exerciseId"],
+  userId: DashboardTile["userId"],
+  db: Db,
+) => {
+  return db.insert(dashboardTileTable).values({ type, userId, exerciseId });
+};
+
 export const deleteDashboardTiles = async (
   userId: DashboardTile["userId"],
   db: Db,
@@ -189,15 +198,15 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   ]);
 
   const dashboardTiles = [
+    { type: dashboardTileSchema.shape.type.enum.exercisesFrequency, userId },
+    { type: dashboardTileSchema.shape.type.enum.tagsFrequency, userId },
+    { type: dashboardTileSchema.shape.type.enum.exercisesFunFacts, userId },
+    { type: dashboardTileSchema.shape.type.enum.setsHeatMap, userId },
     ...exercises.map((e) => ({
       type: dashboardTileSchema.shape.type.enum.exercise,
       userId,
       exerciseId: e.id,
     })),
-    { type: dashboardTileSchema.shape.type.enum.exercisesFrequency, userId },
-    { type: dashboardTileSchema.shape.type.enum.tagsFrequency, userId },
-    { type: dashboardTileSchema.shape.type.enum.exercisesFunFacts, userId },
-    { type: dashboardTileSchema.shape.type.enum.setsHeatMap, userId },
   ];
 
   const getTagIdsForExercise = (exerciseName: Exercise["name"]) => {

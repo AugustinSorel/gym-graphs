@@ -14,7 +14,7 @@ import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
-import { userKey } from "~/user/user.key";
+import { userKeys } from "~/user/user.key";
 import type { Tag } from "~/db/db.schemas";
 
 export const DeleteTagDialog = (props: Props) => {
@@ -78,7 +78,7 @@ const useDeleteTag = () => {
   return useMutation({
     mutationFn: deleteTagAction,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData(userKey.get.queryKey, (user) => {
+      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -90,7 +90,7 @@ const useDeleteTag = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKey.get);
+      void queryClient.invalidateQueries(userKeys.get);
     },
   });
 };

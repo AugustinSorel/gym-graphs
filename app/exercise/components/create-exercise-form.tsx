@@ -18,6 +18,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import type { z } from "zod";
+import { userKeys } from "~/user/user.key";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -120,7 +121,10 @@ const useCreateExercise = () => {
   return useMutation({
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
-      const key = exerciseKeys.all(user.data.id).queryKey;
+      const key = {
+        exercises: exerciseKeys.all(user.data.id).queryKey,
+        user: userKeys.get.queryKey,
+      } as const;
 
       const optimisticExercise = {
         id: Math.random(),
@@ -132,16 +136,38 @@ const useCreateExercise = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(key, (exercises) => {
+      const optimisticTile = {
+        exerciseId: optimisticExercise.id,
+        id: Math.random(),
+        type: "exercise" as const,
+        userId: user.data.id,
+        index: 100000,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      queryClient.setQueryData(key.exercises, (exercises) => {
         if (!exercises) {
           return [];
         }
 
         return [optimisticExercise, ...exercises];
       });
+
+      queryClient.setQueryData(key.user, (user) => {
+        if (!user) {
+          return user;
+        }
+
+        return {
+          ...user,
+          dashboardTiles: [optimisticTile, ...user.dashboardTiles],
+        };
+      });
     },
-    onSettled: () => {
+    onSettled: async () => {
       void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
+      void queryClient.invalidateQueries(userKeys.get);
     },
   });
 };

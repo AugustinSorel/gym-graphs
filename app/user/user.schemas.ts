@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
 
 export const userSchema = z.object({
   id: z

@@ -6,6 +6,6 @@ const get = queryOptions({
   queryFn: () => getUserAction(),
 });
 
-export const userKey = {
+export const userKeys = {
   get,
 };
