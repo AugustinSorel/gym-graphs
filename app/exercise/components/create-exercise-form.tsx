@@ -136,33 +136,12 @@ const useCreateExercise = () => {
         updatedAt: new Date(),
       };
 
-      const optimisticTile = {
-        exerciseId: optimisticExercise.id,
-        id: Math.random(),
-        type: "exercise" as const,
-        userId: user.data.id,
-        index: 100000,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
       queryClient.setQueryData(key.exercises, (exercises) => {
         if (!exercises) {
           return [];
         }
 
         return [optimisticExercise, ...exercises];
-      });
-
-      queryClient.setQueryData(key.user, (user) => {
-        if (!user) {
-          return user;
-        }
-
-        return {
-          ...user,
-          dashboardTiles: [optimisticTile, ...user.dashboardTiles],
-        };
       });
     },
     onSettled: async () => {
