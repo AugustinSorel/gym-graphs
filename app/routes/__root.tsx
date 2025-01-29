@@ -132,7 +132,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: remove window.location.herf in github-sign-in.tsx
 
 //BUG: header on mobile moves up and down
-//BUG: upgrade drizzle and remove todo in schema file
 //BUG: upgrade to tailwind v4
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises

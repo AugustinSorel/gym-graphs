@@ -111,7 +111,6 @@ export const emailVerificationRelations = relations(
 
 export const oauthProviders = pgEnum("oauth_provider", ["github"]);
 
-//BUG: unique constraint does not work with new drizzle sintax
 export const oauthAccountTable = pgTable(
   "oauth_account",
   {
@@ -123,9 +122,9 @@ export const oauthAccountTable = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.providerId, table.providerUserId] }),
-  }),
+  (table) => [
+    primaryKey({ columns: [table.providerId, table.providerUserId] }),
+  ],
 );
 
 export type OauthAccount = Readonly<typeof oauthAccountTable.$inferSelect>;
@@ -190,7 +189,6 @@ export const resetPasswordRelations = relations(
   }),
 );
 
-//BUG: unique constraint does not work with new drizzle sintax
 export const exerciseTable = pgTable(
   "exercise",
   {
@@ -202,9 +200,7 @@ export const exerciseTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    unq: unique().on(table.userId, table.name),
-  }),
+  (table) => [unique().on(table.userId, table.name)],
 );
 
 export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
@@ -222,7 +218,6 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   }),
 }));
 
-//BUG: unique constraint does not work with new drizzle sintax
 export const setTable = pgTable(
   "set",
   {
@@ -236,9 +231,7 @@ export const setTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    unq: unique().on(table.doneAt, table.exerciseId),
-  }),
+  (table) => [unique().on(table.doneAt, table.exerciseId)],
 );
 
 export type Set = Readonly<typeof setTable.$inferSelect>;
@@ -250,7 +243,6 @@ export const setRelations = relations(setTable, ({ one }) => ({
   }),
 }));
 
-//BUG: unique constraint does not work with new drizzle sintax
 export const exerciseTagTable = pgTable(
   "exercise_tag",
   {
@@ -263,9 +255,7 @@ export const exerciseTagTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.exerciseId, table.tagId] }),
-  }),
+  (table) => [primaryKey({ columns: [table.exerciseId, table.tagId] })],
 );
 
 export const exerciseTagRelations = relations(exerciseTagTable, ({ one }) => ({
@@ -279,7 +269,6 @@ export const exerciseTagRelations = relations(exerciseTagTable, ({ one }) => ({
   }),
 }));
 
-//BUG: unique constraint does not work with new drizzle sintax
 export const tagTable = pgTable(
   "tag",
   {
@@ -291,9 +280,7 @@ export const tagTable = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    unq: unique().on(table.name, table.userId),
-  }),
+  (table) => [unique().on(table.name, table.userId)],
 );
 
 export type Tag = Readonly<typeof tagTable.$inferSelect>;
