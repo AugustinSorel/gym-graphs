@@ -230,6 +230,7 @@ const ExerciseTile = (
         <Link
           to="/exercises/$exerciseId"
           params={{ exerciseId: exercise.id }}
+          aria-label={`go to exercise ${exercise.id}`}
         />
       </Button>
 
@@ -239,6 +240,7 @@ const ExerciseTile = (
           size="icon"
           variant="ghost"
           className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
           suppressHydrationWarning
@@ -272,6 +274,7 @@ const TagsFrequencyTile = (props: TileProps) => {
           size="icon"
           variant="ghost"
           className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
           suppressHydrationWarning
@@ -306,6 +309,7 @@ const ExercisesFrequencyTile = (props: TileProps) => {
           size="icon"
           variant="ghost"
           className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
           suppressHydrationWarning
@@ -344,6 +348,7 @@ const ExercisesFunFactsTile = (props: TileProps) => {
           size="icon"
           variant="ghost"
           className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
           suppressHydrationWarning
@@ -378,6 +383,7 @@ const SetsHeatMapTile = (props: TileProps) => {
           size="icon"
           variant="ghost"
           className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
           suppressHydrationWarning

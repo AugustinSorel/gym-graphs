@@ -95,7 +95,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   const loaderData = Route.useLoaderData();
 
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <Meta />
         <AnalyticScript />
@@ -137,4 +137,3 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: infite scroll for exercises
 //TODO: teams
 //TODO: add limit
-//TODO: lighthouse + w3c

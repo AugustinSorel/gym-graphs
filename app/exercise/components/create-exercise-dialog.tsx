@@ -17,7 +17,7 @@ export const CreateExerciseDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button aria-label="create exercise">
           <span className="hidden sm:block">create exercise</span>
           <Plus className="size-4 sm:hidden" />
         </Button>

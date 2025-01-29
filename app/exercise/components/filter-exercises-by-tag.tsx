@@ -24,6 +24,7 @@ export const FilterExercisesByTag = () => {
           variant="outline"
           className="relative after:absolute after:right-0 after:top-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:border after:border-border after:bg-primary after:text-xs after:font-semibold after:text-primary-foreground after:content-[attr(data-counter)] data-[counter=0]:after:hidden"
           data-counter={tags.size}
+          aria-label="filter exercises by tags"
         >
           <span className="hidden sm:block">tags</span>
           <Filter className="sm:hidden" />

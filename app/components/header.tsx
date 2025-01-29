@@ -111,6 +111,7 @@ const MobileNav = () => {
         asChild
         variant="ghost"
         className="data-[status=active]:bg-accent"
+        aria-label="go to teams"
       >
         <Link to="/settings">
           <UsersRound />
@@ -120,6 +121,7 @@ const MobileNav = () => {
         asChild
         variant="ghost"
         className="data-[status=active]:bg-accent"
+        aria-label="go to dashboard"
       >
         <Link to="/dashboard">
           <Home />
@@ -129,6 +131,7 @@ const MobileNav = () => {
         asChild
         variant="ghost"
         className="data-[status=active]:bg-accent"
+        aria-label="go to settings"
       >
         <Link to="/settings">
           <User2 />
