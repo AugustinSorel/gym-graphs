@@ -64,10 +64,10 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
     },
     with: {
       dashboardTiles: {
-        orderBy: [desc(dashboardTileTable.index)],
+        orderBy: desc(dashboardTileTable.index),
       },
       tags: {
-        orderBy: [asc(tagTable.createdAt)],
+        orderBy: asc(tagTable.createdAt),
         with: {
           exercises: true,
         },
