@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { oneRepMaxAlgoEnum, weightUnitEnum } from "~/db/db.schemas";
+import { exerciseSchema } from "~/exercise/exericse.schemas";
 
 export const userSchema = z.object({
   id: z
@@ -25,7 +25,7 @@ export const userSchema = z.object({
     .trim()
     .min(3, "name must be at least 3 characters")
     .max(255, "name must be at most 255 characters"),
-  weightUnit: z.enum(weightUnitEnum.enumValues, {
+  weightUnit: z.enum(["kg", "lbs"], {
     required_error: "weight unit is required",
     invalid_type_error: "weight unit must be valid",
   }),
@@ -37,8 +37,42 @@ export const userSchema = z.object({
     .trim()
     .min(3, "password must be at least 3 characters")
     .max(255, "password must be at most 255 characters"),
-  oneRepMaxAlgo: z.enum(oneRepMaxAlgoEnum.enumValues, {
-    required_error: "one rep max algo is required",
-    invalid_type_error: "one rep max algo must be valid",
-  }),
+  oneRepMaxAlgo: z.enum(
+    [
+      "adams",
+      "baechle",
+      "berger",
+      "brown",
+      "brzycki",
+      "epley",
+      "kemmler",
+      "landers",
+      "lombardi",
+      "mayhew",
+      "naclerio",
+      "oConner",
+      "wathen",
+    ],
+    {
+      required_error: "one rep max algo is required",
+      invalid_type_error: "one rep max algo must be valid",
+    },
+  ),
+});
+
+export const dashboardTileSchema = z.object({
+  type: z.enum(
+    [
+      "exercise",
+      "exercisesFrequency",
+      "tagsFrequency",
+      "exercisesFunFacts",
+      "setsHeatMap",
+    ],
+    {
+      required_error: "type is required",
+      invalid_type_error: "type must be valid",
+    },
+  ),
+  exerciseId: z.number().nullable(),
 });

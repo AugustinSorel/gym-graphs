@@ -8,25 +8,20 @@ import {
   pgEnum,
   primaryKey,
   pgTable,
+  serial,
 } from "drizzle-orm/pg-core";
+import { dashboardTileSchema } from "~/user/user.schemas";
+import { userSchema } from "~/user/user.schemas";
 
-export const weightUnitEnum = pgEnum("weight_unit", ["kg", "lbs"]);
+export const weightUnitEnum = pgEnum(
+  "weight_unit",
+  userSchema.shape.weightUnit.options,
+);
 
-export const oneRepMaxAlgoEnum = pgEnum("one_rep_max_algo", [
-  "adams",
-  "baechle",
-  "berger",
-  "brown",
-  "brzycki",
-  "epley",
-  "kemmler",
-  "landers",
-  "lombardi",
-  "mayhew",
-  "naclerio",
-  "oConner",
-  "wathen",
-]);
+export const oneRepMaxAlgoEnum = pgEnum(
+  "one_rep_max_algo",
+  userSchema.shape.oneRepMaxAlgo.options,
+);
 
 export const userTable = pgTable("user", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -52,7 +47,40 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   exercises: many(exerciseTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
+  dashboardTiles: many(dashboardTileTable),
 }));
+
+export const dashboardTileTypeEnum = pgEnum(
+  "dashboard_tile_type",
+  dashboardTileSchema.shape.type.options,
+);
+
+export const dashboardTileTable = pgTable("dashboard_tile", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  type: dashboardTileTypeEnum().notNull(),
+  index: serial("index"),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  exerciseId: integer("exercise_id").references(() => exerciseTable.id, {
+    onDelete: "cascade",
+  }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type DashboardTile = Readonly<typeof dashboardTileTable.$inferSelect>;
+
+export const dashboardItemRelations = relations(
+  dashboardTileTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [dashboardTileTable.userId],
+      references: [userTable.id],
+    }),
+    exercise: one(exerciseTable),
+  }),
+);
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -188,6 +216,10 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   }),
   sets: many(setTable),
   tags: many(exerciseTagTable),
+  dashboardTile: one(dashboardTileTable, {
+    fields: [exerciseTable.id],
+    references: [dashboardTileTable.exerciseId],
+  }),
 }));
 
 //BUG: unique constraint does not work with new drizzle sintax
