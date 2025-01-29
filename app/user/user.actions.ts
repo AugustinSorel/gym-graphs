@@ -67,7 +67,7 @@ export const updateDashboardTilesOrderAction = createServerFn({
     await db.transaction(async (tx) => {
       await deleteDashboardTiles(context.user.id, tx);
 
-      const tiles = data.map((d) => ({
+      const tiles = data.toReversed().map((d) => ({
         type: d.type,
         exerciseId: d.exerciseId,
         userId: context.user.id,

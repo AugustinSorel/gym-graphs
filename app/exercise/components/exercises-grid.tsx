@@ -29,6 +29,7 @@ import { Fragment, useRef, useState } from "react";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDashboardTilesOrderAction } from "~/user/user.actions";
+import { userKeys } from "~/user/user.key";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
@@ -37,7 +38,6 @@ import type {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 import type { DashboardTile } from "~/db/db.schemas";
-import { userKeys } from "~/user/user.key";
 
 export const ExercisesGrid = () => {
   const items = useGridItems();
@@ -155,9 +155,7 @@ const SortableGrid = (props: {
           };
         });
 
-        udpateDashboardTilesOrder.mutate({
-          data: itemsOrdered.toReversed(),
-        });
+        udpateDashboardTilesOrder.mutate({ data: itemsOrdered });
       }
     }
   };
