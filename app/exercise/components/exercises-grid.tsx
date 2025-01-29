@@ -212,7 +212,7 @@ const ExerciseTile = (
   const exercise = exercises.data.find((e) => e.id === props.exerciseId);
 
   if (!exercise) {
-    throw new Error("no exercise");
+    return null;
   }
 
   const x = sortable.transform?.x ?? 0;
