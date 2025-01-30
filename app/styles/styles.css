@@ -104,3 +104,15 @@
     -webkit-appearance: none;
   }
 }
+
+@layer utilities {
+  @media (pointer: coarse) {
+    .opacity-full-on-touch-device {
+      opacity: 100;
+    }
+
+    .disalbe-interaction-on-touch-device {
+      pointer-events: none;
+    }
+  }
+}

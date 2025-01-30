@@ -13,6 +13,7 @@ import {
   DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -121,6 +122,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
+    useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -233,7 +235,7 @@ const ExerciseTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -267,7 +269,7 @@ const TagsFrequencyTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -315,7 +317,7 @@ const ExercisesFrequencyTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -358,7 +360,7 @@ const ExercisesFunFactsTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -402,7 +404,7 @@ const SetsHeatMapTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
