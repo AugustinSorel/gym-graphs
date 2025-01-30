@@ -12,7 +12,7 @@ import {
   DndContext,
   DragEndEvent,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -121,7 +121,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(MouseSensor),
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -211,11 +211,10 @@ const ExerciseTile = (props: TileProps) => {
     throw new Error("no exercise");
   }
 
-  const x = sortable.transform?.x ?? 0;
-  const y = sortable.transform?.y ?? 0;
-
   const style: Readonly<CSSProperties> = {
-    transform: `translate3d(${x ? Math.round(x) : 0}px, ${y ? Math.round(y) : 0}px, 0)`,
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
     transition: sortable.transition,
     zIndex: sortable.isDragging ? "100" : "auto",
   };
@@ -253,11 +252,10 @@ const ExerciseTile = (props: TileProps) => {
 const TagsFrequencyTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  const x = sortable.transform?.x ?? 0;
-  const y = sortable.transform?.y ?? 0;
-
   const style: Readonly<CSSProperties> = {
-    transform: `translate3d(${x ? Math.round(x) : 0}px, ${y ? Math.round(y) : 0}px, 0)`,
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
     transition: sortable.transition,
     zIndex: sortable.isDragging ? "100" : "auto",
   };
@@ -301,11 +299,10 @@ const ExercisesFrequencyTile = (props: TileProps) => {
       };
     });
 
-  const x = sortable.transform?.x ?? 0;
-  const y = sortable.transform?.y ?? 0;
-
   const style: Readonly<CSSProperties> = {
-    transform: `translate3d(${x ? Math.round(x) : 0}px, ${y ? Math.round(y) : 0}px, 0)`,
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
     transition: sortable.transition,
     zIndex: sortable.isDragging ? "100" : "auto",
   };
@@ -344,11 +341,10 @@ const ExercisesFunFactsTile = (props: TileProps) => {
       return tile.exercise;
     });
 
-  const x = sortable.transform?.x ?? 0;
-  const y = sortable.transform?.y ?? 0;
-
   const style: Readonly<CSSProperties> = {
-    transform: `translate3d(${x ? Math.round(x) : 0}px, ${y ? Math.round(y) : 0}px, 0)`,
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
     transition: sortable.transition,
     zIndex: sortable.isDragging ? "100" : "auto",
   };
@@ -388,11 +384,11 @@ const SetsHeatMapTile = (props: TileProps) => {
     });
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
-  const x = sortable.transform?.x ?? 0;
-  const y = sortable.transform?.y ?? 0;
 
   const style: Readonly<CSSProperties> = {
-    transform: `translate3d(${x ? Math.round(x) : 0}px, ${y ? Math.round(y) : 0}px, 0)`,
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
     transition: sortable.transition,
     zIndex: sortable.isDragging ? "100" : "auto",
   };
