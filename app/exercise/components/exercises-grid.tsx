@@ -63,7 +63,7 @@ export const ExercisesGrid = () => {
 };
 
 const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
-  const items = useGridTiles();
+  const tiles = useGridTiles();
   const user = useUser();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
@@ -71,7 +71,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
   const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
-    return items.findIndex((item) => item.id === id);
+    return tiles.findIndex((tile) => tile.id === id);
   };
 
   const getPosition = (id: UniqueIdentifier) => {
@@ -82,7 +82,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
 
   const announcements: Readonly<Announcements> = {
     onDragStart: ({ active }) => {
-      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${items.length}`;
+      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${tiles.length}`;
     },
 
     onDragOver: ({ active, over }) => {
@@ -92,21 +92,21 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       }
 
       if (over) {
-        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${items.length}`;
+        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${tiles.length}`;
       }
 
       return;
     },
     onDragEnd: ({ active, over }) => {
       if (over) {
-        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${items.length}`;
+        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${tiles.length}`;
       }
 
       return;
     },
 
     onDragCancel: ({ active }) => {
-      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${items.length}.`;
+      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${tiles.length}.`;
     },
   };
 
@@ -140,20 +140,21 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       const overIndex = getIndex(over.id);
 
       if (activeIndex !== overIndex) {
-        const itemsOrdered = arrayMove(items, activeIndex, overIndex);
-        const key = {
-          tiles: userKeys.dashboardTiles(user.data.id).queryKey,
-        };
+        const tilesOrdered = arrayMove(tiles, activeIndex, overIndex);
 
-        queryClient.setQueryData(key.tiles, (tiles) => {
+        const keys = {
+          tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        } as const;
+
+        queryClient.setQueryData(keys.tiles, (tiles) => {
           if (!tiles) {
             return tiles;
           }
 
-          return itemsOrdered;
+          return tilesOrdered;
         });
 
-        udpateDashboardTilesOrder.mutate({ data: itemsOrdered });
+        udpateDashboardTilesOrder.mutate({ data: tilesOrdered });
       }
     }
   };
@@ -174,8 +175,8 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       onDragEnd={dragEndHandler}
       onDragCancel={dragCancelHandler}
     >
-      <SortableContext items={items} strategy={rectSortingStrategy}>
-        {items.map((item) => (
+      <SortableContext items={tiles} strategy={rectSortingStrategy}>
+        {tiles.map((item) => (
           <Fragment key={item.id}>{props.children(item)}</Fragment>
         ))}
       </SortableContext>
