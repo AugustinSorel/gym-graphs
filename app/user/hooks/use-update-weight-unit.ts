@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateWeightUnitAction } from "~/user/user.actions";
-import { userKeys } from "../user.key";
+import { userKeys } from "~/user/user.keys";
 
 export const useUpdateWeightUnit = () => {
   const queryClient = useQueryClient();

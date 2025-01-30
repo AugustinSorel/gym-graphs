@@ -39,7 +39,7 @@ import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
 import type { ComponentProps } from "react";

@@ -21,7 +21,7 @@ import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 
 type Props = Readonly<{
   onSuccess?: () => void;

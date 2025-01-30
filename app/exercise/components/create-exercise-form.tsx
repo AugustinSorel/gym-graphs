@@ -16,7 +16,7 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";
 
 type Props = Readonly<{

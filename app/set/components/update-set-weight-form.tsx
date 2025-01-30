@@ -21,7 +21,7 @@ import { updateSetWeightAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 
 export const UpdateSetWeightForm = (props: Props) => {
   const form = useCreateExerciseForm();

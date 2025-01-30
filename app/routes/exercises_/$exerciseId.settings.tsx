@@ -22,7 +22,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({

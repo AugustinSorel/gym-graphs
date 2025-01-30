@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUser } from "~/user/hooks/use-user";
 import { useSearch } from "@tanstack/react-router";
-import { userKeys } from "../user.key";
+import { userKeys } from "~/user/user.keys";
 
 export const useDashboardTiles = () => {
   const user = useUser();

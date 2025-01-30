@@ -19,7 +19,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";
 
 export const RenameExerciseForm = (props: Props) => {

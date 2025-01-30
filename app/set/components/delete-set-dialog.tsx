@@ -17,7 +17,7 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 
 export const DeleteSetDialog = () => {
   const set = useSet();

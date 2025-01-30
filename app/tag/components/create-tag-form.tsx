@@ -16,7 +16,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";
 
 type Props = Readonly<{

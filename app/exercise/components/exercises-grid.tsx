@@ -28,7 +28,7 @@ import { Fragment, useRef, useState } from "react";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDashboardTilesOrderAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";

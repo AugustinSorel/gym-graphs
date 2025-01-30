@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
-import { userKeys } from "../user.key";
+import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";
 
 type Props = Readonly<{

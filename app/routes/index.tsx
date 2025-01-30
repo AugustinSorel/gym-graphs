@@ -11,7 +11,7 @@ import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
-import { userKeys } from "~/user/user.key";
+import { userKeys } from "~/user/user.keys";
 import { userMock } from "~/user/user.mock";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
