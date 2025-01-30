@@ -84,7 +84,7 @@ const useDeleteSet = () => {
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
       } as const;
 
@@ -126,7 +126,7 @@ const useDeleteSet = () => {
     onSettled: () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, set.exerciseId),
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

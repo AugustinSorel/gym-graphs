@@ -7,7 +7,7 @@ const get = queryOptions({
   queryFn: () => getUserAction(),
 });
 
-const getDashboardTiles = (userId: DashboardTile["userId"]) =>
+const dashboardTiles = (userId: DashboardTile["userId"]) =>
   queryOptions({
     queryKey: ["user", userId, "dashboard-tiles"],
     queryFn: () => selectDashboardTilesAction(),
@@ -15,5 +15,5 @@ const getDashboardTiles = (userId: DashboardTile["userId"]) =>
 
 export const userKeys = {
   get,
-  getDashboardTiles,
+  dashboardTiles,
 };

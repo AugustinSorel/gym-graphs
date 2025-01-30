@@ -87,7 +87,7 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
       } as const;
@@ -106,7 +106,7 @@ const useDeleteExercise = () => {
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
       } as const;
 

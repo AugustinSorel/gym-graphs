@@ -120,7 +120,7 @@ const useUpdateSetRepetitions = () => {
     mutationFn: updateSetRepetitionsAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
         exericse: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
@@ -176,7 +176,7 @@ const useUpdateSetRepetitions = () => {
     onSettled: () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

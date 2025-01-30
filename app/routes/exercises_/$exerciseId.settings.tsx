@@ -259,7 +259,7 @@ const useUpdateExerciseTags = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -314,7 +314,7 @@ const useUpdateExerciseTags = () => {
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

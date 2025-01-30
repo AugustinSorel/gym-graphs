@@ -84,7 +84,7 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = userKeys.getDashboardTiles(user.data.id).queryKey;
+      const key = userKeys.dashboardTiles(user.data.id).queryKey;
       const cachedTiles = queryClient.getQueryData(key);
 
       const nameTaken = cachedTiles?.find((tile) => {
@@ -121,7 +121,7 @@ const useCreateExercise = () => {
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
       const key = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(key.tiles, (tiles) => {
@@ -154,9 +154,7 @@ const useCreateExercise = () => {
       });
     },
     onSettled: async () => {
-      void queryClient.invalidateQueries(
-        userKeys.getDashboardTiles(user.data.id),
-      );
+      void queryClient.invalidateQueries(userKeys.dashboardTiles(user.data.id));
     },
   });
 };

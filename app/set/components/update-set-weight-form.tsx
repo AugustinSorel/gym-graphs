@@ -120,7 +120,7 @@ const useUpdateWeight = () => {
     mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
@@ -175,7 +175,7 @@ const useUpdateWeight = () => {
     },
     onSettled: () => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
       } as const;
 

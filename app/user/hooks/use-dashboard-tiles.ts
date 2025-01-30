@@ -8,7 +8,7 @@ export const useDashboardTiles = () => {
   const search = useSearch({ strict: false });
 
   return useSuspenseQuery({
-    ...userKeys.getDashboardTiles(user.data.id),
+    ...userKeys.dashboardTiles(user.data.id),
     select: (tiles) => {
       return tiles.filter((tile) => {
         if (tile.type !== "exercise") {

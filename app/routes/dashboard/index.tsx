@@ -27,7 +27,7 @@ export const Route = createFileRoute("/dashboard/")({
   },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      userKeys.getDashboardTiles(context.user.id),
+      userKeys.dashboardTiles(context.user.id),
     );
   },
 });

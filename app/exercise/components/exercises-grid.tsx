@@ -142,7 +142,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       if (activeIndex !== overIndex) {
         const itemsOrdered = arrayMove(items, activeIndex, overIndex);
         const key = {
-          tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+          tiles: userKeys.dashboardTiles(user.data.id).queryKey,
         };
 
         queryClient.setQueryData(key.tiles, (tiles) => {

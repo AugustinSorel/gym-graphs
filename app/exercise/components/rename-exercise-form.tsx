@@ -98,7 +98,7 @@ const useFormSchema = () => {
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
       const keys = {
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(keys.tiles);
@@ -144,7 +144,7 @@ const useRenameExercise = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
-        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -181,7 +181,7 @@ const useRenameExercise = () => {
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: userKeys.getDashboardTiles(user.data.id),
+        tiles: userKeys.dashboardTiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
