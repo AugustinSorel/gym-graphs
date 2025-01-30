@@ -4,7 +4,6 @@ import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-g
 import { Button } from "~/ui/button";
 import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
-import { useExercises } from "~/exercise/hooks/use-exericses";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 import {
@@ -30,6 +29,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDashboardTilesOrderAction } from "~/user/user.actions";
 import { userKeys } from "~/user/user.key";
+import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
@@ -37,25 +37,24 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import type { DashboardTile } from "~/db/db.schemas";
 
 export const ExercisesGrid = () => {
-  const items = useGridItems();
+  const tiles = useGridTiles();
 
-  if (!items.length) {
+  if (!tiles.length) {
     return <NoExercisesText>no exercises</NoExercisesText>;
   }
 
   return (
     <Grid>
       <SortableGrid>
-        {(item) => (
+        {(tile) => (
           <CatchBoundary
             errorComponent={ExerciseFallback}
             getResetKey={() => "reset"}
-            key={item.id}
+            key={tile.id}
           >
-            <Tile item={item} />
+            <Tile tile={tile} />
           </CatchBoundary>
         )}
       </SortableGrid>
@@ -63,10 +62,9 @@ export const ExercisesGrid = () => {
   );
 };
 
-const SortableGrid = (props: {
-  children: (item: DashboardTile) => ReactNode;
-}) => {
-  const items = useGridItems();
+const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
+  const items = useGridTiles();
+  const user = useUser();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
   const udpateDashboardTilesOrder = useUpdateDashboardTilesOrder();
@@ -143,16 +141,16 @@ const SortableGrid = (props: {
 
       if (activeIndex !== overIndex) {
         const itemsOrdered = arrayMove(items, activeIndex, overIndex);
+        const key = {
+          tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        };
 
-        queryClient.setQueryData(userKeys.get.queryKey, (user) => {
-          if (!user) {
-            return user;
+        queryClient.setQueryData(key.tiles, (tiles) => {
+          if (!tiles) {
+            return tiles;
           }
 
-          return {
-            ...user,
-            dashboardTiles: itemsOrdered,
-          };
+          return itemsOrdered;
         });
 
         udpateDashboardTilesOrder.mutate({ data: itemsOrdered });
@@ -185,34 +183,28 @@ const SortableGrid = (props: {
   );
 };
 
-const Tile = (props: { item: DashboardTile }) => {
-  switch (props.item.type) {
+const Tile = (props: TileProps) => {
+  switch (props.tile.type) {
     case "exercise":
-      const exerciseId = props.item.exerciseId;
-      return <ExerciseTile exerciseId={exerciseId} tileId={props.item.id} />;
+      return <ExerciseTile tile={props.tile} />;
     case "exercisesFrequency":
-      return <ExercisesFrequencyTile tileId={props.item.id} />;
+      return <ExercisesFrequencyTile tile={props.tile} />;
     case "tagsFrequency":
-      return <TagsFrequencyTile tileId={props.item.id} />;
+      return <TagsFrequencyTile tile={props.tile} />;
     case "exercisesFunFacts":
-      return <ExercisesFunFactsTile tileId={props.item.id} />;
+      return <ExercisesFunFactsTile tile={props.tile} />;
     case "setsHeatMap":
-      return <SetsHeatMapTile tileId={props.item.id} />;
+      return <SetsHeatMapTile tile={props.tile} />;
   }
 
-  props.item.type satisfies never;
+  props.tile.type satisfies never;
 };
 
-const ExerciseTile = (
-  props: TileProps & { exerciseId: DashboardTile["exerciseId"] },
-) => {
-  const exercises = useExercises();
-  const sortable = useSortable({ id: props.tileId });
+const ExerciseTile = (props: TileProps) => {
+  const sortable = useSortable({ id: props.tile.id });
 
-  const exercise = exercises.data.find((e) => e.id === props.exerciseId);
-
-  if (!exercise) {
-    return null;
+  if (!props.tile.exercise) {
+    throw new Error("no exercise");
   }
 
   const x = sortable.transform?.x ?? 0;
@@ -229,13 +221,13 @@ const ExerciseTile = (
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: exercise.id }}
-          aria-label={`go to exercise ${exercise.id}`}
+          params={{ exerciseId: props.tile.exercise.id }}
+          aria-label={`go to exercise ${props.tile.exercise.id}`}
         />
       </Button>
 
       <CardHeader>
-        <Name>{exercise.name}</Name>
+        <Name>{props.tile.exercise.name}</Name>
         <Button
           size="icon"
           variant="ghost"
@@ -249,13 +241,13 @@ const ExerciseTile = (
         </Button>
       </CardHeader>
 
-      <ExerciseOverviewGraph sets={exercise.sets} />
+      <ExerciseOverviewGraph sets={props.tile.exercise.sets} />
     </Card>
   );
 };
 
 const TagsFrequencyTile = (props: TileProps) => {
-  const sortable = useSortable({ id: props.tileId });
+  const sortable = useSortable({ id: props.tile.id });
 
   const x = sortable.transform?.x ?? 0;
   const y = sortable.transform?.y ?? 0;
@@ -289,8 +281,21 @@ const TagsFrequencyTile = (props: TileProps) => {
 };
 
 const ExercisesFrequencyTile = (props: TileProps) => {
-  const exercises = useExercises();
-  const sortable = useSortable({ id: props.tileId });
+  const sortable = useSortable({ id: props.tile.id });
+
+  const tiles = useGridTiles();
+  const data = tiles
+    .filter((tile) => tile.exercise != null)
+    .map((tile) => {
+      if (!tile.exercise) {
+        throw new Error("no tile.exercise");
+      }
+
+      return {
+        frequency: tile.exercise.sets.length,
+        name: tile.exercise.name,
+      };
+    });
 
   const x = sortable.transform?.x ?? 0;
   const y = sortable.transform?.y ?? 0;
@@ -318,18 +323,22 @@ const ExercisesFrequencyTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <ExercisesRadarGraph
-        data={exercises.data.map((exercise) => ({
-          frequency: exercise.sets.length,
-          name: exercise.name,
-        }))}
-      />
+      <ExercisesRadarGraph data={data} />
     </Card>
   );
 };
 
 const ExercisesFunFactsTile = (props: TileProps) => {
-  const sortable = useSortable({ id: props.tileId });
+  const sortable = useSortable({ id: props.tile.id });
+  const tiles = useGridTiles();
+  const exercises = tiles
+    .filter((tile) => Boolean(tile.exercise))
+    .flatMap((tile) => {
+      if (!tile.exercise) {
+        throw new Error("no tile.exercise");
+      }
+      return tile.exercise;
+    });
 
   const x = sortable.transform?.x ?? 0;
   const y = sortable.transform?.y ?? 0;
@@ -357,13 +366,22 @@ const ExercisesFunFactsTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <ExercisesFunFacts />
+      <ExercisesFunFacts exercises={exercises} />
     </Card>
   );
 };
 
 const SetsHeatMapTile = (props: TileProps) => {
-  const sortable = useSortable({ id: props.tileId });
+  const sortable = useSortable({ id: props.tile.id });
+  const tiles = useGridTiles();
+  const exercises = tiles
+    .filter((tile) => Boolean(tile.exercise))
+    .flatMap((tile) => {
+      if (!tile.exercise) {
+        throw new Error("no tile.exercise");
+      }
+      return tile.exercise;
+    });
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
   const x = sortable.transform?.x ?? 0;
@@ -392,22 +410,22 @@ const SetsHeatMapTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <SetsHeatMapGraph />
+      <SetsHeatMapGraph exercises={exercises} />
     </Card>
   );
 };
 
-type TileProps = Readonly<{ tileId: DashboardTile["id"] }>;
+type Tile = Readonly<ReturnType<typeof useGridTiles>[number]>;
+type TileProps = Readonly<{ tile: Tile }>;
 
-const useGridItems = () => {
-  const exercises = useExercises();
-  const user = useUser();
+const useGridTiles = () => {
+  const tiles = useDashboardTiles();
 
-  if (!exercises.data.length) {
+  if (!tiles.data.length) {
     return [];
   }
 
-  return user.data.dashboardTiles;
+  return tiles.data;
 };
 
 const useUpdateDashboardTilesOrder = () => {

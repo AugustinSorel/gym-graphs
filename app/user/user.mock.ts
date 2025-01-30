@@ -107,5 +107,4 @@ export const userMock = {
     },
   ],
   oneRepMaxAlgo: "epley",
-  dashboardTiles: [],
 } as const satisfies Awaited<ReturnType<typeof selectClientUser>>;

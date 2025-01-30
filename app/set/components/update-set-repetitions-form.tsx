@@ -21,6 +21,7 @@ import { updateSetRepetitionsAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
+import { userKeys } from "~/user/user.key";
 
 export const UpdateSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -119,52 +120,51 @@ const useUpdateSetRepetitions = () => {
     mutationFn: updateSetRepetitionsAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        exericse: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
-      const optimisticExerciseSet = {
-        repetitions: variables.data.repetitions,
-      };
-
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
           return [];
         }
 
-        return exercises.map((ex) => {
-          if (ex.id === exercise.data.id) {
+        return tiles.map((tile) => {
+          if (tile.exercise?.id === exercise.data.id) {
             return {
-              ...ex,
-              sets: ex.sets.map((set) => {
-                if (set.id === variables.data.setId) {
-                  return {
-                    ...set,
-                    ...optimisticExerciseSet,
-                  };
-                }
+              ...tile,
+              exercise: {
+                ...tile.exercise,
+                sets: tile.exercise.sets.map((set) => {
+                  if (set.id === variables.data.setId) {
+                    return {
+                      ...set,
+                      repetitions: variables.data.repetitions,
+                    };
+                  }
 
-                return set;
-              }),
+                  return set;
+                }),
+              },
             };
           }
 
-          return ex;
+          return tile;
         });
       });
 
-      queryClient.setQueryData(keys.get, (ex) => {
-        if (!ex) {
-          return ex;
+      queryClient.setQueryData(keys.exericse, (exercise) => {
+        if (!exercise) {
+          return exercise;
         }
 
         return {
-          ...ex,
-          sets: ex.sets.map((set) => {
+          ...exercise,
+          sets: exercise.sets.map((set) => {
             if (set.id === variables.data.setId) {
               return {
                 ...set,
-                ...optimisticExerciseSet,
+                repetitions: variables.data.repetitions,
               };
             }
 
@@ -174,10 +174,13 @@ const useUpdateSetRepetitions = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, exercise.data.id),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };

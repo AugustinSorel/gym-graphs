@@ -1,5 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { exerciseKeys } from "~/exercise/exercise.keys";
 import { ExercisesGrid } from "~/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/exercise/components/create-exercise-dialog";
 import { z } from "zod";
@@ -8,6 +7,7 @@ import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { userKeys } from "~/user/user.key";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/dashboard/")({
   },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      exerciseKeys.all(context.user.id),
+      userKeys.getDashboardTiles(context.user.id),
     );
   },
 });

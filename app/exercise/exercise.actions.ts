@@ -5,7 +5,6 @@ import {
   createExercise,
   deleteExercise,
   renameExercise,
-  selectDashboardExercises,
   selectExercise,
 } from "./exercise.services";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
@@ -13,12 +12,6 @@ import pg from "pg";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { insertDashboardTile } from "~/user/user.services";
-
-export const fetchExercisesAction = createServerFn({ method: "GET" })
-  .middleware([authGuardMiddleware])
-  .handler(async ({ context }) => {
-    return selectDashboardExercises(context.user.id, db);
-  });
 
 export const createExerciseAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware])

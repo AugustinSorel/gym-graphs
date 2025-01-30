@@ -1,5 +1,10 @@
 import { asc, desc, eq } from "drizzle-orm";
-import { dashboardTileTable, tagTable, userTable } from "~/db/db.schemas";
+import {
+  dashboardTileTable,
+  tagTable,
+  userTable,
+  setTable,
+} from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
@@ -63,13 +68,35 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
       oneRepMaxAlgo: true,
     },
     with: {
-      dashboardTiles: {
-        orderBy: desc(dashboardTileTable.index),
-      },
       tags: {
         orderBy: asc(tagTable.createdAt),
         with: {
           exercises: true,
+        },
+      },
+    },
+  });
+};
+
+export const selectDashboardTiles = async (
+  userId: DashboardTile["userId"],
+  db: Db,
+) => {
+  return db.query.dashboardTileTable.findMany({
+    where: eq(dashboardTileTable.userId, userId),
+    orderBy: desc(dashboardTileTable.index),
+    with: {
+      exercise: {
+        with: {
+          sets: {
+            orderBy: desc(setTable.createdAt),
+          },
+          tags: {
+            orderBy: asc(tagTable.createdAt),
+            with: {
+              tag: true,
+            },
+          },
         },
       },
     },

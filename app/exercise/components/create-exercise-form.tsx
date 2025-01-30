@@ -13,12 +13,11 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { createExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import type { z } from "zod";
 import { userKeys } from "~/user/user.key";
+import type { z } from "zod";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -85,11 +84,11 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = exerciseKeys.all(user.data.id).queryKey;
-      const cachedExercises = queryClient.getQueryData(key);
+      const key = userKeys.getDashboardTiles(user.data.id).queryKey;
+      const cachedTiles = queryClient.getQueryData(key);
 
-      const nameTaken = cachedExercises?.find((exercise) => {
-        return exercise.name === data.name;
+      const nameTaken = cachedTiles?.find((tile) => {
+        return tile.exercise?.name === data.name;
       });
 
       return !nameTaken;
@@ -122,31 +121,42 @@ const useCreateExercise = () => {
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
       const key = {
-        exercises: exerciseKeys.all(user.data.id).queryKey,
-        user: userKeys.get.queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
       } as const;
 
-      const optimisticExercise = {
-        id: Math.random(),
-        userId: user.data.id,
-        name: variables.data.name,
-        tags: [],
-        sets: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      queryClient.setQueryData(key.exercises, (exercises) => {
-        if (!exercises) {
-          return [];
+      queryClient.setQueryData(key.tiles, (tiles) => {
+        if (!tiles) {
+          return tiles;
         }
 
-        return [optimisticExercise, ...exercises];
+        const exerciseId = Math.random();
+
+        const optimisticTile = {
+          id: Math.random(),
+          index: tiles.length + 1,
+          type: "exercise" as const,
+          userId: user.data.id,
+          exerciseId,
+          exercise: {
+            id: exerciseId,
+            userId: user.data.id,
+            name: variables.data.name,
+            tags: [],
+            sets: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        return [optimisticTile, ...tiles];
       });
     },
     onSettled: async () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(userKeys.get);
+      void queryClient.invalidateQueries(
+        userKeys.getDashboardTiles(user.data.id),
+      );
     },
   });
 };

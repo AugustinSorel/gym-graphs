@@ -1,5 +1,4 @@
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
-import { useExercises } from "~/exercise/hooks/use-exericses";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { CatchBoundary } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
@@ -9,9 +8,11 @@ import {
   CarouselDot,
   CarouselItem,
 } from "~/ui/carousel";
+import { createContext, use } from "react";
+import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
 import type { ComponentProps } from "react";
 
-export const ExercisesFunFacts = () => {
+export const ExercisesFunFacts = (props: Props) => {
   const FunFacts = [
     WeightLiftedFunFact,
     NumberOfSets,
@@ -20,30 +21,52 @@ export const ExercisesFunFacts = () => {
   ];
 
   return (
-    <Carousel>
-      <CarouselBody>
-        {FunFacts.map((FunFact, i) => (
-          <CarouselItem
-            className="grid select-none grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center"
-            key={i}
-          >
-            <CatchBoundary
-              getResetKey={() => "reset"}
-              errorComponent={DefaultErrorFallback}
+    <Ctx value={props.exercises}>
+      <Carousel>
+        <CarouselBody>
+          {FunFacts.map((FunFact, i) => (
+            <CarouselItem
+              className="grid select-none grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center"
+              key={i}
             >
-              <FunFact />
-            </CatchBoundary>
-          </CarouselItem>
-        ))}
-      </CarouselBody>
+              <CatchBoundary
+                getResetKey={() => "reset"}
+                errorComponent={DefaultErrorFallback}
+              >
+                <FunFact />
+              </CatchBoundary>
+            </CarouselItem>
+          ))}
+        </CarouselBody>
 
-      <CarouselDotsContainer>
-        {FunFacts.map((_FunFact, i) => (
-          <CarouselDot key={i} index={i} />
-        ))}
-      </CarouselDotsContainer>
-    </Carousel>
+        <CarouselDotsContainer>
+          {FunFacts.map((_FunFact, i) => (
+            <CarouselDot key={i} index={i} />
+          ))}
+        </CarouselDotsContainer>
+      </Carousel>
+    </Ctx>
   );
+};
+
+type Exercise = Readonly<
+  NonNullable<ReturnType<typeof useDashboardTiles>["data"][number]["exercise"]>
+>;
+
+type Props = Readonly<{
+  exercises: ReadonlyArray<Exercise>;
+}>;
+
+const Ctx = createContext<ReadonlyArray<Exercise> | undefined>(undefined);
+
+const useExercises = () => {
+  const ctx = use(Ctx);
+
+  if (!ctx) {
+    throw new Error("");
+  }
+
+  return ctx;
 };
 
 const WeightLiftedFunFact = () => {
@@ -113,7 +136,7 @@ const LeastFavoriteExercise = () => {
 const useCalculateWeightLiftedInKg = () => {
   const exercises = useExercises();
 
-  return exercises.data.reduce((acc, curr) => {
+  return exercises.reduce((acc, curr) => {
     return (
       acc +
       curr.sets.reduce((acc, curr) => {
@@ -126,7 +149,7 @@ const useCalculateWeightLiftedInKg = () => {
 const useNumberOfSets = () => {
   const exercises = useExercises();
 
-  return exercises.data.reduce((acc, curr) => {
+  return exercises.reduce((acc, curr) => {
     return acc + curr.sets.length;
   }, 0);
 };
@@ -134,45 +157,39 @@ const useNumberOfSets = () => {
 const useFavoriteExercise = () => {
   const exercises = useExercises();
 
-  return exercises.data.reduce<(typeof exercises)["data"][number] | null>(
-    (acc, curr) => {
-      if (!acc) {
-        return curr;
-      }
+  return exercises.reduce<Exercise | null>((acc, curr) => {
+    if (!acc) {
+      return curr;
+    }
 
-      const candidateNumberOfSets = curr.sets.length;
-      const currentNumberOfSets = acc?.sets.length;
+    const candidateNumberOfSets = curr.sets.length;
+    const currentNumberOfSets = acc?.sets.length;
 
-      if (candidateNumberOfSets > currentNumberOfSets) {
-        return curr;
-      }
+    if (candidateNumberOfSets > currentNumberOfSets) {
+      return curr;
+    }
 
-      return acc;
-    },
-    null,
-  );
+    return acc;
+  }, null);
 };
 
 const useLeastFavoriteExercise = () => {
   const exercises = useExercises();
 
-  return exercises.data.reduce<(typeof exercises)["data"][number] | null>(
-    (acc, curr) => {
-      if (!acc) {
-        return curr;
-      }
+  return exercises.reduce<Exercise | null>((acc, curr) => {
+    if (!acc) {
+      return curr;
+    }
 
-      const candidateNumberOfSets = curr.sets.length;
-      const currentNumberOfSets = acc.sets.length;
+    const candidateNumberOfSets = curr.sets.length;
+    const currentNumberOfSets = acc.sets.length;
 
-      if (candidateNumberOfSets <= currentNumberOfSets) {
-        return curr;
-      }
+    if (candidateNumberOfSets <= currentNumberOfSets) {
+      return curr;
+    }
 
-      return acc;
-    },
-    null,
-  );
+    return acc;
+  }, null);
 };
 
 const Text = (props: ComponentProps<"p">) => {

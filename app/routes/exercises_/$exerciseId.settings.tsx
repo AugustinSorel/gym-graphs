@@ -22,6 +22,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
+import { userKeys } from "~/user/user.key";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
@@ -256,8 +257,9 @@ const useUpdateExerciseTags = () => {
     mutationFn: updateExerciseTagsAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
+          .queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -278,24 +280,27 @@ const useUpdateExerciseTags = () => {
           tag,
         }));
 
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
-          return exercises;
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
+          return tiles;
         }
 
-        return exercises.map((exercise) => {
-          if (exercise.id === variables.data.exerciseId) {
+        return tiles.map((tile) => {
+          if (tile.exercise?.id === variables.data.exerciseId) {
             return {
-              ...exercise,
-              tags: optimisticTags,
+              ...tile,
+              exercise: {
+                ...tile.exercise,
+                tags: optimisticTags,
+              },
             };
           }
 
-          return exercise;
+          return tile;
         });
       });
 
-      queryClient.setQueryData(keys.get, (exercise) => {
+      queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -307,10 +312,13 @@ const useUpdateExerciseTags = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, variables.data.exerciseId),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };

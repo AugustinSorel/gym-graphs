@@ -19,6 +19,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/exercise/hooks/use-exercise";
+import { userKeys } from "~/user/user.key";
 import type { z } from "zod";
 
 export const RenameExerciseForm = (props: Props) => {
@@ -96,11 +97,17 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = exerciseKeys.all(user.data.id).queryKey;
-      const cachedExercises = queryClient.getQueryData(key);
+      const keys = {
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+      } as const;
 
-      const nameTaken = cachedExercises?.find((exercise) => {
-        return exercise.name === data.name && exercise.id !== params.exerciseId;
+      const cachedTiles = queryClient.getQueryData(keys.tiles);
+
+      const nameTaken = cachedTiles?.find((tile) => {
+        return (
+          tile.exercise?.name === data.name &&
+          tile.exerciseId !== params.exerciseId
+        );
       });
 
       return !nameTaken;
@@ -135,47 +142,50 @@ const useRenameExercise = () => {
     mutationFn: renameExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, variables.data.exerciseId).queryKey,
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
+          .queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
       } as const;
 
-      const optimisticExercise = {
-        name: variables.data.name,
-      };
-
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
           return [];
         }
 
-        return exercises.map((exercise) => {
-          if (exercise.id === variables.data.exerciseId) {
+        return tiles.map((tile) => {
+          if (tile.exercise?.id === variables.data.exerciseId) {
             return {
-              ...exercise,
-              ...optimisticExercise,
+              ...tile,
+              exercise: {
+                ...tile.exercise,
+                name: variables.data.name,
+              },
             };
           }
 
-          return exercise;
+          return tile;
         });
       });
 
-      queryClient.setQueryData(keys.get, (exercise) => {
+      queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
 
         return {
           ...exercise,
-          ...optimisticExercise,
+          name: variables.data.name,
         };
       });
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, variables.data.exerciseId),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };

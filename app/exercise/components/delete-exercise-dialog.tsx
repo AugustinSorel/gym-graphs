@@ -87,43 +87,31 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        exercises: exerciseKeys.all(user.data.id).queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
-        user: userKeys.get.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.exercises, (exercises) => {
-        if (!exercises) {
-          return [];
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
+          return tiles;
         }
 
-        return exercises.filter((exercise) => {
-          return exercise.id !== variables.data.exerciseId;
-        });
-      });
-
-      queryClient.setQueryData(keys.user, (user) => {
-        if (!user) {
-          return user;
-        }
-
-        return {
-          ...user,
-          dashboardTiles: user.dashboardTiles.filter(
-            (tile) => tile.exerciseId !== variables.data.exerciseId,
-          ),
-        };
+        return tiles.filter(
+          (tile) => tile.exerciseId !== variables.data.exerciseId,
+        );
       });
 
       queryClient.setQueryData(keys.exercise, undefined);
     },
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(userKeys.get);
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, variables.data.exerciseId),
-      );
+      const keys = {
+        tiles: userKeys.getDashboardTiles(user.data.id),
+        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.tiles);
     },
   });
 };

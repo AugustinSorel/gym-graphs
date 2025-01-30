@@ -137,3 +137,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: infite scroll for exercises
 //TODO: teams
 //TODO: add limit
+//TODO: rename user.key to user.keys and useUser.tsx to useUser.ts
+//TODO: show no text in tiles rather than a blank canvas

@@ -5,12 +5,12 @@ import { HeatmapRect } from "@visx/heatmap";
 import { useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
-import { useExercises } from "~/exercise/hooks/use-exericses";
+import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { CSSProperties } from "react";
 
-export const SetsHeatMapGraph = () => {
-  const data = useData();
+export const SetsHeatMapGraph = (props: Props) => {
+  const data = prepareData(props.exercises);
 
   return (
     <ParentSize className="relative flex overflow-hidden">
@@ -173,47 +173,51 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-const useData = () => {
-  const exercises = useExercises();
+type Props = Readonly<{
+  exercises: ReadonlyArray<Exercise>;
+}>;
 
-  return useMemo(() => {
-    return exercises.data
-      .flatMap((e) => e.sets)
-      .reduce((rows, set) => {
-        const firstDayOfTheMonth = new Date(new Date(set.doneAt).setDate(1));
+type Exercise = Readonly<
+  NonNullable<ReturnType<typeof useDashboardTiles>["data"][number]["exercise"]>
+>;
 
-        const offset = (firstDayOfTheMonth.getDay() + 6) % 7;
+const prepareData = (exercises: ReadonlyArray<Exercise>) => {
+  return exercises
+    .flatMap((e) => e.sets)
+    .reduce((rows, set) => {
+      const firstDayOfTheMonth = new Date(new Date(set.doneAt).setDate(1));
 
-        const dayIndex = (set.doneAt.getDay() + 6) % 7;
-        const dateIndex = set.doneAt.getDate();
-        const weekIndex = Math.ceil((dateIndex + offset) / 7) - 1;
+      const offset = (firstDayOfTheMonth.getDay() + 6) % 7;
 
-        return rows.map((row) => {
-          if (row.dayIndex === dayIndex) {
-            return {
-              ...row,
-              bins: row.bins.map((cell) => {
-                if (cell.weekIndex === weekIndex) {
-                  return {
-                    ...cell,
-                    count: cell.count + 1,
-                  };
-                }
+      const dayIndex = (set.doneAt.getDay() + 6) % 7;
+      const dateIndex = set.doneAt.getDate();
+      const weekIndex = Math.ceil((dateIndex + offset) / 7) - 1;
 
-                return cell;
-              }),
-            };
-          }
+      return rows.map((row) => {
+        if (row.dayIndex === dayIndex) {
+          return {
+            ...row,
+            bins: row.bins.map((cell) => {
+              if (cell.weekIndex === weekIndex) {
+                return {
+                  ...cell,
+                  count: cell.count + 1,
+                };
+              }
 
-          return row;
-        });
-      }, templateData)
-      .toSorted((a, b) => a.dayIndex - b.dayIndex)
-      .map((d) => ({
-        ...d,
-        bins: d.bins.toSorted((a, b) => b.weekIndex - a.weekIndex),
-      }));
-  }, [exercises.data]);
+              return cell;
+            }),
+          };
+        }
+
+        return row;
+      });
+    }, templateData)
+    .toSorted((a, b) => a.dayIndex - b.dayIndex)
+    .map((d) => ({
+      ...d,
+      bins: d.bins.toSorted((a, b) => b.weekIndex - a.weekIndex),
+    }));
 };
 
 const templateData: ReadonlyArray<Bins> = [

@@ -7,6 +7,7 @@ import {
   insertDashboardTiles,
   renameUser,
   selectClientUser,
+  selectDashboardTiles,
   updateOneRepMaxAlgo,
   updateWeightUnit,
 } from "~/user/user.services";
@@ -26,6 +27,12 @@ export const getUserAction = createServerFn({ method: "GET" })
     }
 
     return user;
+  });
+
+export const selectDashboardTilesAction = createServerFn({ method: "GET" })
+  .middleware([authGuardMiddleware])
+  .handler(async ({ context }) => {
+    return selectDashboardTiles(context.user.id, db);
   });
 
 export const renameUserAction = createServerFn({ method: "POST" })

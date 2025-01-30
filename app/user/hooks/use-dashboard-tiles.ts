@@ -1,21 +1,25 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUser } from "~/user/hooks/use-user";
-import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useSearch } from "@tanstack/react-router";
+import { userKeys } from "../user.key";
 
-export const useExercises = () => {
+export const useDashboardTiles = () => {
   const user = useUser();
   const search = useSearch({ strict: false });
 
   return useSuspenseQuery({
-    ...exerciseKeys.all(user.data.id),
-    select: (exercises) => {
-      return exercises.filter((exercise) => {
-        const nameMatches = exercise.name.includes(search.name ?? "");
+    ...userKeys.getDashboardTiles(user.data.id),
+    select: (tiles) => {
+      return tiles.filter((tile) => {
+        if (tile.type !== "exercise") {
+          return true;
+        }
+
+        const nameMatches = tile.exercise?.name.includes(search.name ?? "");
 
         const tagsMatch =
           !search.tags?.length ||
-          exercise.tags.find((exerciseTag) =>
+          tile.exercise?.tags.find((exerciseTag) =>
             search.tags?.includes(exerciseTag.tag.name),
           );
 

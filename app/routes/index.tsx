@@ -14,10 +14,9 @@ import { HeroBackground } from "~/ui/hero-background";
 import { userKeys } from "~/user/user.key";
 import { userMock } from "~/user/user.mock";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
-import { exerciseKeys } from "~/exercise/exercise.keys";
-import type { ComponentProps } from "react";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -115,11 +114,11 @@ const FeatureOne = () => {
         </Card>
         <Card>
           <Name>fun facts</Name>
-          <ExercisesFunFacts />
+          <ExercisesFunFacts exercises={exercisesMock} />
         </Card>
         <Card>
           <Name>heat map - January</Name>
-          <SetsHeatMapGraph />
+          <SetsHeatMapGraph exercises={exercisesMock} />
         </Card>
       </Grid>
     </FeatureContainer>
@@ -348,24 +347,16 @@ const useMockHomePageData = () => {
 
   const keys = {
     user: userKeys.get.queryKey,
-    exercises: exerciseKeys.all(userMock.id).queryKey,
   };
 
   queryClient.setQueryData(keys.user, userMock);
   queryClient.setQueryDefaults(keys.user, { staleTime: Infinity });
 
-  queryClient.setQueryData(keys.exercises, exercisesMock);
-  queryClient.setQueryDefaults(keys.exercises, {
-    staleTime: Infinity,
-  });
-
   useEffect(() => {
     return () => {
       queryClient.setQueryDefaults(keys.user, { staleTime: 1000 });
-      queryClient.setQueryDefaults(keys.exercises, { staleTime: 1000 });
 
       queryClient.setQueryData(keys.user, undefined);
-      queryClient.setQueryData(keys.exercises, undefined);
     };
   }, [queryClient]);
 };

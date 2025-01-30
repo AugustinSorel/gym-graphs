@@ -1,16 +1,6 @@
-import {
-  fetchExerciseAction,
-  fetchExercisesAction,
-} from "~/exercise/exercise.actions";
+import { fetchExerciseAction } from "~/exercise/exercise.actions";
 import { queryOptions } from "@tanstack/react-query";
-import type { Exercise, User } from "~/db/db.schemas";
-
-const all = (userId: User["id"]) => {
-  return queryOptions({
-    queryKey: ["exercises", userId],
-    queryFn: () => fetchExercisesAction(),
-  });
-};
+import type { Exercise } from "~/db/db.schemas";
 
 const get = (userId: Exercise["userId"], exerciseId: Exercise["id"]) => {
   return queryOptions({
@@ -20,6 +10,5 @@ const get = (userId: Exercise["userId"], exerciseId: Exercise["id"]) => {
 };
 
 export const exerciseKeys = {
-  all,
   get,
 };

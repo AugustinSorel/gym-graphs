@@ -21,6 +21,7 @@ import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
+import { userKeys } from "~/user/user.key";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -154,8 +155,8 @@ const useCreateSet = () => {
     mutationFn: createSetAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
       };
 
       const optimisticExerciseSet = {
@@ -168,24 +169,27 @@ const useCreateSet = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
           return [];
         }
 
-        return exercises.map((exercise) => {
-          if (exercise.id === variables.data.exerciseId) {
+        return tiles.map((tile) => {
+          if (tile.exercise?.id === variables.data.exerciseId) {
             return {
-              ...exercise,
-              sets: [optimisticExerciseSet, ...exercise.sets],
+              ...tile,
+              exercise: {
+                ...tile.exercise,
+                sets: [optimisticExerciseSet, ...tile.exercise.sets],
+              },
             };
           }
 
-          return exercise;
+          return tile;
         });
       });
 
-      queryClient.setQueryData(keys.get, (exercise) => {
+      queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -197,10 +201,13 @@ const useCreateSet = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, exercise.data.id),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };

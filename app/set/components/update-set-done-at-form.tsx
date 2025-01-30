@@ -22,6 +22,7 @@ import { useSet } from "~/set/set.context";
 import { dateAsYYYYMMDD } from "~/utils/date.utils";
 import { getRouteApi } from "@tanstack/react-router";
 import type { z } from "zod";
+import { userKeys } from "~/user/user.key";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
   const form = useUpdateSetDoneAtForm();
@@ -142,52 +143,51 @@ const useUpdateSetDoneAt = () => {
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
-      const optimisticExerciseSet = {
-        doneAt: variables.data.doneAt,
-      };
-
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
           return [];
         }
 
-        return exercises.map((ex) => {
-          if (ex.id === exercise.data.id) {
+        return tiles.map((tile) => {
+          if (tile.exercise?.id === exercise.data.id) {
             return {
-              ...ex,
-              sets: ex.sets.map((set) => {
-                if (set.id === variables.data.setId) {
-                  return {
-                    ...set,
-                    ...optimisticExerciseSet,
-                  };
-                }
+              ...tile,
+              exercise: {
+                ...tile.exercise,
+                sets: tile.exercise.sets.map((set) => {
+                  if (set.id === variables.data.setId) {
+                    return {
+                      ...set,
+                      doneAt: variables.data.doneAt,
+                    };
+                  }
 
-                return set;
-              }),
+                  return set;
+                }),
+              },
             };
           }
 
-          return ex;
+          return tile;
         });
       });
 
-      queryClient.setQueryData(keys.get, (ex) => {
-        if (!ex) {
-          return ex;
+      queryClient.setQueryData(keys.exercise, (exexercise) => {
+        if (!exexercise) {
+          return exexercise;
         }
 
         return {
-          ...ex,
-          sets: ex.sets.map((set) => {
+          ...exexercise,
+          sets: exexercise.sets.map((set) => {
             if (set.id === variables.data.setId) {
               return {
                 ...set,
-                ...optimisticExerciseSet,
+                doneAt: variables.data.doneAt,
               };
             }
 
@@ -197,10 +197,13 @@ const useUpdateSetDoneAt = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, exercise.data.id),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };

@@ -17,6 +17,7 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
+import { userKeys } from "~/user/user.key";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
@@ -83,26 +84,33 @@ const useDeleteSet = () => {
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
-        all: exerciseKeys.all(user.data.id).queryKey,
-        get: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
+        tiles: userKeys.getDashboardTiles(user.data.id).queryKey,
+        exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.all, (exercises) => {
-        if (!exercises) {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
+        if (!tiles) {
           return [];
         }
 
-        return exercises.map((exercise) => {
+        return tiles.map((tile) => {
+          if (!tile.exercise) {
+            return tile;
+          }
+
           return {
-            ...exercise,
-            sets: exercise.sets.filter((set) => {
-              return set.id !== variables.data.setId;
-            }),
+            ...tile,
+            exercise: {
+              ...tile.exercise,
+              sets: tile.exercise.sets.filter((set) => {
+                return set.id !== variables.data.setId;
+              }),
+            },
           };
         });
       });
 
-      queryClient.setQueryData(keys.get, (exercise) => {
+      queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -116,10 +124,13 @@ const useDeleteSet = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(exerciseKeys.all(user.data.id));
-      void queryClient.invalidateQueries(
-        exerciseKeys.get(user.data.id, set.exerciseId),
-      );
+      const keys = {
+        exercise: exerciseKeys.get(user.data.id, set.exerciseId),
+        tiles: userKeys.getDashboardTiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercise);
     },
   });
 };
