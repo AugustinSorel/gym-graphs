@@ -33,7 +33,10 @@ const ListItem = (props: ComponentProps<"li">) => {
 
 const NoTagsText = (props: ComponentProps<"p">) => {
   return (
-    <p className="m-auto p-6 text-center text-muted-foreground" {...props} />
+    <p
+      className="m-auto p-6 text-center text-sm text-muted-foreground"
+      {...props}
+    />
   );
 };
 

@@ -40,8 +40,9 @@ import type {
 
 export const ExercisesGrid = () => {
   const tiles = useGridTiles();
+  const exerciseTiles = tiles.filter((tile) => tile.type === "exercise");
 
-  if (!tiles.length) {
+  if (!exerciseTiles.length) {
     return <NoExercisesText>no exercises</NoExercisesText>;
   }
 

@@ -6,6 +6,7 @@ import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import type { Set } from "~/db/db.schemas";
+import { ComponentProps } from "react";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -27,6 +28,10 @@ export const ExerciseOverviewGraph = (props: Props) => {
     ],
     range: [height - margin.top, margin.bottom],
   });
+
+  if (!sets.length) {
+    return <NoDataText>no data</NoDataText>;
+  }
 
   return (
     <div ref={parentRef} className="overflow-hidden">
@@ -63,3 +68,7 @@ type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
 type Props = Readonly<{
   sets: ReadonlyArray<Point>;
 }>;
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+};

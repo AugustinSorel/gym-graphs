@@ -75,8 +75,11 @@ export const ExerciseTable = ({ sets, columns }: Props) => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center text-sm text-muted-foreground"
+              >
+                no data
               </TableCell>
             </TableRow>
           )}

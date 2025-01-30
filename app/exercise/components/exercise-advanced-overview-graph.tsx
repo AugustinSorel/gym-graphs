@@ -16,7 +16,13 @@ import { WeightValue } from "~/weight-unit/components/weight-value";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import type { Set } from "~/db/db.schemas";
-import type { CSSProperties, MouseEvent, TouchEvent } from "react";
+import type {
+  ComponentProps,
+  CSSProperties,
+  MouseEvent,
+  TouchEvent,
+} from "react";
+import { CustomSortingFns } from "@tanstack/react-table";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useMemo(() => {
@@ -24,6 +30,10 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
       (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
     );
   }, [props.sets]);
+
+  if (!sets.length) {
+    return <NoDataText>no data</NoDataText>;
+  }
 
   return (
     <ParentSize className="relative flex min-h-[400px] sm:min-h-[500px]">
@@ -87,10 +97,6 @@ const Graph = ({ height, width, sets }: GraphProps) => {
     },
     [tooltip, oneRepMaxScale, timeScale],
   );
-
-  if (!sets.length) {
-    return <p className="m-auto text-muted-foreground">no sets</p>;
-  }
 
   return (
     <>
@@ -285,3 +291,12 @@ type GraphProps = Readonly<
     width: number;
   } & Pick<Props, "sets">
 >;
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return (
+    <p
+      className="flex min-h-[400px] items-center justify-center text-sm text-muted-foreground sm:min-h-[500px]"
+      {...props}
+    />
+  );
+};

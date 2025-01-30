@@ -7,10 +7,16 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
-import type { CSSProperties } from "react";
+import type { ComponentProps, CSSProperties } from "react";
 
 export const SetsHeatMapGraph = (props: Props) => {
   const data = prepareData(props.exercises);
+
+  const dataEmpty = props.exercises.every((e) => !e.sets.length);
+
+  if (dataEmpty) {
+    return <NoDataText>no data</NoDataText>;
+  }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
@@ -425,3 +431,7 @@ const templateData: ReadonlyArray<Bins> = [
     ],
   },
 ];
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+};

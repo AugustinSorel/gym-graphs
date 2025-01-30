@@ -20,6 +20,12 @@ export const ExercisesFunFacts = (props: Props) => {
     LeastFavoriteExercise,
   ];
 
+  const dataEmpty = props.exercises.every((e) => !e.sets.length);
+
+  if (dataEmpty) {
+    return <NoDataText>no data</NoDataText>;
+  }
+
   return (
     <Ctx value={props.exercises}>
       <Carousel>
@@ -212,4 +218,8 @@ const CarouselDotsContainer = (props: ComponentProps<"div">) => {
       {...props}
     />
   );
+};
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
 };

@@ -8,9 +8,18 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import type { Exercise } from "~/db/db.schemas";
-import type { CSSProperties, MouseEvent, TouchEvent } from "react";
+import type {
+  ComponentProps,
+  CSSProperties,
+  MouseEvent,
+  TouchEvent,
+} from "react";
 
 export const ExercisesRadarGraph = (props: Props) => {
+  if (!props.data.length) {
+    return <NoDataText>no data</NoDataText>;
+  }
+
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
@@ -281,4 +290,8 @@ const tooltipStyles: Readonly<CSSProperties> = {
   color: "hsl(var(--foreground))",
   transition: "all 0.1s ease-in-out",
   backgroundColor: "hsl(var(--secondary))",
+};
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
 };

@@ -131,11 +131,7 @@ const ExerciseTagsSection = () => {
             });
           }}
         >
-          {!user.data.tags.length && (
-            <p className="w-full p-6 text-center text-muted-foreground">
-              no tags
-            </p>
-          )}
+          {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
           {user.data.tags.map((tag) => (
             <ToggleGroupItem
               key={tag.id}
@@ -249,6 +245,15 @@ const SectionDescription = (props: ComponentProps<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
+const NoTagsText = (props: ComponentProps<"p">) => {
+  return (
+    <p
+      className="w-full p-6 text-center text-sm text-muted-foreground"
+      {...props}
+    />
+  );
+};
+
 const useUpdateExerciseTags = () => {
   const user = useUser();
   const queryClient = useQueryClient();
@@ -260,6 +265,7 @@ const useUpdateExerciseTags = () => {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
         tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        user: userKeys.get.queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -310,15 +316,39 @@ const useUpdateExerciseTags = () => {
           tags: optimisticTags,
         };
       });
+
+      queryClient.setQueryData(keys.user, (user) => {
+        if (!user) {
+          return user;
+        }
+
+        return {
+          ...user,
+          tags: user.tags.map((tag) => {
+            return {
+              ...tag,
+              exercises: tag.exercises.filter((exercise) => {
+                if (!newExerciseTags.has(exercise.tagId)) {
+                  return false;
+                }
+
+                return true;
+              }),
+            };
+          }),
+        };
+      });
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
         tiles: userKeys.dashboardTiles(user.data.id),
+        user: userKeys.get,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.user);
     },
   });
 };

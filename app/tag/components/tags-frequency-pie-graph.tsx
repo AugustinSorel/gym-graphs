@@ -7,7 +7,7 @@ import { GridAngle, GridRadial } from "@visx/grid";
 import { useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
-import type { CSSProperties } from "react";
+import type { ComponentProps, CSSProperties } from "react";
 import type { Tag } from "~/db/db.schemas";
 
 export const TagsFrequencyPieGraph = () => {
@@ -17,6 +17,12 @@ export const TagsFrequencyPieGraph = () => {
     name: tag.name,
     frequency: tag.exercises.length,
   }));
+
+  const dataEmpty = data.every((d) => !d.frequency);
+
+  if (dataEmpty) {
+    return <NoDataText>no data</NoDataText>;
+  }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
@@ -176,4 +182,8 @@ const tooltipStyles: Readonly<CSSProperties> = {
   color: "hsl(var(--foreground))",
   transition: "all 0.1s ease-in-out",
   backgroundColor: "hsl(var(--secondary))",
+};
+
+const NoDataText = (props: ComponentProps<"p">) => {
+  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
 };

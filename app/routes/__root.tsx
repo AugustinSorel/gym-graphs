@@ -137,4 +137,3 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: infite scroll for exercises
 //TODO: teams
 //TODO: add limit
-//TODO: show no text in tiles rather than a blank canvas
