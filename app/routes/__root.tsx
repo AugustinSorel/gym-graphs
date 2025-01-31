@@ -1,8 +1,4 @@
-import {
-  Outlet,
-  ScrollRestoration,
-  createRootRouteWithContext,
-} from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense } from "react";
 import appCss from "~/styles/styles.css?url";
@@ -114,8 +110,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
         <Suspense>
           <TanStackRouterDevtools position="bottom-right" />
         </Suspense>
-
-        <ScrollRestoration />
 
         <Scripts />
       </body>
