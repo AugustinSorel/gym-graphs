@@ -1,10 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  CatchBoundary,
-  createFileRoute,
-  Link,
-  redirect,
-} from "@tanstack/react-router";
+import { CatchBoundary, createFileRoute, Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Check } from "lucide-react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
@@ -23,6 +18,7 @@ import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
 import { userKeys } from "~/user/user.keys";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
@@ -31,12 +27,10 @@ export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    if (!context.user?.emailVerifiedAt) {
-      throw redirect({ to: "/sign-in" });
-    }
+    const user = validateAccess("exzerciseSettings", "view", context.user);
 
     return {
-      user: context.user,
+      user,
     };
   },
   loader: async ({ context, params }) => {

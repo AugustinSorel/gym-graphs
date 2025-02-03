@@ -1,16 +1,15 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { EmailSignUpForm } from "~/auth/components/email-sign-up-form";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { GithubSignIn } from "~/auth/components/github-sign-in";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(auth)/_layout/sign-up")({
   beforeLoad: ({ context }) => {
-    if (context.session?.user.emailVerifiedAt) {
-      throw redirect({ to: "/dashboard" });
-    }
+    validateAccess("signUp", "view", context.session?.user);
   },
   component: () => RouteComponent(),
   errorComponent: (props) => ErrorComponent(props),

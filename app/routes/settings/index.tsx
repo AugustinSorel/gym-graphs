@@ -1,8 +1,4 @@
-import {
-  CatchBoundary,
-  createFileRoute,
-  redirect,
-} from "@tanstack/react-router";
+import { CatchBoundary, createFileRoute } from "@tanstack/react-router";
 import { useUser } from "~/user/hooks/use-user";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
@@ -42,6 +38,7 @@ import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
 import { userKeys } from "~/user/user.keys";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -49,9 +46,7 @@ export const Route = createFileRoute("/settings/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    if (!context.session?.user?.emailVerifiedAt) {
-      throw redirect({ to: "/sign-in" });
-    }
+    validateAccess("settings", "view", context.session?.user);
   },
 });
 

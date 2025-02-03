@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ExercisesGrid } from "~/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/exercise/components/create-exercise-dialog";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { SearchExercises } from "~/exercise/components/search-exercises";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
 import { userKeys } from "~/user/user.keys";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -17,18 +18,18 @@ export const Route = createFileRoute("/dashboard/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    if (!context.user?.emailVerifiedAt) {
-      throw redirect({ to: "/sign-in" });
-    }
+    const user = validateAccess("dashboard", "view", context.session?.user);
 
     return {
-      user: context.user,
+      user,
     };
   },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      userKeys.dashboardTiles(context.user.id),
-    );
+    const keys = {
+      tiles: userKeys.dashboardTiles(context.user.id),
+    } as const;
+
+    await context.queryClient.ensureQueryData(keys.tiles);
   },
 });
 

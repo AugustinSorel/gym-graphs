@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { AddSetDialog } from "~/set/components/add-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
@@ -12,6 +12,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
@@ -20,12 +21,10 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    if (!context.user?.emailVerifiedAt) {
-      throw redirect({ to: "/sign-in" });
-    }
+    const user = validateAccess("exercise", "view", context.user);
 
     return {
-      user: context.user,
+      user,
     };
   },
   loader: async ({ context, params }) => {

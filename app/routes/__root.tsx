@@ -119,6 +119,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //BUG: error handling not finished
 //BUG: dev docker not working
+//BUG: upgrade to tailwind v4
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter
@@ -126,7 +127,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: remove window.location.herf in github-sign-in.tsx
 
 //BUG: header on mobile moves up and down
-//BUG: upgrade to tailwind v4
 //TODO: allow multiple sets
 //TODO: infite scroll for exercises
 //TODO: teams

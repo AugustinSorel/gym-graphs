@@ -1,19 +1,14 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Button } from "~/ui/button";
 import { ResetPasswordForm } from "~/auth/components/reset-password-form";
+import { validateAccess } from "~/libs/permissions.lib";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(auth)/_layout/reset-password_/$token")({
   beforeLoad: ({ context }) => {
-    if (context.user?.emailVerifiedAt) {
-      throw redirect({ to: "/dashboard" });
-    }
-
-    if (context.user && !context.user.emailVerifiedAt) {
-      throw redirect({ to: "/verify-email" });
-    }
+    validateAccess("resetPassword", "view", context.user);
   },
   component: () => RouteComponent(),
   errorComponent: (props) => ErrorComponent(props),
