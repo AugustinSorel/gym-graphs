@@ -11,7 +11,7 @@ import {
   updateOneRepMaxAlgo,
   updateWeightUnit,
 } from "~/user/user.services";
-import { db } from "~/libs/db.lib";
+import { db } from "~/libs/db";
 import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
 import { setResponseStatus } from "vinxi/http";
 import { dashboardTileSchema } from "~/user/user.schemas";

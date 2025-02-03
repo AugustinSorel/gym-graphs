@@ -3,7 +3,7 @@ import { Button } from "~/ui/button";
 import { EmailSignInForm } from "~/auth/components/email-sign-in-form";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { GithubSignIn } from "~/auth/components/github-sign-in";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 

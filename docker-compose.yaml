@@ -9,16 +9,16 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
 
-  server:
-    container_name: gym_graphs_server
-    build:
-      context: ./
-      dockerfile: Dockerfile.dev
-    env_file:
-      - .env
-    volumes:
-      - ./:/app
-    ports:
-      - 3000:3000
-    depends_on:
-      - database
+  # server:
+  #   container_name: gym_graphs_server
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile.dev
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./:/app
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - database

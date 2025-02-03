@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RequestResetPasswordForm } from "~/auth/components/request-reset-password-form";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 

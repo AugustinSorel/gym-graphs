@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Button } from "~/ui/button";
 import { ResetPasswordForm } from "~/auth/components/reset-password-form";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 

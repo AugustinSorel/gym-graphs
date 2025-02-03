@@ -6,7 +6,7 @@ import {
   updateEmailVerifiedAt,
   updatePassword,
 } from "~/user/user.services";
-import { db } from "~/libs/db.lib";
+import { db } from "~/libs/db";
 import {
   createEmailVerificationCode,
   createPasswordResetToken,
@@ -43,11 +43,11 @@ import {
 import {
   sendResetPasswordEmail,
   sendVerificationCodeEmail,
-} from "./auth.emails";
+} from "~/auth/auth.emails";
 import {
   emailVerificationCodeSchema,
   passwordResetTokenSchema,
-} from "./auth.schemas";
+} from "~/auth/auth.schemas";
 import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
 

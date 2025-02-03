@@ -10,8 +10,8 @@ import {
   generateSessionToken,
   GithubOauthToken,
 } from "~/auth/auth.services";
-import { db } from "~/libs/db.lib";
-import { github } from "~/libs/github.lib";
+import { db } from "~/libs/db";
+import { github } from "~/libs/github";
 import {
   createUserWithEmailOnly,
   seedUserAccount,

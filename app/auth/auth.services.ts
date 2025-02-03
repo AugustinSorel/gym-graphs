@@ -1,7 +1,7 @@
 import { base32, encodeHex } from "oslo/encoding";
 import { alphabet, generateRandomString, sha256 } from "oslo/crypto";
 import { hash, compare, genSalt } from "bcrypt";
-import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date.utils";
+import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date";
 import { eq } from "drizzle-orm";
 import {
   emailVerificationCodeTable,
@@ -9,7 +9,7 @@ import {
   sessionTable,
 } from "~/db/db.schemas";
 import { generateState } from "arctic";
-import { github } from "~/libs/github.lib";
+import { github } from "~/libs/github";
 import { z } from "zod";
 import { passwordResetTokenTable } from "~/db/db.schemas";
 import type {
@@ -19,7 +19,7 @@ import type {
   Session,
   User,
 } from "~/db/db.schemas";
-import type { Db } from "~/libs/db.lib";
+import type { Db } from "~/libs/db";
 
 export const hashSecret = async (input: string) => {
   const salt = await genSalt(10);

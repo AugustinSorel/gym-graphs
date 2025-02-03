@@ -17,7 +17,7 @@ import { Button } from "~/ui/button";
 import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dateAsYYYYMMDD } from "~/utils/date.utils";
+import { dateAsYYYYMMDD } from "~/utils/date";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import { VerifyEmailForm } from "~/auth/components/verify-email-form";
 import { ResendEmailVerificationCode } from "~/auth/components/resend-email-verification-code";
 import type { ComponentProps } from "react";

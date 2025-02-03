@@ -18,7 +18,7 @@ import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
 import { userKeys } from "~/user/user.keys";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({

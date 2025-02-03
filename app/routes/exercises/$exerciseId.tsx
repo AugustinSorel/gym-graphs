@@ -12,7 +12,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({

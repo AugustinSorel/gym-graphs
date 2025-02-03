@@ -22,7 +22,7 @@ import { oneRepMaxAlgoEnum, weightUnitEnum } from "~/db/db.schemas";
 import { userSchema } from "~/user/user.schemas";
 import { useUpdateWeightUnit } from "~/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
-import { pluralize } from "~/utils/string.utils";
+import { pluralize } from "~/utils/string";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
 import { userKeys } from "~/user/user.keys";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 

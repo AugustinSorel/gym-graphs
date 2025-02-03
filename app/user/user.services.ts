@@ -9,7 +9,7 @@ import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
 import { dashboardTileSchema } from "~/user/user.schemas";
-import type { Db } from "~/libs/db.lib";
+import type { Db } from "~/libs/db";
 import type { DashboardTile, Exercise, User } from "~/db/db.schemas";
 
 export const createUserWithEmailAndPassword = async (

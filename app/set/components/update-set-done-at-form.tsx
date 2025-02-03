@@ -19,7 +19,7 @@ import { useExercise } from "~/exercise/hooks/use-exercise";
 import { updateSetDoneAtAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
-import { dateAsYYYYMMDD } from "~/utils/date.utils";
+import { dateAsYYYYMMDD } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
 import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";

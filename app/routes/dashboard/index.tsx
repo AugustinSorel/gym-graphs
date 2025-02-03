@@ -6,7 +6,7 @@ import { SearchExercises } from "~/exercise/components/search-exercises";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
 import { userKeys } from "~/user/user.keys";
-import { validateAccess } from "~/libs/permissions.lib";
+import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 

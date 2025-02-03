@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { setSchema } from "~/set/set.schemas";
-import { db } from "~/libs/db.lib";
+import { db } from "~/libs/db";
 import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
 import {

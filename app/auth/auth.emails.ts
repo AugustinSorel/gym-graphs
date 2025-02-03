@@ -1,5 +1,5 @@
 import { env } from "~/env";
-import { email, emailConfig } from "~/libs/email.lib";
+import { email, emailConfig } from "~/libs/email";
 import type {
   EmailVerificationCode,
   PasswordResetToken,
