@@ -6,7 +6,6 @@ import {
   updateEmailVerifiedAt,
   updatePassword,
 } from "~/user/user.services";
-import { db } from "~/libs/db";
 import {
   createEmailVerificationCode,
   createPasswordResetToken,
@@ -50,11 +49,13 @@ import {
 } from "~/auth/auth.schemas";
 import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
+import { injectDbMiddleware } from "~/db/db.middlewares";
 
 export const signInAction = createServerFn()
+  .middleware([injectDbMiddleware])
   .validator(userSchema.pick({ email: true, password: true }))
-  .handler(async ({ data }) => {
-    const user = await selectUserByEmail(data.email, db);
+  .handler(async ({ data, context }) => {
+    const user = await selectUserByEmail(data.email, context.db);
 
     if (!user) {
       throw new Error("email or password is invalid");
@@ -75,12 +76,13 @@ export const signInAction = createServerFn()
     }
 
     const sessionToken = generateSessionToken();
-    const session = await createSession(sessionToken, user.id, db);
+    const session = await createSession(sessionToken, user.id, context.db);
 
     setSessionTokenCookie(sessionToken, session.expiresAt);
   });
 
 export const signUpAction = createServerFn({ method: "POST" })
+  .middleware([injectDbMiddleware])
   .validator(
     z
       .object({
@@ -93,9 +95,9 @@ export const signUpAction = createServerFn({ method: "POST" })
         path: ["confirmPassword"],
       }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     try {
-      await db.transaction(async (tx) => {
+      await context.db.transaction(async (tx) => {
         const hashedPassword = await hashSecret(data.password);
         const name = data.email.split("@").at(0) ?? "anonymous";
 
@@ -130,9 +132,9 @@ export const signUpAction = createServerFn({ method: "POST" })
   });
 
 export const signOutAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    await deleteSession(context.session.id, db);
+    await deleteSession(context.session.id, context.db);
     deleteSessionTokenCookie();
   });
 
@@ -143,10 +145,10 @@ export const selectSessionTokenAction = createServerFn({ method: "GET" })
   });
 
 export const verifyEmailAction = createServerFn()
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(emailVerificationCodeSchema.pick({ code: true }))
   .handler(async ({ context, data }) => {
-    return await db.transaction(async (tx) => {
+    return await context.db.transaction(async (tx) => {
       const emailVerificatonCode = await selectEmailVerificationCode(
         context.user.id,
         tx,
@@ -182,9 +184,9 @@ export const verifyEmailAction = createServerFn()
 export const sendEmailVerificationCodeAction = createServerFn({
   method: "POST",
 })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    await db.transaction(async (tx) => {
+    await context.db.transaction(async (tx) => {
       await deleteEmailVerificationCodesByUserId(context.user.id, tx);
 
       const emailVerificationCode = generateEmailVerificationCode();
@@ -215,9 +217,10 @@ export const githubSignInAction = createServerFn({ method: "POST" }).handler(
 );
 
 export const requestResetPasswordAction = createServerFn({ method: "POST" })
+  .middleware([injectDbMiddleware])
   .validator(userSchema.pick({ email: true }))
-  .handler(async ({ data }) => {
-    return await db.transaction(async (tx) => {
+  .handler(async ({ data, context }) => {
+    return await context.db.transaction(async (tx) => {
       const user = await selectUserByEmail(data.email, tx);
 
       if (!user) {
@@ -237,6 +240,7 @@ export const requestResetPasswordAction = createServerFn({ method: "POST" })
   });
 
 export const resetPasswordAction = createServerFn({ method: "POST" })
+  .middleware([injectDbMiddleware])
   .validator(
     z
       .object({
@@ -249,8 +253,8 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
         path: ["confirmPassword"],
       }),
   )
-  .handler(async ({ data }) => {
-    return db.transaction(async (tx) => {
+  .handler(async ({ data, context }) => {
+    return context.db.transaction(async (tx) => {
       const tokenHash = await sha256Encode(data.token);
 
       const [token] = await selectPasswordResetToken(tokenHash, tx);

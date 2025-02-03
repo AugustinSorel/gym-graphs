@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { setSchema } from "~/set/set.schemas";
-import { db } from "~/libs/db";
 import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
 import {
@@ -12,9 +11,10 @@ import {
   updateSetWeight,
 } from "~/set/set.services";
 import { z } from "zod";
+import { injectDbMiddleware } from "~/db/db.middlewares";
 
 export const createSetAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     setSchema.pick({
       exerciseId: true,
@@ -27,14 +27,19 @@ export const createSetAction = createServerFn({ method: "POST" })
       const exercise = await selectExercise(
         context.user.id,
         data.exerciseId,
-        db,
+        context.db,
       );
 
       if (!exercise) {
         throw new Error("exercise not found");
       }
 
-      await createSet(data.weightInKg, data.repetitions, data.exerciseId, db);
+      await createSet(
+        data.weightInKg,
+        data.repetitions,
+        data.exerciseId,
+        context.db,
+      );
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =
@@ -49,7 +54,7 @@ export const createSetAction = createServerFn({ method: "POST" })
   });
 
 export const updateSetWeightAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       weightInKg: setSchema.shape.weightInKg,
@@ -57,13 +62,18 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    await updateSetWeight(data.setId, context.user.id, data.weightInKg, db);
+    await updateSetWeight(
+      data.setId,
+      context.user.id,
+      data.weightInKg,
+      context.db,
+    );
   });
 
 export const updateSetRepetitionsAction = createServerFn({
   method: "POST",
 })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       repetitions: setSchema.shape.repetitions,
@@ -75,14 +85,14 @@ export const updateSetRepetitionsAction = createServerFn({
       data.setId,
       context.user.id,
       data.repetitions,
-      db,
+      context.db,
     );
   });
 
 export const updateSetDoneAtAction = createServerFn({
   method: "POST",
 })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       doneAt: setSchema.shape.doneAt,
@@ -91,7 +101,12 @@ export const updateSetDoneAtAction = createServerFn({
   )
   .handler(async ({ context, data }) => {
     try {
-      await updateSetDoneAt(data.setId, context.user.id, data.doneAt, db);
+      await updateSetDoneAt(
+        data.setId,
+        context.user.id,
+        data.doneAt,
+        context.db,
+      );
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =
@@ -108,8 +123,8 @@ export const updateSetDoneAtAction = createServerFn({
 export const deleteSetAction = createServerFn({
   method: "POST",
 })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteSet(data.setId, context.user.id, db);
+    await deleteSet(data.setId, context.user.id, context.db);
   });

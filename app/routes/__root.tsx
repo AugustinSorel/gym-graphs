@@ -123,7 +123,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter
-//TODO: inject db in global ctx
 //TODO: remove window.location.herf in github-sign-in.tsx
 
 //BUG: header on mobile moves up and down

@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { tagSchema } from "~/tag/tag.schemas";
-import { db } from "~/libs/db";
 import {
   addExerciseTags,
   createTag,
@@ -12,13 +11,14 @@ import {
 import pg from "pg";
 import { z } from "zod";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
+import { injectDbMiddleware } from "~/db/db.middlewares";
 
 export const createTagAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(tagSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
-      await createTag(data.name, context.user.id, db);
+      await createTag(data.name, context.user.id, context.db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateName = dbError && e.constraint === "tag_name_user_id_pk";
@@ -32,14 +32,14 @@ export const createTagAction = createServerFn({ method: "POST" })
   });
 
 export const deleteTagAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ tagId: tagSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    await deleteTag(data.tagId, context.user.id, db);
+    await deleteTag(data.tagId, context.user.id, context.db);
   });
 
 export const updateExerciseTagsAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       exerciseId: exerciseSchema.shape.id,
@@ -48,7 +48,7 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     try {
-      await db.transaction(async (tx) => {
+      await context.db.transaction(async (tx) => {
         const exerciseTags = await selectExerciseTags(
           context.user.id,
           data.exerciseId,

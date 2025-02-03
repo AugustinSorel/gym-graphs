@@ -1,10 +1,11 @@
 import { createMiddleware } from "@tanstack/start";
 import { getCookie, setResponseStatus } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
-import { db } from "~/libs/db";
+import { injectDbMiddleware } from "~/db/db.middlewares";
 
-export const selectSessionTokenMiddleware = createMiddleware().server(
-  async ({ next }) => {
+export const selectSessionTokenMiddleware = createMiddleware()
+  .middleware([injectDbMiddleware])
+  .server(async ({ next, context }) => {
     const sessionCookie = getCookie("session");
 
     if (!sessionCookie) {
@@ -15,15 +16,14 @@ export const selectSessionTokenMiddleware = createMiddleware().server(
       });
     }
 
-    const session = await validateSessionToken(sessionCookie, db);
+    const session = await validateSessionToken(sessionCookie, context.db);
 
     return next({
       context: {
         session,
       },
     });
-  },
-);
+  });
 
 export const authGuardMiddleware = createMiddleware()
   .middleware([selectSessionTokenMiddleware])
