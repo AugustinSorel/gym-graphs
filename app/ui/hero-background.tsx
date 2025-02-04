@@ -8,7 +8,7 @@ export const HeroBackground = () => {
     >
       <g className="contrast-150">
         <rect width="100%" height="100%" fill="url(#paint0_linear_9_46)" />
-        <g filter="url(#blur)">
+        <g filter="url(#blur-sm)">
           <path
             d="M1028.61 1087.75C811.445 356.138 44.283 293.866 -312.153 354.182C-847.442 407.977 -882.959 -105.523 -458.026 -169.099C-33.0929 -232.675 314.464 -161.763 956.303 406.754C1598.14 975.272 1865 966 1934.28 999.724C2324.96 1189.89 1300.05 2002.27 1028.61 1087.75Z"
             fill="url(#paint1_linear_9_46)"
@@ -20,7 +20,7 @@ export const HeroBackground = () => {
             fill="url(#paint2_linear_9_46)"
           />
         </g>
-        <g className="mix-blend-color-dodge" filter="url(#blur)">
+        <g className="mix-blend-color-dodge" filter="url(#blur-sm)">
           <path
             d="M2586.52 1122.76C2789.82 1175.61 3035.45 1068.57 3135.15 883.684L3430.62 335.752C3530.32 150.866 3446.34 -41.854 3243.04 -94.7009L2289.51 -342.569C2086.21 -395.416 1840.59 -288.378 1740.89 -103.492L1445.41 444.44C1345.72 629.326 1429.7 822.046 1633 874.893L2586.52 1122.76Z"
             fill="url(#paint3_radial_9_46)"
@@ -36,7 +36,7 @@ export const HeroBackground = () => {
 
       <defs>
         <filter
-          id="blur"
+          id="blur-sm"
           x="0"
           y="0"
           width="100%"

@@ -1,7 +1,7 @@
+import appCss from "~/styles/styles.css?url";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { Meta, Scripts } from "@tanstack/start";
 import { lazy, Suspense } from "react";
-import appCss from "~/styles/styles.css?url";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
@@ -125,7 +125,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //BUG: error handling not finished
 //BUG: dev docker not working
-//BUG: upgrade to tailwind v4
 //BUG: middleware inject code into client bundler
 //TODO: monitoring
 //TODO: rate limiter

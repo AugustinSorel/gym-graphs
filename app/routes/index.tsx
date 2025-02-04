@@ -61,7 +61,7 @@ const HeroSection = () => {
         <Button
           asChild
           variant="secondary"
-          className="bg-foreground capitalize text-background hover:bg-foreground/80"
+          className="bg-foreground text-background hover:bg-foreground/80 capitalize"
         >
           <Link to="/sign-in">
             <span className="sm:text-xl">get started</span>
@@ -187,7 +187,7 @@ const Grid = (props: ComponentProps<"ol">) => {
 const Card = (props: ComponentProps<"li">) => {
   return (
     <li
-      className="grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border bg-secondary p-0 [&_svg]:size-auto"
+      className="bg-secondary grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto"
       {...props}
     />
   );
@@ -258,7 +258,7 @@ const StrongText = (props: ComponentProps<"strong">) => {
   return (
     <strong
       {...props}
-      className={cn("font-semibold text-primary", props.className)}
+      className={cn("text-primary font-semibold", props.className)}
     />
   );
 };
@@ -276,7 +276,7 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+      className="absolute -top-[var(--header-height)] right-0 bottom-0 left-0 -z-10"
     />
   );
 };
@@ -288,7 +288,7 @@ const FeatureContainer = ({
   return (
     <section
       className={cn(
-        "mx-auto flex w-full max-w-app flex-col items-center gap-14 p-5",
+        "max-w-app mx-auto flex w-full flex-col items-center gap-14 p-5",
         className,
       )}
       {...props}
@@ -300,7 +300,7 @@ const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
   return (
     <div
       className={cn(
-        "relative w-full rounded-md border bg-secondary",
+        "bg-secondary relative w-full rounded-md border",
         className,
       )}
       {...props}
@@ -327,16 +327,16 @@ const CirclesBluredBg = () => {
     <>
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 right-[calc(50%-6rem)] top-auto -z-10 flex justify-end blur-3xl dark:opacity-20"
+        className="absolute top-auto right-[calc(50%-6rem)] bottom-0 left-0 -z-10 flex justify-end blur-3xl dark:opacity-20"
       >
-        <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-25 [clipPath:polygon(73.6%_48.6%,_91.7%_88.5%,_100%_53.9%,_97.4%_18.1%,_92.5%_15.4%,_75.7%_36.3%,_55.3%_52.8%,_46.5%_50.9%,_45%_37.4%,_50.3%_13.1%,_21.3%_36.2%,_0.1%_0.1%,_5.4%_49.1%,_21.4%_36.4%,_58.9%_100%,_73.6%_48.6%)]" />
+        <div className="aspect-1155/678 w-[70rem] flex-none bg-linear-to-r from-pink-400 to-indigo-400 opacity-25 [clip-path:polygon(73.6%_48.6%,_91.7%_88.5%,_100%_53.9%,_97.4%_18.1%,_92.5%_15.4%,_75.7%_36.3%,_55.3%_52.8%,_46.5%_50.9%,_45%_37.4%,_50.3%_13.1%,_21.3%_36.2%,_0.1%_0.1%,_5.4%_49.1%,_21.4%_36.4%,_58.9%_100%,_73.6%_48.6%)]" />
       </div>
 
       <div
         aria-hidden="true"
-        className="absolute left-1/2 right-0 top-full -z-10 hidden -translate-y-3/4 blur-3xl dark:opacity-20 lg:block"
+        className="absolute top-full right-0 left-1/2 -z-10 hidden -translate-y-3/4 blur-3xl lg:block dark:opacity-20"
       >
-        <div className="aspect-[1155/678] w-[70rem] flex-none bg-gradient-to-r from-pink-400 to-indigo-400 opacity-30 [clipPath:polygon(74.1%_44.1%,_100%_61.6%,_97.5%_26.9%,_85.5%_0.1%,_80.7%_2%,_72.5%_32.5%,_60.2%_62.4%,_52.4%_68.1%,_47.5%_58.3%,_45.2%_34.5%,_27.5%_76.7%,_0.1%_64.9%,_17.9%_100%,_27.6%_76.8%,_76.1%_97.7%,_74.1%_44.1%)]" />
+        <div className="aspect-1155/678 w-[70rem] flex-none bg-linear-to-r from-pink-400 to-indigo-400 opacity-30 [clip-path:polygon(74.1%_44.1%,_100%_61.6%,_97.5%_26.9%,_85.5%_0.1%,_80.7%_2%,_72.5%_32.5%,_60.2%_62.4%,_52.4%_68.1%,_47.5%_58.3%,_45.2%_34.5%,_27.5%_76.7%,_0.1%_64.9%,_17.9%_100%,_27.6%_76.8%,_76.1%_97.7%,_74.1%_44.1%)]" />
       </div>
     </>
   );

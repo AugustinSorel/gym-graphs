@@ -133,7 +133,7 @@ const ExerciseTagsSection = () => {
               value={tag.id.toString()}
             >
               <Badge
-                className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary group-aria-pressed:hover:bg-primary/30"
+                className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
                 variant="outline"
               >
                 <Check className="mr-1 hidden group-aria-pressed:block" />

@@ -240,7 +240,7 @@ const OneRepMaxAlgoSection = () => {
               value={algo}
             >
               <Badge
-                className="group-aria-checked:border-primary/50 group-aria-checked:bg-primary/20 group-aria-checked:text-primary group-aria-checked:hover:bg-primary/30"
+                className="group-aria-checked:border-primary/50 group-aria-checked:bg-primary/20 group-aria-checked:text-primary hover:group-aria-checked:bg-primary/30"
                 variant="outline"
               >
                 <Check className="mr-1 hidden group-aria-checked:block" />
