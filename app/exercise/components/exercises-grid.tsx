@@ -303,7 +303,7 @@ const ExerciseTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -328,7 +328,7 @@ const TagsFrequencyTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -367,7 +367,7 @@ const ExercisesFrequencyTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -401,7 +401,7 @@ const ExercisesFunFactsTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -437,7 +437,7 @@ const SetsHeatMapTile = (props: TileProps) => {
         <Button
           size="icon"
           variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
+          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
           aria-label="drag tile"
           {...sortable.listeners}
           {...sortable.attributes}
@@ -486,7 +486,7 @@ const Card = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
       className={cn(
-        "group relative grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border bg-secondary p-0 [&_svg]:size-auto",
+        "group bg-secondary relative grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto",
         className,
       )}
       {...props}
@@ -509,7 +509,7 @@ const CardHeader = ({ className, ...props }: ComponentProps<"header">) => {
 const ExerciseFallback = (props: ErrorComponentProps) => {
   return (
     <Card className="border-destructive bg-destructive/10">
-      <header className="border-b border-destructive p-4">
+      <header className="border-destructive border-b p-4">
         <Name>Something went wrong</Name>
       </header>
       <ErrorMsg>{props.error.message}</ErrorMsg>
@@ -530,7 +530,7 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 const NoExercisesText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="flex h-32 items-center justify-center rounded-md border bg-secondary"
+      className="bg-secondary flex h-32 items-center justify-center rounded-md border"
       {...props}
     />
   );

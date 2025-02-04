@@ -63,7 +63,7 @@ const BackgroundContainer = (props: ComponentProps<"div">) => {
   return (
     <div
       {...props}
-      className="absolute -top-[var(--header-height)] bottom-0 left-0 right-0 -z-10"
+      className="absolute -top-[var(--header-height)] right-0 bottom-0 left-0 -z-10"
     />
   );
 };

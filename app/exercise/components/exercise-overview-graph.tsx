@@ -70,5 +70,5 @@ type Props = Readonly<{
 }>;
 
 const NoDataText = (props: ComponentProps<"p">) => {
-  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };

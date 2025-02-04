@@ -22,7 +22,7 @@ const Container = (props: ComponentProps<"div">) => {
   return (
     <div
       role="alert"
-      className="rounded-md border border-destructive bg-destructive/10"
+      className="border-destructive bg-destructive/10 rounded-md border"
       {...props}
     />
   );
@@ -35,7 +35,7 @@ const HGroup = (props: ComponentProps<"hgroup">) => {
 const Footer = (props: ComponentProps<"footer">) => {
   return (
     <footer
-      className="flex items-center justify-end border-t border-destructive bg-destructive/10 px-6 py-4"
+      className="border-destructive bg-destructive/10 flex items-center justify-end border-t px-6 py-4"
       {...props}
     />
   );

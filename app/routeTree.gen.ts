@@ -8,200 +8,200 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as SettingsIndexImport } from './routes/settings/index'
-import { Route as DashboardIndexImport } from './routes/dashboard/index'
-import { Route as ExercisesExerciseIdImport } from './routes/exercises/$exerciseId'
-import { Route as authLayoutImport } from './routes/(auth)/_layout'
-import { Route as ExercisesExerciseIdSettingsImport } from './routes/exercises_/$exerciseId.settings'
-import { Route as authLayoutVerifyEmailImport } from './routes/(auth)/_layout.verify-email'
-import { Route as authLayoutSignUpImport } from './routes/(auth)/_layout.sign-up'
-import { Route as authLayoutSignInImport } from './routes/(auth)/_layout.sign-in'
-import { Route as authLayoutResetPasswordImport } from './routes/(auth)/_layout.reset-password'
-import { Route as authLayoutResetPasswordTokenImport } from './routes/(auth)/_layout.reset-password_.$token'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as IndexImport } from "./routes/index";
+import { Route as SettingsIndexImport } from "./routes/settings/index";
+import { Route as DashboardIndexImport } from "./routes/dashboard/index";
+import { Route as ExercisesExerciseIdImport } from "./routes/exercises/$exerciseId";
+import { Route as authLayoutImport } from "./routes/(auth)/_layout";
+import { Route as ExercisesExerciseIdSettingsImport } from "./routes/exercises_/$exerciseId.settings";
+import { Route as authLayoutVerifyEmailImport } from "./routes/(auth)/_layout.verify-email";
+import { Route as authLayoutSignUpImport } from "./routes/(auth)/_layout.sign-up";
+import { Route as authLayoutSignInImport } from "./routes/(auth)/_layout.sign-in";
+import { Route as authLayoutResetPasswordImport } from "./routes/(auth)/_layout.reset-password";
+import { Route as authLayoutResetPasswordTokenImport } from "./routes/(auth)/_layout.reset-password_.$token";
 
 // Create Virtual Routes
 
-const authImport = createFileRoute('/(auth)')()
+const authImport = createFileRoute("/(auth)")();
 
 // Create/Update Routes
 
 const authRoute = authImport.update({
-  id: '/(auth)',
+  id: "/(auth)",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const SettingsIndexRoute = SettingsIndexImport.update({
-  id: '/settings/',
-  path: '/settings/',
+  id: "/settings/",
+  path: "/settings/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const DashboardIndexRoute = DashboardIndexImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
+  id: "/dashboard/",
+  path: "/dashboard/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const ExercisesExerciseIdRoute = ExercisesExerciseIdImport.update({
-  id: '/exercises/$exerciseId',
-  path: '/exercises/$exerciseId',
+  id: "/exercises/$exerciseId",
+  path: "/exercises/$exerciseId",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const authLayoutRoute = authLayoutImport.update({
-  id: '/_layout',
+  id: "/_layout",
   getParentRoute: () => authRoute,
-} as any)
+} as any);
 
 const ExercisesExerciseIdSettingsRoute =
   ExercisesExerciseIdSettingsImport.update({
-    id: '/exercises_/$exerciseId/settings',
-    path: '/exercises/$exerciseId/settings',
+    id: "/exercises_/$exerciseId/settings",
+    path: "/exercises/$exerciseId/settings",
     getParentRoute: () => rootRoute,
-  } as any)
+  } as any);
 
 const authLayoutVerifyEmailRoute = authLayoutVerifyEmailImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
+  id: "/verify-email",
+  path: "/verify-email",
   getParentRoute: () => authLayoutRoute,
-} as any)
+} as any);
 
 const authLayoutSignUpRoute = authLayoutSignUpImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
+  id: "/sign-up",
+  path: "/sign-up",
   getParentRoute: () => authLayoutRoute,
-} as any)
+} as any);
 
 const authLayoutSignInRoute = authLayoutSignInImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
+  id: "/sign-in",
+  path: "/sign-in",
   getParentRoute: () => authLayoutRoute,
-} as any)
+} as any);
 
 const authLayoutResetPasswordRoute = authLayoutResetPasswordImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+  id: "/reset-password",
+  path: "/reset-password",
   getParentRoute: () => authLayoutRoute,
-} as any)
+} as any);
 
 const authLayoutResetPasswordTokenRoute =
   authLayoutResetPasswordTokenImport.update({
-    id: '/reset-password_/$token',
-    path: '/reset-password/$token',
+    id: "/reset-password_/$token",
+    path: "/reset-password/$token",
     getParentRoute: () => authLayoutRoute,
-  } as any)
+  } as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/_layout': {
-      id: '/(auth)/_layout'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authLayoutImport
-      parentRoute: typeof authRoute
-    }
-    '/exercises/$exerciseId': {
-      id: '/exercises/$exerciseId'
-      path: '/exercises/$exerciseId'
-      fullPath: '/exercises/$exerciseId'
-      preLoaderRoute: typeof ExercisesExerciseIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/_layout/reset-password': {
-      id: '/(auth)/_layout/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof authLayoutResetPasswordImport
-      parentRoute: typeof authLayoutImport
-    }
-    '/(auth)/_layout/sign-in': {
-      id: '/(auth)/_layout/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof authLayoutSignInImport
-      parentRoute: typeof authLayoutImport
-    }
-    '/(auth)/_layout/sign-up': {
-      id: '/(auth)/_layout/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof authLayoutSignUpImport
-      parentRoute: typeof authLayoutImport
-    }
-    '/(auth)/_layout/verify-email': {
-      id: '/(auth)/_layout/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof authLayoutVerifyEmailImport
-      parentRoute: typeof authLayoutImport
-    }
-    '/exercises_/$exerciseId/settings': {
-      id: '/exercises_/$exerciseId/settings'
-      path: '/exercises/$exerciseId/settings'
-      fullPath: '/exercises/$exerciseId/settings'
-      preLoaderRoute: typeof ExercisesExerciseIdSettingsImport
-      parentRoute: typeof rootRoute
-    }
-    '/(auth)/_layout/reset-password_/$token': {
-      id: '/(auth)/_layout/reset-password_/$token'
-      path: '/reset-password/$token'
-      fullPath: '/reset-password/$token'
-      preLoaderRoute: typeof authLayoutResetPasswordTokenImport
-      parentRoute: typeof authLayoutImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/(auth)": {
+      id: "/(auth)";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof authImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/(auth)/_layout": {
+      id: "/(auth)/_layout";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof authLayoutImport;
+      parentRoute: typeof authRoute;
+    };
+    "/exercises/$exerciseId": {
+      id: "/exercises/$exerciseId";
+      path: "/exercises/$exerciseId";
+      fullPath: "/exercises/$exerciseId";
+      preLoaderRoute: typeof ExercisesExerciseIdImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/dashboard/": {
+      id: "/dashboard/";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/settings/": {
+      id: "/settings/";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof SettingsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/(auth)/_layout/reset-password": {
+      id: "/(auth)/_layout/reset-password";
+      path: "/reset-password";
+      fullPath: "/reset-password";
+      preLoaderRoute: typeof authLayoutResetPasswordImport;
+      parentRoute: typeof authLayoutImport;
+    };
+    "/(auth)/_layout/sign-in": {
+      id: "/(auth)/_layout/sign-in";
+      path: "/sign-in";
+      fullPath: "/sign-in";
+      preLoaderRoute: typeof authLayoutSignInImport;
+      parentRoute: typeof authLayoutImport;
+    };
+    "/(auth)/_layout/sign-up": {
+      id: "/(auth)/_layout/sign-up";
+      path: "/sign-up";
+      fullPath: "/sign-up";
+      preLoaderRoute: typeof authLayoutSignUpImport;
+      parentRoute: typeof authLayoutImport;
+    };
+    "/(auth)/_layout/verify-email": {
+      id: "/(auth)/_layout/verify-email";
+      path: "/verify-email";
+      fullPath: "/verify-email";
+      preLoaderRoute: typeof authLayoutVerifyEmailImport;
+      parentRoute: typeof authLayoutImport;
+    };
+    "/exercises_/$exerciseId/settings": {
+      id: "/exercises_/$exerciseId/settings";
+      path: "/exercises/$exerciseId/settings";
+      fullPath: "/exercises/$exerciseId/settings";
+      preLoaderRoute: typeof ExercisesExerciseIdSettingsImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/(auth)/_layout/reset-password_/$token": {
+      id: "/(auth)/_layout/reset-password_/$token";
+      path: "/reset-password/$token";
+      fullPath: "/reset-password/$token";
+      preLoaderRoute: typeof authLayoutResetPasswordTokenImport;
+      parentRoute: typeof authLayoutImport;
+    };
   }
 }
 
 // Create and export the route tree
 
 interface authLayoutRouteChildren {
-  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
-  authLayoutSignInRoute: typeof authLayoutSignInRoute
-  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
-  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
-  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
+  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute;
+  authLayoutSignInRoute: typeof authLayoutSignInRoute;
+  authLayoutSignUpRoute: typeof authLayoutSignUpRoute;
+  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute;
+  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute;
 }
 
 const authLayoutRouteChildren: authLayoutRouteChildren = {
@@ -210,113 +210,113 @@ const authLayoutRouteChildren: authLayoutRouteChildren = {
   authLayoutSignUpRoute: authLayoutSignUpRoute,
   authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
   authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
-}
+};
 
 const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
   authLayoutRouteChildren,
-)
+);
 
 interface authRouteChildren {
-  authLayoutRoute: typeof authLayoutRouteWithChildren
+  authLayoutRoute: typeof authLayoutRouteWithChildren;
 }
 
 const authRouteChildren: authRouteChildren = {
   authLayoutRoute: authLayoutRouteWithChildren,
-}
+};
 
-const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
+const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren);
 
 export interface FileRoutesByFullPath {
-  '/': typeof authLayoutRouteWithChildren
-  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
+  "/": typeof authLayoutRouteWithChildren;
+  "/exercises/$exerciseId": typeof ExercisesExerciseIdRoute;
+  "/dashboard": typeof DashboardIndexRoute;
+  "/settings": typeof SettingsIndexRoute;
+  "/reset-password": typeof authLayoutResetPasswordRoute;
+  "/sign-in": typeof authLayoutSignInRoute;
+  "/sign-up": typeof authLayoutSignUpRoute;
+  "/verify-email": typeof authLayoutVerifyEmailRoute;
+  "/exercises/$exerciseId/settings": typeof ExercisesExerciseIdSettingsRoute;
+  "/reset-password/$token": typeof authLayoutResetPasswordTokenRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof authLayoutRouteWithChildren
-  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
+  "/": typeof authLayoutRouteWithChildren;
+  "/exercises/$exerciseId": typeof ExercisesExerciseIdRoute;
+  "/dashboard": typeof DashboardIndexRoute;
+  "/settings": typeof SettingsIndexRoute;
+  "/reset-password": typeof authLayoutResetPasswordRoute;
+  "/sign-in": typeof authLayoutSignInRoute;
+  "/sign-up": typeof authLayoutSignUpRoute;
+  "/verify-email": typeof authLayoutVerifyEmailRoute;
+  "/exercises/$exerciseId/settings": typeof ExercisesExerciseIdSettingsRoute;
+  "/reset-password/$token": typeof authLayoutResetPasswordTokenRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/(auth)': typeof authRouteWithChildren
-  '/(auth)/_layout': typeof authLayoutRouteWithChildren
-  '/exercises/$exerciseId': typeof ExercisesExerciseIdRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/settings/': typeof SettingsIndexRoute
-  '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
-  '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
-  '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
-  '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises_/$exerciseId/settings': typeof ExercisesExerciseIdSettingsRoute
-  '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
+  __root__: typeof rootRoute;
+  "/": typeof IndexRoute;
+  "/(auth)": typeof authRouteWithChildren;
+  "/(auth)/_layout": typeof authLayoutRouteWithChildren;
+  "/exercises/$exerciseId": typeof ExercisesExerciseIdRoute;
+  "/dashboard/": typeof DashboardIndexRoute;
+  "/settings/": typeof SettingsIndexRoute;
+  "/(auth)/_layout/reset-password": typeof authLayoutResetPasswordRoute;
+  "/(auth)/_layout/sign-in": typeof authLayoutSignInRoute;
+  "/(auth)/_layout/sign-up": typeof authLayoutSignUpRoute;
+  "/(auth)/_layout/verify-email": typeof authLayoutVerifyEmailRoute;
+  "/exercises_/$exerciseId/settings": typeof ExercisesExerciseIdSettingsRoute;
+  "/(auth)/_layout/reset-password_/$token": typeof authLayoutResetPasswordTokenRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/exercises/$exerciseId'
-    | '/dashboard'
-    | '/settings'
-    | '/reset-password'
-    | '/sign-in'
-    | '/sign-up'
-    | '/verify-email'
-    | '/exercises/$exerciseId/settings'
-    | '/reset-password/$token'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/exercises/$exerciseId"
+    | "/dashboard"
+    | "/settings"
+    | "/reset-password"
+    | "/sign-in"
+    | "/sign-up"
+    | "/verify-email"
+    | "/exercises/$exerciseId/settings"
+    | "/reset-password/$token";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/exercises/$exerciseId'
-    | '/dashboard'
-    | '/settings'
-    | '/reset-password'
-    | '/sign-in'
-    | '/sign-up'
-    | '/verify-email'
-    | '/exercises/$exerciseId/settings'
-    | '/reset-password/$token'
+    | "/"
+    | "/exercises/$exerciseId"
+    | "/dashboard"
+    | "/settings"
+    | "/reset-password"
+    | "/sign-in"
+    | "/sign-up"
+    | "/verify-email"
+    | "/exercises/$exerciseId/settings"
+    | "/reset-password/$token";
   id:
-    | '__root__'
-    | '/'
-    | '/(auth)'
-    | '/(auth)/_layout'
-    | '/exercises/$exerciseId'
-    | '/dashboard/'
-    | '/settings/'
-    | '/(auth)/_layout/reset-password'
-    | '/(auth)/_layout/sign-in'
-    | '/(auth)/_layout/sign-up'
-    | '/(auth)/_layout/verify-email'
-    | '/exercises_/$exerciseId/settings'
-    | '/(auth)/_layout/reset-password_/$token'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/(auth)"
+    | "/(auth)/_layout"
+    | "/exercises/$exerciseId"
+    | "/dashboard/"
+    | "/settings/"
+    | "/(auth)/_layout/reset-password"
+    | "/(auth)/_layout/sign-in"
+    | "/(auth)/_layout/sign-up"
+    | "/(auth)/_layout/verify-email"
+    | "/exercises_/$exerciseId/settings"
+    | "/(auth)/_layout/reset-password_/$token";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  authRoute: typeof authRouteWithChildren
-  ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
-  ExercisesExerciseIdSettingsRoute: typeof ExercisesExerciseIdSettingsRoute
+  IndexRoute: typeof IndexRoute;
+  authRoute: typeof authRouteWithChildren;
+  ExercisesExerciseIdRoute: typeof ExercisesExerciseIdRoute;
+  DashboardIndexRoute: typeof DashboardIndexRoute;
+  SettingsIndexRoute: typeof SettingsIndexRoute;
+  ExercisesExerciseIdSettingsRoute: typeof ExercisesExerciseIdSettingsRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -326,11 +326,11 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
   ExercisesExerciseIdSettingsRoute: ExercisesExerciseIdSettingsRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {

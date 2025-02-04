@@ -29,7 +29,7 @@ const RouteComponent = () => {
         <Button
           variant="link"
           asChild
-          className="h-auto w-auto p-0 text-primary"
+          className="text-primary h-auto w-auto p-0"
         >
           <Link to="/sign-in">sign in</Link>
         </Button>
@@ -50,7 +50,7 @@ const ErrorComponent = (props: ErrorComponentProps) => {
         <Button
           variant="link"
           asChild
-          className="h-auto w-auto p-0 text-primary"
+          className="text-primary h-auto w-auto p-0"
         >
           <Link to="/sign-in">sign in</Link>
         </Button>
@@ -71,7 +71,7 @@ const Title = (props: ComponentProps<"h2">) => {
 const RedirectText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="mt-16 text-center text-sm text-accent-foreground"
+      className="text-accent-foreground mt-16 text-center text-sm"
       {...props}
     />
   );

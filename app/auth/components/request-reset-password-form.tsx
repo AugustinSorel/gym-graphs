@@ -101,5 +101,5 @@ const useRequestResetPassword = () => {
 };
 
 const SuccessMsg = (props: ComponentProps<"p">) => {
-  return <p className="text-center text-sm text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground text-center text-sm" {...props} />;
 };

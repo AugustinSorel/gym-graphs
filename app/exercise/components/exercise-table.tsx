@@ -77,7 +77,7 @@ export const ExerciseTable = ({ sets, columns }: Props) => {
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-24 text-center text-sm text-muted-foreground"
+                className="text-muted-foreground h-24 text-center text-sm"
               >
                 no data
               </TableCell>
@@ -86,7 +86,7 @@ export const ExerciseTable = ({ sets, columns }: Props) => {
         </TableBody>
       </Table>
 
-      <footer className="flex items-center justify-end gap-2 border-t bg-background px-6 py-4">
+      <footer className="bg-background flex items-center justify-end gap-2 border-t px-6 py-4">
         <Button
           variant="outline"
           size="sm"

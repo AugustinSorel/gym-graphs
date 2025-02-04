@@ -70,7 +70,7 @@ export const HeaderPrivate = () => {
 
 const MobileHeader = () => {
   return (
-    <Container className="fixed bottom-0 top-auto border-b-0 border-t lg:hidden">
+    <Container className="fixed top-auto bottom-0 border-t border-b-0 lg:hidden">
       <MobileNav />
     </Container>
   );
@@ -89,13 +89,13 @@ const DesktopNav = () => {
   return (
     <Nav className="flex h-full gap-10">
       <Link
-        className="relative flex items-center font-bold capitalize text-muted-foreground ring-offset-background transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
+        className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
         to="/dashboard"
       >
         dashbaord
       </Link>
       <Link
-        className="relative flex items-center font-bold capitalize text-muted-foreground ring-offset-background transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:bg-primary after:opacity-0 after:transition-opacity hover:text-foreground hover:after:opacity-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[status=active]:text-foreground data-[status=active]:after:opacity-100"
+        className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
         to="/settings"
       >
         settings
@@ -184,7 +184,7 @@ const UserProfileDropdown = () => {
               <DropdownMenuRadioItem
                 key={weightUnit}
                 value={weightUnit}
-                className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent **:data-[state=checked]:hidden"
+                className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
                 onSelect={(e) => e.preventDefault()}
               >
                 <span className="text-xs">{weightUnit}</span>
@@ -203,21 +203,21 @@ const UserProfileDropdown = () => {
           >
             <DropdownMenuRadioItem
               value={themeSchema.Values.system}
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent **:data-[state=checked]:hidden"
+              className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Laptop className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value={themeSchema.Values.light}
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent **:data-[state=checked]:hidden"
+              className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Sun className="size-4" />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value={themeSchema.Values.dark}
-              className="flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors focus:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-checked:bg-accent **:data-[state=checked]:hidden"
+              className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <Moon className="size-4" />
@@ -245,7 +245,7 @@ const Container = ({ className, ...props }: ComponentProps<"header">) => {
   return (
     <header
       className={cn(
-        "sticky left-0 right-0 top-0 z-20 mx-auto flex h-header items-center gap-4 border-b bg-secondary/75 px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
+        "h-header bg-secondary/75 sticky top-0 right-0 left-0 z-20 mx-auto flex items-center gap-4 border-b px-[max(calc((100vw-var(--max-width-app))/2+1rem),1rem)] backdrop-blur-md",
         className,
       )}
       {...props}

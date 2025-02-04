@@ -77,7 +77,7 @@ export const EmailSignInForm = () => {
                 <Button
                   asChild
                   variant="link"
-                  className="h-auto p-0 text-primary"
+                  className="text-primary h-auto p-0"
                 >
                   <Link to="/reset-password">reset password</Link>
                 </Button>

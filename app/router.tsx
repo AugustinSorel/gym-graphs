@@ -44,8 +44,8 @@ const RouterFallback = (props: Readonly<ErrorComponentProps>) => {
 const RouterNotFound = (_props: Readonly<NotFoundRouteProps>) => {
   return (
     <main className="mx-10 my-32 flex flex-col items-center gap-2">
-      <Map className="size-32 text-accent-foreground opacity-30" />
-      <h1 className="text-5xl font-semibold text-accent-foreground opacity-30">
+      <Map className="text-accent-foreground size-32 opacity-30" />
+      <h1 className="text-accent-foreground text-5xl font-semibold opacity-30">
         not found
       </h1>
       <h1>this ressource does not exists!</h1>

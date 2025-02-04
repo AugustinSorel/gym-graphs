@@ -25,7 +25,7 @@ export const SearchExercises = () => {
             });
           }}
         />
-        <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
       </search>
     </CatchBoundary>
   );
@@ -37,7 +37,7 @@ const SearchFallback = (props: ErrorComponentProps) => {
   return (
     <Alert
       variant="destructive"
-      className="flex items-center gap-2 [&>svg+div]:translate-y-[0px] [&>svg]:relative [&>svg]:left-0 [&>svg]:top-0 [&>svg~*]:pl-0"
+      className="flex items-center gap-2 [&>svg]:relative [&>svg]:top-0 [&>svg]:left-0 [&>svg+div]:translate-y-[0px] [&>svg~*]:pl-0"
     >
       <AlertCircle className="size-4" />
       <AlertDescription>{props.error.message}</AlertDescription>

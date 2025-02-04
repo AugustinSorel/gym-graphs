@@ -36,7 +36,7 @@ const TableFooter = ({
 }: React.HTMLAttributes<HTMLTableSectionElement>) => (
   <tfoot
     className={cn(
-      "border-t bg-muted/50 font-medium last:[&>tr]:border-b-0",
+      "bg-muted/50 border-t font-medium last:[&>tr]:border-b-0",
       className,
     )}
     {...props}
@@ -50,7 +50,7 @@ const TableRow = ({
 }: React.HTMLAttributes<HTMLTableRowElement>) => (
   <tr
     className={cn(
-      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+      "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
       className,
     )}
     {...props}
@@ -64,7 +64,7 @@ const TableHead = ({
 }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
   <th
     className={cn(
-      "h-10 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "text-muted-foreground h-10 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className,
     )}
     {...props}
@@ -91,7 +91,7 @@ const TableCaption = ({
   ...props
 }: React.HTMLAttributes<HTMLTableCaptionElement>) => (
   <caption
-    className={cn("mt-4 text-sm text-muted-foreground", className)}
+    className={cn("text-muted-foreground mt-4 text-sm", className)}
     {...props}
   />
 );

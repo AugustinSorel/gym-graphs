@@ -188,8 +188,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
           <p className="text-xs font-bold capitalize">
             {tooltip.tooltipData.name}
           </p>
-          <dl className="grid grid-cols-[1fr_auto] items-center gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
-            <dt className="flex items-center text-muted-foreground before:mr-2 before:block before:size-2 before:bg-primary">
+          <dl className="[&>dt]:text-muted-foreground grid grid-cols-[1fr_auto] items-center gap-x-2 text-xs whitespace-nowrap [&>dd]:ml-auto [&>dd]:font-semibold">
+            <dt className="text-muted-foreground before:bg-primary flex items-center before:mr-2 before:block before:size-2">
               frequency
             </dt>
             <dd>{tooltip.tooltipData.frequency}</dd>
@@ -293,5 +293,5 @@ const tooltipStyles: Readonly<CSSProperties> = {
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {
-  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };

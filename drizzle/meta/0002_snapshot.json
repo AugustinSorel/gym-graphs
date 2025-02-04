@@ -58,12 +58,8 @@
           "name": "exercise_user_id_user_id_fk",
           "tableFrom": "exercise",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -73,10 +69,7 @@
         "exercise_user_id_name_unique": {
           "name": "exercise_user_id_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id",
-            "name"
-          ]
+          "columns": ["user_id", "name"]
         }
       },
       "policies": {},
@@ -120,12 +113,8 @@
           "name": "exercise_tag_exercise_id_exercise_id_fk",
           "tableFrom": "exercise_tag",
           "tableTo": "exercise",
-          "columnsFrom": [
-            "exercise_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["exercise_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -133,12 +122,8 @@
           "name": "exercise_tag_tag_id_tag_id_fk",
           "tableFrom": "exercise_tag",
           "tableTo": "tag",
-          "columnsFrom": [
-            "tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tag_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -146,10 +131,7 @@
       "compositePrimaryKeys": {
         "exercise_tag_exercise_id_tag_id_pk": {
           "name": "exercise_tag_exercise_id_tag_id_pk",
-          "columns": [
-            "exercise_id",
-            "tag_id"
-          ]
+          "columns": ["exercise_id", "tag_id"]
         }
       },
       "uniqueConstraints": {},
@@ -201,12 +183,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -284,12 +262,8 @@
           "name": "set_exercise_id_exercise_id_fk",
           "tableFrom": "set",
           "tableTo": "exercise",
-          "columnsFrom": [
-            "exercise_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["exercise_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -299,10 +273,7 @@
         "set_done_at_exercise_id_unique": {
           "name": "set_done_at_exercise_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "done_at",
-            "exercise_id"
-          ]
+          "columns": ["done_at", "exercise_id"]
         }
       },
       "policies": {},
@@ -363,12 +334,8 @@
           "name": "tag_user_id_user_id_fk",
           "tableFrom": "tag",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -378,10 +345,7 @@
         "tag_name_user_id_unique": {
           "name": "tag_name_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name",
-            "user_id"
-          ]
+          "columns": ["name", "user_id"]
         }
       },
       "policies": {},
@@ -465,9 +429,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -498,10 +460,7 @@
     "public.weight_unit": {
       "name": "weight_unit",
       "schema": "public",
-      "values": [
-        "kg",
-        "lbs"
-      ]
+      "values": ["kg", "lbs"]
     }
   },
   "schemas": {},

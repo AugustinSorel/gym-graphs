@@ -32,7 +32,7 @@ export const ExercisesFunFacts = (props: Props) => {
         <CarouselBody>
           {FunFacts.map((FunFact, i) => (
             <CarouselItem
-              className="grid select-none grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center"
+              className="grid grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center select-none"
               key={i}
             >
               <CatchBoundary
@@ -199,13 +199,13 @@ const useLeastFavoriteExercise = () => {
 };
 
 const Text = (props: ComponentProps<"p">) => {
-  return <p className="mt-auto truncate text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground mt-auto truncate" {...props} />;
 };
 
 const Strong = (props: ComponentProps<"strong">) => {
   return (
     <strong
-      className="truncate bg-brand-gradient bg-clip-text py-1 text-5xl font-bold text-transparent"
+      className="bg-brand-gradient truncate bg-clip-text py-1 text-5xl font-bold text-transparent"
       {...props}
     />
   );
@@ -221,5 +221,5 @@ const CarouselDotsContainer = (props: ComponentProps<"div">) => {
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {
-  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };

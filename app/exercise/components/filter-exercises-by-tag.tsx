@@ -22,7 +22,7 @@ export const FilterExercisesByTag = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="relative after:absolute after:right-0 after:top-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:border after:border-border after:bg-primary after:text-xs after:font-semibold after:text-primary-foreground after:content-[attr(data-counter)] data-[counter=0]:after:hidden"
+          className="after:border-border after:bg-primary after:text-primary-foreground relative after:absolute after:top-0 after:right-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:border after:text-xs after:font-semibold after:content-[attr(data-counter)] data-[counter=0]:after:hidden"
           data-counter={tags.size}
           aria-label="filter exercises by tags"
         >
@@ -58,7 +58,7 @@ const TagsItem = () => {
 
   if (!user.data.tags.length) {
     return (
-      <p className="py-4 text-center text-sm text-muted-foreground">no tags</p>
+      <p className="text-muted-foreground py-4 text-center text-sm">no tags</p>
     );
   }
 

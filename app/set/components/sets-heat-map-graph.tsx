@@ -77,7 +77,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
                     key={`heatmap-rect-${bin.row}-${bin.column}`}
                     width={bin.width}
                     height={bin.height}
-                    className="stroke-primary/30 transition-colors hover:!fill-primary/75"
+                    className="stroke-primary/30 hover:!fill-primary/75 transition-colors"
                     style={{
                       fill: `hsl(var(--primary)/${(bin.opacity ?? 100) / 2})`,
                     }}
@@ -115,7 +115,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
           left={Math.min(tooltip.tooltipLeft ?? 0, width - 140)}
           style={tooltipStyles}
         >
-          <p className="white whitespace-nowrap text-xs font-bold capitalize">
+          <p className="white text-xs font-bold whitespace-nowrap capitalize">
             {new Date(
               new Date().setDate(
                 ((tooltip.tooltipData.datum.dayIndex - 1) % 7) +
@@ -123,8 +123,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
               ),
             ).toDateString()}
           </p>
-          <dl className="grid grid-cols-[1fr_auto] items-center gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
-            <dt className="flex items-center text-muted-foreground before:mr-2 before:block before:size-2 before:bg-primary">
+          <dl className="[&>dt]:text-muted-foreground grid grid-cols-[1fr_auto] items-center gap-x-2 text-xs whitespace-nowrap [&>dd]:ml-auto [&>dd]:font-semibold">
+            <dt className="text-muted-foreground before:bg-primary flex items-center before:mr-2 before:block before:size-2">
               sets logged
             </dt>
             <dd>{tooltip.tooltipData.bin.count}</dd>
@@ -433,5 +433,5 @@ const templateData: ReadonlyArray<Bins> = [
 ];
 
 const NoDataText = (props: ComponentProps<"p">) => {
-  return <p className="m-auto text-sm text-muted-foreground" {...props} />;
+  return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };

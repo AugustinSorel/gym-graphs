@@ -179,7 +179,7 @@ export const CarouselBody = (props: Readonly<ComponentProps<"ul">>) => {
 
   return (
     <ul
-      className="absolute inset-0 -z-10 grid select-none transition-[translate]"
+      className="absolute inset-0 -z-10 grid transition-[translate] select-none"
       style={{
         translate: `${distance}px 0`,
         gridTemplateColumns: `repeat(${carousel.itemsCount},${carousel.rootWidth}px)`,
@@ -227,7 +227,7 @@ export const CarouselDot = ({
       variant={variant}
       size={size}
       className={cn(
-        "size-4 rounded-full data-[selected=true]:bg-primary",
+        "data-[selected=true]:bg-primary size-4 rounded-full",
         className,
       )}
       onClick={() => carousel.goTo(index)}

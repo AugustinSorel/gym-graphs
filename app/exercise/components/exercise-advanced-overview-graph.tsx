@@ -220,7 +220,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             })}
           </time>
 
-          <dl className="grid grid-cols-[1fr_auto] gap-x-2 whitespace-nowrap text-xs [&>dd]:ml-auto [&>dd]:font-semibold [&>dt]:text-muted-foreground">
+          <dl className="[&>dt]:text-muted-foreground grid grid-cols-[1fr_auto] gap-x-2 text-xs whitespace-nowrap [&>dd]:ml-auto [&>dd]:font-semibold">
             <dt>1 rep max</dt>
             <dd>
               <WeightValue
@@ -295,7 +295,7 @@ type GraphProps = Readonly<
 const NoDataText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="flex min-h-[400px] items-center justify-center text-sm text-muted-foreground sm:min-h-[500px]"
+      className="text-muted-foreground flex min-h-[400px] items-center justify-center text-sm sm:min-h-[500px]"
       {...props}
     />
   );

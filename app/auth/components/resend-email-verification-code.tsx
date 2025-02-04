@@ -12,7 +12,7 @@ export const ResendEmailVerificationCode = () => {
     <RedirectText>
       something went wrong?
       <Button
-        className="ml-2 h-auto p-0 text-primary hover:cursor-pointer"
+        className="text-primary ml-2 h-auto p-0 hover:cursor-pointer"
         variant="link"
         disabled={sendEmailVerification.isPending}
         onClick={() => sendEmailVerification.mutate(undefined)}
@@ -29,7 +29,7 @@ export const ResendEmailVerificationCode = () => {
 const RedirectText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="mt-16 text-center text-sm text-accent-foreground"
+      className="text-accent-foreground mt-16 text-center text-sm"
       {...props}
     />
   );

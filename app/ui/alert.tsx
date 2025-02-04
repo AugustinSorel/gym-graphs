@@ -38,7 +38,7 @@ const AlertTitle = ({
 }: React.HTMLAttributes<HTMLHeadingElement>) => (
   <h5
     className={cn(
-      "mb-1 text-lg font-medium leading-none tracking-tight",
+      "mb-1 text-lg leading-none font-medium tracking-tight",
       className,
     )}
     {...props}

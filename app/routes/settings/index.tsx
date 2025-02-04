@@ -140,12 +140,12 @@ const TagsSection = () => {
 
           <List>
             {!user.data.tags.length && (
-              <p className="p-6 text-center text-muted-foreground">no tags</p>
+              <p className="text-muted-foreground p-6 text-center">no tags</p>
             )}
             {user.data.tags.map((tag) => (
               <ListItem
                 key={tag.id}
-                className="[counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:border-border before:bg-accent before:text-lg before:font-semibold before:text-muted-foreground before:content-[counter(item)]"
+                className="before:border-border before:bg-accent before:text-muted-foreground [counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:text-lg before:font-semibold before:content-[counter(item)]"
               >
                 <ListItemTitle>{tag.name}</ListItemTitle>
 
@@ -465,7 +465,7 @@ const DeleteAccountSection = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto flex max-w-app flex-col gap-10 px-2 pb-20 pt-10 sm:px-4 lg:gap-20 lg:pt-20"
+      className="max-w-app mx-auto flex flex-col gap-10 px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
       {...props}
     />
   );
@@ -491,7 +491,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-md border bg-secondary",
+        "bg-secondary overflow-hidden rounded-md border",
         className,
       )}
       {...props}
@@ -507,7 +507,7 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   return (
     <footer
       className={cn(
-        "flex items-center justify-end border-t bg-background px-6 py-4",
+        "bg-background flex items-center justify-end border-t px-6 py-4",
         className,
       )}
       {...props}
@@ -528,7 +528,7 @@ const ListItem = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
       className={cn(
-        "relative grid grid-cols-[auto_1fr_auto] items-center gap-x-4 p-4 text-sm transition-colors hover:bg-accent",
+        "hover:bg-accent relative grid grid-cols-[auto_1fr_auto] items-center gap-x-4 p-4 text-sm transition-colors",
         className,
       )}
       {...props}

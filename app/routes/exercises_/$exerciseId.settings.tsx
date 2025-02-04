@@ -51,7 +51,7 @@ const RouteComponent = () => {
         <Button
           asChild
           variant="link"
-          className="w-max p-0 text-muted-foreground"
+          className="text-muted-foreground w-max p-0"
         >
           <Link to="..">
             <ArrowLeft />
@@ -187,7 +187,7 @@ const DeleteExerciseSection = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="mx-auto flex max-w-app flex-col gap-10 px-2 pb-20 pt-10 sm:px-4 lg:gap-20 lg:pt-20"
+      className="max-w-app mx-auto flex flex-col gap-10 px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
       {...props}
     />
   );
@@ -197,7 +197,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
   return (
     <section
       className={cn(
-        "relative grid overflow-hidden rounded-md border bg-secondary",
+        "bg-secondary relative grid overflow-hidden rounded-md border",
         className,
       )}
       {...props}
@@ -223,7 +223,7 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   return (
     <footer
       className={cn(
-        "flex items-center justify-end border-t bg-background px-6 py-4",
+        "bg-background flex items-center justify-end border-t px-6 py-4",
         className,
       )}
       {...props}
@@ -242,7 +242,7 @@ const SectionDescription = (props: ComponentProps<"p">) => {
 const NoTagsText = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="w-full p-6 text-center text-sm text-muted-foreground"
+      className="text-muted-foreground w-full p-6 text-center text-sm"
       {...props}
     />
   );
