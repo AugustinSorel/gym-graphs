@@ -117,12 +117,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   );
 };
 
-//FIX: move filtering to the server
-//FIX: move exercise frequency to the server
-//FIX: move heatmap to the server
-//FIX: move tags frequency to the server
-//FIX: move fun facts to the server
-
 //BUG: error handling not finished
 //BUG: dev docker not working
 //BUG: middleware inject code into client bundler
@@ -134,3 +128,8 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: allow multiple sets
 //TODO: teams
 //TODO: add limit
+//FIX: move filtering to the server
+//FIX: move exercise frequency to the server
+//FIX: move heatmap to the server
+//FIX: move tags frequency to the server
+//FIX: move fun facts to the server

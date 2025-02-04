@@ -157,8 +157,8 @@ const useCreateExercise = () => {
           pages: tiles.pages.map((page, i) => {
             if (i === 0) {
               return {
+                ...page,
                 tiles: [optimisticTile, ...page.tiles],
-                nextCursor: tiles.pages.length + 1,
               };
             }
 
