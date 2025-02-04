@@ -126,31 +126,39 @@ const useUpdateWeight = () => {
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
-          return [];
+          return tiles;
         }
 
-        return tiles.map((tile) => {
-          if (tile.exercise?.id === exercise.data.id) {
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
             return {
-              ...tile,
-              exercise: {
-                ...tile.exercise,
-                sets: tile.exercise.sets.map((set) => {
-                  if (set.id === variables.data.setId) {
-                    return {
-                      ...set,
-                      weightInKg: variables.data.weightInKg,
-                    };
-                  }
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.exercise?.id === exercise.data.id) {
+                  return {
+                    ...tile,
+                    exercise: {
+                      ...tile.exercise,
+                      sets: tile.exercise.sets.map((set) => {
+                        if (set.id === variables.data.setId) {
+                          return {
+                            ...set,
+                            weightInKg: variables.data.weightInKg,
+                          };
+                        }
 
-                  return set;
-                }),
-              },
+                        return set;
+                      }),
+                    },
+                  };
+                }
+
+                return tile;
+              }),
             };
-          }
-
-          return tile;
-        });
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, (ex) => {

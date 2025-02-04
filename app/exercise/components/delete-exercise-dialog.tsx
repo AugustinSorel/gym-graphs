@@ -97,9 +97,17 @@ const useDeleteExercise = () => {
           return tiles;
         }
 
-        return tiles.filter(
-          (tile) => tile.exerciseId !== variables.data.exerciseId,
-        );
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.filter(
+                (tile) => tile.exerciseId !== variables.data.exerciseId,
+              ),
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, undefined);

@@ -285,19 +285,27 @@ const useUpdateExerciseTags = () => {
           return tiles;
         }
 
-        return tiles.map((tile) => {
-          if (tile.exercise?.id === variables.data.exerciseId) {
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
             return {
-              ...tile,
-              exercise: {
-                ...tile.exercise,
-                tags: optimisticTags,
-              },
-            };
-          }
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.exercise?.id === variables.data.exerciseId) {
+                  return {
+                    ...tile,
+                    exercise: {
+                      ...tile.exercise,
+                      tags: optimisticTags,
+                    },
+                  };
+                }
 
-          return tile;
-        });
+                return tile;
+              }),
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, (exercise) => {

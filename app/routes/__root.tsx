@@ -117,6 +117,12 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   );
 };
 
+//FIX: move filtering to the server
+//FIX: move exercise frequency to the server
+//FIX: move heatmap to the server
+//FIX: move tags frequency to the server
+//FIX: move fun facts to the server
+
 //BUG: error handling not finished
 //BUG: dev docker not working
 //BUG: upgrade to tailwind v4
@@ -127,6 +133,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 
 //BUG: header on mobile moves up and down
 //TODO: allow multiple sets
-//TODO: infite scroll for exercises
 //TODO: teams
 //TODO: add limit

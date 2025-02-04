@@ -1,4 +1,4 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql, SQL } from "drizzle-orm";
 import {
   dashboardTileTable,
   tagTable,
@@ -80,11 +80,15 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
 
 export const selectDashboardTiles = async (
   userId: DashboardTile["userId"],
+  page: number,
+  pageSize: number,
   db: Db,
 ) => {
   return db.query.dashboardTileTable.findMany({
     where: eq(dashboardTileTable.userId, userId),
     orderBy: desc(dashboardTileTable.index),
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
     with: {
       exercise: {
         with: {
@@ -183,13 +187,34 @@ export const insertDashboardTile = async (
   return db.insert(dashboardTileTable).values({ type, userId, exerciseId });
 };
 
-export const deleteDashboardTiles = async (
+export const reorderDashboardTiles = async (
+  tileIds: Array<DashboardTile["id"]>,
   userId: DashboardTile["userId"],
   db: Db,
 ) => {
-  return db
-    .delete(dashboardTileTable)
-    .where(eq(dashboardTileTable.userId, userId));
+  const sqlChunks: Array<SQL> = [];
+
+  sqlChunks.push(sql`(case`);
+
+  tileIds.forEach((tileId, i) => {
+    sqlChunks.push(
+      sql`when ${dashboardTileTable.id} = ${tileId} then cast(${i} as integer)`,
+    );
+  });
+
+  sqlChunks.push(sql`end)`);
+
+  const finalSql = sql.join(sqlChunks, sql.raw(" "));
+
+  await db
+    .update(dashboardTileTable)
+    .set({ index: finalSql })
+    .where(
+      and(
+        inArray(dashboardTileTable.id, tileIds),
+        eq(dashboardTileTable.userId, userId),
+      ),
+    );
 };
 
 export const seedUserAccount = async (userId: User["id"], db: Db) => {

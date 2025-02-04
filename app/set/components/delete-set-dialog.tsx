@@ -90,24 +90,32 @@ const useDeleteSet = () => {
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
-          return [];
+          return tiles;
         }
 
-        return tiles.map((tile) => {
-          if (!tile.exercise) {
-            return tile;
-          }
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (!tile.exercise) {
+                  return tile;
+                }
 
-          return {
-            ...tile,
-            exercise: {
-              ...tile.exercise,
-              sets: tile.exercise.sets.filter((set) => {
-                return set.id !== variables.data.setId;
+                return {
+                  ...tile,
+                  exercise: {
+                    ...tile.exercise,
+                    sets: tile.exercise.sets.filter((set) => {
+                      return set.id !== variables.data.setId;
+                    }),
+                  },
+                };
               }),
-            },
-          };
-        });
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, (exercise) => {

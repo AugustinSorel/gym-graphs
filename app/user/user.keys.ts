@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { DashboardTile } from "~/db/db.schemas";
 import { getUserAction, selectDashboardTilesAction } from "~/user/user.actions";
 
@@ -8,9 +8,13 @@ const get = queryOptions({
 });
 
 const dashboardTiles = (userId: DashboardTile["userId"]) =>
-  queryOptions({
+  infiniteQueryOptions({
     queryKey: ["user", userId, "dashboard-tiles"],
-    queryFn: () => selectDashboardTilesAction(),
+    queryFn: async ({ pageParam }) => {
+      return await selectDashboardTilesAction({ data: { page: pageParam } });
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
 export const userKeys = {

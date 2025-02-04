@@ -31,7 +31,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateDashboardTilesOrderAction } from "~/user/user.actions";
 import { userKeys } from "~/user/user.keys";
 import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
-import type { ComponentProps, CSSProperties, ReactNode } from "react";
+import { Skeleton } from "~/ui/skeleton";
+import type {
+  ComponentProps,
+  CSSProperties,
+  PropsWithChildren,
+  ReactNode,
+} from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
   DragStartEvent,
@@ -40,32 +46,95 @@ import type {
 } from "@dnd-kit/core";
 
 export const ExercisesGrid = () => {
-  const tiles = useGridTiles();
-  const exerciseTiles = tiles.filter((tile) => tile.type === "exercise");
+  const tiles = useDashboardTiles();
 
-  if (!exerciseTiles.length) {
+  if (!tiles.data.length) {
     return <NoExercisesText>no exercises</NoExercisesText>;
   }
 
   return (
     <Grid>
       <SortableGrid>
-        {(tile) => (
+        {(tile, index) => (
           <CatchBoundary
             errorComponent={ExerciseFallback}
             getResetKey={() => "reset"}
             key={tile.id}
           >
-            <Tile tile={tile} />
+            <SortableItem
+              isLastItem={index >= tiles.data.length - 1}
+              id={tile.id}
+            >
+              <Tile tile={tile} />
+            </SortableItem>
           </CatchBoundary>
         )}
       </SortableGrid>
+
+      {tiles.isFetchingNextPage && <SkeletonTiles />}
     </Grid>
   );
 };
 
-const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
-  const tiles = useGridTiles();
+const SortableItem = (
+  props: Readonly<PropsWithChildren<{ isLastItem: boolean; id: number }>>,
+) => {
+  const sortable = useSortable({ id: props.id });
+  const tiles = useDashboardTiles();
+
+  const style: Readonly<CSSProperties> = {
+    transform: sortable.transform
+      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
+      : undefined,
+    transition: sortable.transition,
+    zIndex: sortable.isDragging ? "100" : "auto",
+  };
+
+  const fetchNextPageHandler = (e: HTMLElement) => {
+    if (!props.isLastItem) {
+      return () => null;
+    }
+
+    const observer = new IntersectionObserver(([tile]) => {
+      if (!tile?.isIntersecting || !tiles.hasNextPage) {
+        return;
+      }
+
+      tiles.fetchNextPage();
+    });
+
+    observer.observe(e);
+
+    return () => observer.unobserve(e);
+  };
+
+  return (
+    <div
+      role="listitem"
+      ref={(e) => {
+        sortable.setNodeRef(e);
+
+        if (!e) {
+          return;
+        }
+
+        const tearDownHandler = fetchNextPageHandler(e);
+
+        return () => {
+          tearDownHandler();
+        };
+      }}
+      style={style}
+    >
+      {props.children}
+    </div>
+  );
+};
+
+const SortableGrid = (props: {
+  children: (tile: Tile, index: number) => ReactNode;
+}) => {
+  const tiles = useDashboardTiles();
   const user = useUser();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
@@ -73,7 +142,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
   const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
-    return tiles.findIndex((tile) => tile.id === id);
+    return tiles.data.findIndex((tile) => tile.id === id);
   };
 
   const getPosition = (id: UniqueIdentifier) => {
@@ -84,7 +153,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
 
   const announcements: Readonly<Announcements> = {
     onDragStart: ({ active }) => {
-      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${tiles.length}`;
+      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${tiles.data.length}`;
     },
 
     onDragOver: ({ active, over }) => {
@@ -94,21 +163,21 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       }
 
       if (over) {
-        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${tiles.length}`;
+        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${tiles.data.length}`;
       }
 
       return;
     },
     onDragEnd: ({ active, over }) => {
       if (over) {
-        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${tiles.length}`;
+        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${tiles.data.length}`;
       }
 
       return;
     },
 
     onDragCancel: ({ active }) => {
-      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${tiles.length}.`;
+      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${tiles.data.length}.`;
     },
   };
 
@@ -143,7 +212,7 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       const overIndex = getIndex(over.id);
 
       if (activeIndex !== overIndex) {
-        const tilesOrdered = arrayMove(tiles, activeIndex, overIndex);
+        const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
         const keys = {
           tiles: userKeys.dashboardTiles(user.data.id).queryKey,
@@ -154,7 +223,15 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
             return tiles;
           }
 
-          return tilesOrdered;
+          return {
+            ...tiles,
+            pages: [
+              {
+                nextCursor: tiles.pages.length + 1,
+                tiles: tilesOrdered,
+              },
+            ],
+          };
         });
 
         udpateDashboardTilesOrder.mutate({ data: tilesOrdered });
@@ -178,9 +255,9 @@ const SortableGrid = (props: { children: (tile: Tile) => ReactNode }) => {
       onDragEnd={dragEndHandler}
       onDragCancel={dragCancelHandler}
     >
-      <SortableContext items={tiles} strategy={rectSortingStrategy}>
-        {tiles.map((item) => (
-          <Fragment key={item.id}>{props.children(item)}</Fragment>
+      <SortableContext items={tiles.data} strategy={rectSortingStrategy}>
+        {tiles.data.map((item, index) => (
+          <Fragment key={item.id}>{props.children(item, index)}</Fragment>
         ))}
       </SortableContext>
     </DndContext>
@@ -211,16 +288,8 @@ const ExerciseTile = (props: TileProps) => {
     throw new Error("no exercise");
   }
 
-  const style: Readonly<CSSProperties> = {
-    transform: sortable.transform
-      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
-      : undefined,
-    transition: sortable.transition,
-    zIndex: sortable.isDragging ? "100" : "auto",
-  };
-
   return (
-    <Card ref={sortable.setNodeRef} style={style}>
+    <Card>
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
@@ -252,16 +321,8 @@ const ExerciseTile = (props: TileProps) => {
 const TagsFrequencyTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  const style: Readonly<CSSProperties> = {
-    transform: sortable.transform
-      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
-      : undefined,
-    transition: sortable.transition,
-    zIndex: sortable.isDragging ? "100" : "auto",
-  };
-
   return (
-    <Card ref={sortable.setNodeRef} style={style}>
+    <Card>
       <CardHeader>
         <Name>tags frequency</Name>
         <Button
@@ -285,8 +346,8 @@ const TagsFrequencyTile = (props: TileProps) => {
 const ExercisesFrequencyTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  const tiles = useGridTiles();
-  const data = tiles
+  const tiles = useDashboardTiles();
+  const data = tiles.data
     .filter((tile) => tile.exercise != null)
     .map((tile) => {
       if (!tile.exercise) {
@@ -299,16 +360,8 @@ const ExercisesFrequencyTile = (props: TileProps) => {
       };
     });
 
-  const style: Readonly<CSSProperties> = {
-    transform: sortable.transform
-      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
-      : undefined,
-    transition: sortable.transition,
-    zIndex: sortable.isDragging ? "100" : "auto",
-  };
-
   return (
-    <Card ref={sortable.setNodeRef} style={style}>
+    <Card>
       <CardHeader>
         <Name>exercises frequency</Name>
         <Button
@@ -331,8 +384,8 @@ const ExercisesFrequencyTile = (props: TileProps) => {
 
 const ExercisesFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useGridTiles();
-  const exercises = tiles
+  const tiles = useDashboardTiles();
+  const exercises = tiles.data
     .filter((tile) => Boolean(tile.exercise))
     .flatMap((tile) => {
       if (!tile.exercise) {
@@ -341,16 +394,8 @@ const ExercisesFunFactsTile = (props: TileProps) => {
       return tile.exercise;
     });
 
-  const style: Readonly<CSSProperties> = {
-    transform: sortable.transform
-      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
-      : undefined,
-    transition: sortable.transition,
-    zIndex: sortable.isDragging ? "100" : "auto",
-  };
-
   return (
-    <Card ref={sortable.setNodeRef} style={style}>
+    <Card>
       <CardHeader>
         <Name>fun facts</Name>
         <Button
@@ -373,8 +418,8 @@ const ExercisesFunFactsTile = (props: TileProps) => {
 
 const SetsHeatMapTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useGridTiles();
-  const exercises = tiles
+  const tiles = useDashboardTiles();
+  const exercises = tiles.data
     .filter((tile) => Boolean(tile.exercise))
     .flatMap((tile) => {
       if (!tile.exercise) {
@@ -385,16 +430,8 @@ const SetsHeatMapTile = (props: TileProps) => {
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
-  const style: Readonly<CSSProperties> = {
-    transform: sortable.transform
-      ? `translate3d(${sortable.transform.x ? Math.round(sortable.transform.x) : 0}px, ${sortable.transform.y ? Math.round(sortable.transform.y) : 0}px, 0)`
-      : undefined,
-    transition: sortable.transition,
-    zIndex: sortable.isDragging ? "100" : "auto",
-  };
-
   return (
-    <Card ref={sortable.setNodeRef} style={style}>
+    <Card>
       <CardHeader>
         <Name>Heat map - {monthName}</Name>
         <Button
@@ -415,18 +452,18 @@ const SetsHeatMapTile = (props: TileProps) => {
   );
 };
 
-type Tile = Readonly<ReturnType<typeof useGridTiles>[number]>;
-type TileProps = Readonly<{ tile: Tile }>;
-
-const useGridTiles = () => {
-  const tiles = useDashboardTiles();
-
-  if (!tiles.data.length) {
-    return [];
-  }
-
-  return tiles.data;
+const SkeletonTiles = () => {
+  return [...new Array(10).keys()].map((i) => (
+    <Skeleton key={i}>
+      <Card>
+        <CardHeader className="h-16" />
+      </Card>
+    </Skeleton>
+  ));
 };
+
+type Tile = Readonly<ReturnType<typeof useDashboardTiles>["data"][number]>;
+type TileProps = Readonly<{ tile: Tile }>;
 
 const useUpdateDashboardTilesOrder = () => {
   return useMutation({
@@ -434,9 +471,11 @@ const useUpdateDashboardTilesOrder = () => {
   });
 };
 
-const Grid = (props: ComponentProps<"ol">) => {
+const Grid = (props: ComponentProps<"div">) => {
   return (
-    <ol
+    <div
+      role="list"
+      aria-sort="descending"
       className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
       {...props}
     />
@@ -455,10 +494,13 @@ const Card = ({ className, ...props }: ComponentProps<"li">) => {
   );
 };
 
-const CardHeader = (props: ComponentProps<"header">) => {
+const CardHeader = ({ className, ...props }: ComponentProps<"header">) => {
   return (
     <header
-      className="flex items-center justify-between border-b p-4"
+      className={cn(
+        "flex items-center justify-between border-b p-4",
+        className,
+      )}
       {...props}
     />
   );

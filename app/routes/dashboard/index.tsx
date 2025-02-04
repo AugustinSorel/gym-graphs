@@ -29,7 +29,7 @@ export const Route = createFileRoute("/dashboard/")({
       tiles: userKeys.dashboardTiles(context.user.id),
     } as const;
 
-    await context.queryClient.ensureQueryData(keys.tiles);
+    await context.queryClient.ensureInfiniteQueryData(keys.tiles);
   },
 });
 

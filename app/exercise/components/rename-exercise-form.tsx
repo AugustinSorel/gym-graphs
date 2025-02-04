@@ -103,12 +103,14 @@ const useFormSchema = () => {
 
       const cachedTiles = queryClient.getQueryData(keys.tiles);
 
-      const nameTaken = cachedTiles?.find((tile) => {
-        return (
-          tile.exercise?.name === data.name &&
-          tile.exerciseId !== params.exerciseId
-        );
-      });
+      const nameTaken = cachedTiles?.pages
+        .flatMap((page) => page.tiles)
+        .find((tile) => {
+          return (
+            tile.exercise?.name === data.name &&
+            tile.exerciseId !== params.exerciseId
+          );
+        });
 
       return !nameTaken;
     },
@@ -149,22 +151,30 @@ const useRenameExercise = () => {
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
-          return [];
+          return tiles;
         }
 
-        return tiles.map((tile) => {
-          if (tile.exercise?.id === variables.data.exerciseId) {
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
             return {
-              ...tile,
-              exercise: {
-                ...tile.exercise,
-                name: variables.data.name,
-              },
-            };
-          }
+              ...page,
+              tiles: page.tiles.filter((tile) => {
+                if (tile.exercise?.id === variables.data.exerciseId) {
+                  return {
+                    ...tile,
+                    exercise: {
+                      ...tile.exercise,
+                      name: variables.data.name,
+                    },
+                  };
+                }
 
-          return tile;
-        });
+                return tile;
+              }),
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, (exercise) => {

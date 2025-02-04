@@ -2,10 +2,9 @@ import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { userSchema } from "~/user/user.schemas";
 import {
-  deleteDashboardTiles,
   deleteUser,
-  insertDashboardTiles,
   renameUser,
+  reorderDashboardTiles,
   selectClientUser,
   selectDashboardTiles,
   updateOneRepMaxAlgo,
@@ -15,6 +14,9 @@ import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
 import { setResponseStatus } from "vinxi/http";
 import { dashboardTileSchema } from "~/user/user.schemas";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { z } from "zod";
+import { and, eq, inArray, sql, SQL } from "drizzle-orm";
+import { dashboardTileTable } from "~/db/db.schemas";
 
 export const getUserAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -31,8 +33,28 @@ export const getUserAction = createServerFn({ method: "GET" })
 
 export const selectDashboardTilesAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .handler(async ({ context }) => {
-    return selectDashboardTiles(context.user.id, context.db);
+  .validator(
+    z.object({
+      page: z.number().positive().catch(1),
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    const pageSize = 100;
+
+    const tiles = await selectDashboardTiles(
+      context.user.id,
+      data.page,
+      pageSize,
+      context.db,
+    );
+
+    const showNextPage = tiles.length > 1;
+    const nextCursor = showNextPage ? data.page + 1 : null;
+
+    return {
+      tiles,
+      nextCursor,
+    };
   });
 
 export const renameUserAction = createServerFn({ method: "POST" })
@@ -67,19 +89,11 @@ export const updateDashboardTilesOrderAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
-    dashboardTileSchema.pick({ type: true, exerciseId: true }).array().max(200),
-  )
+  .validator(dashboardTileSchema.pick({ id: true }).array().max(200))
   .handler(async ({ context, data }) => {
-    await context.db.transaction(async (tx) => {
-      await deleteDashboardTiles(context.user.id, tx);
-
-      const tiles = data.toReversed().map((d) => ({
-        type: d.type,
-        exerciseId: d.exerciseId,
-        userId: context.user.id,
-      }));
-
-      await insertDashboardTiles(tiles, tx);
-    });
+    await reorderDashboardTiles(
+      data.toReversed().flatMap((d) => d.id),
+      context.user.id,
+      context.db,
+    );
   });

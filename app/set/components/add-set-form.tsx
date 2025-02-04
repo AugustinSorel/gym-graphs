@@ -157,7 +157,7 @@ const useCreateSet = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
         tiles: userKeys.dashboardTiles(user.data.id).queryKey,
-      };
+      } as const;
 
       const optimisticExerciseSet = {
         id: Math.random(),
@@ -171,22 +171,30 @@ const useCreateSet = () => {
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
-          return [];
+          return tiles;
         }
 
-        return tiles.map((tile) => {
-          if (tile.exercise?.id === variables.data.exerciseId) {
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
             return {
-              ...tile,
-              exercise: {
-                ...tile.exercise,
-                sets: [optimisticExerciseSet, ...tile.exercise.sets],
-              },
-            };
-          }
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.exercise?.id === variables.data.exerciseId) {
+                  return {
+                    ...tile,
+                    exercise: {
+                      ...tile.exercise,
+                      sets: [optimisticExerciseSet, ...tile.exercise.sets],
+                    },
+                  };
+                }
 
-          return tile;
-        });
+                return tile;
+              }),
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(keys.exercise, (exercise) => {

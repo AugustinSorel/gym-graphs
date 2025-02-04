@@ -87,9 +87,11 @@ const useFormSchema = () => {
       const key = userKeys.dashboardTiles(user.data.id).queryKey;
       const cachedTiles = queryClient.getQueryData(key);
 
-      const nameTaken = cachedTiles?.find((tile) => {
-        return tile.exercise?.name === data.name;
-      });
+      const nameTaken = cachedTiles?.pages
+        .flatMap((page) => page.tiles)
+        .find((tile) => {
+          return tile.exercise?.name === data.name;
+        });
 
       return !nameTaken;
     },
@@ -120,11 +122,11 @@ const useCreateExercise = () => {
   return useMutation({
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
-      const key = {
+      const keys = {
         tiles: userKeys.dashboardTiles(user.data.id).queryKey,
       } as const;
 
-      queryClient.setQueryData(key.tiles, (tiles) => {
+      queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -133,7 +135,7 @@ const useCreateExercise = () => {
 
         const optimisticTile = {
           id: Math.random(),
-          index: tiles.length + 1,
+          index: 1_0000,
           type: "exercise" as const,
           userId: user.data.id,
           exerciseId,
@@ -150,7 +152,19 @@ const useCreateExercise = () => {
           updatedAt: new Date(),
         };
 
-        return [optimisticTile, ...tiles];
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page, i) => {
+            if (i === 0) {
+              return {
+                tiles: [optimisticTile, ...page.tiles],
+                nextCursor: tiles.pages.length + 1,
+              };
+            }
+
+            return page;
+          }),
+        };
       });
     },
     onSettled: async () => {
