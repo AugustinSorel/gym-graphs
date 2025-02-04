@@ -15,8 +15,6 @@ import { setResponseStatus } from "vinxi/http";
 import { dashboardTileSchema } from "~/user/user.schemas";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { z } from "zod";
-import { and, eq, inArray, sql, SQL } from "drizzle-orm";
-import { dashboardTileTable } from "~/db/db.schemas";
 
 export const getUserAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -48,7 +46,7 @@ export const selectDashboardTilesAction = createServerFn({ method: "GET" })
       context.db,
     );
 
-    const showNextPage = tiles.length > 1;
+    const showNextPage = tiles.length > pageSize - 1;
     const nextCursor = showNextPage ? data.page + 1 : null;
 
     return {
