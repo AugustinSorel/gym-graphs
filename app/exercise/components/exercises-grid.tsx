@@ -225,12 +225,20 @@ const SortableGrid = (props: {
 
           return {
             ...tiles,
-            pages: [
-              {
-                nextCursor: tiles.pages.length + 1,
-                tiles: tilesOrdered,
-              },
-            ],
+            pages: tiles.pages.map((page, i) => {
+              return {
+                ...page,
+                tiles: page.tiles.map((_tile, j) => {
+                  const tile = tilesOrdered.at(i * page.tiles.length + j);
+
+                  if (!tile) {
+                    throw new Error("tile not found when reordering");
+                  }
+
+                  return tile;
+                }),
+              };
+            }),
           };
         });
 
