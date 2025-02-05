@@ -10,7 +10,8 @@ import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
 import { dashboardTileSchema } from "~/user/user.schemas";
 import type { Db } from "~/libs/db";
-import type { DashboardTile, Exercise, User } from "~/db/db.schemas";
+import type { DashboardTile, User } from "~/db/db.schemas";
+import { addDate } from "~/utils/date";
 
 export const createUserWithEmailAndPassword = async (
   email: User["email"],
@@ -218,9 +219,9 @@ export const reorderDashboardTiles = async (
 };
 
 export const seedUserAccount = async (userId: User["id"], db: Db) => {
-  const defaultExercises = ["bench press", "squat", "deadlift"] as const;
+  const exercisesName = ["bench press", "squat", "deadlift"] as const;
 
-  const defaultTags = [
+  const tagsName = [
     "legs",
     "chest",
     "biceps",
@@ -232,87 +233,99 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     "traps",
   ] as const;
 
-  const exerciseTagMapping = new Map([
-    ["bench press", ["chest"]],
-    ["squat", ["legs"]],
-    ["deadlift", ["legs", "calfs"]],
-  ]);
+  const sets = {
+    benchPress: [10, 20, 10, 30] as const,
+    squat: [20, 10, 30, 10] as const,
+    deadlift: [30, 10, 20, 30] as const,
+  } as const;
 
-  const [exercises, tags] = await Promise.all([
-    createExercises(
-      defaultExercises.map((name) => ({ name, userId })),
-      db,
-    ),
+  const [tags, [benchPress, squat, deadlift]] = await Promise.all([
     createTags(
-      defaultTags.map((name) => ({ name, userId })),
+      tagsName.map((name) => ({ name, userId })),
+      db,
+    ),
+    createExercises(
+      exercisesName.map((name) => ({ name, userId })),
       db,
     ),
   ]);
 
-  const dashboardTiles = [
-    { type: dashboardTileSchema.shape.type.enum.exercisesFrequency, userId },
-    { type: dashboardTileSchema.shape.type.enum.tagsFrequency, userId },
-    { type: dashboardTileSchema.shape.type.enum.exercisesFunFacts, userId },
-    { type: dashboardTileSchema.shape.type.enum.setsHeatMap, userId },
-    ...exercises.map((e) => ({
-      type: dashboardTileSchema.shape.type.enum.exercise,
-      userId,
-      exerciseId: e.id,
-    })),
-  ];
+  if (!benchPress || !squat || !deadlift) {
+    throw new Error("exercises returned by db are null");
+  }
 
-  const getTagIdsForExercise = (exerciseName: Exercise["name"]) => {
-    const tagNames = exerciseTagMapping.get(exerciseName);
-
-    if (!tagNames) {
-      throw new Error(`No tag mapping found for exercise: ${exerciseName}`);
-    }
-
-    return tagNames.map((tagName) => {
-      const tagId = tags.find((tag) => tag.name === tagName)?.id;
-
-      if (!tagId) {
-        throw new Error(`Tag ID not found for tag name: ${tagName}`);
-      }
-
-      return tagId;
-    });
-  };
-
-  const getSetsForExercise = (exerciseId: number) => {
-    const sets = [...Array(6).keys()].map((i) => {
-      const values = [10, 20, 30, 40];
-
-      const randomIndex = Math.floor(Math.random() * values.length);
-      const randomValue = values.at(randomIndex);
-
-      if (!randomValue) {
-        throw new Error("random values is undefined");
-      }
-
-      return {
-        exerciseId,
-        repetitions: randomValue,
-        weightInKg: randomValue,
-        doneAt: new Date(new Date().setDate(new Date().getDate() - i)),
-      };
-    });
-
-    return sets;
-  };
-
-  const exerciseOperations = exercises.flatMap((exercise) => [
+  const operations = [
+    createSets(
+      [
+        ...sets.benchPress.map((set, i) => ({
+          weightInKg: set,
+          repetitions: set,
+          exerciseId: benchPress.id,
+          doneAt: addDate(new Date(), i * -1),
+        })),
+        ...sets.squat.map((set, i) => ({
+          weightInKg: set,
+          repetitions: set,
+          exerciseId: squat.id,
+          doneAt: addDate(new Date(), i * -1),
+        })),
+        ...sets.deadlift.map((set, i) => ({
+          weightInKg: set,
+          repetitions: set,
+          exerciseId: deadlift.id,
+          doneAt: addDate(new Date(), i * -1),
+        })),
+      ],
+      db,
+    ),
     addExerciseTags(
       userId,
-      exercise.id,
-      getTagIdsForExercise(exercise.name),
+      benchPress.id,
+      tags.filter((tag) => ["chest"].includes(tag.name)).map((tag) => tag.id),
       db,
     ),
-    createSets(getSetsForExercise(exercise.id), db),
-  ]);
+    addExerciseTags(
+      userId,
+      squat.id,
+      tags.filter((tag) => ["legs"].includes(tag.name)).map((tag) => tag.id),
+      db,
+    ),
+    addExerciseTags(
+      userId,
+      deadlift.id,
+      tags
+        .filter((tag) => ["legs", "calfs"].includes(tag.name))
+        .map((tag) => tag.id),
+      db,
+    ),
+    insertDashboardTiles(
+      [
+        {
+          type: dashboardTileSchema.shape.type.enum.exercisesFrequency,
+          userId,
+        },
+        { type: dashboardTileSchema.shape.type.enum.tagsFrequency, userId },
+        { type: dashboardTileSchema.shape.type.enum.exercisesFunFacts, userId },
+        { type: dashboardTileSchema.shape.type.enum.setsHeatMap, userId },
+        {
+          type: dashboardTileSchema.shape.type.enum.exercise,
+          exerciseId: benchPress.id,
+          userId,
+        },
+        {
+          type: dashboardTileSchema.shape.type.enum.exercise,
+          exerciseId: squat.id,
+          userId,
+        },
+        {
+          type: dashboardTileSchema.shape.type.enum.exercise,
+          exerciseId: deadlift.id,
+          userId,
+        },
+      ],
+      db,
+    ),
+  ];
 
-  await Promise.all([
-    ...exerciseOperations,
-    insertDashboardTiles(dashboardTiles, db),
-  ]);
+  await Promise.all(operations);
 };

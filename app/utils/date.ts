@@ -11,3 +11,7 @@ export const dateAsYYYYMMDD = (date: Date) => {
 
   return dateStr;
 };
+
+export const addDate = (date: Date, by: number) => {
+  return new Date(new Date().setDate(date.getDate() + by));
+};
