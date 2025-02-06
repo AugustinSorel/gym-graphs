@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "~/ui/button";
-import { githubSignInAction } from "../auth.actions";
+import { githubSignInAction } from "~/auth/auth.actions";
 import { Spinner } from "~/ui/spinner";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";

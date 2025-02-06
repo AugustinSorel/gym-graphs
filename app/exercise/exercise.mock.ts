@@ -222,3 +222,9 @@ export const exercisesMock = [
     ],
   },
 ] as const satisfies Awaited<ReturnType<typeof selectDashboardExercises>>;
+
+export const exercisesFrequencyMock = exercisesMock.map((exercise) => ({
+  name: exercise.name,
+  frequency: exercise.sets.length,
+  id: exercise.id,
+}));

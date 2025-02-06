@@ -90,6 +90,8 @@ const useDeleteExercise = () => {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
+          .queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -110,16 +112,28 @@ const useDeleteExercise = () => {
         };
       });
 
+      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        return data.filter((exercise) => {
+          return exercise.id !== variables.data.exerciseId;
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, undefined);
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercisesFrequency);
     },
   });
 };

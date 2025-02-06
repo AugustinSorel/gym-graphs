@@ -18,6 +18,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import type { z } from "zod";
+import { exerciseKeys } from "../exercise.keys";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -127,33 +128,35 @@ const useCreateExercise = () => {
     onMutate: (variables) => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
+          .queryKey,
       } as const;
+
+      const exerciseId = Math.random();
+
+      const optimisticTile = {
+        id: Math.random(),
+        index: 1_0000,
+        type: "exercise" as const,
+        dashboardId: user.data.dashboard.id,
+        exerciseId,
+        exercise: {
+          id: exerciseId,
+          userId: user.data.id,
+          name: variables.data.name,
+          tags: [],
+          sets: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
-
-        const exerciseId = Math.random();
-
-        const optimisticTile = {
-          id: Math.random(),
-          index: 1_0000,
-          type: "exercise" as const,
-          dashboardId: user.data.dashboard.id,
-          exerciseId,
-          exercise: {
-            id: exerciseId,
-            userId: user.data.id,
-            name: variables.data.name,
-            tags: [],
-            sets: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
 
         return {
           ...tiles,
@@ -169,13 +172,26 @@ const useCreateExercise = () => {
           }),
         };
       });
+
+      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        return [
+          { name: variables.data.name, frequency: 0, id: exerciseId },
+          ...data,
+        ];
+      });
     },
     onSettled: async () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id),
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
+      void queryClient.invalidateQueries(keys.exercisesFrequency);
     },
   });
 };

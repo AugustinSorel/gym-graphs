@@ -5,7 +5,8 @@ import {
   deleteExercise,
   renameExercise,
   selectExercise,
-} from "./exercise.services";
+  selectExercisesFrequency,
+} from "~/exercise/exercise.services";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import pg from "pg";
 import { redirect } from "@tanstack/react-router";
@@ -91,4 +92,10 @@ export const fetchExerciseAction = createServerFn({ method: "GET" })
     }
 
     return exercise;
+  });
+
+export const selectExercisesFrequencyAction = createServerFn({ method: "GET" })
+  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .handler(async ({ context }) => {
+    return selectExercisesFrequency(context.user.id, context.db);
   });

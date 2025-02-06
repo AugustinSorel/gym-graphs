@@ -2,7 +2,10 @@ import { CatchBoundary, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";
-import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
+import {
+  ExerciseRadarGraphSkeleton,
+  ExercisesRadarGraph,
+} from "~/exercise/components/exercises-radar-graph";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
@@ -25,20 +28,20 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { GripVertical } from "lucide-react";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, Suspense, useRef, useState } from "react";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { Skeleton } from "~/ui/skeleton";
 import { reorderTilesAction } from "~/dashboard/dashboard.actions";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
   ComponentProps,
   CSSProperties,
   PropsWithChildren,
   ReactNode,
 } from "react";
-import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
   DragStartEvent,
   ScreenReaderInstructions,
@@ -354,20 +357,6 @@ const TagsFrequencyTile = (props: TileProps) => {
 const ExercisesFrequencyTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  const tiles = useTiles();
-  const data = tiles.data
-    .filter((tile) => tile.exercise != null)
-    .map((tile) => {
-      if (!tile.exercise) {
-        throw new Error("no tile.exercise");
-      }
-
-      return {
-        frequency: tile.exercise.sets.length,
-        name: tile.exercise.name,
-      };
-    });
-
   return (
     <Card>
       <CardHeader>
@@ -385,7 +374,9 @@ const ExercisesFrequencyTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <ExercisesRadarGraph data={data} />
+      <Suspense fallback={<ExerciseRadarGraphSkeleton />}>
+        <ExercisesRadarGraph />
+      </Suspense>
     </Card>
   );
 };

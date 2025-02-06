@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import type { Dashboard } from "~/db/db.schemas";
-import { selectTilesAction } from "./dashboard.actions";
+import { selectTilesAction } from "~/dashboard/dashboard.actions";
 
 const tiles = (userId: Dashboard["userId"]) =>
   infiniteQueryOptions({

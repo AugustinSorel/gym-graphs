@@ -7,6 +7,10 @@ import { max } from "@visx/vendor/d3-array";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { exerciseKeys } from "../exercise.keys";
+import { useUser } from "~/user/hooks/use-user";
+import { Skeleton } from "~/ui/skeleton";
 import type { Exercise } from "~/db/db.schemas";
 import type {
   ComponentProps,
@@ -15,15 +19,43 @@ import type {
   TouchEvent,
 } from "react";
 
-export const ExercisesRadarGraph = (props: Props) => {
-  if (!props.data.length) {
+export const ExerciseRadarGraphSkeleton = () => {
+  const data: GraphProps["data"] = [
+    { name: "exercise-1", frequency: 10 },
+    { name: "exercise-2", frequency: 20 },
+    { name: "exercise-3", frequency: 15 },
+    { name: "exercise-4", frequency: 30 },
+    { name: "exercise-5", frequency: 10 },
+  ];
+
+  return (
+    <Skeleton className="bg-transparent">
+      <ParentSize className="relative flex overflow-hidden">
+        {({ height, width }) => (
+          <MockGraph height={height} width={width} data={data} />
+        )}
+      </ParentSize>
+    </Skeleton>
+  );
+};
+
+export const ExercisesRadarGraph = () => {
+  const user = useUser();
+
+  const keys = {
+    exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
+  } as const;
+
+  const exercisesFrequency = useSuspenseQuery(keys.exercisesFrequency);
+
+  if (!exercisesFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={props.data} />
+        <Graph height={height} width={width} data={exercisesFrequency.data} />
       )}
     </ParentSize>
   );
@@ -200,21 +232,64 @@ const Graph = ({ width, height, data }: GraphProps) => {
   );
 };
 
+const MockGraph = ({ width, height, data }: GraphProps) => {
+  const xMax = width - margin.left - margin.right;
+  const yMax = height - margin.top - margin.bottom;
+  const radius = Math.min(xMax, yMax) / 2;
+
+  const radialScale = useMemo(() => {
+    return scaleLinear({
+      range: [0, Math.PI * 2],
+      domain: [degrees, 0],
+    });
+  }, [degrees]);
+
+  const webs = genAngles(data.length);
+  const points = genPoints(data.length, radius);
+  const zeroPoint = new Point({ x: 0, y: 0 });
+
+  return (
+    <svg width={width} height={height} className="max-w-full">
+      <Group top={height / 2 - margin.top} left={width / 2}>
+        {[...new Array(levels)].map((_, i) => (
+          <LineRadial
+            key={`web-${i}`}
+            data={webs}
+            angle={(d) => radialScale(d.angle) ?? 0}
+            radius={((i + 1) * radius) / levels}
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth={2}
+            strokeOpacity={0.8}
+            strokeLinecap="round"
+            suppressHydrationWarning
+          />
+        ))}
+
+        {[...new Array(data.length)].map((_, i) => (
+          <Line
+            key={`radar-line-${i}`}
+            from={zeroPoint}
+            to={points[i]}
+            stroke="hsl(var(--border))"
+            suppressHydrationWarning
+          />
+        ))}
+      </Group>
+    </svg>
+  );
+};
+
 type GraphPoint = Readonly<{
   name: Exercise["name"];
   frequency: number;
 }>;
 
-type Props = Readonly<{
+type GraphProps = Readonly<{
+  height: number;
+  width: number;
   data: ReadonlyArray<GraphPoint>;
 }>;
-
-type GraphProps = Readonly<
-  {
-    height: number;
-    width: number;
-  } & Pick<Props, "data">
->;
 
 const degrees = 360;
 const levels = 5;

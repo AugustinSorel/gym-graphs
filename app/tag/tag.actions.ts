@@ -7,7 +7,7 @@ import {
   deleteExerciseTags,
   deleteTag,
   selectExerciseTags,
-} from "./tag.services";
+} from "~/tag/tag.services";
 import pg from "pg";
 import { z } from "zod";
 import { exerciseSchema } from "~/exercise/exericse.schemas";

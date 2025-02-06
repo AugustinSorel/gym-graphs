@@ -157,6 +157,8 @@ const useCreateSet = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
+          .queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -197,6 +199,23 @@ const useCreateSet = () => {
         };
       });
 
+      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        return data.map((exercise) => {
+          if (exercise.id === variables.data.exerciseId) {
+            return {
+              ...exercise,
+              frequency: exercise.frequency + 1,
+            };
+          }
+
+          return exercise;
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
@@ -212,10 +231,12 @@ const useCreateSet = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
         tiles: dashboardKeys.tiles(user.data.id),
+        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.exercisesFrequency);
     },
   });
 };

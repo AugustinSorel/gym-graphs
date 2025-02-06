@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
 import type { Exercise, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
@@ -93,4 +93,21 @@ export const createExercises = async (
   db: Db,
 ) => {
   return db.insert(exerciseTable).values(data).returning();
+};
+
+export const selectExercisesFrequency = (
+  userId: Exercise["userId"],
+  db: Db,
+) => {
+  return db
+    .select({
+      id: exerciseTable.id,
+      name: exerciseTable.name,
+      frequency:
+        sql`(select count(*) from set where set.exercise_id = exercise.id)`.mapWith(
+          Number,
+        ),
+    })
+    .from(exerciseTable)
+    .where(eq(exerciseTable.userId, userId));
 };

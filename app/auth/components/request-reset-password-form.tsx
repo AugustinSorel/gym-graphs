@@ -14,7 +14,7 @@ import {
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "~/user/user.schemas";
-import { requestResetPasswordAction } from "../auth.actions";
+import { requestResetPasswordAction } from "~/auth/auth.actions";
 import type { z } from "zod";
 import type { ComponentProps } from "react";
 

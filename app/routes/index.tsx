@@ -6,7 +6,10 @@ import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-g
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/exercise/components/exercise-table-columns";
 import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
-import { exercisesMock } from "~/exercise/exercise.mock";
+import {
+  exercisesFrequencyMock,
+  exercisesMock,
+} from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
@@ -15,6 +18,7 @@ import { userMock } from "~/user/user.mock";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
+import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -102,12 +106,7 @@ const FeatureOne = () => {
         ))}
         <Card>
           <Name>exercises frequency</Name>
-          <ExercisesRadarGraph
-            data={exercisesMock.map((e) => ({
-              frequency: e.sets.length,
-              name: e.name,
-            }))}
-          />
+          <ExercisesRadarGraph />
         </Card>
         <Card>
           <Name>tags frequency</Name>
@@ -348,9 +347,11 @@ const useMockQueryClient = () => {
 
   const keys = {
     user: userKeys.get.queryKey,
+    exercisesFrequency: exerciseKeys.exercisesFrequency(userMock.id).queryKey,
   };
 
   queryClient.setQueryData(keys.user, userMock);
+  queryClient.setQueryData(keys.exercisesFrequency, exercisesFrequencyMock);
   queryClient.setQueryDefaults(keys.user, { staleTime: Infinity });
 
   return queryClient;

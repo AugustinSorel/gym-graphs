@@ -7,6 +7,7 @@ import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { validateAccess } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
+import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -27,7 +28,10 @@ export const Route = createFileRoute("/dashboard/")({
   loader: async ({ context }) => {
     const keys = {
       tiles: dashboardKeys.tiles(context.user.id),
+      exercisesFrequency: exerciseKeys.exercisesFrequency(context.user.id),
     } as const;
+
+    void context.queryClient.prefetchQuery(keys.exercisesFrequency);
 
     await context.queryClient.ensureInfiniteQueryData(keys.tiles);
   },

@@ -1,4 +1,4 @@
-import type { selectClientUser } from "./user.services";
+import type { selectClientUser } from "~/user/user.services";
 
 export const userMock = {
   weightUnit: "kg",
