@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExercisesGrid } from "~/exercise/components/exercises-grid";
 import { CreateExerciseDialog } from "~/exercise/components/create-exercise-dialog";
 import { z } from "zod";
 import { SearchExercises } from "~/exercise/components/search-exercises";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { validateAccess } from "~/libs/permissions";
+import { Dashboard } from "~/dashboard/components/dashboard";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/dashboard/")({
   },
   loader: async ({ context }) => {
     const keys = {
-      tiles: userKeys.dashboardTiles(context.user.id),
+      tiles: dashboardKeys.tiles(context.user.id),
     } as const;
 
     await context.queryClient.ensureInfiniteQueryData(keys.tiles);
@@ -50,7 +50,7 @@ const RouteComponent = () => {
         <CreateExerciseDialog />
       </Header>
 
-      <ExercisesGrid />
+      <Dashboard />
     </Main>
   );
 };

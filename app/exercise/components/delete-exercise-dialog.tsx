@@ -18,7 +18,7 @@ import { deleteExerciseAction } from "~/exercise/exercise.actions";
 import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
 export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -87,7 +87,7 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
       } as const;
@@ -114,7 +114,7 @@ const useDeleteExercise = () => {
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
       } as const;
 

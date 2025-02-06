@@ -5,6 +5,9 @@ export const userMock = {
   email: "john@email.com",
   name: "john",
   id: 1,
+  dashboard: {
+    id: 0,
+  },
   tags: [
     {
       id: 172,

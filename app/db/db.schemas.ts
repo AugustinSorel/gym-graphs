@@ -10,7 +10,7 @@ import {
   pgTable,
   serial,
 } from "drizzle-orm/pg-core";
-import { dashboardTileSchema } from "~/user/user.schemas";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { userSchema } from "~/user/user.schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -47,21 +47,44 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   exercises: many(exerciseTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
-  dashboardTiles: many(dashboardTileTable),
+  dashboard: one(dashboardTable, {
+    fields: [userTable.id],
+    references: [dashboardTable.userId],
+  }),
 }));
 
-export const dashboardTileTypeEnum = pgEnum(
-  "dashboard_tile_type",
-  dashboardTileSchema.shape.type.options,
-);
-
-export const dashboardTileTable = pgTable("dashboard_tile", {
+export const dashboardTable = pgTable("dashboard", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  type: dashboardTileTypeEnum().notNull(),
-  index: serial("index"),
   userId: integer("user_id")
     .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
+    .references(() => userTable.id, { onDelete: "cascade" })
+    .unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type Dashboard = Readonly<typeof dashboardTable.$inferSelect>;
+
+export const dashboardRelations = relations(
+  dashboardTable,
+  ({ one, many }) => ({
+    user: one(userTable, {
+      fields: [dashboardTable.userId],
+      references: [userTable.id],
+    }),
+    tiles: many(tileTable),
+  }),
+);
+
+export const tileTypeEnum = pgEnum("tile_type", tileSchema.shape.type.options);
+
+export const tileTable = pgTable("tile", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  type: tileTypeEnum().notNull(),
+  index: serial("index"),
+  dashboardId: integer("dashboard_id")
+    .references(() => dashboardTable.id, { onDelete: "cascade" })
+    .notNull(),
   exerciseId: integer("exercise_id").references(() => exerciseTable.id, {
     onDelete: "cascade",
   }),
@@ -69,18 +92,15 @@ export const dashboardTileTable = pgTable("dashboard_tile", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export type DashboardTile = Readonly<typeof dashboardTileTable.$inferSelect>;
+export type Tile = Readonly<typeof tileTable.$inferSelect>;
 
-export const dashboardItemRelations = relations(
-  dashboardTileTable,
-  ({ one }) => ({
-    user: one(userTable, {
-      fields: [dashboardTileTable.userId],
-      references: [userTable.id],
-    }),
-    exercise: one(exerciseTable),
+export const tileRelations = relations(tileTable, ({ one }) => ({
+  dashboard: one(dashboardTable, {
+    fields: [tileTable.dashboardId],
+    references: [dashboardTable.id],
   }),
-);
+  exercise: one(exerciseTable),
+}));
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -212,9 +232,9 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   }),
   sets: many(setTable),
   tags: many(exerciseTagTable),
-  dashboardTile: one(dashboardTileTable, {
+  tile: one(tileTable, {
     fields: [exerciseTable.id],
-    references: [dashboardTileTable.exerciseId],
+    references: [tileTable.exerciseId],
   }),
 }));
 

@@ -21,7 +21,7 @@ import { dateAsYYYYMMDD } from "~/utils/date";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -156,7 +156,7 @@ const useCreateSet = () => {
     onMutate: (variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -211,7 +211,7 @@ const useCreateSet = () => {
     onSettled: () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

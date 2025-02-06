@@ -19,7 +19,7 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import type { z } from "zod";
 
 export const RenameExerciseForm = (props: Props) => {
@@ -98,7 +98,7 @@ const useFormSchema = () => {
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(keys.tiles);
@@ -146,7 +146,7 @@ const useRenameExercise = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -191,7 +191,7 @@ const useRenameExercise = () => {
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

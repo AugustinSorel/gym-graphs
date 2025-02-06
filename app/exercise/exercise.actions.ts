@@ -10,8 +10,8 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import pg from "pg";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
-import { insertDashboardTile } from "~/user/user.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { insertTile } from "~/dashboard/dashboard.services";
 
 export const createExerciseAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -20,7 +20,12 @@ export const createExerciseAction = createServerFn({ method: "POST" })
     try {
       await context.db.transaction(async (tx) => {
         const exercise = await createExercise(data.name, context.user.id, tx);
-        await insertDashboardTile("exercise", exercise.id, exercise.userId, tx);
+        await insertTile(
+          "exercise",
+          exercise.id,
+          context.user.dashboard.id,
+          tx,
+        );
       });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;

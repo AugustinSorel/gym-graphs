@@ -21,7 +21,7 @@ import { updateSetWeightAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
 export const UpdateSetWeightForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -120,7 +120,7 @@ const useUpdateWeight = () => {
     mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
@@ -183,7 +183,7 @@ const useUpdateWeight = () => {
     },
     onSettled: () => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
       } as const;
 

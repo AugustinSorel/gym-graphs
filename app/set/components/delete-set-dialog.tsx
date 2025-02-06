@@ -17,7 +17,7 @@ import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
@@ -84,7 +84,7 @@ const useDeleteSet = () => {
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
       } as const;
 
@@ -134,7 +134,7 @@ const useDeleteSet = () => {
     onSettled: () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, set.exerciseId),
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

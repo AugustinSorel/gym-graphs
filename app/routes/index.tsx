@@ -355,8 +355,7 @@ const useMockHomePageData = () => {
   useEffect(() => {
     return () => {
       queryClient.setQueryDefaults(keys.user, { staleTime: 1000 });
-
-      queryClient.setQueryData(keys.user, undefined);
+      queryClient.clear();
     };
   }, [queryClient]);
 };

@@ -150,6 +150,13 @@ export const selectSession = async (sessionId: Session["id"], db: Db) => {
     where: eq(sessionTable.id, sessionId),
     with: {
       user: {
+        with: {
+          dashboard: {
+            columns: {
+              id: true,
+            },
+          },
+        },
         columns: {
           id: true,
           emailVerifiedAt: true,

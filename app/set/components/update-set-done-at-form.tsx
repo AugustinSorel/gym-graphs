@@ -21,7 +21,7 @@ import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
@@ -143,7 +143,7 @@ const useUpdateSetDoneAt = () => {
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
       } as const;
 
@@ -207,7 +207,7 @@ const useUpdateSetDoneAt = () => {
     onSettled: () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

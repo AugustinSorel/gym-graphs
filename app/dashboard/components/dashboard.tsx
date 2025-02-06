@@ -28,10 +28,10 @@ import { GripVertical } from "lucide-react";
 import { Fragment, useRef, useState } from "react";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateDashboardTilesOrderAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.keys";
-import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
+import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { Skeleton } from "~/ui/skeleton";
+import { reorderTilesAction } from "~/dashboard/dashboard.actions";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import type {
   ComponentProps,
   CSSProperties,
@@ -45,11 +45,11 @@ import type {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 
-export const ExercisesGrid = () => {
-  const tiles = useDashboardTiles();
+export const Dashboard = () => {
+  const tiles = useTiles();
 
   if (!tiles.data.length) {
-    return <NoExercisesText>no exercises</NoExercisesText>;
+    return <NoDataText>no data</NoDataText>;
   }
 
   return (
@@ -80,7 +80,7 @@ const SortableItem = (
   props: Readonly<PropsWithChildren<{ isLastItem: boolean; id: number }>>,
 ) => {
   const sortable = useSortable({ id: props.id });
-  const tiles = useDashboardTiles();
+  const tiles = useTiles();
 
   const style: Readonly<CSSProperties> = {
     transform: sortable.transform
@@ -134,11 +134,11 @@ const SortableItem = (
 const SortableGrid = (props: {
   children: (tile: Tile, index: number) => ReactNode;
 }) => {
-  const tiles = useDashboardTiles();
+  const tiles = useTiles();
   const user = useUser();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
-  const udpateDashboardTilesOrder = useUpdateDashboardTilesOrder();
+  const reorderTiles = useReorderTiles();
   const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
@@ -215,7 +215,7 @@ const SortableGrid = (props: {
         const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
         const keys = {
-          tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+          tiles: dashboardKeys.tiles(user.data.id).queryKey,
         } as const;
 
         queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -242,7 +242,7 @@ const SortableGrid = (props: {
           };
         });
 
-        udpateDashboardTilesOrder.mutate({ data: tilesOrdered });
+        reorderTiles.mutate({ data: tilesOrdered });
       }
     }
   };
@@ -354,7 +354,7 @@ const TagsFrequencyTile = (props: TileProps) => {
 const ExercisesFrequencyTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  const tiles = useDashboardTiles();
+  const tiles = useTiles();
   const data = tiles.data
     .filter((tile) => tile.exercise != null)
     .map((tile) => {
@@ -392,7 +392,7 @@ const ExercisesFrequencyTile = (props: TileProps) => {
 
 const ExercisesFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useDashboardTiles();
+  const tiles = useTiles();
   const exercises = tiles.data
     .filter((tile) => Boolean(tile.exercise))
     .flatMap((tile) => {
@@ -426,7 +426,7 @@ const ExercisesFunFactsTile = (props: TileProps) => {
 
 const SetsHeatMapTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useDashboardTiles();
+  const tiles = useTiles();
   const exercises = tiles.data
     .filter((tile) => Boolean(tile.exercise))
     .flatMap((tile) => {
@@ -470,12 +470,12 @@ const SkeletonTiles = () => {
   ));
 };
 
-type Tile = Readonly<ReturnType<typeof useDashboardTiles>["data"][number]>;
+type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 type TileProps = Readonly<{ tile: Tile }>;
 
-const useUpdateDashboardTilesOrder = () => {
+const useReorderTiles = () => {
   return useMutation({
-    mutationFn: updateDashboardTilesOrderAction,
+    mutationFn: reorderTilesAction,
   });
 };
 
@@ -535,7 +535,7 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="overflow-auto p-4" {...props} />;
 };
 
-const NoExercisesText = (props: ComponentProps<"p">) => {
+const NoDataText = (props: ComponentProps<"p">) => {
   return (
     <p
       className="bg-secondary flex h-32 items-center justify-center rounded-md border"

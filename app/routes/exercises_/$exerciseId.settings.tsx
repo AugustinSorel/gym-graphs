@@ -20,6 +20,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { userKeys } from "~/user/user.keys";
 import { validateAccess } from "~/libs/permissions";
 import type { ComponentProps } from "react";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   params: z.object({
@@ -258,7 +259,7 @@ const useUpdateExerciseTags = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
         user: userKeys.get.queryKey,
       };
 
@@ -344,7 +345,7 @@ const useUpdateExerciseTags = () => {
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: userKeys.dashboardTiles(user.data.id),
+        tiles: dashboardKeys.tiles(user.data.id),
         user: userKeys.get,
       } as const;
 

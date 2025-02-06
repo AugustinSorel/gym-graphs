@@ -50,6 +50,20 @@
       "when": 1738161443367,
       "tag": "0006_moaning_morph",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1738837023454,
+      "tag": "0007_wild_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1738837303083,
+      "tag": "0008_classy_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

@@ -1,14 +1,14 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useUser } from "~/user/hooks/use-user";
 import { useSearch } from "@tanstack/react-router";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 
-export const useDashboardTiles = () => {
+export const useTiles = () => {
   const user = useUser();
-  const search = useSearch({ strict: false });
+  const search = useSearch({ from: "/dashboard/" });
 
   return useSuspenseInfiniteQuery({
-    ...userKeys.dashboardTiles(user.data.id),
+    ...dashboardKeys.tiles(user.data.id),
     select: (tiles) => {
       return tiles.pages.flatMap((page) => {
         return page.tiles.filter((tile) => {

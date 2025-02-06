@@ -9,7 +9,7 @@ import {
   CarouselItem,
 } from "~/ui/carousel";
 import { createContext, use } from "react";
-import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
+import type { useTiles } from "~/dashboard/hooks/use-tiles";
 import type { ComponentProps } from "react";
 
 export const ExercisesFunFacts = (props: Props) => {
@@ -56,7 +56,7 @@ export const ExercisesFunFacts = (props: Props) => {
 };
 
 type Exercise = Readonly<
-  NonNullable<ReturnType<typeof useDashboardTiles>["data"][number]["exercise"]>
+  NonNullable<ReturnType<typeof useTiles>["data"][number]["exercise"]>
 >;
 
 type Props = Readonly<{

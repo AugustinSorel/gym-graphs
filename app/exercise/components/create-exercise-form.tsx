@@ -16,7 +16,7 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { userKeys } from "~/user/user.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import type { z } from "zod";
 
 type Props = Readonly<{
@@ -84,8 +84,11 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const key = userKeys.dashboardTiles(user.data.id).queryKey;
-      const cachedTiles = queryClient.getQueryData(key);
+      const keys = {
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
+      } as const;
+
+      const cachedTiles = queryClient.getQueryData(keys.tiles);
 
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.tiles)
@@ -123,7 +126,7 @@ const useCreateExercise = () => {
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: userKeys.dashboardTiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -137,7 +140,7 @@ const useCreateExercise = () => {
           id: Math.random(),
           index: 1_0000,
           type: "exercise" as const,
-          userId: user.data.id,
+          dashboardId: user.data.dashboard.id,
           exerciseId,
           exercise: {
             id: exerciseId,
@@ -168,7 +171,11 @@ const useCreateExercise = () => {
       });
     },
     onSettled: async () => {
-      void queryClient.invalidateQueries(userKeys.dashboardTiles(user.data.id));
+      const keys = {
+        tiles: dashboardKeys.tiles(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.tiles);
     },
   });
 };

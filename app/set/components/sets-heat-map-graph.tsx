@@ -5,7 +5,7 @@ import { HeatmapRect } from "@visx/heatmap";
 import { useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
-import { useDashboardTiles } from "~/user/hooks/use-dashboard-tiles";
+import type { useTiles } from "~/dashboard/hooks/use-tiles";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { ComponentProps, CSSProperties } from "react";
 
@@ -184,7 +184,7 @@ type Props = Readonly<{
 }>;
 
 type Exercise = Readonly<
-  NonNullable<ReturnType<typeof useDashboardTiles>["data"][number]["exercise"]>
+  NonNullable<ReturnType<typeof useTiles>["data"][number]["exercise"]>
 >;
 
 const prepareData = (exercises: ReadonlyArray<Exercise>) => {
