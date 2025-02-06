@@ -1,7 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { useEffect } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
@@ -28,18 +27,20 @@ export const Route = createFileRoute("/")({
 });
 
 const Home = () => {
-  useMockHomePageData();
+  const mockQueryClient = useMockQueryClient();
 
   return (
-    <Main>
-      <HeroSection />
+    <QueryClientProvider client={mockQueryClient}>
+      <Main>
+        <HeroSection />
 
-      <FeatureOne />
+        <FeatureOne />
 
-      <FeatureTwo />
+        <FeatureTwo />
 
-      <HeroSectionTwo />
-    </Main>
+        <HeroSectionTwo />
+      </Main>
+    </QueryClientProvider>
   );
 };
 
@@ -342,8 +343,8 @@ const CirclesBluredBg = () => {
   );
 };
 
-const useMockHomePageData = () => {
-  const queryClient = useQueryClient();
+const useMockQueryClient = () => {
+  const queryClient = new QueryClient();
 
   const keys = {
     user: userKeys.get.queryKey,
@@ -352,10 +353,5 @@ const useMockHomePageData = () => {
   queryClient.setQueryData(keys.user, userMock);
   queryClient.setQueryDefaults(keys.user, { staleTime: Infinity });
 
-  useEffect(() => {
-    return () => {
-      queryClient.setQueryDefaults(keys.user, { staleTime: 1000 });
-      queryClient.clear();
-    };
-  }, [queryClient]);
+  return queryClient;
 };
