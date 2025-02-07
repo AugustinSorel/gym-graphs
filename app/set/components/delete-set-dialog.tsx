@@ -18,6 +18,8 @@ import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { setKeys } from "~/set/set.keys";
+import { getCalendarPositions } from "~/utils/date";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
@@ -86,6 +88,7 @@ const useDeleteSet = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
+        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -118,6 +121,33 @@ const useDeleteSet = () => {
         };
       });
 
+      queryClient.setQueryData(keys.setsHeatMap, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        const calendarPositions = getCalendarPositions(set.doneAt);
+
+        return data.map((row) => {
+          if (row.dayIndex === calendarPositions.day) {
+            return {
+              ...row,
+              bins: row.bins.map((cell) => {
+                if (cell.weekIndex === calendarPositions.week) {
+                  return {
+                    ...cell,
+                    count: cell.count - 1,
+                  };
+                }
+                return cell;
+              }),
+            };
+          }
+
+          return row;
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
@@ -135,10 +165,12 @@ const useDeleteSet = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, set.exerciseId),
         tiles: dashboardKeys.tiles(user.data.id),
+        setsHeatMap: setKeys.heatMap(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.setsHeatMap);
     },
   });
 };

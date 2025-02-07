@@ -8,7 +8,10 @@ import {
 } from "~/exercise/components/exercises-radar-graph";
 import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
-import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
+import {
+  SetsHeatMapGraph,
+  SetsHeatMapGraphSkeleton,
+} from "~/set/components/sets-heat-map-graph";
 import {
   Announcements,
   closestCenter,
@@ -417,15 +420,6 @@ const ExercisesFunFactsTile = (props: TileProps) => {
 
 const SetsHeatMapTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useTiles();
-  const exercises = tiles.data
-    .filter((tile) => Boolean(tile.exercise))
-    .flatMap((tile) => {
-      if (!tile.exercise) {
-        throw new Error("no tile.exercise");
-      }
-      return tile.exercise;
-    });
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
@@ -446,7 +440,9 @@ const SetsHeatMapTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <SetsHeatMapGraph exercises={exercises} />
+      <Suspense fallback={<SetsHeatMapGraphSkeleton />}>
+        <SetsHeatMapGraph />
+      </Suspense>
     </Card>
   );
 };

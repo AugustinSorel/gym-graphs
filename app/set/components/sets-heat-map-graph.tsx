@@ -5,23 +5,35 @@ import { HeatmapRect } from "@visx/heatmap";
 import { useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
-import type { useTiles } from "~/dashboard/hooks/use-tiles";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { setKeys } from "../set.keys";
+import { useUser } from "~/user/hooks/use-user";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { ComponentProps, CSSProperties } from "react";
+import { Skeleton } from "~/ui/skeleton";
+import { getFirstDayOfMonth } from "~/utils/date";
 
-export const SetsHeatMapGraph = (props: Props) => {
-  const data = prepareData(props.exercises);
+export const SetsHeatMapGraph = () => {
+  const user = useUser();
 
-  const dataEmpty = props.exercises.every((e) => !e.sets.length);
+  const keys = {
+    setsHeatMap: setKeys.heatMap(user.data.id),
+  } as const;
 
-  if (dataEmpty) {
+  const setsHeatMap = useSuspenseQuery(keys.setsHeatMap);
+
+  const heatMapEmpty = setsHeatMap.data
+    .flatMap((d) => d.bins)
+    .every((e) => !e.count);
+
+  if (heatMapEmpty) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={data} />
+        <Graph height={height} width={width} data={setsHeatMap.data} />
       )}
     </ParentSize>
   );
@@ -118,8 +130,10 @@ const Graph = ({ width, height, data }: GraphProps) => {
           <p className="white text-xs font-bold whitespace-nowrap capitalize">
             {new Date(
               new Date().setDate(
-                ((tooltip.tooltipData.datum.dayIndex - 1) % 7) +
-                  tooltip.tooltipData.bin.weekIndex * 7,
+                tooltip.tooltipData.datum.dayIndex +
+                  1 +
+                  tooltip.tooltipData.bin.weekIndex * 7 -
+                  ((getFirstDayOfMonth().getDay() + 6) % 7),
               ),
             ).toDateString()}
           </p>
@@ -138,18 +152,20 @@ const Graph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: Array<Bins>;
+  data: SetsHeatMapData;
 }>;
 
 type Bin = Readonly<{
-  weekIndex: 0 | 1 | 2 | 3 | 4 | 5;
+  weekIndex: number;
   count: number;
 }>;
 
 type Bins = Readonly<{
-  dayIndex: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  dayIndex: number;
   bins: Array<Bin>;
 }>;
+
+export type SetsHeatMapData = Array<Bins>;
 
 let tooltipTimeout: number;
 
@@ -179,259 +195,42 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Props = Readonly<{
-  exercises: ReadonlyArray<Exercise>;
-}>;
-
-type Exercise = Readonly<
-  NonNullable<ReturnType<typeof useTiles>["data"][number]["exercise"]>
->;
-
-const prepareData = (exercises: ReadonlyArray<Exercise>) => {
-  return exercises
-    .flatMap((e) => e.sets)
-    .reduce((rows, set) => {
-      const firstDayOfTheMonth = new Date(new Date(set.doneAt).setDate(1));
-
-      const offset = (firstDayOfTheMonth.getDay() + 6) % 7;
-
-      const dayIndex = (set.doneAt.getDay() + 6) % 7;
-      const dateIndex = set.doneAt.getDate();
-      const weekIndex = Math.ceil((dateIndex + offset) / 7) - 1;
-
-      return rows.map((row) => {
-        if (row.dayIndex === dayIndex) {
-          return {
-            ...row,
-            bins: row.bins.map((cell) => {
-              if (cell.weekIndex === weekIndex) {
-                return {
-                  ...cell,
-                  count: cell.count + 1,
-                };
-              }
-
-              return cell;
-            }),
-          };
-        }
-
-        return row;
-      });
-    }, templateData)
-    .toSorted((a, b) => a.dayIndex - b.dayIndex)
-    .map((d) => ({
-      ...d,
-      bins: d.bins.toSorted((a, b) => b.weekIndex - a.weekIndex),
-    }));
-};
-
-const templateData: ReadonlyArray<Bins> = [
-  {
-    dayIndex: 0,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 1,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 2,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 3,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 4,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 5,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-  {
-    dayIndex: 6,
-    bins: [
-      {
-        weekIndex: 0,
-        count: 0,
-      },
-      {
-        weekIndex: 1,
-        count: 0,
-      },
-      {
-        weekIndex: 2,
-        count: 0,
-      },
-      {
-        weekIndex: 3,
-        count: 0,
-      },
-      {
-        weekIndex: 4,
-        count: 0,
-      },
-      {
-        weekIndex: 5,
-        count: 0,
-      },
-    ],
-  },
-];
-
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
+};
+export const SetsHeatMapGraphSkeleton = () => {
+  return (
+    <ParentSize className="relative flex overflow-hidden">
+      {({ height, width }) => {
+        const binSize = 30;
+        const gap = 5;
+        const xMax = 7 * binSize + 7 * gap;
+        const centerX = width / 2 - xMax / 2;
+        const marginTop = 30;
+        const days = [0, 1, 2, 3, 4, 5, 6] as const;
+        const weeks = [0, 1, 2, 3, 4, 5] as const;
+
+        return (
+          <Skeleton className="bg-transparent">
+            <svg width={width} height={height}>
+              <Group top={margin.top} left={centerX}>
+                {weeks.map((i) =>
+                  days.map((j) => (
+                    <rect
+                      key={`heatmap-rect-${i + j}`}
+                      width={binSize}
+                      height={binSize}
+                      className="stroke-border/80 fill-border/10"
+                      x={j * binSize + j * gap}
+                      y={i * binSize + i * gap + marginTop}
+                    />
+                  )),
+                )}
+              </Group>
+            </svg>
+          </Skeleton>
+        );
+      }}
+    </ParentSize>
+  );
 };

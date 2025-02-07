@@ -1,7 +1,9 @@
-import { eq, and, exists } from "drizzle-orm";
+import { eq, and, exists, getTableColumns, asc, gte, lte } from "drizzle-orm";
 import { setTable, exerciseTable } from "~/db/db.schemas";
-import type { Set, User } from "~/db/db.schemas";
+import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
+import type { Exercise, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import type { SetsHeatMapData } from "~/set/components/sets-heat-map-graph";
 
 export const createSet = async (
   weightInKg: Set["weightInKg"],
@@ -148,4 +150,68 @@ export const deleteSet = async (
   }
 
   return updatedExerciseSets;
+};
+
+export const selectSetsForThisMonth = async (
+  userId: Exercise["userId"],
+  db: Db,
+) => {
+  return db
+    .select(getTableColumns(setTable))
+    .from(exerciseTable)
+    .innerJoin(
+      setTable,
+      and(
+        eq(setTable.exerciseId, exerciseTable.id),
+        gte(setTable.doneAt, getFirstDayOfMonth()),
+        lte(setTable.doneAt, new Date()),
+      ),
+    )
+    .where(and(eq(exerciseTable.userId, userId)))
+    .orderBy(asc(setTable.doneAt));
+};
+
+export const transformSetsToHeatMap = (sets: ReadonlyArray<Set>) => {
+  const days = [0, 1, 2, 3, 4, 5, 6] as const;
+  const weeks = [0, 1, 2, 3, 4, 5] as const;
+
+  const template: SetsHeatMapData = days.map((dayIndex) => ({
+    dayIndex,
+    bins: weeks.map((weekIndex) => ({
+      weekIndex,
+      count: 0,
+    })),
+  }));
+
+  return sets
+    .reduce(setsToHeatMap, template)
+    .toSorted((a, b) => a.dayIndex - b.dayIndex)
+    .map((row) => ({
+      ...row,
+      bins: row.bins.toSorted((a, b) => b.weekIndex - a.weekIndex),
+    }));
+};
+
+const setsToHeatMap = (setsHeatMap: SetsHeatMapData, set: Set) => {
+  const calendarPositions = getCalendarPositions(set.doneAt);
+
+  return setsHeatMap.map((row) => {
+    if (row.dayIndex === calendarPositions.day) {
+      return {
+        dayIndex: row.dayIndex,
+        bins: row.bins.map((cell) => {
+          if (cell.weekIndex === calendarPositions.week) {
+            return {
+              weekIndex: cell.weekIndex,
+              count: cell.count + 1,
+            };
+          }
+
+          return cell;
+        }),
+      };
+    }
+
+    return row;
+  });
 };

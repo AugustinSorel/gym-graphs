@@ -19,6 +19,9 @@ import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { setKeys } from "~/set/set.keys";
+import { getFirstDayOfMonth } from "~/utils/date";
+import { transformSetsToHeatMap } from "~/set/set.services";
 
 export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -82,12 +85,15 @@ const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
 const useDeleteExercise = () => {
   const queryClient = useQueryClient();
   const user = useUser();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
@@ -122,6 +128,41 @@ const useDeleteExercise = () => {
         });
       });
 
+      queryClient.setQueryData(keys.setsHeatMap, (heatMapData) => {
+        if (!heatMapData) {
+          return heatMapData;
+        }
+
+        const setsForThisMonth = exercise.data.sets.filter((set) => {
+          return (
+            set.doneAt.getTime() >= getFirstDayOfMonth().getTime() &&
+            set.doneAt.getTime() <= new Date().getTime()
+          );
+        });
+
+        const exerciseSetsHeatMap = transformSetsToHeatMap(setsForThisMonth);
+
+        return heatMapData.map((row) => {
+          return {
+            ...row,
+            bins: row.bins.map((cell) => {
+              const weekIndex = cell.weekIndex;
+              const dayIndex = row.dayIndex;
+
+              const exerciseCellCount =
+                exerciseSetsHeatMap
+                  .find((a) => a.dayIndex === dayIndex)
+                  ?.bins.find((b) => b.weekIndex === weekIndex)?.count ?? 0;
+
+              return {
+                ...cell,
+                count: cell.count - exerciseCellCount,
+              };
+            }),
+          };
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, undefined);
     },
     onSettled: (_data, _error, variables) => {
@@ -129,11 +170,13 @@ const useDeleteExercise = () => {
         tiles: dashboardKeys.tiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
+        setsHeatMap: setKeys.heatMap(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercisesFrequency);
+      void queryClient.invalidateQueries(keys.setsHeatMap);
     },
   });
 };

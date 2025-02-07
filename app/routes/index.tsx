@@ -118,7 +118,7 @@ const FeatureOne = () => {
         </Card>
         <Card>
           <Name>heat map - January</Name>
-          <SetsHeatMapGraph exercises={exercisesMock} />
+          <SetsHeatMapGraph />
         </Card>
       </Grid>
     </FeatureContainer>

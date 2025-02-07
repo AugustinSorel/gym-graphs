@@ -19,9 +19,10 @@ import { useExercise } from "~/exercise/hooks/use-exercise";
 import { updateSetDoneAtAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
-import { dateAsYYYYMMDD } from "~/utils/date";
+import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { setKeys } from "~/set/set.keys";
 import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
@@ -138,6 +139,7 @@ const useUpdateSetDoneAt = () => {
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
+  const set = useSet();
 
   return useMutation({
     mutationFn: updateSetDoneAtAction,
@@ -145,6 +147,7 @@ const useUpdateSetDoneAt = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -184,6 +187,51 @@ const useUpdateSetDoneAt = () => {
         };
       });
 
+      queryClient.setQueryData(keys.setsHeatMap, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        const oldCalendarPositions = getCalendarPositions(set.doneAt);
+        const newCalendarPositions = getCalendarPositions(
+          variables.data.doneAt,
+        );
+
+        return data.map((row) => {
+          if (row.dayIndex === oldCalendarPositions.day) {
+            return {
+              ...row,
+              bins: row.bins.map((cell) => {
+                if (cell.weekIndex === oldCalendarPositions.week) {
+                  return {
+                    ...cell,
+                    count: cell.count - 1,
+                  };
+                }
+                return cell;
+              }),
+            };
+          }
+
+          if (row.dayIndex === newCalendarPositions.day) {
+            return {
+              ...row,
+              bins: row.bins.map((cell) => {
+                if (cell.weekIndex === newCalendarPositions.week) {
+                  return {
+                    ...cell,
+                    count: cell.count + 1,
+                  };
+                }
+                return cell;
+              }),
+            };
+          }
+
+          return row;
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, (exexercise) => {
         if (!exexercise) {
           return exexercise;
@@ -208,10 +256,12 @@ const useUpdateSetDoneAt = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
         tiles: dashboardKeys.tiles(user.data.id),
+        setsHeatMap: setKeys.heatMap(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.setsHeatMap);
     },
   });
 };

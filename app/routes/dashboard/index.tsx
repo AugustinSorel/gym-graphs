@@ -10,6 +10,7 @@ import { Dashboard } from "~/dashboard/components/dashboard";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { setKeys } from "~/set/set.keys";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
@@ -29,9 +30,11 @@ export const Route = createFileRoute("/dashboard/")({
     const keys = {
       tiles: dashboardKeys.tiles(context.user.id),
       exercisesFrequency: exerciseKeys.exercisesFrequency(context.user.id),
+      setsHeatMap: setKeys.heatMap(context.user.id),
     } as const;
 
     void context.queryClient.prefetchQuery(keys.exercisesFrequency);
+    void context.queryClient.prefetchQuery(keys.setsHeatMap);
 
     await context.queryClient.ensureInfiniteQueryData(keys.tiles);
   },

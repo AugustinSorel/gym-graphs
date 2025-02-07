@@ -129,6 +129,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 //TODO: teams
 //TODO: add limit
 //FIX: move filtering to the server
-//FIX: move heatmap to the server
 //FIX: move tags frequency to the server
 //FIX: move fun facts to the server

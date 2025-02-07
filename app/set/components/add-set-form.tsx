@@ -17,15 +17,12 @@ import { Button } from "~/ui/button";
 import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dateAsYYYYMMDD } from "~/utils/date";
+import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
-
-type Props = Readonly<{
-  onSuccess?: () => void;
-}>;
+import { setKeys } from "~/set/set.keys";
 
 export const AddSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -104,6 +101,10 @@ export const AddSetForm = (props: Props) => {
   );
 };
 
+type Props = Readonly<{
+  onSuccess?: () => void;
+}>;
+
 const routeApi = getRouteApi("/exercises/$exerciseId");
 
 const useFormSchema = () => {
@@ -157,6 +158,7 @@ const useCreateSet = () => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
           .queryKey,
       } as const;
@@ -216,6 +218,35 @@ const useCreateSet = () => {
         });
       });
 
+      queryClient.setQueryData(keys.setsHeatMap, (data) => {
+        if (!data) {
+          return data;
+        }
+
+        const calendarPositions = getCalendarPositions(
+          optimisticExerciseSet.doneAt,
+        );
+
+        return data.map((row) => {
+          if (row.dayIndex === calendarPositions.day) {
+            return {
+              ...row,
+              bins: row.bins.map((cell) => {
+                if (cell.weekIndex === calendarPositions.week) {
+                  return {
+                    ...cell,
+                    count: cell.count + 1,
+                  };
+                }
+                return cell;
+              }),
+            };
+          }
+
+          return row;
+        });
+      });
+
       queryClient.setQueryData(keys.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
@@ -232,11 +263,13 @@ const useCreateSet = () => {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
         tiles: dashboardKeys.tiles(user.data.id),
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
+        setsHeatMap: setKeys.heatMap(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.exercisesFrequency);
+      void queryClient.invalidateQueries(keys.setsHeatMap);
     },
   });
 };
