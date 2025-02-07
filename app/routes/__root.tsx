@@ -117,17 +117,25 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   );
 };
 
-//BUG: error handling not finished
-//BUG: dev docker not working
-//BUG: middleware inject code into client bundler
-//TODO: monitoring
-//TODO: rate limiter
-//TODO: remove window.location.herf in github-sign-in.tsx
+/*
+# TANSTACK BUGS
+| Type     | Description                                           |
+| -------- | ------------------------------------------------------|
+| BUG      | Error boundaries not working properly                 |
+| BUG      | Dev Docker not working                                |
+| BUG      | Global Middleware not working at all                  |
+| TODO     | Monitoring                                            |
+| TODO     | Rate limiter                                          |
+| TODO     | Remove `window.location.href` in `github-sign-in.tsx` |
 
-//BUG: header on mobile moves up and down
-//TODO: allow multiple sets
-//TODO: teams
-//TODO: add limit
-//FIX: move filtering to the server
-//FIX: move tags frequency to the server
-//FIX: move fun facts to the server
+# APP TAKS
+| Type    | Description                        |
+| --------| -----------------------------------|
+| BUG     | header on mobile moves up and down |
+| TODO    | allow multiple sets                |
+| TODO    | teams                              |
+| TODO    | add limit                          |
+| FIX     | move filtering to the server       |
+| FIX     | move tags frequency to the server  |
+| FIX     | move fun facts to the server       |
+*/
