@@ -22,4 +22,4 @@ const exercisesFrequency = (userId: Exercise["userId"]) => {
 export const exerciseKeys = {
   get,
   exercisesFrequency,
-};
+} as const;

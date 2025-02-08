@@ -7,6 +7,7 @@ import {
   deleteExerciseTags,
   deleteTag,
   selectExerciseTags,
+  selectTagsFrequency,
 } from "~/tag/tag.services";
 import pg from "pg";
 import { z } from "zod";
@@ -86,4 +87,10 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
+  });
+
+export const selectTagsFrequencyAction = createServerFn({ method: "GET" })
+  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .handler(async ({ context }) => {
+    return selectTagsFrequency(context.user.id, context.db);
   });

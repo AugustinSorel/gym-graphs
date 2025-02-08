@@ -19,7 +19,7 @@ import type {
   TouchEvent,
 } from "react";
 
-export const ExerciseRadarGraphSkeleton = () => {
+export const ExerciseFrequencyGraphSkeleton = () => {
   const data: GraphProps["data"] = [
     { name: "exercise-1", frequency: 10 },
     { name: "exercise-2", frequency: 20 },
@@ -39,14 +39,8 @@ export const ExerciseRadarGraphSkeleton = () => {
   );
 };
 
-export const ExercisesRadarGraph = () => {
-  const user = useUser();
-
-  const keys = {
-    exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
-  } as const;
-
-  const exercisesFrequency = useSuspenseQuery(keys.exercisesFrequency);
+export const ExercisesFrequencyGraph = () => {
+  const exercisesFrequency = useExercisesFrequency();
 
   if (!exercisesFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -369,4 +363,10 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
+};
+
+const useExercisesFrequency = () => {
+  const user = useUser();
+
+  return useSuspenseQuery(exerciseKeys.exercisesFrequency(user.data.id));
 };

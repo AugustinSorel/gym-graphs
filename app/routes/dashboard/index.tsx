@@ -8,9 +8,10 @@ import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { validateAccess } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
 import { exerciseKeys } from "~/exercise/exercise.keys";
+import { setKeys } from "~/set/set.keys";
+import { tagKeys } from "~/tag/tag.keys";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { setKeys } from "~/set/set.keys";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
@@ -32,11 +33,13 @@ export const Route = createFileRoute("/dashboard/")({
       exercisesFrequency: exerciseKeys.exercisesFrequency(context.user.id),
       setsHeatMap: setKeys.heatMap(context.user.id),
       funFacts: dashboardKeys.funFacts(context.user.id),
+      tagsFrequency: tagKeys.frequency(context.user.id),
     } as const;
 
     void context.queryClient.prefetchQuery(keys.exercisesFrequency);
     void context.queryClient.prefetchQuery(keys.setsHeatMap);
     void context.queryClient.prefetchQuery(keys.funFacts);
+    void context.queryClient.prefetchQuery(keys.tagsFrequency);
 
     await context.queryClient.ensureInfiniteQueryData(keys.tiles);
   },

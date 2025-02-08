@@ -1,4 +1,4 @@
-import { and, eq, exists, inArray } from "drizzle-orm";
+import { and, count, eq, exists, inArray } from "drizzle-orm";
 import { exerciseTable, exerciseTagTable, tagTable } from "~/db/db.schemas";
 import type { Exercise, Tag } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
@@ -93,4 +93,18 @@ export const deleteExerciseTags = async (
         exists(exercise),
       ),
     );
+};
+
+export const selectTagsFrequency = async (userId: Tag["userId"], db: Db) => {
+  return db
+    .select({
+      frequency: count(exerciseTable.name),
+      id: tagTable.id,
+      name: tagTable.name,
+    })
+    .from(tagTable)
+    .leftJoin(exerciseTagTable, eq(exerciseTagTable.tagId, tagTable.id))
+    .leftJoin(exerciseTable, eq(exerciseTagTable.exerciseId, exerciseTable.id))
+    .where(eq(tagTable.userId, userId))
+    .groupBy(tagTable.name, tagTable.id);
 };

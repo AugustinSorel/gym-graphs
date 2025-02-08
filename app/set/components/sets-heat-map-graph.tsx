@@ -8,19 +8,13 @@ import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { setKeys } from "../set.keys";
 import { useUser } from "~/user/hooks/use-user";
-import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
-import type { ComponentProps, CSSProperties } from "react";
 import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
+import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
+import type { ComponentProps, CSSProperties } from "react";
 
 export const SetsHeatMapGraph = () => {
-  const user = useUser();
-
-  const keys = {
-    setsHeatMap: setKeys.heatMap(user.data.id),
-  } as const;
-
-  const setsHeatMap = useSuspenseQuery(keys.setsHeatMap);
+  const setsHeatMap = useSetsHeatMap();
 
   const heatMapEmpty = setsHeatMap.data
     .flatMap((d) => d.bins)
@@ -233,4 +227,10 @@ export const SetsHeatMapGraphSkeleton = () => {
       }}
     </ParentSize>
   );
+};
+
+const useSetsHeatMap = () => {
+  const user = useUser();
+
+  return useSuspenseQuery(setKeys.heatMap(user.data.id));
 };

@@ -33,12 +33,17 @@ import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { DeleteTagDialog } from "~/tag/components/delete-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
 import { userKeys } from "~/user/user.keys";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
 import { validateAccess } from "~/libs/permissions";
+import { tagKeys } from "~/tag/tag.keys";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -46,7 +51,18 @@ export const Route = createFileRoute("/settings/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    validateAccess("settings", "view", context.session?.user);
+    const user = validateAccess("settings", "view", context.session?.user);
+
+    return {
+      user,
+    };
+  },
+  loader: async ({ context }) => {
+    const keys = {
+      tagsFrequency: tagKeys.frequency(context.user.id),
+    } as const;
+
+    await context.queryClient.ensureQueryData(keys.tagsFrequency);
   },
 });
 
@@ -128,6 +144,8 @@ const RenameUserSection = () => {
 const TagsSection = () => {
   const user = useUser();
 
+  const tagsFrequency = useSuspenseQuery(tagKeys.frequency(user.data.id));
+
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
@@ -139,10 +157,10 @@ const TagsSection = () => {
           <SectionDescription>Manage your exercise tags</SectionDescription>
 
           <List>
-            {!user.data.tags.length && (
+            {!tagsFrequency.data.length && (
               <p className="text-muted-foreground p-6 text-center">no tags</p>
             )}
-            {user.data.tags.map((tag) => (
+            {tagsFrequency.data.map((tag) => (
               <ListItem
                 key={tag.id}
                 className="before:border-border before:bg-accent before:text-muted-foreground [counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:text-lg before:font-semibold before:content-[counter(item)]"
@@ -150,7 +168,7 @@ const TagsSection = () => {
                 <ListItemTitle>{tag.name}</ListItemTitle>
 
                 <ListItemSubtitle>
-                  {pluralize(tag.exercises.length, "exercise")} linked
+                  {pluralize(tag.frequency, "exercise")} linked
                 </ListItemSubtitle>
 
                 <DropdownMenu>

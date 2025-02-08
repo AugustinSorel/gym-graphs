@@ -5,24 +5,26 @@ import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-adv
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/exercise/components/exercise-table-columns";
-import { ExercisesRadarGraph } from "~/exercise/components/exercises-radar-graph";
+import { ExercisesFrequencyGraph } from "~/exercise/components/exercises-frequency-graph";
 import {
   exercisesFrequencyMock,
   exercisesMock,
+  tagsFrequencyMock,
 } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
 import { userKeys } from "~/user/user.keys";
 import { userMock } from "~/user/user.mock";
-import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
-import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
+import { DashboardFunFacts } from "~/dashboard/components/dashboard-fun-facts";
+import { TagsFrequencyGraph } from "~/tag/components/tags-frequency-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { setKeys } from "~/set/set.keys";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { setsHeatMapMock } from "~/set/set.mock";
 import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
+import { tagKeys } from "~/tag/tag.keys";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -110,15 +112,15 @@ const FeatureOne = () => {
         ))}
         <Card>
           <Name>exercises frequency</Name>
-          <ExercisesRadarGraph />
+          <ExercisesFrequencyGraph />
         </Card>
         <Card>
           <Name>tags frequency</Name>
-          <TagsFrequencyPieGraph />
+          <TagsFrequencyGraph />
         </Card>
         <Card>
           <Name>fun facts</Name>
-          <ExercisesFunFacts />
+          <DashboardFunFacts />
         </Card>
         <Card>
           <Name>heat map - January</Name>
@@ -354,12 +356,14 @@ const useMockQueryClient = () => {
     exercisesFrequency: exerciseKeys.exercisesFrequency(userMock.id).queryKey,
     setsHeatMap: setKeys.heatMap(userMock.id).queryKey,
     funFacts: dashboardKeys.funFacts(userMock.id).queryKey,
+    tagsFrequency: tagKeys.frequency(userMock.id).queryKey,
   };
 
   queryClient.setQueryData(keys.user, userMock);
   queryClient.setQueryData(keys.exercisesFrequency, exercisesFrequencyMock);
   queryClient.setQueryData(keys.setsHeatMap, setsHeatMapMock);
   queryClient.setQueryData(keys.funFacts, dashboardFunFactsMock);
+  queryClient.setQueryData(keys.tagsFrequency, tagsFrequencyMock);
 
   queryClient.setDefaultOptions({
     queries: {

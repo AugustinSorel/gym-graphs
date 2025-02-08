@@ -1,3 +1,5 @@
+import { tagsMock } from "~/tag/tag.mock";
+import type { selectTagsFrequencyAction } from "~/tag/tag.actions";
 import type { selectDashboardExercises } from "~/exercise/exercise.services";
 
 export const exercisesMock: Readonly<
@@ -9,7 +11,15 @@ export const exercisesMock: Readonly<
     name: "bench press",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: [],
+    tags: tagsMock
+      .filter((tag) => tag.name === "chest")
+      .map((tag) => ({
+        exerciseId: 30,
+        tagId: tag.id,
+        tag,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     sets: [
       {
         id: 79,
@@ -64,7 +74,15 @@ export const exercisesMock: Readonly<
     name: "squat",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: [],
+    tags: tagsMock
+      .filter((tag) => tag.name === "legs")
+      .map((tag) => ({
+        exerciseId: 30,
+        tagId: tag.id,
+        tag,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     sets: [
       {
         id: 84,
@@ -110,7 +128,15 @@ export const exercisesMock: Readonly<
     name: "deadlift",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: [],
+    tags: tagsMock
+      .filter((tag) => tag.name === "legs" || tag.name === "calfs")
+      .map((tag) => ({
+        exerciseId: 30,
+        tagId: tag.id,
+        tag,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     sets: [
       {
         id: 90,
@@ -230,3 +256,23 @@ export const exercisesFrequencyMock = exercisesMock.map((exercise) => ({
   frequency: exercise.sets.length,
   id: exercise.id,
 }));
+
+export const tagsFrequencyMock = exercisesMock.reduce<
+  Awaited<ReturnType<typeof selectTagsFrequencyAction>>
+>((tagsFrequency, exercise) => {
+  const tags = exercise.tags.map((exericseTag) => exericseTag.tag);
+
+  for (const tag of tags) {
+    const tagFrequency = tagsFrequency.find((tagFrequency) => {
+      return tagFrequency.id === tag.id;
+    });
+
+    if (!tagFrequency) {
+      tagsFrequency.push({ name: tag.name, id: tag.id, frequency: 1 });
+    } else {
+      tagFrequency.frequency += 1;
+    }
+  }
+
+  return tagsFrequency;
+}, []);

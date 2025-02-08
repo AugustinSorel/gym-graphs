@@ -17,10 +17,10 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
-import { userKeys } from "~/user/user.keys";
 import { validateAccess } from "~/libs/permissions";
-import type { ComponentProps } from "react";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { tagKeys } from "~/tag/tag.keys";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   params: z.object({
@@ -252,6 +252,8 @@ const NoTagsText = (props: ComponentProps<"p">) => {
 const useUpdateExerciseTags = () => {
   const user = useUser();
   const queryClient = useQueryClient();
+  const params = Route.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
     mutationFn: updateExerciseTagsAction,
@@ -260,7 +262,7 @@ const useUpdateExerciseTags = () => {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        user: userKeys.get.queryKey,
+        tagsFrequency: tagKeys.frequency(user.data.id).queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -320,38 +322,46 @@ const useUpdateExerciseTags = () => {
         };
       });
 
-      queryClient.setQueryData(keys.user, (user) => {
-        if (!user) {
-          return user;
+      queryClient.setQueryData(keys.tagsFrequency, (tagsFrequency) => {
+        if (!tagsFrequency) {
+          return tagsFrequency;
         }
 
-        return {
-          ...user,
-          tags: user.tags.map((tag) => {
-            return {
-              ...tag,
-              exercises: tag.exercises.filter((exercise) => {
-                if (!newExerciseTags.has(exercise.tagId)) {
-                  return false;
-                }
+        const newExerciseTagsSet = new Set(variables.data.newTags);
+        const exerciseTagsSet = new Set(exercise.data.tags.map((d) => d.tagId));
 
-                return true;
-              }),
+        const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
+        const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
+
+        return tagsFrequency.map((tagFrequency) => {
+          if (tagsToAddSet.has(tagFrequency.id)) {
+            return {
+              ...tagFrequency,
+              frequency: tagFrequency.frequency + 1,
             };
-          }),
-        };
+          }
+
+          if (tagsToRemoveSet.has(tagFrequency.id)) {
+            return {
+              ...tagFrequency,
+              frequency: tagFrequency.frequency - 1,
+            };
+          }
+
+          return tagFrequency;
+        });
       });
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
         tiles: dashboardKeys.tiles(user.data.id),
-        user: userKeys.get,
+        tagsFrequency: tagKeys.frequency(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.user);
+      void queryClient.invalidateQueries(keys.tagsFrequency);
     },
   });
 };

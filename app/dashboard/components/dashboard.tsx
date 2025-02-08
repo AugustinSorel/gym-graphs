@@ -3,14 +3,17 @@ import { cn } from "~/styles/styles.utils";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { Button } from "~/ui/button";
 import {
-  ExerciseRadarGraphSkeleton,
-  ExercisesRadarGraph,
-} from "~/exercise/components/exercises-radar-graph";
+  ExerciseFrequencyGraphSkeleton,
+  ExercisesFrequencyGraph,
+} from "~/exercise/components/exercises-frequency-graph";
 import {
-  ExercisesFunFacts,
-  ExercisesFunFactsSkeleton,
-} from "~/exercise/components/exercises-fun-facts";
-import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
+  DashboardFunFacts,
+  DashboardFunFactsSkeleton,
+} from "~/dashboard/components/dashboard-fun-facts";
+import {
+  TagsFrequencyGraph,
+  TagsFrequencyGraphSkeleton,
+} from "~/tag/components/tags-frequency-graph";
 import {
   SetsHeatMapGraph,
   SetsHeatMapGraphSkeleton,
@@ -355,7 +358,9 @@ const TagsFrequencyTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <TagsFrequencyPieGraph />
+      <Suspense fallback={<TagsFrequencyGraphSkeleton />}>
+        <TagsFrequencyGraph />
+      </Suspense>
     </Card>
   );
 };
@@ -380,8 +385,8 @@ const ExercisesFrequencyTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <Suspense fallback={<ExerciseRadarGraphSkeleton />}>
-        <ExercisesRadarGraph />
+      <Suspense fallback={<ExerciseFrequencyGraphSkeleton />}>
+        <ExercisesFrequencyGraph />
       </Suspense>
     </Card>
   );
@@ -407,8 +412,8 @@ const ExercisesFunFactsTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <Suspense fallback={<ExercisesFunFactsSkeleton />}>
-        <ExercisesFunFacts />
+      <Suspense fallback={<DashboardFunFactsSkeleton />}>
+        <DashboardFunFacts />
       </Suspense>
     </Card>
   );

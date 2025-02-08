@@ -7,29 +7,37 @@ import { GridAngle, GridRadial } from "@visx/grid";
 import { useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { tagKeys } from "../tag.keys";
+import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps, CSSProperties } from "react";
 import type { Tag } from "~/db/db.schemas";
 
-export const TagsFrequencyPieGraph = () => {
-  const user = useUser();
+export const TagsFrequencyGraph = () => {
+  const tagsFrequency = useTagsFrequency();
 
-  const data = user.data.tags.map((tag) => ({
-    name: tag.name,
-    frequency: tag.exercises.length,
-  }));
-
-  const dataEmpty = data.every((d) => !d.frequency);
-
-  if (dataEmpty) {
+  if (!tagsFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={data} />
+        <Graph height={height} width={width} data={tagsFrequency.data} />
       )}
     </ParentSize>
+  );
+};
+
+export const TagsFrequencyGraphSkeleton = () => {
+  return (
+    <Skeleton className="bg-transparent">
+      <ParentSize className="relative flex overflow-hidden">
+        {({ height, width }) => {
+          return <GraphSkeleton height={height} width={width} />;
+        }}
+      </ParentSize>
+    </Skeleton>
   );
 };
 
@@ -152,6 +160,57 @@ const Graph = ({ width, height, data }: GraphProps) => {
   );
 };
 
+const GraphSkeleton = ({ height, width }: Omit<GraphProps, "data">) => {
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const centerY = innerHeight / 2;
+  const centerX = innerWidth / 2;
+  const top = centerY + margin.top;
+  const left = centerX + margin.left;
+  const maxY = height / 2.4;
+
+  const xScale = useMemo(() => {
+    return scaleTime({
+      range: [0, Math.PI * 2],
+      domain: [0, 100],
+    });
+  }, []);
+
+  const yScale = useMemo(() => {
+    return scaleLog<number>({
+      domain: [100, 500],
+      range: [0, maxY],
+    });
+  }, [height]);
+
+  return (
+    <svg width={width} height={height}>
+      <Group top={top} left={left}>
+        <GridAngle
+          scale={xScale}
+          outerRadius={maxY}
+          stroke="hsl(var(--border))"
+          strokeDasharray="5,2"
+          numTicks={20}
+          strokeWidth={2}
+          strokeOpacity={0.5}
+          strokeLinecap="round"
+        />
+
+        <GridRadial
+          scale={yScale}
+          numTicks={1}
+          stroke="hsl(var(--border))"
+          strokeWidth={2}
+          fill="hsl(var(--primary))"
+          fillOpacity={0}
+          strokeOpacity={0.5}
+          height={height}
+        />
+      </Group>
+    </svg>
+  );
+};
 const getFrequency = (d: Point) => d.frequency;
 
 const margin = {
@@ -186,4 +245,14 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
+};
+
+const useTagsFrequency = () => {
+  const user = useUser();
+  return useSuspenseQuery({
+    ...tagKeys.frequency(user.data.id),
+    select: (tagsFrequency) => {
+      return tagsFrequency.filter((tagFrequency) => tagFrequency.frequency);
+    },
+  });
 };

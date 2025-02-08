@@ -8,4 +8,4 @@ const get = queryOptions({
 
 export const userKeys = {
   get,
-};
+} as const;

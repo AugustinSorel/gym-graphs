@@ -11,4 +11,4 @@ const heatMap = (userId: User["id"]) => {
 
 export const setKeys = {
   heatMap,
-};
+} as const;

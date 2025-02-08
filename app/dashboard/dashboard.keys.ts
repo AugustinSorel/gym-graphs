@@ -25,4 +25,4 @@ const funFacts = (userId: Dashboard["userId"]) => {
 export const dashboardKeys = {
   tiles,
   funFacts,
-};
+} as const;

@@ -14,12 +14,10 @@ import { useUser } from "~/user/hooks/use-user";
 import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps } from "react";
 
-export const ExercisesFunFacts = () => {
-  const funFacts = useFunFacts();
+export const DashboardFunFacts = () => {
+  const funFacts = useDashboardFunFacts();
 
-  const noData = !funFacts.data.setsCount;
-
-  if (noData) {
+  if (!funFacts.data.setsCount) {
     return <NoDataText>no data</NoDataText>;
   }
 
@@ -50,18 +48,14 @@ export const ExercisesFunFacts = () => {
   );
 };
 
-const useFunFacts = () => {
+const useDashboardFunFacts = () => {
   const user = useUser();
 
-  const keys = {
-    funFacts: dashboardKeys.funFacts(user.data.id),
-  } as const;
-
-  return useSuspenseQuery(keys.funFacts);
+  return useSuspenseQuery(dashboardKeys.funFacts(user.data.id));
 };
 
 const WeightLiftedFunFact = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useDashboardFunFacts();
 
   return (
     <>
@@ -75,7 +69,7 @@ const WeightLiftedFunFact = () => {
 };
 
 const NumberOfSets = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useDashboardFunFacts();
 
   return (
     <>
@@ -86,7 +80,7 @@ const NumberOfSets = () => {
 };
 
 const FavoriteExercise = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useDashboardFunFacts();
 
   return (
     <>
@@ -97,7 +91,7 @@ const FavoriteExercise = () => {
 };
 
 const LeastFavoriteExercise = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useDashboardFunFacts();
 
   return (
     <>
@@ -133,7 +127,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-export const ExercisesFunFactsSkeleton = () => {
+export const DashboardFunFactsSkeleton = () => {
   return (
     <div className="grid grid-rows-[1fr_auto_1fr] justify-items-center gap-7 p-3 text-center">
       <Skeleton className="bg-border mt-auto h-3 w-32 rounded-full" />

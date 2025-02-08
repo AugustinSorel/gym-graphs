@@ -72,9 +72,6 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
       },
       tags: {
         orderBy: asc(tagTable.createdAt),
-        with: {
-          exercises: true,
-        },
       },
     },
   });

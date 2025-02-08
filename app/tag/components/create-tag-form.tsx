@@ -18,6 +18,7 @@ import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
 import { userKeys } from "~/user/user.keys";
 import type { z } from "zod";
+import { tagKeys } from "../tag.keys";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -114,6 +115,11 @@ const useCreateTag = () => {
   return useMutation({
     mutationFn: createTagAction,
     onMutate: (variables) => {
+      const keys = {
+        user: userKeys.get.queryKey,
+        tagsFrequency: tagKeys.frequency(user.data.id).queryKey,
+      } as const;
+
       const optimisticTag = {
         id: Math.random(),
         userId: user.data.id,
@@ -123,7 +129,7 @@ const useCreateTag = () => {
         exercises: [],
       };
 
-      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
+      queryClient.setQueryData(keys.user, (user) => {
         if (!user) {
           return user;
         }
@@ -133,9 +139,30 @@ const useCreateTag = () => {
           tags: [...user.tags, optimisticTag],
         };
       });
+
+      queryClient.setQueryData(keys.tagsFrequency, (tagsFrequency) => {
+        if (!tagsFrequency) {
+          return tagsFrequency;
+        }
+
+        return [
+          ...tagsFrequency,
+          {
+            frequency: 0,
+            id: optimisticTag.id,
+            name: optimisticTag.name,
+          },
+        ];
+      });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKeys.get);
+      const keys = {
+        user: userKeys.get,
+        tagsFrequency: tagKeys.frequency(user.data.id),
+      } as const;
+
+      void queryClient.invalidateQueries(keys.user);
+      void queryClient.invalidateQueries(keys.tagsFrequency);
     },
   });
 };
