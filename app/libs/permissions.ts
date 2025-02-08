@@ -65,10 +65,6 @@ const permissions = {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
-
-      if (!user) {
-        throw redirect({ to: "/sign-in" });
-      }
     },
   },
   requestResetPassword: {

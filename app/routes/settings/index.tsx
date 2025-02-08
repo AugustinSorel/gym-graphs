@@ -442,6 +442,7 @@ const SignOutSection = () => {
           <Button
             size="sm"
             disabled={signOut.isPending}
+            data-umami-event="sign-out"
             onClick={() => {
               signOut.mutate(undefined);
             }}

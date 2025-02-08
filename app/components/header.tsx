@@ -228,6 +228,7 @@ const UserProfileDropdown = () => {
         <DropdownMenuItem
           disabled={signOut.isPending}
           className="m-2 justify-between px-4 py-2"
+          data-umami-event="sign-out"
           onClick={(e) => {
             e.preventDefault();
             signOut.mutate(undefined);
