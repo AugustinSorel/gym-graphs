@@ -19,9 +19,7 @@ import type {
 } from "react";
 
 export const ExercisesFrequencyGraph = () => {
-  const exercisesFrequency = useSuspenseQuery(
-    exerciseQueries.exercisesFrequency,
-  );
+  const exercisesFrequency = useExercisesFrequency();
 
   if (!exercisesFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -361,4 +359,8 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
+};
+
+const useExercisesFrequency = () => {
+  return useSuspenseQuery(exerciseQueries.exercisesFrequency);
 };

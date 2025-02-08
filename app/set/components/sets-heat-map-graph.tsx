@@ -14,7 +14,7 @@ import type { ComponentProps, CSSProperties } from "react";
 import type { selectSetsHeatMapAction } from "~/set/set.actions";
 
 export const SetsHeatMapGraph = () => {
-  const setsHeatMap = useSuspenseQuery(setQueries.heatMap);
+  const setsHeatMap = useSetsHeatMap();
 
   const heatMapEmpty = setsHeatMap.data
     .flatMap((d) => d.bins)
@@ -219,4 +219,8 @@ export const SetsHeatMapGraphSkeleton = () => {
       }}
     </ParentSize>
   );
+};
+
+const useSetsHeatMap = () => {
+  return useSuspenseQuery(setQueries.heatMap);
 };

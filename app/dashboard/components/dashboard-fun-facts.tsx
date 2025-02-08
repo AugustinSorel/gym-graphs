@@ -14,7 +14,7 @@ import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps } from "react";
 
 export const DashboardFunFacts = () => {
-  const funFacts = useSuspenseQuery(dashboardQueries.funFacts);
+  const funFacts = useFunFacts();
 
   if (!funFacts.data.setsCount) {
     return <NoDataText>no data</NoDataText>;
@@ -48,7 +48,7 @@ export const DashboardFunFacts = () => {
 };
 
 const WeightLiftedFunFact = () => {
-  const funFacts = useSuspenseQuery(dashboardQueries.funFacts);
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -62,7 +62,7 @@ const WeightLiftedFunFact = () => {
 };
 
 const NumberOfSets = () => {
-  const funFacts = useSuspenseQuery(dashboardQueries.funFacts);
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -73,7 +73,7 @@ const NumberOfSets = () => {
 };
 
 const FavoriteExercise = () => {
-  const funFacts = useSuspenseQuery(dashboardQueries.funFacts);
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -84,7 +84,7 @@ const FavoriteExercise = () => {
 };
 
 const LeastFavoriteExercise = () => {
-  const funFacts = useSuspenseQuery(dashboardQueries.funFacts);
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -134,6 +134,10 @@ export const DashboardFunFactsSkeleton = () => {
       </div>
     </div>
   );
+};
+
+const useFunFacts = () => {
+  return useSuspenseQuery(dashboardQueries.funFacts);
 };
 
 const FunFacts = [

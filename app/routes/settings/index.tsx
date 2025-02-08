@@ -142,7 +142,7 @@ const RenameUserSection = () => {
 };
 
 const TagsSection = () => {
-  const tagsFrequency = useSuspenseQuery(tagQueries.frequency);
+  const tagsFrequency = useTagsFrequency();
 
   return (
     <CatchBoundary
@@ -558,4 +558,8 @@ const ListItemTitle = (props: ComponentProps<"h3">) => {
 
 const ListItemSubtitle = (props: ComponentProps<"p">) => {
   return <p className="col-start-2 row-start-2 truncate text-xs" {...props} />;
+};
+
+const useTagsFrequency = () => {
+  return useSuspenseQuery(tagQueries.frequency);
 };
