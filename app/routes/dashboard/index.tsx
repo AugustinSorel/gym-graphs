@@ -31,10 +31,12 @@ export const Route = createFileRoute("/dashboard/")({
       tiles: dashboardKeys.tiles(context.user.id),
       exercisesFrequency: exerciseKeys.exercisesFrequency(context.user.id),
       setsHeatMap: setKeys.heatMap(context.user.id),
+      funFacts: dashboardKeys.funFacts(context.user.id),
     } as const;
 
     void context.queryClient.prefetchQuery(keys.exercisesFrequency);
     void context.queryClient.prefetchQuery(keys.setsHeatMap);
+    void context.queryClient.prefetchQuery(keys.funFacts);
 
     await context.queryClient.ensureInfiniteQueryData(keys.tiles);
   },

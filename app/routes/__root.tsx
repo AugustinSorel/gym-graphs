@@ -137,5 +137,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO    | add limit                          |
 | FIX     | move filtering to the server       |
 | FIX     | move tags frequency to the server  |
-| FIX     | move fun facts to the server       |
+| FIX     | standarize service fns name        |
+| FIX     | repeition count ot repetitions     |
+| TODO    | remove props in advanced graph     |
 */

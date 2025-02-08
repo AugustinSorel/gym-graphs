@@ -8,194 +8,103 @@ import {
   CarouselDot,
   CarouselItem,
 } from "~/ui/carousel";
-import { createContext, use } from "react";
-import type { useTiles } from "~/dashboard/hooks/use-tiles";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { useUser } from "~/user/hooks/use-user";
+import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps } from "react";
 
-export const ExercisesFunFacts = (props: Props) => {
-  const FunFacts = [
-    WeightLiftedFunFact,
-    NumberOfSets,
-    FavoriteExercise,
-    LeastFavoriteExercise,
-  ];
+export const ExercisesFunFacts = () => {
+  const funFacts = useFunFacts();
 
-  const dataEmpty = props.exercises.every((e) => !e.sets.length);
+  const noData = !funFacts.data.setsCount;
 
-  if (dataEmpty) {
+  if (noData) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
-    <Ctx value={props.exercises}>
-      <Carousel>
-        <CarouselBody>
-          {FunFacts.map((FunFact, i) => (
-            <CarouselItem
-              className="grid grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center select-none"
-              key={i}
+    <Carousel>
+      <CarouselBody>
+        {FunFacts.map((FunFact, i) => (
+          <CarouselItem
+            className="grid grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center select-none"
+            key={i}
+          >
+            <CatchBoundary
+              getResetKey={() => "reset"}
+              errorComponent={DefaultErrorFallback}
             >
-              <CatchBoundary
-                getResetKey={() => "reset"}
-                errorComponent={DefaultErrorFallback}
-              >
-                <FunFact />
-              </CatchBoundary>
-            </CarouselItem>
-          ))}
-        </CarouselBody>
+              <FunFact />
+            </CatchBoundary>
+          </CarouselItem>
+        ))}
+      </CarouselBody>
 
-        <CarouselDotsContainer>
-          {FunFacts.map((_FunFact, i) => (
-            <CarouselDot key={i} index={i} />
-          ))}
-        </CarouselDotsContainer>
-      </Carousel>
-    </Ctx>
+      <CarouselDotsContainer>
+        {FunFacts.map((_FunFact, i) => (
+          <CarouselDot key={i} index={i} />
+        ))}
+      </CarouselDotsContainer>
+    </Carousel>
   );
 };
 
-type Exercise = Readonly<
-  NonNullable<ReturnType<typeof useTiles>["data"][number]["exercise"]>
->;
+const useFunFacts = () => {
+  const user = useUser();
 
-type Props = Readonly<{
-  exercises: ReadonlyArray<Exercise>;
-}>;
+  const keys = {
+    funFacts: dashboardKeys.funFacts(user.data.id),
+  } as const;
 
-const Ctx = createContext<ReadonlyArray<Exercise> | undefined>(undefined);
-
-const useExercises = () => {
-  const ctx = use(Ctx);
-
-  if (!ctx) {
-    throw new Error("");
-  }
-
-  return ctx;
+  return useSuspenseQuery(keys.funFacts);
 };
 
 const WeightLiftedFunFact = () => {
-  const weightLiftedInKg = useCalculateWeightLiftedInKg();
+  const funFacts = useFunFacts();
 
   return (
     <>
       <Text>weight lifted</Text>
       <Strong>
-        <WeightValue weightInKg={weightLiftedInKg} /> <WeightUnit />
+        <WeightValue weightInKg={funFacts.data.totalWeightInKg} />{" "}
+        <WeightUnit />
       </Strong>
     </>
   );
 };
 
 const NumberOfSets = () => {
-  const numberOfSets = useNumberOfSets();
+  const funFacts = useFunFacts();
 
   return (
     <>
       <Text>number of sets</Text>
-      <Strong>{numberOfSets}</Strong>
+      <Strong>{funFacts.data.setsCount}</Strong>
     </>
   );
 };
 
 const FavoriteExercise = () => {
-  const favoriteExercise = useFavoriteExercise();
-
-  if (!favoriteExercise) {
-    return (
-      <>
-        <Text>favorite exercise</Text>
-        <Strong>unknown</Strong>
-      </>
-    );
-  }
+  const funFacts = useFunFacts();
 
   return (
     <>
       <Text>favorite exercise</Text>
-      <Strong>{favoriteExercise.name}</Strong>
+      <Strong>{funFacts.data.favoriteExercise.name}</Strong>
     </>
   );
 };
 
 const LeastFavoriteExercise = () => {
-  const leastFavoriteExercise = useLeastFavoriteExercise();
-
-  if (!leastFavoriteExercise) {
-    return (
-      <>
-        <Text>least favorite exercise</Text>
-        <Strong>unknown</Strong>
-      </>
-    );
-  }
+  const funFacts = useFunFacts();
 
   return (
     <>
       <Text>least favorite exercise</Text>
-      <Strong>{leastFavoriteExercise.name}</Strong>
+      <Strong>{funFacts.data.leastFavoriteExercise.name}</Strong>
     </>
   );
-};
-
-const useCalculateWeightLiftedInKg = () => {
-  const exercises = useExercises();
-
-  return exercises.reduce((acc, curr) => {
-    return (
-      acc +
-      curr.sets.reduce((acc, curr) => {
-        return acc + curr.weightInKg;
-      }, 0)
-    );
-  }, 0);
-};
-
-const useNumberOfSets = () => {
-  const exercises = useExercises();
-
-  return exercises.reduce((acc, curr) => {
-    return acc + curr.sets.length;
-  }, 0);
-};
-
-const useFavoriteExercise = () => {
-  const exercises = useExercises();
-
-  return exercises.reduce<Exercise | null>((acc, curr) => {
-    if (!acc) {
-      return curr;
-    }
-
-    const candidateNumberOfSets = curr.sets.length;
-    const currentNumberOfSets = acc?.sets.length;
-
-    if (candidateNumberOfSets > currentNumberOfSets) {
-      return curr;
-    }
-
-    return acc;
-  }, null);
-};
-
-const useLeastFavoriteExercise = () => {
-  const exercises = useExercises();
-
-  return exercises.reduce<Exercise | null>((acc, curr) => {
-    if (!acc) {
-      return curr;
-    }
-
-    const candidateNumberOfSets = curr.sets.length;
-    const currentNumberOfSets = acc.sets.length;
-
-    if (candidateNumberOfSets <= currentNumberOfSets) {
-      return curr;
-    }
-
-    return acc;
-  }, null);
 };
 
 const Text = (props: ComponentProps<"p">) => {
@@ -223,3 +132,26 @@ const CarouselDotsContainer = (props: ComponentProps<"div">) => {
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
+
+export const ExercisesFunFactsSkeleton = () => {
+  return (
+    <div className="grid grid-rows-[1fr_auto_1fr] justify-items-center gap-7 p-3 text-center">
+      <Skeleton className="bg-border mt-auto h-3 w-32 rounded-full" />
+
+      <Skeleton className="bg-border h-7 w-48 rounded-full" />
+
+      <div className="mt-auto flex gap-3">
+        {FunFacts.map((_FunFact, i) => (
+          <Skeleton className="bg-border size-5 rounded-full" key={i} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const FunFacts = [
+  WeightLiftedFunFact,
+  NumberOfSets,
+  FavoriteExercise,
+  LeastFavoriteExercise,
+] as const;

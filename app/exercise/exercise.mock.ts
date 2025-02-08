@@ -1,6 +1,8 @@
 import type { selectDashboardExercises } from "~/exercise/exercise.services";
 
-export const exercisesMock = [
+export const exercisesMock: Readonly<
+  Awaited<ReturnType<typeof selectDashboardExercises>>
+> = [
   {
     id: 30,
     userId: 7,
@@ -175,7 +177,7 @@ export const exercisesMock = [
     tags: [],
     sets: [
       {
-        id: 90,
+        id: 100,
         exerciseId: 32,
         weightInKg: 30,
         repetitions: 30,
@@ -184,7 +186,7 @@ export const exercisesMock = [
         updatedAt: new Date("2025-01-09T11:32:12.498Z"),
       },
       {
-        id: 91,
+        id: 101,
         exerciseId: 32,
         weightInKg: 50,
         repetitions: 30,
@@ -193,7 +195,7 @@ export const exercisesMock = [
         updatedAt: new Date("2025-01-09T11:32:12.498Z"),
       },
       {
-        id: 92,
+        id: 102,
         exerciseId: 32,
         weightInKg: 40,
         repetitions: 20,
@@ -202,7 +204,7 @@ export const exercisesMock = [
         updatedAt: new Date("2025-01-09T11:32:12.498Z"),
       },
       {
-        id: 94,
+        id: 103,
         exerciseId: 32,
         weightInKg: 40,
         repetitions: 50,
@@ -211,7 +213,7 @@ export const exercisesMock = [
         updatedAt: new Date("2025-01-09T11:32:12.498Z"),
       },
       {
-        id: 95,
+        id: 104,
         exerciseId: 32,
         weightInKg: 30,
         repetitions: 30,
@@ -221,7 +223,7 @@ export const exercisesMock = [
       },
     ],
   },
-] as const satisfies Awaited<ReturnType<typeof selectDashboardExercises>>;
+];
 
 export const exercisesFrequencyMock = exercisesMock.map((exercise) => ({
   name: exercise.name,

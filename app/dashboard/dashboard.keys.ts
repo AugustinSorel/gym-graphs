@@ -1,6 +1,9 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import {
+  selectDashboardFunFactsAction,
+  selectTilesAction,
+} from "~/dashboard/dashboard.actions";
 import type { Dashboard } from "~/db/db.schemas";
-import { selectTilesAction } from "~/dashboard/dashboard.actions";
 
 const tiles = (userId: Dashboard["userId"]) =>
   infiniteQueryOptions({
@@ -12,6 +15,14 @@ const tiles = (userId: Dashboard["userId"]) =>
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 
+const funFacts = (userId: Dashboard["userId"]) => {
+  return queryOptions({
+    queryKey: ["user", userId, "fun-facts"],
+    queryFn: () => selectDashboardFunFactsAction(),
+  });
+};
+
 export const dashboardKeys = {
   tiles,
+  funFacts,
 };

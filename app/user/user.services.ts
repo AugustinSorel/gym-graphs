@@ -1,5 +1,5 @@
-import { asc, eq } from "drizzle-orm";
-import { tagTable, userTable } from "~/db/db.schemas";
+import { asc, count, desc, eq, sql } from "drizzle-orm";
+import { exerciseTable, setTable, tagTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
@@ -7,7 +7,7 @@ import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { addDate } from "~/utils/date";
 import { insertDashboard, insertTiles } from "~/dashboard/dashboard.services";
 import type { Db } from "~/libs/db";
-import type { User } from "~/db/db.schemas";
+import type { Exercise, User } from "~/db/db.schemas";
 
 export const createUserWithEmailAndPassword = async (
   email: User["email"],
@@ -264,4 +264,87 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   ];
 
   await Promise.all(operations);
+};
+
+export const selectUserTotalWeightInKg = async (
+  userId: Exercise["id"],
+  db: Db,
+) => {
+  const [res] = await db
+    .select({
+      total: sql`sum(${setTable.weightInKg} * ${setTable.repetitions})`.mapWith(
+        Number,
+      ),
+    })
+    .from(exerciseTable)
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(exerciseTable.userId, userId));
+
+  if (!res) {
+    throw new Error("total weight in kg returned by db is null");
+  }
+
+  return res;
+};
+
+export const selectUserSetsCount = async (userId: Exercise["id"], db: Db) => {
+  const [setsCount] = await db
+    .select({
+      count: count(setTable.id).mapWith(Number),
+    })
+    .from(exerciseTable)
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(exerciseTable.userId, userId));
+
+  if (!setsCount) {
+    throw new Error("sets count returned by db is null");
+  }
+
+  return setsCount;
+};
+
+export const selectUserFavoriteExercise = async (
+  userId: Exercise["userId"],
+  db: Db,
+) => {
+  const [favoriteExercise] = await db
+    .select({
+      name: exerciseTable.name,
+      setsCount: count(setTable.id).mapWith(Number),
+    })
+    .from(exerciseTable)
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(exerciseTable.userId, userId))
+    .groupBy(exerciseTable.id)
+    .orderBy(desc(sql`count`))
+    .limit(1);
+
+  if (!favoriteExercise) {
+    throw new Error("favorite exercise returned by db is null");
+  }
+
+  return favoriteExercise;
+};
+
+export const selectUserLeastFavoriteExercise = async (
+  userId: Exercise["userId"],
+  db: Db,
+) => {
+  const [leastFavoriteExercise] = await db
+    .select({
+      name: exerciseTable.name,
+      setsCount: count(setTable.id).mapWith(Number),
+    })
+    .from(exerciseTable)
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(exerciseTable.userId, userId))
+    .groupBy(exerciseTable.id)
+    .orderBy(asc(sql`count`))
+    .limit(1);
+
+  if (!leastFavoriteExercise) {
+    throw new Error("least favorite exercise returned by db is null");
+  }
+
+  return leastFavoriteExercise;
 };

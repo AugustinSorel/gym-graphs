@@ -115,6 +115,7 @@ const useUpdateSetRepetitions = () => {
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
+  const set = useSet();
 
   return useMutation({
     mutationFn: updateSetRepetitionsAction,
@@ -122,6 +123,7 @@ const useUpdateSetRepetitions = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exericse: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -158,6 +160,25 @@ const useUpdateSetRepetitions = () => {
               }),
             };
           }),
+        };
+      });
+
+      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+        if (!funFacts) {
+          return funFacts;
+        }
+
+        const totalWeightInKg = {
+          current: set.weightInKg * set.repetitions,
+          optimistic: variables.data.repetitions * set.weightInKg,
+        } as const;
+
+        return {
+          ...funFacts,
+          totalWeightInKg:
+            funFacts.totalWeightInKg -
+            totalWeightInKg.current +
+            totalWeightInKg.optimistic,
         };
       });
 

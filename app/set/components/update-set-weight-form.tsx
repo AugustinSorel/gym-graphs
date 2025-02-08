@@ -115,6 +115,7 @@ const useUpdateWeight = () => {
   const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
+  const set = useSet();
 
   return useMutation({
     mutationFn: updateSetWeightAction,
@@ -122,6 +123,7 @@ const useUpdateWeight = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
+        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -160,15 +162,33 @@ const useUpdateWeight = () => {
           }),
         };
       });
+      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+        if (!funFacts) {
+          return funFacts;
+        }
 
-      queryClient.setQueryData(keys.exercise, (ex) => {
-        if (!ex) {
-          return ex;
+        const totalWeightInKg = {
+          current: set.weightInKg * set.repetitions,
+          optimistic: variables.data.weightInKg * set.repetitions,
+        } as const;
+
+        return {
+          ...funFacts,
+          totalWeightInKg:
+            funFacts.totalWeightInKg -
+            totalWeightInKg.current +
+            totalWeightInKg.optimistic,
+        };
+      });
+
+      queryClient.setQueryData(keys.exercise, (exercise) => {
+        if (!exercise) {
+          return exercise;
         }
 
         return {
-          ...ex,
-          sets: ex.sets.map((set) => {
+          ...exercise,
+          sets: exercise.sets.map((set) => {
             if (set.id === variables.data.setId) {
               return {
                 ...set,
@@ -185,10 +205,12 @@ const useUpdateWeight = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id),
         exercise: exerciseKeys.get(user.data.id, exercise.data.id),
+        funFacts: dashboardKeys.funFacts(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(keys.funFacts);
     },
   });
 };

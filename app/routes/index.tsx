@@ -19,6 +19,10 @@ import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 import { exerciseKeys } from "~/exercise/exercise.keys";
+import { setKeys } from "~/set/set.keys";
+import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { setsHeatMapMock } from "~/set/set.mock";
+import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -114,7 +118,7 @@ const FeatureOne = () => {
         </Card>
         <Card>
           <Name>fun facts</Name>
-          <ExercisesFunFacts exercises={exercisesMock} />
+          <ExercisesFunFacts />
         </Card>
         <Card>
           <Name>heat map - January</Name>
@@ -126,7 +130,7 @@ const FeatureOne = () => {
 };
 
 const FeatureTwo = () => {
-  const sets = exercisesMock[0].sets;
+  const sets = exercisesMock[0]!.sets;
 
   return (
     <FeatureContainer>
@@ -348,11 +352,20 @@ const useMockQueryClient = () => {
   const keys = {
     user: userKeys.get.queryKey,
     exercisesFrequency: exerciseKeys.exercisesFrequency(userMock.id).queryKey,
+    setsHeatMap: setKeys.heatMap(userMock.id).queryKey,
+    funFacts: dashboardKeys.funFacts(userMock.id).queryKey,
   };
 
   queryClient.setQueryData(keys.user, userMock);
   queryClient.setQueryData(keys.exercisesFrequency, exercisesFrequencyMock);
-  queryClient.setQueryDefaults(keys.user, { staleTime: Infinity });
+  queryClient.setQueryData(keys.setsHeatMap, setsHeatMapMock);
+  queryClient.setQueryData(keys.funFacts, dashboardFunFactsMock);
+
+  queryClient.setDefaultOptions({
+    queries: {
+      staleTime: Infinity,
+    },
+  });
 
   return queryClient;
 };

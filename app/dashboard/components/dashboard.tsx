@@ -6,7 +6,10 @@ import {
   ExerciseRadarGraphSkeleton,
   ExercisesRadarGraph,
 } from "~/exercise/components/exercises-radar-graph";
-import { ExercisesFunFacts } from "~/exercise/components/exercises-fun-facts";
+import {
+  ExercisesFunFacts,
+  ExercisesFunFactsSkeleton,
+} from "~/exercise/components/exercises-fun-facts";
 import { TagsFrequencyPieGraph } from "~/tag/components/tags-frequency-pie-graph";
 import {
   SetsHeatMapGraph,
@@ -386,15 +389,6 @@ const ExercisesFrequencyTile = (props: TileProps) => {
 
 const ExercisesFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
-  const tiles = useTiles();
-  const exercises = tiles.data
-    .filter((tile) => Boolean(tile.exercise))
-    .flatMap((tile) => {
-      if (!tile.exercise) {
-        throw new Error("no tile.exercise");
-      }
-      return tile.exercise;
-    });
 
   return (
     <Card>
@@ -413,7 +407,9 @@ const ExercisesFunFactsTile = (props: TileProps) => {
         </Button>
       </CardHeader>
 
-      <ExercisesFunFacts exercises={exercises} />
+      <Suspense fallback={<ExercisesFunFactsSkeleton />}>
+        <ExercisesFunFacts />
+      </Suspense>
     </Card>
   );
 };

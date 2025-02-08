@@ -159,6 +159,7 @@ const useCreateSet = () => {
         exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
+        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
           .queryKey,
       } as const;
@@ -218,16 +219,31 @@ const useCreateSet = () => {
         });
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (data) => {
-        if (!data) {
-          return data;
+      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+        if (!funFacts) {
+          return funFacts;
+        }
+
+        const exerciseTotalWeightInKg =
+          optimisticExerciseSet.weightInKg * optimisticExerciseSet.repetitions;
+
+        return {
+          ...funFacts,
+          setsCount: funFacts.setsCount + 1,
+          totalWeightInKg: funFacts.totalWeightInKg + exerciseTotalWeightInKg,
+        };
+      });
+
+      queryClient.setQueryData(keys.setsHeatMap, (setsHeatMap) => {
+        if (!setsHeatMap) {
+          return setsHeatMap;
         }
 
         const calendarPositions = getCalendarPositions(
           optimisticExerciseSet.doneAt,
         );
 
-        return data.map((row) => {
+        return setsHeatMap.map((row) => {
           if (row.dayIndex === calendarPositions.day) {
             return {
               ...row,
@@ -264,12 +280,14 @@ const useCreateSet = () => {
         tiles: dashboardKeys.tiles(user.data.id),
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
         setsHeatMap: setKeys.heatMap(user.data.id),
+        funFacts: dashboardKeys.funFacts(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.exercisesFrequency);
       void queryClient.invalidateQueries(keys.setsHeatMap);
+      void queryClient.invalidateQueries(keys.funFacts);
     },
   });
 };

@@ -94,6 +94,7 @@ const useDeleteExercise = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
+        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
           .queryKey,
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
@@ -126,6 +127,29 @@ const useDeleteExercise = () => {
         return data.filter((exercise) => {
           return exercise.id !== variables.data.exerciseId;
         });
+      });
+
+      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+        if (!funFacts) {
+          return funFacts;
+        }
+
+        return {
+          setsCount: funFacts.setsCount - exercise.data.sets.length,
+          totalWeightInKg:
+            funFacts.totalWeightInKg -
+            exercise.data.sets.reduce((acc, curr) => {
+              return acc + curr.weightInKg * curr.repetitions;
+            }, 0),
+          favoriteExercise:
+            funFacts.favoriteExercise.name === exercise.data.name
+              ? { name: "unkown" }
+              : funFacts.favoriteExercise,
+          leastFavoriteExercise:
+            funFacts.leastFavoriteExercise.name === exercise.data.name
+              ? { name: "unkown" }
+              : funFacts.leastFavoriteExercise,
+        };
       });
 
       queryClient.setQueryData(keys.setsHeatMap, (heatMapData) => {
@@ -171,12 +195,14 @@ const useDeleteExercise = () => {
         exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
         exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
         setsHeatMap: setKeys.heatMap(user.data.id),
+        funFacts: dashboardKeys.funFacts(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercisesFrequency);
       void queryClient.invalidateQueries(keys.setsHeatMap);
+      void queryClient.invalidateQueries(keys.funFacts);
     },
   });
 };

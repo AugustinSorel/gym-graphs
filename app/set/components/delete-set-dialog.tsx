@@ -88,6 +88,7 @@ const useDeleteSet = () => {
       const keys = {
         tiles: dashboardKeys.tiles(user.data.id).queryKey,
         exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
+        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
         setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
       } as const;
 
@@ -121,14 +122,27 @@ const useDeleteSet = () => {
         };
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (data) => {
-        if (!data) {
-          return data;
+      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+        if (!funFacts) {
+          return funFacts;
+        }
+
+        return {
+          ...funFacts,
+          setsCount: funFacts.setsCount - 1,
+          totalWeightInKg:
+            funFacts.totalWeightInKg - set.weightInKg * set.repetitions,
+        };
+      });
+
+      queryClient.setQueryData(keys.setsHeatMap, (setsHeatMap) => {
+        if (!setsHeatMap) {
+          return setsHeatMap;
         }
 
         const calendarPositions = getCalendarPositions(set.doneAt);
 
-        return data.map((row) => {
+        return setsHeatMap.map((row) => {
           if (row.dayIndex === calendarPositions.day) {
             return {
               ...row,
@@ -166,11 +180,13 @@ const useDeleteSet = () => {
         exercise: exerciseKeys.get(user.data.id, set.exerciseId),
         tiles: dashboardKeys.tiles(user.data.id),
         setsHeatMap: setKeys.heatMap(user.data.id),
+        funFacts: dashboardKeys.funFacts(user.data.id),
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);
       void queryClient.invalidateQueries(keys.exercise);
       void queryClient.invalidateQueries(keys.setsHeatMap);
+      void queryClient.invalidateQueries(keys.funFacts);
     },
   });
 };
