@@ -5,7 +5,7 @@ import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
 import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
@@ -18,8 +18,8 @@ import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
 import { validateAccess } from "~/libs/permissions";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { tagKeys } from "~/tag/tag.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
@@ -35,11 +35,11 @@ export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
     };
   },
   loader: async ({ context, params }) => {
-    const keys = {
-      exercise: exerciseKeys.get(params.exerciseId),
+    const queries = {
+      exercise: exerciseQueries.get(params.exerciseId),
     } as const;
 
-    await context.queryClient.ensureQueryData(keys.exercise);
+    await context.queryClient.ensureQueryData(queries.exercise);
   },
 });
 
@@ -260,10 +260,10 @@ const useUpdateExerciseTags = () => {
   return useMutation({
     mutationFn: updateExerciseTagsAction,
     onMutate: (variables) => {
-      const keys = {
-        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
-        tiles: dashboardKeys.tiles.queryKey,
-        tagsFrequency: tagKeys.frequency.queryKey,
+      const queries = {
+        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
+        tiles: dashboardQueries.tiles.queryKey,
+        tagsFrequency: tagQueries.frequency.queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -284,7 +284,7 @@ const useUpdateExerciseTags = () => {
           tag,
         }));
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -312,7 +312,7 @@ const useUpdateExerciseTags = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercise, (exercise) => {
+      queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -323,7 +323,7 @@ const useUpdateExerciseTags = () => {
         };
       });
 
-      queryClient.setQueryData(keys.tagsFrequency, (tagsFrequency) => {
+      queryClient.setQueryData(queries.tagsFrequency, (tagsFrequency) => {
         if (!tagsFrequency) {
           return tagsFrequency;
         }
@@ -354,15 +354,15 @@ const useUpdateExerciseTags = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
-      const keys = {
-        exercise: exerciseKeys.get(variables.data.exerciseId),
-        tiles: dashboardKeys.tiles,
-        tagsFrequency: tagKeys.frequency,
+      const queries = {
+        exercise: exerciseQueries.get(variables.data.exerciseId),
+        tiles: dashboardQueries.tiles,
+        tagsFrequency: tagQueries.frequency,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.tagsFrequency);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.tagsFrequency);
     },
   });
 };

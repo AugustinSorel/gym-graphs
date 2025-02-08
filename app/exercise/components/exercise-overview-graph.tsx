@@ -6,7 +6,7 @@ import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import type { Set } from "~/db/db.schemas";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();

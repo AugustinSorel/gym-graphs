@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateWeightUnitAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 
 export const useUpdateWeightUnit = () => {
   const queryClient = useQueryClient();
@@ -8,7 +8,7 @@ export const useUpdateWeightUnit = () => {
   const updateWeightUnit = useMutation({
     mutationFn: updateWeightUnitAction,
     onMutate: (variables) => {
-      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
+      queryClient.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -20,7 +20,7 @@ export const useUpdateWeightUnit = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKeys.get);
+      void queryClient.invalidateQueries(userQueries.get);
     },
   });
 

@@ -16,9 +16,9 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import type { z } from "zod";
-import { exerciseKeys } from "../exercise.keys";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -84,11 +84,11 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
       } as const;
 
-      const cachedTiles = queryClient.getQueryData(keys.tiles);
+      const cachedTiles = queryClient.getQueryData(queries.tiles);
 
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.tiles)
@@ -125,9 +125,9 @@ const useCreateExercise = () => {
   return useMutation({
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
       } as const;
 
       const exerciseId = Math.random();
@@ -151,7 +151,7 @@ const useCreateExercise = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -171,7 +171,7 @@ const useCreateExercise = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
         if (!data) {
           return data;
         }
@@ -183,13 +183,13 @@ const useCreateExercise = () => {
       });
     },
     onSettled: async () => {
-      const keys = {
-        tiles: dashboardKeys.tiles,
-        exercisesFrequency: exerciseKeys.exercisesFrequency,
+      const queries = {
+        tiles: dashboardQueries.tiles,
+        exercisesFrequency: exerciseQueries.exercisesFrequency,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercisesFrequency);
     },
   });
 };

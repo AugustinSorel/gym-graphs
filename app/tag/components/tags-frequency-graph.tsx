@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { tagKeys } from "../tag.keys";
+import { tagQueries } from "~/tag/tag.queries";
 import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps, CSSProperties } from "react";
 import type { selectTagsFrequency } from "../tag.services";
@@ -245,7 +245,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
 
 const useTagsFrequency = () => {
   return useSuspenseQuery({
-    ...tagKeys.frequency,
+    ...tagQueries.frequency,
     select: (tagsFrequency) => {
       return tagsFrequency.filter((tagFrequency) => tagFrequency.frequency);
     },

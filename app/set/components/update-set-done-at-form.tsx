@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -20,8 +20,8 @@ import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { setKeys } from "~/set/set.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { setQueries } from "~/set/set.queries";
 import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
@@ -142,13 +142,13 @@ const useUpdateSetDoneAt = () => {
   return useMutation({
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        exercise: exerciseKeys.get(exercise.data.id).queryKey,
-        setsHeatMap: setKeys.heatMap.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        setsHeatMap: setQueries.heatMap.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -185,7 +185,7 @@ const useUpdateSetDoneAt = () => {
         };
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (data) => {
+      queryClient.setQueryData(queries.setsHeatMap, (data) => {
         if (!data) {
           return data;
         }
@@ -230,7 +230,7 @@ const useUpdateSetDoneAt = () => {
         });
       });
 
-      queryClient.setQueryData(keys.exercise, (exexercise) => {
+      queryClient.setQueryData(queries.exercise, (exexercise) => {
         if (!exexercise) {
           return exexercise;
         }
@@ -251,15 +251,15 @@ const useUpdateSetDoneAt = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        exercise: exerciseKeys.get(exercise.data.id),
-        tiles: dashboardKeys.tiles,
-        setsHeatMap: setKeys.heatMap,
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id),
+        tiles: dashboardQueries.tiles,
+        setsHeatMap: setQueries.heatMap,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.setsHeatMap);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.setsHeatMap);
     },
   });
 };

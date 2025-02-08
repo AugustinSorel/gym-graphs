@@ -12,7 +12,7 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -20,7 +20,7 @@ import { updateSetRepetitionsAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 
 export const UpdateSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -118,13 +118,13 @@ const useUpdateSetRepetitions = () => {
   return useMutation({
     mutationFn: updateSetRepetitionsAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        exericse: exerciseKeys.get(exercise.data.id).queryKey,
-        funFacts: dashboardKeys.funFacts.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        exericse: exerciseQueries.get(exercise.data.id).queryKey,
+        funFacts: dashboardQueries.funFacts.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -161,7 +161,7 @@ const useUpdateSetRepetitions = () => {
         };
       });
 
-      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+      queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -180,7 +180,7 @@ const useUpdateSetRepetitions = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exericse, (exercise) => {
+      queryClient.setQueryData(queries.exericse, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -201,13 +201,13 @@ const useUpdateSetRepetitions = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        exercise: exerciseKeys.get(exercise.data.id),
-        tiles: dashboardKeys.tiles,
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id),
+        tiles: dashboardQueries.tiles,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
     },
   });
 };

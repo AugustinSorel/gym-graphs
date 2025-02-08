@@ -1,11 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getUserAction } from "~/user/user.actions";
+import { selectUserAction } from "~/user/user.actions";
 
 const get = queryOptions({
   queryKey: ["user"],
-  queryFn: () => getUserAction(),
+  queryFn: () => selectUserAction(),
 });
 
-export const userKeys = {
+export const userQueries = {
   get,
 } as const;

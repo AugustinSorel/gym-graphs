@@ -12,12 +12,12 @@ import {
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
 import { useSet } from "~/set/set.context";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { setKeys } from "~/set/set.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { setQueries } from "~/set/set.queries";
 import { getCalendarPositions } from "~/utils/date";
 
 export const DeleteSetDialog = () => {
@@ -83,14 +83,14 @@ const useDeleteSet = () => {
   return useMutation({
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        exercise: exerciseKeys.get(set.exerciseId).queryKey,
-        funFacts: dashboardKeys.funFacts.queryKey,
-        setsHeatMap: setKeys.heatMap.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        exercise: exerciseQueries.get(set.exerciseId).queryKey,
+        funFacts: dashboardQueries.funFacts.queryKey,
+        setsHeatMap: setQueries.heatMap.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -120,7 +120,7 @@ const useDeleteSet = () => {
         };
       });
 
-      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+      queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -133,7 +133,7 @@ const useDeleteSet = () => {
         };
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (setsHeatMap) => {
+      queryClient.setQueryData(queries.setsHeatMap, (setsHeatMap) => {
         if (!setsHeatMap) {
           return setsHeatMap;
         }
@@ -160,7 +160,7 @@ const useDeleteSet = () => {
         });
       });
 
-      queryClient.setQueryData(keys.exercise, (exercise) => {
+      queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -174,17 +174,17 @@ const useDeleteSet = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        exercise: exerciseKeys.get(set.exerciseId),
-        tiles: dashboardKeys.tiles,
-        setsHeatMap: setKeys.heatMap,
-        funFacts: dashboardKeys.funFacts,
+      const queries = {
+        exercise: exerciseQueries.get(set.exerciseId),
+        tiles: dashboardQueries.tiles,
+        setsHeatMap: setQueries.heatMap,
+        funFacts: dashboardQueries.funFacts,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.setsHeatMap);
-      void queryClient.invalidateQueries(keys.funFacts);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.setsHeatMap);
+      void queryClient.invalidateQueries(queries.funFacts);
     },
   });
 };

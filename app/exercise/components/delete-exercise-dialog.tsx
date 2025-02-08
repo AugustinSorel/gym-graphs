@@ -15,10 +15,10 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { deleteExerciseAction } from "~/exercise/exercise.actions";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { setKeys } from "~/set/set.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { setQueries } from "~/set/set.queries";
 import { getFirstDayOfMonth } from "~/utils/date";
 import { transformSetsToHeatMap } from "~/set/set.services";
 
@@ -89,15 +89,15 @@ const useDeleteExercise = () => {
   return useMutation({
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        setsHeatMap: setKeys.heatMap.queryKey,
-        funFacts: dashboardKeys.funFacts.queryKey,
-        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        setsHeatMap: setQueries.heatMap.queryKey,
+        funFacts: dashboardQueries.funFacts.queryKey,
+        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
+        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -115,7 +115,7 @@ const useDeleteExercise = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
         if (!data) {
           return data;
         }
@@ -125,7 +125,7 @@ const useDeleteExercise = () => {
         });
       });
 
-      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+      queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -148,7 +148,7 @@ const useDeleteExercise = () => {
         };
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (heatMapData) => {
+      queryClient.setQueryData(queries.setsHeatMap, (heatMapData) => {
         if (!heatMapData) {
           return heatMapData;
         }
@@ -183,22 +183,22 @@ const useDeleteExercise = () => {
         });
       });
 
-      queryClient.setQueryData(keys.exercise, undefined);
+      queryClient.setQueryData(queries.exercise, undefined);
     },
     onSettled: (_data, _error, variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles,
-        exercise: exerciseKeys.get(variables.data.exerciseId),
-        exercisesFrequency: exerciseKeys.exercisesFrequency,
-        setsHeatMap: setKeys.heatMap,
-        funFacts: dashboardKeys.funFacts,
+      const queries = {
+        tiles: dashboardQueries.tiles,
+        exercise: exerciseQueries.get(variables.data.exerciseId),
+        exercisesFrequency: exerciseQueries.exercisesFrequency,
+        setsHeatMap: setQueries.heatMap,
+        funFacts: dashboardQueries.funFacts,
       } as const;
 
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercisesFrequency);
-      void queryClient.invalidateQueries(keys.setsHeatMap);
-      void queryClient.invalidateQueries(keys.funFacts);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.setsHeatMap);
+      void queryClient.invalidateQueries(queries.funFacts);
     },
   });
 };

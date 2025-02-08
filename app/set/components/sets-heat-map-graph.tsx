@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { setKeys } from "../set.keys";
+import { setQueries } from "~/set/set.queries";
 import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
@@ -14,7 +14,7 @@ import type { ComponentProps, CSSProperties } from "react";
 import type { selectSetsHeatMapAction } from "~/set/set.actions";
 
 export const SetsHeatMapGraph = () => {
-  const setsHeatMap = useSuspenseQuery(setKeys.heatMap);
+  const setsHeatMap = useSuspenseQuery(setQueries.heatMap);
 
   const heatMapEmpty = setsHeatMap.data
     .flatMap((d) => d.bins)

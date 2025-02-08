@@ -18,10 +18,10 @@ import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { setKeys } from "~/set/set.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { setQueries } from "~/set/set.queries";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -153,12 +153,12 @@ const useCreateSet = () => {
   return useMutation({
     mutationFn: createSetAction,
     onMutate: (variables) => {
-      const keys = {
-        exercise: exerciseKeys.get(exercise.data.id).queryKey,
-        tiles: dashboardKeys.tiles.queryKey,
-        setsHeatMap: setKeys.heatMap.queryKey,
-        funFacts: dashboardKeys.funFacts.queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        tiles: dashboardQueries.tiles.queryKey,
+        setsHeatMap: setQueries.heatMap.queryKey,
+        funFacts: dashboardQueries.funFacts.queryKey,
+        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -171,7 +171,7 @@ const useCreateSet = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -199,7 +199,7 @@ const useCreateSet = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercisesFrequency, (data) => {
+      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
         if (!data) {
           return data;
         }
@@ -216,7 +216,7 @@ const useCreateSet = () => {
         });
       });
 
-      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+      queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -231,7 +231,7 @@ const useCreateSet = () => {
         };
       });
 
-      queryClient.setQueryData(keys.setsHeatMap, (setsHeatMap) => {
+      queryClient.setQueryData(queries.setsHeatMap, (setsHeatMap) => {
         if (!setsHeatMap) {
           return setsHeatMap;
         }
@@ -260,7 +260,7 @@ const useCreateSet = () => {
         });
       });
 
-      queryClient.setQueryData(keys.exercise, (exercise) => {
+      queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -272,19 +272,19 @@ const useCreateSet = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        exercise: exerciseKeys.get(exercise.data.id),
-        tiles: dashboardKeys.tiles,
-        exercisesFrequency: exerciseKeys.exercisesFrequency,
-        setsHeatMap: setKeys.heatMap,
-        funFacts: dashboardKeys.funFacts,
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id),
+        tiles: dashboardQueries.tiles,
+        exercisesFrequency: exerciseQueries.exercisesFrequency,
+        setsHeatMap: setQueries.heatMap,
+        funFacts: dashboardQueries.funFacts,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.exercisesFrequency);
-      void queryClient.invalidateQueries(keys.setsHeatMap);
-      void queryClient.invalidateQueries(keys.funFacts);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.setsHeatMap);
+      void queryClient.invalidateQueries(queries.funFacts);
     },
   });
 };

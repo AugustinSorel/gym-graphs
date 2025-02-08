@@ -14,8 +14,8 @@ import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
-import { userKeys } from "~/user/user.keys";
-import { tagKeys } from "../tag.keys";
+import { userQueries } from "~/user/user.queries";
+import { tagQueries } from "~/tag/tag.queries";
 import type { Tag } from "~/db/db.schemas";
 
 export const DeleteTagDialog = (props: Props) => {
@@ -79,12 +79,12 @@ const useDeleteTag = () => {
   return useMutation({
     mutationFn: deleteTagAction,
     onMutate: (variables) => {
-      const keys = {
-        user: userKeys.get.queryKey,
-        tagsFrequency: tagKeys.frequency.queryKey,
+      const queries = {
+        user: userQueries.get.queryKey,
+        tagsFrequency: tagQueries.frequency.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.user, (user) => {
+      queryClient.setQueryData(queries.user, (user) => {
         if (!user) {
           return user;
         }
@@ -95,7 +95,7 @@ const useDeleteTag = () => {
         };
       });
 
-      queryClient.setQueryData(keys.tagsFrequency, (tagsFrequency) => {
+      queryClient.setQueryData(queries.tagsFrequency, (tagsFrequency) => {
         if (!tagsFrequency) {
           return tagsFrequency;
         }
@@ -104,13 +104,13 @@ const useDeleteTag = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        user: userKeys.get,
-        tagsFrequency: tagKeys.frequency,
+      const queries = {
+        user: userQueries.get,
+        tagsFrequency: tagQueries.frequency,
       } as const;
 
-      void queryClient.invalidateQueries(keys.user);
-      void queryClient.invalidateQueries(keys.tagsFrequency);
+      void queryClient.invalidateQueries(queries.user);
+      void queryClient.invalidateQueries(queries.tagsFrequency);
     },
   });
 };

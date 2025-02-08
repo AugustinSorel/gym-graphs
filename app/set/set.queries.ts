@@ -6,6 +6,6 @@ const heatMap = queryOptions({
   queryFn: () => selectSetsHeatMapAction(),
 });
 
-export const setKeys = {
+export const setQueries = {
   heatMap,
 } as const;

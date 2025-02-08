@@ -13,12 +13,12 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { z } from "zod";
 
 export const RenameExerciseForm = (props: Props) => {
@@ -95,11 +95,11 @@ const useFormSchema = () => {
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
       } as const;
 
-      const cachedTiles = queryClient.getQueryData(keys.tiles);
+      const cachedTiles = queryClient.getQueryData(queries.tiles);
 
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.tiles)
@@ -140,12 +140,12 @@ const useRenameExercise = () => {
   return useMutation({
     mutationFn: renameExerciseAction,
     onMutate: (variables) => {
-      const keys = {
-        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
-        tiles: dashboardKeys.tiles.queryKey,
+      const queries = {
+        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
+        tiles: dashboardQueries.tiles.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -173,7 +173,7 @@ const useRenameExercise = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercise, (exercise) => {
+      queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -185,13 +185,13 @@ const useRenameExercise = () => {
       });
     },
     onSettled: (_data, _error, variables) => {
-      const keys = {
-        exercise: exerciseKeys.get(variables.data.exerciseId),
-        tiles: dashboardKeys.tiles,
+      const queries = {
+        exercise: exerciseQueries.get(variables.data.exerciseId),
+        tiles: dashboardQueries.tiles,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
     },
   });
 };

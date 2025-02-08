@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 import type { z } from "zod";
 
 type Props = Readonly<{
@@ -98,7 +98,7 @@ const useRenameUser = () => {
   return useMutation({
     mutationFn: renameUserAction,
     onMutate: (variables) => {
-      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
+      queryClient.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -110,7 +110,7 @@ const useRenameUser = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKeys.get);
+      void queryClient.invalidateQueries(userQueries.get);
     },
   });
 };

@@ -1,8 +1,8 @@
 import { tagsMock } from "~/tag/tag.mock";
-import type { getUserAction } from "./user.actions";
+import type { selectUserAction } from "./user.actions";
 
 export const userMock: Readonly<
-  NonNullable<Awaited<ReturnType<typeof getUserAction>>>
+  NonNullable<Awaited<ReturnType<typeof selectUserAction>>>
 > = {
   weightUnit: "kg",
   email: "john@email.com",

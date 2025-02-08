@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { ThemeProvider } from "~/theme/theme.context";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 import { selectSessionTokenAction } from "~/auth/auth.actions";
 import type { PropsWithChildren } from "react";
 import type { QueryClient } from "@tanstack/react-query";
@@ -62,7 +62,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         };
       }
 
-      await context.queryClient.ensureQueryData(userKeys.get);
+      await context.queryClient.ensureQueryData(userQueries.get);
 
       return {
         session,

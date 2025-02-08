@@ -18,7 +18,7 @@ const funFacts = queryOptions({
   queryFn: () => selectDashboardFunFactsAction(),
 });
 
-export const dashboardKeys = {
+export const dashboardQueries = {
   tiles,
   funFacts,
 } as const;

@@ -8,7 +8,7 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { exerciseKeys } from "../exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Skeleton } from "~/ui/skeleton";
 import type { selectExercisesFrequency } from "~/exercise/exercise.services";
 import type {
@@ -19,7 +19,9 @@ import type {
 } from "react";
 
 export const ExercisesFrequencyGraph = () => {
-  const exercisesFrequency = useSuspenseQuery(exerciseKeys.exercisesFrequency);
+  const exercisesFrequency = useSuspenseQuery(
+    exerciseQueries.exercisesFrequency,
+  );
 
   if (!exercisesFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;

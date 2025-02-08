@@ -12,7 +12,7 @@ import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
 import { setResponseStatus } from "vinxi/http";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 
-export const getUserAction = createServerFn({ method: "GET" })
+export const selectUserAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     const user = await selectClientUser(context.user.id, context.db);

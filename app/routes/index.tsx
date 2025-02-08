@@ -14,17 +14,17 @@ import {
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 import { userMock } from "~/user/user.mock";
 import { DashboardFunFacts } from "~/dashboard/components/dashboard-fun-facts";
 import { TagsFrequencyGraph } from "~/tag/components/tags-frequency-graph";
 import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
-import { exerciseKeys } from "~/exercise/exercise.keys";
-import { setKeys } from "~/set/set.keys";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
+import { setQueries } from "~/set/set.queries";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { setsHeatMapMock } from "~/set/set.mock";
 import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
-import { tagKeys } from "~/tag/tag.keys";
+import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -351,19 +351,19 @@ const CirclesBluredBg = () => {
 const useMockQueryClient = () => {
   const queryClient = new QueryClient();
 
-  const keys = {
-    user: userKeys.get.queryKey,
-    exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
-    setsHeatMap: setKeys.heatMap.queryKey,
-    funFacts: dashboardKeys.funFacts.queryKey,
-    tagsFrequency: tagKeys.frequency.queryKey,
+  const queries = {
+    user: userQueries.get.queryKey,
+    exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
+    setsHeatMap: setQueries.heatMap.queryKey,
+    funFacts: dashboardQueries.funFacts.queryKey,
+    tagsFrequency: tagQueries.frequency.queryKey,
   } as const;
 
-  queryClient.setQueryData(keys.user, userMock);
-  queryClient.setQueryData(keys.exercisesFrequency, exercisesFrequencyMock);
-  queryClient.setQueryData(keys.setsHeatMap, setsHeatMapMock);
-  queryClient.setQueryData(keys.funFacts, dashboardFunFactsMock);
-  queryClient.setQueryData(keys.tagsFrequency, tagsFrequencyMock);
+  queryClient.setQueryData(queries.user, userMock);
+  queryClient.setQueryData(queries.exercisesFrequency, exercisesFrequencyMock);
+  queryClient.setQueryData(queries.setsHeatMap, setsHeatMapMock);
+  queryClient.setQueryData(queries.funFacts, dashboardFunFactsMock);
+  queryClient.setQueryData(queries.tagsFrequency, tagsFrequencyMock);
 
   queryClient.setDefaultOptions({
     queries: {

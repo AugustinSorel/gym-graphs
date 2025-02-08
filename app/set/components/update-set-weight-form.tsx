@@ -12,7 +12,7 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -20,7 +20,7 @@ import { updateSetWeightAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 
 export const UpdateSetWeightForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -118,13 +118,13 @@ const useUpdateWeight = () => {
   return useMutation({
     mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
-      const keys = {
-        tiles: dashboardKeys.tiles.queryKey,
-        exercise: exerciseKeys.get(exercise.data.id).queryKey,
-        funFacts: dashboardKeys.funFacts.queryKey,
+      const queries = {
+        tiles: dashboardQueries.tiles.queryKey,
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        funFacts: dashboardQueries.funFacts.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.tiles, (tiles) => {
+      queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -160,7 +160,7 @@ const useUpdateWeight = () => {
           }),
         };
       });
-      queryClient.setQueryData(keys.funFacts, (funFacts) => {
+      queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -179,7 +179,7 @@ const useUpdateWeight = () => {
         };
       });
 
-      queryClient.setQueryData(keys.exercise, (exercise) => {
+      queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -200,15 +200,15 @@ const useUpdateWeight = () => {
       });
     },
     onSettled: () => {
-      const keys = {
-        tiles: dashboardKeys.tiles,
-        exercise: exerciseKeys.get(exercise.data.id),
-        funFacts: dashboardKeys.funFacts,
+      const queries = {
+        tiles: dashboardQueries.tiles,
+        exercise: exerciseQueries.get(exercise.data.id),
+        funFacts: dashboardQueries.funFacts,
       } as const;
 
-      void queryClient.invalidateQueries(keys.tiles);
-      void queryClient.invalidateQueries(keys.exercise);
-      void queryClient.invalidateQueries(keys.funFacts);
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.funFacts);
     },
   });
 };

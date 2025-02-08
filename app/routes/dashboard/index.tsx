@@ -4,12 +4,12 @@ import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterTilesByTags } from "~/dashboard/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { validateAccess } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
-import { exerciseKeys } from "~/exercise/exercise.keys";
-import { setKeys } from "~/set/set.keys";
-import { tagKeys } from "~/tag/tag.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
+import { setQueries } from "~/set/set.queries";
+import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -28,20 +28,20 @@ export const Route = createFileRoute("/dashboard/")({
     };
   },
   loader: async ({ context }) => {
-    const keys = {
-      tiles: dashboardKeys.tiles,
-      exercisesFrequency: exerciseKeys.exercisesFrequency,
-      setsHeatMap: setKeys.heatMap,
-      funFacts: dashboardKeys.funFacts,
-      tagsFrequency: tagKeys.frequency,
+    const queries = {
+      tiles: dashboardQueries.tiles,
+      exercisesFrequency: exerciseQueries.exercisesFrequency,
+      setsHeatMap: setQueries.heatMap,
+      funFacts: dashboardQueries.funFacts,
+      tagsFrequency: tagQueries.frequency,
     } as const;
 
-    void context.queryClient.prefetchQuery(keys.exercisesFrequency);
-    void context.queryClient.prefetchQuery(keys.setsHeatMap);
-    void context.queryClient.prefetchQuery(keys.funFacts);
-    void context.queryClient.prefetchQuery(keys.tagsFrequency);
+    void context.queryClient.prefetchQuery(queries.exercisesFrequency);
+    void context.queryClient.prefetchQuery(queries.setsHeatMap);
+    void context.queryClient.prefetchQuery(queries.funFacts);
+    void context.queryClient.prefetchQuery(queries.tagsFrequency);
 
-    await context.queryClient.ensureInfiniteQueryData(keys.tiles);
+    await context.queryClient.ensureInfiniteQueryData(queries.tiles);
   },
 });
 

@@ -6,6 +6,6 @@ const frequency = queryOptions({
   queryFn: () => selectTagsFrequencyAction(),
 });
 
-export const tagKeys = {
+export const tagQueries = {
   frequency,
 } as const;

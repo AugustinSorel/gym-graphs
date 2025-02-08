@@ -17,7 +17,7 @@ const exercisesFrequency = queryOptions({
   queryFn: () => selectExercisesFrequencyAction(),
 });
 
-export const exerciseKeys = {
+export const exerciseQueries = {
   get,
   exercisesFrequency,
 } as const;

@@ -42,7 +42,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { Skeleton } from "~/ui/skeleton";
 import { reorderTilesAction } from "~/dashboard/dashboard.actions";
-import { dashboardKeys } from "~/dashboard/dashboard.keys";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type {
   ComponentProps,
@@ -224,11 +224,11 @@ const SortableGrid = (props: {
       if (activeIndex !== overIndex) {
         const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
-        const keys = {
-          tiles: dashboardKeys.tiles.queryKey,
+        const queries = {
+          tiles: dashboardQueries.tiles.queryKey,
         } as const;
 
-        queryClient.setQueryData(keys.tiles, (tiles) => {
+        queryClient.setQueryData(queries.tiles, (tiles) => {
           if (!tiles) {
             return tiles;
           }

@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 
 export const useUser = () => {
-  const user = useSuspenseQuery(userKeys.get);
+  const user = useSuspenseQuery(userQueries.get);
 
   return user;
 };

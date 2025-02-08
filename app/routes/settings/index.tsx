@@ -39,11 +39,11 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
-import { userKeys } from "~/user/user.keys";
+import { userQueries } from "~/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
 import { validateAccess } from "~/libs/permissions";
-import { tagKeys } from "~/tag/tag.keys";
+import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -58,11 +58,11 @@ export const Route = createFileRoute("/settings/")({
     };
   },
   loader: async ({ context }) => {
-    const keys = {
-      tagsFrequency: tagKeys.frequency,
+    const queries = {
+      tagsFrequency: tagQueries.frequency,
     } as const;
 
-    await context.queryClient.ensureQueryData(keys.tagsFrequency);
+    await context.queryClient.ensureQueryData(queries.tagsFrequency);
   },
 });
 
@@ -142,7 +142,7 @@ const RenameUserSection = () => {
 };
 
 const TagsSection = () => {
-  const tagsFrequency = useSuspenseQuery(tagKeys.frequency);
+  const tagsFrequency = useSuspenseQuery(tagQueries.frequency);
 
   return (
     <CatchBoundary
@@ -199,7 +199,7 @@ const useUpdateOneRepMaxAlgo = () => {
   return useMutation({
     mutationFn: updateOneRepMaxAlgoAction,
     onMutate: (variables) => {
-      queryClient.setQueryData(userKeys.get.queryKey, (user) => {
+      queryClient.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -211,7 +211,7 @@ const useUpdateOneRepMaxAlgo = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries(userKeys.get);
+      void queryClient.invalidateQueries(userQueries.get);
     },
   });
 };

@@ -4,7 +4,7 @@ import { CreateSetDialog } from "~/set/components/create-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
-import { exerciseKeys } from "~/exercise/exercise.keys";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
@@ -28,11 +28,11 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
     };
   },
   loader: async ({ context, params }) => {
-    const keys = {
-      exercise: exerciseKeys.get(params.exerciseId),
+    const queries = {
+      exercise: exerciseQueries.get(params.exerciseId),
     } as const;
 
-    await context.queryClient.ensureQueryData(keys.exercise);
+    await context.queryClient.ensureQueryData(queries.exercise);
   },
 });
 
