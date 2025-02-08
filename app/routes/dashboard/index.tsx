@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CreateExerciseDialog } from "~/exercise/components/create-exercise-dialog";
 import { z } from "zod";
-import { SearchExercises } from "~/exercise/components/search-exercises";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { FilterExercisesByTag } from "~/exercise/components/filter-exercises-by-tag";
+import { FilterTilesByTags } from "~/dashboard/components/filter-tiles-by-tag";
+import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { validateAccess } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
@@ -57,8 +57,8 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        <SearchExercises />
-        <FilterExercisesByTag />
+        <FilterTilesByName />
+        <FilterTilesByTags />
         <CreateExerciseDialog />
       </Header>
 

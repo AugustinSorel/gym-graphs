@@ -12,7 +12,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { Filter } from "lucide-react";
 import { getRouteApi } from "@tanstack/react-router";
 
-export const FilterExercisesByTag = () => {
+export const FilterTilesByTags = () => {
   const search = routeApi.useSearch();
 
   const tags = new Set(search.tags);

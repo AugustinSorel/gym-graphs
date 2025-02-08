@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
-export const SearchExercises = () => {
+export const FilterTilesByName = () => {
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
 
@@ -13,7 +13,7 @@ export const SearchExercises = () => {
       <search className="relative">
         <Input
           type="search"
-          placeholder="Search exercises..."
+          placeholder="Search tiles..."
           className="bg-secondary pl-10"
           value={search.name ?? ""}
           onChange={(e) => {
