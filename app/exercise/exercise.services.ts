@@ -1,25 +1,7 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
-import type { Exercise, User } from "~/db/db.schemas";
+import type { Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-
-export const selectDashboardExercises = async (userId: User["id"], db: Db) => {
-  return db.query.exerciseTable.findMany({
-    where: eq(exerciseTable.userId, userId),
-    orderBy: desc(exerciseTable.createdAt),
-    with: {
-      sets: {
-        orderBy: desc(setTable.createdAt),
-      },
-      tags: {
-        orderBy: asc(tagTable.createdAt),
-        with: {
-          tag: true,
-        },
-      },
-    },
-  });
-};
 
 export const selectExercise = async (
   userId: Exercise["userId"],

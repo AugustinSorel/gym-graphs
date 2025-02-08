@@ -1,9 +1,12 @@
 import { tagsMock } from "~/tag/tag.mock";
 import type { selectTagsFrequencyAction } from "~/tag/tag.actions";
-import type { selectDashboardExercises } from "~/exercise/exercise.services";
+import type {
+  selectExerciseAction,
+  selectExercisesFrequencyAction,
+} from "~/exercise/exercise.actions";
 
-export const exercisesMock: Readonly<
-  Awaited<ReturnType<typeof selectDashboardExercises>>
+export const exercisesMock: ReadonlyArray<
+  Awaited<ReturnType<typeof selectExerciseAction>>
 > = [
   {
     id: 30,
@@ -251,11 +254,15 @@ export const exercisesMock: Readonly<
   },
 ];
 
-export const exercisesFrequencyMock = exercisesMock.map((exercise) => ({
-  name: exercise.name,
-  frequency: exercise.sets.length,
-  id: exercise.id,
-}));
+export const exercisesFrequencyMock: Awaited<
+  ReturnType<typeof selectExercisesFrequencyAction>
+> = exercisesMock.map((exercise) => {
+  return {
+    name: exercise.name,
+    frequency: exercise.sets.length,
+    id: exercise.id,
+  };
+});
 
 export const tagsFrequencyMock = exercisesMock.reduce<
   Awaited<ReturnType<typeof selectTagsFrequencyAction>>

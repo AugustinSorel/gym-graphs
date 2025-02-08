@@ -11,33 +11,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "../exercise.keys";
 import { useUser } from "~/user/hooks/use-user";
 import { Skeleton } from "~/ui/skeleton";
-import type { Exercise } from "~/db/db.schemas";
+import type { selectExercisesFrequency } from "~/exercise/exercise.services";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-
-export const ExerciseFrequencyGraphSkeleton = () => {
-  const data: GraphProps["data"] = [
-    { name: "exercise-1", frequency: 10 },
-    { name: "exercise-2", frequency: 20 },
-    { name: "exercise-3", frequency: 15 },
-    { name: "exercise-4", frequency: 30 },
-    { name: "exercise-5", frequency: 10 },
-  ];
-
-  return (
-    <Skeleton className="bg-transparent">
-      <ParentSize className="relative flex overflow-hidden">
-        {({ height, width }) => (
-          <MockGraph height={height} width={width} data={data} />
-        )}
-      </ParentSize>
-    </Skeleton>
-  );
-};
 
 export const ExercisesFrequencyGraph = () => {
   const exercisesFrequency = useExercisesFrequency();
@@ -52,6 +32,26 @@ export const ExercisesFrequencyGraph = () => {
         <Graph height={height} width={width} data={exercisesFrequency.data} />
       )}
     </ParentSize>
+  );
+};
+
+export const ExerciseFrequencyGraphSkeleton = () => {
+  const data: GraphProps["data"] = [
+    { name: "exercise-1", frequency: 10, id: 1 },
+    { name: "exercise-2", frequency: 20, id: 1 },
+    { name: "exercise-3", frequency: 15, id: 1 },
+    { name: "exercise-4", frequency: 30, id: 1 },
+    { name: "exercise-5", frequency: 10, id: 1 },
+  ];
+
+  return (
+    <Skeleton className="bg-transparent">
+      <ParentSize className="relative flex overflow-hidden">
+        {({ height, width }) => (
+          <MockGraph height={height} width={width} data={data} />
+        )}
+      </ParentSize>
+    </Skeleton>
   );
 };
 
@@ -274,16 +274,13 @@ const MockGraph = ({ width, height, data }: GraphProps) => {
   );
 };
 
-type GraphPoint = Readonly<{
-  name: Exercise["name"];
-  frequency: number;
-}>;
-
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: ReadonlyArray<GraphPoint>;
+  data: Readonly<Awaited<ReturnType<typeof selectExercisesFrequency>>>;
 }>;
+
+type GraphPoint = Readonly<GraphProps["data"][number]>;
 
 const degrees = 360;
 const levels = 5;

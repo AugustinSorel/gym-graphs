@@ -3,6 +3,12 @@ import { dashboardTable, setTable, tagTable, tileTable } from "~/db/db.schemas";
 import type { SQL } from "drizzle-orm";
 import type { Dashboard, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import {
+  selectUserFavoriteExercise,
+  selectUserLeastFavoriteExercise,
+  selectUserSetsCount,
+  selectUserTotalWeightInKg,
+} from "~/user/user.services";
 
 export const selectTiles = async (
   dashboardId: Tile["dashboardId"],
@@ -90,4 +96,31 @@ export const createTile = async (
   db: Db,
 ) => {
   return db.insert(tileTable).values({ type, dashboardId, exerciseId });
+};
+
+export const selectDashboardFunFacts = async (
+  userId: Dashboard["userId"],
+  db: Db,
+) => {
+  const operations = [
+    //TODO: move this to dashboard entity
+    selectUserTotalWeightInKg(userId, db),
+    selectUserSetsCount(userId, db),
+    selectUserFavoriteExercise(userId, db),
+    selectUserLeastFavoriteExercise(userId, db),
+  ] as const;
+
+  const [totalWeightInKg, setsCount, favoriteExercise, leastFavoriteExercise] =
+    await Promise.all(operations);
+
+  return {
+    totalWeightInKg: totalWeightInKg.total,
+    setsCount: setsCount.count,
+    favoriteExercise: {
+      name: favoriteExercise.name,
+    },
+    leastFavoriteExercise: {
+      name: leastFavoriteExercise.name,
+    },
+  };
 };

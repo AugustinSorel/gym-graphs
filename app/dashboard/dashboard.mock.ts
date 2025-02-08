@@ -1,4 +1,5 @@
 import { exercisesMock } from "~/exercise/exercise.mock";
+import type { selectDashboardFunFactsAction } from "./dashboard.actions";
 
 const favoriteExercise = exercisesMock
   .toSorted((a, b) => b.sets.length - a.sets.length)
@@ -25,7 +26,9 @@ if (!favoriteExercise || !leastFavoriteExercise) {
   throw new Error("mock exercises is empty");
 }
 
-export const dashboardFunFactsMock = {
+export const dashboardFunFactsMock: Readonly<
+  Awaited<ReturnType<typeof selectDashboardFunFactsAction>>
+> = {
   favoriteExercise,
   leastFavoriteExercise,
   setsCount,

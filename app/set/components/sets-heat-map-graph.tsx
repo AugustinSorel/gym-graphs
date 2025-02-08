@@ -12,6 +12,7 @@ import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { ComponentProps, CSSProperties } from "react";
+import type { selectSetsHeatMapAction } from "~/set/set.actions";
 
 export const SetsHeatMapGraph = () => {
   const setsHeatMap = useSetsHeatMap();
@@ -146,20 +147,12 @@ const Graph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: SetsHeatMapData;
+  data: Awaited<ReturnType<typeof selectSetsHeatMapAction>>;
 }>;
 
-type Bin = Readonly<{
-  weekIndex: number;
-  count: number;
-}>;
+type Bins = GraphProps["data"][number];
 
-type Bins = Readonly<{
-  dayIndex: number;
-  bins: Array<Bin>;
-}>;
-
-export type SetsHeatMapData = Array<Bins>;
+type Bin = Bins["bins"][number];
 
 let tooltipTimeout: number;
 

@@ -11,7 +11,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { tagKeys } from "../tag.keys";
 import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps, CSSProperties } from "react";
-import type { Tag } from "~/db/db.schemas";
+import type { selectTagsFrequency } from "../tag.services";
 
 export const TagsFrequencyGraph = () => {
   const tagsFrequency = useTagsFrequency();
@@ -220,16 +220,13 @@ const margin = {
   left: 20,
 } as const;
 
-type Point = Readonly<{
-  name: Tag["name"];
-  frequency: number;
-}>;
-
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: Array<Point>;
+  data: Awaited<ReturnType<typeof selectTagsFrequency>>;
 }>;
+
+type Point = GraphProps["data"][number];
 
 const tooltipStyles: Readonly<CSSProperties> = {
   ...defaultStyles,

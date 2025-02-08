@@ -77,7 +77,7 @@ export const deleteExerciseAction = createServerFn({ method: "POST" })
     return await deleteExercise(context.user.id, data.exerciseId, context.db);
   });
 
-export const fetchExerciseAction = createServerFn({ method: "GET" })
+export const selectExerciseAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
   .handler(async ({ context, data }) => {

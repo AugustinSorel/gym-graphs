@@ -3,7 +3,6 @@ import { setTable, exerciseTable } from "~/db/db.schemas";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
 import type { Exercise, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import type { SetsHeatMapData } from "~/set/components/sets-heat-map-graph";
 
 export const createSet = async (
   weightInKg: Set["weightInKg"],
@@ -171,20 +170,24 @@ export const selectSetsForThisMonth = async (
     .orderBy(asc(setTable.doneAt));
 };
 
-export const transformSetsToHeatMap = (sets: ReadonlyArray<Set>) => {
+const generateSetsHeatMapTemplate = () => {
   const days = [0, 1, 2, 3, 4, 5, 6] as const;
   const weeks = [0, 1, 2, 3, 4, 5] as const;
 
-  const template: SetsHeatMapData = days.map((dayIndex) => ({
+  return days.map((dayIndex) => ({
     dayIndex,
     bins: weeks.map((weekIndex) => ({
       weekIndex,
       count: 0,
     })),
   }));
+};
+
+export const transformSetsToHeatMap = (sets: ReadonlyArray<Set>) => {
+  const setsHeatMapTemplate = generateSetsHeatMapTemplate();
 
   return sets
-    .reduce(setsToHeatMap, template)
+    .reduce(setsToHeatMap, setsHeatMapTemplate)
     .toSorted((a, b) => a.dayIndex - b.dayIndex)
     .map((row) => ({
       ...row,
@@ -192,7 +195,10 @@ export const transformSetsToHeatMap = (sets: ReadonlyArray<Set>) => {
     }));
 };
 
-const setsToHeatMap = (setsHeatMap: SetsHeatMapData, set: Set) => {
+const setsToHeatMap = (
+  setsHeatMap: ReturnType<typeof generateSetsHeatMapTemplate>,
+  set: Set,
+) => {
   const calendarPositions = getCalendarPositions(set.doneAt);
 
   return setsHeatMap.map((row) => {

@@ -2,14 +2,12 @@ import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
-import { reorderTiles, selectTiles } from "~/dashboard/dashboard.services";
-import { z } from "zod";
 import {
-  selectUserSetsCount,
-  selectUserTotalWeightInKg,
-  selectUserFavoriteExercise,
-  selectUserLeastFavoriteExercise,
-} from "~/user/user.services";
+  reorderTiles,
+  selectDashboardFunFacts,
+  selectTiles,
+} from "~/dashboard/dashboard.services";
+import { z } from "zod";
 
 export const selectTilesAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -53,28 +51,5 @@ export const reorderTilesAction = createServerFn({
 export const selectDashboardFunFactsAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    const operations = [
-      selectUserTotalWeightInKg(context.user.id, context.db),
-      selectUserSetsCount(context.user.id, context.db),
-      selectUserFavoriteExercise(context.user.id, context.db),
-      selectUserLeastFavoriteExercise(context.user.id, context.db),
-    ] as const;
-
-    const [
-      totalWeightInKg,
-      setsCount,
-      favoriteExercise,
-      leastFavoriteExercise,
-    ] = await Promise.all(operations);
-
-    return {
-      totalWeightInKg: totalWeightInKg.total,
-      setsCount: setsCount.count,
-      favoriteExercise: {
-        name: favoriteExercise.name,
-      },
-      leastFavoriteExercise: {
-        name: leastFavoriteExercise.name,
-      },
-    };
+    return selectDashboardFunFacts(context.user.id, context.db);
   });
