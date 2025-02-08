@@ -12,7 +12,7 @@ export const useSignOut = () => {
     mutationFn: signOutAction,
     onSuccess: () => {
       startRedirectTransition(async () => {
-        await navigate({ to: "/sign-in" });
+        await navigate({ to: "/" });
         queryClient.clear();
       });
     },
