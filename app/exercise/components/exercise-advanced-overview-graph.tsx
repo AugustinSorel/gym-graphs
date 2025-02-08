@@ -137,6 +137,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             width={width - margin.left - margin.right}
             height={height - margin.top - margin.bottom}
             stroke="hsl(var(--border))"
+            strokeOpacity={0.5}
             numTicks={4}
           />
         </Group>
@@ -147,8 +148,8 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             id="area-gradient"
             from="hsl(var(--primary))"
             to="hsl(var(--primary))"
-            toOpacity={0.2}
-            fromOpacity={0.8}
+            toOpacity={0.25}
+            fromOpacity={0.25}
           />
 
           <AreaClosed<Point>
