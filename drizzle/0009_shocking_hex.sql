@@ -1,0 +1,1 @@
+ALTER TABLE "set" RENAME COLUMN "repetition_count" TO "repetitions";

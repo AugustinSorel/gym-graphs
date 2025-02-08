@@ -64,6 +64,13 @@
       "when": 1738837303083,
       "tag": "0008_classy_eddie_brock",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1739010704075,
+      "tag": "0009_shocking_hex",
+      "breakpoints": true
     }
   ]
 }
