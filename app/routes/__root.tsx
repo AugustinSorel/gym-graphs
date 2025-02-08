@@ -135,5 +135,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO    | allow multiple sets                |
 | TODO    | teams                              |
 | TODO    | add limit                          |
+| TODO    | add name to tile                   |
 | FIX     | move filtering to the server       |
 */
