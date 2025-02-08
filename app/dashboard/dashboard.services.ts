@@ -1,14 +1,14 @@
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
-import { dashboardTable, setTable, tagTable, tileTable } from "~/db/db.schemas";
+import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
+import {
+  dashboardTable,
+  exerciseTable,
+  setTable,
+  tagTable,
+  tileTable,
+} from "~/db/db.schemas";
 import type { SQL } from "drizzle-orm";
 import type { Dashboard, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import {
-  selectUserFavoriteExercise,
-  selectUserLeastFavoriteExercise,
-  selectUserSetsCount,
-  selectUserTotalWeightInKg,
-} from "~/user/user.services";
 
 export const selectTiles = async (
   dashboardId: Tile["dashboardId"],
@@ -98,16 +98,109 @@ export const createTile = async (
   return db.insert(tileTable).values({ type, dashboardId, exerciseId });
 };
 
+export const selectDashboardTotalWeightInkg = async (
+  userId: Dashboard["userId"],
+  db: Db,
+) => {
+  const [res] = await db
+    .select({
+      total: sql`sum(${setTable.weightInKg} * ${setTable.repetitions})`.mapWith(
+        Number,
+      ),
+    })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(dashboardTable.userId, userId));
+
+  if (!res) {
+    throw new Error("total weight in kg returned by db is null");
+  }
+
+  return res;
+};
+
+export const selectDashboardSetsCount = async (
+  userId: Dashboard["id"],
+  db: Db,
+) => {
+  const [setsCount] = await db
+    .select({
+      count: count(setTable.id).mapWith(Number),
+    })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(dashboardTable.userId, userId));
+
+  if (!setsCount) {
+    throw new Error("sets count returned by db is null");
+  }
+
+  return setsCount;
+};
+
+export const selectDashboardFavoriteExercise = async (
+  userId: Dashboard["userId"],
+  db: Db,
+) => {
+  const [favoriteExercise] = await db
+    .select({
+      name: exerciseTable.name,
+      setsCount: count(setTable.id).mapWith(Number),
+    })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(dashboardTable.userId, userId))
+    .groupBy(exerciseTable.id)
+    .orderBy(desc(sql`count`))
+    .limit(1);
+
+  if (!favoriteExercise) {
+    throw new Error("favorite exercise returned by db is null");
+  }
+
+  return favoriteExercise;
+};
+
+export const selectDashboardLeastFavoriteExercise = async (
+  userId: Dashboard["userId"],
+  db: Db,
+) => {
+  const [leastFavoriteExercise] = await db
+    .select({
+      name: exerciseTable.name,
+      setsCount: count(setTable.id).mapWith(Number),
+    })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(dashboardTable.userId, userId))
+    .groupBy(exerciseTable.id)
+    .orderBy(asc(sql`count`))
+    .limit(1);
+
+  if (!leastFavoriteExercise) {
+    throw new Error("least favorite exercise returned by db is null");
+  }
+
+  return leastFavoriteExercise;
+};
+
 export const selectDashboardFunFacts = async (
   userId: Dashboard["userId"],
   db: Db,
 ) => {
   const operations = [
-    //TODO: move this to dashboard entity
-    selectUserTotalWeightInKg(userId, db),
-    selectUserSetsCount(userId, db),
-    selectUserFavoriteExercise(userId, db),
-    selectUserLeastFavoriteExercise(userId, db),
+    selectDashboardTotalWeightInkg(userId, db),
+    selectDashboardSetsCount(userId, db),
+    selectDashboardFavoriteExercise(userId, db),
+    selectDashboardLeastFavoriteExercise(userId, db),
   ] as const;
 
   const [totalWeightInKg, setsCount, favoriteExercise, leastFavoriteExercise] =
