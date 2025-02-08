@@ -15,7 +15,6 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { deleteExerciseAction } from "~/exercise/exercise.actions";
-import { useUser } from "~/user/hooks/use-user";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
@@ -84,7 +83,6 @@ const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
 
 const useDeleteExercise = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
 
@@ -92,13 +90,11 @@ const useDeleteExercise = () => {
     mutationFn: deleteExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
-        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
-          .queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
-          .queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        setsHeatMap: setKeys.heatMap.queryKey,
+        funFacts: dashboardKeys.funFacts.queryKey,
+        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -191,11 +187,11 @@ const useDeleteExercise = () => {
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id),
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
-        setsHeatMap: setKeys.heatMap(user.data.id),
-        funFacts: dashboardKeys.funFacts(user.data.id),
+        tiles: dashboardKeys.tiles,
+        exercise: exerciseKeys.get(variables.data.exerciseId),
+        exercisesFrequency: exerciseKeys.exercisesFrequency,
+        setsHeatMap: setKeys.heatMap,
+        funFacts: dashboardKeys.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(keys.exercise);

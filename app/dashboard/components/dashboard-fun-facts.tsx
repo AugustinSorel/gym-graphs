@@ -10,12 +10,11 @@ import {
 } from "~/ui/carousel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps } from "react";
 
 export const DashboardFunFacts = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useSuspenseQuery(dashboardKeys.funFacts);
 
   if (!funFacts.data.setsCount) {
     return <NoDataText>no data</NoDataText>;
@@ -48,14 +47,8 @@ export const DashboardFunFacts = () => {
   );
 };
 
-const useDashboardFunFacts = () => {
-  const user = useUser();
-
-  return useSuspenseQuery(dashboardKeys.funFacts(user.data.id));
-};
-
 const WeightLiftedFunFact = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useSuspenseQuery(dashboardKeys.funFacts);
 
   return (
     <>
@@ -69,7 +62,7 @@ const WeightLiftedFunFact = () => {
 };
 
 const NumberOfSets = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useSuspenseQuery(dashboardKeys.funFacts);
 
   return (
     <>
@@ -80,7 +73,7 @@ const NumberOfSets = () => {
 };
 
 const FavoriteExercise = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useSuspenseQuery(dashboardKeys.funFacts);
 
   return (
     <>
@@ -91,7 +84,7 @@ const FavoriteExercise = () => {
 };
 
 const LeastFavoriteExercise = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useSuspenseQuery(dashboardKeys.funFacts);
 
   return (
     <>

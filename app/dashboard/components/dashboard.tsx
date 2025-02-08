@@ -38,7 +38,6 @@ import {
 } from "@dnd-kit/sortable";
 import { GripVertical } from "lucide-react";
 import { Fragment, Suspense, useRef, useState } from "react";
-import { useUser } from "~/user/hooks/use-user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { Skeleton } from "~/ui/skeleton";
@@ -147,7 +146,6 @@ const SortableGrid = (props: {
   children: (tile: Tile, index: number) => ReactNode;
 }) => {
   const tiles = useTiles();
-  const user = useUser();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
   const reorderTiles = useReorderTiles();
@@ -227,7 +225,7 @@ const SortableGrid = (props: {
         const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
         const keys = {
-          tiles: dashboardKeys.tiles(user.data.id).queryKey,
+          tiles: dashboardKeys.tiles.queryKey,
         } as const;
 
         queryClient.setQueryData(keys.tiles, (tiles) => {

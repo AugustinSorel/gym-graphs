@@ -14,7 +14,6 @@ import { Spinner } from "~/ui/spinner";
 import { renameExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
@@ -93,12 +92,11 @@ const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
 const useFormSchema = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
-  const user = useUser();
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(keys.tiles);
@@ -138,15 +136,13 @@ const useCreateExerciseForm = () => {
 
 const useRenameExercise = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
 
   return useMutation({
     mutationFn: renameExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
-          .queryKey,
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -190,8 +186,8 @@ const useRenameExercise = () => {
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: dashboardKeys.tiles(user.data.id),
+        exercise: exerciseKeys.get(variables.data.exerciseId),
+        tiles: dashboardKeys.tiles,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

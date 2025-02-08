@@ -353,11 +353,11 @@ const useMockQueryClient = () => {
 
   const keys = {
     user: userKeys.get.queryKey,
-    exercisesFrequency: exerciseKeys.exercisesFrequency(userMock.id).queryKey,
-    setsHeatMap: setKeys.heatMap(userMock.id).queryKey,
-    funFacts: dashboardKeys.funFacts(userMock.id).queryKey,
-    tagsFrequency: tagKeys.frequency(userMock.id).queryKey,
-  };
+    exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
+    setsHeatMap: setKeys.heatMap.queryKey,
+    funFacts: dashboardKeys.funFacts.queryKey,
+    tagsFrequency: tagKeys.frequency.queryKey,
+  } as const;
 
   queryClient.setQueryData(keys.user, userMock);
   queryClient.setQueryData(keys.exercisesFrequency, exercisesFrequencyMock);

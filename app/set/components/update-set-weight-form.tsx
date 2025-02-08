@@ -13,7 +13,6 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -112,7 +111,6 @@ const useCreateExerciseForm = () => {
 
 const useUpdateWeight = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
   const set = useSet();
@@ -121,9 +119,9 @@ const useUpdateWeight = () => {
     mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
-        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        exercise: exerciseKeys.get(exercise.data.id).queryKey,
+        funFacts: dashboardKeys.funFacts.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -203,9 +201,9 @@ const useUpdateWeight = () => {
     },
     onSettled: () => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id),
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        funFacts: dashboardKeys.funFacts(user.data.id),
+        tiles: dashboardKeys.tiles,
+        exercise: exerciseKeys.get(exercise.data.id),
+        funFacts: dashboardKeys.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

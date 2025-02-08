@@ -117,7 +117,7 @@ const useCreateTag = () => {
     onMutate: (variables) => {
       const keys = {
         user: userKeys.get.queryKey,
-        tagsFrequency: tagKeys.frequency(user.data.id).queryKey,
+        tagsFrequency: tagKeys.frequency.queryKey,
       } as const;
 
       const optimisticTag = {
@@ -158,7 +158,7 @@ const useCreateTag = () => {
     onSettled: () => {
       const keys = {
         user: userKeys.get,
-        tagsFrequency: tagKeys.frequency(user.data.id),
+        tagsFrequency: tagKeys.frequency,
       } as const;
 
       void queryClient.invalidateQueries(keys.user);

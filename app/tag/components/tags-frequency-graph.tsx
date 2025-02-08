@@ -2,7 +2,6 @@ import { ParentSize } from "@visx/responsive";
 import { Pie } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleLog, scaleTime } from "@visx/scale";
-import { useUser } from "~/user/hooks/use-user";
 import { GridAngle, GridRadial } from "@visx/grid";
 import { useMemo } from "react";
 import { localPoint } from "@visx/event";
@@ -245,9 +244,8 @@ const NoDataText = (props: ComponentProps<"p">) => {
 };
 
 const useTagsFrequency = () => {
-  const user = useUser();
   return useSuspenseQuery({
-    ...tagKeys.frequency(user.data.id),
+    ...tagKeys.frequency,
     select: (tagsFrequency) => {
       return tagsFrequency.filter((tagFrequency) => tagFrequency.frequency);
     },

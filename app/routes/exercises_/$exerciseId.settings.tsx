@@ -35,9 +35,11 @@ export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
     };
   },
   loader: async ({ context, params }) => {
-    const key = exerciseKeys.get(context.user.id, params.exerciseId);
+    const keys = {
+      exercise: exerciseKeys.get(params.exerciseId),
+    } as const;
 
-    await context.queryClient.ensureQueryData(key);
+    await context.queryClient.ensureQueryData(keys.exercise);
   },
 });
 
@@ -259,10 +261,9 @@ const useUpdateExerciseTags = () => {
     mutationFn: updateExerciseTagsAction,
     onMutate: (variables) => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId)
-          .queryKey,
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        tagsFrequency: tagKeys.frequency(user.data.id).queryKey,
+        exercise: exerciseKeys.get(variables.data.exerciseId).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        tagsFrequency: tagKeys.frequency.queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -354,9 +355,9 @@ const useUpdateExerciseTags = () => {
     },
     onSettled: (_data, _error, variables) => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, variables.data.exerciseId),
-        tiles: dashboardKeys.tiles(user.data.id),
-        tagsFrequency: tagKeys.frequency(user.data.id),
+        exercise: exerciseKeys.get(variables.data.exerciseId),
+        tiles: dashboardKeys.tiles,
+        tagsFrequency: tagKeys.frequency,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

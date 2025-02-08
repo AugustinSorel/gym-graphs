@@ -5,19 +5,17 @@ import {
 import { queryOptions } from "@tanstack/react-query";
 import type { Exercise } from "~/db/db.schemas";
 
-const get = (userId: Exercise["userId"], exerciseId: Exercise["id"]) => {
+const get = (exerciseId: Exercise["id"]) => {
   return queryOptions({
-    queryKey: [userId, "exercises", exerciseId],
+    queryKey: ["exercises", exerciseId],
     queryFn: () => selectExerciseAction({ data: { exerciseId } }),
   });
 };
 
-const exercisesFrequency = (userId: Exercise["userId"]) => {
-  return queryOptions({
-    queryKey: [userId, "exercises", "frequency"],
-    queryFn: () => selectExercisesFrequencyAction(),
-  });
-};
+const exercisesFrequency = queryOptions({
+  queryKey: ["exercises", "frequency"],
+  queryFn: () => selectExercisesFrequencyAction(),
+});
 
 export const exerciseKeys = {
   get,

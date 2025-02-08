@@ -81,12 +81,11 @@ export const CreateExerciseForm = (props: Props) => {
 
 const useFormSchema = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
 
   return exerciseSchema.pick({ name: true }).refine(
     (data) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(keys.tiles);
@@ -127,9 +126,8 @@ const useCreateExercise = () => {
     mutationFn: createExerciseAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
-          .queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
       } as const;
 
       const exerciseId = Math.random();
@@ -186,8 +184,8 @@ const useCreateExercise = () => {
     },
     onSettled: async () => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id),
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
+        tiles: dashboardKeys.tiles,
+        exercisesFrequency: exerciseKeys.exercisesFrequency,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

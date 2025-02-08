@@ -29,11 +29,11 @@ export const Route = createFileRoute("/dashboard/")({
   },
   loader: async ({ context }) => {
     const keys = {
-      tiles: dashboardKeys.tiles(context.user.id),
-      exercisesFrequency: exerciseKeys.exercisesFrequency(context.user.id),
-      setsHeatMap: setKeys.heatMap(context.user.id),
-      funFacts: dashboardKeys.funFacts(context.user.id),
-      tagsFrequency: tagKeys.frequency(context.user.id),
+      tiles: dashboardKeys.tiles,
+      exercisesFrequency: exerciseKeys.exercisesFrequency,
+      setsHeatMap: setKeys.heatMap,
+      funFacts: dashboardKeys.funFacts,
+      tagsFrequency: tagKeys.frequency,
     } as const;
 
     void context.queryClient.prefetchQuery(keys.exercisesFrequency);

@@ -11,7 +11,6 @@ import {
   AlertDialogTrigger,
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/user/hooks/use-user";
 import { useSet } from "~/set/set.context";
 import { exerciseKeys } from "~/exercise/exercise.keys";
 import { deleteSetAction } from "~/set/set.actions";
@@ -79,17 +78,16 @@ export const DeleteSetDialog = () => {
 
 const useDeleteSet = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
   const set = useSet();
 
   return useMutation({
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        exercise: exerciseKeys.get(user.data.id, set.exerciseId).queryKey,
-        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
-        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        exercise: exerciseKeys.get(set.exerciseId).queryKey,
+        funFacts: dashboardKeys.funFacts.queryKey,
+        setsHeatMap: setKeys.heatMap.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -177,10 +175,10 @@ const useDeleteSet = () => {
     },
     onSettled: () => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, set.exerciseId),
-        tiles: dashboardKeys.tiles(user.data.id),
-        setsHeatMap: setKeys.heatMap(user.data.id),
-        funFacts: dashboardKeys.funFacts(user.data.id),
+        exercise: exerciseKeys.get(set.exerciseId),
+        tiles: dashboardKeys.tiles,
+        setsHeatMap: setKeys.heatMap,
+        funFacts: dashboardKeys.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

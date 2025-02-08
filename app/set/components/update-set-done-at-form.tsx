@@ -12,7 +12,6 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -136,7 +135,6 @@ const useUpdateSetDoneAtForm = () => {
 
 const useUpdateSetDoneAt = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
   const set = useSet();
@@ -145,9 +143,9 @@ const useUpdateSetDoneAt = () => {
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const keys = {
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
-        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        exercise: exerciseKeys.get(exercise.data.id).queryKey,
+        setsHeatMap: setKeys.heatMap.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.tiles, (tiles) => {
@@ -254,9 +252,9 @@ const useUpdateSetDoneAt = () => {
     },
     onSettled: () => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        tiles: dashboardKeys.tiles(user.data.id),
-        setsHeatMap: setKeys.heatMap(user.data.id),
+        exercise: exerciseKeys.get(exercise.data.id),
+        tiles: dashboardKeys.tiles,
+        setsHeatMap: setKeys.heatMap,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

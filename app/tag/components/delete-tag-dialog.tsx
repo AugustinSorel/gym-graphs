@@ -16,7 +16,6 @@ import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
 import { userKeys } from "~/user/user.keys";
 import { tagKeys } from "../tag.keys";
-import { useUser } from "~/user/hooks/use-user";
 import type { Tag } from "~/db/db.schemas";
 
 export const DeleteTagDialog = (props: Props) => {
@@ -75,7 +74,6 @@ export const DeleteTagDialog = (props: Props) => {
 };
 
 const useDeleteTag = () => {
-  const user = useUser();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -83,7 +81,7 @@ const useDeleteTag = () => {
     onMutate: (variables) => {
       const keys = {
         user: userKeys.get.queryKey,
-        tagsFrequency: tagKeys.frequency(user.data.id).queryKey,
+        tagsFrequency: tagKeys.frequency.queryKey,
       } as const;
 
       queryClient.setQueryData(keys.user, (user) => {
@@ -108,7 +106,7 @@ const useDeleteTag = () => {
     onSettled: () => {
       const keys = {
         user: userKeys.get,
-        tagsFrequency: tagKeys.frequency(user.data.id),
+        tagsFrequency: tagKeys.frequency,
       } as const;
 
       void queryClient.invalidateQueries(keys.user);

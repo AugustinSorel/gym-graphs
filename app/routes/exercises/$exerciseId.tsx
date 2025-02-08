@@ -28,9 +28,11 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
     };
   },
   loader: async ({ context, params }) => {
-    const key = exerciseKeys.get(context.user.id, params.exerciseId);
+    const keys = {
+      exercise: exerciseKeys.get(params.exerciseId),
+    } as const;
 
-    await context.queryClient.ensureQueryData(key);
+    await context.queryClient.ensureQueryData(keys.exercise);
   },
 });
 

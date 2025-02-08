@@ -19,7 +19,6 @@ import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { exerciseKeys } from "~/exercise/exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { setKeys } from "~/set/set.keys";
@@ -147,7 +146,6 @@ const useCreateExerciseSetForm = () => {
 };
 
 const useCreateSet = () => {
-  const user = useUser();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
   const queryClient = useQueryClient();
@@ -156,12 +154,11 @@ const useCreateSet = () => {
     mutationFn: createSetAction,
     onMutate: (variables) => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id).queryKey,
-        tiles: dashboardKeys.tiles(user.data.id).queryKey,
-        setsHeatMap: setKeys.heatMap(user.data.id).queryKey,
-        funFacts: dashboardKeys.funFacts(user.data.id).queryKey,
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id)
-          .queryKey,
+        exercise: exerciseKeys.get(exercise.data.id).queryKey,
+        tiles: dashboardKeys.tiles.queryKey,
+        setsHeatMap: setKeys.heatMap.queryKey,
+        funFacts: dashboardKeys.funFacts.queryKey,
+        exercisesFrequency: exerciseKeys.exercisesFrequency.queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -276,11 +273,11 @@ const useCreateSet = () => {
     },
     onSettled: () => {
       const keys = {
-        exercise: exerciseKeys.get(user.data.id, exercise.data.id),
-        tiles: dashboardKeys.tiles(user.data.id),
-        exercisesFrequency: exerciseKeys.exercisesFrequency(user.data.id),
-        setsHeatMap: setKeys.heatMap(user.data.id),
-        funFacts: dashboardKeys.funFacts(user.data.id),
+        exercise: exerciseKeys.get(exercise.data.id),
+        tiles: dashboardKeys.tiles,
+        exercisesFrequency: exerciseKeys.exercisesFrequency,
+        setsHeatMap: setKeys.heatMap,
+        funFacts: dashboardKeys.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(keys.tiles);

@@ -9,7 +9,6 @@ import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseKeys } from "../exercise.keys";
-import { useUser } from "~/user/hooks/use-user";
 import { Skeleton } from "~/ui/skeleton";
 import type { selectExercisesFrequency } from "~/exercise/exercise.services";
 import type {
@@ -20,7 +19,7 @@ import type {
 } from "react";
 
 export const ExercisesFrequencyGraph = () => {
-  const exercisesFrequency = useExercisesFrequency();
+  const exercisesFrequency = useSuspenseQuery(exerciseKeys.exercisesFrequency);
 
   if (!exercisesFrequency.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -360,10 +359,4 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
-};
-
-const useExercisesFrequency = () => {
-  const user = useUser();
-
-  return useSuspenseQuery(exerciseKeys.exercisesFrequency(user.data.id));
 };

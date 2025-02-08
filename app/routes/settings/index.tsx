@@ -59,7 +59,7 @@ export const Route = createFileRoute("/settings/")({
   },
   loader: async ({ context }) => {
     const keys = {
-      tagsFrequency: tagKeys.frequency(context.user.id),
+      tagsFrequency: tagKeys.frequency,
     } as const;
 
     await context.queryClient.ensureQueryData(keys.tagsFrequency);
@@ -142,9 +142,7 @@ const RenameUserSection = () => {
 };
 
 const TagsSection = () => {
-  const user = useUser();
-
-  const tagsFrequency = useSuspenseQuery(tagKeys.frequency(user.data.id));
+  const tagsFrequency = useSuspenseQuery(tagKeys.frequency);
 
   return (
     <CatchBoundary
