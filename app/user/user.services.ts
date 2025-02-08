@@ -5,7 +5,7 @@ import { createSets } from "~/set/set.services";
 import { addExerciseTags, createTags } from "~/tag/tag.services";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { addDate } from "~/utils/date";
-import { insertDashboard, insertTiles } from "~/dashboard/dashboard.services";
+import { createDashboard, createTiles } from "~/dashboard/dashboard.services";
 import type { Db } from "~/libs/db";
 import type { Exercise, User } from "~/db/db.schemas";
 
@@ -167,7 +167,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       tagsName.map((name) => ({ name, userId })),
       db,
     ),
-    insertDashboard(userId, db),
+    createDashboard(userId, db),
     createExercises(
       exercisesName.map((name) => ({ name, userId })),
       db,
@@ -222,7 +222,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
         .map((tag) => tag.id),
       db,
     ),
-    insertTiles(
+    createTiles(
       [
         {
           type: tileSchema.shape.type.enum.exercisesFrequency,

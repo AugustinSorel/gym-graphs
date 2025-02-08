@@ -12,7 +12,7 @@ import pg from "pg";
 import { redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { insertTile } from "~/dashboard/dashboard.services";
+import { createTile } from "~/dashboard/dashboard.services";
 
 export const createExerciseAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -21,7 +21,7 @@ export const createExerciseAction = createServerFn({ method: "POST" })
     try {
       await context.db.transaction(async (tx) => {
         const exercise = await createExercise(data.name, context.user.id, tx);
-        await insertTile(
+        await createTile(
           "exercise",
           exercise.id,
           context.user.dashboard.id,

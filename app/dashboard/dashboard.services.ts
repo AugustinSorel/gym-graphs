@@ -63,7 +63,7 @@ export const reorderTiles = async (
     );
 };
 
-export const insertDashboard = async (userId: Dashboard["userId"], db: Db) => {
+export const createDashboard = async (userId: Dashboard["userId"], db: Db) => {
   const [dashboard] = await db
     .insert(dashboardTable)
     .values({ userId })
@@ -76,14 +76,14 @@ export const insertDashboard = async (userId: Dashboard["userId"], db: Db) => {
   return dashboard;
 };
 
-export const insertTiles = async (
+export const createTiles = async (
   values: Array<typeof tileTable.$inferInsert>,
   db: Db,
 ) => {
   return db.insert(tileTable).values(values);
 };
 
-export const insertTile = async (
+export const createTile = async (
   type: Tile["type"],
   exerciseId: Tile["exerciseId"],
   dashboardId: Tile["dashboardId"],

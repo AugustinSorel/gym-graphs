@@ -24,7 +24,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { dashboardKeys } from "~/dashboard/dashboard.keys";
 import { setKeys } from "~/set/set.keys";
 
-export const AddSetForm = (props: Props) => {
+export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
   const createSet = useCreateSet();
   const params = routeApi.useParams();

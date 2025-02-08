@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { AddSetDialog } from "~/set/components/add-set-dialog";
+import { CreateSetDialog } from "~/set/components/create-set-dialog";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
@@ -47,7 +47,7 @@ const RouteComponent = () => {
             settings
           </Link>
         </Button>
-        <AddSetDialog />
+        <CreateSetDialog />
         <Button
           asChild
           variant="link"

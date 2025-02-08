@@ -22,7 +22,6 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
-import { CustomSortingFns } from "@tanstack/react-table";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useMemo(() => {

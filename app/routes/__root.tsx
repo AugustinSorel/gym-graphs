@@ -136,7 +136,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO    | teams                              |
 | TODO    | add limit                          |
 | FIX     | move filtering to the server       |
-| FIX     | standarize service fns name        |
 | FIX     | standarize type                    |
 | TODO    | remove props in advanced graph     |
 */

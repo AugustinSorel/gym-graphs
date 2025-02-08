@@ -8,9 +8,9 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { AddSetForm } from "~/set/components/add-set-form";
+import { CreateSetForm } from "~/set/components/create-set-form";
 
-export const AddSetDialog = () => {
+export const CreateSetDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,7 +24,7 @@ export const AddSetDialog = () => {
           <DialogDescription>Add a new set to the exercise</DialogDescription>
         </DialogHeader>
 
-        <AddSetForm
+        <CreateSetForm
           onSuccess={() => {
             setIsOpen(false);
           }}
