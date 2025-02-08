@@ -22,7 +22,7 @@ import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { setQueries } from "~/set/set.queries";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setsHeatMapMock } from "~/set/set.mock";
+import { setsHeatMapMock, setsMock } from "~/set/set.mock";
 import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
 import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
@@ -132,8 +132,6 @@ const FeatureOne = () => {
 };
 
 const FeatureTwo = () => {
-  const sets = exercisesMock[0]!.sets;
-
   return (
     <FeatureContainer>
       <HeroTitle>
@@ -147,10 +145,10 @@ const FeatureTwo = () => {
       </Text>
 
       <CardTwo className="py-2 sm:p-4">
-        <ExerciseAdvanceOverviewGraph sets={sets} />
+        <ExerciseAdvanceOverviewGraph sets={setsMock} />
       </CardTwo>
       <CardTwo>
-        <ExerciseTable sets={sets} columns={homePageExerciseTableColumns} />
+        <ExerciseTable sets={setsMock} columns={homePageExerciseTableColumns} />
       </CardTwo>
     </FeatureContainer>
   );
