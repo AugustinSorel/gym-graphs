@@ -5,7 +5,7 @@ import {
   SetsHeatMapGraph,
   SetsHeatMapGraphSkeleton,
 } from "~/set/components/sets-heat-map-graph";
-import { Button } from "~/ui/button";
+import { Button, ButtonProps } from "~/ui/button";
 import {
   DashboardFunFacts,
   DashboardFunFactsSkeleton,
@@ -19,7 +19,7 @@ import {
   TagsFrequencyGraph,
   TagsFrequencyGraphSkeleton,
 } from "~/tag/components/tags-frequency-graph";
-import { Link } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 import type { useTiles } from "~/dashboard/hooks/use-tiles";
@@ -83,17 +83,7 @@ const ExerciseTile = (props: TileProps) => {
 
       <CardHeader>
         <Name>{props.tile.exercise.name}</Name>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          aria-label="drag tile"
-          {...sortable.listeners}
-          {...sortable.attributes}
-          suppressHydrationWarning
-        >
-          <GripVertical className="!size-3" />
-        </Button>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
       <ExerciseOverviewGraph sets={props.tile.exercise.sets} />
@@ -108,17 +98,7 @@ const TagsFrequencyTile = (props: TileProps) => {
     <Card>
       <CardHeader>
         <Name>tags frequency</Name>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          aria-label="drag tile"
-          {...sortable.listeners}
-          {...sortable.attributes}
-          suppressHydrationWarning
-        >
-          <GripVertical className="!size-3" />
-        </Button>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
       <Suspense fallback={<TagsFrequencyGraphSkeleton />}>
@@ -135,17 +115,7 @@ const ExercisesFrequencyTile = (props: TileProps) => {
     <Card>
       <CardHeader>
         <Name>exercises frequency</Name>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          aria-label="drag tile"
-          {...sortable.listeners}
-          {...sortable.attributes}
-          suppressHydrationWarning
-        >
-          <GripVertical className="!size-3" />
-        </Button>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
       <Suspense fallback={<ExerciseFrequencyGraphSkeleton />}>
@@ -162,17 +132,7 @@ const ExercisesFunFactsTile = (props: TileProps) => {
     <Card>
       <CardHeader>
         <Name>fun facts</Name>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          aria-label="drag tile"
-          {...sortable.listeners}
-          {...sortable.attributes}
-          suppressHydrationWarning
-        >
-          <GripVertical className="!size-3" />
-        </Button>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
       <Suspense fallback={<DashboardFunFactsSkeleton />}>
@@ -191,23 +151,36 @@ const SetsHeatMapTile = (props: TileProps) => {
     <Card>
       <CardHeader>
         <Name>Heat map - {monthName}</Name>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-          aria-label="drag tile"
-          {...sortable.listeners}
-          {...sortable.attributes}
-          suppressHydrationWarning
-        >
-          <GripVertical className="!size-3" />
-        </Button>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
       <Suspense fallback={<SetsHeatMapGraphSkeleton />}>
         <SetsHeatMapGraph />
       </Suspense>
     </Card>
+  );
+};
+
+const DragButton = (props: ButtonProps) => {
+  const search = routeApi.useSearch();
+
+  const isFiltering = search.name || search.tags?.length;
+
+  if (isFiltering) {
+    return null;
+  }
+
+  return (
+    <Button
+      size="icon"
+      variant="ghost"
+      className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
+      aria-label="drag tile"
+      {...props}
+      suppressHydrationWarning
+    >
+      <GripVertical className="!size-3" />
+    </Button>
   );
 };
 
@@ -247,3 +220,5 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 
 type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 type TileProps = Readonly<{ tile: Tile }>;
+
+const routeApi = getRouteApi("/dashboard/");
