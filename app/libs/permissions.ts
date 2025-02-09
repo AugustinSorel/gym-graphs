@@ -8,6 +8,15 @@ type User = Readonly<
 >;
 
 export const permissions = {
+  homePage: {
+    view: (user: User) => {
+      if (!user?.emailVerifiedAt) {
+        throw redirect({ to: "/dashboard" });
+      }
+
+      return user;
+    },
+  },
   dashboard: {
     view: (user: User) => {
       if (!user?.emailVerifiedAt) {

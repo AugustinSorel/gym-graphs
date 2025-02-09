@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
@@ -25,14 +25,13 @@ import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { setsHeatMapMock, setsMock } from "~/set/set.mock";
 import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
 import { tagQueries } from "~/tag/tag.queries";
+import { permissions } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
   beforeLoad: async ({ context }) => {
-    if (context.session?.user?.emailVerifiedAt) {
-      throw redirect({ to: "/dashboard" });
-    }
+    permissions.homePage.view(context.user);
   },
 });
 
