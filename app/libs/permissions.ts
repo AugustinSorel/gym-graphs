@@ -35,7 +35,7 @@ export const permissions = {
       return user;
     },
   },
-  exzerciseSettings: {
+  exerciseSettings: {
     view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
@@ -46,7 +46,7 @@ export const permissions = {
   },
   signIn: {
     view: (user: User) => {
-      if (user) {
+      if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
 
@@ -55,7 +55,7 @@ export const permissions = {
   },
   signUp: {
     view: (user: User) => {
-      if (user) {
+      if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
 
@@ -74,20 +74,12 @@ export const permissions = {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
-
-      if (user && !user.emailVerifiedAt) {
-        throw redirect({ to: "/verify-email" });
-      }
     },
   },
   resetPassword: {
     view: (user: User) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
-      }
-
-      if (user && !user.emailVerifiedAt) {
-        throw redirect({ to: "/verify-email" });
       }
     },
   },

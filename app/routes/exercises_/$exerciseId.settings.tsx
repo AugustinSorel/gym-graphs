@@ -28,7 +28,7 @@ export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    const user = permissions.exzerciseSettings.view(context.user);
+    const user = permissions.exerciseSettings.view(context.user);
 
     return {
       user,

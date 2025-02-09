@@ -27,7 +27,7 @@ export const DeleteAccountDialog = () => {
     deleteAccount.mutate(undefined, {
       onSuccess: () => {
         startRedirectTransition(async () => {
-          await navigate({ to: "/sign-up" });
+          await navigate({ to: "/" });
           queryClient.clear();
         });
       },

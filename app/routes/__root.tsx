@@ -56,7 +56,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     beforeLoad: async ({ context }) => {
       const session = await selectSessionTokenAction();
 
-      if (!session?.user?.emailVerifiedAt) {
+      if (!session?.user) {
         return {
           session: null,
         };
@@ -136,7 +136,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO    | teams                              |
 | TODO    | add limit                          |
 | TODO    | add name to tile                   |
-| TODO    | remove the .verifiedAt in __root   |
 | PERF    | remove lag when using <PArent/>    |
 | FIX     | move filtering to the server       |
 */
