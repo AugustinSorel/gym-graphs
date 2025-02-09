@@ -1,13 +1,15 @@
 import { redirect } from "@tanstack/react-router";
-import { validateSessionToken } from "~/auth/auth.services";
+import type { selectSessionTokenAction } from "~/auth/auth.actions";
 
 type User = Readonly<
-  NonNullable<Awaited<ReturnType<typeof validateSessionToken>>>["user"]
+  Partial<
+    NonNullable<Awaited<ReturnType<typeof selectSessionTokenAction>>>
+  >["user"]
 >;
 
-const permissions = {
+export const permissions = {
   dashboard: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -16,7 +18,7 @@ const permissions = {
     },
   },
   settings: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -25,7 +27,7 @@ const permissions = {
     },
   },
   exercise: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -34,7 +36,7 @@ const permissions = {
     },
   },
   exzerciseSettings: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -43,7 +45,7 @@ const permissions = {
     },
   },
   signIn: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (user) {
         throw redirect({ to: "/dashboard" });
       }
@@ -52,7 +54,7 @@ const permissions = {
     },
   },
   signUp: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (user) {
         throw redirect({ to: "/dashboard" });
       }
@@ -61,14 +63,14 @@ const permissions = {
     },
   },
   verifyEmail: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
     },
   },
   requestResetPassword: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
@@ -79,7 +81,7 @@ const permissions = {
     },
   },
   resetPassword: {
-    view: (user?: User) => {
+    view: (user: User) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
@@ -90,19 +92,3 @@ const permissions = {
     },
   },
 } as const;
-
-type ExtractFn<Fn> = Fn extends (...props: any) => any ? Fn : never;
-
-export const validateAccess = <
-  TPermission extends keyof typeof permissions,
-  TAction extends keyof (typeof permissions)[TPermission],
-  TFn extends ExtractFn<(typeof permissions)[TPermission][TAction]>,
->(
-  entity: TPermission,
-  action: TAction,
-  ...data: Parameters<TFn>
-) => {
-  const permission = permissions[entity][action] as TFn;
-
-  return permission(...data) as ReturnType<TFn>;
-};

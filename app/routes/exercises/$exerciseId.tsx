@@ -12,7 +12,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises/$exerciseId")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/exercises/$exerciseId")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    const user = validateAccess("exercise", "view", context.user);
+    const user = permissions.exercise.view(context.user);
 
     return {
       user,

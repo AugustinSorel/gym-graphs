@@ -42,7 +42,7 @@ import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
 import { userQueries } from "~/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/settings/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    const user = validateAccess("settings", "view", context.session?.user);
+    const user = permissions.settings.view(context.user);
 
     return {
       user,

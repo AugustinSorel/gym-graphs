@@ -2,13 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Button } from "~/ui/button";
 import { ResetPasswordForm } from "~/auth/components/reset-password-form";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(auth)/_layout/reset-password_/$token")({
   beforeLoad: ({ context }) => {
-    validateAccess("resetPassword", "view", context.user);
+    permissions.resetPassword.view(context.user);
   },
   component: () => RouteComponent(),
   errorComponent: (props) => ErrorComponent(props),

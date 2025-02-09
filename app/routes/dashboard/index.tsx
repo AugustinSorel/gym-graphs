@@ -5,7 +5,7 @@ import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterTilesByTags } from "~/dashboard/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { setQueries } from "~/set/set.queries";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/dashboard/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    const user = validateAccess("dashboard", "view", context.session?.user);
+    const user = permissions.dashboard.view(context.user);
 
     return {
       user,

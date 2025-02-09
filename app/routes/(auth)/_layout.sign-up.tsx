@@ -3,13 +3,13 @@ import { Button } from "~/ui/button";
 import { EmailSignUpForm } from "~/auth/components/email-sign-up-form";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { GithubSignIn } from "~/auth/components/github-sign-in";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(auth)/_layout/sign-up")({
   beforeLoad: ({ context }) => {
-    validateAccess("signUp", "view", context.session?.user);
+    permissions.signUp.view(context.user);
   },
   component: () => RouteComponent(),
   errorComponent: (props) => ErrorComponent(props),

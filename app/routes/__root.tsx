@@ -136,5 +136,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO    | teams                              |
 | TODO    | add limit                          |
 | TODO    | add name to tile                   |
+| TODO    | remove the .verifiedAt in __root   |
+| PERF    | remove lag when using <PArent/>    |
 | FIX     | move filtering to the server       |
 */

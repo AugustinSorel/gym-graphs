@@ -17,7 +17,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
-import { validateAccess } from "~/libs/permissions";
+import { permissions } from "~/libs/permissions";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    const user = validateAccess("exzerciseSettings", "view", context.user);
+    const user = permissions.exzerciseSettings.view(context.user);
 
     return {
       user,
