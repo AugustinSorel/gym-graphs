@@ -10,13 +10,15 @@ import { Dashboard } from "~/dashboard/components/dashboard";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { setQueries } from "~/set/set.queries";
 import { tagQueries } from "~/tag/tag.queries";
+import { exerciseSchema } from "~/exercise/exericse.schemas";
+import { tagSchema } from "~/tag/tag.schemas";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
-    name: z.string().optional(),
-    tags: z.string().array().optional(),
+    name: exerciseSchema.shape.name.catch((e) => e.input).optional(),
+    tags: tagSchema.shape.name.array().optional(),
   }),
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
