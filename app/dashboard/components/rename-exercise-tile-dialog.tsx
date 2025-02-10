@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { RenameTileForm } from "~/dashboard/components/rename-tile-form";
+import { RenameExerciseTileForm } from "~/dashboard/components/rename-exercise-tile-form";
 
 export const ReanemExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,7 @@ export const ReanemExerciseTileDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <RenameTileForm
+        <RenameExerciseTileForm
           onSuccess={() => {
             setIsOpen(false);
           }}
