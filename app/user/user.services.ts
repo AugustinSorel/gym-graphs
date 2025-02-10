@@ -194,7 +194,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
         dashboardId: dashboard.id,
       },
       {
-        name: "exercise frequency",
+        name: "exercises frequency",
         type: tileSchema.shape.type.enum.tilesToSetsCount,
         dashboardId: dashboard.id,
       },
