@@ -43,7 +43,7 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        <Title>{exercise.data.name}</Title>
+        <Title>{exercise.data.tile.name}</Title>
         <Button variant="outline" size="sm" asChild>
           <Link to="/exercises/$exerciseId/settings" from={Route.fullPath}>
             settings

@@ -3,8 +3,8 @@ import { CatchBoundary, createFileRoute, Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Check } from "lucide-react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { DeleteExerciseDialog } from "~/exercise/components/delete-exercise-dialog";
-import { RenameExerciseDialog } from "~/exercise/components/rename-exercise-dialog";
+import { DeleteExerciseTileDialog } from "~/dashboard/components/delete-exercise-tile-dialog";
+import { ReanemExerciseTileDialog } from "~/dashboard/components/rename-exercise-tile-dialog";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
@@ -19,7 +19,6 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/user/hooks/use-user";
 import { permissions } from "~/libs/permissions";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
@@ -50,7 +49,7 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        <Title>{exercise.data.name} settings</Title>
+        <Title>{exercise.data.tile.name} settings</Title>
         <Button
           asChild
           variant="link"
@@ -65,14 +64,14 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <RenameExerciseSection />
+      <RenameTileSection />
       <ExerciseTagsSection />
-      <DeleteExerciseSection />
+      <DeleteTileSection />
     </Main>
   );
 };
 
-const RenameExerciseSection = () => {
+const RenameTileSection = () => {
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
@@ -87,7 +86,7 @@ const RenameExerciseSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer>
-          <RenameExerciseDialog />
+          <ReanemExerciseTileDialog />
         </Footer>
       </Section>
     </CatchBoundary>
@@ -118,12 +117,12 @@ const ExerciseTagsSection = () => {
         <ToggleGroup
           className="m-6 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4"
           type="multiple"
-          value={exercise.data.tags.map((tag) => tag.tagId.toString())}
+          value={exercise.data.tile.tags.map((tag) => tag.tagId.toString())}
           onValueChange={(e) => {
             updateExerciseTags.mutate({
               data: {
                 newTags: e.map(Number),
-                exerciseId: exercise.data.id,
+                tileId: exercise.data.tile.id,
               },
             });
           }}
@@ -164,7 +163,7 @@ const ExerciseTagsSection = () => {
   );
 };
 
-const DeleteExerciseSection = () => {
+const DeleteTileSection = () => {
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
@@ -180,7 +179,7 @@ const DeleteExerciseSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer className="border-destructive bg-destructive/10">
-          <DeleteExerciseDialog />
+          <DeleteExerciseTileDialog />
         </Footer>
       </Section>
     </CatchBoundary>
@@ -261,9 +260,9 @@ const useUpdateExerciseTags = () => {
     mutationFn: updateExerciseTagsAction,
     onMutate: (variables) => {
       const queries = {
-        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles.queryKey,
-        tagsFrequency: tagQueries.frequency.queryKey,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       };
 
       const newExerciseTags = new Set(variables.data.newTags);
@@ -279,7 +278,7 @@ const useUpdateExerciseTags = () => {
         .map((tag) => ({
           createdAt: new Date(),
           updatedAt: new Date(),
-          exerciseId: variables.data.exerciseId,
+          tileId: variables.data.tileId,
           tagId: tag.id,
           tag,
         }));
@@ -295,13 +294,10 @@ const useUpdateExerciseTags = () => {
             return {
               ...page,
               tiles: page.tiles.map((tile) => {
-                if (tile.exercise?.id === variables.data.exerciseId) {
+                if (tile.id === variables.data.tileId) {
                   return {
                     ...tile,
-                    exercise: {
-                      ...tile.exercise,
-                      tags: optimisticTags,
-                    },
+                    tags: optimisticTags,
                   };
                 }
 
@@ -319,50 +315,55 @@ const useUpdateExerciseTags = () => {
 
         return {
           ...exercise,
-          tags: optimisticTags,
+          tile: {
+            ...exercise.tile,
+            tags: optimisticTags,
+          },
         };
       });
 
-      queryClient.setQueryData(queries.tagsFrequency, (tagsFrequency) => {
-        if (!tagsFrequency) {
-          return tagsFrequency;
+      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+        if (!tilesToTagsCount) {
+          return tilesToTagsCount;
         }
 
         const newExerciseTagsSet = new Set(variables.data.newTags);
-        const exerciseTagsSet = new Set(exercise.data.tags.map((d) => d.tagId));
+        const exerciseTagsSet = new Set(
+          exercise.data.tile.tags.map((d) => d.tagId),
+        );
 
         const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
         const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
 
-        return tagsFrequency.map((tagFrequency) => {
-          if (tagsToAddSet.has(tagFrequency.id)) {
+        return tilesToTagsCount.map((tilesToTagsCount) => {
+          if (tagsToAddSet.has(tilesToTagsCount.id)) {
             return {
-              ...tagFrequency,
-              frequency: tagFrequency.frequency + 1,
+              ...tilesToTagsCount,
+              count: tilesToTagsCount.count + 1,
             };
           }
 
-          if (tagsToRemoveSet.has(tagFrequency.id)) {
+          if (tagsToRemoveSet.has(tilesToTagsCount.id)) {
             return {
-              ...tagFrequency,
-              frequency: tagFrequency.frequency - 1,
+              ...tilesToTagsCount,
+              count: tilesToTagsCount.count - 1,
             };
           }
 
-          return tagFrequency;
+          return tilesToTagsCount;
         });
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: () => {
       const queries = {
-        exercise: exerciseQueries.get(variables.data.exerciseId),
+        exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles,
-        tagsFrequency: tagQueries.frequency,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
       void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tagsFrequency);
+      void queryClient.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

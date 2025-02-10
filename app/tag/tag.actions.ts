@@ -2,17 +2,16 @@ import { createServerFn } from "@tanstack/start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { tagSchema } from "~/tag/tag.schemas";
 import {
-  addExerciseTags,
+  addTagsToTile,
   createTag,
-  deleteExerciseTags,
+  deleteTagsFromTile,
   deleteTag,
-  selectExerciseTags,
-  selectTagsFrequency,
+  selectTileTags,
 } from "~/tag/tag.services";
 import pg from "pg";
 import { z } from "zod";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 
 export const createTagAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -43,16 +42,16 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
-      exerciseId: exerciseSchema.shape.id,
+      tileId: tileSchema.shape.id,
       newTags: tagSchema.shape.id.array().max(50),
     }),
   )
   .handler(async ({ context, data }) => {
     try {
       await context.db.transaction(async (tx) => {
-        const exerciseTags = await selectExerciseTags(
-          context.user.id,
-          data.exerciseId,
+        const exerciseTags = await selectTileTags(
+          context.user.dashboard.id,
+          data.tileId,
           tx,
         );
 
@@ -62,19 +61,9 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
         const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
         const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
 
-        await addExerciseTags(
-          context.user.id,
-          data.exerciseId,
-          [...tagsToAddSet],
-          tx,
-        );
+        await addTagsToTile(data.tileId, [...tagsToAddSet], tx);
 
-        await deleteExerciseTags(
-          context.user.id,
-          data.exerciseId,
-          [...tagsToRemoveSet],
-          tx,
-        );
+        await deleteTagsFromTile(data.tileId, [...tagsToRemoveSet], tx);
       });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
@@ -87,10 +76,4 @@ export const updateExerciseTagsAction = createServerFn({ method: "POST" })
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
-  });
-
-export const selectTagsFrequencyAction = createServerFn({ method: "GET" })
-  .middleware([authGuardMiddleware, injectDbMiddleware])
-  .handler(async ({ context }) => {
-    return selectTagsFrequency(context.user.id, context.db);
   });

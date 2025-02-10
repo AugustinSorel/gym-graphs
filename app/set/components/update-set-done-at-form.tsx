@@ -21,7 +21,6 @@ import { useSet } from "~/set/set.context";
 import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setQueries } from "~/set/set.queries";
 import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
@@ -145,7 +144,7 @@ const useUpdateSetDoneAt = () => {
       const queries = {
         tiles: dashboardQueries.tiles.queryKey,
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-        setsHeatMap: setQueries.heatMap.queryKey,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
       } as const;
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
@@ -254,7 +253,7 @@ const useUpdateSetDoneAt = () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles,
-        setsHeatMap: setQueries.heatMap,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);

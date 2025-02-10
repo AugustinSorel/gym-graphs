@@ -5,27 +5,25 @@ import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-adv
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/exercise/components/exercise-table-columns";
-import { ExercisesFrequencyGraph } from "~/exercise/components/exercises-frequency-graph";
-import {
-  exercisesFrequencyMock,
-  exercisesMock,
-  tagsFrequencyMock,
-} from "~/exercise/exercise.mock";
+import { TilesToSetsCountGraph } from "~/dashboard/components/tiles-to-sets-count-graph";
+import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
 import { userQueries } from "~/user/user.queries";
 import { userMock } from "~/user/user.mock";
-import { DashboardFunFacts } from "~/dashboard/components/dashboard-fun-facts";
-import { TagsFrequencyGraph } from "~/tag/components/tags-frequency-graph";
-import { SetsHeatMapGraph } from "~/set/components/sets-heat-map-graph";
-import { exerciseQueries } from "~/exercise/exercise.queries";
-import { setQueries } from "~/set/set.queries";
+import { TilesFunFacts } from "~/dashboard/components/tiles-fun-facts";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setsHeatMapMock, setsMock } from "~/set/set.mock";
-import { dashboardFunFactsMock } from "~/dashboard/dashboard.mock";
-import { tagQueries } from "~/tag/tag.queries";
+import { setsMock } from "~/set/set.mock";
+import {
+  dashboardFunFactsMock,
+  tilesSetsHeatMapMock,
+  tilesToSetsCountMock,
+  tilesToTagsCount,
+} from "~/dashboard/dashboard.mock";
 import { permissions } from "~/libs/permissions";
+import { TilesToTagsCountGraph } from "~/dashboard/components/tiles-to-tags-count-graph";
+import { TilesSetsHeatMapGraph } from "~/dashboard/components/tiles-sets-heat-map-graph";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -105,25 +103,25 @@ const FeatureOne = () => {
       <Grid>
         {exercisesMock.map((exercise) => (
           <Card key={exercise.id}>
-            <Name>{exercise.name}</Name>
+            <Name>{exercise.tile.name}</Name>
             <ExerciseOverviewGraph sets={exercise.sets} />
           </Card>
         ))}
         <Card>
           <Name>exercises frequency</Name>
-          <ExercisesFrequencyGraph />
+          <TilesToSetsCountGraph />
         </Card>
         <Card>
           <Name>tags frequency</Name>
-          <TagsFrequencyGraph />
+          <TilesToTagsCountGraph />
         </Card>
         <Card>
           <Name>fun facts</Name>
-          <DashboardFunFacts />
+          <TilesFunFacts />
         </Card>
         <Card>
           <Name>heat map - January</Name>
-          <SetsHeatMapGraph />
+          <TilesSetsHeatMapGraph />
         </Card>
       </Grid>
     </FeatureContainer>
@@ -350,17 +348,17 @@ const useMockQueryClient = () => {
 
   const queries = {
     user: userQueries.get.queryKey,
-    exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
-    setsHeatMap: setQueries.heatMap.queryKey,
+    tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
+    setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
     funFacts: dashboardQueries.funFacts.queryKey,
-    tagsFrequency: tagQueries.frequency.queryKey,
+    tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
   } as const;
 
   queryClient.setQueryData(queries.user, userMock);
-  queryClient.setQueryData(queries.exercisesFrequency, exercisesFrequencyMock);
-  queryClient.setQueryData(queries.setsHeatMap, setsHeatMapMock);
+  queryClient.setQueryData(queries.tilesToSetsCount, tilesToSetsCountMock);
+  queryClient.setQueryData(queries.setsHeatMap, tilesSetsHeatMapMock);
   queryClient.setQueryData(queries.funFacts, dashboardFunFactsMock);
-  queryClient.setQueryData(queries.tagsFrequency, tagsFrequencyMock);
+  queryClient.setQueryData(queries.tilesToTagsCount, tilesToTagsCount);
 
   queryClient.setDefaultOptions({
     queries: {

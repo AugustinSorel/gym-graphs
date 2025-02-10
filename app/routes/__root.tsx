@@ -131,11 +131,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # APP TAKS
 | Type    | Description                        |
 | --------| -----------------------------------|
-| BUG     | header on mobile moves up and down |
 | TODO    | allow multiple sets                |
 | TODO    | teams                              |
-| TODO    | add limit                          |
-| TODO    | add name to tile                   |
-| PERF    | remove lag when using <PArent/>    |
 | FIX     | move filtering to the server       |
 */

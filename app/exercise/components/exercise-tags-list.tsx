@@ -6,7 +6,7 @@ import type { ComponentProps } from "react";
 export const ExerciseTagsList = () => {
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
-  const tags = exercise.data.tags;
+  const tags = exercise.data.tile.tags;
 
   if (!tags.length) {
     return <NoTagsText>no tags</NoTagsText>;
@@ -14,9 +14,9 @@ export const ExerciseTagsList = () => {
 
   return (
     <List>
-      {exercise.data.tags.map((x) => (
-        <ListItem key={x.tagId}>
-          <Badge variant="outline">{x.tag.name}</Badge>
+      {tags.map((tag) => (
+        <ListItem key={tag.tagId}>
+          <Badge variant="outline">{tag.tag.name}</Badge>
         </ListItem>
       ))}
     </List>

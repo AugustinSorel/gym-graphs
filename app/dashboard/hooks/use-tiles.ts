@@ -10,16 +10,12 @@ export const useTiles = () => {
     select: (tiles) => {
       return tiles.pages.flatMap((page) => {
         return page.tiles.filter((tile) => {
-          if (tile.type !== "exercise") {
-            return true;
-          }
-
-          const nameMatches = tile.exercise?.name.includes(search.name ?? "");
+          const nameMatches = tile.name.includes(search.name ?? "");
 
           const tagsMatch =
             !search.tags?.length ||
-            tile.exercise?.tags.find((exerciseTag) =>
-              search.tags?.includes(exerciseTag.tag.name),
+            tile.tags.find((tileTag) =>
+              search.tags?.includes(tileTag.tag.name),
             );
 
           return nameMatches && tagsMatch;

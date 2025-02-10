@@ -15,7 +15,7 @@ import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
 import { userQueries } from "~/user/user.queries";
-import { tagQueries } from "~/tag/tag.queries";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { Tag } from "~/db/db.schemas";
 
 export const DeleteTagDialog = (props: Props) => {
@@ -81,7 +81,7 @@ const useDeleteTag = () => {
     onMutate: (variables) => {
       const queries = {
         user: userQueries.get.queryKey,
-        tagsFrequency: tagQueries.frequency.queryKey,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       } as const;
 
       queryClient.setQueryData(queries.user, (user) => {
@@ -95,22 +95,24 @@ const useDeleteTag = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tagsFrequency, (tagsFrequency) => {
-        if (!tagsFrequency) {
-          return tagsFrequency;
+      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+        if (!tilesToTagsCount) {
+          return tilesToTagsCount;
         }
 
-        return tagsFrequency.filter((tag) => tag.id !== variables.data.tagId);
+        return tilesToTagsCount.filter((tileToTagsCount) => {
+          return tileToTagsCount.id !== variables.data.tagId;
+        });
       });
     },
     onSettled: () => {
       const queries = {
         user: userQueries.get,
-        tagsFrequency: tagQueries.frequency,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
       void queryClient.invalidateQueries(queries.user);
-      void queryClient.invalidateQueries(queries.tagsFrequency);
+      void queryClient.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

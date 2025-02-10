@@ -8,39 +8,39 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Skeleton } from "~/ui/skeleton";
-import type { selectExercisesFrequency } from "~/exercise/exercise.services";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { selectTilesToSetsCountAction } from "~/dashboard/dashboard.actions";
 
-export const ExercisesFrequencyGraph = () => {
-  const exercisesFrequency = useExercisesFrequency();
+export const TilesToSetsCountGraph = () => {
+  const tilesToSetsCount = useTilesToSetsCount();
 
-  if (!exercisesFrequency.data.length) {
+  if (!tilesToSetsCount.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={exercisesFrequency.data} />
+        <Graph height={height} width={width} data={tilesToSetsCount.data} />
       )}
     </ParentSize>
   );
 };
 
-export const ExerciseFrequencyGraphSkeleton = () => {
+export const TilesToSetsCountGraphSkeleton = () => {
   const data: GraphProps["data"] = [
-    { name: "exercise-1", frequency: 10, id: 1 },
-    { name: "exercise-2", frequency: 20, id: 1 },
-    { name: "exercise-3", frequency: 15, id: 1 },
-    { name: "exercise-4", frequency: 30, id: 1 },
-    { name: "exercise-5", frequency: 10, id: 1 },
+    { name: "exercise-1", count: 10 },
+    { name: "exercise-2", count: 20 },
+    { name: "exercise-3", count: 15 },
+    { name: "exercise-4", count: 30 },
+    { name: "exercise-5", count: 10 },
   ];
 
   return (
@@ -68,19 +68,19 @@ const Graph = ({ width, height, data }: GraphProps) => {
     });
   }, [degrees]);
 
-  const frequencyScale = useMemo(() => {
+  const countScale = useMemo(() => {
     return scaleLinear({
       range: [0, radius],
-      domain: [0, max(data, getFrequency) ?? 0],
+      domain: [0, max(data, getCount) ?? 0],
     });
-  }, [radius, data, getFrequency]);
+  }, [radius, data, getCount]);
 
   const webs = genAngles(data.length);
   const points = genPoints(data.length, radius);
   const polygonPoints = genPolygonPoints(
     data,
-    (d) => frequencyScale(d) ?? 0,
-    getFrequency,
+    (d) => countScale(d) ?? 0,
+    getCount,
   );
   const zeroPoint = new Point({ x: 0, y: 0 });
 
@@ -123,7 +123,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
         tooltipTop: height / 2 + tooltipPoint.y - 10,
       });
     },
-    [data, tooltip, width, height, frequencyScale],
+    [data, tooltip, width, height, countScale],
   );
 
   return (
@@ -217,7 +217,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
             <dt className="text-muted-foreground before:bg-primary flex items-center before:mr-2 before:block before:size-2">
               frequency
             </dt>
-            <dd>{tooltip.tooltipData.frequency}</dd>
+            <dd>{tooltip.tooltipData.count}</dd>
           </dl>
         </Tooltip>
       )}
@@ -276,7 +276,7 @@ const MockGraph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: Readonly<Awaited<ReturnType<typeof selectExercisesFrequency>>>;
+  data: Readonly<Awaited<ReturnType<typeof selectTilesToSetsCountAction>>>;
 }>;
 
 type GraphPoint = Readonly<GraphProps["data"][number]>;
@@ -284,7 +284,7 @@ type GraphPoint = Readonly<GraphProps["data"][number]>;
 const degrees = 360;
 const levels = 5;
 
-const getFrequency = (d: GraphPoint) => d.frequency;
+const getCount = (d: GraphPoint) => d.count;
 
 const genAngles = (length: number) =>
   [...new Array(length + 1)].map((_, i) => ({
@@ -361,6 +361,6 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-const useExercisesFrequency = () => {
-  return useSuspenseQuery(exerciseQueries.exercisesFrequency);
+const useTilesToSetsCount = () => {
+  return useSuspenseQuery(dashboardQueries.tilesToSetsCount);
 };

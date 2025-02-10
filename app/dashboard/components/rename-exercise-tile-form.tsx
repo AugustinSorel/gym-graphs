@@ -11,26 +11,30 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { createExerciseAction } from "~/exercise/exercise.actions";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { useUser } from "~/user/hooks/use-user";
+import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
+import { getRouteApi } from "@tanstack/react-router";
+import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { exerciseQueries } from "~/exercise/exercise.queries";
+import { renameTileAction } from "~/dashboard/dashboard.actions";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 import type { z } from "zod";
 
-type Props = Readonly<{
-  onSuccess?: () => void;
-}>;
-
-export const CreateExerciseForm = (props: Props) => {
+export const RenameExerciseTileForm = (props: Props) => {
   const form = useCreateExerciseForm();
-  const createExercise = useCreateExercise();
+  const renameExerciseTile = useRenameExericseTile();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await createExercise.mutateAsync(
-      { data },
+    await renameExerciseTile.mutateAsync(
+      {
+        data: {
+          tileId: exercise.data.tile.id,
+          name: data.name,
+        },
+      },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -67,10 +71,10 @@ export const CreateExerciseForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
+            data-umami-event="rename exercise"
             className="font-semibold"
-            data-umami-event="exercise created"
           >
-            <span>create</span>
+            <span>rename</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -79,10 +83,17 @@ export const CreateExerciseForm = (props: Props) => {
   );
 };
 
+type Props = Readonly<{
+  onSuccess?: () => void;
+}>;
+
+const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
+
 const useFormSchema = () => {
   const queryClient = useQueryClient();
+  const params = routeApi.useParams();
 
-  return exerciseSchema.pick({ name: true }).refine(
+  return tileSchema.pick({ name: true }).refine(
     (data) => {
       const queries = {
         tiles: dashboardQueries.tiles.queryKey,
@@ -93,7 +104,9 @@ const useFormSchema = () => {
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.tiles)
         .find((tile) => {
-          return tile.exercise?.name === data.name;
+          return (
+            tile.name === data.name && tile.exerciseId !== params.exerciseId
+          );
         });
 
       return !nameTaken;
@@ -109,47 +122,29 @@ type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: exercise.data.tile.name,
     },
   });
 };
 
-const useCreateExercise = () => {
-  const user = useUser();
+const useRenameExericseTile = () => {
   const queryClient = useQueryClient();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
-    mutationFn: createExerciseAction,
+    mutationFn: renameTileAction,
     onMutate: (variables) => {
       const queries = {
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles.queryKey,
-        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
       } as const;
-
-      const exerciseId = Math.random();
-
-      const optimisticTile = {
-        id: Math.random(),
-        index: 1_0000,
-        type: "exercise" as const,
-        dashboardId: user.data.dashboard.id,
-        exerciseId,
-        exercise: {
-          id: exerciseId,
-          userId: user.data.id,
-          name: variables.data.name,
-          tags: [],
-          sets: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
@@ -158,38 +153,46 @@ const useCreateExercise = () => {
 
         return {
           ...tiles,
-          pages: tiles.pages.map((page, i) => {
-            if (i === 0) {
-              return {
-                ...page,
-                tiles: [optimisticTile, ...page.tiles],
-              };
-            }
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.id === variables.data.tileId) {
+                  return {
+                    ...tile,
+                    name: variables.data.name,
+                  };
+                }
 
-            return page;
+                return tile;
+              }),
+            };
           }),
         };
       });
 
-      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
-        if (!data) {
-          return data;
+      queryClient.setQueryData(queries.exercise, (exercise) => {
+        if (!exercise) {
+          return exercise;
         }
 
-        return [
-          { name: variables.data.name, frequency: 0, id: exerciseId },
-          ...data,
-        ];
+        return {
+          ...exercise,
+          tile: {
+            ...exercise.tile,
+            name: variables.data.name,
+          },
+        };
       });
     },
-    onSettled: async () => {
+    onSettled: () => {
       const queries = {
+        exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles,
-        exercisesFrequency: exerciseQueries.exercisesFrequency,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.exercise);
     },
   });
 };

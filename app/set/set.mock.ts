@@ -1,11 +1,4 @@
-import { exercisesMock } from "~/exercise/exercise.mock";
-import { transformSetsToHeatMap } from "~/set/set.services";
-import { selectSetsHeatMapAction } from "./set.actions";
-import { Set } from "~/db/db.schemas";
-
-export const setsHeatMapMock: Awaited<
-  ReturnType<typeof selectSetsHeatMapAction>
-> = transformSetsToHeatMap(exercisesMock.flatMap((e) => e.sets));
+import type { Set } from "~/db/db.schemas";
 
 export const setsMock: Array<Set> = [
   {

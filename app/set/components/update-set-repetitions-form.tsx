@@ -203,10 +203,12 @@ const useUpdateSetRepetitions = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
+        funFacts: dashboardQueries.funFacts,
         tiles: dashboardQueries.tiles,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.funFacts);
       void queryClient.invalidateQueries(queries.exercise);
     },
   });

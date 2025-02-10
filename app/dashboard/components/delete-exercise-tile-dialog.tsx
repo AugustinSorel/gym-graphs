@@ -14,26 +14,25 @@ import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
-import { deleteExerciseAction } from "~/exercise/exercise.actions";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setQueries } from "~/set/set.queries";
 import { getFirstDayOfMonth } from "~/utils/date";
 import { transformSetsToHeatMap } from "~/set/set.services";
+import { deleteTileAction } from "~/dashboard/dashboard.actions";
 
-export const DeleteExerciseDialog = () => {
+export const DeleteExerciseTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = useNavigate();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
-  const deleteExercise = useDeleteExercise();
+  const deleteExerciseTile = useDeleteExerciseTile();
 
-  const deleteExerciseHandler = () => {
-    deleteExercise.mutate(
+  const deleteExerciseTileHandler = () => {
+    deleteExerciseTile.mutate(
       {
         data: {
-          exerciseId: exercise.data.id,
+          tileId: exercise.data.tile.id,
         },
       },
       {
@@ -64,14 +63,14 @@ export const DeleteExerciseDialog = () => {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={deleteExercise.isPending || isRedirectPending}
+            disabled={deleteExerciseTile.isPending || isRedirectPending}
             onClick={(e) => {
               e.preventDefault();
-              deleteExerciseHandler();
+              deleteExerciseTileHandler();
             }}
           >
             <span>Delete</span>
-            {(deleteExercise.isPending || isRedirectPending) && <Spinner />}
+            {(deleteExerciseTile.isPending || isRedirectPending) && <Spinner />}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -81,20 +80,20 @@ export const DeleteExerciseDialog = () => {
 
 const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
 
-const useDeleteExercise = () => {
+const useDeleteExerciseTile = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
   const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
-    mutationFn: deleteExerciseAction,
+    mutationFn: deleteTileAction,
     onMutate: (variables) => {
       const queries = {
         tiles: dashboardQueries.tiles.queryKey,
-        setsHeatMap: setQueries.heatMap.queryKey,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
-        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
-        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
@@ -108,20 +107,20 @@ const useDeleteExercise = () => {
             return {
               ...page,
               tiles: page.tiles.filter(
-                (tile) => tile.exerciseId !== variables.data.exerciseId,
+                (tile) => tile.id !== variables.data.tileId,
               ),
             };
           }),
         };
       });
 
-      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
-        if (!data) {
-          return data;
+      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+        if (!tilesToSetsCount) {
+          return tilesToSetsCount;
         }
 
-        return data.filter((exercise) => {
-          return exercise.id !== variables.data.exerciseId;
+        return tilesToSetsCount.filter((tile) => {
+          return tile.name !== exercise.data.tile.name;
         });
       });
 
@@ -131,20 +130,24 @@ const useDeleteExercise = () => {
         }
 
         return {
-          setsCount: funFacts.setsCount - exercise.data.sets.length,
+          totalRepetitions:
+            funFacts.totalRepetitions -
+            exercise.data.sets.reduce((acc, curr) => {
+              return acc + curr.repetitions;
+            }, 0),
           totalWeightInKg:
             funFacts.totalWeightInKg -
             exercise.data.sets.reduce((acc, curr) => {
               return acc + curr.weightInKg * curr.repetitions;
             }, 0),
-          favoriteExercise:
-            funFacts.favoriteExercise.name === exercise.data.name
-              ? { name: "unkown" }
-              : funFacts.favoriteExercise,
-          leastFavoriteExercise:
-            funFacts.leastFavoriteExercise.name === exercise.data.name
-              ? { name: "unkown" }
-              : funFacts.leastFavoriteExercise,
+          tileWithMostSets:
+            funFacts.tileWithMostSets.name === exercise.data.tile.name
+              ? { name: "unkown", setsCount: 0 }
+              : funFacts.tileWithMostSets,
+          tileWithLeastSets:
+            funFacts.tileWithLeastSets.name === exercise.data.tile.name
+              ? { name: "unkown", setsCount: 0 }
+              : funFacts.tileWithLeastSets,
         };
       });
 
@@ -185,18 +188,18 @@ const useDeleteExercise = () => {
 
       queryClient.setQueryData(queries.exercise, undefined);
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: () => {
       const queries = {
         tiles: dashboardQueries.tiles,
-        exercise: exerciseQueries.get(variables.data.exerciseId),
-        exercisesFrequency: exerciseQueries.exercisesFrequency,
-        setsHeatMap: setQueries.heatMap,
+        exercise: exerciseQueries.get(exercise.data.id),
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(queries.exercise);
       void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.tilesToSetsCount);
       void queryClient.invalidateQueries(queries.setsHeatMap);
       void queryClient.invalidateQueries(queries.funFacts);
     },

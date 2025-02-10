@@ -17,7 +17,7 @@ import { Button } from "~/ui/button";
 import { createTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
 import { userQueries } from "~/user/user.queries";
-import { tagQueries } from "~/tag/tag.queries";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { z } from "zod";
 
 type Props = Readonly<{
@@ -117,7 +117,7 @@ const useCreateTag = () => {
     onMutate: (variables) => {
       const queries = {
         user: userQueries.get.queryKey,
-        tagsFrequency: tagQueries.frequency.queryKey,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       } as const;
 
       const optimisticTag = {
@@ -140,15 +140,15 @@ const useCreateTag = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tagsFrequency, (tagsFrequency) => {
-        if (!tagsFrequency) {
-          return tagsFrequency;
+      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+        if (!tilesToTagsCount) {
+          return tilesToTagsCount;
         }
 
         return [
-          ...tagsFrequency,
+          ...tilesToTagsCount,
           {
-            frequency: 0,
+            count: 0,
             id: optimisticTag.id,
             name: optimisticTag.name,
           },
@@ -158,11 +158,11 @@ const useCreateTag = () => {
     onSettled: () => {
       const queries = {
         user: userQueries.get,
-        tagsFrequency: tagQueries.frequency,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
       void queryClient.invalidateQueries(queries.user);
-      void queryClient.invalidateQueries(queries.tagsFrequency);
+      void queryClient.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

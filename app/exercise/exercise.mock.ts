@@ -1,9 +1,5 @@
 import { tagsMock } from "~/tag/tag.mock";
-import type { selectTagsFrequencyAction } from "~/tag/tag.actions";
-import type {
-  selectExerciseAction,
-  selectExercisesFrequencyAction,
-} from "~/exercise/exercise.actions";
+import type { selectExerciseAction } from "~/exercise/exercise.actions";
 
 export const exercisesMock: ReadonlyArray<
   Awaited<ReturnType<typeof selectExerciseAction>>
@@ -11,18 +7,27 @@ export const exercisesMock: ReadonlyArray<
   {
     id: 30,
     userId: 7,
-    name: "bench press",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: tagsMock
-      .filter((tag) => tag.name === "chest")
-      .map((tag) => ({
-        exerciseId: 30,
-        tagId: tag.id,
-        tag,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })),
+    tile: {
+      dashboardId: 0,
+      exerciseId: 30,
+      id: 0,
+      index: 0,
+      name: "bench press",
+      type: "exercise",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      tags: tagsMock
+        .filter((tag) => tag.name === "chest")
+        .map((tag) => ({
+          tileId: 0,
+          tagId: tag.id,
+          tag,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })),
+    },
     sets: [
       {
         id: 79,
@@ -74,18 +79,27 @@ export const exercisesMock: ReadonlyArray<
   {
     id: 31,
     userId: 7,
-    name: "squat",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: tagsMock
-      .filter((tag) => tag.name === "legs")
-      .map((tag) => ({
-        exerciseId: 30,
-        tagId: tag.id,
-        tag,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })),
+    tile: {
+      dashboardId: 0,
+      exerciseId: 31,
+      id: 1,
+      index: 1,
+      name: "squat",
+      type: "exercise",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      tags: tagsMock
+        .filter((tag) => tag.name === "legs")
+        .map((tag) => ({
+          tileId: 1,
+          tagId: tag.id,
+          tag,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })),
+    },
     sets: [
       {
         id: 84,
@@ -128,18 +142,27 @@ export const exercisesMock: ReadonlyArray<
   {
     id: 32,
     userId: 7,
-    name: "deadlift",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: tagsMock
-      .filter((tag) => tag.name === "legs" || tag.name === "calfs")
-      .map((tag) => ({
-        exerciseId: 30,
-        tagId: tag.id,
-        tag,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })),
+    tile: {
+      dashboardId: 0,
+      exerciseId: 32,
+      id: 2,
+      index: 2,
+      name: "deadlift",
+      type: "exercise",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      tags: tagsMock
+        .filter((tag) => tag.name === "legs" || tag.name === "calfs")
+        .map((tag) => ({
+          tileId: 2,
+          tagId: tag.id,
+          tag,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })),
+    },
     sets: [
       {
         id: 90,
@@ -200,10 +223,19 @@ export const exercisesMock: ReadonlyArray<
   {
     id: 33,
     userId: 7,
-    name: "biceps curls",
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
-    tags: [],
+    tile: {
+      dashboardId: 0,
+      exerciseId: 33,
+      id: 3,
+      index: 3,
+      name: "biceps curls",
+      type: "exercise",
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      tags: [],
+    },
     sets: [
       {
         id: 100,
@@ -253,33 +285,3 @@ export const exercisesMock: ReadonlyArray<
     ],
   },
 ];
-
-export const exercisesFrequencyMock: Awaited<
-  ReturnType<typeof selectExercisesFrequencyAction>
-> = exercisesMock.map((exercise) => {
-  return {
-    name: exercise.name,
-    frequency: exercise.sets.length,
-    id: exercise.id,
-  };
-});
-
-export const tagsFrequencyMock = exercisesMock.reduce<
-  Awaited<ReturnType<typeof selectTagsFrequencyAction>>
->((tagsFrequency, exercise) => {
-  const tags = exercise.tags.map((exericseTag) => exericseTag.tag);
-
-  for (const tag of tags) {
-    const tagFrequency = tagsFrequency.find((tagFrequency) => {
-      return tagFrequency.id === tag.id;
-    });
-
-    if (!tagFrequency) {
-      tagsFrequency.push({ name: tag.name, id: tag.id, frequency: 1 });
-    } else {
-      tagFrequency.frequency += 1;
-    }
-  }
-
-  return tagsFrequency;
-}, []);

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
 import type { Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
@@ -14,27 +14,27 @@ export const selectExercise = async (
       eq(exerciseTable.id, exerciseId),
     ),
     with: {
+      tile: {
+        with: {
+          tags: {
+            orderBy: asc(tagTable.createdAt),
+            with: {
+              tag: true,
+            },
+          },
+        },
+      },
       sets: {
         orderBy: desc(setTable.createdAt),
-      },
-      tags: {
-        orderBy: asc(tagTable.createdAt),
-        with: {
-          tag: true,
-        },
       },
     },
   });
 };
 
-export const createExercise = async (
-  name: Exercise["name"],
-  userId: Exercise["userId"],
-  db: Db,
-) => {
+export const createExercise = async (userId: Exercise["userId"], db: Db) => {
   const [exercise] = await db
     .insert(exerciseTable)
-    .values({ name, userId })
+    .values({ userId })
     .returning();
 
   if (!exercise) {
@@ -44,52 +44,9 @@ export const createExercise = async (
   return exercise;
 };
 
-export const renameExercise = async (
-  userId: Exercise["userId"],
-  exerciseId: Exercise["id"],
-  name: Exercise["name"],
-  db: Db,
-) => {
-  return db
-    .update(exerciseTable)
-    .set({ name, updatedAt: new Date() })
-    .where(
-      and(eq(exerciseTable.id, exerciseId), eq(exerciseTable.userId, userId)),
-    );
-};
-
-export const deleteExercise = async (
-  userId: Exercise["userId"],
-  exerciseId: Exercise["id"],
-  db: Db,
-) => {
-  return db
-    .delete(exerciseTable)
-    .where(
-      and(eq(exerciseTable.userId, userId), eq(exerciseTable.id, exerciseId)),
-    );
-};
-
 export const createExercises = async (
   data: Array<typeof exerciseTable.$inferInsert>,
   db: Db,
 ) => {
   return db.insert(exerciseTable).values(data).returning();
-};
-
-export const selectExercisesFrequency = (
-  userId: Exercise["userId"],
-  db: Db,
-) => {
-  return db
-    .select({
-      id: exerciseTable.id,
-      name: exerciseTable.name,
-      frequency:
-        sql`(select count(*) from set where set.exercise_id = exercise.id)`.mapWith(
-          Number,
-        ),
-    })
-    .from(exerciseTable)
-    .where(eq(exerciseTable.userId, userId));
 };

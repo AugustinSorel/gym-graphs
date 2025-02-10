@@ -1,13 +1,14 @@
-import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, sql, sum } from "drizzle-orm";
 import {
   dashboardTable,
   exerciseTable,
   setTable,
   tagTable,
   tileTable,
+  tileTagTable,
 } from "~/db/db.schemas";
 import type { SQL } from "drizzle-orm";
-import type { Dashboard, Tile } from "~/db/db.schemas";
+import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 export const selectTiles = async (
@@ -22,16 +23,16 @@ export const selectTiles = async (
     limit: pageSize,
     offset: (page - 1) * pageSize,
     with: {
+      tags: {
+        orderBy: asc(tagTable.createdAt),
+        with: {
+          tag: true,
+        },
+      },
       exercise: {
         with: {
           sets: {
             orderBy: desc(setTable.createdAt),
-          },
-          tags: {
-            orderBy: asc(tagTable.createdAt),
-            with: {
-              tag: true,
-            },
           },
         },
       },
@@ -86,23 +87,24 @@ export const createTiles = async (
   values: Array<typeof tileTable.$inferInsert>,
   db: Db,
 ) => {
-  return db.insert(tileTable).values(values);
+  return db.insert(tileTable).values(values).returning();
 };
 
 export const createTile = async (
+  name: Tile["name"],
   type: Tile["type"],
   exerciseId: Tile["exerciseId"],
   dashboardId: Tile["dashboardId"],
   db: Db,
 ) => {
-  return db.insert(tileTable).values({ type, dashboardId, exerciseId });
+  return db.insert(tileTable).values({ name, type, dashboardId, exerciseId });
 };
 
-export const selectDashboardTotalWeightInkg = async (
+export const selectTilesTotalWeightInKg = async (
   userId: Dashboard["userId"],
   db: Db,
 ) => {
-  const [res] = await db
+  const [totalWeightInKg] = await db
     .select({
       total: sql`sum(${setTable.weightInKg} * ${setTable.repetitions})`.mapWith(
         Number,
@@ -114,20 +116,20 @@ export const selectDashboardTotalWeightInkg = async (
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId));
 
-  if (!res) {
+  if (!totalWeightInKg?.total) {
     throw new Error("total weight in kg returned by db is null");
   }
 
-  return res;
+  return totalWeightInKg.total;
 };
 
-export const selectDashboardSetsCount = async (
+export const selectTilesTotalRepetitions = async (
   userId: Dashboard["id"],
   db: Db,
 ) => {
-  const [setsCount] = await db
+  const [repetitionsCount] = await db
     .select({
-      count: count(setTable.id).mapWith(Number),
+      count: sum(setTable.repetitions).mapWith(Number),
     })
     .from(dashboardTable)
     .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
@@ -135,20 +137,20 @@ export const selectDashboardSetsCount = async (
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId));
 
-  if (!setsCount) {
+  if (!repetitionsCount?.count) {
     throw new Error("sets count returned by db is null");
   }
 
-  return setsCount;
+  return repetitionsCount.count;
 };
 
-export const selectDashboardFavoriteExercise = async (
+export const selectTileWithMostSets = async (
   userId: Dashboard["userId"],
   db: Db,
 ) => {
   const [favoriteExercise] = await db
     .select({
-      name: exerciseTable.name,
+      name: tileTable.name,
       setsCount: count(setTable.id).mapWith(Number),
     })
     .from(dashboardTable)
@@ -156,7 +158,7 @@ export const selectDashboardFavoriteExercise = async (
     .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId))
-    .groupBy(exerciseTable.id)
+    .groupBy(tileTable.name)
     .orderBy(desc(sql`count`))
     .limit(1);
 
@@ -167,13 +169,13 @@ export const selectDashboardFavoriteExercise = async (
   return favoriteExercise;
 };
 
-export const selectDashboardLeastFavoriteExercise = async (
+export const selectTileWithLeastSets = async (
   userId: Dashboard["userId"],
   db: Db,
 ) => {
   const [leastFavoriteExercise] = await db
     .select({
-      name: exerciseTable.name,
+      name: tileTable.name,
       setsCount: count(setTable.id).mapWith(Number),
     })
     .from(dashboardTable)
@@ -181,7 +183,7 @@ export const selectDashboardLeastFavoriteExercise = async (
     .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId))
-    .groupBy(exerciseTable.id)
+    .groupBy(tileTable.name)
     .orderBy(asc(sql`count`))
     .limit(1);
 
@@ -192,28 +194,86 @@ export const selectDashboardLeastFavoriteExercise = async (
   return leastFavoriteExercise;
 };
 
-export const selectDashboardFunFacts = async (
+export const selectTilesFunFacts = async (
   userId: Dashboard["userId"],
   db: Db,
 ) => {
   const operations = [
-    selectDashboardTotalWeightInkg(userId, db),
-    selectDashboardSetsCount(userId, db),
-    selectDashboardFavoriteExercise(userId, db),
-    selectDashboardLeastFavoriteExercise(userId, db),
+    selectTilesTotalWeightInKg(userId, db),
+    selectTilesTotalRepetitions(userId, db),
+    selectTileWithMostSets(userId, db),
+    selectTileWithLeastSets(userId, db),
   ] as const;
 
-  const [totalWeightInKg, setsCount, favoriteExercise, leastFavoriteExercise] =
-    await Promise.all(operations);
+  const [
+    totalWeightInKg,
+    totalRepetitions,
+    tileWithMostSets,
+    tileWithLeastSets,
+  ] = await Promise.all(operations);
 
   return {
-    totalWeightInKg: totalWeightInKg.total,
-    setsCount: setsCount.count,
-    favoriteExercise: {
-      name: favoriteExercise.name,
-    },
-    leastFavoriteExercise: {
-      name: leastFavoriteExercise.name,
-    },
+    totalWeightInKg,
+    totalRepetitions,
+    tileWithMostSets,
+    tileWithLeastSets,
   };
+};
+
+export const renameTile = async (
+  dashboardId: Dashboard["id"],
+  tileId: Tile["id"],
+  name: Tile["name"],
+  db: Db,
+) => {
+  return db
+    .update(tileTable)
+    .set({ name, updatedAt: new Date() })
+    .where(
+      and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
+    );
+};
+
+export const deleteTile = async (
+  dashboardId: Dashboard["id"],
+  tileId: Tile["id"],
+  db: Db,
+) => {
+  return db
+    .delete(tileTable)
+    .where(
+      and(eq(tileTable.dashboardId, dashboardId), eq(tileTable.id, tileId)),
+    );
+};
+
+export const selectTilesToSetsCount = async (
+  dashboardId: Dashboard["id"],
+  db: Db,
+) => {
+  return db
+    .select({
+      name: tileTable.name,
+      count: count(tileTable.name),
+    })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+    .where(eq(dashboardTable.id, dashboardId))
+    .groupBy(tileTable.name);
+};
+
+export const selectTilesToTagsCount = async (userId: Tag["userId"], db: Db) => {
+  return db
+    .select({
+      count: count(exerciseTable.id),
+      id: tagTable.id,
+      name: tagTable.name,
+    })
+    .from(tagTable)
+    .leftJoin(tileTagTable, eq(tileTagTable.tagId, tagTable.id))
+    .leftJoin(tileTable, eq(tileTable.id, tileTagTable.tileId))
+    .leftJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .where(eq(tagTable.userId, userId))
+    .groupBy(tagTable.id);
 };

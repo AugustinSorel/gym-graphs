@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { tagTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
-import { addExerciseTags, createTags } from "~/tag/tag.services";
+import { addTagsToTile, createTags } from "~/tag/tag.services";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { addDate } from "~/utils/date";
 import { createDashboard, createTiles } from "~/dashboard/dashboard.services";
@@ -169,13 +169,69 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     ),
     createDashboard(userId, db),
     createExercises(
-      exercisesName.map((name) => ({ name, userId })),
+      exercisesName.map(() => ({ userId })),
       db,
     ),
   ]);
 
   if (!benchPress || !squat || !deadlift) {
     throw new Error("exercises returned by db are null");
+  }
+
+  const [
+    _tilesToTagsCountTile,
+    _tilesToSetsCountTile,
+    _tilesFunFactsTile,
+    _tilesSetsHeatMapTile,
+    benchPressTile,
+    squatTile,
+    deadliftTile,
+  ] = await createTiles(
+    [
+      {
+        name: "tags frequency",
+        type: tileSchema.shape.type.enum.tilesToTagsCount,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: "exercise frequency",
+        type: tileSchema.shape.type.enum.tilesToSetsCount,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: "tiles fun facts",
+        type: tileSchema.shape.type.enum.tilesFunFacts,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: "sets heat map",
+        type: tileSchema.shape.type.enum.tilesSetsHeatMap,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: exercisesName[0],
+        type: tileSchema.shape.type.enum.exercise,
+        exerciseId: benchPress.id,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: exercisesName[1],
+        type: tileSchema.shape.type.enum.exercise,
+        exerciseId: squat.id,
+        dashboardId: dashboard.id,
+      },
+      {
+        name: exercisesName[2],
+        type: tileSchema.shape.type.enum.exercise,
+        exerciseId: deadlift.id,
+        dashboardId: dashboard.id,
+      },
+    ],
+    db,
+  );
+
+  if (!benchPressTile || !squatTile || !deadliftTile) {
+    throw new Error("tiles not created");
   }
 
   const operations = [
@@ -202,60 +258,21 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       ],
       db,
     ),
-    addExerciseTags(
-      userId,
-      benchPress.id,
+    addTagsToTile(
+      benchPressTile.id,
       tags.filter((tag) => ["chest"].includes(tag.name)).map((tag) => tag.id),
       db,
     ),
-    addExerciseTags(
-      userId,
-      squat.id,
+    addTagsToTile(
+      squatTile.id,
       tags.filter((tag) => ["legs"].includes(tag.name)).map((tag) => tag.id),
       db,
     ),
-    addExerciseTags(
-      userId,
-      deadlift.id,
+    addTagsToTile(
+      deadliftTile.id,
       tags
         .filter((tag) => ["legs", "calfs"].includes(tag.name))
         .map((tag) => tag.id),
-      db,
-    ),
-    createTiles(
-      [
-        {
-          type: tileSchema.shape.type.enum.exercisesFrequency,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.tagsFrequency,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.exercisesFunFacts,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.setsHeatMap,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.exercise,
-          exerciseId: benchPress.id,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.exercise,
-          exerciseId: squat.id,
-          dashboardId: dashboard.id,
-        },
-        {
-          type: tileSchema.shape.type.enum.exercise,
-          exerciseId: deadlift.id,
-          dashboardId: dashboard.id,
-        },
-      ],
       db,
     ),
   ];

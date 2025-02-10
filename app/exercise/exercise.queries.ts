@@ -1,7 +1,4 @@
-import {
-  selectExerciseAction,
-  selectExercisesFrequencyAction,
-} from "~/exercise/exercise.actions";
+import { selectExerciseAction } from "~/exercise/exercise.actions";
 import { queryOptions } from "@tanstack/react-query";
 import type { Exercise } from "~/db/db.schemas";
 
@@ -12,12 +9,6 @@ const get = (exerciseId: Exercise["id"]) => {
   });
 };
 
-const exercisesFrequency = queryOptions({
-  queryKey: ["exercises", "frequency"],
-  queryFn: () => selectExercisesFrequencyAction(),
-});
-
 export const exerciseQueries = {
   get,
-  exercisesFrequency,
 } as const;

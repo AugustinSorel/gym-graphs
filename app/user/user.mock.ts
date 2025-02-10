@@ -1,5 +1,5 @@
 import { tagsMock } from "~/tag/tag.mock";
-import type { selectUserAction } from "./user.actions";
+import type { selectUserAction } from "~/user/user.actions";
 
 export const userMock: Readonly<
   NonNullable<Awaited<ReturnType<typeof selectUserAction>>>

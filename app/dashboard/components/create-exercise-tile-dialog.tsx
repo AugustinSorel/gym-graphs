@@ -7,11 +7,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { CreateExerciseForm } from "~/exercise/components/create-exercise-form";
+import { CreateExerciseTileForm } from "~/dashboard/components/create-exercise-tile-form";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-export const CreateExerciseDialog = () => {
+export const CreateExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,7 +30,7 @@ export const CreateExerciseDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <CreateExerciseForm
+        <CreateExerciseTileForm
           onSuccess={() => {
             setIsOpen(false);
           }}

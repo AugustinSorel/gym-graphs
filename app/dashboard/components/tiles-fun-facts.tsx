@@ -13,10 +13,10 @@ import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { Skeleton } from "~/ui/skeleton";
 import type { ComponentProps } from "react";
 
-export const DashboardFunFacts = () => {
-  const funFacts = useFunFacts();
+export const TilesFunFacts = () => {
+  const funFacts = useTilesFunFacts();
 
-  if (!funFacts.data.setsCount) {
+  if (!funFacts.data.totalRepetitions) {
     return <NoDataText>no data</NoDataText>;
   }
 
@@ -48,7 +48,7 @@ export const DashboardFunFacts = () => {
 };
 
 const WeightLiftedFunFact = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useTilesFunFacts();
 
   return (
     <>
@@ -61,35 +61,35 @@ const WeightLiftedFunFact = () => {
   );
 };
 
-const NumberOfSets = () => {
-  const funFacts = useFunFacts();
+const NumberOfRepetitions = () => {
+  const funFacts = useTilesFunFacts();
 
   return (
     <>
-      <Text>number of sets</Text>
-      <Strong>{funFacts.data.setsCount}</Strong>
+      <Text>number of reps</Text>
+      <Strong>{funFacts.data.totalRepetitions}</Strong>
     </>
   );
 };
 
 const FavoriteExercise = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useTilesFunFacts();
 
   return (
     <>
       <Text>favorite exercise</Text>
-      <Strong>{funFacts.data.favoriteExercise.name}</Strong>
+      <Strong>{funFacts.data.tileWithMostSets.name}</Strong>
     </>
   );
 };
 
 const LeastFavoriteExercise = () => {
-  const funFacts = useFunFacts();
+  const funFacts = useTilesFunFacts();
 
   return (
     <>
       <Text>least favorite exercise</Text>
-      <Strong>{funFacts.data.leastFavoriteExercise.name}</Strong>
+      <Strong>{funFacts.data.tileWithLeastSets.name}</Strong>
     </>
   );
 };
@@ -120,7 +120,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-export const DashboardFunFactsSkeleton = () => {
+export const TilesFunFactsSkeleton = () => {
   return (
     <div className="grid grid-rows-[1fr_auto_1fr] justify-items-center gap-7 p-3 text-center">
       <Skeleton className="bg-border mt-auto h-3 w-32 rounded-full" />
@@ -136,13 +136,13 @@ export const DashboardFunFactsSkeleton = () => {
   );
 };
 
-const useFunFacts = () => {
+const useTilesFunFacts = () => {
   return useSuspenseQuery(dashboardQueries.funFacts);
 };
 
 const FunFacts = [
   WeightLiftedFunFact,
-  NumberOfSets,
+  NumberOfRepetitions,
   FavoriteExercise,
   LeastFavoriteExercise,
 ] as const;

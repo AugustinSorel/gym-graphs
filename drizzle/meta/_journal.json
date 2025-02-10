@@ -71,6 +71,13 @@
       "when": 1739010704075,
       "tag": "0009_shocking_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1739208512300,
+      "tag": "0010_panoramic_paibok",
+      "breakpoints": true
     }
   ]
 }

@@ -21,7 +21,6 @@ import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setQueries } from "~/set/set.queries";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -156,9 +155,9 @@ const useCreateSet = () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles.queryKey,
-        setsHeatMap: setQueries.heatMap.queryKey,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
-        exercisesFrequency: exerciseQueries.exercisesFrequency.queryKey,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
       const optimisticExerciseSet = {
@@ -199,20 +198,20 @@ const useCreateSet = () => {
         };
       });
 
-      queryClient.setQueryData(queries.exercisesFrequency, (data) => {
-        if (!data) {
-          return data;
+      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+        if (!tilesToSetsCount) {
+          return tilesToSetsCount;
         }
 
-        return data.map((exercise) => {
-          if (exercise.id === variables.data.exerciseId) {
+        return tilesToSetsCount.map((tile) => {
+          if (tile.name === exercise.data.tile.name) {
             return {
-              ...exercise,
-              frequency: exercise.frequency + 1,
+              ...tile,
+              count: tile.count + 1,
             };
           }
 
-          return exercise;
+          return tile;
         });
       });
 
@@ -226,7 +225,8 @@ const useCreateSet = () => {
 
         return {
           ...funFacts,
-          setsCount: funFacts.setsCount + 1,
+          totalRepetitions:
+            funFacts.totalRepetitions + variables.data.repetitions,
           totalWeightInKg: funFacts.totalWeightInKg + exerciseTotalWeightInKg,
         };
       });
@@ -275,14 +275,14 @@ const useCreateSet = () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles,
-        exercisesFrequency: exerciseQueries.exercisesFrequency,
-        setsHeatMap: setQueries.heatMap,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
       void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.exercisesFrequency);
+      void queryClient.invalidateQueries(queries.tilesToSetsCount);
       void queryClient.invalidateQueries(queries.setsHeatMap);
       void queryClient.invalidateQueries(queries.funFacts);
     },

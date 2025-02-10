@@ -6,14 +6,14 @@ import { useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { setQueries } from "~/set/set.queries";
 import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { ComponentProps, CSSProperties } from "react";
-import type { selectSetsHeatMapAction } from "~/set/set.actions";
+import type { selectTilesSetsHeatMap } from "~/dashboard/dashboard.actions";
 
-export const SetsHeatMapGraph = () => {
+export const TilesSetsHeatMapGraph = () => {
   const setsHeatMap = useSetsHeatMap();
 
   const heatMapEmpty = setsHeatMap.data
@@ -146,7 +146,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: Awaited<ReturnType<typeof selectSetsHeatMapAction>>;
+  data: Awaited<ReturnType<typeof selectTilesSetsHeatMap>>;
 }>;
 
 type Bins = GraphProps["data"][number];
@@ -184,7 +184,8 @@ const tooltipStyles: Readonly<CSSProperties> = {
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
-export const SetsHeatMapGraphSkeleton = () => {
+
+export const TilesSetsHeatMapGraphSkeleton = () => {
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => {
@@ -222,5 +223,5 @@ export const SetsHeatMapGraphSkeleton = () => {
 };
 
 const useSetsHeatMap = () => {
-  return useSuspenseQuery(setQueries.heatMap);
+  return useSuspenseQuery(dashboardQueries.tilesSetsHeatMap);
 };

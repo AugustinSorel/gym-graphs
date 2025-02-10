@@ -78,28 +78,34 @@ export const dashboardRelations = relations(
 
 export const tileTypeEnum = pgEnum("tile_type", tileSchema.shape.type.options);
 
-export const tileTable = pgTable("tile", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  type: tileTypeEnum().notNull(),
-  index: serial("index"),
-  dashboardId: integer("dashboard_id")
-    .references(() => dashboardTable.id, { onDelete: "cascade" })
-    .notNull(),
-  exerciseId: integer("exercise_id").references(() => exerciseTable.id, {
-    onDelete: "cascade",
-  }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const tileTable = pgTable(
+  "tile",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    type: tileTypeEnum().notNull(),
+    index: serial("index"),
+    name: text("name").notNull(),
+    dashboardId: integer("dashboard_id")
+      .references(() => dashboardTable.id, { onDelete: "cascade" })
+      .notNull(),
+    exerciseId: integer("exercise_id").references(() => exerciseTable.id, {
+      onDelete: "cascade",
+    }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [table.name, table.dashboardId],
+);
 
 export type Tile = Readonly<typeof tileTable.$inferSelect>;
 
-export const tileRelations = relations(tileTable, ({ one }) => ({
+export const tileRelations = relations(tileTable, ({ one, many }) => ({
   dashboard: one(dashboardTable, {
     fields: [tileTable.dashboardId],
     references: [dashboardTable.id],
   }),
   exercise: one(exerciseTable),
+  tags: many(tileTagTable),
 }));
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
@@ -209,19 +215,14 @@ export const resetPasswordRelations = relations(
   }),
 );
 
-export const exerciseTable = pgTable(
-  "exercise",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => userTable.id, { onDelete: "cascade" }),
-    name: text("").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [unique().on(table.userId, table.name)],
-);
+export const exerciseTable = pgTable("exercise", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
@@ -231,7 +232,6 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
     references: [userTable.id],
   }),
   sets: many(setTable),
-  tags: many(exerciseTagTable),
   tile: one(tileTable, {
     fields: [exerciseTable.id],
     references: [tileTable.exerciseId],
@@ -263,28 +263,28 @@ export const setRelations = relations(setTable, ({ one }) => ({
   }),
 }));
 
-export const exerciseTagTable = pgTable(
-  "exercise_tag",
+export const tileTagTable = pgTable(
+  "tile_tag",
   {
-    exerciseId: integer("exercise_id")
+    tileId: integer("tile_id")
       .notNull()
-      .references(() => exerciseTable.id, { onDelete: "cascade" }),
+      .references(() => tileTable.id, { onDelete: "cascade" }),
     tagId: integer("tag_id")
       .notNull()
       .references(() => tagTable.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [primaryKey({ columns: [table.exerciseId, table.tagId] })],
+  (table) => [primaryKey({ columns: [table.tileId, table.tagId] })],
 );
 
-export const exerciseTagRelations = relations(exerciseTagTable, ({ one }) => ({
-  exercise: one(exerciseTable, {
-    fields: [exerciseTagTable.exerciseId],
-    references: [exerciseTable.id],
+export const exerciseTagRelations = relations(tileTagTable, ({ one }) => ({
+  tile: one(tileTable, {
+    fields: [tileTagTable.tileId],
+    references: [tileTable.id],
   }),
   tag: one(tagTable, {
-    fields: [exerciseTagTable.tagId],
+    fields: [tileTagTable.tagId],
     references: [tagTable.id],
   }),
 }));
@@ -310,5 +310,5 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
     fields: [tagTable.userId],
     references: [userTable.id],
   }),
-  exercises: many(exerciseTagTable),
+  exercises: many(tileTagTable),
 }));

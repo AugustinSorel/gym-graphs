@@ -160,6 +160,7 @@ const useUpdateWeight = () => {
           }),
         };
       });
+
       queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;

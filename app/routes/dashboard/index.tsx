@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CreateExerciseDialog } from "~/exercise/components/create-exercise-dialog";
+import { CreateExerciseTileDialog } from "~/dashboard/components/create-exercise-tile-dialog";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { FilterTilesByTags } from "~/dashboard/components/filter-tiles-by-tag";
@@ -7,17 +7,14 @@ import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
-import { exerciseQueries } from "~/exercise/exercise.queries";
-import { setQueries } from "~/set/set.queries";
-import { tagQueries } from "~/tag/tag.queries";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
-    name: exerciseSchema.shape.name.catch((e) => e.input).optional(),
+    name: tileSchema.shape.name.catch((e) => e.input).optional(),
     tags: tagSchema.shape.name.array().optional(),
   }),
   component: () => RouteComponent(),
@@ -32,16 +29,16 @@ export const Route = createFileRoute("/dashboard/")({
   loader: async ({ context }) => {
     const queries = {
       tiles: dashboardQueries.tiles,
-      exercisesFrequency: exerciseQueries.exercisesFrequency,
-      setsHeatMap: setQueries.heatMap,
+      tilesToSetsCount: dashboardQueries.tilesToSetsCount,
+      setsHeatMap: dashboardQueries.tilesSetsHeatMap,
       funFacts: dashboardQueries.funFacts,
-      tagsFrequency: tagQueries.frequency,
+      tilesToTagsCount: dashboardQueries.tilesToTagsCount,
     } as const;
 
-    void context.queryClient.prefetchQuery(queries.exercisesFrequency);
+    void context.queryClient.prefetchQuery(queries.tilesToSetsCount);
     void context.queryClient.prefetchQuery(queries.setsHeatMap);
     void context.queryClient.prefetchQuery(queries.funFacts);
-    void context.queryClient.prefetchQuery(queries.tagsFrequency);
+    void context.queryClient.prefetchQuery(queries.tilesToTagsCount);
 
     await context.queryClient.ensureInfiniteQueryData(queries.tiles);
   },
@@ -61,7 +58,7 @@ const RouteComponent = () => {
       <Header>
         <FilterTilesByName />
         <FilterTilesByTags />
-        <CreateExerciseDialog />
+        <CreateExerciseTileDialog />
       </Header>
 
       <Dashboard />

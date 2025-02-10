@@ -7,28 +7,28 @@ import { useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { tagQueries } from "~/tag/tag.queries";
 import { Skeleton } from "~/ui/skeleton";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { selectTilesToTagsCountAction } from "~/dashboard/dashboard.actions";
 import type { ComponentProps, CSSProperties } from "react";
-import type { selectTagsFrequency } from "../tag.services";
 
-export const TagsFrequencyGraph = () => {
-  const tagsFrequency = useTagsFrequency();
+export const TilesToTagsCountGraph = () => {
+  const tilesToTagsCount = useTilesToTagsCount();
 
-  if (!tagsFrequency.data.length) {
+  if (!tilesToTagsCount.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={tagsFrequency.data} />
+        <Graph height={height} width={width} data={tilesToTagsCount.data} />
       )}
     </ParentSize>
   );
 };
 
-export const TagsFrequencyGraphSkeleton = () => {
+export const TilesToTagsGraphSkeleton = () => {
   return (
     <Skeleton className="bg-transparent">
       <ParentSize className="relative flex overflow-hidden">
@@ -95,7 +95,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
 
           <Pie
             data={data}
-            pieValue={getFrequency}
+            pieValue={getCount}
             outerRadius={radius}
             innerRadius={innerRadius}
             padAngle={0.1}
@@ -151,7 +151,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
             <dt className="text-muted-foreground before:bg-primary flex items-center before:mr-2 before:block before:size-2">
               frequency
             </dt>
-            <dd>{tooltip.tooltipData.frequency}</dd>
+            <dd>{tooltip.tooltipData.count}</dd>
           </dl>
         </Tooltip>
       )}
@@ -210,7 +210,7 @@ const GraphSkeleton = ({ height, width }: Omit<GraphProps, "data">) => {
     </svg>
   );
 };
-const getFrequency = (d: Point) => d.frequency;
+const getCount = (d: Point) => d.count;
 
 const margin = {
   top: 20,
@@ -222,7 +222,7 @@ const margin = {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: Awaited<ReturnType<typeof selectTagsFrequency>>;
+  data: Awaited<ReturnType<typeof selectTilesToTagsCountAction>>;
 }>;
 
 type Point = GraphProps["data"][number];
@@ -243,11 +243,11 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-const useTagsFrequency = () => {
+const useTilesToTagsCount = () => {
   return useSuspenseQuery({
-    ...tagQueries.frequency,
-    select: (tagsFrequency) => {
-      return tagsFrequency.filter((tagFrequency) => tagFrequency.frequency);
+    ...dashboardQueries.tilesToTagsCount,
+    select: (tilesToTagsCount) => {
+      return tilesToTagsCount.filter((tag) => tag.count);
     },
   });
 };

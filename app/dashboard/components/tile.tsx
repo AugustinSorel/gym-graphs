@@ -2,23 +2,23 @@ import { useSortable } from "@dnd-kit/sortable";
 import { GripVertical } from "lucide-react";
 import { Suspense } from "react";
 import {
-  SetsHeatMapGraph,
-  SetsHeatMapGraphSkeleton,
-} from "~/set/components/sets-heat-map-graph";
+  TilesSetsHeatMapGraph,
+  TilesSetsHeatMapGraphSkeleton,
+} from "~/dashboard/components/tiles-sets-heat-map-graph";
 import { Button, ButtonProps } from "~/ui/button";
 import {
-  DashboardFunFacts,
-  DashboardFunFactsSkeleton,
-} from "~/dashboard/components/dashboard-fun-facts";
+  TilesFunFacts,
+  TilesFunFactsSkeleton,
+} from "~/dashboard/components/tiles-fun-facts";
 import {
-  ExerciseFrequencyGraphSkeleton,
-  ExercisesFrequencyGraph,
-} from "~/exercise/components/exercises-frequency-graph";
+  TilesToSetsCountGraphSkeleton,
+  TilesToSetsCountGraph,
+} from "~/dashboard/components/tiles-to-sets-count-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import {
-  TagsFrequencyGraph,
-  TagsFrequencyGraphSkeleton,
-} from "~/tag/components/tags-frequency-graph";
+  TilesToTagsCountGraph,
+  TilesToTagsGraphSkeleton,
+} from "~/dashboard/components/tiles-to-tags-count-graph";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
@@ -30,14 +30,14 @@ export const Tile = (props: TileProps) => {
   switch (props.tile.type) {
     case "exercise":
       return <ExerciseTile tile={props.tile} />;
-    case "exercisesFrequency":
-      return <ExercisesFrequencyTile tile={props.tile} />;
-    case "tagsFrequency":
-      return <TagsFrequencyTile tile={props.tile} />;
-    case "exercisesFunFacts":
-      return <ExercisesFunFactsTile tile={props.tile} />;
-    case "setsHeatMap":
-      return <SetsHeatMapTile tile={props.tile} />;
+    case "tilesToSetsCount":
+      return <TilesToSetsCountTile tile={props.tile} />;
+    case "tilesToTagsCount":
+      return <TilesToTagsCount tile={props.tile} />;
+    case "tilesSetsHeatMap":
+      return <TilesSetsHeatMapTile tile={props.tile} />;
+    case "tilesFunFacts":
+      return <TilesFunFactsTile tile={props.tile} />;
   }
 
   props.tile.type satisfies never;
@@ -82,7 +82,7 @@ const ExerciseTile = (props: TileProps) => {
       </Button>
 
       <CardHeader>
-        <Name>{props.tile.exercise.name}</Name>
+        <Name>{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
@@ -91,58 +91,58 @@ const ExerciseTile = (props: TileProps) => {
   );
 };
 
-const TagsFrequencyTile = (props: TileProps) => {
+const TilesToTagsCount = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
     <Card>
       <CardHeader>
-        <Name>tags frequency</Name>
+        <Name>{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <Suspense fallback={<TagsFrequencyGraphSkeleton />}>
-        <TagsFrequencyGraph />
+      <Suspense fallback={<TilesToTagsGraphSkeleton />}>
+        <TilesToTagsCountGraph />
       </Suspense>
     </Card>
   );
 };
 
-const ExercisesFrequencyTile = (props: TileProps) => {
+const TilesToSetsCountTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
     <Card>
       <CardHeader>
-        <Name>exercises frequency</Name>
+        <Name>{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <Suspense fallback={<ExerciseFrequencyGraphSkeleton />}>
-        <ExercisesFrequencyGraph />
+      <Suspense fallback={<TilesToSetsCountGraphSkeleton />}>
+        <TilesToSetsCountGraph />
       </Suspense>
     </Card>
   );
 };
 
-const ExercisesFunFactsTile = (props: TileProps) => {
+const TilesFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
     <Card>
       <CardHeader>
-        <Name>fun facts</Name>
+        <Name>{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <Suspense fallback={<DashboardFunFactsSkeleton />}>
-        <DashboardFunFacts />
+      <Suspense fallback={<TilesFunFactsSkeleton />}>
+        <TilesFunFacts />
       </Suspense>
     </Card>
   );
 };
 
-const SetsHeatMapTile = (props: TileProps) => {
+const TilesSetsHeatMapTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
@@ -150,12 +150,14 @@ const SetsHeatMapTile = (props: TileProps) => {
   return (
     <Card>
       <CardHeader>
-        <Name>Heat map - {monthName}</Name>
+        <Name>
+          {props.tile.name} - {monthName}
+        </Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <Suspense fallback={<SetsHeatMapGraphSkeleton />}>
-        <SetsHeatMapGraph />
+      <Suspense fallback={<TilesSetsHeatMapGraphSkeleton />}>
+        <TilesSetsHeatMapGraph />
       </Suspense>
     </Card>
   );

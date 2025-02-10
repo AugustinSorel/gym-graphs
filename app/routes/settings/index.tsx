@@ -43,9 +43,9 @@ import { userQueries } from "~/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
 import { permissions } from "~/libs/permissions";
-import { tagQueries } from "~/tag/tag.queries";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 
 export const Route = createFileRoute("/settings/")({
   component: () => RouteComponent(),
@@ -59,10 +59,10 @@ export const Route = createFileRoute("/settings/")({
   },
   loader: async ({ context }) => {
     const queries = {
-      tagsFrequency: tagQueries.frequency,
+      tilesToTagsCount: dashboardQueries.tilesToTagsCount,
     } as const;
 
-    await context.queryClient.ensureQueryData(queries.tagsFrequency);
+    await context.queryClient.ensureQueryData(queries.tilesToTagsCount);
   },
 });
 
@@ -142,7 +142,7 @@ const RenameUserSection = () => {
 };
 
 const TagsSection = () => {
-  const tagsFrequency = useTagsFrequency();
+  const tilesToTagsCount = useTilesToTagsCount();
 
   return (
     <CatchBoundary
@@ -155,10 +155,10 @@ const TagsSection = () => {
           <SectionDescription>Manage your exercise tags</SectionDescription>
 
           <List>
-            {!tagsFrequency.data.length && (
+            {!tilesToTagsCount.data.length && (
               <p className="text-muted-foreground p-6 text-center">no tags</p>
             )}
-            {tagsFrequency.data.map((tag) => (
+            {tilesToTagsCount.data.map((tag) => (
               <ListItem
                 key={tag.id}
                 className="before:border-border before:bg-accent before:text-muted-foreground [counter-increment:item] before:row-span-2 before:flex before:h-10 before:w-10 before:items-center before:justify-center before:rounded-full before:border before:text-lg before:font-semibold before:content-[counter(item)]"
@@ -166,7 +166,7 @@ const TagsSection = () => {
                 <ListItemTitle>{tag.name}</ListItemTitle>
 
                 <ListItemSubtitle>
-                  {pluralize(tag.frequency, "exercise")} linked
+                  {pluralize(tag.count, "exercise")} linked
                 </ListItemSubtitle>
 
                 <DropdownMenu>
@@ -561,6 +561,6 @@ const ListItemSubtitle = (props: ComponentProps<"p">) => {
   return <p className="col-start-2 row-start-2 truncate text-xs" {...props} />;
 };
 
-const useTagsFrequency = () => {
-  return useSuspenseQuery(tagQueries.frequency);
+const useTilesToTagsCount = () => {
+  return useSuspenseQuery(dashboardQueries.tilesToTagsCount);
 };

@@ -11,30 +11,21 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { renameExerciseAction } from "~/exercise/exercise.actions";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { exerciseQueries } from "~/exercise/exercise.queries";
+import { createExerciseTileAction } from "~/dashboard/dashboard.actions";
+import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { getRouteApi } from "@tanstack/react-router";
-import { useExercise } from "~/exercise/hooks/use-exercise";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 import type { z } from "zod";
 
-export const RenameExerciseForm = (props: Props) => {
+export const CreateExerciseTileForm = (props: Props) => {
   const form = useCreateExerciseForm();
-  const renameExercise = useRenameExercise();
-  const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const createExerciseTile = useCreateExerciseTile();
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await renameExercise.mutateAsync(
-      {
-        data: {
-          exerciseId: exercise.data.id,
-          name: data.name,
-        },
-      },
+    await createExerciseTile.mutateAsync(
+      { data },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -71,10 +62,10 @@ export const RenameExerciseForm = (props: Props) => {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            data-umami-event="rename exercise"
             className="font-semibold"
+            data-umami-event="exercise created"
           >
-            <span>rename</span>
+            <span>create</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -87,13 +78,10 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
-
 const useFormSchema = () => {
   const queryClient = useQueryClient();
-  const params = routeApi.useParams();
 
-  return exerciseSchema.pick({ name: true }).refine(
+  return tileSchema.pick({ name: true }).refine(
     (data) => {
       const queries = {
         tiles: dashboardQueries.tiles.queryKey,
@@ -104,10 +92,7 @@ const useFormSchema = () => {
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.tiles)
         .find((tile) => {
-          return (
-            tile.exercise?.name === data.name &&
-            tile.exerciseId !== params.exerciseId
-          );
+          return tile.name === data.name;
         });
 
       return !nameTaken;
@@ -123,27 +108,48 @@ type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
-  const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: exercise.data.name,
+      name: "",
     },
   });
 };
 
-const useRenameExercise = () => {
+const useCreateExerciseTile = () => {
+  const user = useUser();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: renameExerciseAction,
+    mutationFn: createExerciseTileAction,
     onMutate: (variables) => {
       const queries = {
-        exercise: exerciseQueries.get(variables.data.exerciseId).queryKey,
         tiles: dashboardQueries.tiles.queryKey,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
+
+      const exerciseId = Math.random();
+      const tileId = Math.random();
+
+      const optimisticTile = {
+        id: tileId,
+        index: 1_0000,
+        type: "exercise" as const,
+        dashboardId: user.data.dashboard.id,
+        name: variables.data.name,
+        exerciseId,
+        tags: [],
+        exercise: {
+          id: exerciseId,
+          userId: user.data.id,
+          sets: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
@@ -152,46 +158,35 @@ const useRenameExercise = () => {
 
         return {
           ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.filter((tile) => {
-                if (tile.exercise?.id === variables.data.exerciseId) {
-                  return {
-                    ...tile,
-                    exercise: {
-                      ...tile.exercise,
-                      name: variables.data.name,
-                    },
-                  };
-                }
+          pages: tiles.pages.map((page, i) => {
+            if (i === 0) {
+              return {
+                ...page,
+                tiles: [optimisticTile, ...page.tiles],
+              };
+            }
 
-                return tile;
-              }),
-            };
+            return page;
           }),
         };
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
-        if (!exercise) {
-          return exercise;
+      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+        if (!tilesToSetsCount) {
+          return tilesToSetsCount;
         }
 
-        return {
-          ...exercise,
-          name: variables.data.name,
-        };
+        return [{ name: variables.data.name, count: 0 }, ...tilesToSetsCount];
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: async () => {
       const queries = {
-        exercise: exerciseQueries.get(variables.data.exerciseId),
         tiles: dashboardQueries.tiles,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.tilesToSetsCount);
     },
   });
 };

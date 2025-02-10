@@ -17,15 +17,16 @@ import { deleteSetAction } from "~/set/set.actions";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setQueries } from "~/set/set.queries";
 import { getCalendarPositions } from "~/utils/date";
+import { useExercise } from "~/exercise/hooks/use-exercise";
+import { getRouteApi } from "@tanstack/react-router";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
   const deleteSet = useDeleteSet();
   const [isOpen, setIsOpen] = useState(false);
 
-  const deleteExerciseHandler = () => {
+  const deleteSetHandler = () => {
     deleteSet.mutate(
       {
         data: {
@@ -64,7 +65,7 @@ export const DeleteSetDialog = () => {
             disabled={deleteSet.isPending}
             onClick={(e) => {
               e.preventDefault();
-              deleteExerciseHandler();
+              deleteSetHandler();
             }}
           >
             <span>Delete</span>
@@ -76,9 +77,13 @@ export const DeleteSetDialog = () => {
   );
 };
 
+const routeApi = getRouteApi("/exercises/$exerciseId");
+
 const useDeleteSet = () => {
   const queryClient = useQueryClient();
   const set = useSet();
+  const params = routeApi.useParams();
+  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
     mutationFn: deleteSetAction,
@@ -87,7 +92,8 @@ const useDeleteSet = () => {
         tiles: dashboardQueries.tiles.queryKey,
         exercise: exerciseQueries.get(set.exerciseId).queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
-        setsHeatMap: setQueries.heatMap.queryKey,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
@@ -120,6 +126,23 @@ const useDeleteSet = () => {
         };
       });
 
+      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+        if (!tilesToSetsCount) {
+          return tilesToSetsCount;
+        }
+
+        return tilesToSetsCount.map((tile) => {
+          if (tile.name === exercise.data.tile.name) {
+            return {
+              ...tile,
+              count: tile.count - 1,
+            };
+          }
+
+          return tile;
+        });
+      });
+
       queryClient.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
@@ -127,7 +150,7 @@ const useDeleteSet = () => {
 
         return {
           ...funFacts,
-          setsCount: funFacts.setsCount - 1,
+          totalRepetitions: funFacts.totalRepetitions - set.repetitions,
           totalWeightInKg:
             funFacts.totalWeightInKg - set.weightInKg * set.repetitions,
         };
@@ -177,14 +200,16 @@ const useDeleteSet = () => {
       const queries = {
         exercise: exerciseQueries.get(set.exerciseId),
         tiles: dashboardQueries.tiles,
-        setsHeatMap: setQueries.heatMap,
+        setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
+        tilesToSetsCount: dashboardQueries.tilesToSetsCount,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
       void queryClient.invalidateQueries(queries.exercise);
       void queryClient.invalidateQueries(queries.setsHeatMap);
       void queryClient.invalidateQueries(queries.funFacts);
+      void queryClient.invalidateQueries(queries.tilesToSetsCount);
     },
   });
 };

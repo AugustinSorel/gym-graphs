@@ -6,8 +6,6 @@ import pg from "pg";
 import {
   createSet,
   deleteSet,
-  selectSetsForThisMonth,
-  transformSetsToHeatMap,
   updateSetDoneAt,
   updateSetRepetitions,
   updateSetWeight,
@@ -129,14 +127,4 @@ export const deleteSetAction = createServerFn({
   .validator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteSet(data.setId, context.user.id, context.db);
-  });
-
-export const selectSetsHeatMapAction = createServerFn({ method: "GET" })
-  .middleware([authGuardMiddleware, injectDbMiddleware])
-  .handler(async ({ context }) => {
-    const sets = await selectSetsForThisMonth(context.user.id, context.db);
-
-    const setsHeatMap = transformSetsToHeatMap(sets);
-
-    return setsHeatMap;
   });
