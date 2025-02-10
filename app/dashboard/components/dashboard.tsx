@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, Suspense, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
@@ -36,15 +36,15 @@ import type {
 } from "@dnd-kit/core";
 
 export const Dashboard = () => {
-  const tiles = useTiles();
-
-  console.log(
-    tiles.isLoading,
-    tiles.isFetching,
-    tiles.isRefetching,
-    tiles.isPending,
-    tiles.status,
+  return (
+    <Suspense fallback={<GridSkeleton />}>
+      <Content />
+    </Suspense>
   );
+};
+
+const Content = () => {
+  const tiles = useTiles();
 
   if (!tiles.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -69,7 +69,7 @@ export const Dashboard = () => {
         )}
       </SortableGrid>
 
-      {tiles.isFetchingNextPage && <SkeletonTiles />}
+      {tiles.isFetchingNextPage && <TilesSkeleton />}
     </Grid>
   );
 };
@@ -269,8 +269,16 @@ const SortableGrid = (props: {
   );
 };
 
-const SkeletonTiles = () => {
+const TilesSkeleton = () => {
   return [...new Array(10).keys()].map((i) => <TileSkeleton key={i} />);
+};
+
+const GridSkeleton = () => {
+  return (
+    <Grid>
+      <TilesSkeleton />
+    </Grid>
+  );
 };
 
 type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;

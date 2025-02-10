@@ -132,6 +132,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | BUG      | loading state when filtering                          |
+| TODO     | autofill verification code                            |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */
