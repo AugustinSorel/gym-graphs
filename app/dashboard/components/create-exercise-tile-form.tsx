@@ -84,7 +84,7 @@ const useFormSchema = () => {
   return tileSchema.pick({ name: true }).refine(
     (data) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(queries.tiles);
@@ -125,7 +125,7 @@ const useCreateExerciseTile = () => {
     mutationFn: createExerciseTileAction,
     onMutate: (variables) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
@@ -181,7 +181,7 @@ const useCreateExerciseTile = () => {
     },
     onSettled: async () => {
       const queries = {
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,
       } as const;
 

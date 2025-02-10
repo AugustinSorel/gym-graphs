@@ -261,7 +261,7 @@ const useUpdateExerciseTags = () => {
     onMutate: (variables) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       };
 
@@ -357,7 +357,7 @@ const useUpdateExerciseTags = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 

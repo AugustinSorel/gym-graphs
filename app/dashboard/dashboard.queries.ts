@@ -6,15 +6,20 @@ import {
   selectTilesToSetsCountAction,
   selectTilesToTagsCountAction,
 } from "~/dashboard/dashboard.actions";
+import type { Tag, Tile } from "~/db/db.schemas";
 
-const tiles = infiniteQueryOptions({
-  queryKey: ["dashboard", "tiles"],
-  queryFn: async ({ pageParam }) => {
-    return await selectTilesAction({ data: { page: pageParam } });
-  },
-  initialPageParam: 1,
-  getNextPageParam: (lastPage) => lastPage.nextCursor,
-});
+const tiles = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
+  infiniteQueryOptions({
+    queryKey: ["dashboard", "tiles", name, tags],
+    queryFn: ({ pageParam }) => {
+      return selectTilesAction({
+        data: { page: pageParam, name, tags },
+      });
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
+  });
 
 const funFacts = queryOptions({
   queryKey: ["dashboard", "tiles", "fun-facts"],

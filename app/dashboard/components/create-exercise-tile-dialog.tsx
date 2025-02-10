@@ -10,14 +10,18 @@ import {
 import { CreateExerciseTileForm } from "~/dashboard/components/create-exercise-tile-form";
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { getRouteApi } from "@tanstack/react-router";
 
 export const CreateExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const search = routeApi.useSearch();
+
+  const isFiltering = Boolean(search.name || search.tags?.length);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button aria-label="create exercise">
+        <Button aria-label="create exercise" disabled={isFiltering}>
           <span className="hidden sm:block">create exercise</span>
           <Plus className="size-4 sm:hidden" />
         </Button>
@@ -39,3 +43,5 @@ export const CreateExerciseTileDialog = () => {
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/dashboard/");

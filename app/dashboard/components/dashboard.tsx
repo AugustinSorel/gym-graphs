@@ -38,6 +38,14 @@ import type {
 export const Dashboard = () => {
   const tiles = useTiles();
 
+  console.log(
+    tiles.isLoading,
+    tiles.isFetching,
+    tiles.isRefetching,
+    tiles.isPending,
+    tiles.status,
+  );
+
   if (!tiles.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
@@ -204,7 +212,7 @@ const SortableGrid = (props: {
         const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
         const queries = {
-          tiles: dashboardQueries.tiles.queryKey,
+          tiles: dashboardQueries.tiles().queryKey,
         } as const;
 
         queryClient.setQueryData(queries.tiles, (tiles) => {

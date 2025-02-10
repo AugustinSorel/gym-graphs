@@ -119,7 +119,7 @@ const useUpdateWeight = () => {
     mutationFn: updateSetWeightAction,
     onMutate: (variables) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
       } as const;
@@ -202,7 +202,7 @@ const useUpdateWeight = () => {
     },
     onSettled: () => {
       const queries = {
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         exercise: exerciseQueries.get(exercise.data.id),
         funFacts: dashboardQueries.funFacts,
       } as const;

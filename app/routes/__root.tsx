@@ -129,9 +129,9 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | Remove `window.location.href` in `github-sign-in.tsx` |
 
 # APP TAKS
-| Type    | Description                        |
-| --------| -----------------------------------|
-| TODO    | allow multiple sets                |
-| TODO    | teams                              |
-| FIX     | move filtering to the server       |
+| Type     | Description                                           |
+| ---------| ------------------------------------------------------|
+| BUG      | loading state when filtering                          |
+| TODO     | allow multiple sets                                   |
+| TODO     | teams                                                 |
 */

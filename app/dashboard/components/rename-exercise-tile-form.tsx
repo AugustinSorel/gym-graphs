@@ -96,7 +96,7 @@ const useFormSchema = () => {
   return tileSchema.pick({ name: true }).refine(
     (data) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
       } as const;
 
       const cachedTiles = queryClient.getQueryData(queries.tiles);
@@ -143,7 +143,7 @@ const useRenameExericseTile = () => {
     onMutate: (variables) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
       } as const;
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
@@ -188,7 +188,7 @@ const useRenameExericseTile = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);

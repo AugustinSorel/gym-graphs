@@ -89,7 +89,7 @@ const useDeleteExerciseTile = () => {
     mutationFn: deleteTileAction,
     onMutate: (variables) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
@@ -190,7 +190,7 @@ const useDeleteExerciseTile = () => {
     },
     onSettled: () => {
       const queries = {
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         exercise: exerciseQueries.get(exercise.data.id),
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,

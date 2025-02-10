@@ -89,7 +89,7 @@ const useDeleteSet = () => {
     mutationFn: deleteSetAction,
     onMutate: (variables) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         exercise: exerciseQueries.get(set.exerciseId).queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
@@ -199,7 +199,7 @@ const useDeleteSet = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(set.exerciseId),
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,

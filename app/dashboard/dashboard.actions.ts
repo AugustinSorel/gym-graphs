@@ -19,11 +19,21 @@ import {
   selectSetsForThisMonth,
   transformSetsToHeatMap,
 } from "~/set/set.services";
+import { tagSchema } from "~/tag/tag.schemas";
 
 export const selectTilesAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
+      name: tileSchema.shape.name
+        .catch((e) => e.input)
+        .optional()
+        .transform((name) => name ?? ""),
+      tags: tagSchema.shape.name
+        .array()
+        .max(200)
+        .optional()
+        .transform((tags) => tags ?? []),
       page: z.number().positive().catch(1),
     }),
   )
@@ -31,6 +41,8 @@ export const selectTilesAction = createServerFn({ method: "GET" })
     const pageSize = 100;
 
     const tiles = await selectTiles(
+      data.name,
+      data.tags,
       context.user.dashboard.id,
       data.page,
       pageSize,

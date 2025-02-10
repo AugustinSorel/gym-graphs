@@ -9,7 +9,7 @@ import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
-import type { ComponentProps } from "react";
+import { Suspense, type ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -26,9 +26,13 @@ export const Route = createFileRoute("/dashboard/")({
       user,
     };
   },
-  loader: async ({ context }) => {
+  loaderDeps: ({ search }) => ({
+    name: search.name,
+    tags: search.tags,
+  }),
+  loader: async ({ context, deps }) => {
     const queries = {
-      tiles: dashboardQueries.tiles,
+      tiles: dashboardQueries.tiles(deps.name, deps.tags),
       tilesToSetsCount: dashboardQueries.tilesToSetsCount,
       setsHeatMap: dashboardQueries.tilesSetsHeatMap,
       funFacts: dashboardQueries.funFacts,
@@ -61,7 +65,9 @@ const RouteComponent = () => {
         <CreateExerciseTileDialog />
       </Header>
 
-      <Dashboard />
+      <Suspense fallback={<>loading...</>}>
+        <Dashboard />
+      </Suspense>
     </Main>
   );
 };

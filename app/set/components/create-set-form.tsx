@@ -154,7 +154,7 @@ const useCreateSet = () => {
     onMutate: (variables) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
         tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
@@ -274,7 +274,7 @@ const useCreateSet = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,

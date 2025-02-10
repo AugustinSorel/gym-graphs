@@ -1,12 +1,32 @@
 import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
-import { AlertCircle, Search } from "lucide-react";
+import { AlertCircle, Search, X } from "lucide-react";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
+import { useEffect, useState } from "react";
+import { useDebounceValue } from "~/hooks/use-debounce-value";
+import { Button } from "~/ui/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const FilterTilesByName = () => {
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
+
+  const [tileName, setTileName] = useState(search.name ?? "");
+
+  const debounceValue = useDebounceValue(tileName);
+
+  useEffect(() => {
+    void navigate({
+      search: (search) => ({
+        ...search,
+        name: tileName || undefined,
+      }),
+    });
+  }, [debounceValue, navigate]);
+
+  const clearSearch = () => {
+    setTileName("");
+  };
 
   return (
     <CatchBoundary getResetKey={() => "reset"} errorComponent={SearchFallback}>
@@ -15,17 +35,21 @@ export const FilterTilesByName = () => {
           type="search"
           placeholder="Search tiles..."
           className="bg-secondary pl-10"
-          value={search.name ?? ""}
-          onChange={(e) => {
-            void navigate({
-              search: (search) => ({
-                ...search,
-                name: e.target.value || undefined,
-              }),
-            });
-          }}
+          value={tileName}
+          onChange={(e) => setTileName(e.target.value)}
         />
         <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
+        {tileName && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-muted-foreground absolute top-1/2 right-2 -translate-y-1/2"
+            aria-label="clear search"
+            onClick={() => clearSearch()}
+          >
+            <X />
+          </Button>
+        )}
       </search>
     </CatchBoundary>
   );

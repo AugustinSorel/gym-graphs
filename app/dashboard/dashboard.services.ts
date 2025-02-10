@@ -1,4 +1,14 @@
-import { and, asc, count, desc, eq, inArray, sql, sum } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  sql,
+  sum,
+} from "drizzle-orm";
 import {
   dashboardTable,
   exerciseTable,
@@ -12,13 +22,29 @@ import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 export const selectTiles = async (
+  name: Tile["name"],
+  tags: Array<Tag["name"]>,
   dashboardId: Tile["dashboardId"],
   page: number,
   pageSize: number,
   db: Db,
 ) => {
+  const tilesIdsFilteredByTags = db
+    .select({ id: tileTable.id })
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(tileTagTable, eq(tileTagTable.tileId, tileTable.id))
+    .innerJoin(tagTable, eq(tagTable.id, tileTagTable.tagId))
+    .where(
+      and(eq(dashboardTable.id, dashboardId), inArray(tagTable.name, tags)),
+    );
+
   return db.query.tileTable.findMany({
-    where: eq(tileTable.dashboardId, dashboardId),
+    where: and(
+      eq(tileTable.dashboardId, dashboardId),
+      ilike(tileTable.name, `%${name}%`),
+      tags.length ? inArray(tileTable.id, tilesIdsFilteredByTags) : undefined,
+    ),
     orderBy: desc(tileTable.index),
     limit: pageSize,
     offset: (page - 1) * pageSize,

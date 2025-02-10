@@ -142,7 +142,7 @@ const useUpdateSetDoneAt = () => {
     mutationFn: updateSetDoneAtAction,
     onMutate: (variables) => {
       const queries = {
-        tiles: dashboardQueries.tiles.queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
       } as const;
@@ -252,7 +252,7 @@ const useUpdateSetDoneAt = () => {
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
-        tiles: dashboardQueries.tiles,
+        tiles: dashboardQueries.tiles(),
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
       } as const;
 
