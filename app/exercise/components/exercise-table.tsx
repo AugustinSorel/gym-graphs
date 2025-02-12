@@ -24,7 +24,9 @@ type Props = Readonly<{
 }>;
 
 export const ExerciseTable = ({ sets, columns }: Props) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "doneAt", desc: true },
+  ]);
 
   const table = useReactTable({
     data: sets,

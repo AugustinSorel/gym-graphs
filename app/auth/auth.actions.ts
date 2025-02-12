@@ -275,7 +275,7 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
       await deleteSessionByUserId(token.userId, tx);
       const passwordHash = await hashSecret(data.password);
 
-      await updatePassword(passwordHash, tx);
+      await updatePassword(passwordHash, token.userId, tx);
 
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, token.userId, tx);

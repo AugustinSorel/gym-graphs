@@ -404,9 +404,9 @@ const GithubLinkSection = () => {
         <HGroup>
           <SectionTitle>github</SectionTitle>
           <SectionDescription>
-            If you're interested in the behind-the-scenes development of our
-            platform, we invite you to explore the code on our Github! We highly
-            value feedback and contributions from our community.
+            If you&apos;re interested in the behind-the-scenes development of
+            our platform, we invite you to explore the code on our Github! We
+            highly value feedback and contributions from our community.
           </SectionDescription>
         </HGroup>
         <Footer>

@@ -22,7 +22,7 @@ export const FilterTilesByName = () => {
         name: tileName || undefined,
       }),
     });
-  }, [debounceValue, navigate]);
+  }, [debounceValue, navigate, tileName]);
 
   const clearSearch = () => {
     setTileName("");

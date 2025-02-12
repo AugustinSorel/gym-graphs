@@ -25,7 +25,7 @@ const RouteComponent = () => {
       <GithubSignIn />
 
       <RedirectText>
-        don't have an account?{" "}
+        don&apos;t have an account?{" "}
         <Button
           variant="link"
           asChild
@@ -46,7 +46,7 @@ const ErrorComponent = (props: ErrorComponentProps) => {
       <DefaultErrorFallback {...props} />
 
       <RedirectText>
-        don't have an account?{" "}
+        don&apos;t have an account?{" "}
         <Button
           variant="link"
           asChild

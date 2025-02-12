@@ -29,14 +29,14 @@ const Graph = ({ height, width }: GraphProps) => {
       domain: [0, maxX],
       range: [0, width],
     });
-  }, [algoLines, width]);
+  }, [width]);
 
   const yScale = useMemo(() => {
     return scaleLinear({
       domain: [0, maxY],
       range: [height, 0],
     });
-  }, [algoLines, height]);
+  }, [height]);
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
@@ -83,7 +83,7 @@ const Graph = ({ height, width }: GraphProps) => {
         tooltipTop: y,
       });
     },
-    [tooltip, xScale, yScale, algoLines, mockPoints.length],
+    [tooltip, xScale, yScale],
   );
   return (
     <>

@@ -8,7 +8,6 @@ import {
   fetchGithubUser,
   fetchGithubUserEmail,
   generateSessionToken,
-  GithubOauthToken,
 } from "~/auth/auth.services";
 import { db } from "~/libs/db";
 import { github } from "~/libs/github";
@@ -18,6 +17,7 @@ import {
   selectUserByEmail,
   updateEmailVerifiedAt,
 } from "~/user/user.services";
+import type { GithubOauthToken } from "~/auth/auth.services";
 
 export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
   GET: async ({ request }) => {

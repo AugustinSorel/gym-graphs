@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
 import type { Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
@@ -8,7 +8,7 @@ export const selectExercise = async (
   exerciseId: Exercise["id"],
   db: Db,
 ) => {
-  return db.query.exerciseTable.findFirst({
+  const x = await db.query.exerciseTable.findFirst({
     where: and(
       eq(exerciseTable.userId, userId),
       eq(exerciseTable.id, exerciseId),
@@ -25,10 +25,13 @@ export const selectExercise = async (
         },
       },
       sets: {
-        orderBy: desc(setTable.createdAt),
+        orderBy: asc(setTable.doneAt),
       },
     },
   });
+
+  console.log(x?.sets);
+  return x;
 };
 
 export const createExercise = async (userId: Exercise["userId"], db: Db) => {

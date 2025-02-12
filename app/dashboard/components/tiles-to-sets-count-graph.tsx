@@ -9,14 +9,14 @@ import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "~/ui/skeleton";
+import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { selectTilesToSetsCountAction } from "~/dashboard/dashboard.actions";
+import type { selectTilesToSetsCountAction } from "~/dashboard/dashboard.actions";
 
 export const TilesToSetsCountGraph = () => {
   const tilesToSetsCount = useTilesToSetsCount();
@@ -66,14 +66,14 @@ const Graph = ({ width, height, data }: GraphProps) => {
       range: [0, Math.PI * 2],
       domain: [degrees, 0],
     });
-  }, [degrees]);
+  }, []);
 
   const countScale = useMemo(() => {
     return scaleLinear({
       range: [0, radius],
       domain: [0, max(data, getCount) ?? 0],
     });
-  }, [radius, data, getCount]);
+  }, [radius, data]);
 
   const webs = genAngles(data.length);
   const points = genPoints(data.length, radius);
@@ -123,14 +123,14 @@ const Graph = ({ width, height, data }: GraphProps) => {
         tooltipTop: height / 2 + tooltipPoint.y - 10,
       });
     },
-    [data, tooltip, width, height, countScale],
+    [data, tooltip, width, height, polygonPoints.points],
   );
 
   return (
     <>
       <svg width={width} height={height} className="max-w-full">
         <Group top={height / 2 - margin.top} left={width / 2}>
-          {[...new Array(levels)].map((_, i) => (
+          {[...new Array<undefined>(levels)].map((_, i) => (
             <LineRadial
               key={`web-${i}`}
               data={webs}
@@ -145,7 +145,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
             />
           ))}
 
-          {[...new Array(data.length)].map((_, i) => (
+          {[...new Array<undefined>(data.length)].map((_, i) => (
             <Line
               key={`radar-line-${i}`}
               from={zeroPoint}
@@ -235,7 +235,7 @@ const MockGraph = ({ width, height, data }: GraphProps) => {
       range: [0, Math.PI * 2],
       domain: [degrees, 0],
     });
-  }, [degrees]);
+  }, []);
 
   const webs = genAngles(data.length);
   const points = genPoints(data.length, radius);
@@ -244,7 +244,7 @@ const MockGraph = ({ width, height, data }: GraphProps) => {
   return (
     <svg width={width} height={height} className="max-w-full">
       <Group top={height / 2 - margin.top} left={width / 2}>
-        {[...new Array(levels)].map((_, i) => (
+        {[...new Array<undefined>(levels)].map((_, i) => (
           <LineRadial
             key={`web-${i}`}
             data={webs}
@@ -259,7 +259,7 @@ const MockGraph = ({ width, height, data }: GraphProps) => {
           />
         ))}
 
-        {[...new Array(data.length)].map((_, i) => (
+        {[...new Array<undefined>(data.length)].map((_, i) => (
           <Line
             key={`radar-line-${i}`}
             from={zeroPoint}
@@ -287,14 +287,14 @@ const levels = 5;
 const getCount = (d: GraphPoint) => d.count;
 
 const genAngles = (length: number) =>
-  [...new Array(length + 1)].map((_, i) => ({
+  [...new Array<undefined>(length + 1)].map((_, i) => ({
     angle:
       i * (degrees / length) + (length % 2 === 0 ? 0 : degrees / length / 2),
   }));
 
 const genPoints = (length: number, radius: number) => {
   const step = (Math.PI * 2) / length;
-  return [...new Array(length)].map((_, i) => ({
+  return [...new Array<undefined>(length)].map((_, i) => ({
     x: radius * Math.sin(i * step),
     y: radius * Math.cos(i * step),
   }));
@@ -306,13 +306,11 @@ const genPolygonPoints = <Datum,>(
   getValue: (d: Datum) => number,
 ) => {
   const step = (Math.PI * 2) / dataArray.length;
-  const points: Array<{ x: number; y: number }> = new Array(
-    dataArray.length,
-  ).fill({
+  const points = new Array<{ x: number; y: number }>(dataArray.length).fill({
     x: 0,
     y: 0,
   });
-  const pointString: string = new Array(dataArray.length + 1)
+  const pointString = new Array<string>(dataArray.length + 1)
     .fill("")
     .reduce((res, _, i) => {
       if (i > dataArray.length) {

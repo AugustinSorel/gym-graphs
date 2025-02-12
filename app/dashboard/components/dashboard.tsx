@@ -1,9 +1,7 @@
 import { CatchBoundary } from "@tanstack/react-router";
 import {
-  Announcements,
   closestCenter,
   DndContext,
-  DragEndEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -30,6 +28,8 @@ import type {
   ReactNode,
 } from "react";
 import type {
+  DragEndEvent,
+  Announcements,
   DragStartEvent,
   ScreenReaderInstructions,
   UniqueIdentifier,
@@ -98,7 +98,7 @@ const SortableItem = (
         return;
       }
 
-      tiles.fetchNextPage();
+      void tiles.fetchNextPage();
     });
 
     observer.observe(e);

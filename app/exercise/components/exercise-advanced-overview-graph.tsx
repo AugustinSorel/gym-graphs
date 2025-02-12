@@ -52,7 +52,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       domain: extent(sets, getDoneAt) as [Date, Date],
       range: [0, width - margin.right - margin.left],
     });
-  }, [margin, width, sets]);
+  }, [width, sets]);
 
   const oneRepMaxScale = useMemo(() => {
     return scaleLinear({
@@ -62,7 +62,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       ],
       range: [height - margin.top - margin.bottom, 0],
     });
-  }, [margin, height, sets]);
+  }, [height, sets, user.data.oneRepMaxAlgo]);
 
   const handleTooltip = useCallback(
     (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
@@ -94,7 +94,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         tooltipTop: oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo)),
       });
     },
-    [tooltip, oneRepMaxScale, timeScale],
+    [tooltip, timeScale, sets, user.data.oneRepMaxAlgo, oneRepMaxScale],
   );
 
   return (

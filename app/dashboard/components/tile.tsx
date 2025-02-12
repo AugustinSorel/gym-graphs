@@ -5,7 +5,7 @@ import {
   TilesSetsHeatMapGraph,
   TilesSetsHeatMapGraphSkeleton,
 } from "~/dashboard/components/tiles-sets-heat-map-graph";
-import { Button, ButtonProps } from "~/ui/button";
+import { Button } from "~/ui/button";
 import {
   TilesFunFacts,
   TilesFunFactsSkeleton,
@@ -25,6 +25,7 @@ import { Skeleton } from "~/ui/skeleton";
 import type { useTiles } from "~/dashboard/hooks/use-tiles";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { ButtonProps } from "~/ui/button";
 
 export const Tile = (props: TileProps) => {
   switch (props.tile.type) {
@@ -166,7 +167,7 @@ const TilesSetsHeatMapTile = (props: TileProps) => {
 const DragButton = (props: ButtonProps) => {
   const search = routeApi.useSearch();
 
-  const isFiltering = search.name || search.tags?.length;
+  const isFiltering = Boolean(search.name ?? search.tags?.length);
 
   if (isFiltering) {
     return null;

@@ -5,7 +5,6 @@ import {
   LogOut,
   Settings,
   User2,
-  Github,
   Laptop,
   Sun,
   Moon,

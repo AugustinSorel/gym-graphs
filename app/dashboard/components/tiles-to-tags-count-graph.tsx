@@ -9,7 +9,7 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "~/ui/skeleton";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { selectTilesToTagsCountAction } from "~/dashboard/dashboard.actions";
+import type { selectTilesToTagsCountAction } from "~/dashboard/dashboard.actions";
 import type { ComponentProps, CSSProperties } from "react";
 
 export const TilesToTagsCountGraph = () => {
@@ -65,7 +65,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
       domain: [100, 500],
       range: [0, maxY],
     });
-  }, [height]);
+  }, [maxY]);
 
   return (
     <>
@@ -180,7 +180,7 @@ const GraphSkeleton = ({ height, width }: Omit<GraphProps, "data">) => {
       domain: [100, 500],
       range: [0, maxY],
     });
-  }, [height]);
+  }, [maxY]);
 
   return (
     <svg width={width} height={height}>

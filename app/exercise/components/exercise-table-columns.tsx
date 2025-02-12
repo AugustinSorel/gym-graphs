@@ -48,26 +48,16 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
       );
     },
     accessorFn: (row) => {
-      const user = useUser();
-
-      return calculateOneRepMax(
-        row.weightInKg,
-        row.repetitions,
-        user.data.oneRepMaxAlgo,
-      );
+      return calculateOneRepMax(row.weightInKg, row.repetitions, "epley");
     },
     cell: ({ row }) => {
-      const user = useUser();
-
-      const oneRepMax = calculateOneRepMax(
-        row.original.weightInKg,
-        row.original.repetitions,
-        user.data.oneRepMaxAlgo,
-      );
-
       return (
         <>
-          <WeightValue weightInKg={oneRepMax} /> <WeightUnit />
+          <OneRepMaxWeightValue
+            repetitions={row.original.repetitions}
+            weightInKg={row.original.weightInKg}
+          />{" "}
+          <WeightUnit />
         </>
       );
     },
@@ -179,6 +169,18 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
     },
   },
 ];
+
+const OneRepMaxWeightValue = (
+  props: Pick<Set, "weightInKg" | "repetitions">,
+) => {
+  const user = useUser();
+
+  return calculateOneRepMax(
+    props.weightInKg,
+    props.repetitions,
+    user.data.oneRepMaxAlgo,
+  );
+};
 
 export const homePageExerciseTableColumns = exerciseTableColumns.filter((c) => {
   return c.id !== "actions";

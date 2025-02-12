@@ -16,7 +16,7 @@ export const CreateExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const search = routeApi.useSearch();
 
-  const isFiltering = Boolean(search.name || search.tags?.length);
+  const isFiltering = Boolean(search.name ?? search.tags?.length);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

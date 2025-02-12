@@ -64,7 +64,7 @@ export const ThemeProvider = (props: PropsWithChildren) => {
     );
 
     return () => abortController.abort();
-  }, []);
+  }, [localStorage]);
 
   useEffect(() => {
     if (theme === themeSchema.Values.system) {
@@ -90,7 +90,7 @@ export const ThemeProvider = (props: PropsWithChildren) => {
       document.documentElement.classList.remove("dark");
       document.documentElement.style.colorScheme = "light";
     }
-  }, [theme]);
+  }, [theme, localStorage]);
 
   return (
     <ThemeContext value={{ value: theme, set: setTheme }}>
