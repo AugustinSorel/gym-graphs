@@ -8,8 +8,7 @@ export const convertWeight = (
     case "kg":
       return weightInKg;
     case "lbs":
-      const res = weightInKg * 2.205;
-      return parseInt(res.toString());
+      return weightInKg * 2.205;
   }
 
   unit satisfies never;
