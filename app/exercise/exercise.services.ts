@@ -16,7 +16,7 @@ export const selectExercise = async (
     with: {
       tile: {
         with: {
-          tags: {
+          tileToTags: {
             orderBy: asc(tagTable.createdAt),
             with: {
               tag: true,

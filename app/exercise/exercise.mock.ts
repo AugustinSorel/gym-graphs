@@ -18,7 +18,7 @@ export const exercisesMock: ReadonlyArray<
       type: "exercise",
       updatedAt: new Date(),
       createdAt: new Date(),
-      tags: tagsMock
+      tileToTags: tagsMock
         .filter((tag) => tag.name === "chest")
         .map((tag) => ({
           tileId: 0,
@@ -90,7 +90,7 @@ export const exercisesMock: ReadonlyArray<
       type: "exercise",
       updatedAt: new Date(),
       createdAt: new Date(),
-      tags: tagsMock
+      tileToTags: tagsMock
         .filter((tag) => tag.name === "legs")
         .map((tag) => ({
           tileId: 1,
@@ -153,7 +153,7 @@ export const exercisesMock: ReadonlyArray<
       type: "exercise",
       updatedAt: new Date(),
       createdAt: new Date(),
-      tags: tagsMock
+      tileToTags: tagsMock
         .filter((tag) => tag.name === "legs" || tag.name === "calfs")
         .map((tag) => ({
           tileId: 2,
@@ -234,7 +234,7 @@ export const exercisesMock: ReadonlyArray<
       type: "exercise",
       updatedAt: new Date(),
       createdAt: new Date(),
-      tags: [],
+      tileToTags: [],
     },
     sets: [
       {

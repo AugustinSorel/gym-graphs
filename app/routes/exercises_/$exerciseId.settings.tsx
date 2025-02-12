@@ -117,7 +117,9 @@ const ExerciseTagsSection = () => {
         <ToggleGroup
           className="m-6 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4"
           type="multiple"
-          value={exercise.data.tile.tags.map((tag) => tag.tagId.toString())}
+          value={exercise.data.tile.tileToTags.map((tileToTag) => {
+            return tileToTag.tag.id.toString();
+          })}
           onValueChange={(e) => {
             updateExerciseTags.mutate({
               data: {
@@ -297,7 +299,7 @@ const useUpdateExerciseTags = () => {
                 if (tile.id === variables.data.tileId) {
                   return {
                     ...tile,
-                    tags: optimisticTags,
+                    tileToTags: optimisticTags,
                   };
                 }
 
@@ -317,7 +319,7 @@ const useUpdateExerciseTags = () => {
           ...exercise,
           tile: {
             ...exercise.tile,
-            tags: optimisticTags,
+            tileToTags: optimisticTags,
           },
         };
       });
@@ -329,7 +331,7 @@ const useUpdateExerciseTags = () => {
 
         const newExerciseTagsSet = new Set(variables.data.newTags);
         const exerciseTagsSet = new Set(
-          exercise.data.tile.tags.map((d) => d.tagId),
+          exercise.data.tile.tileToTags.map((tileToTag) => tileToTag.tag.id),
         );
 
         const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);

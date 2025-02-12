@@ -68,7 +68,7 @@ export const tilesToSetsCountMock: Awaited<
 export const tilesToTagsCount = exercisesMock.reduce<
   Awaited<ReturnType<typeof selectTilesToTagsCount>>
 >((tilesToTagsCount, exercise) => {
-  const tags = exercise.tile.tags.map((tileTag) => tileTag.tag);
+  const tags = exercise.tile.tileToTags.map((tileToTag) => tileToTag.tag);
 
   for (const tag of tags) {
     const tagCount = tilesToTagsCount.find((tileToTags) => {

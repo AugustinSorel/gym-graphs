@@ -1,5 +1,5 @@
 import { and, eq, exists, inArray } from "drizzle-orm";
-import { tagTable, tileTable, tileTagTable } from "~/db/db.schemas";
+import { tagTable, tileTable, tilesToTagsTableTable } from "~/db/db.schemas";
 import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -15,8 +15,8 @@ export const selectTileTags = async (
       and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
     );
 
-  return db.query.tileTagTable.findMany({
-    where: and(eq(tileTagTable.tileId, tileId), exists(tile)),
+  return db.query.tilesToTagsTableTable.findMany({
+    where: and(eq(tilesToTagsTableTable.tileId, tileId), exists(tile)),
   });
 };
 
@@ -51,7 +51,7 @@ export const addTagsToTile = async (
   }
 
   await db
-    .insert(tileTagTable)
+    .insert(tilesToTagsTableTable)
     .values(tagsToAdd.map((tagId) => ({ tagId, tileId })));
 };
 
@@ -65,11 +65,11 @@ export const deleteTagsFromTile = async (
   }
 
   await db
-    .delete(tileTagTable)
+    .delete(tilesToTagsTableTable)
     .where(
       and(
-        eq(tileTagTable.tileId, tileId),
-        inArray(tileTagTable.tagId, tagsToDelete),
+        eq(tilesToTagsTableTable.tileId, tileId),
+        inArray(tilesToTagsTableTable.tagId, tagsToDelete),
       ),
     );
 };

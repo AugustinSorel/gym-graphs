@@ -15,7 +15,7 @@ import {
   setTable,
   tagTable,
   tileTable,
-  tileTagTable,
+  tilesToTagsTableTable,
 } from "~/db/db.schemas";
 import type { SQL } from "drizzle-orm";
 import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
@@ -33,8 +33,11 @@ export const selectTiles = async (
     .select({ id: tileTable.id })
     .from(dashboardTable)
     .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
-    .innerJoin(tileTagTable, eq(tileTagTable.tileId, tileTable.id))
-    .innerJoin(tagTable, eq(tagTable.id, tileTagTable.tagId))
+    .innerJoin(
+      tilesToTagsTableTable,
+      eq(tilesToTagsTableTable.tileId, tileTable.id),
+    )
+    .innerJoin(tagTable, eq(tagTable.id, tilesToTagsTableTable.tagId))
     .where(
       and(eq(dashboardTable.id, dashboardId), inArray(tagTable.name, tags)),
     );
@@ -49,7 +52,7 @@ export const selectTiles = async (
     limit: pageSize,
     offset: (page - 1) * pageSize,
     with: {
-      tags: {
+      tileToTags: {
         orderBy: asc(tagTable.createdAt),
         with: {
           tag: true,
@@ -142,8 +145,8 @@ export const selectTilesTotalWeightInKg = async (
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId));
 
-  if (!totalWeightInKg?.total) {
-    throw new Error("total weight in kg returned by db is null");
+  if (!totalWeightInKg) {
+    return 0;
   }
 
   return totalWeightInKg.total;
@@ -163,8 +166,8 @@ export const selectTilesTotalRepetitions = async (
     .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
     .where(eq(dashboardTable.userId, userId));
 
-  if (!repetitionsCount?.count) {
-    throw new Error("sets count returned by db is null");
+  if (!repetitionsCount) {
+    return 0;
   }
 
   return repetitionsCount.count;
@@ -189,7 +192,10 @@ export const selectTileWithMostSets = async (
     .limit(1);
 
   if (!favoriteExercise) {
-    throw new Error("favorite exercise returned by db is null");
+    return {
+      name: "unknown",
+      setsCount: 0,
+    };
   }
 
   return favoriteExercise;
@@ -214,7 +220,10 @@ export const selectTileWithLeastSets = async (
     .limit(1);
 
   if (!leastFavoriteExercise) {
-    throw new Error("least favorite exercise returned by db is null");
+    return {
+      name: "unknown",
+      setsCount: 0,
+    };
   }
 
   return leastFavoriteExercise;
@@ -297,8 +306,11 @@ export const selectTilesToTagsCount = async (userId: Tag["userId"], db: Db) => {
       name: tagTable.name,
     })
     .from(tagTable)
-    .leftJoin(tileTagTable, eq(tileTagTable.tagId, tagTable.id))
-    .leftJoin(tileTable, eq(tileTable.id, tileTagTable.tileId))
+    .leftJoin(
+      tilesToTagsTableTable,
+      eq(tilesToTagsTableTable.tagId, tagTable.id),
+    )
+    .leftJoin(tileTable, eq(tileTable.id, tilesToTagsTableTable.tileId))
     .leftJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
     .where(eq(tagTable.userId, userId))
     .groupBy(tagTable.id);

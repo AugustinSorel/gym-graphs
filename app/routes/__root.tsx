@@ -132,7 +132,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | BUG      | loading state when filtering                          |
-| TODO     | autofill verification code                            |
+| TODO     | make sphere less bright in homepage                   |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */

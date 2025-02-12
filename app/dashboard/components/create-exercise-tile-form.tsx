@@ -139,7 +139,7 @@ const useCreateExerciseTile = () => {
         dashboardId: user.data.dashboard.id,
         name: variables.data.name,
         exerciseId,
-        tags: [],
+        tileToTags: [],
         exercise: {
           id: exerciseId,
           userId: user.data.id,

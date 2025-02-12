@@ -105,7 +105,7 @@ export const tileRelations = relations(tileTable, ({ one, many }) => ({
     references: [dashboardTable.id],
   }),
   exercise: one(exerciseTable),
-  tags: many(tileTagTable),
+  tileToTags: many(tilesToTagsTableTable),
 }));
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
@@ -263,8 +263,8 @@ export const setRelations = relations(setTable, ({ one }) => ({
   }),
 }));
 
-export const tileTagTable = pgTable(
-  "tile_tag",
+export const tilesToTagsTableTable = pgTable(
+  "tile_to_tags",
   {
     tileId: integer("tile_id")
       .notNull()
@@ -278,16 +278,19 @@ export const tileTagTable = pgTable(
   (table) => [primaryKey({ columns: [table.tileId, table.tagId] })],
 );
 
-export const exerciseTagRelations = relations(tileTagTable, ({ one }) => ({
-  tile: one(tileTable, {
-    fields: [tileTagTable.tileId],
-    references: [tileTable.id],
+export const exerciseTagRelations = relations(
+  tilesToTagsTableTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [tilesToTagsTableTable.tileId],
+      references: [tileTable.id],
+    }),
+    tag: one(tagTable, {
+      fields: [tilesToTagsTableTable.tagId],
+      references: [tagTable.id],
+    }),
   }),
-  tag: one(tagTable, {
-    fields: [tileTagTable.tagId],
-    references: [tagTable.id],
-  }),
-}));
+);
 
 export const tagTable = pgTable(
   "tag",
@@ -310,5 +313,5 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
     fields: [tagTable.userId],
     references: [userTable.id],
   }),
-  exercises: many(tileTagTable),
+  tagToTiles: many(tilesToTagsTableTable),
 }));
