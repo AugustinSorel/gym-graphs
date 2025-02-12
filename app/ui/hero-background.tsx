@@ -92,7 +92,10 @@ export const HeroBackground = () => {
           r="700"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#5BDCC6" />
+          <stop
+            offset="0"
+            className="[stop-color:#43A392] sm:[stop-color:#5BDCC6]"
+          />
           <stop offset="1" stopColor="#F257A0" stopOpacity="0" />
         </radialGradient>
       </defs>
