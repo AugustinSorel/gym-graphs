@@ -206,7 +206,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           top={(tooltip.tooltipTop ?? 0) - tooltipMargin.top}
           left={Math.min(
             Math.max((tooltip.tooltipLeft ?? 0) - tooltipMargin.left, 0),
-            width - 125,
+            width - 150,
           )}
           style={tooltipStyles}
         >
