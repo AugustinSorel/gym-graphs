@@ -54,11 +54,7 @@ const RouteComponent = () => {
             <Cog className="lg:hidden" />
           </Link>
         </Button>
-        <CreateSetDialog>
-          <Button size="sm" className="hidden lg:inline-flex">
-            add set
-          </Button>
-        </CreateSetDialog>
+        <CreateSetDialog />
         <Button
           asChild
           variant="link"

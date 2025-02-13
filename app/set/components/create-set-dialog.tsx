@@ -8,14 +8,28 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { CreateSetForm } from "~/set/components/create-set-form";
-import type { PropsWithChildren } from "react";
+import { Button } from "~/ui/button";
+import { Plus } from "lucide-react";
 
-export const CreateSetDialog = (props: Props) => {
+export const CreateSetDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{props.children}</DialogTrigger>
+      <Button asChild className="hidden lg:inline-flex">
+        <DialogTrigger>create set</DialogTrigger>
+      </Button>
+
+      <Button
+        asChild
+        className="fixed right-4 bottom-20 z-20 size-14 rounded-full text-xl backdrop-blur-md lg:hidden"
+        aria-label="create set"
+      >
+        <DialogTrigger>
+          <Plus />
+        </DialogTrigger>
+      </Button>
+
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add a new set</DialogTitle>
@@ -31,5 +45,3 @@ export const CreateSetDialog = (props: Props) => {
     </Dialog>
   );
 };
-
-type Props = Readonly<PropsWithChildren>;

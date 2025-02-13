@@ -1,11 +1,4 @@
-import {
-  Link,
-  useMatch,
-  useSearch,
-  useMatchRoute,
-  useLocation,
-  useRouterState,
-} from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
 import {
@@ -16,8 +9,8 @@ import {
   Sun,
   Moon,
   Home,
+  UsersRound,
   ArrowRight,
-  Plus,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,9 +31,7 @@ import { AppIcon } from "~/ui/app-icon";
 import { useSignOut } from "~/auth/hooks/use-sign-out";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
-import { CreateExerciseTileDialog } from "~/dashboard/components/create-exercise-tile-dialog";
 import type { ComponentProps } from "react";
-import { CreateSetDialog } from "~/set/components/create-set-dialog";
 
 export const HeaderPublic = () => {
   return (
@@ -113,16 +104,18 @@ const DesktopNav = () => {
 };
 
 const MobileNav = () => {
-  const search = useSearch({ strict: false });
-
-  const isFiltering = Boolean(search.name ?? search.tags?.length);
-  const routeMatch = useMatchRoute();
-
-  const isInDashboardPage = routeMatch({ to: "/dashboard" });
-  const isInExercisePage = routeMatch({ to: "/exercises/$exerciseId" });
-
   return (
-    <Nav className="flex w-full items-center justify-between gap-3">
+    <Nav className="flex w-full items-center justify-evenly gap-4 [&_a_svg]:size-6">
+      <Button
+        asChild
+        variant="ghost"
+        className="data-[status=active]:bg-accent"
+        aria-label="go to teams"
+      >
+        <Link to="/settings">
+          <UsersRound />
+        </Link>
+      </Button>
       <Button
         asChild
         variant="ghost"
@@ -133,28 +126,11 @@ const MobileNav = () => {
           <Home />
         </Link>
       </Button>
-
-      {isInDashboardPage && (
-        <CreateExerciseTileDialog>
-          <Button aria-label="create exercise" disabled={isFiltering}>
-            <Plus />
-          </Button>
-        </CreateExerciseTileDialog>
-      )}
-
-      {isInExercisePage && (
-        <CreateSetDialog>
-          <Button aria-label="add set" disabled={isFiltering}>
-            <Plus />
-          </Button>
-        </CreateSetDialog>
-      )}
-
       <Button
         asChild
         variant="ghost"
         className="data-[status=active]:bg-accent"
-        aria-label="go to teams"
+        aria-label="go to settings"
       >
         <Link to="/settings">
           <User2 />

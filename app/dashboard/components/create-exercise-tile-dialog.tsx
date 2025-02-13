@@ -7,17 +7,35 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { CreateExerciseTileForm } from "~/dashboard/components/create-exercise-tile-form";
-import { PropsWithChildren, useState } from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { useState } from "react";
+import { Button } from "~/ui/button";
+import { getRouteApi } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 
-export const CreateExerciseTileDialog = (props: Props) => {
+export const CreateExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const search = apiRoute.useSearch();
+
+  const isFiltering = Boolean(search.name ?? search.tags?.length);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Slot>{props.children}</Slot>
-      </DialogTrigger>
+      <Button asChild className="hidden lg:inline-flex" disabled={isFiltering}>
+        <DialogTrigger>create exercise</DialogTrigger>
+      </Button>
+
+      <Button
+        asChild
+        className="fixed right-4 bottom-20 z-20 size-14 rounded-full text-xl backdrop-blur-md lg:hidden"
+        disabled={isFiltering}
+        aria-label="create exercise"
+      >
+        <DialogTrigger>
+          <Plus />
+        </DialogTrigger>
+      </Button>
+
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create exercise</DialogTitle>
@@ -36,4 +54,4 @@ export const CreateExerciseTileDialog = (props: Props) => {
   );
 };
 
-type Props = Readonly<PropsWithChildren>;
+const apiRoute = getRouteApi("/dashboard/");

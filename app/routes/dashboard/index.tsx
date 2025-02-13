@@ -58,20 +58,12 @@ const RouteFallback = (props: ErrorComponentProps) => {
 };
 
 const RouteComponent = () => {
-  const search = Route.useSearch();
-
-  const isFiltering = Boolean(search.name ?? search.tags?.length);
-
   return (
     <Main>
       <Header>
         <FilterTilesByName />
         <FilterTilesByTags />
-        <CreateExerciseTileDialog>
-          <Button className="hidden lg:inline-flex" disabled={isFiltering}>
-            create exercise
-          </Button>
-        </CreateExerciseTileDialog>
+        <CreateExerciseTileDialog />
       </Header>
 
       <Suspense fallback={<>loading...</>}>
