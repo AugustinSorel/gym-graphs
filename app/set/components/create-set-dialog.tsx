@@ -1,4 +1,3 @@
-import { Button } from "~/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +8,14 @@ import {
 } from "~/ui/dialog";
 import { useState } from "react";
 import { CreateSetForm } from "~/set/components/create-set-form";
+import type { PropsWithChildren } from "react";
 
-export const CreateSetDialog = () => {
+export const CreateSetDialog = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">add set</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{props.children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add a new set</DialogTitle>
@@ -33,3 +31,5 @@ export const CreateSetDialog = () => {
     </Dialog>
   );
 };
+
+type Props = Readonly<PropsWithChildren>;

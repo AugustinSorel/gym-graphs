@@ -10,7 +10,7 @@ import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Cog } from "lucide-react";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
 import { permissions } from "~/libs/permissions";
 import type { ComponentProps } from "react";
@@ -45,11 +45,20 @@ const RouteComponent = () => {
       <Header>
         <Title>{exercise.data.tile.name}</Title>
         <Button variant="outline" size="sm" asChild>
-          <Link to="/exercises/$exerciseId/settings" from={Route.fullPath}>
-            settings
+          <Link
+            to="/exercises/$exerciseId/settings"
+            from={Route.fullPath}
+            aria-label="exercise settings"
+          >
+            <span className="hidden lg:inline-flex">settings</span>
+            <Cog className="lg:hidden" />
           </Link>
         </Button>
-        <CreateSetDialog />
+        <CreateSetDialog>
+          <Button size="sm" className="hidden lg:inline-flex">
+            add set
+          </Button>
+        </CreateSetDialog>
         <Button
           asChild
           variant="link"
@@ -103,7 +112,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 const Header = (props: ComponentProps<"header">) => {
   return (
     <header
-      className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-5 lg:grid-cols-[1fr_auto_auto] lg:gap-y-0 [&>a[href='/dashboard']]:row-start-3 [&>h1]:col-span-3 lg:[&>h1]:col-span-1"
+      className="grid grid-cols-[1fr_auto_auto] gap-2 [&>a[href='/dashboard']]:row-start-2"
       {...props}
     />
   );

@@ -26,8 +26,8 @@ export const FilterTilesByTags = () => {
           data-counter={tags.size}
           aria-label="filter exercises by tags"
         >
-          <span className="hidden sm:block">tags</span>
-          <Filter className="sm:hidden" />
+          <span className="hidden lg:block">tags</span>
+          <Filter className="lg:hidden" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-72 w-56 overflow-auto">

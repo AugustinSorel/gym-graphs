@@ -132,7 +132,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | BUG      | loading state when filtering                          |
-| TODO     | cleaner nav bar for mobile user                       |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */

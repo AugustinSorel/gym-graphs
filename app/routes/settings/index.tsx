@@ -235,7 +235,7 @@ const OneRepMaxAlgoSection = () => {
         </HGroup>
 
         <ToggleGroup
-          className="m-6 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4"
+          className="m-3 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4 lg:m-6"
           type="single"
           value={user.data.oneRepMaxAlgo}
           onValueChange={(unsafeOneRepMaxAlgo) => {
@@ -276,7 +276,7 @@ const OneRepMaxAlgoSection = () => {
           </Alert>
         )}
 
-        <div className="m-6 rounded-md border">
+        <div className="m-3 rounded-md border lg:m-6">
           <OneRepMaxAlgorithmsGraph />
         </div>
       </Section>
@@ -517,14 +517,14 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 };
 
 const HGroup = (props: ComponentProps<"hgroup">) => {
-  return <hgroup className="space-y-3 p-6" {...props} />;
+  return <hgroup className="space-y-3 p-3 lg:p-6" {...props} />;
 };
 
 const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   return (
     <footer
       className={cn(
-        "bg-background flex items-center justify-end border-t px-6 py-4",
+        "bg-background flex items-center justify-end border-t px-3 py-4 lg:px-6",
         className,
       )}
       {...props}

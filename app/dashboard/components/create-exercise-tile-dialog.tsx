@@ -1,4 +1,3 @@
-import { Button } from "~/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,23 +7,16 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { CreateExerciseTileForm } from "~/dashboard/components/create-exercise-tile-form";
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { getRouteApi } from "@tanstack/react-router";
+import { PropsWithChildren, useState } from "react";
+import { Slot } from "@radix-ui/react-slot";
 
-export const CreateExerciseTileDialog = () => {
+export const CreateExerciseTileDialog = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const search = routeApi.useSearch();
-
-  const isFiltering = Boolean(search.name ?? search.tags?.length);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button aria-label="create exercise" disabled={isFiltering}>
-          <span className="hidden sm:block">create exercise</span>
-          <Plus className="size-4 sm:hidden" />
-        </Button>
+        <Slot>{props.children}</Slot>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -44,4 +36,4 @@ export const CreateExerciseTileDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/dashboard/");
+type Props = Readonly<PropsWithChildren>;

@@ -11,6 +11,7 @@ import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
 import { Suspense, type ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { Button } from "~/ui/button";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({
@@ -57,12 +58,20 @@ const RouteFallback = (props: ErrorComponentProps) => {
 };
 
 const RouteComponent = () => {
+  const search = Route.useSearch();
+
+  const isFiltering = Boolean(search.name ?? search.tags?.length);
+
   return (
     <Main>
       <Header>
         <FilterTilesByName />
         <FilterTilesByTags />
-        <CreateExerciseTileDialog />
+        <CreateExerciseTileDialog>
+          <Button className="hidden lg:inline-flex" disabled={isFiltering}>
+            create exercise
+          </Button>
+        </CreateExerciseTileDialog>
       </Header>
 
       <Suspense fallback={<>loading...</>}>
