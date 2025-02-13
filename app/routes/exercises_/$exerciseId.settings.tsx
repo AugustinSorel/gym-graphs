@@ -115,7 +115,7 @@ const ExerciseTagsSection = () => {
         </HGroup>
 
         <ToggleGroup
-          className="m-6 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4"
+          className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="multiple"
           value={exercise.data.tile.tileToTags.map((tileToTag) => {
             return tileToTag.tag.id.toString();
@@ -220,14 +220,14 @@ const Title = (props: ComponentProps<"h1">) => {
 };
 
 const HGroup = (props: ComponentProps<"hgroup">) => {
-  return <hgroup className="space-y-3 p-6" {...props} />;
+  return <hgroup className="space-y-3 p-3 lg:p-6" {...props} />;
 };
 
 const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   return (
     <footer
       className={cn(
-        "bg-background flex items-center justify-end border-t px-6 py-4",
+        "bg-background flex items-center justify-end border-t px-3 py-4 lg:px-6",
         className,
       )}
       {...props}

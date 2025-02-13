@@ -235,7 +235,7 @@ const OneRepMaxAlgoSection = () => {
         </HGroup>
 
         <ToggleGroup
-          className="m-3 mt-0 flex flex-wrap justify-start gap-4 rounded-md border p-4 lg:m-6"
+          className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="single"
           value={user.data.oneRepMaxAlgo}
           onValueChange={(unsafeOneRepMaxAlgo) => {
