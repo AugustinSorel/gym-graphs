@@ -24,7 +24,7 @@ export const ExerciseTagsList = () => {
 };
 
 const List = (props: ComponentProps<"ul">) => {
-  return <ul className="flex flex-wrap gap-4 p-6" {...props} />;
+  return <ul className="flex flex-wrap gap-1 p-3 lg:gap-4 lg:p-6" {...props} />;
 };
 
 const ListItem = (props: ComponentProps<"li">) => {
