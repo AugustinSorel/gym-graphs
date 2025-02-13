@@ -52,13 +52,13 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
     },
     cell: ({ row }) => {
       return (
-        <>
+        <span className="whitespace-nowrap">
           <OneRepMaxWeightValue
             repetitions={row.original.repetitions}
             weightInKg={row.original.weightInKg}
           />{" "}
           <WeightUnit />
-        </>
+        </span>
       );
     },
   },
