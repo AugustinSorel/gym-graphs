@@ -121,17 +121,20 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # TANSTACK BUGS
 | Type     | Description                                           |
 | -------- | ------------------------------------------------------|
-| BUG      | Error boundaries not working properly                 |
-| BUG      | Dev Docker not working                                |
 | BUG      | Global Middleware not working at all                  |
-| TODO     | Monitoring                                            |
-| TODO     | Rate limiter                                          |
-| TODO     | Remove `window.location.href` in `github-sign-in.tsx` |
+|          | (gather all rate limiting+monitoring middlewares)     |
+| BUG      | tanstack router can't redirect to external url        |
+|          | (Remove `window.location.href` in `github-sign-in`)   |
+| BUG      | Error boundaries not working properly                 |
+|          | (test error boundaries + components again)            |
+| BUG      | infiniteQuery fetch state not working when filtering  |
+| BUG      | Dev Docker not working                                |
 
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| BUG      | loading state when filtering                          |
+| TODO     | Monitoring                                            |
+| TODO     | Rate limiter                                          |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */

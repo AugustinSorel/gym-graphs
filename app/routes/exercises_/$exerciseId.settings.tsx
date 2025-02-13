@@ -210,7 +210,7 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid gap-x-2" {...props} />;
+  return <header className="grid gap-2" {...props} />;
 };
 
 const Title = (props: ComponentProps<"h1">) => {
