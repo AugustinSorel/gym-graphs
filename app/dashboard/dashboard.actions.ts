@@ -142,7 +142,7 @@ export const deleteTileAction = createServerFn({ method: "POST" })
 export const selectTilesToSetsCountAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    return selectTilesToSetsCount(context.user.id, context.db);
+    return selectTilesToSetsCount(context.user.dashboard.id, context.db);
   });
 
 export const selectTilesSetsHeatMap = createServerFn({ method: "GET" })
