@@ -8,7 +8,7 @@ export const selectExercise = async (
   exerciseId: Exercise["id"],
   db: Db,
 ) => {
-  const x = await db.query.exerciseTable.findFirst({
+  return db.query.exerciseTable.findFirst({
     where: and(
       eq(exerciseTable.userId, userId),
       eq(exerciseTable.id, exerciseId),
@@ -29,9 +29,6 @@ export const selectExercise = async (
       },
     },
   });
-
-  console.log(x?.sets);
-  return x;
 };
 
 export const createExercise = async (userId: Exercise["userId"], db: Db) => {
