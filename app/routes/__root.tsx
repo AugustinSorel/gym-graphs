@@ -48,6 +48,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           title: "Gym Graphs",
         },
+        {
+          naem: "keywords",
+          content: "gym, gym graphs, gym monitor, gym tracker",
+        },
+        {
+          name: "description",
+          content:
+            "Monitor your gym progress with the help of powerfull graphs",
+        },
       ],
       links: [{ rel: "stylesheet", href: appCss }],
     }),
@@ -135,7 +144,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | Monitoring                                            |
 | TODO     | Rate limiter                                          |
-| TODO     | seo                                                   |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */
