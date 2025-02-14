@@ -77,7 +77,7 @@ export const DeleteSetDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/exercises/$exerciseId");
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
 
 const useDeleteSet = () => {
   const queryClient = useQueryClient();

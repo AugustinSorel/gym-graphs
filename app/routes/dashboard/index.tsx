@@ -9,9 +9,9 @@ import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
-import { Suspense, type ComponentProps } from "react";
+import { Suspense } from "react";
+import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { Button } from "~/ui/button";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: z.object({

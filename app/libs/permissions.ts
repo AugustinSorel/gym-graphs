@@ -26,6 +26,15 @@ export const permissions = {
       return user;
     },
   },
+  team: {
+    view: (user: User) => {
+      if (!user?.emailVerifiedAt) {
+        throw redirect({ to: "/sign-in" });
+      }
+
+      return user;
+    },
+  },
   settings: {
     view: (user: User) => {
       if (!user?.emailVerifiedAt) {

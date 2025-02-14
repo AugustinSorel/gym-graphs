@@ -103,7 +103,7 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/exercises/$exerciseId");
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
 
 const useFormSchema = () => {
   const params = routeApi.useParams();

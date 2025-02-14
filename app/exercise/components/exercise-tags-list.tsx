@@ -40,4 +40,4 @@ const NoTagsText = (props: ComponentProps<"p">) => {
   );
 };
 
-const routeApi = getRouteApi("/exercises/$exerciseId");
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

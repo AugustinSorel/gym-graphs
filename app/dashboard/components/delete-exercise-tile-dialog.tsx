@@ -78,7 +78,7 @@ export const DeleteExerciseTileDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
 
 const useDeleteExerciseTile = () => {
   const queryClient = useQueryClient();

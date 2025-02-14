@@ -1,50 +1,52 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CatchBoundary, createFileRoute, Link } from "@tanstack/react-router";
-import { AlertCircle, ArrowLeft, Check } from "lucide-react";
-import { z } from "zod";
-import { DefaultErrorFallback } from "~/components/default-error-fallback";
-import { DeleteExerciseTileDialog } from "~/dashboard/components/delete-exercise-tile-dialog";
-import { ReanemExerciseTileDialog } from "~/dashboard/components/rename-exercise-tile-dialog";
-import { exerciseQueries } from "~/exercise/exercise.queries";
-import { exerciseSchema } from "~/exercise/exericse.schemas";
-import { useExercise } from "~/exercise/hooks/use-exercise";
-import { cn } from "~/styles/styles.utils";
-import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
-import { updateExerciseTagsAction } from "~/tag/tag.actions";
-import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { Badge } from "~/ui/badge";
-import { Button } from "~/ui/button";
-import { Separator } from "~/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-import { useUser } from "~/user/hooks/use-user";
-import { permissions } from "~/libs/permissions";
-import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import type { ComponentProps } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { CatchBoundary, createFileRoute, Link } from '@tanstack/react-router'
+import { AlertCircle, ArrowLeft, Check } from 'lucide-react'
+import { z } from 'zod'
+import { DefaultErrorFallback } from '~/components/default-error-fallback'
+import { DeleteExerciseTileDialog } from '~/dashboard/components/delete-exercise-tile-dialog'
+import { ReanemExerciseTileDialog } from '~/dashboard/components/rename-exercise-tile-dialog'
+import { exerciseQueries } from '~/exercise/exercise.queries'
+import { exerciseSchema } from '~/exercise/exericse.schemas'
+import { useExercise } from '~/exercise/hooks/use-exercise'
+import { cn } from '~/styles/styles.utils'
+import { CreateTagDialog } from '~/tag/components/create-tag-dialog'
+import { updateExerciseTagsAction } from '~/tag/tag.actions'
+import { Alert, AlertDescription, AlertTitle } from '~/ui/alert'
+import { Badge } from '~/ui/badge'
+import { Button } from '~/ui/button'
+import { Separator } from '~/ui/separator'
+import { ToggleGroup, ToggleGroupItem } from '~/ui/toggle-group'
+import { useUser } from '~/user/hooks/use-user'
+import { permissions } from '~/libs/permissions'
+import { dashboardQueries } from '~/dashboard/dashboard.queries'
+import type { ComponentProps } from 'react'
 
-export const Route = createFileRoute("/exercises_/$exerciseId/settings")({
+export const Route = createFileRoute(
+  '/(exercises)/exercises_/$exerciseId/settings',
+)({
   params: z.object({
     exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
   }),
   component: () => RouteComponent(),
   beforeLoad: async ({ context }) => {
-    const user = permissions.exerciseSettings.view(context.user);
+    const user = permissions.exerciseSettings.view(context.user)
 
     return {
       user,
-    };
+    }
   },
   loader: async ({ context, params }) => {
     const queries = {
       exercise: exerciseQueries.get(params.exerciseId),
-    } as const;
+    } as const
 
-    await context.queryClient.ensureQueryData(queries.exercise);
+    await context.queryClient.ensureQueryData(queries.exercise)
   },
-});
+})
 
 const RouteComponent = () => {
-  const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const params = Route.useParams()
+  const exercise = useExercise({ id: params.exerciseId })
 
   return (
     <Main>
@@ -68,14 +70,14 @@ const RouteComponent = () => {
       <ExerciseTagsSection />
       <DeleteTileSection />
     </Main>
-  );
-};
+  )
+}
 
 const RenameTileSection = () => {
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
+      getResetKey={() => 'reset'}
     >
       <Section>
         <HGroup>
@@ -90,20 +92,20 @@ const RenameTileSection = () => {
         </Footer>
       </Section>
     </CatchBoundary>
-  );
-};
+  )
+}
 
 const ExerciseTagsSection = () => {
-  const user = useUser();
-  const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const user = useUser()
+  const params = Route.useParams()
+  const exercise = useExercise({ id: params.exerciseId })
 
-  const updateExerciseTags = useUpdateExerciseTags();
+  const updateExerciseTags = useUpdateExerciseTags()
 
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
+      getResetKey={() => 'reset'}
     >
       <Section>
         <HGroup>
@@ -118,7 +120,7 @@ const ExerciseTagsSection = () => {
           className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="multiple"
           value={exercise.data.tile.tileToTags.map((tileToTag) => {
-            return tileToTag.tag.id.toString();
+            return tileToTag.tag.id.toString()
           })}
           onValueChange={(e) => {
             updateExerciseTags.mutate({
@@ -126,7 +128,7 @@ const ExerciseTagsSection = () => {
                 newTags: e.map(Number),
                 tileId: exercise.data.tile.id,
               },
-            });
+            })
           }}
         >
           {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
@@ -162,14 +164,14 @@ const ExerciseTagsSection = () => {
         </Footer>
       </Section>
     </CatchBoundary>
-  );
-};
+  )
+}
 
 const DeleteTileSection = () => {
   return (
     <CatchBoundary
       errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
+      getResetKey={() => 'reset'}
     >
       <Section className="border-destructive">
         <HGroup>
@@ -185,78 +187,78 @@ const DeleteTileSection = () => {
         </Footer>
       </Section>
     </CatchBoundary>
-  );
-};
+  )
+}
 
-const Main = (props: ComponentProps<"main">) => {
+const Main = (props: ComponentProps<'main'>) => {
   return (
     <main
       className="max-w-app mx-auto flex flex-col gap-10 px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
       {...props}
     />
-  );
-};
+  )
+}
 
-const Section = ({ className, ...props }: ComponentProps<"section">) => {
+const Section = ({ className, ...props }: ComponentProps<'section'>) => {
   return (
     <section
       className={cn(
-        "bg-secondary relative grid overflow-hidden rounded-md border",
+        'bg-secondary relative grid overflow-hidden rounded-md border',
         className,
       )}
       {...props}
     />
-  );
-};
+  )
+}
 
-const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid gap-2" {...props} />;
-};
+const Header = (props: ComponentProps<'header'>) => {
+  return <header className="grid gap-2" {...props} />
+}
 
-const Title = (props: ComponentProps<"h1">) => {
+const Title = (props: ComponentProps<'h1'>) => {
   return (
     <h1 className="truncate text-3xl font-semibold capitalize" {...props} />
-  );
-};
+  )
+}
 
-const HGroup = (props: ComponentProps<"hgroup">) => {
-  return <hgroup className="space-y-3 p-3 lg:p-6" {...props} />;
-};
+const HGroup = (props: ComponentProps<'hgroup'>) => {
+  return <hgroup className="space-y-3 p-3 lg:p-6" {...props} />
+}
 
-const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
+const Footer = ({ className, ...props }: ComponentProps<'footer'>) => {
   return (
     <footer
       className={cn(
-        "bg-background flex items-center justify-end border-t px-3 py-4 lg:px-6",
+        'bg-background flex items-center justify-end border-t px-3 py-4 lg:px-6',
         className,
       )}
       {...props}
     />
-  );
-};
+  )
+}
 
-const SectionTitle = (props: ComponentProps<"h2">) => {
-  return <h2 className="text-xl font-semibold capitalize" {...props} />;
-};
+const SectionTitle = (props: ComponentProps<'h2'>) => {
+  return <h2 className="text-xl font-semibold capitalize" {...props} />
+}
 
-const SectionDescription = (props: ComponentProps<"p">) => {
-  return <p className="text-sm" {...props} />;
-};
+const SectionDescription = (props: ComponentProps<'p'>) => {
+  return <p className="text-sm" {...props} />
+}
 
-const NoTagsText = (props: ComponentProps<"p">) => {
+const NoTagsText = (props: ComponentProps<'p'>) => {
   return (
     <p
       className="text-muted-foreground w-full p-6 text-center text-sm"
       {...props}
     />
-  );
-};
+  )
+}
 
 const useUpdateExerciseTags = () => {
-  const user = useUser();
-  const queryClient = useQueryClient();
-  const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const user = useUser()
+  const queryClient = useQueryClient()
+  const params = Route.useParams()
+  const exercise = useExercise({ id: params.exerciseId })
 
   return useMutation({
     mutationFn: updateExerciseTagsAction,
@@ -265,17 +267,17 @@ const useUpdateExerciseTags = () => {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles().queryKey,
         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
-      };
+      }
 
-      const newExerciseTags = new Set(variables.data.newTags);
+      const newExerciseTags = new Set(variables.data.newTags)
 
       const optimisticTags = user.data.tags
         .filter((tag) => {
           if (!newExerciseTags.has(tag.id)) {
-            return false;
+            return false
           }
 
-          return true;
+          return true
         })
         .map((tag) => ({
           createdAt: new Date(),
@@ -283,11 +285,11 @@ const useUpdateExerciseTags = () => {
           tileId: variables.data.tileId,
           tagId: tag.id,
           tag,
-        }));
+        }))
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
-          return tiles;
+          return tiles
         }
 
         return {
@@ -300,19 +302,19 @@ const useUpdateExerciseTags = () => {
                   return {
                     ...tile,
                     tileToTags: optimisticTags,
-                  };
+                  }
                 }
 
-                return tile;
+                return tile
               }),
-            };
+            }
           }),
-        };
-      });
+        }
+      })
 
       queryClient.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
-          return exercise;
+          return exercise
         }
 
         return {
@@ -321,51 +323,51 @@ const useUpdateExerciseTags = () => {
             ...exercise.tile,
             tileToTags: optimisticTags,
           },
-        };
-      });
+        }
+      })
 
       queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
         if (!tilesToTagsCount) {
-          return tilesToTagsCount;
+          return tilesToTagsCount
         }
 
-        const newExerciseTagsSet = new Set(variables.data.newTags);
+        const newExerciseTagsSet = new Set(variables.data.newTags)
         const exerciseTagsSet = new Set(
           exercise.data.tile.tileToTags.map((tileToTag) => tileToTag.tag.id),
-        );
+        )
 
-        const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
-        const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
+        const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet)
+        const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet)
 
         return tilesToTagsCount.map((tilesToTagsCount) => {
           if (tagsToAddSet.has(tilesToTagsCount.id)) {
             return {
               ...tilesToTagsCount,
               count: tilesToTagsCount.count + 1,
-            };
+            }
           }
 
           if (tagsToRemoveSet.has(tilesToTagsCount.id)) {
             return {
               ...tilesToTagsCount,
               count: tilesToTagsCount.count - 1,
-            };
+            }
           }
 
-          return tilesToTagsCount;
-        });
-      });
+          return tilesToTagsCount
+        })
+      })
     },
     onSettled: () => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
-      } as const;
+      } as const
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tilesToTagsCount);
+      void queryClient.invalidateQueries(queries.tiles)
+      void queryClient.invalidateQueries(queries.exercise)
+      void queryClient.invalidateQueries(queries.tilesToTagsCount)
     },
-  });
-};
+  })
+}

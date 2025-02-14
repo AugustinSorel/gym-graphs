@@ -83,7 +83,7 @@ export const UpdateSetWeightForm = (props: Props) => {
   );
 };
 
-const routeApi = getRouteApi("/exercises/$exerciseId");
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
 
 type Props = Readonly<{
   onSuccess?: () => void;

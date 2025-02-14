@@ -87,7 +87,7 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
 
 const useFormSchema = () => {
   const queryClient = useQueryClient();
