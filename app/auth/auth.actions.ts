@@ -37,6 +37,7 @@ import { z } from "zod";
 import pg from "pg";
 import {
   authGuardMiddleware,
+  rateLimiterMiddleware,
   selectSessionTokenMiddleware,
 } from "~/auth/auth.middlewares";
 import {
@@ -52,7 +53,7 @@ import { isWithinExpirationDate } from "oslo";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 
 export const signInAction = createServerFn()
-  .middleware([injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, injectDbMiddleware])
   .validator(userSchema.pick({ email: true, password: true }))
   .handler(async ({ data, context }) => {
     const user = await selectUserByEmail(data.email, context.db);
@@ -82,7 +83,7 @@ export const signInAction = createServerFn()
   });
 
 export const signUpAction = createServerFn({ method: "POST" })
-  .middleware([injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, injectDbMiddleware])
   .validator(
     z
       .object({
@@ -132,20 +133,20 @@ export const signUpAction = createServerFn({ method: "POST" })
   });
 
 export const signOutAction = createServerFn({ method: "POST" })
-  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     await deleteSession(context.session.id, context.db);
     deleteSessionTokenCookie();
   });
 
 export const selectSessionTokenAction = createServerFn({ method: "GET" })
-  .middleware([selectSessionTokenMiddleware])
+  .middleware([rateLimiterMiddleware, selectSessionTokenMiddleware])
   .handler(({ context }) => {
     return context.session;
   });
 
 export const verifyEmailAction = createServerFn()
-  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
   .validator(emailVerificationCodeSchema.pick({ code: true }))
   .handler(async ({ context, data }) => {
     return await context.db.transaction(async (tx) => {
@@ -184,7 +185,7 @@ export const verifyEmailAction = createServerFn()
 export const sendEmailVerificationCodeAction = createServerFn({
   method: "POST",
 })
-  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     await context.db.transaction(async (tx) => {
       await deleteEmailVerificationCodesByUserId(context.user.id, tx);
@@ -217,7 +218,7 @@ export const githubSignInAction = createServerFn({ method: "POST" }).handler(
 );
 
 export const requestResetPasswordAction = createServerFn({ method: "POST" })
-  .middleware([injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, injectDbMiddleware])
   .validator(userSchema.pick({ email: true }))
   .handler(async ({ data, context }) => {
     return await context.db.transaction(async (tx) => {
@@ -240,7 +241,7 @@ export const requestResetPasswordAction = createServerFn({ method: "POST" })
   });
 
 export const resetPasswordAction = createServerFn({ method: "POST" })
-  .middleware([injectDbMiddleware])
+  .middleware([rateLimiterMiddleware, injectDbMiddleware])
   .validator(
     z
       .object({

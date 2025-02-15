@@ -11,6 +11,12 @@ const envSchema = z.object({
   DB_HOST: z.string().trim().nonempty(),
   DB_PORT: z.coerce.number(),
 
+  CACHE_PASSWORD: z.string().trim().nonempty(),
+  CACHE_USER: z.string().trim().nonempty(),
+  CACHE_HOST: z.string().trim().nonempty(),
+  CACHE_NAME: z.coerce.number(),
+  CACHE_PORT: z.coerce.number(),
+
   SMTP_HOST: z.string().trim().nonempty(),
   SMTP_USER: z.string().trim().nonempty(),
   SMTP_PASSWORD: z.string().trim().nonempty(),
@@ -30,6 +36,12 @@ export const env = envSchema.parse({
   DB_NAME: process.env.DB_NAME,
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
+
+  CACHE_PASSWORD: process.env.CACHE_PASSWORD,
+  CACHE_USER: process.env.CACHE_USER,
+  CACHE_HOST: process.env.CACHE_HOST,
+  CACHE_NAME: process.env.CACHE_NAME,
+  CACHE_PORT: process.env.CACHE_PORT,
 
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_USER: process.env.SMTP_USER,

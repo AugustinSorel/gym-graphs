@@ -9,6 +9,12 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
 
+  cache:
+    image: redis:latest
+    container_name: gym_graphs_cache
+    ports:
+      - ${CACHE_PORT}:6379
+
   # server:
   #   container_name: gym_graphs_server
   #   build:

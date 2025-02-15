@@ -1,7 +1,8 @@
 import { createMiddleware } from "@tanstack/start";
-import { getCookie, setResponseStatus } from "vinxi/http";
+import { getCookie, getEvent, setResponseStatus } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { rateLimiter } from "./auth.rate-limiter";
 
 export const selectSessionTokenMiddleware = createMiddleware()
   .middleware([injectDbMiddleware])
@@ -40,3 +41,19 @@ export const authGuardMiddleware = createMiddleware()
       },
     });
   });
+
+export const rateLimiterMiddleware = createMiddleware().server(
+  async ({ next }) => {
+    const headers = getEvent().headers;
+    const ip = headers.get("x-forwarded-for") || "localhost";
+
+    const isValid = await rateLimiter.checkRate(ip, 1);
+
+    if (!isValid) {
+      setResponseStatus(429);
+      throw new Error("Too many requests");
+    }
+
+    return await next();
+  },
+);

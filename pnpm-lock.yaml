@@ -63,7 +63,7 @@ importers:
         version: 8.20.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@tanstack/start":
         specifier: ^1.98.6
-        version: 1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+        version: 1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@visx/axis":
         specifier: ^3.12.0
         version: 3.12.0(react@19.0.0)
@@ -121,6 +121,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      ioredis:
+        specifier: ^5.5.0
+        version: 5.5.0
       lucide-react:
         specifier: ^0.469.0
         version: 0.469.0(react@19.0.0)
@@ -147,7 +150,7 @@ importers:
         version: 1.0.7(tailwindcss@4.0.0)
       vinxi:
         specifier: ^0.5.1
-        version: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+        version: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -5544,10 +5547,10 @@ packages:
       }
     engines: { node: ">=12" }
 
-  ioredis@5.4.2:
+  ioredis@5.5.0:
     resolution:
       {
-        integrity: sha512-0SZXGNGZ+WzISQ67QDyZ2x0+wVxjjUndtD8oSeik/4ajifeiRufed8fCb8QW8VMyi4MXcS+UO1k/0NGhvq1PAg==,
+        integrity: sha512-7CutT89g23FfSa8MDoIFs2GYYa0PaNiW/OrT+nRyjRXHDZd17HmIgy+reOQ/yhh72NznNjGuS8kbCAcA4Ro4mw==,
       }
     engines: { node: ">=12.22.0" }
 
@@ -10144,14 +10147,14 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  "@tanstack/start-api-routes@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-api-routes@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
     transitivePeerDependencies:
       - "@azure/app-configuration"
       - "@azure/cosmos"
@@ -10195,7 +10198,7 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-client@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)":
+  "@tanstack/start-client@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-cross-context": 1.98.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -10203,7 +10206,7 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       tiny-invariant: 1.3.3
-      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
     transitivePeerDependencies:
       - "@azure/app-configuration"
       - "@azure/cosmos"
@@ -10246,21 +10249,21 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-config@1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)":
+  "@tanstack/start-config@1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@tanstack/router-generator": 1.98.6(@tanstack/react-router@1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
       "@tanstack/router-plugin": 1.98.6(@tanstack/react-router@1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       "@tanstack/server-functions-plugin": 1.98.5
       "@tanstack/start-plugin": 1.98.5
-      "@tanstack/start-server-functions-handler": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-handler": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       import-meta-resolve: 4.1.0
       nitropack: 2.10.4(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(typescript@5.7.2)
       ofetch: 1.4.1
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       vite: 6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1)
       zod: 3.24.1
     transitivePeerDependencies:
@@ -10327,13 +10330,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  "@tanstack/start-router-manifest@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-router-manifest@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      vinxi: 0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
     transitivePeerDependencies:
       - "@azure/app-configuration"
       - "@azure/cosmos"
@@ -10377,10 +10380,10 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-server-functions-client@1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-server-functions-client@1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/server-functions-plugin": 1.98.5
-      "@tanstack/start-server-functions-fetcher": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-fetcher": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -10429,10 +10432,10 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-server-functions-fetcher@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-server-functions-fetcher@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -10479,11 +10482,11 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-server-functions-handler@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-server-functions-handler@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
-      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -10543,12 +10546,12 @@ snapshots:
       - supports-color
       - vite
 
-  "@tanstack/start-server-functions-ssr@1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-server-functions-ssr@1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/server-functions-plugin": 1.98.5
-      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
-      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
-      "@tanstack/start-server-functions-fetcher": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-fetcher": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -10597,11 +10600,11 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start-server@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start-server@1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
       "@tanstack/react-cross-context": 1.98.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@tanstack/react-router": 1.98.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
       "@vitejs/plugin-react": 4.3.4(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
       h3: 1.14.0
       isbot: 5.1.22
@@ -10652,17 +10655,17 @@ snapshots:
       - xml2js
       - yaml
 
-  "@tanstack/start@1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
+  "@tanstack/start@1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)":
     dependencies:
-      "@tanstack/start-api-routes": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
-      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
-      "@tanstack/start-config": 1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
-      "@tanstack/start-router-manifest": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
-      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
-      "@tanstack/start-server-functions-client": 1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
-      "@tanstack/start-server-functions-handler": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-api-routes": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-client": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-config": 1.98.6(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1)
+      "@tanstack/start-router-manifest": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-client": 1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-handler": 1.98.4(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
       "@tanstack/start-server-functions-server": 1.98.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
-      "@tanstack/start-server-functions-ssr": 1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
+      "@tanstack/start-server-functions-ssr": 1.98.5(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.11(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(yaml@2.6.1)
     transitivePeerDependencies:
       - "@azure/app-configuration"
       - "@azure/cosmos"
@@ -11851,7 +11854,7 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  ioredis@5.4.2:
+  ioredis@5.5.0:
     dependencies:
       "@ioredis/commands": 1.2.0
       cluster-key-slot: 1.1.2
@@ -12185,7 +12188,7 @@ snapshots:
       h3: 1.13.0
       hookable: 5.5.3
       httpxy: 0.1.5
-      ioredis: 5.4.2
+      ioredis: 5.5.0
       jiti: 2.4.2
       klona: 2.0.6
       knitwork: 1.2.0
@@ -12215,7 +12218,7 @@ snapshots:
       unctx: 2.4.1
       unenv: 1.10.0
       unimport: 3.14.5(rollup@4.29.1)
-      unstorage: 1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.4.2)
+      unstorage: 1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.5.0)
       untyped: 1.5.2
       unwasm: 0.3.9
     transitivePeerDependencies:
@@ -12971,7 +12974,7 @@ snapshots:
       acorn: 8.14.0
       webpack-virtual-modules: 0.6.2
 
-  unstorage@1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.4.2):
+  unstorage@1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.5.0):
     dependencies:
       anymatch: 3.1.3
       chokidar: 3.6.0
@@ -12983,7 +12986,7 @@ snapshots:
       ufo: 1.5.4
     optionalDependencies:
       db0: 0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))
-      ioredis: 5.4.2
+      ioredis: 5.5.0
 
   untun@0.1.3:
     dependencies:
@@ -13048,7 +13051,7 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  vinxi@0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.4.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1):
+  vinxi@0.5.1(@types/node@22.10.2)(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0))(ioredis@5.5.0)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.6.1):
     dependencies:
       "@babel/core": 7.26.0
       "@babel/plugin-syntax-jsx": 7.25.9(@babel/core@7.26.0)
@@ -13081,7 +13084,7 @@ snapshots:
       ufo: 1.5.4
       unctx: 2.4.1
       unenv: 1.10.0
-      unstorage: 1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.4.2)
+      unstorage: 1.14.4(db0@0.2.1(drizzle-orm@0.39.1(@types/pg@8.11.10)(@types/react@19.0.2)(pg@8.13.1)(react@19.0.0)))(ioredis@5.5.0)
       vite: 6.0.6(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1)
       zod: 3.24.1
     transitivePeerDependencies:

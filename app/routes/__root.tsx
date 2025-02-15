@@ -143,7 +143,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | Monitoring                                            |
-| TODO     | Rate limiter                                          |
 | TODO     | allow multiple sets                                   |
 | TODO     | teams                                                 |
 */
