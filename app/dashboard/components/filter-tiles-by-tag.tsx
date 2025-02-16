@@ -22,7 +22,7 @@ export const FilterTilesByTags = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="after:border-border after:bg-primary after:text-primary-foreground relative after:absolute after:top-0 after:right-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:border after:text-xs after:font-semibold after:content-[attr(data-counter)] data-[counter=0]:after:hidden"
+          className="bg-secondary after:border-border after:bg-primary after:text-primary-foreground relative after:absolute after:top-0 after:right-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:border after:text-xs after:font-semibold after:content-[attr(data-counter)] data-[counter=0]:after:hidden"
           data-counter={tags.size}
           aria-label="filter exercises by tags"
         >

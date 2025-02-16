@@ -27,7 +27,7 @@ export const CreateExerciseTileDialog = () => {
 
       <Button
         asChild
-        className="fixed right-4 bottom-20 z-20 size-14 rounded-full text-xl backdrop-blur-md lg:hidden"
+        className="bg-primary/20 hover:bg-primary/30 text-primary fixed right-4 bottom-20 z-20 size-14 rounded-full border-2 border-current text-xl backdrop-blur-md lg:hidden"
         disabled={isFiltering}
         aria-label="create exercise"
       >
