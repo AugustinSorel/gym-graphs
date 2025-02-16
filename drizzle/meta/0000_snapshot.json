@@ -1,5 +1,5 @@
 {
-  "id": "f0923d83-6100-4018-8718-399d0a80dd7b",
+  "id": "89319016-2867-445d-9fa7-34f66112dc2b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -174,12 +174,6 @@
             "cycle": false
           }
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -196,21 +190,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "exercise_user_id_user_id_fk": {
-          "name": "exercise_user_id_user_id_fk",
-          "tableFrom": "exercise",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -678,8 +658,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tile_tag": {
-      "name": "tile_tag",
+    "public.tile_to_tags": {
+      "name": "tile_to_tags",
       "schema": "",
       "columns": {
         "tile_id": {
@@ -711,9 +691,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "tile_tag_tile_id_tile_id_fk": {
-          "name": "tile_tag_tile_id_tile_id_fk",
-          "tableFrom": "tile_tag",
+        "tile_to_tags_tile_id_tile_id_fk": {
+          "name": "tile_to_tags_tile_id_tile_id_fk",
+          "tableFrom": "tile_to_tags",
           "tableTo": "tile",
           "columnsFrom": [
             "tile_id"
@@ -724,9 +704,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "tile_tag_tag_id_tag_id_fk": {
-          "name": "tile_tag_tag_id_tag_id_fk",
-          "tableFrom": "tile_tag",
+        "tile_to_tags_tag_id_tag_id_fk": {
+          "name": "tile_to_tags_tag_id_tag_id_fk",
+          "tableFrom": "tile_to_tags",
           "tableTo": "tag",
           "columnsFrom": [
             "tag_id"
@@ -739,8 +719,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "tile_tag_tile_id_tag_id_pk": {
-          "name": "tile_tag_tile_id_tag_id_pk",
+        "tile_to_tags_tile_id_tag_id_pk": {
+          "name": "tile_to_tags_tile_id_tag_id_pk",
           "columns": [
             "tile_id",
             "tag_id"
