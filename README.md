@@ -4,7 +4,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ## Demo
 
-- live website: https://gym-graphs.augustin-sorel.com
+- live website: https://gym-graphs.com
 
 ## Images
 
