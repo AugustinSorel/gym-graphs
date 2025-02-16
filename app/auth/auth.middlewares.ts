@@ -2,7 +2,7 @@ import { createMiddleware } from "@tanstack/start";
 import { getCookie, getEvent, setResponseStatus } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { rateLimiter } from "./auth.rate-limiter";
+import { rateLimiter } from "~/libs/rate-limiter";
 
 export const selectSessionTokenMiddleware = createMiddleware()
   .middleware([injectDbMiddleware])
