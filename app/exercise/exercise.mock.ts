@@ -6,7 +6,6 @@ export const exercisesMock: ReadonlyArray<
 > = [
   {
     id: 30,
-    userId: 7,
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
     tile: {
@@ -78,7 +77,6 @@ export const exercisesMock: ReadonlyArray<
   },
   {
     id: 31,
-    userId: 7,
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
     tile: {
@@ -141,7 +139,6 @@ export const exercisesMock: ReadonlyArray<
   },
   {
     id: 32,
-    userId: 7,
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
     tile: {
@@ -222,7 +219,6 @@ export const exercisesMock: ReadonlyArray<
   },
   {
     id: 33,
-    userId: 7,
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
     updatedAt: new Date("2025-01-09T11:32:12.498Z"),
     tile: {

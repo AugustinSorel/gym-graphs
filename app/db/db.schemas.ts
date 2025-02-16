@@ -44,7 +44,6 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   }),
   emailVerificationCode: one(emailVerificationCodeTable),
   passwordResetToken: one(passwordResetTokenTable),
-  exercises: many(exerciseTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
   dashboard: one(dashboardTable, {
@@ -217,9 +216,6 @@ export const resetPasswordRelations = relations(
 
 export const exerciseTable = pgTable("exercise", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -227,10 +223,6 @@ export const exerciseTable = pgTable("exercise", {
 export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
 export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
-  user: one(userTable, {
-    fields: [exerciseTable.userId],
-    references: [userTable.id],
-  }),
   sets: many(setTable),
   tile: one(tileTable, {
     fields: [exerciseTable.id],

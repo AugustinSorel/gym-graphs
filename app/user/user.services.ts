@@ -173,7 +173,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     ),
     createDashboard(userId, db),
     createExercises(
-      exercisesName.map(() => ({ userId })),
+      exercisesName.map(() => ({})),
       db,
     ),
   ]);

@@ -1,7 +1,12 @@
 import { eq, and, exists, getTableColumns, asc, gte, lte } from "drizzle-orm";
-import { setTable, exerciseTable } from "~/db/db.schemas";
+import {
+  setTable,
+  exerciseTable,
+  dashboardTable,
+  tileTable,
+} from "~/db/db.schemas";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
-import type { Exercise, Set, User } from "~/db/db.schemas";
+import type { Dashboard, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 export const createSet = async (
@@ -28,15 +33,11 @@ export const updateSetWeight = async (
 ) => {
   const exercise = db
     .select()
-    .from(setTable)
-    .where(eq(setTable.id, setId))
-    .innerJoin(
-      exerciseTable,
-      and(
-        eq(exerciseTable.id, setTable.exerciseId),
-        eq(exerciseTable.userId, userId),
-      ),
-    );
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
 
   const updatedSets = await db
     .update(setTable)
@@ -62,15 +63,11 @@ export const updateSetRepetitions = async (
 ) => {
   const exercise = db
     .select()
-    .from(setTable)
-    .where(eq(setTable.id, setId))
-    .innerJoin(
-      exerciseTable,
-      and(
-        eq(exerciseTable.id, setTable.exerciseId),
-        eq(exerciseTable.userId, userId),
-      ),
-    );
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
 
   const updatedExerciseSets = await db
     .update(setTable)
@@ -96,15 +93,11 @@ export const updateSetDoneAt = async (
 ) => {
   const exercise = db
     .select()
-    .from(setTable)
-    .where(eq(setTable.id, setId))
-    .innerJoin(
-      exerciseTable,
-      and(
-        eq(exerciseTable.id, setTable.exerciseId),
-        eq(exerciseTable.userId, userId),
-      ),
-    );
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
 
   const updatedExerciseSets = await db
     .update(setTable)
@@ -129,15 +122,11 @@ export const deleteSet = async (
 ) => {
   const exercise = db
     .select()
-    .from(setTable)
-    .where(eq(setTable.id, setId))
-    .innerJoin(
-      exerciseTable,
-      and(
-        eq(exerciseTable.id, setTable.exerciseId),
-        eq(exerciseTable.userId, userId),
-      ),
-    );
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
 
   const updatedExerciseSets = await db
     .delete(setTable)
@@ -152,7 +141,7 @@ export const deleteSet = async (
 };
 
 export const selectSetsForThisMonth = async (
-  userId: Exercise["userId"],
+  userId: Dashboard["userId"],
   db: Db,
 ) => {
   return db
@@ -166,7 +155,8 @@ export const selectSetsForThisMonth = async (
         lte(setTable.doneAt, new Date()),
       ),
     )
-    .where(and(eq(exerciseTable.userId, userId)))
+    .innerJoin(dashboardTable, eq(dashboardTable.userId, userId))
+    .where(eq(dashboardTable.userId, userId))
     .orderBy(asc(setTable.doneAt));
 };
 

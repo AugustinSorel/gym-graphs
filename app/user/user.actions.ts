@@ -14,6 +14,8 @@ import {
 import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
 import { setResponseStatus } from "vinxi/http";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { userTable } from "~/db/db.schemas";
+import { eq } from "drizzle-orm";
 
 export const selectUserAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -54,4 +56,42 @@ export const updateOneRepMaxAlgoAction = createServerFn({ method: "POST" })
   .validator(userSchema.pick({ oneRepMaxAlgo: true }))
   .handler(async ({ context, data }) => {
     await updateOneRepMaxAlgo(data.oneRepMaxAlgo, context.user.id, context.db);
+  });
+
+export const selectUserDataAction = createServerFn({ method: "GET" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .handler(async ({ context }) => {
+    const user = await context.db.query.userTable.findFirst({
+      where: eq(userTable.id, context.user.id),
+      columns: {
+        name: true,
+        email: true,
+        oneRepMaxAlgo: true,
+        weightUnit: true,
+      },
+      with: {
+        tags: true,
+        dashboard: {
+          with: {
+            tiles: {
+              with: {
+                exercise: {
+                  with: {
+                    sets: true,
+                  },
+                },
+                tileToTags: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      setResponseStatus(404);
+      throw new Error("user not found");
+    }
+
+    return user;
   });

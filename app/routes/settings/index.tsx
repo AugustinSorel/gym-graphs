@@ -38,7 +38,10 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { updateOneRepMaxAlgoAction } from "~/user/user.actions";
+import {
+  selectUserDataAction,
+  updateOneRepMaxAlgoAction,
+} from "~/user/user.actions";
 import { userQueries } from "~/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
@@ -90,6 +93,7 @@ const RouteComponent = () => {
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
       <GithubLinkSection />
+      <DownloadUserData />
       <SignOutSection />
       <DeleteAccountSection />
     </Main>
@@ -425,6 +429,36 @@ const GithubLinkSection = () => {
   );
 };
 
+const DownloadUserData = () => {
+  const downloadUserData = useDownloadUserData();
+
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>download data</SectionTitle>
+          <SectionDescription>
+            feel free to download your data in json format.
+          </SectionDescription>
+        </HGroup>
+        <Footer>
+          <Button
+            size="sm"
+            onClick={() => downloadUserData.mutate(undefined)}
+            disabled={downloadUserData.isPending}
+          >
+            <span>download</span>
+            {downloadUserData.isPending && <Spinner />}
+          </Button>
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
+
 const SignOutSection = () => {
   const signOut = useSignOut();
 
@@ -563,4 +597,26 @@ const ListItemSubtitle = (props: ComponentProps<"p">) => {
 
 const useTilesToTagsCount = () => {
   return useSuspenseQuery(dashboardQueries.tilesToTagsCount);
+};
+
+const useDownloadUserData = () => {
+  return useMutation({
+    mutationFn: selectUserDataAction,
+    onSuccess: (userData) => {
+      const blob = new Blob([JSON.stringify(userData, null, 2)]);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = "user-data.json";
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+    },
+  });
 };

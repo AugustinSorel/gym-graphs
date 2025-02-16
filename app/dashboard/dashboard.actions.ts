@@ -114,7 +114,7 @@ export const createExerciseTileAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       await context.db.transaction(async (tx) => {
-        const exercise = await createExercise(context.user.id, tx);
+        const exercise = await createExercise(tx);
         await createTile(
           data.name,
           "exercise",

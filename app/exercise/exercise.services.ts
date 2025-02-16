@@ -1,18 +1,28 @@
-import { and, asc, eq } from "drizzle-orm";
-import { setTable, exerciseTable, tagTable } from "~/db/db.schemas";
-import type { Exercise } from "~/db/db.schemas";
+import { and, asc, eq, exists } from "drizzle-orm";
+import {
+  setTable,
+  exerciseTable,
+  tagTable,
+  dashboardTable,
+  tileTable,
+} from "~/db/db.schemas";
+import type { Dashboard, Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 export const selectExercise = async (
-  userId: Exercise["userId"],
+  userId: Dashboard["userId"],
   exerciseId: Exercise["id"],
   db: Db,
 ) => {
+  const exercise = db
+    .select()
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, exerciseId))
+    .where(eq(dashboardTable.userId, userId));
+
   return db.query.exerciseTable.findFirst({
-    where: and(
-      eq(exerciseTable.userId, userId),
-      eq(exerciseTable.id, exerciseId),
-    ),
+    where: and(eq(exerciseTable.id, exerciseId), exists(exercise)),
     with: {
       tile: {
         with: {
@@ -31,11 +41,8 @@ export const selectExercise = async (
   });
 };
 
-export const createExercise = async (userId: Exercise["userId"], db: Db) => {
-  const [exercise] = await db
-    .insert(exerciseTable)
-    .values({ userId })
-    .returning();
+export const createExercise = async (db: Db) => {
+  const [exercise] = await db.insert(exerciseTable).values({}).returning();
 
   if (!exercise) {
     throw new Error("exercise returned by db is null");
