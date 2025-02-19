@@ -1,27 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Construction } from "lucide-react";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { permissions } from "~/libs/permissions";
+import { FilterTeamsByName } from "~/team/components/filter-teams-by-name";
+import { CreateTeamDialog } from "~/team/components/create-team-dialog";
+import { z } from "zod";
+import { teamSchema } from "~/team/team.schemas";
+import { teamQueries } from "~/team/team.queries";
+import type { ComponentProps } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/(teams)/teams")({
+  validateSearch: z.object({
+    name: teamSchema.shape.name.catch((e) => e.input).optional(),
+  }),
   component: () => RouteComponent(),
   errorComponent: (props) => DefaultErrorFallback(props),
   beforeLoad: async ({ context }) => {
-    const user = permissions.team.view(context.user);
+    permissions.team.view(context.user);
+  },
+  loaderDeps: ({ search }) => ({
+    name: search.name,
+  }),
+  loader: async ({ context }) => {
+    const queries = {
+      publicTeams: teamQueries.publicTeams,
+    } as const;
 
-    return {
-      user,
-    };
+    await context.queryClient.ensureQueryData(queries.publicTeams);
   },
 });
 
 const RouteComponent = () => {
+  const publicTeams = usePublicTeams();
+
   return (
-    <main className="mx-10 my-32 flex flex-col items-center gap-2">
-      <Construction className="text-accent-foreground size-32 opacity-30" />
-      <h1 className="text-accent-foreground text-5xl font-semibold capitalize opacity-30">
-        in progress
-      </h1>
-    </main>
+    <Main>
+      <Header>
+        <FilterTeamsByName />
+        <CreateTeamDialog />
+      </Header>
+      <pre>{JSON.stringify(publicTeams.data, null, 2)}</pre>
+    </Main>
   );
+};
+
+const usePublicTeams = () => {
+  return useSuspenseQuery(teamQueries.publicTeams);
+};
+
+const Main = (props: ComponentProps<"main">) => {
+  return (
+    <main
+      className="max-w-app mx-auto flex flex-col gap-10 px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
+      {...props}
+    />
+  );
+};
+
+const Header = (props: ComponentProps<"header">) => {
+  return <header className="grid grid-cols-[1fr_auto] gap-2" {...props} />;
 };

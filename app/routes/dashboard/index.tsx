@@ -21,11 +21,7 @@ export const Route = createFileRoute("/dashboard/")({
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
   beforeLoad: async ({ context }) => {
-    const user = permissions.dashboard.view(context.user);
-
-    return {
-      user,
-    };
+    permissions.dashboard.view(context.user);
   },
   loaderDeps: ({ search }) => ({
     name: search.name,

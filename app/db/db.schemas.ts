@@ -9,6 +9,7 @@ import {
   primaryKey,
   pgTable,
   serial,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { userSchema } from "~/user/user.schemas";
@@ -307,3 +308,15 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
   }),
   tagToTiles: many(tilesToTagsTableTable),
 }));
+
+export const teamTable = pgTable("team", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  isPublic: boolean("is_public").notNull().default(false),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type Team = Readonly<typeof teamTable.$inferSelect>;
+
+export const teamRelations = relations(teamTable, ({}) => ({}));
