@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { selectPublicTeamsAction } from "./team.actions";
+import { selectPublicTeamsAction } from "~/team/team.actions";
 
 const publicTeams = queryOptions({
   queryKey: ["teams"],

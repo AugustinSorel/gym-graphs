@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
-import { Team, teamTable } from "~/db/db.schemas";
-import { Db } from "~/libs/db";
+import { teamTable } from "~/db/db.schemas";
+import type { Db } from "~/libs/db";
+import type { Team } from "~/db/db.schemas";
 
 export const createTeam = async (
   name: Team["name"],

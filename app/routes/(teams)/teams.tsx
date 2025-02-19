@@ -6,8 +6,8 @@ import { CreateTeamDialog } from "~/team/components/create-team-dialog";
 import { z } from "zod";
 import { teamSchema } from "~/team/team.schemas";
 import { teamQueries } from "~/team/team.queries";
-import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams")({
   validateSearch: z.object({
