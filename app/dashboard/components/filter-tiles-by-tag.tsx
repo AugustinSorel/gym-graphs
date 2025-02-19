@@ -120,4 +120,4 @@ const ClearTagsItem = () => {
   );
 };
 
-const routeApi = getRouteApi("/dashboard/");
+const routeApi = getRouteApi("/(dashboard)/dashboard");

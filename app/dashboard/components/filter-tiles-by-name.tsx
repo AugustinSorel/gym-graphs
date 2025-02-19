@@ -54,7 +54,7 @@ export const FilterTilesByName = () => {
   );
 };
 
-const routeApi = getRouteApi("/dashboard/");
+const routeApi = getRouteApi("/(dashboard)/dashboard");
 
 const SearchFallback = (props: ErrorComponentProps) => {
   return (

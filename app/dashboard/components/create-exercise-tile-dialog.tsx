@@ -54,4 +54,4 @@ export const CreateExerciseTileDialog = () => {
   );
 };
 
-const apiRoute = getRouteApi("/dashboard/");
+const apiRoute = getRouteApi("/(dashboard)/dashboard");

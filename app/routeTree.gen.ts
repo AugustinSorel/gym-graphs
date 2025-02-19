@@ -14,9 +14,9 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
-import { Route as SettingsIndexImport } from './routes/settings/index'
-import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as teamsTeamsImport } from './routes/(teams)/teams'
+import { Route as settingsSettingsImport } from './routes/(settings)/settings'
+import { Route as dashboardDashboardImport } from './routes/(dashboard)/dashboard'
 import { Route as authLayoutImport } from './routes/(auth)/_layout'
 import { Route as exercisesExercisesExerciseIdImport } from './routes/(exercises)/exercises.$exerciseId'
 import { Route as authLayoutVerifyEmailImport } from './routes/(auth)/_layout.verify-email'
@@ -43,21 +43,21 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const SettingsIndexRoute = SettingsIndexImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DashboardIndexRoute = DashboardIndexImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const teamsTeamsRoute = teamsTeamsImport.update({
   id: '/(teams)/teams',
   path: '/teams',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const settingsSettingsRoute = settingsSettingsImport.update({
+  id: '/(settings)/settings',
+  path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const dashboardDashboardRoute = dashboardDashboardImport.update({
+  id: '/(dashboard)/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -136,25 +136,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLayoutImport
       parentRoute: typeof authRoute
     }
+    '/(dashboard)/dashboard': {
+      id: '/(dashboard)/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof dashboardDashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/(settings)/settings': {
+      id: '/(settings)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof settingsSettingsImport
+      parentRoute: typeof rootRoute
+    }
     '/(teams)/teams': {
       id: '/(teams)/teams'
       path: '/teams'
       fullPath: '/teams'
       preLoaderRoute: typeof teamsTeamsImport
-      parentRoute: typeof rootRoute
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexImport
       parentRoute: typeof rootRoute
     }
     '/(auth)/_layout/reset-password': {
@@ -243,9 +243,9 @@ const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
 
 export interface FileRoutesByFullPath {
   '/': typeof authLayoutRouteWithChildren
+  '/dashboard': typeof dashboardDashboardRoute
+  '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
   '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
@@ -257,9 +257,9 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof authLayoutRouteWithChildren
+  '/dashboard': typeof dashboardDashboardRoute
+  '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/settings': typeof SettingsIndexRoute
   '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
@@ -274,9 +274,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
+  '/(dashboard)/dashboard': typeof dashboardDashboardRoute
+  '/(settings)/settings': typeof settingsSettingsRoute
   '/(teams)/teams': typeof teamsTeamsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/settings/': typeof SettingsIndexRoute
   '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
   '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
   '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
@@ -290,9 +290,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/teams'
     | '/dashboard'
     | '/settings'
+    | '/teams'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -303,9 +303,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/teams'
     | '/dashboard'
     | '/settings'
+    | '/teams'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -318,9 +318,9 @@ export interface FileRouteTypes {
     | '/'
     | '/(auth)'
     | '/(auth)/_layout'
+    | '/(dashboard)/dashboard'
+    | '/(settings)/settings'
     | '/(teams)/teams'
-    | '/dashboard/'
-    | '/settings/'
     | '/(auth)/_layout/reset-password'
     | '/(auth)/_layout/sign-in'
     | '/(auth)/_layout/sign-up'
@@ -334,9 +334,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRoute: typeof authRouteWithChildren
+  dashboardDashboardRoute: typeof dashboardDashboardRoute
+  settingsSettingsRoute: typeof settingsSettingsRoute
   teamsTeamsRoute: typeof teamsTeamsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
   exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
   exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
 }
@@ -344,9 +344,9 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRoute: authRouteWithChildren,
+  dashboardDashboardRoute: dashboardDashboardRoute,
+  settingsSettingsRoute: settingsSettingsRoute,
   teamsTeamsRoute: teamsTeamsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  SettingsIndexRoute: SettingsIndexRoute,
   exercisesExercisesExerciseIdRoute: exercisesExercisesExerciseIdRoute,
   exercisesExercisesExerciseIdSettingsRoute:
     exercisesExercisesExerciseIdSettingsRoute,
@@ -364,9 +364,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/(auth)",
+        "/(dashboard)/dashboard",
+        "/(settings)/settings",
         "/(teams)/teams",
-        "/dashboard/",
-        "/settings/",
         "/(exercises)/exercises/$exerciseId",
         "/(exercises)/exercises_/$exerciseId/settings"
       ]
@@ -391,14 +391,14 @@ export const routeTree = rootRoute
         "/(auth)/_layout/reset-password_/$token"
       ]
     },
+    "/(dashboard)/dashboard": {
+      "filePath": "(dashboard)/dashboard.tsx"
+    },
+    "/(settings)/settings": {
+      "filePath": "(settings)/settings.tsx"
+    },
     "/(teams)/teams": {
       "filePath": "(teams)/teams.tsx"
-    },
-    "/dashboard/": {
-      "filePath": "dashboard/index.tsx"
-    },
-    "/settings/": {
-      "filePath": "settings/index.tsx"
     },
     "/(auth)/_layout/reset-password": {
       "filePath": "(auth)/_layout.reset-password.tsx",

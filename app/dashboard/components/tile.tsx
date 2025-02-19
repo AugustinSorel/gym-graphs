@@ -227,4 +227,4 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 type TileProps = Readonly<{ tile: Tile }>;
 
-const routeApi = getRouteApi("/dashboard/");
+const routeApi = getRouteApi("/(dashboard)/dashboard");
