@@ -3,7 +3,7 @@ import { AlertCircle, Search, X } from "lucide-react";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
 import { useEffect, useState } from "react";
-import { useDebounceValue } from "~/hooks/use-debounce-value";
+import { useDebouncedValue } from "~/hooks/use-debounced-value";
 import { Button } from "~/ui/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -12,17 +12,16 @@ export const FilterTilesByName = () => {
   const search = routeApi.useSearch();
 
   const [tileName, setTileName] = useState(search.name ?? "");
-
-  const debounceValue = useDebounceValue(tileName);
+  const debouncedTileName = useDebouncedValue(tileName, 300);
 
   useEffect(() => {
     void navigate({
       search: (search) => ({
         ...search,
-        name: tileName || undefined,
+        name: debouncedTileName || undefined,
       }),
     });
-  }, [debounceValue, navigate, tileName]);
+  }, [debouncedTileName, navigate]);
 
   const clearSearch = () => {
     setTileName("");
