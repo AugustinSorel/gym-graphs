@@ -34,7 +34,7 @@ export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
 
 const RouteComponent = () => {
   const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return (
     <Main>

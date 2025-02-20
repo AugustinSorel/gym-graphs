@@ -25,7 +25,7 @@ export const RenameExerciseTileForm = (props: Props) => {
   const form = useRenameExerciseTileForm();
   const renameExerciseTile = useRenameExericseTile();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   const onSubmit = async (data: CreateExerciseSchema) => {
     await renameExerciseTile.mutateAsync(
@@ -123,7 +123,7 @@ type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 const useRenameExerciseTileForm = () => {
   const formSchema = useFormSchema();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
@@ -136,7 +136,7 @@ const useRenameExerciseTileForm = () => {
 const useRenameExericseTile = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: renameTileAction,

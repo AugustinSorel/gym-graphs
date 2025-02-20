@@ -112,7 +112,7 @@ const useCreateExerciseForm = () => {
 const useUpdateWeight = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const set = useSet();
 
   return useMutation({

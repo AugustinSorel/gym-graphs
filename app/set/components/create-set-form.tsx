@@ -26,7 +26,7 @@ export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
   const createSet = useCreateSet();
   const params = routeApi.useParams();
-  const exericse = useExercise({ id: params.exerciseId });
+  const exericse = useExercise(params.exerciseId);
 
   const onSubmit = async (data: CreateExerciseSchema) => {
     await createSet.mutateAsync(
@@ -107,7 +107,7 @@ const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
 
 const useFormSchema = () => {
   const params = routeApi.useParams();
-  const exericse = useExercise({ id: params.exerciseId });
+  const exericse = useExercise(params.exerciseId);
 
   return z
     .object({
@@ -146,7 +146,7 @@ const useCreateExerciseSetForm = () => {
 
 const useCreateSet = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const queryClient = useQueryClient();
 
   return useMutation({

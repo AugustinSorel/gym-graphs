@@ -5,7 +5,7 @@ import type { ComponentProps } from "react";
 
 export const ExerciseTagsList = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const tileToTags = exercise.data.tile.tileToTags;
 
   if (!tileToTags.length) {

@@ -25,7 +25,7 @@ export const DeleteExerciseTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = useNavigate();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const deleteExerciseTile = useDeleteExerciseTile();
 
   const deleteExerciseTileHandler = () => {
@@ -83,7 +83,7 @@ const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
 const useDeleteExerciseTile = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: deleteTileAction,

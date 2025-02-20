@@ -83,7 +83,7 @@ const useDeleteSet = () => {
   const queryClient = useQueryClient();
   const set = useSet();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: deleteSetAction,

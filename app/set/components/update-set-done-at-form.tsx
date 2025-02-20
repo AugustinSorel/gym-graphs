@@ -98,7 +98,7 @@ type Props = Readonly<{
 
 const useFormSchema = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const set = useSet();
 
   return setSchema.pick({ doneAt: true }).refine(
@@ -135,7 +135,7 @@ const useUpdateSetDoneAtForm = () => {
 const useUpdateSetDoneAt = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
   const set = useSet();
 
   return useMutation({

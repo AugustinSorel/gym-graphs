@@ -46,7 +46,7 @@ export const Route = createFileRoute(
 
 const RouteComponent = () => {
   const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return (
     <Main>
@@ -98,7 +98,7 @@ const RenameTileSection = () => {
 const ExerciseTagsSection = () => {
   const user = useUser();
   const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   const updateExerciseTags = useUpdateExerciseTags();
 
@@ -258,7 +258,7 @@ const useUpdateExerciseTags = () => {
   const user = useUser();
   const queryClient = useQueryClient();
   const params = Route.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: updateExerciseTagsAction,
