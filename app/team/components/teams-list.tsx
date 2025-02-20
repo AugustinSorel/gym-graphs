@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { teamQueries } from "~/team/team.queries";
 import { Badge } from "~/ui/badge";
+import { Link } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 
 export const TeamsList = () => {
@@ -14,6 +15,14 @@ export const TeamsList = () => {
     <List>
       {userAndPublicTeams.data.map((team) => (
         <Team key={team.id}>
+          {team.isUserInTeam && (
+            <Link
+              className="absolute inset-0"
+              to="/teams/$teamId"
+              params={{ teamId: team.id }}
+            />
+          )}
+
           <TeamName>{team.name}</TeamName>
           {team.isUserInTeam && <Badge>joined</Badge>}
           <Badge variant="outline">
@@ -45,7 +54,7 @@ const List = (props: ComponentProps<"ul">) => {
 const Team = (props: ComponentProps<"li">) => {
   return (
     <li
-      className="bg-secondary grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6"
+      className="bg-secondary relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6"
       {...props}
     />
   );

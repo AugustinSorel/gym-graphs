@@ -16,7 +16,7 @@ export const Route = createFileRoute("/(teams)/teams")({
   component: () => RouteComponent(),
   errorComponent: (props) => DefaultErrorFallback(props),
   beforeLoad: async ({ context }) => {
-    permissions.team.view(context.user);
+    permissions.teams.view(context.user);
   },
   loaderDeps: ({ search }) => ({
     name: search.name,

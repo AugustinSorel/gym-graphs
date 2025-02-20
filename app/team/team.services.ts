@@ -1,8 +1,8 @@
 import {
   and,
-  count,
   desc,
   eq,
+  exists,
   getTableColumns,
   isNotNull,
   or,
@@ -69,5 +69,28 @@ export const createTeamToUser = async (
     teamId,
     userId,
     role,
+  });
+};
+
+export const selectTeamById = async (
+  userId: TeamsToUsers["userId"],
+  teamId: Team["id"],
+  db: Db,
+) => {
+  const idk = db
+    .select()
+    .from(teamsToUsersTable)
+    .where(
+      and(
+        eq(teamsToUsersTable.userId, userId),
+        eq(teamsToUsersTable.teamId, teamId),
+      ),
+    );
+
+  return db.query.teamTable.findFirst({
+    where: and(eq(teamTable.id, teamId), exists(idk)),
+    with: {
+      teamToUsers: true,
+    },
   });
 };

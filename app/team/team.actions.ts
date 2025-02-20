@@ -8,9 +8,12 @@ import { teamSchema } from "~/team/team.schemas";
 import {
   createTeam,
   createTeamToUser,
+  selectTeamById,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
 import pg from "pg";
+import { z } from "zod";
+import { redirect } from "@tanstack/react-router";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -37,4 +40,17 @@ export const createTeamAction = createServerFn({ method: "POST" })
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
+  });
+
+export const selectTeamByIdAction = createServerFn({ method: "GET" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    const team = await selectTeamById(context.user.id, data.teamId, context.db);
+
+    if (!team) {
+      throw redirect({ to: "/teams" });
+    }
+
+    return team;
   });
