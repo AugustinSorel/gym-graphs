@@ -8,25 +8,23 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { useState } from "react";
-import { RenameExerciseTileForm } from "~/dashboard/components/rename-exercise-tile-form";
+import { RenameTeamForm } from "~/team/components/rename-team-form";
 
-export const RenameExerciseTileDialog = () => {
+export const RenameTeamDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">rename </Button>
+        <Button size="sm">rename</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Rename exercise</DialogTitle>
-          <DialogDescription>
-            feel free to rename this exercise.
-          </DialogDescription>
+          <DialogTitle>Rename team</DialogTitle>
+          <DialogDescription>feel free to rename this team.</DialogDescription>
         </DialogHeader>
 
-        <RenameExerciseTileForm
+        <RenameTeamForm
           onSuccess={() => {
             setIsOpen(false);
           }}

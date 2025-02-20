@@ -24,6 +24,7 @@ import { Route as authLayoutVerifyEmailImport } from './routes/(auth)/_layout.ve
 import { Route as authLayoutSignUpImport } from './routes/(auth)/_layout.sign-up'
 import { Route as authLayoutSignInImport } from './routes/(auth)/_layout.sign-in'
 import { Route as authLayoutResetPasswordImport } from './routes/(auth)/_layout.reset-password'
+import { Route as teamsTeamsTeamIdSettingsImport } from './routes/(teams)/teams_.$teamId_.settings'
 import { Route as exercisesExercisesExerciseIdSettingsImport } from './routes/(exercises)/exercises_.$exerciseId.settings'
 import { Route as authLayoutResetPasswordTokenImport } from './routes/(auth)/_layout.reset-password_.$token'
 
@@ -102,6 +103,12 @@ const authLayoutResetPasswordRoute = authLayoutResetPasswordImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => authLayoutRoute,
+} as any)
+
+const teamsTeamsTeamIdSettingsRoute = teamsTeamsTeamIdSettingsImport.update({
+  id: '/(teams)/teams_/$teamId_/settings',
+  path: '/teams/$teamId/settings',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const exercisesExercisesExerciseIdSettingsRoute =
@@ -220,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof exercisesExercisesExerciseIdSettingsImport
       parentRoute: typeof rootRoute
     }
+    '/(teams)/teams_/$teamId_/settings': {
+      id: '/(teams)/teams_/$teamId_/settings'
+      path: '/teams/$teamId/settings'
+      fullPath: '/teams/$teamId/settings'
+      preLoaderRoute: typeof teamsTeamsTeamIdSettingsImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -268,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/teams/$teamId': typeof teamsTeamsTeamIdRoute
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
   '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
 }
 
 export interface FileRoutesByTo {
@@ -283,6 +298,7 @@ export interface FileRoutesByTo {
   '/teams/$teamId': typeof teamsTeamsTeamIdRoute
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
   '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
 }
 
 export interface FileRoutesById {
@@ -301,6 +317,7 @@ export interface FileRoutesById {
   '/(teams)/teams_/$teamId': typeof teamsTeamsTeamIdRoute
   '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
   '/(exercises)/exercises_/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/(teams)/teams_/$teamId_/settings': typeof teamsTeamsTeamIdSettingsRoute
 }
 
 export interface FileRouteTypes {
@@ -318,6 +335,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
+    | '/teams/$teamId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -332,6 +350,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
+    | '/teams/$teamId/settings'
   id:
     | '__root__'
     | '/'
@@ -348,6 +367,7 @@ export interface FileRouteTypes {
     | '/(teams)/teams_/$teamId'
     | '/(auth)/_layout/reset-password_/$token'
     | '/(exercises)/exercises_/$exerciseId/settings'
+    | '/(teams)/teams_/$teamId_/settings'
   fileRoutesById: FileRoutesById
 }
 
@@ -360,6 +380,7 @@ export interface RootRouteChildren {
   exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
   teamsTeamsTeamIdRoute: typeof teamsTeamsTeamIdRoute
   exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
+  teamsTeamsTeamIdSettingsRoute: typeof teamsTeamsTeamIdSettingsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -372,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   teamsTeamsTeamIdRoute: teamsTeamsTeamIdRoute,
   exercisesExercisesExerciseIdSettingsRoute:
     exercisesExercisesExerciseIdSettingsRoute,
+  teamsTeamsTeamIdSettingsRoute: teamsTeamsTeamIdSettingsRoute,
 }
 
 export const routeTree = rootRoute
@@ -391,7 +413,8 @@ export const routeTree = rootRoute
         "/(teams)/teams",
         "/(exercises)/exercises/$exerciseId",
         "/(teams)/teams_/$teamId",
-        "/(exercises)/exercises_/$exerciseId/settings"
+        "/(exercises)/exercises_/$exerciseId/settings",
+        "/(teams)/teams_/$teamId_/settings"
       ]
     },
     "/": {
@@ -451,6 +474,9 @@ export const routeTree = rootRoute
     },
     "/(exercises)/exercises_/$exerciseId/settings": {
       "filePath": "(exercises)/exercises_.$exerciseId.settings.tsx"
+    },
+    "/(teams)/teams_/$teamId_/settings": {
+      "filePath": "(teams)/teams_.$teamId_.settings.tsx"
     }
   }
 }

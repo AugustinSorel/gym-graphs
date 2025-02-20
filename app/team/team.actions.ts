@@ -8,6 +8,7 @@ import { teamSchema } from "~/team/team.schemas";
 import {
   createTeam,
   createTeamToUser,
+  renameTeamById,
   selectTeamById,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
@@ -53,4 +54,27 @@ export const selectTeamByIdAction = createServerFn({ method: "GET" })
     }
 
     return team;
+  });
+
+export const renameTeamAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      teamId: teamSchema.shape.id,
+      name: teamSchema.shape.name,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    try {
+      await renameTeamById(context.user.id, data.teamId, data.name, context.db);
+    } catch (e) {
+      const dbError = e instanceof pg.DatabaseError;
+      const duplicateTeam = dbError && e.constraint === "team_name_unique";
+
+      if (duplicateTeam) {
+        throw new Error("team already created");
+      }
+
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
+    }
   });

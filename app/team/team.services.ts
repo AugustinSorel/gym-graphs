@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm";
 import { teamsToUsersTable, teamTable } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import type { Team, TeamsToUsers } from "~/db/db.schemas";
+import type { Team, TeamsToUsers, User } from "~/db/db.schemas";
 
 export const createTeam = async (
   name: Team["name"],
@@ -77,7 +77,7 @@ export const selectTeamById = async (
   teamId: Team["id"],
   db: Db,
 ) => {
-  const idk = db
+  const userInTeam = db
     .select()
     .from(teamsToUsersTable)
     .where(
@@ -88,9 +88,35 @@ export const selectTeamById = async (
     );
 
   return db.query.teamTable.findFirst({
-    where: and(eq(teamTable.id, teamId), exists(idk)),
+    where: and(eq(teamTable.id, teamId), exists(userInTeam)),
     with: {
       teamToUsers: true,
     },
   });
+};
+
+export const renameTeamById = async (
+  userId: User["id"],
+  teamId: Team["id"],
+  name: Team["name"],
+  db: Db,
+) => {
+  const adminUserInTeam = db
+    .select()
+    .from(teamsToUsersTable)
+    .where(
+      and(
+        eq(teamsToUsersTable.userId, userId),
+        eq(teamsToUsersTable.teamId, teamId),
+        eq(teamsToUsersTable.role, "admin"),
+      ),
+    );
+
+  return db
+    .update(teamTable)
+    .set({
+      name,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
 };

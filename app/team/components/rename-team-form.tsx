@@ -11,27 +11,26 @@ import {
   FormMessage,
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
-import { exerciseQueries } from "~/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
-import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { renameTileAction } from "~/dashboard/dashboard.actions";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
+import { useTeam } from "~/team/hooks/use-team";
+import { teamQueries } from "~/team/team.queries";
+import { renameTeamAction } from "~/team/team.actions";
 import type { z } from "zod";
 
-export const RenameExerciseTileForm = (props: Props) => {
-  const form = useRenameExerciseTileForm();
-  const renameExerciseTile = useRenameExericseTile();
+export const RenameTeamForm = (props: Props) => {
+  const form = useRenameTeamForm();
+  const renameTeam = useRenameTeam();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const team = useTeam(params.teamId);
 
   const onSubmit = async (data: CreateExerciseSchema) => {
-    await renameExerciseTile.mutateAsync(
+    await renameTeam.mutateAsync(
       {
         data: {
-          tileId: exercise.data.tile.id,
+          teamId: team.data.id,
           name: data.name,
         },
       },
@@ -87,7 +86,7 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
 const useFormSchema = () => {
   const queryClient = useQueryClient();
@@ -96,23 +95,19 @@ const useFormSchema = () => {
   return tileSchema.pick({ name: true }).refine(
     (data) => {
       const queries = {
-        tiles: dashboardQueries.tiles().queryKey,
+        teams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      const cachedTiles = queryClient.getQueryData(queries.tiles);
+      const cachedTeams = queryClient.getQueryData(queries.teams);
 
-      const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.tiles)
-        .find((tile) => {
-          return (
-            tile.name === data.name && tile.exerciseId !== params.exerciseId
-          );
-        });
+      const nameTaken = cachedTeams?.find((team) => {
+        return team.name === data.name && team.id !== params.teamId;
+      });
 
       return !nameTaken;
     },
     {
-      message: "exercise already created",
+      message: "team already created",
       path: ["name"],
     },
   );
@@ -120,79 +115,66 @@ const useFormSchema = () => {
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
-const useRenameExerciseTileForm = () => {
+const useRenameTeamForm = () => {
   const formSchema = useFormSchema();
   const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
+  const team = useTeam(params.teamId);
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: exercise.data.tile.name,
+      name: team.data.name,
     },
   });
 };
 
-const useRenameExericseTile = () => {
+const useRenameTeam = () => {
   const queryClient = useQueryClient();
-  const params = routeApi.useParams();
-  const exercise = useExercise({ id: params.exerciseId });
 
   return useMutation({
-    mutationFn: renameTileAction,
+    mutationFn: renameTeamAction,
     onMutate: (variables) => {
       const queries = {
-        exercise: exerciseQueries.get(exercise.data.id).queryKey,
-        tiles: dashboardQueries.tiles().queryKey,
+        team: teamQueries.get(variables.data.teamId).queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
-        if (!tiles) {
-          return tiles;
+      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+        if (!teams) {
+          return teams;
         }
 
-        return {
-          ...tiles,
-          pages: tiles.pages.map((page) => {
+        return teams.map((team) => {
+          if (team.id === variables.data.teamId) {
             return {
-              ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.id === variables.data.tileId) {
-                  return {
-                    ...tile,
-                    name: variables.data.name,
-                  };
-                }
-
-                return tile;
-              }),
+              ...team,
+              name: variables.data.name,
             };
-          }),
-        };
+          }
+
+          return team;
+        });
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
-        if (!exercise) {
-          return exercise;
+      queryClient.setQueryData(queries.team, (team) => {
+        if (!team) {
+          return team;
         }
 
         return {
-          ...exercise,
-          tile: {
-            ...exercise.tile,
-            name: variables.data.name,
-          },
+          ...team,
+          name: variables.data.name,
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
       const queries = {
-        exercise: exerciseQueries.get(exercise.data.id),
-        tiles: dashboardQueries.tiles(),
+        team: teamQueries.get(variables.data.teamId),
+        userAndPublicTeams: teamQueries.userAndPublicTeams,
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.team);
+      void queryClient.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

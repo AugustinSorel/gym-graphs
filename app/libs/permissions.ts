@@ -1,6 +1,5 @@
 import { redirect } from "@tanstack/react-router";
 import type { selectSessionTokenAction } from "~/auth/auth.actions";
-import { TeamsToUsers } from "~/db/db.schemas";
 
 type User = Readonly<
   Partial<
@@ -37,6 +36,15 @@ export const permissions = {
     },
   },
   team: {
+    view: (user: User) => {
+      if (!user?.emailVerifiedAt) {
+        throw redirect({ to: "/sign-in" });
+      }
+
+      return user;
+    },
+  },
+  teamSettings: {
     view: (user: User) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });

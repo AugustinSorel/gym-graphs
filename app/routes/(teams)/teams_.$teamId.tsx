@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { permissions } from "~/libs/permissions";
 import { teamQueries } from "~/team/team.queries";
 import { teamSchema } from "~/team/team.schemas";
+import { Button } from "~/ui/button";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId")({
   params: z.object({
@@ -22,5 +23,16 @@ export const Route = createFileRoute("/(teams)/teams_/$teamId")({
 });
 
 const RouteComponent = () => {
-  return <div>Hello "/(teams)/teams/$teamId"!</div>;
+  const params = Route.useParams();
+
+  return (
+    <>
+      <div>Hello "/(teams)/teams/$teamId"!</div>
+      <Button asChild variant="outline">
+        <Link to="/teams/$teamId/settings" params={{ teamId: params.teamId }}>
+          settings
+        </Link>
+      </Button>
+    </>
+  );
 };
