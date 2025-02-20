@@ -12,6 +12,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
+import { teamsToUsersSchema } from "~/team/team.schemas";
 import { userSchema } from "~/user/user.schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -47,6 +48,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   passwordResetToken: one(passwordResetTokenTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
+  userToTeams: many(teamsToUsersTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -319,4 +321,43 @@ export const teamTable = pgTable("team", {
 
 export type Team = Readonly<typeof teamTable.$inferSelect>;
 
-export const teamRelations = relations(teamTable, ({}) => ({}));
+export const teamRelations = relations(teamTable, ({ many }) => ({
+  teamToUsers: many(teamsToUsersTable),
+}));
+
+export const teamMemberRoleEnum = pgEnum(
+  "team_member_role",
+  teamsToUsersSchema.shape.role.options,
+);
+
+export const teamsToUsersTable = pgTable(
+  "teams_to_users",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    teamId: integer("team_id")
+      .notNull()
+      .references(() => teamTable.id, { onDelete: "cascade" }),
+    role: teamMemberRoleEnum("role").notNull().default("member"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.teamId] })],
+);
+
+export type TeamsToUsers = Readonly<typeof teamsToUsersTable.$inferSelect>;
+
+export const teamsToUsersRelations = relations(
+  teamsToUsersTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [teamsToUsersTable.userId],
+      references: [userTable.id],
+    }),
+    team: one(teamTable, {
+      fields: [teamsToUsersTable.teamId],
+      references: [teamTable.id],
+    }),
+  }),
+);

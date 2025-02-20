@@ -18,7 +18,7 @@ import { teamSchema } from "~/team/team.schemas";
 import { Switch } from "~/ui/switch";
 import { createTeamAction } from "~/team/team.actions";
 import { teamQueries } from "~/team/team.queries";
-import { Team } from "~/db/db.schemas";
+import { useUser } from "~/user/hooks/use-user";
 import type { z } from "zod";
 
 export const CreateTeamForm = (props: Props) => {
@@ -107,10 +107,12 @@ const useFormSchema = () => {
   return teamSchema.pick({ name: true, isPublic: true }).refine(
     (data) => {
       const queries = {
-        publicTeams: teamQueries.publicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      const cachedPublicTeams = queryClient.getQueryData(queries.publicTeams);
+      const cachedPublicTeams = queryClient.getQueryData(
+        queries.userAndPublicTeams,
+      );
 
       const nameTaken = cachedPublicTeams?.find((team) => {
         return team.name === data.name;
@@ -141,23 +143,37 @@ const useCreateTeamForm = () => {
 
 const useCreateTeam = () => {
   const queryClient = useQueryClient();
+  const user = useUser();
 
   return useMutation({
     mutationFn: createTeamAction,
     onMutate: (variables) => {
       const keys = {
-        publicTeams: teamQueries.publicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.publicTeams, (teams) => {
+      queryClient.setQueryData(keys.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
 
-        const optimisticTeam: Team = {
-          id: Math.random(),
+        const teamId = Math.random();
+
+        const optimisticTeam = {
+          id: teamId,
           isPublic: variables.data.isPublic,
           name: variables.data.name,
+          isUserInTeam: true,
+          memberCounts: 1,
+          teamToUsers: [
+            {
+              teamId,
+              userId: user.data.id,
+              role: "admin" as const,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ],
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -167,10 +183,10 @@ const useCreateTeam = () => {
     },
     onSettled: () => {
       const keys = {
-        publicTeams: teamQueries.publicTeams,
+        userAndPublicTeams: teamQueries.userAndPublicTeams,
       } as const;
 
-      void queryClient.invalidateQueries(keys.publicTeams);
+      void queryClient.invalidateQueries(keys.userAndPublicTeams);
     },
   });
 };

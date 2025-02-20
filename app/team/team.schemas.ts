@@ -20,3 +20,10 @@ export const teamSchema = z.object({
     invalid_type_error: "isPublic must of type boolean",
   }),
 });
+
+export const teamsToUsersSchema = z.object({
+  role: z.enum(["admin", "member"], {
+    required_error: "role is required",
+    invalid_type_error: "role must be valid",
+  }),
+});

@@ -15,6 +15,13 @@
       "when": 1739981264802,
       "tag": "0001_sour_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740048299920,
+      "tag": "0002_perfect_turbo",
+      "breakpoints": true
     }
   ]
 }

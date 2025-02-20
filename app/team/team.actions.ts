@@ -5,13 +5,17 @@ import {
 } from "~/auth/auth.middlewares";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { teamSchema } from "~/team/team.schemas";
-import { createTeam, selectPublicTeams } from "~/team/team.services";
+import {
+  createTeam,
+  createTeamToUser,
+  selectUserAndPublicTeams,
+} from "~/team/team.services";
 import pg from "pg";
 
-export const selectPublicTeamsAction = createServerFn({ method: "GET" })
+export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    return selectPublicTeams(context.db);
+    return selectUserAndPublicTeams(context.user.id, context.db);
   });
 
 export const createTeamAction = createServerFn({ method: "POST" })
@@ -19,7 +23,10 @@ export const createTeamAction = createServerFn({ method: "POST" })
   .validator(teamSchema.pick({ name: true, isPublic: true }))
   .handler(async ({ context, data }) => {
     try {
-      await createTeam(data.name, data.isPublic, context.db);
+      await context.db.transaction(async (tx) => {
+        const team = await createTeam(data.name, data.isPublic, tx);
+        await createTeamToUser(team.id, context.user.id, "admin", tx);
+      });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateTeam = dbError && e.constraint === "team_name_unique";

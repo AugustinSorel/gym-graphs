@@ -6,7 +6,7 @@ import { CreateTeamDialog } from "~/team/components/create-team-dialog";
 import { z } from "zod";
 import { teamSchema } from "~/team/team.schemas";
 import { teamQueries } from "~/team/team.queries";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { TeamsList } from "~/team/components/teams-list";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams")({
@@ -23,29 +23,24 @@ export const Route = createFileRoute("/(teams)/teams")({
   }),
   loader: async ({ context }) => {
     const queries = {
-      publicTeams: teamQueries.publicTeams,
+      userAndPublicTeams: teamQueries.userAndPublicTeams,
     } as const;
 
-    await context.queryClient.ensureQueryData(queries.publicTeams);
+    await context.queryClient.ensureQueryData(queries.userAndPublicTeams);
   },
 });
 
 const RouteComponent = () => {
-  const publicTeams = usePublicTeams();
-
   return (
     <Main>
       <Header>
         <FilterTeamsByName />
         <CreateTeamDialog />
       </Header>
-      <pre>{JSON.stringify(publicTeams.data, null, 2)}</pre>
+
+      <TeamsList />
     </Main>
   );
-};
-
-const usePublicTeams = () => {
-  return useSuspenseQuery(teamQueries.publicTeams);
 };
 
 const Main = (props: ComponentProps<"main">) => {
