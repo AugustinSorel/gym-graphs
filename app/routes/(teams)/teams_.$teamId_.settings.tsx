@@ -11,6 +11,7 @@ import { Separator } from "~/ui/separator";
 import { useTeam } from "~/team/hooks/use-team";
 import { RenameTeamDialog } from "~/team/components/rename-team-dialog";
 import { TeamAdminGuard } from "~/team/components/team-admin-guard";
+import { DeleteTeamDialog } from "~/team/components/delete-team-dialog";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
@@ -57,6 +58,7 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
+      <DeleteTeamSection />
     </Main>
   );
 };
@@ -78,6 +80,31 @@ const RenameTileSection = () => {
           </HGroup>
           <Footer>
             <RenameTeamDialog />
+          </Footer>
+        </Section>
+      </TeamAdminGuard>
+    </CatchBoundary>
+  );
+};
+
+const DeleteTeamSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <TeamAdminGuard>
+        <Section className="border-destructive">
+          <HGroup>
+            <SectionTitle>delete team</SectionTitle>
+            <SectionDescription>
+              Permanently remove this team and all of its contents from our
+              servers. This action is not reversible, so please continue with
+              caution.
+            </SectionDescription>
+          </HGroup>
+          <Footer className="border-destructive bg-destructive/10">
+            <DeleteTeamDialog />
           </Footer>
         </Section>
       </TeamAdminGuard>

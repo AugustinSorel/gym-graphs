@@ -120,3 +120,24 @@ export const renameTeamById = async (
     })
     .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
 };
+
+export const deleteTeamById = async (
+  userId: User["id"],
+  teamId: Team["id"],
+  db: Db,
+) => {
+  const adminUserInTeam = db
+    .select()
+    .from(teamsToUsersTable)
+    .where(
+      and(
+        eq(teamsToUsersTable.userId, userId),
+        eq(teamsToUsersTable.teamId, teamId),
+        eq(teamsToUsersTable.role, "admin"),
+      ),
+    );
+
+  return db
+    .delete(teamTable)
+    .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
+};

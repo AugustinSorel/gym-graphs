@@ -8,6 +8,7 @@ import { teamSchema } from "~/team/team.schemas";
 import {
   createTeam,
   createTeamToUser,
+  deleteTeamById,
   renameTeamById,
   selectTeamById,
   selectUserAndPublicTeams,
@@ -77,4 +78,11 @@ export const renameTeamAction = createServerFn({ method: "POST" })
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
+  });
+
+export const deleteTeamAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    await deleteTeamById(context.user.id, data.teamId, context.db);
   });

@@ -148,11 +148,11 @@ const useCreateTeam = () => {
   return useMutation({
     mutationFn: createTeamAction,
     onMutate: (variables) => {
-      const keys = {
+      const queries = {
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      queryClient.setQueryData(keys.userAndPublicTeams, (teams) => {
+      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
@@ -182,11 +182,11 @@ const useCreateTeam = () => {
       });
     },
     onSettled: () => {
-      const keys = {
+      const queries = {
         userAndPublicTeams: teamQueries.userAndPublicTeams,
       } as const;
 
-      void queryClient.invalidateQueries(keys.userAndPublicTeams);
+      void queryClient.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

@@ -177,8 +177,8 @@ const DeleteTileSection = () => {
         <HGroup>
           <SectionTitle>delete exercise</SectionTitle>
           <SectionDescription>
-            Permanently remove your this exercise and all of its contents from
-            our servers. This action is not reversible, so please continue with
+            Permanently remove this exercise and all of its contents from our
+            servers. This action is not reversible, so please continue with
             caution.
           </SectionDescription>
         </HGroup>

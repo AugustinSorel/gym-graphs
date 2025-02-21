@@ -92,7 +92,7 @@ const useDeleteExerciseTile = () => {
         tiles: dashboardQueries.tiles().queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
-        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        exercise: exerciseQueries.get(exercise.data.id),
         tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
@@ -186,7 +186,7 @@ const useDeleteExerciseTile = () => {
         });
       });
 
-      queryClient.setQueryData(queries.exercise, undefined);
+      queryClient.removeQueries(queries.exercise);
     },
     onSettled: () => {
       const queries = {
