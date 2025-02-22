@@ -12,8 +12,9 @@ import { useTeam } from "~/team/hooks/use-team";
 import { RenameTeamDialog } from "~/team/components/rename-team-dialog";
 import { TeamAdminGuard } from "~/team/components/team-admin-guard";
 import { DeleteTeamDialog } from "~/team/components/delete-team-dialog";
-import type { ComponentProps } from "react";
 import { LeaveTeamDialog } from "~/team/components/leave-team-dialog";
+import { MembersList } from "~/team/components/members-list";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
   params: z.object({
@@ -59,6 +60,7 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
+      <MembersListSection />
       <LeaveTeamSection />
       <DeleteTeamSection />
     </Main>
@@ -85,6 +87,28 @@ const RenameTileSection = () => {
           </Footer>
         </Section>
       </TeamAdminGuard>
+    </CatchBoundary>
+  );
+};
+
+const MembersListSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>members</SectionTitle>
+          <SectionDescription>
+            Listing of all members that are part of this team.
+          </SectionDescription>
+          <MembersList />
+        </HGroup>
+        <Footer>
+          <RenameTeamDialog />
+        </Footer>
+      </Section>
     </CatchBoundary>
   );
 };

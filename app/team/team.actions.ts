@@ -17,7 +17,6 @@ import {
 import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
-import { setResponseStatus } from "@tanstack/start/server";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])

@@ -93,7 +93,15 @@ export const selectTeamById = async (
   return db.query.teamTable.findFirst({
     where: and(eq(teamTable.id, teamId), exists(userInTeam)),
     with: {
-      teamToUsers: true,
+      teamToUsers: {
+        with: {
+          user: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
 };
