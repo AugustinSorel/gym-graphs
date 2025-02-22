@@ -19,7 +19,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { kickMemberOutOfTeamAction } from "~/team/team.actions";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
-import type { TeamsToUsers } from "~/db/db.schemas";
+import type { Member } from "~/db/db.schemas";
 
 export const KickMemberOutDialog = (props: Props) => {
   const kickMemberOut = useKickMemberOut();
@@ -30,7 +30,7 @@ export const KickMemberOutDialog = (props: Props) => {
     kickMemberOut.mutate(
       {
         data: {
-          userId: props.userId,
+          memberId: props.memberId,
           teamId: params.teamId,
         },
       },
@@ -105,8 +105,8 @@ const useKickMemberOut = () => {
 
         return {
           ...team,
-          teamToUsers: team.teamToUsers.filter((teamToUser) => {
-            return teamToUser.userId !== variables.data.userId;
+          members: team.members.filter((member) => {
+            return member.userId !== variables.data.memberId;
           }),
         };
       });
@@ -116,7 +116,8 @@ const useKickMemberOut = () => {
           return teams;
         }
 
-        const isUserKickingHimselfOut = variables.data.userId === user.data.id;
+        const isUserKickingHimselfOut =
+          variables.data.memberId === user.data.id;
 
         if (!isUserKickingHimselfOut) {
           return teams;
@@ -146,6 +147,6 @@ const useKickMemberOut = () => {
   });
 };
 
-type Props = Readonly<{ userId: TeamsToUsers["userId"] }>;
+type Props = Readonly<{ memberId: Member["userId"] }>;
 
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");

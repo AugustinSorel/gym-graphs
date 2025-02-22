@@ -22,7 +22,7 @@ export const teamSchema = z.object({
   }),
 });
 
-export const teamsToUsersSchema = z.object({
+export const memberSchema = z.object({
   role: z.enum(["admin", "member"], {
     required_error: "role is required",
     invalid_type_error: "role must be valid",

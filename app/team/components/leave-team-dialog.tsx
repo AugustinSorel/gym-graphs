@@ -97,19 +97,19 @@ const useAllowedToLeaveTeam = () => {
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
 
-  const teamMembership = team.data.teamToUsers.find((teamToUser) => {
+  const member = team.data.members.find((teamToUser) => {
     return teamToUser.userId === user.data.id;
   });
 
-  if (!teamMembership) {
+  if (!member) {
     return false;
   }
 
-  if (teamMembership.role === "member") {
+  if (member.role === "member") {
     return true;
   }
 
-  const adminCount = team.data.teamToUsers.reduce((acc, curr) => {
+  const adminCounts = team.data.members.reduce((acc, curr) => {
     if (curr.role === "admin") {
       return acc + 1;
     }
@@ -117,7 +117,7 @@ const useAllowedToLeaveTeam = () => {
     return acc;
   }, 0);
 
-  return adminCount > 1;
+  return adminCounts > 1;
 };
 
 const useLeaveTeam = () => {
@@ -144,8 +144,8 @@ const useLeaveTeam = () => {
 
         return {
           ...team,
-          teamToUsers: team.teamToUsers.filter((teamToUser) => {
-            return teamToUser.userId !== user.data.id;
+          members: team.members.filter((member) => {
+            return member.userId !== user.data.id;
           }),
         };
       });

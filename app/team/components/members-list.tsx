@@ -19,7 +19,7 @@ export const MembersList = () => {
   const team = useTeam(params.teamId);
   const user = useUser();
 
-  const members = team.data.teamToUsers;
+  const members = team.data.members;
 
   if (!members.length) {
     return <NoMembersMsg>no members</NoMembersMsg>;
@@ -49,7 +49,7 @@ export const MembersList = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <KickMemberOutDialog userId={member.userId} />
+                  <KickMemberOutDialog memberId={member.userId} />
                 </DropdownMenuContent>
               </DropdownMenu>
             </TeamAdminGuard>

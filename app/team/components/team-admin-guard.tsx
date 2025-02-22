@@ -8,9 +8,9 @@ export const TeamAdminGuard = (props: Readonly<PropsWithChildren>) => {
   const team = useTeam(params.teamId);
   const user = useUser();
 
-  const userInTeam = team.data.teamToUsers.find(
-    (teamToUser) => teamToUser.userId === user.data.id,
-  );
+  const userInTeam = team.data.members.find((member) => {
+    return member.userId === user.data.id;
+  });
 
   if (userInTeam?.role !== "admin") {
     return null;

@@ -4,7 +4,7 @@ import {
   rateLimiterMiddleware,
 } from "~/auth/auth.middlewares";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { teamSchema, teamsToUsersSchema } from "~/team/team.schemas";
+import { teamSchema, memberSchema } from "~/team/team.schemas";
 import {
   createTeam,
   createTeamToUser,
@@ -98,11 +98,16 @@ export const leaveTeamAction = createServerFn({ method: "POST" })
 
 export const kickMemberOutOfTeamAction = createServerFn({ method: "POST" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
-  .validator(teamsToUsersSchema.pick({ teamId: true, userId: true }))
+  .validator(
+    z.object({
+      teamId: memberSchema.shape.teamId,
+      memberId: memberSchema.shape.userId,
+    }),
+  )
   .handler(async ({ context, data }) => {
     await kickMemberOutOfTeam(
       context.user.id,
-      data.userId,
+      data.memberId,
       data.teamId,
       context.db,
     );
