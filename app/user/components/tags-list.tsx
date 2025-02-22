@@ -15,15 +15,15 @@ import { TagProvider } from "~/tag/tag.context";
 import type { ComponentProps } from "react";
 
 export const TagsList = () => {
-  const tileToTagsCount = useTileToTagsCount();
+  const tilesToTagsCount = useTilesToTagsCount();
 
-  if (!tileToTagsCount.data.length) {
+  if (!tilesToTagsCount.data.length) {
     return <NoTagsMsg>no tags</NoTagsMsg>;
   }
 
   return (
     <List>
-      {tileToTagsCount.data.map((tag) => (
+      {tilesToTagsCount.data.map((tag) => (
         <Tag key={tag.id}>
           <TagName>{tag.name}</TagName>
 
@@ -52,7 +52,7 @@ export const TagsList = () => {
   );
 };
 
-const useTileToTagsCount = () => {
+const useTilesToTagsCount = () => {
   return useSuspenseQuery(dashboardQueries.tilesToTagsCount);
 };
 
