@@ -11,11 +11,13 @@ import {
 import { Button } from "~/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { KickMemberOutDialog } from "~/team/components/kick-member-out-dialog";
+import { useUser } from "~/user/hooks/use-user";
 import type { ComponentProps } from "react";
 
 export const MembersList = () => {
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
+  const user = useUser();
 
   const members = team.data.teamToUsers;
 
@@ -36,20 +38,22 @@ export const MembersList = () => {
             {member.role}
           </Badge>
 
-          <TeamAdminGuard>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="size-8">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <KickMemberOutDialog userId={member.userId} />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TeamAdminGuard>
+          {member.userId !== user.data.id && (
+            <TeamAdminGuard>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="size-8">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <KickMemberOutDialog userId={member.userId} />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TeamAdminGuard>
+          )}
         </Member>
       ))}
     </List>

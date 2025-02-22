@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -94,6 +95,7 @@ export const selectTeamById = async (
     where: and(eq(teamTable.id, teamId), exists(userInTeam)),
     with: {
       teamToUsers: {
+        orderBy: asc(teamsToUsersTable.createdAt),
         with: {
           user: {
             columns: {

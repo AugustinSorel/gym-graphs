@@ -12,24 +12,19 @@ import {
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { useTeam } from "~/team/hooks/use-team";
 import { teamQueries } from "~/team/team.queries";
 import { useUser } from "~/user/hooks/use-user";
 import { kickMemberOutOfTeamAction } from "~/team/team.actions";
-import type { TeamsToUsers } from "~/db/db.schemas";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
+import type { TeamsToUsers } from "~/db/db.schemas";
 
 export const KickMemberOutDialog = (props: Props) => {
-  const kickMemberOut = useKickMemberOut(props.userId);
-  const [isRedirectPending, startRedirectTransition] = useTransition();
+  const kickMemberOut = useKickMemberOut();
   const [isOpen, setIsOpen] = useState(false);
-  const allowedToKickMemberOut = useAllowedToKickMemberOut(props.userId);
   const params = routeApi.useParams();
-  const navigate = routeApi.useNavigate();
-  const user = useUser();
 
   const kickMemberOutHandler = () => {
     kickMemberOut.mutate(
@@ -41,15 +36,6 @@ export const KickMemberOutDialog = (props: Props) => {
       },
       {
         onSuccess: () => {
-          console.log("SUCCESS");
-          const userKickHimselfOut = props.userId === user.data.id;
-
-          if (userKickHimselfOut) {
-            startRedirectTransition(async () => {
-              await navigate({ to: "/teams" });
-            });
-          }
-
           setIsOpen(false);
         },
       },
@@ -62,7 +48,6 @@ export const KickMemberOutDialog = (props: Props) => {
         <DropdownMenuItem
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
           onSelect={(e) => e.preventDefault()}
-          disabled={!allowedToKickMemberOut}
         >
           kick out
         </DropdownMenuItem>
@@ -86,14 +71,14 @@ export const KickMemberOutDialog = (props: Props) => {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={kickMemberOut.isPending || isRedirectPending}
+            disabled={kickMemberOut.isPending}
             onClick={(e) => {
               e.preventDefault();
               kickMemberOutHandler();
             }}
           >
             <span>Kick Out</span>
-            {(kickMemberOut.isPending || isRedirectPending) && <Spinner />}
+            {kickMemberOut.isPending && <Spinner />}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -101,18 +86,13 @@ export const KickMemberOutDialog = (props: Props) => {
   );
 };
 
-const useKickMemberOut = (userId: Props["userId"]) => {
+const useKickMemberOut = () => {
   const queryClient = useQueryClient();
   const user = useUser();
-  const allowedToKickMemberOut = useAllowedToKickMemberOut(userId);
 
   return useMutation({
     mutationFn: kickMemberOutOfTeamAction,
     onMutate: (variables) => {
-      if (!allowedToKickMemberOut) {
-        return;
-      }
-
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
@@ -169,30 +149,3 @@ const useKickMemberOut = (userId: Props["userId"]) => {
 type Props = Readonly<{ userId: TeamsToUsers["userId"] }>;
 
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
-
-const useAllowedToKickMemberOut = (userId: Props["userId"]) => {
-  const params = routeApi.useParams();
-  const team = useTeam(params.teamId);
-
-  const teamMembership = team.data.teamToUsers.find((teamToUser) => {
-    return teamToUser.userId === userId;
-  });
-
-  if (!teamMembership) {
-    return false;
-  }
-
-  if (teamMembership.role === "member") {
-    return true;
-  }
-
-  const adminCount = team.data.teamToUsers.reduce((acc, curr) => {
-    if (curr.role === "admin") {
-      return acc + 1;
-    }
-
-    return acc;
-  }, 0);
-
-  return adminCount > 1;
-};
