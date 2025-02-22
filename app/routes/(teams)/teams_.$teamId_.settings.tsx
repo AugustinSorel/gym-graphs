@@ -13,6 +13,7 @@ import { RenameTeamDialog } from "~/team/components/rename-team-dialog";
 import { TeamAdminGuard } from "~/team/components/team-admin-guard";
 import { DeleteTeamDialog } from "~/team/components/delete-team-dialog";
 import type { ComponentProps } from "react";
+import { LeaveTeamDialog } from "~/team/components/leave-team-dialog";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
   params: z.object({
@@ -58,6 +59,7 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
+      <LeaveTeamSection />
       <DeleteTeamSection />
     </Main>
   );
@@ -83,6 +85,29 @@ const RenameTileSection = () => {
           </Footer>
         </Section>
       </TeamAdminGuard>
+    </CatchBoundary>
+  );
+};
+
+const LeaveTeamSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section className="border-destructive">
+        <HGroup>
+          <SectionTitle>leave team</SectionTitle>
+          <SectionDescription>
+            Permanently remove yourself from this team. All of your data stored
+            in this team will be removed forever. This action is not reversible,
+            so please continue with caution.
+          </SectionDescription>
+        </HGroup>
+        <Footer className="border-destructive bg-destructive/10">
+          <LeaveTeamDialog />
+        </Footer>
+      </Section>
     </CatchBoundary>
   );
 };

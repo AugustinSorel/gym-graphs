@@ -9,6 +9,7 @@ import {
   createTeam,
   createTeamToUser,
   deleteTeamById,
+  leaveTeam,
   renameTeamById,
   selectTeamById,
   selectUserAndPublicTeams,
@@ -16,6 +17,7 @@ import {
 import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
+import { setResponseStatus } from "@tanstack/start/server";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -85,4 +87,11 @@ export const deleteTeamAction = createServerFn({ method: "POST" })
   .validator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteTeamById(context.user.id, data.teamId, context.db);
+  });
+
+export const leaveTeamAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    await leaveTeam(context.user.id, data.teamId, context.db);
   });

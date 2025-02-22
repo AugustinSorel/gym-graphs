@@ -15,8 +15,8 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { useTeam } from "~/team/hooks/use-team";
-import { deleteTeamAction } from "../team.actions";
-import { teamQueries } from "../team.queries";
+import { deleteTeamAction } from "~/team/team.actions";
+import { teamQueries } from "~/team/team.queries";
 
 export const DeleteTeamDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();

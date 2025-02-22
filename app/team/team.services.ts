@@ -1,10 +1,13 @@
 import {
   and,
+  count,
   desc,
   eq,
   exists,
   getTableColumns,
+  gt,
   isNotNull,
+  ne,
   or,
   sql,
 } from "drizzle-orm";
@@ -140,4 +143,48 @@ export const deleteTeamById = async (
   return db
     .delete(teamTable)
     .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
+};
+
+export const leaveTeam = async (
+  userId: TeamsToUsers["userId"],
+  teamId: TeamsToUsers["teamId"],
+  db: Db,
+) => {
+  const teamAdmins = db.$with("team_admins").as(
+    db
+      .select({
+        adminCount: count().as("admin_count"),
+      })
+      .from(teamsToUsersTable)
+      .where(
+        and(
+          eq(teamsToUsersTable.teamId, teamId),
+          eq(teamsToUsersTable.role, "admin"),
+        ),
+      ),
+  );
+
+  const rows = await db
+    .with(teamAdmins)
+    .delete(teamsToUsersTable)
+    .where(
+      and(
+        eq(teamsToUsersTable.userId, userId),
+        eq(teamsToUsersTable.teamId, teamId),
+        or(
+          ne(teamsToUsersTable.role, "admin"),
+          and(
+            eq(teamsToUsersTable.role, "admin"),
+            gt(sql`(select admin_count from ${teamAdmins})`, 1),
+          ),
+        ),
+      ),
+    )
+    .returning();
+
+  if (!rows.length) {
+    throw new Error(
+      "You cannot leave the team because you are the only admin.",
+    );
+  }
 };
