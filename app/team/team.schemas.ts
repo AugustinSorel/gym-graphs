@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { userSchema } from "~/user/user.schemas";
 
 export const teamSchema = z.object({
   id: z
@@ -26,4 +27,6 @@ export const teamsToUsersSchema = z.object({
     required_error: "role is required",
     invalid_type_error: "role must be valid",
   }),
+  userId: userSchema.shape.id,
+  teamId: teamSchema.shape.id,
 });

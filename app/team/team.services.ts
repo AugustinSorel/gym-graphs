@@ -196,3 +196,60 @@ export const leaveTeam = async (
     );
   }
 };
+
+export const kickMemberOutOfTeam = async (
+  userId: TeamsToUsers["userId"],
+  memberId: TeamsToUsers["userId"],
+  teamId: TeamsToUsers["teamId"],
+  db: Db,
+) => {
+  const teamAdmins = db.$with("team_admins").as(
+    db
+      .select({
+        adminCount: count().as("admin_count"),
+      })
+      .from(teamsToUsersTable)
+      .where(
+        and(
+          eq(teamsToUsersTable.teamId, teamId),
+          eq(teamsToUsersTable.role, "admin"),
+        ),
+      ),
+  );
+
+  const userIsAdmin = db
+    .select()
+    .from(teamTable)
+    .innerJoin(
+      teamsToUsersTable,
+      and(
+        eq(teamsToUsersTable.teamId, teamTable.id),
+        eq(teamsToUsersTable.userId, userId),
+        eq(teamsToUsersTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamTable.id, teamId));
+
+  const rows = await db
+    .with(teamAdmins)
+    .delete(teamsToUsersTable)
+    .where(
+      and(
+        exists(userIsAdmin),
+        eq(teamsToUsersTable.userId, memberId),
+        eq(teamsToUsersTable.teamId, teamId),
+        or(
+          ne(teamsToUsersTable.role, "admin"),
+          and(
+            eq(teamsToUsersTable.role, "admin"),
+            gt(sql`(select admin_count from ${teamAdmins})`, 1),
+          ),
+        ),
+      ),
+    )
+    .returning();
+
+  if (!rows.length) {
+    throw new Error("Only an admin can kick a member out");
+  }
+};

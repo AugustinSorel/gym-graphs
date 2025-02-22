@@ -105,9 +105,7 @@ const MembersListSection = () => {
           </SectionDescription>
           <MembersList />
         </HGroup>
-        <Footer>
-          <RenameTeamDialog />
-        </Footer>
+        <Footer></Footer>
       </Section>
     </CatchBoundary>
   );

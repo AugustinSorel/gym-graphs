@@ -1,7 +1,7 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { useTeam } from "~/team/hooks/use-team";
 import { Badge } from "~/ui/badge";
-import { TeamAdminGuard } from "./team-admin-guard";
+import { TeamAdminGuard } from "~/team/components/team-admin-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 } from "~/ui/dropdown-menu";
 import { Button } from "~/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { KickMemberOutDialog } from "~/team/components/kick-member-out-dialog";
 import type { ComponentProps } from "react";
 
 export const MembersList = () => {
@@ -45,6 +46,7 @@ export const MembersList = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <KickMemberOutDialog userId={member.userId} />
               </DropdownMenuContent>
             </DropdownMenu>
           </TeamAdminGuard>
