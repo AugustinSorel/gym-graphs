@@ -18,8 +18,8 @@ import { renameTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
 import { userQueries } from "~/user/user.queries";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import type { z } from "zod";
 import { useTag } from "~/tag/tag.context";
+import type { z } from "zod";
 
 export const RenameTagForm = (props: Props) => {
   const form = useRenameTagForm();

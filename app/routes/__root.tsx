@@ -143,5 +143,11 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
-| TODO     | teams                                                 |
+| TODO     | change member permission teams                        |
+| TODO     | invite members                                        |
+| TODO     | ask to join                                           |
+| TODO     | infinite scroll                                       |
+| TODO     | filter team by name                                   |
+| TODO     | team in home page                                     |
+| TODO     | team team link in headers                             |
 */
