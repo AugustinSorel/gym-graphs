@@ -14,19 +14,26 @@ import { Spinner } from "~/ui/spinner";
 import { useUser } from "~/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { createTagAction } from "~/tag/tag.actions";
+import { renameTagAction } from "~/tag/tag.actions";
 import { tagSchema } from "~/tag/tag.schemas";
 import { userQueries } from "~/user/user.queries";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { z } from "zod";
+import { useTag } from "~/tag/tag.context";
 
-export const CreateTagForm = (props: Props) => {
-  const form = useCreateTagForm();
-  const createTag = useCreateTag();
+export const RenameTagForm = (props: Props) => {
+  const form = useRenameTagForm();
+  const renameTag = useRenameTag();
+  const tag = useTag();
 
-  const onSubmit = async (data: CreateTagSchema) => {
-    await createTag.mutateAsync(
-      { data },
+  const onSubmit = async (data: RenameTagSchema) => {
+    await renameTag.mutateAsync(
+      {
+        data: {
+          tagId: tag.id,
+          name: data.name,
+        },
+      },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -66,7 +73,7 @@ export const CreateTagForm = (props: Props) => {
             className="font-semibold"
             data-umami-event="exercise created"
           >
-            <span>create</span>
+            <span>rename</span>
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
@@ -81,10 +88,13 @@ type Props = Readonly<{
 
 const useFormSchema = () => {
   const user = useUser();
+  const tag = useTag();
 
   return tagSchema.pick({ name: true }).refine(
     (data) => {
-      const nameTaken = user.data.tags.find((tag) => tag.name === data.name);
+      const nameTaken = user.data.tags.find((t) => {
+        return t.name === data.name && t.id !== tag.id;
+      });
 
       return !nameTaken;
     },
@@ -95,39 +105,30 @@ const useFormSchema = () => {
   );
 };
 
-type CreateTagSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
+type RenameTagSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
-const useCreateTagForm = () => {
+const useRenameTagForm = () => {
   const formSchema = useFormSchema();
+  const tag = useTag();
 
-  return useForm<CreateTagSchema>({
+  return useForm<RenameTagSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: tag.name,
     },
   });
 };
 
-const useCreateTag = () => {
-  const user = useUser();
+const useRenameTag = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createTagAction,
+    mutationFn: renameTagAction,
     onMutate: (variables) => {
       const queries = {
         user: userQueries.get.queryKey,
         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       } as const;
-
-      const optimisticTag = {
-        id: Math.random(),
-        userId: user.data.id,
-        name: variables.data.name,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        exercises: [],
-      };
 
       queryClient.setQueryData(queries.user, (user) => {
         if (!user) {
@@ -136,7 +137,16 @@ const useCreateTag = () => {
 
         return {
           ...user,
-          tags: [...user.tags, optimisticTag],
+          tags: user.tags.map((tag) => {
+            if (tag.id === variables.data.tagId) {
+              return {
+                ...tag,
+                name: variables.data.name,
+              };
+            }
+
+            return tag;
+          }),
         };
       });
 
@@ -145,14 +155,16 @@ const useCreateTag = () => {
           return tilesToTagsCount;
         }
 
-        return [
-          ...tilesToTagsCount,
-          {
-            count: 0,
-            id: optimisticTag.id,
-            name: optimisticTag.name,
-          },
-        ];
+        return tilesToTagsCount.map((tileToTag) => {
+          if (tileToTag.id === variables.data.tagId) {
+            return {
+              ...tileToTag,
+              name: variables.data.name,
+            };
+          }
+
+          return tileToTag;
+        });
       });
     },
     onSettled: () => {

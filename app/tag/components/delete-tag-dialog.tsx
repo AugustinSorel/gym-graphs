@@ -16,17 +16,18 @@ import { useState } from "react";
 import { deleteTagAction } from "~/tag/tag.actions";
 import { userQueries } from "~/user/user.queries";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import type { Tag } from "~/db/db.schemas";
+import { useTag } from "~/tag/tag.context";
 
-export const DeleteTagDialog = (props: Props) => {
+export const DeleteTagDialog = () => {
   const deleteTag = useDeleteTag();
   const [isOpen, setIsOpen] = useState(false);
+  const tag = useTag();
 
   const deleteTagHandler = () => {
     deleteTag.mutate(
       {
         data: {
-          tagId: props.tagId,
+          tagId: tag.id,
         },
       },
       {
@@ -44,7 +45,7 @@ export const DeleteTagDialog = (props: Props) => {
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
           onSelect={(e) => e.preventDefault()}
         >
-          delete tag
+          delete
         </DropdownMenuItem>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -116,5 +117,3 @@ const useDeleteTag = () => {
     },
   });
 };
-
-type Props = Readonly<{ tagId: Tag["id"] }>;

@@ -10,18 +10,20 @@ import { DeleteTagDialog } from "~/tag/components/delete-tag-dialog";
 import { pluralize } from "~/utils/string";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { RenameTagDialog } from "~/tag/components/rename-tag-dialog";
+import { TagProvider } from "~/tag/tag.context";
 import type { ComponentProps } from "react";
 
 export const TagsList = () => {
-  const tilesToTagsCount = useTilesToTagsCount();
+  const tileToTagsCount = useTileToTagsCount();
 
-  if (!tilesToTagsCount.data.length) {
+  if (!tileToTagsCount.data.length) {
     return <NoTagsMsg>no tags</NoTagsMsg>;
   }
 
   return (
     <List>
-      {tilesToTagsCount.data.map((tag) => (
+      {tileToTagsCount.data.map((tag) => (
         <Tag key={tag.id}>
           <TagName>{tag.name}</TagName>
 
@@ -38,7 +40,10 @@ export const TagsList = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DeleteTagDialog tagId={tag.id} />
+              <TagProvider value={tag}>
+                <RenameTagDialog />
+                <DeleteTagDialog />
+              </TagProvider>
             </DropdownMenuContent>
           </DropdownMenu>
         </Tag>
@@ -47,7 +52,7 @@ export const TagsList = () => {
   );
 };
 
-const useTilesToTagsCount = () => {
+const useTileToTagsCount = () => {
   return useSuspenseQuery(dashboardQueries.tilesToTagsCount);
 };
 

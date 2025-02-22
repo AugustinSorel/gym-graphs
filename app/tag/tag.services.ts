@@ -24,6 +24,18 @@ export const createTag = (name: Tag["name"], userId: Tag["userId"], db: Db) => {
   return db.insert(tagTable).values({ name, userId });
 };
 
+export const renameTag = (
+  name: Tag["name"],
+  userId: Tag["userId"],
+  tagId: Tag["id"],
+  db: Db,
+) => {
+  return db
+    .update(tagTable)
+    .set({ name, updatedAt: new Date() })
+    .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)));
+};
+
 export const createTags = async (
   data: Array<typeof tagTable.$inferInsert>,
   db: Db,

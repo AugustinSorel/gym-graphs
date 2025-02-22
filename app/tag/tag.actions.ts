@@ -10,6 +10,7 @@ import {
   deleteTagsFromTile,
   deleteTag,
   selectTileTags,
+  renameTag,
 } from "~/tag/tag.services";
 import pg from "pg";
 import { z } from "zod";
@@ -22,6 +23,29 @@ export const createTagAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       await createTag(data.name, context.user.id, context.db);
+    } catch (e) {
+      const dbError = e instanceof pg.DatabaseError;
+      const duplicateName = dbError && e.constraint === "tag_name_user_id_pk";
+
+      if (duplicateName) {
+        throw new Error("tag name already created");
+      }
+
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
+    }
+  });
+
+export const renameTagAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      tagId: tagSchema.shape.id,
+      name: tagSchema.shape.name,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    try {
+      await renameTag(data.name, context.user.id, data.tagId, context.db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateName = dbError && e.constraint === "tag_name_user_id_pk";
