@@ -253,3 +253,45 @@ export const kickMemberOutOfTeam = async (
     throw new Error("Only an admin can kick a member out");
   }
 };
+
+export const changeTeamMemberRole = async (
+  userId: TeamMember["userId"],
+  memberId: TeamMember["userId"],
+  teamId: TeamMember["teamId"],
+  role: TeamMember["role"],
+  db: Db,
+) => {
+  const userIsAdmin = db
+    .select()
+    .from(teamTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamTable.id),
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamTable.id, teamId));
+
+  const res = await db
+    .update(teamMemberTable)
+    .set({
+      role,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(teamMemberTable.userId, memberId),
+        eq(teamMemberTable.teamId, teamId),
+        exists(userIsAdmin),
+      ),
+    )
+    .returning();
+
+  if (!res.length) {
+    throw new Error("Only admins can change a member role");
+  }
+
+  return res;
+};

@@ -6,6 +6,7 @@ import {
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { teamSchema, teamMemberSchema } from "~/team/team.schemas";
 import {
+  changeTeamMemberRole,
   createTeam,
   createTeamToUser,
   deleteTeamById,
@@ -109,6 +110,25 @@ export const kickMemberOutOfTeamAction = createServerFn({ method: "POST" })
       context.user.id,
       data.memberId,
       data.teamId,
+      context.db,
+    );
+  });
+
+export const changeTeamMemberRoleAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      teamId: teamMemberSchema.shape.teamId,
+      memberId: teamMemberSchema.shape.userId,
+      role: teamMemberSchema.shape.role,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    await changeTeamMemberRole(
+      context.user.id,
+      data.memberId,
+      data.teamId,
+      data.role,
       context.db,
     );
   });

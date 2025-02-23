@@ -12,6 +12,8 @@ import { Button } from "~/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { KickMemberOutDialog } from "~/team/components/kick-member-out-dialog";
 import { useUser } from "~/user/hooks/use-user";
+import { ChangeMemberRoleDialog } from "~/team/components/change-member-role-dialog";
+import { TeamMemberProvider } from "~/team/team-member.context";
 import type { ComponentProps } from "react";
 
 export const MembersList = () => {
@@ -49,7 +51,10 @@ export const MembersList = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <KickMemberOutDialog memberId={member.userId} />
+                  <TeamMemberProvider value={member}>
+                    <ChangeMemberRoleDialog />
+                    <KickMemberOutDialog />
+                  </TeamMemberProvider>
                 </DropdownMenuContent>
               </DropdownMenu>
             </TeamAdminGuard>
