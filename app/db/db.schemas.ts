@@ -12,7 +12,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
-import { memberSchema } from "~/team/team.schemas";
+import { teamMemberSchema } from "~/team/team.schemas";
 import { userSchema } from "~/user/user.schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -48,7 +48,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   passwordResetToken: one(passwordResetTokenTable),
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
-  teams: many(memberTable),
+  teams: many(teamMemberTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -322,16 +322,16 @@ export const teamTable = pgTable("team", {
 export type Team = Readonly<typeof teamTable.$inferSelect>;
 
 export const teamRelations = relations(teamTable, ({ many }) => ({
-  members: many(memberTable),
+  members: many(teamMemberTable),
 }));
 
-export const memberRoleEnum = pgEnum(
-  "member_role",
-  memberSchema.shape.role.options,
+export const teamMemberRoleEnum = pgEnum(
+  "team_member_role",
+  teamMemberSchema.shape.role.options,
 );
 
-export const memberTable = pgTable(
-  "member",
+export const teamMemberTable = pgTable(
+  "team_member",
   {
     userId: integer("user_id")
       .notNull()
@@ -339,22 +339,22 @@ export const memberTable = pgTable(
     teamId: integer("team_id")
       .notNull()
       .references(() => teamTable.id, { onDelete: "cascade" }),
-    role: memberRoleEnum("role").notNull().default("member"),
+    role: teamMemberRoleEnum("role").notNull().default("member"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.teamId] })],
 );
 
-export type Member = Readonly<typeof memberTable.$inferSelect>;
+export type TeamMember = Readonly<typeof teamMemberTable.$inferSelect>;
 
-export const memberRelations = relations(memberTable, ({ one }) => ({
+export const teamMemberRelations = relations(teamMemberTable, ({ one }) => ({
   user: one(userTable, {
-    fields: [memberTable.userId],
+    fields: [teamMemberTable.userId],
     references: [userTable.id],
   }),
   team: one(teamTable, {
-    fields: [memberTable.teamId],
+    fields: [teamMemberTable.teamId],
     references: [teamTable.id],
   }),
 }));

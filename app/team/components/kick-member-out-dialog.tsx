@@ -19,7 +19,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { kickMemberOutOfTeamAction } from "~/team/team.actions";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
-import type { Member } from "~/db/db.schemas";
+import type { TeamMember } from "~/db/db.schemas";
 
 export const KickMemberOutDialog = (props: Props) => {
   const kickMemberOut = useKickMemberOut();
@@ -147,6 +147,6 @@ const useKickMemberOut = () => {
   });
 };
 
-type Props = Readonly<{ memberId: Member["userId"] }>;
+type Props = Readonly<{ memberId: TeamMember["userId"] }>;
 
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
