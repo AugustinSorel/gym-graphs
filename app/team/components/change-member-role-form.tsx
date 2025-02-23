@@ -20,9 +20,10 @@ import {
   SelectValue,
 } from "~/ui/select";
 import { teamMemberSchema } from "~/team/team.schemas";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { changeTeamMemberRoleAction } from "~/team/team.actions";
 import { getRouteApi } from "@tanstack/react-router";
+import { teamQueries } from "~/team/team.queries";
 import type { z } from "zod";
 
 export const ChangeMemberRoleForm = (props: Props) => {
@@ -121,9 +122,41 @@ const useChangeMemberPermissionForm = () => {
 };
 
 const useChangeMemberRole = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: changeTeamMemberRoleAction,
-    onMutate: () => {},
-    onSettled: () => {},
+    onMutate: (variables) => {
+      const queries = {
+        team: teamQueries.get(variables.data.teamId).queryKey,
+      } as const;
+
+      queryClient.setQueryData(queries.team, (team) => {
+        if (!team) {
+          return team;
+        }
+
+        return {
+          ...team,
+          members: team.members.map((member) => {
+            if (member.userId === variables.data.memberId) {
+              return {
+                ...member,
+                role: variables.data.role,
+              };
+            }
+
+            return member;
+          }),
+        };
+      });
+    },
+    onSettled: (_data, _error, variables) => {
+      const queries = {
+        team: teamQueries.get(variables.data.teamId),
+      } as const;
+
+      queryClient.invalidateQueries(queries.team);
+    },
   });
 };
