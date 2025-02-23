@@ -68,7 +68,7 @@ export const MembersList = () => {
 const NoMembersMsg = (props: ComponentProps<"p">) => {
   return (
     <p
-      className="text-muted-foreground rounded border p-6 text-center"
+      className="text-muted-foreground mx-3 mb-3 rounded border p-6 text-center lg:mx-6 lg:mb-6"
       {...props}
     />
   );
@@ -79,7 +79,7 @@ const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 const List = (props: ComponentProps<"ul">) => {
   return (
     <ul
-      className="max-h-96 items-center overflow-auto rounded-md border [counter-reset:item]"
+      className="mx-3 mb-3 max-h-96 items-center overflow-auto rounded-md border lg:mx-6 lg:mb-6"
       {...props}
     />
   );

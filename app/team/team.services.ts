@@ -295,3 +295,28 @@ export const changeTeamMemberRole = async (
 
   return res;
 };
+
+export const changeTeamVisibility = async (
+  userId: TeamMember["userId"],
+  teamId: Team["id"],
+  isPublic: Team["isPublic"],
+  db: Db,
+) => {
+  const userIsAdmin = db
+    .select()
+    .from(teamTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamTable.id),
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamTable.id, teamId));
+
+  return db
+    .update(teamTable)
+    .set({ isPublic, updatedAt: new Date() })
+    .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)));
+};

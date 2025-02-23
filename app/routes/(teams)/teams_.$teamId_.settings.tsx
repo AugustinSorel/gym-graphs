@@ -15,6 +15,9 @@ import { DeleteTeamDialog } from "~/team/components/delete-team-dialog";
 import { LeaveTeamDialog } from "~/team/components/leave-team-dialog";
 import { MembersList } from "~/team/components/members-list";
 import type { ComponentProps } from "react";
+import { Switch } from "~/ui/switch";
+import { Badge } from "~/ui/badge";
+import { ChangeTeamVisibilitySwitch } from "~/team/components/change-team-visibility-switch";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
   params: z.object({
@@ -61,6 +64,7 @@ const RouteComponent = () => {
 
       <RenameTileSection />
       <MembersListSection />
+      <ChangeTeamVisibilitySection />
       <LeaveTeamSection />
       <DeleteTeamSection />
     </Main>
@@ -103,12 +107,43 @@ const MembersListSection = () => {
           <SectionDescription>
             Listing of all members that are part of this team.
           </SectionDescription>
-          <MembersList />
         </HGroup>
+        <MembersList />
         <Footer></Footer>
       </Section>
     </CatchBoundary>
   );
+};
+
+const ChangeTeamVisibilitySection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section className="grid grid-cols-[1fr_auto] items-center [&>button[role='switch']]:mr-3 lg:[&>button[role='switch']]:mr-6">
+        <HGroup>
+          <SectionTitle>team visibility</SectionTitle>
+          <SectionDescription>
+            Change the visibility of your team. Public means that your team will
+            be visible by anyone <TeamVisibilityBadge />
+          </SectionDescription>
+        </HGroup>
+        <ChangeTeamVisibilitySwitch />
+      </Section>
+    </CatchBoundary>
+  );
+};
+
+const TeamVisibilityBadge = () => {
+  const params = Route.useParams();
+  const team = useTeam(params.teamId);
+
+  if (team.data.isPublic) {
+    return <Badge>public</Badge>;
+  }
+
+  return <Badge variant="outline">private</Badge>;
 };
 
 const LeaveTeamSection = () => {

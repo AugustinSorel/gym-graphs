@@ -156,7 +156,7 @@ const useChangeMemberRole = () => {
         team: teamQueries.get(variables.data.teamId),
       } as const;
 
-      queryClient.invalidateQueries(queries.team);
+      void queryClient.invalidateQueries(queries.team);
     },
   });
 };

@@ -7,6 +7,7 @@ import { injectDbMiddleware } from "~/db/db.middlewares";
 import { teamSchema, teamMemberSchema } from "~/team/team.schemas";
 import {
   changeTeamMemberRole,
+  changeTeamVisibility,
   createTeam,
   createTeamToUser,
   deleteTeamById,
@@ -129,6 +130,23 @@ export const changeTeamMemberRoleAction = createServerFn({ method: "POST" })
       data.memberId,
       data.teamId,
       data.role,
+      context.db,
+    );
+  });
+
+export const changeTeamVisibilityAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      teamId: teamSchema.shape.id,
+      isPublic: teamSchema.shape.isPublic,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    await changeTeamVisibility(
+      context.user.id,
+      data.teamId,
+      data.isPublic,
       context.db,
     );
   });

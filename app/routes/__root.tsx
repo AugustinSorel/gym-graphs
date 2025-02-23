@@ -143,7 +143,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
-| TODO     | change visibility                                     |
+| TODO     | change isPublic to enum                               |
 | TODO     | invite members                                        |
 | TODO     | ask to join                                           |
 | TODO     | infinite scroll                                       |
