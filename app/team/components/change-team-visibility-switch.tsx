@@ -12,12 +12,12 @@ export const ChangeTeamVisibilitySwitch = () => {
 
   return (
     <Switch
-      checked={team.data.isPublic}
+      checked={team.data.visibility === "public"}
       onCheckedChange={(isPublic) => {
         changeTeamVisibility.mutate({
           data: {
             teamId: team.data.id,
-            isPublic,
+            visibility: isPublic ? "public" : "private",
           },
         });
       }}
@@ -45,7 +45,7 @@ const useChangeTeamVisibility = () => {
 
         return {
           ...team,
-          isPublic: variables.data.isPublic,
+          visibility: variables.data.visibility,
         };
       });
 
@@ -58,7 +58,7 @@ const useChangeTeamVisibility = () => {
           if (team.id === variables.data.teamId) {
             return {
               ...team,
-              isPublic: variables.data.isPublic,
+              visibility: variables.data.visibility,
             };
           }
 

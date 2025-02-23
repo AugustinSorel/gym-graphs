@@ -9,10 +9,9 @@ import {
   primaryKey,
   pgTable,
   serial,
-  boolean,
 } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
-import { teamMemberSchema } from "~/team/team.schemas";
+import { teamMemberSchema, teamSchema } from "~/team/team.schemas";
 import { userSchema } from "~/user/user.schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -311,9 +310,14 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
   tagToTiles: many(tilesToTagsTableTable),
 }));
 
+export const teamVisibilityEnum = pgEnum(
+  "team_visibility",
+  teamSchema.shape.visibility.options,
+);
+
 export const teamTable = pgTable("team", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  isPublic: boolean("is_public").notNull().default(false),
+  visibility: teamVisibilityEnum("visibility").notNull().default("private"),
   name: text("name").notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

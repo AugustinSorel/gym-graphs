@@ -29,11 +29,11 @@ export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
 
 export const createTeamAction = createServerFn({ method: "POST" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
-  .validator(teamSchema.pick({ name: true, isPublic: true }))
+  .validator(teamSchema.pick({ name: true, visibility: true }))
   .handler(async ({ context, data }) => {
     try {
       await context.db.transaction(async (tx) => {
-        const team = await createTeam(data.name, data.isPublic, tx);
+        const team = await createTeam(data.name, data.visibility, tx);
         await createTeamToUser(team.id, context.user.id, "admin", tx);
       });
     } catch (e) {
@@ -139,14 +139,14 @@ export const changeTeamVisibilityAction = createServerFn({ method: "POST" })
   .validator(
     z.object({
       teamId: teamSchema.shape.id,
-      isPublic: teamSchema.shape.isPublic,
+      visibility: teamSchema.shape.visibility,
     }),
   )
   .handler(async ({ context, data }) => {
     await changeTeamVisibility(
       context.user.id,
       data.teamId,
-      data.isPublic,
+      data.visibility,
       context.db,
     );
   });

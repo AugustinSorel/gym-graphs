@@ -25,9 +25,7 @@ export const TeamsList = () => {
 
           <TeamName>{team.name}</TeamName>
           {team.isUserInTeam && <Badge>joined</Badge>}
-          <Badge variant="outline">
-            {team.isPublic ? "public" : "private"}
-          </Badge>
+          <Badge variant="outline">{team.visibility}</Badge>
         </Team>
       ))}
     </List>

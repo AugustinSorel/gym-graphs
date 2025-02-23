@@ -60,7 +60,7 @@ export const CreateTeamForm = (props: Props) => {
 
         <FormField
           control={form.control}
-          name="isPublic"
+          name="visibility"
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between">
               <div className="space-y-0.5">
@@ -71,8 +71,10 @@ export const CreateTeamForm = (props: Props) => {
               </div>
               <FormControl>
                 <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+                  checked={field.value === "public"}
+                  onCheckedChange={(isPublic) => {
+                    field.onChange(isPublic ? "public" : "private");
+                  }}
                 />
               </FormControl>
             </FormItem>
@@ -104,7 +106,7 @@ type Props = Readonly<{
 const useFormSchema = () => {
   const queryClient = useQueryClient();
 
-  return teamSchema.pick({ name: true, isPublic: true }).refine(
+  return teamSchema.pick({ name: true, visibility: true }).refine(
     (data) => {
       const queries = {
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
@@ -136,7 +138,7 @@ const useCreateTeamForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      isPublic: false,
+      visibility: "private",
     },
   });
 };
@@ -161,7 +163,7 @@ const useCreateTeam = () => {
 
         const optimisticTeam = {
           id: teamId,
-          isPublic: variables.data.isPublic,
+          visibility: variables.data.visibility,
           name: variables.data.name,
           isUserInTeam: true,
           memberCounts: 1,

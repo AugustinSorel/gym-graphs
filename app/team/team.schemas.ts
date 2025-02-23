@@ -16,9 +16,9 @@ export const teamSchema = z.object({
     .trim()
     .min(3, "name must be at least 3 characters")
     .max(255, "name must be at most 255 characters"),
-  isPublic: z.boolean({
-    required_error: "isPublic is required",
-    invalid_type_error: "isPublic must of type boolean",
+  visibility: z.enum(["public", "private"], {
+    required_error: "visibility is required",
+    invalid_type_error: "visibility must be valid",
   }),
 });
 

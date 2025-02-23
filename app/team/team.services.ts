@@ -18,12 +18,12 @@ import type { Team, TeamMember, User } from "~/db/db.schemas";
 
 export const createTeam = async (
   name: Team["name"],
-  isPublic: Team["isPublic"],
+  visibility: Team["visibility"],
   db: Db,
 ) => {
   const [team] = await db
     .insert(teamTable)
-    .values({ name, isPublic })
+    .values({ name, visibility })
     .returning();
 
   if (!team) {
@@ -57,7 +57,9 @@ export const selectUserAndPublicTeams = async (
         eq(teamMemberTable.userId, userId),
       ),
     )
-    .where(or(eq(teamTable.isPublic, true), isNotNull(teamMemberTable.userId)))
+    .where(
+      or(eq(teamTable.visibility, "public"), isNotNull(teamMemberTable.userId)),
+    )
     .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt));
 };
 
@@ -299,7 +301,7 @@ export const changeTeamMemberRole = async (
 export const changeTeamVisibility = async (
   userId: TeamMember["userId"],
   teamId: Team["id"],
-  isPublic: Team["isPublic"],
+  visibility: Team["visibility"],
   db: Db,
 ) => {
   const userIsAdmin = db
@@ -317,6 +319,6 @@ export const changeTeamVisibility = async (
 
   return db
     .update(teamTable)
-    .set({ isPublic, updatedAt: new Date() })
+    .set({ visibility, updatedAt: new Date() })
     .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)));
 };

@@ -14,10 +14,9 @@ import { TeamAdminGuard } from "~/team/components/team-admin-guard";
 import { DeleteTeamDialog } from "~/team/components/delete-team-dialog";
 import { LeaveTeamDialog } from "~/team/components/leave-team-dialog";
 import { MembersList } from "~/team/components/members-list";
-import type { ComponentProps } from "react";
-import { Switch } from "~/ui/switch";
 import { Badge } from "~/ui/badge";
 import { ChangeTeamVisibilitySwitch } from "~/team/components/change-team-visibility-switch";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
   params: z.object({
@@ -139,11 +138,14 @@ const TeamVisibilityBadge = () => {
   const params = Route.useParams();
   const team = useTeam(params.teamId);
 
-  if (team.data.isPublic) {
-    return <Badge>public</Badge>;
+  switch (team.data.visibility) {
+    case "public":
+      return <Badge>public</Badge>;
+    case "private":
+      return <Badge variant="outline">private</Badge>;
   }
 
-  return <Badge variant="outline">private</Badge>;
+  team.data.visibility satisfies never;
 };
 
 const LeaveTeamSection = () => {
