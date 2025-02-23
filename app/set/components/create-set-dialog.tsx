@@ -16,7 +16,7 @@ export const CreateSetDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Button asChild className="hidden lg:inline-flex">
+      <Button asChild className="hidden lg:inline-flex" size="sm">
         <DialogTrigger>create set</DialogTrigger>
       </Button>
 
