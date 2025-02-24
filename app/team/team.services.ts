@@ -12,9 +12,15 @@ import {
   or,
   sql,
 } from "drizzle-orm";
-import { teamMemberTable, teamTable } from "~/db/db.schemas";
+import {
+  teamInvitationTable,
+  teamMemberTable,
+  teamTable,
+  userTable,
+} from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import type { Team, TeamMember, User } from "~/db/db.schemas";
+import type { Team, TeamInvitation, TeamMember, User } from "~/db/db.schemas";
+import { base32 } from "oslo/encoding";
 
 export const createTeam = async (
   name: Team["name"],
@@ -91,15 +97,35 @@ export const selectTeamById = async (
       ),
     );
 
+  const userIsAdmin = db
+    .select()
+    .from(teamMemberTable)
+    .where(
+      and(
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.teamId, teamId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    );
+
   return db.query.teamTable.findFirst({
     where: and(eq(teamTable.id, teamId), exists(userInTeam)),
     with: {
+      invitations: {
+        where: exists(userIsAdmin),
+        columns: {
+          id: true,
+          email: true,
+          status: true,
+        },
+      },
       members: {
         orderBy: asc(teamMemberTable.createdAt),
         with: {
           user: {
             columns: {
               name: true,
+              email: true,
             },
           },
         },
@@ -321,4 +347,61 @@ export const changeTeamVisibility = async (
     .update(teamTable)
     .set({ visibility, updatedAt: new Date() })
     .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)));
+};
+
+export const generateTeamInvitationToken = () => {
+  const bytes = new Uint8Array(20);
+
+  crypto.getRandomValues(bytes);
+
+  const token = base32.encode(bytes, { includePadding: false });
+
+  return token;
+};
+
+export const createTeamInvitation = async (
+  email: TeamInvitation["email"],
+  inviterId: TeamInvitation["inviterId"],
+  teamId: TeamInvitation["teamId"],
+  token: TeamInvitation["token"],
+  db: Db,
+) => {
+  const inviter = await db.query.teamMemberTable.findFirst({
+    where: and(
+      eq(teamMemberTable.teamId, teamId),
+      eq(teamMemberTable.userId, inviterId),
+      eq(teamMemberTable.role, "admin"),
+    ),
+  });
+
+  if (!inviter) {
+    throw new Error("only admins are allowed to invite new members");
+  }
+
+  return db.insert(teamInvitationTable).values({
+    email,
+    inviterId,
+    teamId,
+    token,
+  });
+};
+
+export const selectMemberInTeamByEmail = async (
+  email: User["email"],
+  teamId: TeamMember["teamId"],
+  db: Db,
+) => {
+  const [member] = await db
+    .select()
+    .from(userTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.userId, userTable.id),
+        eq(teamMemberTable.teamId, teamId),
+      ),
+    )
+    .where(eq(userTable.email, email));
+
+  return member;
 };

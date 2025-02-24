@@ -14,6 +14,7 @@ import { KickMemberOutDialog } from "~/team/components/kick-member-out-dialog";
 import { useUser } from "~/user/hooks/use-user";
 import { ChangeMemberRoleDialog } from "~/team/components/change-member-role-dialog";
 import { TeamMemberProvider } from "~/team/team-member.context";
+import { inferNameFromEmail } from "~/user/user.utils";
 import type { ComponentProps } from "react";
 
 export const MembersList = () => {
@@ -22,13 +23,40 @@ export const MembersList = () => {
   const user = useUser();
 
   const members = team.data.members;
+  const pendingInvitations = team.data.invitations.filter((invitation) => {
+    return invitation.status === "pending";
+  });
 
-  if (!members.length) {
+  if (!members.length && !pendingInvitations.length) {
     return <NoMembersMsg>no members</NoMembersMsg>;
   }
 
   return (
     <List>
+      {pendingInvitations.map((invitation) => (
+        <Member key={invitation.id}>
+          <MemberName>{inferNameFromEmail(invitation.email)}</MemberName>
+
+          <Badge variant="warning" className="w-max">
+            pending...
+          </Badge>
+
+          <TeamAdminGuard>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="size-8">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TeamAdminGuard>
+        </Member>
+      ))}
+
       {members.map((member) => (
         <Member key={member.userId}>
           <MemberName>{member.user.name}</MemberName>

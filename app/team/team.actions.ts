@@ -4,22 +4,30 @@ import {
   rateLimiterMiddleware,
 } from "~/auth/auth.middlewares";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { teamSchema, teamMemberSchema } from "~/team/team.schemas";
+import {
+  teamSchema,
+  teamMemberSchema,
+  teamInvitationSchema,
+} from "~/team/team.schemas";
 import {
   changeTeamMemberRole,
   changeTeamVisibility,
   createTeam,
+  createTeamInvitation,
   createTeamToUser,
   deleteTeamById,
+  generateTeamInvitationToken,
   kickMemberOutOfTeam,
   leaveTeam,
   renameTeamById,
+  selectMemberInTeamByEmail,
   selectTeamById,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
 import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
+import { sendTeamInvitationEmail } from "~/team/team.emails";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -149,4 +157,56 @@ export const changeTeamVisibilityAction = createServerFn({ method: "POST" })
       data.visibility,
       context.db,
     );
+  });
+
+export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      teamId: teamInvitationSchema.shape.teamId,
+      newMemberEmail: teamInvitationSchema.shape.email,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    try {
+      const token = generateTeamInvitationToken();
+
+      await context.db.transaction(async (tx) => {
+        const memberInTeam = await selectMemberInTeamByEmail(
+          data.newMemberEmail,
+          data.teamId,
+          tx,
+        );
+
+        if (memberInTeam) {
+          throw new Error("User already joined the team.");
+        }
+
+        await createTeamInvitation(
+          data.newMemberEmail,
+          context.user.id,
+          data.teamId,
+          token,
+          tx,
+        );
+
+        const team = await selectTeamById(context.user.id, data.teamId, tx);
+
+        if (!team) {
+          throw new Error("team not found");
+        }
+
+        await sendTeamInvitationEmail(data.newMemberEmail, team.name, token);
+      });
+    } catch (e) {
+      const dbError = e instanceof pg.DatabaseError;
+      const invitationAlreadySent =
+        dbError && e.constraint === "team_invitation_team_id_email_unique";
+
+      if (invitationAlreadySent) {
+        throw new Error("invitation already sent");
+      }
+
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
+    }
   });

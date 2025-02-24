@@ -30,3 +30,20 @@ export const teamMemberSchema = z.object({
   userId: userSchema.shape.id,
   teamId: teamSchema.shape.id,
 });
+
+export const teamInvitationSchema = z.object({
+  teamId: teamSchema.shape.id,
+  email: z
+    .string({
+      required_error: "email is required",
+      invalid_type_error: "email must of type string",
+    })
+    .trim()
+    .email("email must be valid")
+    .min(3, "email must be at least 3 characters")
+    .max(255, "email must be at most 255 characters"),
+  status: z.enum(["pending", "accepted", "expired", "revoked"], {
+    required_error: "status is required",
+    invalid_type_error: "status must be valid",
+  }),
+});

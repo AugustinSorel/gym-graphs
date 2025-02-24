@@ -11,7 +11,11 @@ import {
   serial,
 } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
-import { teamMemberSchema, teamSchema } from "~/team/team.schemas";
+import {
+  teamInvitationSchema,
+  teamMemberSchema,
+  teamSchema,
+} from "~/team/team.schemas";
 import { userSchema } from "~/user/user.schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -48,6 +52,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   tags: many(tagTable),
   oauthAccounts: many(oauthAccountTable),
   teams: many(teamMemberTable),
+  teamInvitations: many(teamInvitationTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -327,6 +332,7 @@ export type Team = Readonly<typeof teamTable.$inferSelect>;
 
 export const teamRelations = relations(teamTable, ({ many }) => ({
   members: many(teamMemberTable),
+  invitations: many(teamInvitationTable),
 }));
 
 export const teamMemberRoleEnum = pgEnum(
@@ -362,3 +368,48 @@ export const teamMemberRelations = relations(teamMemberTable, ({ one }) => ({
     references: [teamTable.id],
   }),
 }));
+
+export const teamInvitationStatusEnum = pgEnum(
+  "team_invitation_status",
+  teamInvitationSchema.shape.status.options,
+);
+
+export const teamInvitationTable = pgTable(
+  "team_invitation",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    teamId: integer("team_id")
+      .notNull()
+      .references(() => teamTable.id, { onDelete: "cascade" }),
+    inviterId: integer("inviter_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    token: text("token").notNull(),
+    status: teamInvitationStatusEnum("team_invitation_status")
+      .notNull()
+      .default("pending"),
+    expiresAt: timestamp("expires_at")
+      .default(sql`CURRENT_TIMESTAMP + (7 * interval '1 day')`)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.teamId, table.email)],
+);
+
+export type TeamInvitation = Readonly<typeof teamInvitationTable.$inferSelect>;
+
+export const teamInvitationRelations = relations(
+  teamInvitationTable,
+  ({ one }) => ({
+    inviter: one(userTable, {
+      fields: [teamInvitationTable.inviterId],
+      references: [userTable.id],
+    }),
+    team: one(teamTable, {
+      fields: [teamInvitationTable.teamId],
+      references: [teamTable.id],
+    }),
+  }),
+);

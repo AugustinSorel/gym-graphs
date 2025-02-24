@@ -16,6 +16,7 @@ import { LeaveTeamDialog } from "~/team/components/leave-team-dialog";
 import { MembersList } from "~/team/components/members-list";
 import { Badge } from "~/ui/badge";
 import { ChangeTeamVisibilitySwitch } from "~/team/components/change-team-visibility-switch";
+import { InviteMemberDialog } from "~/team/components/invite-member-dialog";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
@@ -108,7 +109,11 @@ const MembersListSection = () => {
           </SectionDescription>
         </HGroup>
         <MembersList />
-        <Footer></Footer>
+        <TeamAdminGuard>
+          <Footer>
+            <InviteMemberDialog />
+          </Footer>
+        </TeamAdminGuard>
       </Section>
     </CatchBoundary>
   );
