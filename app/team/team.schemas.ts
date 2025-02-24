@@ -52,4 +52,12 @@ export const teamInvitationSchema = z.object({
     required_error: "status is required",
     invalid_type_error: "status must be valid",
   }),
+  token: z
+    .string({
+      required_error: "token is required",
+      invalid_type_error: "token must of type string",
+    })
+    .trim()
+    .min(3, "token must be at least 3 characters")
+    .max(255, "token must be at most 255 characters"),
 });

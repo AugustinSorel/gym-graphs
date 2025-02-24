@@ -4,21 +4,21 @@ import type { Team, TeamInvitation } from "~/db/db.schemas";
 
 export const sendTeamInvitationEmail = async (
   toAddress: TeamInvitation["email"],
-  teamName: Team["name"],
+  team: Team,
   token: TeamInvitation["token"],
 ) => {
   const config = emailConfig(
     [toAddress],
-    `Invitation to join ${teamName}`,
-    emailTemplates.invitation(teamName, token),
+    `Invitation to join ${team.name}`,
+    emailTemplates.invitation(team, token),
   );
 
   return email.send(config);
 };
 
 const emailTemplates = {
-  invitation: (teamName: Team["name"], token: TeamInvitation["token"]) => {
-    const url = `${env.APP_URL}/teams/invitations/${token}`;
+  invitation: (team: Team, token: TeamInvitation["token"]) => {
+    const url = `${env.APP_URL}/teams/${team.id}/invitations/${token}`;
 
     return `
       <!doctype html>
@@ -148,7 +148,7 @@ const emailTemplates = {
           <div class="mx-auto max-w text-center">
             <h1 class='text-2xl text-primary'>Invitation received</h1>
             <p class='text-muted-foreground text-sm mt-1'>
-              You've been invited to join the team ${teamName}.
+              You've been invited to join the team ${team.name}.
             </p>
             <p class='text-muted-foreground text-sm'>
               Click the link below to accept the invitation

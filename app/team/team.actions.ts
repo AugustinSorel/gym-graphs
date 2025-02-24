@@ -10,12 +10,14 @@ import {
   teamInvitationSchema,
 } from "~/team/team.schemas";
 import {
+  acceptInvitation,
   changeTeamMemberRole,
   changeTeamVisibility,
   createTeam,
   createTeamInvitation,
-  createTeamToUser,
+  createTeamMember,
   deleteTeamById,
+  expireTeamInvitation,
   generateTeamInvitationToken,
   kickMemberOutOfTeam,
   leaveTeam,
@@ -23,6 +25,7 @@ import {
   revokeTeamInvitation,
   selectMemberInTeamByEmail,
   selectTeamById,
+  selectTeamInvitationByToken,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
 import pg from "pg";
@@ -43,7 +46,7 @@ export const createTeamAction = createServerFn({ method: "POST" })
     try {
       await context.db.transaction(async (tx) => {
         const team = await createTeam(data.name, data.visibility, tx);
-        await createTeamToUser(team.id, context.user.id, "admin", tx);
+        await createTeamMember(team.id, context.user.id, "admin", tx);
       });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
@@ -197,7 +200,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
           throw new Error("team not found");
         }
 
-        await sendTeamInvitationEmail(data.newMemberEmail, team.name, token);
+        await sendTeamInvitationEmail(data.newMemberEmail, team, token);
       });
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
@@ -221,4 +224,52 @@ export const revokeTeamInvitationAction = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     return revokeTeamInvitation(context.user.id, data.invitationId, context.db);
+  });
+
+export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      token: teamInvitationSchema.shape.token,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    const invitation = await selectTeamInvitationByToken(
+      data.token,
+      context.db,
+    );
+
+    if (!invitation) {
+      throw new Error("Invalid invitation");
+    }
+
+    if (invitation.status === "accepted") {
+      throw redirect({
+        to: "/teams/$teamId",
+        params: { teamId: invitation.teamId },
+      });
+    }
+
+    const invitationExpired = invitation.expiresAt < new Date();
+
+    if (invitationExpired) {
+      await expireTeamInvitation(invitation.id, context.db);
+
+      throw new Error("Invitation has expired");
+    }
+
+    const memberInTeam = await selectMemberInTeamByEmail(
+      invitation.email,
+      invitation.teamId,
+      context.db,
+    );
+
+    if (memberInTeam) {
+      throw new Error("User already joined the team.");
+    }
+
+    await context.db.transaction(async (tx) => {
+      await createTeamMember(invitation.teamId, context.user.id, "member", tx);
+      await acceptInvitation(invitation.id, tx);
+    });
   });

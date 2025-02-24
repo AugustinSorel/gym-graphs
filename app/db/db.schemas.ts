@@ -385,10 +385,8 @@ export const teamInvitationTable = pgTable(
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
     email: text("email").notNull(),
-    token: text("token").notNull(),
-    status: teamInvitationStatusEnum("team_invitation_status")
-      .notNull()
-      .default("pending"),
+    token: text("token").notNull().unique(),
+    status: teamInvitationStatusEnum("status").notNull().default("pending"),
     expiresAt: timestamp("expires_at")
       .default(sql`CURRENT_TIMESTAMP + (7 * interval '1 day')`)
       .notNull(),

@@ -96,36 +96,19 @@ const useFormSchema = () => {
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
 
-  return teamInvitationSchema
-    .pick({ email: true })
-    .refine(
-      (data) => {
-        const userAlreadyJoined = team.data.members.find((member) => {
-          return member.user.email === data.email;
-        });
+  return teamInvitationSchema.pick({ email: true }).refine(
+    (data) => {
+      const userAlreadyJoined = team.data.members.find((member) => {
+        return member.user.email === data.email;
+      });
 
-        return !userAlreadyJoined;
-      },
-      {
-        message: "user alrady joined team",
-        path: ["email"],
-      },
-    )
-    .refine(
-      (data) => {
-        const invitationAlreadySent = team.data.invitations.find(
-          (invitation) => {
-            return invitation.email === data.email;
-          },
-        );
-
-        return !invitationAlreadySent;
-      },
-      {
-        message: "invitation already sent",
-        path: ["email"],
-      },
-    );
+      return !userAlreadyJoined;
+    },
+    {
+      message: "user alrady joined team",
+      path: ["email"],
+    },
+  );
 };
 
 type InviteMemberSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
@@ -153,6 +136,17 @@ const useInviteMember = () => {
 
       queryClient.setQueryData(queries.team, (team) => {
         if (!team) {
+          return team;
+        }
+
+        const invitationAlreadyPending = team.invitations.find((invitation) => {
+          return (
+            invitation.email === variables.data.newMemberEmail &&
+            invitation.status === "pending"
+          );
+        });
+
+        if (invitationAlreadyPending) {
           return team;
         }
 

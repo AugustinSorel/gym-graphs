@@ -18,9 +18,10 @@ import {
   teamTable,
   userTable,
 } from "~/db/db.schemas";
+import { base32 } from "oslo/encoding";
+import { addDate } from "~/utils/date";
 import type { Db } from "~/libs/db";
 import type { Team, TeamInvitation, TeamMember, User } from "~/db/db.schemas";
-import { base32 } from "oslo/encoding";
 
 export const createTeam = async (
   name: Team["name"],
@@ -69,7 +70,7 @@ export const selectUserAndPublicTeams = async (
     .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt));
 };
 
-export const createTeamToUser = async (
+export const createTeamMember = async (
   teamId: TeamMember["teamId"],
   userId: TeamMember["userId"],
   role: TeamMember["role"],
@@ -378,12 +379,25 @@ export const createTeamInvitation = async (
     throw new Error("only admins are allowed to invite new members");
   }
 
-  return db.insert(teamInvitationTable).values({
-    email,
-    inviterId,
-    teamId,
-    token,
-  });
+  return db
+    .insert(teamInvitationTable)
+    .values({
+      email,
+      inviterId,
+      teamId,
+      token,
+    })
+    .onConflictDoUpdate({
+      target: [teamInvitationTable.teamId, teamInvitationTable.email],
+      set: {
+        token,
+        status: "pending",
+        expiresAt: addDate(new Date(), 7),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      targetWhere: eq(teamInvitationTable.status, "pending"),
+    });
 };
 
 export const selectMemberInTeamByEmail = async (
@@ -431,4 +445,39 @@ export const revokeTeamInvitation = async (
       updatedAt: new Date(),
     })
     .where(and(eq(teamInvitationTable.id, invitationId), exists(userIsAdmin)));
+};
+
+export const selectTeamInvitationByToken = async (
+  token: TeamInvitation["token"],
+  db: Db,
+) => {
+  return db.query.teamInvitationTable.findFirst({
+    where: eq(teamInvitationTable.token, token),
+  });
+};
+
+export const expireTeamInvitation = async (
+  invitationId: TeamInvitation["id"],
+  db: Db,
+) => {
+  return db
+    .update(teamInvitationTable)
+    .set({
+      status: "expired",
+      updatedAt: new Date(),
+    })
+    .where(and(eq(teamInvitationTable.id, invitationId)));
+};
+
+export const acceptInvitation = async (
+  invitationId: TeamInvitation["id"],
+  db: Db,
+) => {
+  return db
+    .update(teamInvitationTable)
+    .set({
+      status: "accepted",
+      updatedAt: new Date(),
+    })
+    .where(and(eq(teamInvitationTable.id, invitationId)));
 };
