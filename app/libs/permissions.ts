@@ -47,7 +47,7 @@ export const permissions = {
 
       return user;
     },
-    isUserAdmin: (user: ClientUser, members: ReadonlyArray<TeamMember>) => {
+    isAdmin: (user: ClientUser, members: ReadonlyArray<TeamMember>) => {
       const userInTeam = members.find((member) => {
         return member.userId === user?.id;
       });
