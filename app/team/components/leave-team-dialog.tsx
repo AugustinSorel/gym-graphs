@@ -12,18 +12,17 @@ import {
 } from "~/ui/alert-dialog";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
-import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { useTeam } from "~/team/hooks/use-team";
 import { leaveTeamAction } from "~/team/team.actions";
 import { teamQueries } from "~/team/team.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { CircleAlert } from "lucide-react";
-import { useUser } from "~/user/hooks/use-user";
 
 export const LeaveTeamDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  const navigate = useNavigate();
+  const navigate = routeApi.useNavigate();
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
   const leaveTeam = useLeaveTeam();
@@ -86,28 +85,16 @@ const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
 const useLeaveTeam = () => {
   const queryClient = useQueryClient();
-  const user = useUser();
 
   return useMutation({
     mutationFn: leaveTeamAction,
     onMutate: (variables) => {
       const queries = {
-        team: teamQueries.get(variables.data.teamId).queryKey,
+        team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
-        if (!team) {
-          return team;
-        }
-
-        return {
-          ...team,
-          members: team.members.filter((member) => {
-            return member.userId !== user.data.id;
-          }),
-        };
-      });
+      queryClient.removeQueries(queries.team);
 
       queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
