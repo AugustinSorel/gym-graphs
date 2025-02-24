@@ -1,18 +1,17 @@
 import { getRouteApi } from "@tanstack/react-router";
-import { PropsWithChildren } from "react";
 import { useTeam } from "~/team/hooks/use-team";
 import { useUser } from "~/user/hooks/use-user";
+import { permissions } from "~/libs/permissions";
+import type { PropsWithChildren } from "react";
 
 export const TeamAdminGuard = (props: Readonly<PropsWithChildren>) => {
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
   const user = useUser();
 
-  const userInTeam = team.data.members.find((member) => {
-    return member.userId === user.data.id;
-  });
+  const isAdmin = permissions.team.isAdmin(user.data, team.data.members);
 
-  if (userInTeam?.role !== "admin") {
+  if (!isAdmin) {
     return null;
   }
 

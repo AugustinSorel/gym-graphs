@@ -1,15 +1,19 @@
 import { redirect } from "@tanstack/react-router";
 import type { selectSessionTokenAction } from "~/auth/auth.actions";
+import type { selectUserAction } from "~/user/user.actions";
+import type { TeamMember } from "~/db/db.schemas";
 
-type User = Readonly<
+type ServerUser = Readonly<
   Partial<
     NonNullable<Awaited<ReturnType<typeof selectSessionTokenAction>>>
   >["user"]
 >;
 
+type ClientUser = Readonly<Awaited<ReturnType<typeof selectUserAction>>>;
+
 export const permissions = {
   homePage: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
@@ -18,7 +22,7 @@ export const permissions = {
     },
   },
   dashboard: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -27,7 +31,7 @@ export const permissions = {
     },
   },
   teams: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -36,16 +40,23 @@ export const permissions = {
     },
   },
   team: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
 
       return user;
     },
+    isUserAdmin: (user: ClientUser, members: ReadonlyArray<TeamMember>) => {
+      const userInTeam = members.find((member) => {
+        return member.userId === user?.id;
+      });
+
+      return userInTeam?.role === "admin";
+    },
   },
   teamSettings: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -54,7 +65,7 @@ export const permissions = {
     },
   },
   settings: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -63,7 +74,7 @@ export const permissions = {
     },
   },
   exercise: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -72,7 +83,7 @@ export const permissions = {
     },
   },
   exerciseSettings: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (!user?.emailVerifiedAt) {
         throw redirect({ to: "/sign-in" });
       }
@@ -81,7 +92,7 @@ export const permissions = {
     },
   },
   signIn: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
@@ -90,7 +101,7 @@ export const permissions = {
     },
   },
   signUp: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
@@ -99,21 +110,21 @@ export const permissions = {
     },
   },
   verifyEmail: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
     },
   },
   requestResetPassword: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
     },
   },
   resetPassword: {
-    view: (user: User) => {
+    view: (user: ServerUser) => {
       if (user?.emailVerifiedAt) {
         throw redirect({ to: "/dashboard" });
       }
