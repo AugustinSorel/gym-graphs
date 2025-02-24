@@ -75,5 +75,7 @@ const Header = (props: ComponentProps<"header">) => {
 };
 
 const Title = (props: ComponentProps<"h1">) => {
-  return <h1 className="text-3xl font-semibold capitalize" {...props} />;
+  return (
+    <h1 className="truncate text-3xl font-semibold capitalize" {...props} />
+  );
 };
