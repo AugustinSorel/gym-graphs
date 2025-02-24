@@ -90,11 +90,8 @@ const useLeaveTeam = () => {
     mutationFn: leaveTeamAction,
     onMutate: (variables) => {
       const queries = {
-        team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
       } as const;
-
-      queryClient.removeQueries(queries.team);
 
       queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {

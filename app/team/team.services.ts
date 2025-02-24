@@ -452,7 +452,10 @@ export const selectTeamInvitationByToken = async (
   db: Db,
 ) => {
   return db.query.teamInvitationTable.findFirst({
-    where: eq(teamInvitationTable.token, token),
+    where: and(
+      eq(teamInvitationTable.token, token),
+      eq(teamInvitationTable.status, "pending"),
+    ),
   });
 };
 

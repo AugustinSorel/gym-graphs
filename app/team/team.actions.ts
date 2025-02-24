@@ -243,13 +243,6 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
       throw new Error("Invalid invitation");
     }
 
-    if (invitation.status === "accepted") {
-      throw redirect({
-        to: "/teams/$teamId",
-        params: { teamId: invitation.teamId },
-      });
-    }
-
     const invitationExpired = invitation.expiresAt < new Date();
 
     if (invitationExpired) {
@@ -272,4 +265,6 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
       await createTeamMember(invitation.teamId, context.user.id, "member", tx);
       await acceptInvitation(invitation.id, tx);
     });
+
+    return invitation;
   });

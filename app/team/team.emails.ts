@@ -18,7 +18,7 @@ export const sendTeamInvitationEmail = async (
 
 const emailTemplates = {
   invitation: (team: Team, token: TeamInvitation["token"]) => {
-    const url = `${env.APP_URL}/teams/${team.id}/invitations/${token}`;
+    const url = `${env.APP_URL}/teams/${team.id}/invitations/${token}/accept`;
 
     return `
       <!doctype html>
