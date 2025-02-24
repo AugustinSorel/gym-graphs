@@ -1,5 +1,6 @@
 CREATE TYPE "public"."oauth_provider" AS ENUM('github');--> statement-breakpoint
 CREATE TYPE "public"."one_rep_max_algo" AS ENUM('adams', 'baechle', 'berger', 'brown', 'brzycki', 'epley', 'kemmler', 'landers', 'lombardi', 'mayhew', 'naclerio', 'oConner', 'wathen');--> statement-breakpoint
+CREATE TYPE "public"."team_invitation_status" AS ENUM('pending', 'accepted', 'expired', 'revoked');--> statement-breakpoint
 CREATE TYPE "public"."team_member_role" AS ENUM('admin', 'member');--> statement-breakpoint
 CREATE TYPE "public"."team_visibility" AS ENUM('public', 'private');--> statement-breakpoint
 CREATE TYPE "public"."tile_type" AS ENUM('exercise', 'tilesToSetsCount', 'tilesToTagsCount', 'tilesSetsHeatMap', 'tilesFunFacts');--> statement-breakpoint
@@ -72,6 +73,20 @@ CREATE TABLE "tag" (
 	CONSTRAINT "tag_name_user_id_unique" UNIQUE("name","user_id")
 );
 --> statement-breakpoint
+CREATE TABLE "team_invitation" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "team_invitation_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"team_id" integer NOT NULL,
+	"inviter_id" integer NOT NULL,
+	"email" text NOT NULL,
+	"token" text NOT NULL,
+	"status" "team_invitation_status" DEFAULT 'pending' NOT NULL,
+	"expires_at" timestamp DEFAULT CURRENT_TIMESTAMP + (7 * interval '1 day') NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "team_invitation_token_unique" UNIQUE("token"),
+	CONSTRAINT "team_invitation_team_id_email_unique" UNIQUE("team_id","email")
+);
+--> statement-breakpoint
 CREATE TABLE "team_member" (
 	"user_id" integer NOT NULL,
 	"team_id" integer NOT NULL,
@@ -129,6 +144,8 @@ ALTER TABLE "password_reset_token" ADD CONSTRAINT "password_reset_token_user_id_
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "set" ADD CONSTRAINT "set_exercise_id_exercise_id_fk" FOREIGN KEY ("exercise_id") REFERENCES "public"."exercise"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tag" ADD CONSTRAINT "tag_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "team_invitation" ADD CONSTRAINT "team_invitation_team_id_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "team_invitation" ADD CONSTRAINT "team_invitation_inviter_id_user_id_fk" FOREIGN KEY ("inviter_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team_member" ADD CONSTRAINT "team_member_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team_member" ADD CONSTRAINT "team_member_team_id_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tile" ADD CONSTRAINT "tile_dashboard_id_dashboard_id_fk" FOREIGN KEY ("dashboard_id") REFERENCES "public"."dashboard"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

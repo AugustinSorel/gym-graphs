@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1740334754890,
-      "tag": "0000_tranquil_stick",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1740393739993,
-      "tag": "0001_workable_jackal",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1740410749936,
-      "tag": "0002_curvy_sleepwalker",
+      "when": 1740411014492,
+      "tag": "0000_acoustic_psylocke",
       "breakpoints": true
     }
   ]
