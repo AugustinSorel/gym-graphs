@@ -18,6 +18,7 @@ import {
   updateEmailVerifiedAt,
 } from "~/user/user.services";
 import type { GithubOauthToken } from "~/auth/auth.services";
+import { inferNameFromEmail } from "~/user/user.utils";
 
 export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
   GET: async ({ request }) => {
@@ -92,7 +93,7 @@ const githubSignIn = async (token: GithubOauthToken) => {
 
   const user = await createUserWithEmailOnly(
     githubUserEmail.email,
-    githubUser.name ?? githubUserEmail.email.split("@").at(0) ?? "?",
+    githubUser.name ?? inferNameFromEmail(githubUserEmail.email),
     db,
   );
 

@@ -51,6 +51,7 @@ import {
 import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { inferNameFromEmail } from "~/user/user.utils";
 
 export const signInAction = createServerFn()
   .middleware([rateLimiterMiddleware, injectDbMiddleware])
@@ -100,7 +101,7 @@ export const signUpAction = createServerFn({ method: "POST" })
     try {
       await context.db.transaction(async (tx) => {
         const hashedPassword = await hashSecret(data.password);
-        const name = data.email.split("@").at(0) ?? "anonymous";
+        const name = inferNameFromEmail(data.email);
 
         const user = await createUserWithEmailAndPassword(
           data.email,
