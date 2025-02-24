@@ -405,3 +405,30 @@ export const selectMemberInTeamByEmail = async (
 
   return member;
 };
+
+export const revokeTeamInvitation = async (
+  userId: TeamMember["userId"],
+  invitationId: TeamInvitation["id"],
+  db: Db,
+) => {
+  const userIsAdmin = db
+    .select()
+    .from(teamInvitationTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamInvitationTable.teamId),
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamInvitationTable.id, invitationId));
+
+  return db
+    .update(teamInvitationTable)
+    .set({
+      status: "revoked",
+      updatedAt: new Date(),
+    })
+    .where(and(eq(teamInvitationTable.id, invitationId), exists(userIsAdmin)));
+};

@@ -20,6 +20,7 @@ import {
   kickMemberOutOfTeam,
   leaveTeam,
   renameTeamById,
+  revokeTeamInvitation,
   selectMemberInTeamByEmail,
   selectTeamById,
   selectUserAndPublicTeams,
@@ -209,4 +210,15 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
+  });
+
+export const revokeTeamInvitationAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      invitationId: teamInvitationSchema.shape.id,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    return revokeTeamInvitation(context.user.id, data.invitationId, context.db);
   });

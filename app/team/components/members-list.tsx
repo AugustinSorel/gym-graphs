@@ -15,6 +15,7 @@ import { useUser } from "~/user/hooks/use-user";
 import { ChangeMemberRoleDialog } from "~/team/components/change-member-role-dialog";
 import { TeamMemberProvider } from "~/team/team-member.context";
 import { inferNameFromEmail } from "~/user/user.utils";
+import { RevokeInvitationDialog } from "~/team/components/revoke-invitation-dialog";
 import type { ComponentProps } from "react";
 
 export const MembersList = () => {
@@ -51,6 +52,7 @@ export const MembersList = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <RevokeInvitationDialog invitationId={invitation.id} />
               </DropdownMenuContent>
             </DropdownMenu>
           </TeamAdminGuard>
