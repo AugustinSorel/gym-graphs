@@ -32,6 +32,7 @@ import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
 import { sendTeamInvitationEmail } from "~/team/team.emails";
+import { sha256Encode } from "~/auth/auth.services";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -174,6 +175,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       const token = generateTeamInvitationToken();
+      const tokenHash = await sha256Encode(token);
 
       await context.db.transaction(async (tx) => {
         const memberInTeam = await selectMemberInTeamByEmail(
@@ -190,7 +192,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
           data.newMemberEmail,
           context.user.id,
           data.teamId,
-          token,
+          tokenHash,
           tx,
         );
 
@@ -234,10 +236,9 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    const invitation = await selectTeamInvitationByToken(
-      data.token,
-      context.db,
-    );
+    const tokenHash = await sha256Encode(data.token);
+
+    const invitation = await selectTeamInvitationByToken(tokenHash, context.db);
 
     if (!invitation) {
       throw new Error("Invalid invitation");
