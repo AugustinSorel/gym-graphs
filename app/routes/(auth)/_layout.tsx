@@ -7,6 +7,7 @@ import type { ComponentProps } from "react";
 export const Route = createFileRoute("/(auth)/_layout")({
   validateSearch: z.object({
     error: z.string().optional(),
+    callbackUrl: z.string().optional(),
   }),
   component: () => RouteComponent(),
 });

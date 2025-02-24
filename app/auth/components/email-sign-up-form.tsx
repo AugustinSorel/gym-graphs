@@ -32,7 +32,10 @@ export const EmailSignUpForm = () => {
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
-            await navigate({ to: "/verify-email" });
+            await navigate({
+              to: "/verify-email",
+              search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+            });
           });
         },
         onError: (error) => {

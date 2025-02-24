@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
@@ -20,7 +20,8 @@ import { signInAction } from "~/auth/auth.actions";
 import type { z } from "zod";
 
 export const EmailSignInForm = () => {
-  const navigate = useNavigate({ from: "/sign-in" });
+  const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
   const form = useEmailSignInForm();
@@ -32,7 +33,11 @@ export const EmailSignInForm = () => {
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
-            await navigate({ to: "/dashboard" });
+            if (search.callbackUrl) {
+              await navigate({ to: search.callbackUrl });
+            } else {
+              await navigate({ to: "/dashboard" });
+            }
           });
         },
         onError: (error) => {
@@ -104,6 +109,8 @@ export const EmailSignInForm = () => {
     </Form>
   );
 };
+
+const routeApi = getRouteApi("/(auth)/_layout/sign-in");
 
 const signInSchema = userSchema.pick({ email: true, password: true });
 type SignInSchema = Readonly<z.infer<typeof signInSchema>>;

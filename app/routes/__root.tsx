@@ -144,7 +144,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
-| TODO     | redirects url when signing up                         |
 | TODO     | ask to join                                           |
 | TODO     | infinite scroll                                       |
 | TODO     | filter team by name                                   |

@@ -18,6 +18,16 @@ export const Route = createFileRoute(
   }),
   component: () => RouteComponent(),
   errorComponent: (props) => <ErrorComponent {...props} />,
+  beforeLoad: ({ context, params }) => {
+    if (!context.user) {
+      return redirect({
+        to: "/sign-up",
+        search: {
+          callbackUrl: `/teams/${params.teamId}/invitations/${params.token}/accept`,
+        },
+      });
+    }
+  },
   loader: async ({ params }) => {
     const invitation = await acceptTeamInvitationAction({
       data: { token: params.token },

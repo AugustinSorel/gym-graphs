@@ -25,6 +25,7 @@ import type { z } from "zod";
 
 export const VerifyEmailForm = () => {
   const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
   const form = useVerifyEmailForm();
@@ -39,7 +40,11 @@ export const VerifyEmailForm = () => {
         },
         onSuccess: () => {
           startRedirectTransition(async () => {
-            await navigate({ to: "/dashboard" });
+            if (search.callbackUrl) {
+              await navigate({ to: search.callbackUrl });
+            } else {
+              await navigate({ to: "/dashboard" });
+            }
           });
         },
       },

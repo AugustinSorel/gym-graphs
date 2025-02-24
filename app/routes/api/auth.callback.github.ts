@@ -25,10 +25,10 @@ export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
     try {
       const url = new URL(request.url);
 
-      const { code } = githubOauthSchema.parse({
+      const { code, callbackUrl } = githubOauthSchema.parse({
         state: url.searchParams.get("state"),
         code: url.searchParams.get("code"),
-        callbackUrl: url.searchParams.get("callback-url"),
+        callbackUrl: url.searchParams.get("callbackUrl"),
         candidateState: getCookie("github_oauth_state"),
       });
 
@@ -45,7 +45,7 @@ export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/dashboard",
+          Location: callbackUrl ? callbackUrl : "/dashboard",
         },
       });
     } catch (e) {

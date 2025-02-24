@@ -31,7 +31,12 @@ const RouteComponent = () => {
           asChild
           className="text-primary h-auto w-auto p-0"
         >
-          <Link to="/sign-up">sign up</Link>
+          <Link
+            to="/sign-up"
+            search={(prev) => ({ callbackUrl: prev.callbackUrl })}
+          >
+            sign up
+          </Link>
         </Button>
       </RedirectText>
     </>

@@ -52,6 +52,7 @@ import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { inferNameFromEmail } from "~/user/user.utils";
+import { env } from "~/env";
 
 export const signInAction = createServerFn()
   .middleware([rateLimiterMiddleware, injectDbMiddleware])
@@ -206,17 +207,24 @@ export const sendEmailVerificationCodeAction = createServerFn({
     });
   });
 
-export const githubSignInAction = createServerFn({ method: "POST" }).handler(
-  async () => {
+export const githubSignInAction = createServerFn({ method: "POST" })
+  .validator(z.object({ callbackUrl: z.string().nullish() }).optional())
+  .handler(async ({ data }) => {
     const token = generateGithubOauthToken();
 
     const url = generateGithubOauthUrl(token);
 
+    if (data?.callbackUrl) {
+      url.searchParams.set(
+        "redirect_uri",
+        `${env.APP_URL}/api/auth/callback/github?callbackUrl=${data.callbackUrl}`,
+      );
+    }
+
     setGithubTokenCookie(token);
 
     return url.toString();
-  },
-);
+  });
 
 export const requestResetPasswordAction = createServerFn({ method: "POST" })
   .middleware([rateLimiterMiddleware, injectDbMiddleware])
