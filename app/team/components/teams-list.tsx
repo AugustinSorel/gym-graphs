@@ -3,6 +3,7 @@ import { teamQueries } from "~/team/team.queries";
 import { Badge } from "~/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
+import { Button } from "~/ui/button";
 import type { ComponentProps } from "react";
 
 export const TeamsList = () => {
@@ -17,11 +18,9 @@ export const TeamsList = () => {
       {userAndPublicTeams.data.map((team) => (
         <Team key={team.id} isUserInTeam={team.isUserInTeam}>
           {team.isUserInTeam && (
-            <Link
-              className="absolute inset-0"
-              to="/teams/$teamId"
-              params={{ teamId: team.id }}
-            />
+            <Button variant="link" asChild className="absolute inset-0 h-auto">
+              <Link to="/teams/$teamId" params={{ teamId: team.id }} />
+            </Button>
           )}
 
           <TeamName>{team.name}</TeamName>
