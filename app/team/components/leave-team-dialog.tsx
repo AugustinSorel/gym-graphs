@@ -18,7 +18,7 @@ import { useTeam } from "~/team/hooks/use-team";
 import { leaveTeamAction } from "~/team/team.actions";
 import { teamQueries } from "~/team/team.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { AlertCircle, CircleAlert } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 import { useUser } from "~/user/hooks/use-user";
 
 export const LeaveTeamDialog = () => {
@@ -27,7 +27,6 @@ export const LeaveTeamDialog = () => {
   const params = routeApi.useParams();
   const team = useTeam(params.teamId);
   const leaveTeam = useLeaveTeam();
-  const allowedToLeaveTeam = useAllowedToLeaveTeam();
 
   const leaveTeamHandler = () => {
     leaveTeam.mutate(
@@ -44,15 +43,8 @@ export const LeaveTeamDialog = () => {
 
   return (
     <AlertDialog>
-      {!allowedToLeaveTeam && (
-        <p className="text-muted-foreground mr-2 flex items-center gap-2 text-center text-sm">
-          <AlertCircle className="size-4 shrink-0" />
-          You cannot leave the team because you are the only admin.
-        </p>
-      )}
-
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={!allowedToLeaveTeam}>
+        <Button variant="destructive" size="sm">
           leave
         </Button>
       </AlertDialogTrigger>
@@ -92,46 +84,13 @@ export const LeaveTeamDialog = () => {
 
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
-const useAllowedToLeaveTeam = () => {
-  const user = useUser();
-  const params = routeApi.useParams();
-  const team = useTeam(params.teamId);
-
-  const member = team.data.members.find((teamToUser) => {
-    return teamToUser.userId === user.data.id;
-  });
-
-  if (!member) {
-    return false;
-  }
-
-  if (member.role === "member") {
-    return true;
-  }
-
-  const adminCounts = team.data.members.reduce((acc, curr) => {
-    if (curr.role === "admin") {
-      return acc + 1;
-    }
-
-    return acc;
-  }, 0);
-
-  return adminCounts > 1;
-};
-
 const useLeaveTeam = () => {
   const queryClient = useQueryClient();
-  const allowedToLeaveTeam = useAllowedToLeaveTeam();
   const user = useUser();
 
   return useMutation({
     mutationFn: leaveTeamAction,
     onMutate: (variables) => {
-      if (!allowedToLeaveTeam) {
-        return;
-      }
-
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
         userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,

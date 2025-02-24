@@ -17,6 +17,7 @@ import { MembersList } from "~/team/components/members-list";
 import { Badge } from "~/ui/badge";
 import { ChangeTeamVisibilitySwitch } from "~/team/components/change-team-visibility-switch";
 import { InviteMemberDialog } from "~/team/components/invite-member-dialog";
+import { AllowedToLeaveTeamGuard } from "~/team/components/allowed-to-leave-team-guard";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId_/settings")({
@@ -159,19 +160,21 @@ const LeaveTeamSection = () => {
       errorComponent={DefaultErrorFallback}
       getResetKey={() => "reset"}
     >
-      <Section className="border-destructive">
-        <HGroup>
-          <SectionTitle>leave team</SectionTitle>
-          <SectionDescription>
-            Permanently remove yourself from this team. All of your data stored
-            in this team will be removed forever. This action is not reversible,
-            so please continue with caution.
-          </SectionDescription>
-        </HGroup>
-        <Footer className="border-destructive bg-destructive/10">
-          <LeaveTeamDialog />
-        </Footer>
-      </Section>
+      <AllowedToLeaveTeamGuard>
+        <Section className="border-destructive">
+          <HGroup>
+            <SectionTitle>leave team</SectionTitle>
+            <SectionDescription>
+              Permanently remove yourself from this team. All of your data
+              stored in this team will be removed forever. This action is not
+              reversible, so please continue with caution.
+            </SectionDescription>
+          </HGroup>
+          <Footer className="border-destructive bg-destructive/10">
+            <LeaveTeamDialog />
+          </Footer>
+        </Section>
+      </AllowedToLeaveTeamGuard>
     </CatchBoundary>
   );
 };
