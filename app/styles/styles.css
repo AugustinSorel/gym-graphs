@@ -23,6 +23,9 @@
   --color-success: hsl(var(--success));
   --color-success-foreground: hsl(var(--success-foreground));
 
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
 
@@ -89,6 +92,9 @@
     --success: 162.9 93.5% 24.3%;
     --success-foreground: 0 0% 98%;
 
+    --warning: 40 100% 45%;
+    --warning-foreground: 0 0% 4%;
+
     --border: 0 0% 89.8%;
 
     --input: 0 0% 89.8%;
@@ -129,6 +135,9 @@
 
     --success: 158.1 64.4% 51.6%;
     --success-foreground: 0 0% 96%;
+
+    --warning: 42 100% 50%;
+    --warning-foreground: 0 0% 4%;
 
     --border: 0 0% 14.9%;
 
