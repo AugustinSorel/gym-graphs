@@ -33,6 +33,9 @@ const RouteComponent = () => {
           settings
         </Link>
       </Button>
+      <Button asChild>
+        <Link to="..">back</Link>
+      </Button>
     </>
   );
 };
