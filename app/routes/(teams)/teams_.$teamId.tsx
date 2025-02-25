@@ -61,7 +61,7 @@ const PublicTeamPage = () => {
         <div className="w-max rounded-full border-2 border-current p-5">
           <Lock className="size-24 stroke-1" />
         </div>
-        <AlertTitle className="text-4xl font-bold capitalize">
+        <AlertTitle className="text-4xl font-bold first-letter:capitalize">
           this team is private
         </AlertTitle>
         <AlertDescription className="text-muted-foreground text-base">
