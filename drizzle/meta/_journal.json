@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1740411014492,
-      "tag": "0000_acoustic_psylocke",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1740490949956,
-      "tag": "0001_amused_moira_mactaggert",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1740508996387,
-      "tag": "0002_swift_vindicator",
+      "when": 1740509185977,
+      "tag": "0000_overconfident_vision",
       "breakpoints": true
     }
   ]
