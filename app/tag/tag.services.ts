@@ -32,7 +32,7 @@ export const renameTag = (
 ) => {
   return db
     .update(tagTable)
-    .set({ name, updatedAt: new Date() })
+    .set({ name })
     .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)));
 };
 

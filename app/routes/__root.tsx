@@ -143,7 +143,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | redisgn page header                                   |
-| TODO     | useOnUpdate                                           |
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
 | TODO     | ask to join                                           |

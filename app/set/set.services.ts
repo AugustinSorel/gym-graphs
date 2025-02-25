@@ -41,10 +41,7 @@ export const updateSetWeight = async (
 
   const updatedSets = await db
     .update(setTable)
-    .set({
-      weightInKg,
-      updatedAt: new Date(),
-    })
+    .set({ weightInKg })
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 
@@ -71,10 +68,7 @@ export const updateSetRepetitions = async (
 
   const updatedExerciseSets = await db
     .update(setTable)
-    .set({
-      repetitions,
-      updatedAt: new Date(),
-    })
+    .set({ repetitions })
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 
@@ -101,10 +95,7 @@ export const updateSetDoneAt = async (
 
   const updatedExerciseSets = await db
     .update(setTable)
-    .set({
-      doneAt,
-      updatedAt: new Date(),
-    })
+    .set({ doneAt })
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 

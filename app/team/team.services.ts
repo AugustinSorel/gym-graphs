@@ -160,10 +160,7 @@ export const renameTeamById = async (
 
   return db
     .update(teamTable)
-    .set({
-      name,
-      updatedAt: new Date(),
-    })
+    .set({ name })
     .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
 };
 
@@ -311,10 +308,7 @@ export const changeTeamMemberRole = async (
 
   const res = await db
     .update(teamMemberTable)
-    .set({
-      role,
-      updatedAt: new Date(),
-    })
+    .set({ role })
     .where(
       and(
         eq(teamMemberTable.userId, memberId),
@@ -352,7 +346,7 @@ export const changeTeamVisibility = async (
 
   return db
     .update(teamTable)
-    .set({ visibility, updatedAt: new Date() })
+    .set({ visibility })
     .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)));
 };
 
@@ -400,7 +394,6 @@ export const createTeamInvitation = async (
         status: "pending",
         expiresAt: addDate(new Date(), 7),
         createdAt: new Date(),
-        updatedAt: new Date(),
       },
       targetWhere: eq(teamInvitationTable.status, "pending"),
     });
@@ -446,10 +439,7 @@ export const revokeTeamInvitation = async (
 
   return db
     .update(teamInvitationTable)
-    .set({
-      status: "revoked",
-      updatedAt: new Date(),
-    })
+    .set({ status: "revoked" })
     .where(and(eq(teamInvitationTable.id, invitationId), exists(userIsAdmin)));
 };
 
@@ -471,10 +461,7 @@ export const expireTeamInvitation = async (
 ) => {
   return db
     .update(teamInvitationTable)
-    .set({
-      status: "expired",
-      updatedAt: new Date(),
-    })
+    .set({ status: "expired" })
     .where(and(eq(teamInvitationTable.id, invitationId)));
 };
 
@@ -484,9 +471,6 @@ export const acceptInvitation = async (
 ) => {
   return db
     .update(teamInvitationTable)
-    .set({
-      status: "accepted",
-      updatedAt: new Date(),
-    })
+    .set({ status: "accepted" })
     .where(and(eq(teamInvitationTable.id, invitationId)));
 };

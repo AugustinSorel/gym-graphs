@@ -138,10 +138,7 @@ export const refreshSessionExpiryDate = async (
 ) => {
   await db
     .update(sessionTable)
-    .set({
-      expiresAt: new Date(Date.now() + thirtyDaysInMs),
-      updatedAt: new Date(),
-    })
+    .set({ expiresAt: new Date(Date.now() + thirtyDaysInMs) })
     .where(eq(sessionTable.id, sessionId));
 };
 

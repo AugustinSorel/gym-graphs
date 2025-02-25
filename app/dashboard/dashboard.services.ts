@@ -263,7 +263,7 @@ export const renameTile = async (
 ) => {
   return db
     .update(tileTable)
-    .set({ name, updatedAt: new Date() })
+    .set({ name })
     .where(
       and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
     );

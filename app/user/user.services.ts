@@ -82,10 +82,7 @@ export const renameUser = async (
   userId: User["id"],
   db: Db,
 ) => {
-  await db
-    .update(userTable)
-    .set({ name, updatedAt: new Date() })
-    .where(eq(userTable.id, userId));
+  await db.update(userTable).set({ name }).where(eq(userTable.id, userId));
 };
 
 export const updateWeightUnit = async (
@@ -95,7 +92,7 @@ export const updateWeightUnit = async (
 ) => {
   await db
     .update(userTable)
-    .set({ weightUnit, updatedAt: new Date() })
+    .set({ weightUnit })
     .where(eq(userTable.id, userId));
 };
 
@@ -106,17 +103,14 @@ export const updateOneRepMaxAlgo = async (
 ) => {
   await db
     .update(userTable)
-    .set({ oneRepMaxAlgo, updatedAt: new Date() })
+    .set({ oneRepMaxAlgo })
     .where(eq(userTable.id, userId));
 };
 
 export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
   const [user] = await db
     .update(userTable)
-    .set({
-      emailVerifiedAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set({ emailVerifiedAt: new Date() })
     .where(eq(userTable.id, userId))
     .returning();
 
@@ -134,10 +128,7 @@ export const updatePassword = async (
 ) => {
   return await db
     .update(userTable)
-    .set({
-      password,
-      updatedAt: new Date(),
-    })
+    .set({ password })
     .where(eq(userTable.id, userId));
 };
 

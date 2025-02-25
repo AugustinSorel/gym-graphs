@@ -27,7 +27,11 @@ export const userTable = pgTable("user", (t) => ({
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
   emailVerifiedAt: t.timestamp("email_verified_at"),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type User = Readonly<typeof userTable.$inferSelect>;
@@ -57,7 +61,11 @@ export const dashboardTable = pgTable("dashboard", (t) => ({
     .references(() => userTable.id, { onDelete: "cascade" })
     .unique(),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type Dashboard = Readonly<typeof dashboardTable.$inferSelect>;
@@ -90,7 +98,11 @@ export const tileTable = pgTable(
       onDelete: "cascade",
     }),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [t.name, t.dashboardId],
 );
@@ -120,7 +132,11 @@ export const emailVerificationCodeTable = pgTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP + (15 * interval '1 min')`),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
 );
 
@@ -150,7 +166,11 @@ export const oauthAccountTable = pgTable(
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
     createdAt: t.timestamp("created_at").defaultNow().notNull(),
-    updatedAt: t.timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [primaryKey({ columns: [t.providerId, t.providerUserId] })],
 );
@@ -181,7 +201,11 @@ export const sessionTable = pgTable("session", (t) => ({
     .notNull()
     .default(sql`CURRENT_TIMESTAMP + (30 * interval '1 day')`),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type Session = Readonly<typeof sessionTable.$inferSelect>;
@@ -204,7 +228,11 @@ export const passwordResetTokenTable = pgTable("password_reset_token", (t) => ({
     .notNull()
     .default(sql`CURRENT_TIMESTAMP + (15 * interval '2 hour')`),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type PasswordResetToken = Readonly<
@@ -224,7 +252,11 @@ export const resetPasswordRelations = relations(
 export const exerciseTable = pgTable("exercise", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
@@ -249,7 +281,11 @@ export const setTable = pgTable(
     repetitions: t.integer("repetitions").notNull(),
     doneAt: t.date("done_at", { mode: "date" }).notNull().defaultNow(),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [unique().on(t.doneAt, t.exerciseId)],
 );
@@ -275,7 +311,11 @@ export const tilesToTagsTableTable = pgTable(
       .notNull()
       .references(() => tagTable.id, { onDelete: "cascade" }),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [primaryKey({ columns: [t.tileId, t.tagId] })],
 );
@@ -304,7 +344,11 @@ export const tagTable = pgTable(
       .references(() => userTable.id, { onDelete: "cascade" }),
     name: t.text("name").notNull(),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [unique().on(t.name, t.userId)],
 );
@@ -329,7 +373,11 @@ export const teamTable = pgTable("team", (t) => ({
   visibility: teamVisibilityEnum("visibility").notNull().default("private"),
   name: t.text("name").notNull().unique(),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
-  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 }));
 
 export type Team = Readonly<typeof teamTable.$inferSelect>;
@@ -357,7 +405,11 @@ export const teamMemberTable = pgTable(
       .references(() => teamTable.id, { onDelete: "cascade" }),
     role: teamMemberRoleEnum("role").notNull().default("member"),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [primaryKey({ columns: [t.userId, t.teamId] })],
 );
@@ -400,7 +452,11 @@ export const teamInvitationTable = pgTable(
       .default(sql`CURRENT_TIMESTAMP + (7 * interval '1 day')`)
       .notNull(),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [unique().on(t.teamId, t.email)],
 );
