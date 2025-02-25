@@ -63,7 +63,7 @@ export const teamInvitationSchema = z.object({
 });
 
 export const teamJoinRequestSchema = z.object({
-  status: z.enum(["pending", "accepted", "revoked"], {
+  status: z.enum(["pending", "accepted", "rejected"], {
     required_error: "status is required",
     invalid_type_error: "status must be valid",
   }),
