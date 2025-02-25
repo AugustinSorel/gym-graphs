@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { teamQueries } from "~/team/team.queries";
 import { Badge } from "~/ui/badge";
 import { Link } from "@tanstack/react-router";
-import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import type { ComponentProps } from "react";
 
@@ -16,12 +15,10 @@ export const TeamsList = () => {
   return (
     <List>
       {userAndPublicTeams.data.map((team) => (
-        <Team key={team.id} isUserInTeam={team.isUserInTeam}>
-          {team.isUserInTeam && (
-            <Button variant="link" asChild className="absolute inset-0 h-auto">
-              <Link to="/teams/$teamId" params={{ teamId: team.id }} />
-            </Button>
-          )}
+        <Team key={team.id}>
+          <Button variant="link" asChild className="absolute inset-0 h-auto">
+            <Link to="/teams/$teamId" params={{ teamId: team.id }} />
+          </Button>
 
           <TeamName>{team.name}</TeamName>
           {team.isUserInTeam && <Badge>joined</Badge>}
@@ -49,16 +46,10 @@ const List = (props: ComponentProps<"ul">) => {
   return <ul className="space-y-6" {...props} />;
 };
 
-const Team = ({
-  isUserInTeam,
-  ...props
-}: ComponentProps<"li"> & { isUserInTeam: boolean }) => {
+const Team = (props: ComponentProps<"li">) => {
   return (
     <li
-      className={cn(
-        "bg-secondary relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors",
-        isUserInTeam && "hover:bg-accent hover:[&>[data-team-name]]:underline",
-      )}
+      className="bg-secondary hover:bg-accent relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors hover:[&>[data-team-name]]:underline"
       {...props}
     />
   );

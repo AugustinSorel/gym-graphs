@@ -84,36 +84,41 @@ export const createTeamMember = async (
 };
 
 export const selectTeamById = async (
-  userId: TeamMember["userId"],
+  memberId: TeamMember["userId"],
   teamId: Team["id"],
   db: Db,
 ) => {
-  const userInTeam = db
+  const memberInTeam = db
     .select()
     .from(teamMemberTable)
     .where(
       and(
-        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.userId, memberId),
         eq(teamMemberTable.teamId, teamId),
       ),
     );
 
-  const userIsAdmin = db
+  const memberIsAdmin = db
     .select()
     .from(teamMemberTable)
     .where(
       and(
-        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.userId, memberId),
         eq(teamMemberTable.teamId, teamId),
         eq(teamMemberTable.role, "admin"),
       ),
     );
 
   return db.query.teamTable.findFirst({
-    where: and(eq(teamTable.id, teamId), exists(userInTeam)),
+    where: eq(teamTable.id, teamId),
+    extras: {
+      memberInTeam: sql`(SELECT EXISTS ${memberInTeam} END)`
+        .mapWith(Boolean)
+        .as("member_in_team"),
+    },
     with: {
       invitations: {
-        where: exists(userIsAdmin),
+        where: exists(memberIsAdmin),
         columns: {
           id: true,
           email: true,
@@ -121,6 +126,7 @@ export const selectTeamById = async (
         },
       },
       members: {
+        where: exists(memberIsAdmin),
         orderBy: asc(teamMemberTable.createdAt),
         with: {
           user: {
