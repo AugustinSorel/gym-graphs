@@ -14,6 +14,7 @@ import {
 } from "drizzle-orm";
 import {
   teamInvitationTable,
+  teamJoinRequestTable,
   teamMemberTable,
   teamTable,
   userTable,
@@ -21,7 +22,13 @@ import {
 import { base32 } from "oslo/encoding";
 import { addDate } from "~/utils/date";
 import type { Db } from "~/libs/db";
-import type { Team, TeamInvitation, TeamMember, User } from "~/db/db.schemas";
+import type {
+  Team,
+  TeamInvitation,
+  TeamJoinRequest,
+  TeamMember,
+  User,
+} from "~/db/db.schemas";
 
 export const createTeam = async (
   name: Team["name"],
@@ -125,8 +132,19 @@ export const selectTeamById = async (
           status: true,
         },
       },
-      members: {
+      joinRequests: {
         where: exists(memberIsAdmin),
+        orderBy: asc(teamMemberTable.createdAt),
+        with: {
+          user: {
+            columns: {
+              email: true,
+            },
+          },
+        },
+      },
+      members: {
+        where: exists(memberInTeam),
         orderBy: asc(teamMemberTable.createdAt),
         with: {
           user: {
@@ -419,6 +437,24 @@ export const selectMemberInTeamByEmail = async (
   return member;
 };
 
+export const selectMemberInTeamById = async (
+  memberId: TeamMember["userId"],
+  teamId: TeamMember["teamId"],
+  db: Db,
+) => {
+  const [member] = await db
+    .select()
+    .from(teamMemberTable)
+    .where(
+      and(
+        eq(teamMemberTable.userId, memberId),
+        eq(teamMemberTable.teamId, teamId),
+      ),
+    );
+
+  return member;
+};
+
 export const revokeTeamInvitation = async (
   userId: TeamMember["userId"],
   invitationId: TeamInvitation["id"],
@@ -473,4 +509,15 @@ export const acceptInvitation = async (
     .update(teamInvitationTable)
     .set({ status: "accepted" })
     .where(and(eq(teamInvitationTable.id, invitationId)));
+};
+
+export const createTeamJoinRequest = async (
+  userId: TeamJoinRequest["userId"],
+  teamId: TeamJoinRequest["teamId"],
+  db: Db,
+) => {
+  return db
+    .insert(teamJoinRequestTable)
+    .values({ teamId, userId })
+    .onConflictDoNothing();
 };

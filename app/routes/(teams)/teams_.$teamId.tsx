@@ -5,9 +5,13 @@ import { teamQueries } from "~/team/team.queries";
 import { teamSchema } from "~/team/team.schemas";
 import { Button } from "~/ui/button";
 import { useTeam } from "~/team/hooks/use-team";
-import { ArrowLeft, Cog, Lock } from "lucide-react";
+import { ArrowLeft, Check, Cog, Lock } from "lucide-react";
 import { Separator } from "~/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { useMutation } from "@tanstack/react-query";
+import { createTeamJoinRequestAction } from "~/team/team.actions";
+import { Spinner } from "~/ui/spinner";
+import { HideAfter } from "~/ui/hide-after";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId")({
@@ -40,11 +44,35 @@ const PublicTeamPage = () => {
   const params = Route.useParams();
   const team = useTeam(params.teamId);
 
+  const createTeamJoinRequest = useCreateTeamJoinRequest();
+
+  const createTeamJoinRequestHandler = () => {
+    createTeamJoinRequest.mutate({
+      data: {
+        teamId: team.data.id,
+      },
+    });
+  };
+
   return (
     <Main>
       <Header>
         <Title>{team.data.name}</Title>
-        <Button size="sm">join team</Button>
+        <Button
+          size="sm"
+          disabled={createTeamJoinRequest.isPending}
+          onClick={() => {
+            createTeamJoinRequestHandler();
+          }}
+        >
+          <span>join team</span>
+          {createTeamJoinRequest.isPending && <Spinner />}
+          {createTeamJoinRequest.isSuccess && (
+            <HideAfter>
+              <Check />
+            </HideAfter>
+          )}
+        </Button>
         <Button
           asChild
           variant="link"
@@ -70,6 +98,12 @@ const PublicTeamPage = () => {
       </Alert>
     </Main>
   );
+};
+
+const useCreateTeamJoinRequest = () => {
+  return useMutation({
+    mutationFn: createTeamJoinRequestAction,
+  });
 };
 
 const PrivateTeamPage = () => {

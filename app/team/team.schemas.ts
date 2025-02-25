@@ -61,3 +61,10 @@ export const teamInvitationSchema = z.object({
     .min(3, "token must be at least 3 characters")
     .max(255, "token must be at most 255 characters"),
 });
+
+export const teamJoinRequestSchema = z.object({
+  status: z.enum(["pending", "accepted", "revoked"], {
+    required_error: "status is required",
+    invalid_type_error: "status must be valid",
+  }),
+});

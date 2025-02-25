@@ -27,15 +27,32 @@ export const MembersList = () => {
   const pendingInvitations = team.data.invitations.filter((invitation) => {
     return invitation.status === "pending";
   });
+  const pendingJoinRequests = team.data.joinRequests.filter((joinRequest) => {
+    return joinRequest.status === "pending";
+  });
 
-  if (!members.length && !pendingInvitations.length) {
+  if (
+    !members.length &&
+    !pendingInvitations.length &&
+    !pendingJoinRequests.length
+  ) {
     return <NoMembersMsg>no members</NoMembersMsg>;
   }
 
   return (
     <List>
+      {pendingJoinRequests.map((joinRequest) => (
+        <JoinRequest key={joinRequest.id}>
+          <MemberName>{inferNameFromEmail(joinRequest.user.email)}</MemberName>
+          <Button size="sm">accept</Button>
+          <Button variant="ghost" size="sm">
+            reject
+          </Button>
+        </JoinRequest>
+      ))}
+
       {pendingInvitations.map((invitation) => (
-        <Member key={invitation.id}>
+        <Invitation key={invitation.id}>
           <MemberName>{inferNameFromEmail(invitation.email)}</MemberName>
 
           <Badge variant="warning" className="w-max">
@@ -56,7 +73,7 @@ export const MembersList = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </TeamAdminGuard>
-        </Member>
+        </Invitation>
       ))}
 
       {members.map((member) => (
@@ -119,6 +136,24 @@ const Member = (props: ComponentProps<"li">) => {
   return (
     <li
       className="hover:bg-accent grid grid-cols-[auto_1fr_auto] items-center gap-4 p-4 text-sm transition-colors"
+      {...props}
+    />
+  );
+};
+
+const Invitation = (props: ComponentProps<"li">) => {
+  return (
+    <li
+      className="hover:bg-accent grid grid-cols-[auto_1fr_auto] items-center gap-4 p-4 text-sm transition-colors"
+      {...props}
+    />
+  );
+};
+
+const JoinRequest = (props: ComponentProps<"li">) => {
+  return (
+    <li
+      className="hover:bg-accent grid grid-cols-[1fr_auto_auto] items-center gap-4 p-4 text-sm transition-colors"
       {...props}
     />
   );

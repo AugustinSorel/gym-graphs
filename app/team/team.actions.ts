@@ -15,6 +15,7 @@ import {
   changeTeamVisibility,
   createTeam,
   createTeamInvitation,
+  createTeamJoinRequest,
   createTeamMember,
   deleteTeamById,
   expireTeamInvitation,
@@ -24,6 +25,7 @@ import {
   renameTeamById,
   revokeTeamInvitation,
   selectMemberInTeamByEmail,
+  selectMemberInTeamById,
   selectTeamById,
   selectTeamInvitationByToken,
   selectUserAndPublicTeams,
@@ -268,4 +270,21 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     });
 
     return invitation;
+  });
+
+export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    const member = await selectMemberInTeamById(
+      context.user.id,
+      data.teamId,
+      context.db,
+    );
+
+    if (member) {
+      throw new Error("member already part of team");
+    }
+
+    await createTeamJoinRequest(context.user.id, data.teamId, context.db);
   });

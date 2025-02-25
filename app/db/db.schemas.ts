@@ -3,6 +3,7 @@ import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import {
   teamInvitationSchema,
+  teamJoinRequestSchema,
   teamMemberSchema,
   teamSchema,
 } from "~/team/team.schemas";
@@ -47,6 +48,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   oauthAccounts: many(oauthAccountTable),
   teams: many(teamMemberTable),
   teamInvitations: many(teamInvitationTable),
+  teamJoinRequests: many(teamJoinRequestTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -385,6 +387,7 @@ export type Team = Readonly<typeof teamTable.$inferSelect>;
 export const teamRelations = relations(teamTable, ({ many }) => ({
   members: many(teamMemberTable),
   invitations: many(teamInvitationTable),
+  joinRequests: many(teamJoinRequestTable),
 }));
 
 export const teamMemberRoleEnum = pgEnum(
@@ -472,6 +475,52 @@ export const teamInvitationRelations = relations(
     }),
     team: one(teamTable, {
       fields: [teamInvitationTable.teamId],
+      references: [teamTable.id],
+    }),
+  }),
+);
+
+export const teamJoinRequestStatusEnum = pgEnum(
+  "team_join_request_status",
+  teamJoinRequestSchema.shape.status.options,
+);
+
+export const teamJoinRequestTable = pgTable(
+  "team_join_request",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    teamId: t
+      .integer("team_id")
+      .notNull()
+      .references(() => teamTable.id, { onDelete: "cascade" }),
+    userId: t
+      .integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    status: teamJoinRequestStatusEnum("status").notNull().default("pending"),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [unique().on(t.teamId, t.userId)],
+);
+
+export type TeamJoinRequest = Readonly<
+  typeof teamJoinRequestTable.$inferSelect
+>;
+
+export const teamJoinRequestRelations = relations(
+  teamJoinRequestTable,
+  ({ one }) => ({
+    user: one(userTable, {
+      fields: [teamJoinRequestTable.userId],
+      references: [userTable.id],
+    }),
+    team: one(teamTable, {
+      fields: [teamJoinRequestTable.teamId],
       references: [teamTable.id],
     }),
   }),
