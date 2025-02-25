@@ -519,5 +519,36 @@ export const createTeamJoinRequest = async (
   return db
     .insert(teamJoinRequestTable)
     .values({ teamId, userId })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: [teamJoinRequestTable.teamId, teamJoinRequestTable.userId],
+      set: {
+        status: "pending",
+      },
+    });
+};
+
+export const rejectTeamJoinRequest = async (
+  joinRequestId: TeamJoinRequest["id"],
+  userId: TeamMember["userId"],
+  db: Db,
+) => {
+  const userIsAdmin = db
+    .select()
+    .from(teamJoinRequestTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamJoinRequestTable.teamId),
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamJoinRequestTable.id, joinRequestId));
+
+  return db
+    .update(teamJoinRequestTable)
+    .set({ status: "rejected" })
+    .where(
+      and(eq(teamJoinRequestTable.id, joinRequestId), exists(userIsAdmin)),
+    );
 };

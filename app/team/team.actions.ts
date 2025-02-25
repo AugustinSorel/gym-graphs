@@ -8,6 +8,7 @@ import {
   teamSchema,
   teamMemberSchema,
   teamInvitationSchema,
+  teamJoinRequestSchema,
 } from "~/team/team.schemas";
 import {
   acceptInvitation,
@@ -22,6 +23,7 @@ import {
   generateTeamInvitationToken,
   kickMemberOutOfTeam,
   leaveTeam,
+  rejectTeamJoinRequest,
   renameTeamById,
   revokeTeamInvitation,
   selectMemberInTeamByEmail,
@@ -287,4 +289,15 @@ export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
     }
 
     await createTeamJoinRequest(context.user.id, data.teamId, context.db);
+  });
+
+export const rejectTeamJoinRequestAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    await rejectTeamJoinRequest(
+      data.joinRequestId,
+      context.user.id,
+      context.db,
+    );
   });

@@ -16,109 +16,173 @@ import { ChangeMemberRoleDialog } from "~/team/components/change-member-role-dia
 import { TeamMemberProvider } from "~/team/team-member.context";
 import { inferNameFromEmail } from "~/user/user.utils";
 import { RevokeInvitationDialog } from "~/team/components/revoke-invitation-dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { rejectTeamJoinRequestAction } from "~/team/team.actions";
+import { Spinner } from "~/ui/spinner";
 import type { ComponentProps } from "react";
+import { teamQueries } from "../team.queries";
 
 export const MembersList = () => {
-  const params = routeApi.useParams();
-  const team = useTeam(params.teamId);
-  const user = useUser();
-
-  const members = team.data.members;
-  const pendingInvitations = team.data.invitations.filter((invitation) => {
-    return invitation.status === "pending";
-  });
-  const pendingJoinRequests = team.data.joinRequests.filter((joinRequest) => {
-    return joinRequest.status === "pending";
-  });
-
-  if (
-    !members.length &&
-    !pendingInvitations.length &&
-    !pendingJoinRequests.length
-  ) {
-    return <NoMembersMsg>no members</NoMembersMsg>;
-  }
-
   return (
     <List>
-      {pendingJoinRequests.map((joinRequest) => (
-        <JoinRequest key={joinRequest.id}>
-          <MemberName>{inferNameFromEmail(joinRequest.user.email)}</MemberName>
-          <Button size="sm">accept</Button>
-          <Button variant="ghost" size="sm">
-            reject
-          </Button>
-        </JoinRequest>
-      ))}
-
-      {pendingInvitations.map((invitation) => (
-        <Invitation key={invitation.id}>
-          <MemberName>{inferNameFromEmail(invitation.email)}</MemberName>
-
-          <Badge variant="warning" className="w-max">
-            pending...
-          </Badge>
-
-          <TeamAdminGuard>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="size-8">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <RevokeInvitationDialog invitationId={invitation.id} />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TeamAdminGuard>
-        </Invitation>
-      ))}
-
-      {members.map((member) => (
-        <Member key={member.userId}>
-          <MemberName>{member.user.name}</MemberName>
-
-          <Badge
-            variant={member.role === "admin" ? "default" : "outline"}
-            className="w-max"
-          >
-            {member.role}
-          </Badge>
-
-          {member.userId !== user.data.id && (
-            <TeamAdminGuard>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="size-8">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <TeamMemberProvider value={member}>
-                    <ChangeMemberRoleDialog />
-                    <KickMemberOutDialog />
-                  </TeamMemberProvider>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TeamAdminGuard>
-          )}
-        </Member>
-      ))}
+      <PendingJoinRequests />
+      <PendingInvitations />
+      <TeamMembers />
     </List>
   );
 };
 
-const NoMembersMsg = (props: ComponentProps<"p">) => {
-  return (
-    <p
-      className="text-muted-foreground mx-3 mb-3 rounded border p-6 text-center lg:mx-6 lg:mb-6"
-      {...props}
-    />
-  );
+const PendingJoinRequests = () => {
+  const pendingJoinRequests = usePendingJoinRequests();
+  const rejectJoinRequest = useRejectJoinRequest();
+
+  return pendingJoinRequests.map((joinRequest) => (
+    <JoinRequest key={joinRequest.id}>
+      <MemberName>{inferNameFromEmail(joinRequest.user.email)}</MemberName>
+      <Button size="sm">accept</Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={rejectJoinRequest.isPending}
+        onClick={() => {
+          rejectJoinRequest.mutate({
+            data: {
+              joinRequestId: joinRequest.id,
+            },
+          });
+        }}
+      >
+        <span>reject</span>
+        {rejectJoinRequest.isPending && <Spinner />}
+      </Button>
+    </JoinRequest>
+  ));
+};
+
+const PendingInvitations = () => {
+  const pendingInvitations = usePendingInvitations();
+
+  return pendingInvitations.map((invitation) => (
+    <Invitation key={invitation.id}>
+      <MemberName>{inferNameFromEmail(invitation.email)}</MemberName>
+
+      <Badge variant="warning" className="w-max">
+        pending...
+      </Badge>
+
+      <TeamAdminGuard>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="size-8">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <RevokeInvitationDialog invitationId={invitation.id} />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TeamAdminGuard>
+    </Invitation>
+  ));
+};
+
+const TeamMembers = () => {
+  const members = useTeamMembers();
+  const user = useUser();
+
+  return members.map((member) => (
+    <Member key={member.userId}>
+      <MemberName>{member.user.name}</MemberName>
+
+      <Badge
+        variant={member.role === "admin" ? "default" : "outline"}
+        className="w-max"
+      >
+        {member.role}
+      </Badge>
+
+      {member.userId !== user.data.id && (
+        <TeamAdminGuard>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="size-8">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <TeamMemberProvider value={member}>
+                <ChangeMemberRoleDialog />
+                <KickMemberOutDialog />
+              </TeamMemberProvider>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TeamAdminGuard>
+      )}
+    </Member>
+  ));
+};
+
+const usePendingJoinRequests = () => {
+  const params = routeApi.useParams();
+  const team = useTeam(params.teamId);
+
+  return team.data.joinRequests.filter((joinRequest) => {
+    return joinRequest.status === "pending";
+  });
+};
+
+const usePendingInvitations = () => {
+  const params = routeApi.useParams();
+  const team = useTeam(params.teamId);
+
+  return team.data.invitations.filter((invitation) => {
+    return invitation.status === "pending";
+  });
+};
+
+const useTeamMembers = () => {
+  const params = routeApi.useParams();
+  const team = useTeam(params.teamId);
+
+  return team.data.members;
+};
+
+const useRejectJoinRequest = () => {
+  const params = routeApi.useParams();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: rejectTeamJoinRequestAction,
+    onMutate: (variables) => {
+      const queries = {
+        team: teamQueries.get(params.teamId).queryKey,
+      } as const;
+
+      queryClient.setQueryData(queries.team, (team) => {
+        if (!team) {
+          return team;
+        }
+
+        return {
+          ...team,
+          joinRequests: team.joinRequests.filter((joinRequest) => {
+            return joinRequest.id !== variables.data.joinRequestId;
+          }),
+        };
+      });
+    },
+    onSettled: () => {
+      const queries = {
+        team: teamQueries.get(params.teamId),
+      } as const;
+
+      void queryClient.invalidateQueries(queries.team);
+    },
+  });
 };
 
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
