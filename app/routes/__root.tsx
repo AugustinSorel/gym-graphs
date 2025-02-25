@@ -144,7 +144,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | redisgn page header                                   |
 | TODO     | useOnUpdate                                           |
-| TODO     | rename table to t                                     |
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
 | TODO     | ask to join                                           |

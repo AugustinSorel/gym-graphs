@@ -1,15 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import {
-  integer,
-  timestamp,
-  text,
-  unique,
-  date,
-  pgEnum,
-  primaryKey,
-  pgTable,
-  serial,
-} from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import {
   teamInvitationSchema,
@@ -28,17 +18,17 @@ export const oneRepMaxAlgoEnum = pgEnum(
   userSchema.shape.oneRepMaxAlgo.options,
 );
 
-export const userTable = pgTable("user", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  email: text("email").notNull().unique(),
-  name: text("name").notNull(),
-  password: text("password"),
+export const userTable = pgTable("user", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  email: t.text("email").notNull().unique(),
+  name: t.text("name").notNull(),
+  password: t.text("password"),
   weightUnit: weightUnitEnum().notNull().default("kg"),
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
-  emailVerifiedAt: timestamp("email_verified_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+  emailVerifiedAt: t.timestamp("email_verified_at"),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type User = Readonly<typeof userTable.$inferSelect>;
 
@@ -59,15 +49,16 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   }),
 }));
 
-export const dashboardTable = pgTable("dashboard", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id")
+export const dashboardTable = pgTable("dashboard", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: t
+    .integer("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" })
     .unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type Dashboard = Readonly<typeof dashboardTable.$inferSelect>;
 
@@ -86,21 +77,22 @@ export const tileTypeEnum = pgEnum("tile_type", tileSchema.shape.type.options);
 
 export const tileTable = pgTable(
   "tile",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
     type: tileTypeEnum().notNull(),
-    index: serial("index"),
-    name: text("name").notNull(),
-    dashboardId: integer("dashboard_id")
+    index: t.serial("index"),
+    name: t.text("name").notNull(),
+    dashboardId: t
+      .integer("dashboard_id")
       .references(() => dashboardTable.id, { onDelete: "cascade" })
       .notNull(),
-    exerciseId: integer("exercise_id").references(() => exerciseTable.id, {
+    exerciseId: t.integer("exercise_id").references(() => exerciseTable.id, {
       onDelete: "cascade",
     }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [table.name, table.dashboardId],
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [t.name, t.dashboardId],
 );
 
 export type Tile = Readonly<typeof tileTable.$inferSelect>;
@@ -114,18 +106,23 @@ export const tileRelations = relations(tileTable, ({ one, many }) => ({
   tileToTags: many(tilesToTagsTableTable),
 }));
 
-export const emailVerificationCodeTable = pgTable("email_verification_code", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  code: text("code").notNull(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at")
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP + (15 * interval '1 min')`),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const emailVerificationCodeTable = pgTable(
+  "email_verification_code",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    code: t.text("code").notNull(),
+    userId: t
+      .integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    expiresAt: t
+      .timestamp("expires_at")
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP + (15 * interval '1 min')`),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+);
 
 export type EmailVerificationCode = Readonly<
   typeof emailVerificationCodeTable.$inferSelect
@@ -145,18 +142,17 @@ export const oauthProviders = pgEnum("oauth_provider", ["github"]);
 
 export const oauthAccountTable = pgTable(
   "oauth_account",
-  {
+  (t) => ({
     providerId: oauthProviders("provider_id").notNull(),
-    providerUserId: text("provider_user_id").notNull(),
-    userId: integer("user_id")
+    providerUserId: t.text("provider_user_id").notNull(),
+    userId: t
+      .integer("user_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.providerId, table.providerUserId] }),
-  ],
+    createdAt: t.timestamp("created_at").defaultNow().notNull(),
+    updatedAt: t.timestamp("updated_at").defaultNow().notNull(),
+  }),
+  (t) => [primaryKey({ columns: [t.providerId, t.providerUserId] })],
 );
 
 export type OauthAccount = Readonly<typeof oauthAccountTable.$inferSelect>;
@@ -171,20 +167,22 @@ export const oauthAccountRelations = relations(
   }),
 );
 
-export const sessionTable = pgTable("session", {
-  id: text("id").notNull().primaryKey(),
-  userId: integer("user_id")
+export const sessionTable = pgTable("session", (t) => ({
+  id: t.text("id").notNull().primaryKey(),
+  userId: t
+    .integer("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", {
-    mode: "date",
-    withTimezone: true,
-  })
+  expiresAt: t
+    .timestamp("expires_at", {
+      mode: "date",
+      withTimezone: true,
+    })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP + (30 * interval '1 day')`),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type Session = Readonly<typeof sessionTable.$inferSelect>;
 
@@ -195,17 +193,19 @@ export const sessionRelations = relations(sessionTable, ({ one }) => ({
   }),
 }));
 
-export const passwordResetTokenTable = pgTable("password_reset_token", {
-  token: text("token").notNull().primaryKey(),
-  userId: integer("user_id")
+export const passwordResetTokenTable = pgTable("password_reset_token", (t) => ({
+  token: t.text("token").notNull().primaryKey(),
+  userId: t
+    .integer("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at")
+  expiresAt: t
+    .timestamp("expires_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP + (15 * interval '2 hour')`),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type PasswordResetToken = Readonly<
   typeof passwordResetTokenTable.$inferSelect
@@ -221,11 +221,11 @@ export const resetPasswordRelations = relations(
   }),
 );
 
-export const exerciseTable = pgTable("exercise", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const exerciseTable = pgTable("exercise", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
@@ -239,18 +239,19 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
 
 export const setTable = pgTable(
   "set",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    exerciseId: integer("exercise_id")
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    exerciseId: t
+      .integer("exercise_id")
       .notNull()
       .references(() => exerciseTable.id, { onDelete: "cascade" }),
-    weightInKg: integer("weight_in_kg").notNull(),
-    repetitions: integer("repetitions").notNull(),
-    doneAt: date("done_at", { mode: "date" }).notNull().defaultNow(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [unique().on(table.doneAt, table.exerciseId)],
+    weightInKg: t.integer("weight_in_kg").notNull(),
+    repetitions: t.integer("repetitions").notNull(),
+    doneAt: t.date("done_at", { mode: "date" }).notNull().defaultNow(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [unique().on(t.doneAt, t.exerciseId)],
 );
 
 export type Set = Readonly<typeof setTable.$inferSelect>;
@@ -264,17 +265,19 @@ export const setRelations = relations(setTable, ({ one }) => ({
 
 export const tilesToTagsTableTable = pgTable(
   "tile_to_tags",
-  {
-    tileId: integer("tile_id")
+  (t) => ({
+    tileId: t
+      .integer("tile_id")
       .notNull()
       .references(() => tileTable.id, { onDelete: "cascade" }),
-    tagId: integer("tag_id")
+    tagId: t
+      .integer("tag_id")
       .notNull()
       .references(() => tagTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [primaryKey({ columns: [table.tileId, table.tagId] })],
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [primaryKey({ columns: [t.tileId, t.tagId] })],
 );
 
 export const exerciseTagRelations = relations(
@@ -293,16 +296,17 @@ export const exerciseTagRelations = relations(
 
 export const tagTable = pgTable(
   "tag",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer("user_id")
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: t
+      .integer("user_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [unique().on(table.name, table.userId)],
+    name: t.text("name").notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [unique().on(t.name, t.userId)],
 );
 
 export type Tag = Readonly<typeof tagTable.$inferSelect>;
@@ -320,13 +324,13 @@ export const teamVisibilityEnum = pgEnum(
   teamSchema.shape.visibility.options,
 );
 
-export const teamTable = pgTable("team", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+export const teamTable = pgTable("team", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   visibility: teamVisibilityEnum("visibility").notNull().default("private"),
-  name: text("name").notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+  name: t.text("name").notNull().unique(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+}));
 
 export type Team = Readonly<typeof teamTable.$inferSelect>;
 
@@ -342,18 +346,20 @@ export const teamMemberRoleEnum = pgEnum(
 
 export const teamMemberTable = pgTable(
   "team_member",
-  {
-    userId: integer("user_id")
+  (t) => ({
+    userId: t
+      .integer("user_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
-    teamId: integer("team_id")
+    teamId: t
+      .integer("team_id")
       .notNull()
       .references(() => teamTable.id, { onDelete: "cascade" }),
     role: teamMemberRoleEnum("role").notNull().default("member"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [primaryKey({ columns: [table.userId, table.teamId] })],
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [primaryKey({ columns: [t.userId, t.teamId] })],
 );
 
 export type TeamMember = Readonly<typeof teamMemberTable.$inferSelect>;
@@ -376,24 +382,27 @@ export const teamInvitationStatusEnum = pgEnum(
 
 export const teamInvitationTable = pgTable(
   "team_invitation",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    teamId: integer("team_id")
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    teamId: t
+      .integer("team_id")
       .notNull()
       .references(() => teamTable.id, { onDelete: "cascade" }),
-    inviterId: integer("inviter_id")
+    inviterId: t
+      .integer("inviter_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
-    email: text("email").notNull(),
-    token: text("token").notNull().unique(),
+    email: t.text("email").notNull(),
+    token: t.text("token").notNull().unique(),
     status: teamInvitationStatusEnum("status").notNull().default("pending"),
-    expiresAt: timestamp("expires_at")
+    expiresAt: t
+      .timestamp("expires_at")
       .default(sql`CURRENT_TIMESTAMP + (7 * interval '1 day')`)
       .notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => [unique().on(table.teamId, table.email)],
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t.timestamp("updated_at").notNull().defaultNow(),
+  }),
+  (t) => [unique().on(t.teamId, t.email)],
 );
 
 export type TeamInvitation = Readonly<typeof teamInvitationTable.$inferSelect>;
