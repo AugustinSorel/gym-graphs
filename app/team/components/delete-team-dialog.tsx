@@ -91,7 +91,17 @@ const useDeleteTeam = () => {
           return teams;
         }
 
-        return teams.filter((team) => team.id !== variables.data.teamId);
+        return {
+          ...teams,
+          pages: teams.pages.map((page) => {
+            return {
+              ...page,
+              teams: page.teams.filter((team) => {
+                return team.id !== variables.data.teamId;
+              }),
+            };
+          }),
+        };
       });
     },
     onSettled: (_data, _error, variables) => {

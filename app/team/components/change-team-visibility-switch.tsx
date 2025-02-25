@@ -54,16 +54,24 @@ const useChangeTeamVisibility = () => {
           return teams;
         }
 
-        return teams.map((team) => {
-          if (team.id === variables.data.teamId) {
+        return {
+          ...teams,
+          pages: teams.pages.map((page) => {
             return {
-              ...team,
-              visibility: variables.data.visibility,
-            };
-          }
+              ...page,
+              teams: page.teams.map((team) => {
+                if (team.id === variables.data.teamId) {
+                  return {
+                    ...team,
+                    visibility: variables.data.visibility,
+                  };
+                }
 
-          return team;
-        });
+                return team;
+              }),
+            };
+          }),
+        };
       });
     },
     onSettled: (_data, _error, variables) => {

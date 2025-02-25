@@ -98,16 +98,24 @@ const useLeaveTeam = () => {
           return teams;
         }
 
-        return teams.map((team) => {
-          if (team.id === variables.data.teamId) {
+        return {
+          ...teams,
+          pages: teams.pages.map((page) => {
             return {
-              ...team,
-              isUserInTeam: false,
-            };
-          }
+              ...page,
+              teams: page.teams.map((team) => {
+                if (team.id === variables.data.teamId) {
+                  return {
+                    ...team,
+                    isUserInTeam: false,
+                  };
+                }
 
-          return team;
-        });
+                return team;
+              }),
+            };
+          }),
+        };
       });
     },
     onSettled: (_data, _error, variables) => {

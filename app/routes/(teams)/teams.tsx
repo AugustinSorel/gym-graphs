@@ -26,7 +26,9 @@ export const Route = createFileRoute("/(teams)/teams")({
       userAndPublicTeams: teamQueries.userAndPublicTeams,
     } as const;
 
-    await context.queryClient.ensureQueryData(queries.userAndPublicTeams);
+    await context.queryClient.ensureInfiniteQueryData(
+      queries.userAndPublicTeams,
+    );
   },
 });
 

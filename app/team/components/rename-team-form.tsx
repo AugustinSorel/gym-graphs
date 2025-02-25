@@ -100,9 +100,11 @@ const useFormSchema = () => {
 
       const cachedTeams = queryClient.getQueryData(queries.teams);
 
-      const nameTaken = cachedTeams?.find((team) => {
-        return team.name === data.name && team.id !== params.teamId;
-      });
+      const nameTaken = cachedTeams?.pages
+        .flatMap((page) => page.teams)
+        .find((team) => {
+          return team.name === data.name && team.id !== params.teamId;
+        });
 
       return !nameTaken;
     },
@@ -144,16 +146,24 @@ const useRenameTeam = () => {
           return teams;
         }
 
-        return teams.map((team) => {
-          if (team.id === variables.data.teamId) {
+        return {
+          ...teams,
+          pages: teams.pages.map((page) => {
             return {
-              ...team,
-              name: variables.data.name,
-            };
-          }
+              ...page,
+              teams: page.teams.map((team) => {
+                if (team.id === variables.data.teamId) {
+                  return {
+                    ...team,
+                    name: variables.data.name,
+                  };
+                }
 
-          return team;
-        });
+                return team;
+              }),
+            };
+          }),
+        };
       });
 
       queryClient.setQueryData(queries.team, (team) => {

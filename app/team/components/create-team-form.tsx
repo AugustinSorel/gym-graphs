@@ -116,9 +116,11 @@ const useFormSchema = () => {
         queries.userAndPublicTeams,
       );
 
-      const nameTaken = cachedPublicTeams?.find((team) => {
-        return team.name === data.name;
-      });
+      const nameTaken = cachedPublicTeams?.pages
+        .flatMap((page) => page.teams)
+        .find((team) => {
+          return team.name === data.name;
+        });
 
       return !nameTaken;
     },
@@ -180,7 +182,19 @@ const useCreateTeam = () => {
           updatedAt: new Date(),
         };
 
-        return [optimisticTeam, ...teams];
+        return {
+          ...teams,
+          pages: teams.pages.map((page, i) => {
+            if (i === 0) {
+              return {
+                ...page,
+                teams: [optimisticTeam, ...page.teams],
+              };
+            }
+
+            return page;
+          }),
+        };
       });
     },
     onSettled: () => {

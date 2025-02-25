@@ -49,6 +49,8 @@ export const createTeam = async (
 
 export const selectUserAndPublicTeams = async (
   userId: TeamMember["userId"],
+  page: number,
+  pageSize: number,
   db: Db,
 ) => {
   return db
@@ -74,7 +76,9 @@ export const selectUserAndPublicTeams = async (
     .where(
       or(eq(teamTable.visibility, "public"), isNotNull(teamMemberTable.userId)),
     )
-    .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt));
+    .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt))
+    .limit(pageSize)
+    .offset((page - 1) * pageSize);
 };
 
 export const createTeamMember = async (

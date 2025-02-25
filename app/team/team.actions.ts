@@ -41,8 +41,25 @@ import { sha256Encode } from "~/auth/auth.services";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
-  .handler(async ({ context }) => {
-    return selectUserAndPublicTeams(context.user.id, context.db);
+  .validator(z.object({ page: z.number().positive().catch(1) }))
+  .handler(async ({ context, data }) => {
+    await new Promise((res) => setTimeout(res, 1000));
+    const pageSize = 100;
+
+    const teams = await selectUserAndPublicTeams(
+      context.user.id,
+      data.page,
+      pageSize,
+      context.db,
+    );
+
+    const showNextPage = teams.length > pageSize - 1;
+    const nextCursor = showNextPage ? data.page + 1 : null;
+
+    return {
+      teams,
+      nextCursor,
+    };
   });
 
 export const createTeamAction = createServerFn({ method: "POST" })
