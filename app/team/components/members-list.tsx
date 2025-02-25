@@ -17,10 +17,13 @@ import { TeamMemberProvider } from "~/team/team-member.context";
 import { inferNameFromEmail } from "~/user/user.utils";
 import { RevokeInvitationDialog } from "~/team/components/revoke-invitation-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { rejectTeamJoinRequestAction } from "~/team/team.actions";
+import {
+  acceptTeamJoinRequestAction,
+  rejectTeamJoinRequestAction,
+} from "~/team/team.actions";
 import { Spinner } from "~/ui/spinner";
+import { teamQueries } from "~/team/team.queries";
 import type { ComponentProps } from "react";
-import { teamQueries } from "../team.queries";
 
 export const MembersList = () => {
   return (
@@ -35,11 +38,25 @@ export const MembersList = () => {
 const PendingJoinRequests = () => {
   const pendingJoinRequests = usePendingJoinRequests();
   const rejectJoinRequest = useRejectJoinRequest();
+  const acceptJoinRequest = useAcceptJoinRequest();
 
   return pendingJoinRequests.map((joinRequest) => (
     <JoinRequest key={joinRequest.id}>
-      <MemberName>{inferNameFromEmail(joinRequest.user.email)}</MemberName>
-      <Button size="sm">accept</Button>
+      <MemberName>{joinRequest.user.name}</MemberName>
+      <Button
+        size="sm"
+        disabled={rejectJoinRequest.isPending}
+        onClick={() => {
+          acceptJoinRequest.mutate({
+            data: {
+              joinRequestId: joinRequest.id,
+            },
+          });
+        }}
+      >
+        <span>accept</span>
+        {acceptJoinRequest.isPending && <Spinner />}
+      </Button>
       <Button
         variant="ghost"
         size="sm"
@@ -172,6 +189,59 @@ const useRejectJoinRequest = () => {
           joinRequests: team.joinRequests.filter((joinRequest) => {
             return joinRequest.id !== variables.data.joinRequestId;
           }),
+        };
+      });
+    },
+    onSettled: () => {
+      const queries = {
+        team: teamQueries.get(params.teamId),
+      } as const;
+
+      void queryClient.invalidateQueries(queries.team);
+    },
+  });
+};
+
+const useAcceptJoinRequest = () => {
+  const params = routeApi.useParams();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: acceptTeamJoinRequestAction,
+    onMutate: (variables) => {
+      const queries = {
+        team: teamQueries.get(params.teamId).queryKey,
+      } as const;
+
+      queryClient.setQueryData(queries.team, (team) => {
+        if (!team) {
+          return team;
+        }
+
+        const joinRequest = team.joinRequests.find((joinRequest) => {
+          return joinRequest.id === variables.data.joinRequestId;
+        });
+
+        if (!joinRequest) {
+          return team;
+        }
+
+        return {
+          ...team,
+          joinRequests: team.joinRequests.filter((joinReq) => {
+            return joinReq.id !== joinRequest.id;
+          }),
+          members: [
+            ...team.members,
+            {
+              role: "member" as const,
+              userId: joinRequest.userId,
+              teamId: team.id,
+              user: joinRequest.user,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ],
         };
       });
     },

@@ -12,6 +12,7 @@ import {
 } from "~/team/team.schemas";
 import {
   acceptInvitation,
+  acceptTeamJoinRequest,
   changeTeamMemberRole,
   changeTeamVisibility,
   createTeam,
@@ -300,4 +301,24 @@ export const rejectTeamJoinRequestAction = createServerFn({ method: "POST" })
       context.user.id,
       context.db,
     );
+  });
+
+export const acceptTeamJoinRequestAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
+  .handler(async ({ context, data }) => {
+    await context.db.transaction(async (tx) => {
+      const joinRequest = await acceptTeamJoinRequest(
+        data.joinRequestId,
+        context.user.id,
+        tx,
+      );
+
+      await createTeamMember(
+        joinRequest.teamId,
+        joinRequest.userId,
+        "member",
+        tx,
+      );
+    });
   });

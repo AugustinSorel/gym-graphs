@@ -139,6 +139,7 @@ export const selectTeamById = async (
           user: {
             columns: {
               email: true,
+              name: true,
             },
           },
         },
@@ -545,10 +546,44 @@ export const rejectTeamJoinRequest = async (
     )
     .where(eq(teamJoinRequestTable.id, joinRequestId));
 
-  return db
+  const [joinRequest] = await db
     .update(teamJoinRequestTable)
     .set({ status: "rejected" })
-    .where(
-      and(eq(teamJoinRequestTable.id, joinRequestId), exists(userIsAdmin)),
-    );
+    .where(and(eq(teamJoinRequestTable.id, joinRequestId), exists(userIsAdmin)))
+    .returning();
+
+  if (!joinRequest) {
+    throw new Error("only admin can reject team request");
+  }
+};
+
+export const acceptTeamJoinRequest = async (
+  joinRequestId: TeamJoinRequest["id"],
+  userId: TeamMember["userId"],
+  db: Db,
+) => {
+  const userIsAdmin = db
+    .select()
+    .from(teamJoinRequestTable)
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamJoinRequestTable.teamId),
+        eq(teamMemberTable.userId, userId),
+        eq(teamMemberTable.role, "admin"),
+      ),
+    )
+    .where(eq(teamJoinRequestTable.id, joinRequestId));
+
+  const [joinRequest] = await db
+    .update(teamJoinRequestTable)
+    .set({ status: "accepted" })
+    .where(and(eq(teamJoinRequestTable.id, joinRequestId), exists(userIsAdmin)))
+    .returning();
+
+  if (!joinRequest) {
+    throw new Error("only admin can accept team request");
+  }
+
+  return joinRequest;
 };
