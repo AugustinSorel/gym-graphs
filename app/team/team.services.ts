@@ -7,6 +7,7 @@ import {
   exists,
   getTableColumns,
   gt,
+  ilike,
   isNotNull,
   ne,
   or,
@@ -50,6 +51,7 @@ export const createTeam = async (
 export const selectUserAndPublicTeams = async (
   userId: TeamMember["userId"],
   page: number,
+  name: Team["name"],
   pageSize: number,
   db: Db,
 ) => {
@@ -74,7 +76,13 @@ export const selectUserAndPublicTeams = async (
       ),
     )
     .where(
-      or(eq(teamTable.visibility, "public"), isNotNull(teamMemberTable.userId)),
+      and(
+        or(
+          eq(teamTable.visibility, "public"),
+          isNotNull(teamMemberTable.userId),
+        ),
+        ilike(teamTable.name, `%${name}%`),
+      ),
     )
     .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt))
     .limit(pageSize)

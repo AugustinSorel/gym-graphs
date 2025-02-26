@@ -109,7 +109,7 @@ const useFormSchema = () => {
   return teamSchema.pick({ name: true, visibility: true }).refine(
     (data) => {
       const queries = {
-        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
       const cachedPublicTeams = queryClient.getQueryData(
@@ -153,7 +153,7 @@ const useCreateTeam = () => {
     mutationFn: createTeamAction,
     onMutate: (variables) => {
       const queries = {
-        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
       queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
@@ -199,7 +199,7 @@ const useCreateTeam = () => {
     },
     onSettled: () => {
       const queries = {
-        userAndPublicTeams: teamQueries.userAndPublicTeams,
+        userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
       void queryClient.invalidateQueries(queries.userAndPublicTeams);

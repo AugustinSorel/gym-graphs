@@ -81,7 +81,7 @@ const useDeleteTeam = () => {
     onMutate: (variables) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
-        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
       queryClient.removeQueries(queries.team);
@@ -107,7 +107,7 @@ const useDeleteTeam = () => {
     onSettled: (_data, _error, variables) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
-        userAndPublicTeams: teamQueries.userAndPublicTeams,
+        userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
       void queryClient.invalidateQueries(queries.team);

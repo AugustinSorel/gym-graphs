@@ -41,14 +41,22 @@ import { sha256Encode } from "~/auth/auth.services";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ page: z.number().positive().catch(1) }))
+  .validator(
+    z.object({
+      name: teamSchema.shape.name
+        .catch((e) => e.input)
+        .optional()
+        .transform((name) => name ?? ""),
+      page: z.number().positive().catch(1),
+    }),
+  )
   .handler(async ({ context, data }) => {
-    await new Promise((res) => setTimeout(res, 1000));
     const pageSize = 100;
 
     const teams = await selectUserAndPublicTeams(
       context.user.id,
       data.page,
+      data.name,
       pageSize,
       context.db,
     );

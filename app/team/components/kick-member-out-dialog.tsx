@@ -96,7 +96,7 @@ const useKickMemberOut = () => {
     onMutate: (variables) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
-        userAndPublicTeams: teamQueries.userAndPublicTeams.queryKey,
+        userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
       queryClient.setQueryData(queries.team, (team) => {
@@ -147,7 +147,7 @@ const useKickMemberOut = () => {
     onSettled: (_data, _error, variables) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
-        userAndPublicTeams: teamQueries.userAndPublicTeams,
+        userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
       void queryClient.invalidateQueries(queries.team);

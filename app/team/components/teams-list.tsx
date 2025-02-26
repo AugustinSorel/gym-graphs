@@ -1,7 +1,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { teamQueries } from "~/team/team.queries";
 import { Badge } from "~/ui/badge";
-import { Link } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Skeleton } from "~/ui/skeleton";
 import { Suspense, type ComponentProps, type ComponentRef } from "react";
@@ -43,8 +43,16 @@ export const Content = () => {
   );
 };
 
+const routeApi = getRouteApi("/(teams)/teams");
+
 const useUserAndPublicTeams = () => {
-  return useSuspenseInfiniteQuery(teamQueries.userAndPublicTeams);
+  const search = routeApi.useSearch();
+
+  const keys = {
+    userAndPublicTeams: teamQueries.userAndPublicTeams(search.name),
+  } as const;
+
+  return useSuspenseInfiniteQuery(keys.userAndPublicTeams);
 };
 
 const NoTeamsText = (props: ComponentProps<"p">) => {

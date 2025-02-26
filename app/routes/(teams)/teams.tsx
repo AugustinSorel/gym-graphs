@@ -21,9 +21,9 @@ export const Route = createFileRoute("/(teams)/teams")({
   loaderDeps: ({ search }) => ({
     name: search.name,
   }),
-  loader: async ({ context }) => {
+  loader: async ({ context, deps }) => {
     const queries = {
-      userAndPublicTeams: teamQueries.userAndPublicTeams,
+      userAndPublicTeams: teamQueries.userAndPublicTeams(deps.name),
     } as const;
 
     await context.queryClient.ensureInfiniteQueryData(
