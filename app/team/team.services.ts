@@ -384,7 +384,7 @@ export const changeTeamVisibility = async (
 export const generateTeamInvitationToken = () => {
   const bytes = randomBytes(20);
 
-  return bytes.toString("base64");
+  return bytes.toString("base64url");
 };
 
 export const createTeamInvitation = async (

@@ -6,27 +6,20 @@ import {
 import { ComponentProps } from "react";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
+import { permissions } from "~/libs/permissions";
 import { acceptTeamInvitationAction } from "~/team/team.actions";
-import { teamInvitationSchema, teamSchema } from "~/team/team.schemas";
+import { teamInvitationSchema } from "~/team/team.schemas";
 
 export const Route = createFileRoute(
-  "/(teams)/teams_/$teamId_/invitations_/$token/accept",
+  "/(invitations)/invitations/teams/$token/accept",
 )({
   params: z.object({
-    teamId: z.coerce.number().pipe(teamSchema.shape.id),
     token: teamInvitationSchema.shape.token,
   }),
   component: () => RouteComponent(),
   errorComponent: (props) => <ErrorComponent {...props} />,
-  beforeLoad: ({ context, params }) => {
-    if (!context.user) {
-      return redirect({
-        to: "/sign-up",
-        search: {
-          callbackUrl: `/teams/${params.teamId}/invitations/${params.token}/accept`,
-        },
-      });
-    }
+  beforeLoad: ({ context, location }) => {
+    permissions.team.acceptInvite(context.user, location.pathname);
   },
   loader: async ({ params }) => {
     const invitation = await acceptTeamInvitationAction({

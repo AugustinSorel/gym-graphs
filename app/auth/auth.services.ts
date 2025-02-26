@@ -54,7 +54,7 @@ export type SessionToken = ReturnType<typeof generateSessionToken>;
 export const generatePasswordResetToken = () => {
   const bytes = randomBytes(20);
 
-  return bytes.toString("base64");
+  return bytes.toString("base64url");
 };
 
 export const generateEmailVerificationCode = () => {

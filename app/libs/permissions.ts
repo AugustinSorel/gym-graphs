@@ -54,6 +54,16 @@ export const permissions = {
 
       return userInTeam?.role === "admin";
     },
+    acceptInvite: (user: ServerUser, callbackUrl: string) => {
+      if (!user) {
+        throw redirect({
+          to: "/sign-up",
+          search: { callbackUrl },
+        });
+      }
+
+      return user;
+    },
   },
   teamSettings: {
     view: (user: ServerUser) => {
