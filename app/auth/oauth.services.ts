@@ -29,7 +29,7 @@ export const createOAuthRequest = (endpoint: string, body: URLSearchParams) => {
 
   request.headers.set("Content-Type", "application/x-www-form-urlencoded");
   request.headers.set("Accept", "application/json");
-  request.headers.set("User-Agent", "arctic");
+  request.headers.set("User-Agent", "Gym-Graphs app");
   request.headers.set("Content-Length", bodyBytes.byteLength.toString());
 
   return request;
