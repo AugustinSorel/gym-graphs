@@ -12,12 +12,13 @@ import type { User } from "~/db/db.schemas";
 export const createUserWithEmailAndPassword = async (
   email: User["email"],
   password: NonNullable<User["password"]>,
+  salt: NonNullable<User["salt"]>,
   name: User["name"],
   db: Db,
 ) => {
   const [user] = await db
     .insert(userTable)
-    .values({ email, password, name })
+    .values({ email, password, name, salt })
     .returning();
 
   if (!user) {

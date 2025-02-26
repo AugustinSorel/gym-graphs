@@ -140,6 +140,7 @@ CREATE TABLE "user" (
 	"email" text NOT NULL,
 	"name" text NOT NULL,
 	"password" text,
+	"salt" text,
 	"weightUnit" "weight_unit" DEFAULT 'kg' NOT NULL,
 	"oneRepMaxAlgo" "one_rep_max_algo" DEFAULT 'epley' NOT NULL,
 	"email_verified_at" timestamp,

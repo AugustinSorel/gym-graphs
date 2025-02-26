@@ -24,6 +24,7 @@ export const userTable = pgTable("user", (t) => ({
   email: t.text("email").notNull().unique(),
   name: t.text("name").notNull(),
   password: t.text("password"),
+  salt: t.text("salt"),
   weightUnit: weightUnitEnum().notNull().default("kg"),
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
   emailVerifiedAt: t.timestamp("email_verified_at"),

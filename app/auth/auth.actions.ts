@@ -20,6 +20,7 @@ import {
   generateGithubOauthToken,
   generateGithubOauthUrl,
   generatePasswordResetToken,
+  generateSalt,
   generateSessionToken,
   hashSecret,
   selectEmailVerificationCode,
@@ -68,11 +69,15 @@ export const signInAction = createServerFn()
       throw new Error("email address not verified");
     }
 
-    if (!user.password) {
+    if (!user.password || !user.salt) {
       throw new Error("this account has been set up using oauth");
     }
 
-    const validPassword = await verifySecret(data.password, user.password);
+    const validPassword = await verifySecret(
+      data.password,
+      user.password,
+      user.salt,
+    );
 
     if (!validPassword) {
       throw new Error("email or password is invalid");
@@ -101,12 +106,14 @@ export const signUpAction = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     try {
       await context.db.transaction(async (tx) => {
-        const hashedPassword = await hashSecret(data.password);
+        const salt = generateSalt();
+        const hashedPassword = await hashSecret(data.password, salt);
         const name = inferNameFromEmail(data.email);
 
         const user = await createUserWithEmailAndPassword(
           data.email,
           hashedPassword,
+          salt,
           name,
           tx,
         );
@@ -283,7 +290,9 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
       }
 
       await deleteSessionByUserId(token.userId, tx);
-      const passwordHash = await hashSecret(data.password);
+
+      const salt = generateSalt();
+      const passwordHash = await hashSecret(data.password, salt);
 
       await updatePassword(passwordHash, token.userId, tx);
 

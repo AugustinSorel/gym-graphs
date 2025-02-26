@@ -1,6 +1,5 @@
 import { base32, encodeHex } from "oslo/encoding";
 import { alphabet, generateRandomString, sha256 } from "oslo/crypto";
-import { hash, compare, genSalt } from "bcrypt";
 import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date";
 import { eq } from "drizzle-orm";
 import {
@@ -12,6 +11,7 @@ import { generateState } from "arctic";
 import { github } from "~/libs/github";
 import { z } from "zod";
 import { passwordResetTokenTable } from "~/db/db.schemas";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import type {
   EmailVerificationCode,
   OauthAccount,
@@ -21,19 +21,31 @@ import type {
 } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
-export const hashSecret = async (input: string) => {
-  const salt = await genSalt(10);
+export const hashSecret = (input: string, salt: string) => {
+  return new Promise<string>((resolve, reject) => {
+    scrypt(input.normalize(), salt, 64, (error, hash) => {
+      if (error) reject(error);
 
-  const hashedPassword = await hash(input, salt);
+      resolve(hash.toString("hex").normalize());
+    });
+  });
+};
 
-  return hashedPassword;
+export const generateSalt = () => {
+  return randomBytes(16).toString("hex").normalize();
 };
 
 export const verifySecret = async (
   candidateSecret: string,
-  encryptedSecret: string,
+  hashedSecret: string,
+  salt: string,
 ) => {
-  return await compare(candidateSecret, encryptedSecret);
+  const candidateHashedSecret = await hashSecret(candidateSecret, salt);
+
+  return timingSafeEqual(
+    Buffer.from(candidateHashedSecret, "hex"),
+    Buffer.from(hashedSecret, "hex"),
+  );
 };
 
 export const generateSessionToken = () => {
