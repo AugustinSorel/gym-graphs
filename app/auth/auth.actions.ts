@@ -23,7 +23,7 @@ import {
   hashSecret,
   selectEmailVerificationCode,
   selectPasswordResetToken,
-  sha256Encode,
+  hashSHA256Hex,
   verifySecret,
 } from "~/auth/auth.services";
 import {
@@ -48,7 +48,6 @@ import {
   passwordResetTokenSchema,
 } from "~/auth/auth.schemas";
 import { setResponseStatus } from "vinxi/http";
-import { isWithinExpirationDate } from "oslo";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { inferNameFromEmail } from "~/user/user.utils";
 import {
@@ -172,7 +171,10 @@ export const verifyEmailAction = createServerFn()
 
       await deleteEmailVerificationCodeById(emailVerificatonCode.id, tx);
 
-      if (!isWithinExpirationDate(emailVerificatonCode.expiresAt)) {
+      const codeExpired =
+        Date.now() >= emailVerificatonCode.expiresAt.getTime();
+
+      if (codeExpired) {
         throw new Error("code expired");
       }
 
@@ -246,7 +248,7 @@ export const requestResetPasswordAction = createServerFn({ method: "POST" })
       await deletePasswordResetTokenByUserId(user.id, tx);
 
       const token = generatePasswordResetToken();
-      const tokenHash = await sha256Encode(token);
+      const tokenHash = hashSHA256Hex(token);
 
       await createPasswordResetToken(tokenHash, user.id, tx);
 
@@ -270,7 +272,7 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     return context.db.transaction(async (tx) => {
-      const tokenHash = await sha256Encode(data.token);
+      const tokenHash = hashSHA256Hex(data.token);
 
       const [token] = await selectPasswordResetToken(tokenHash, tx);
 
@@ -283,7 +285,9 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
         throw new Error("token not found");
       }
 
-      if (!isWithinExpirationDate(token.expiresAt)) {
+      const codeExpired = Date.now() >= token.expiresAt.getTime();
+
+      if (codeExpired) {
         throw new Error("token expired");
       }
 

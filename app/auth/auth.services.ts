@@ -1,10 +1,14 @@
-import { base32, encodeHex } from "oslo/encoding";
-import { alphabet, generateRandomString, sha256 } from "oslo/crypto";
 import { fifteenDaysInMs, thirtyDaysInMs } from "~/utils/date";
 import { eq } from "drizzle-orm";
 import { emailVerificationCodeTable, sessionTable } from "~/db/db.schemas";
 import { passwordResetTokenTable } from "~/db/db.schemas";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import {
+  scrypt,
+  randomBytes,
+  timingSafeEqual,
+  createHash,
+  randomInt,
+} from "crypto";
 import type { Db } from "~/libs/db";
 import type {
   EmailVerificationCode,
@@ -41,39 +45,31 @@ export const verifySecret = async (
 };
 
 export const generateSessionToken = () => {
-  const bytes = new Uint8Array(20);
+  const bytes = randomBytes(20);
 
-  crypto.getRandomValues(bytes);
-
-  const token = base32.encode(bytes, { includePadding: false });
-
-  return token;
+  return bytes.toString("base64");
 };
 export type SessionToken = ReturnType<typeof generateSessionToken>;
 
 export const generatePasswordResetToken = () => {
-  const bytes = new Uint8Array(20);
+  const bytes = randomBytes(20);
 
-  crypto.getRandomValues(bytes);
-
-  const token = base32.encode(bytes, { includePadding: false });
-
-  return token;
+  return bytes.toString("base64");
 };
 
 export const generateEmailVerificationCode = () => {
-  return generateRandomString(6, alphabet("0-9"));
+  return Array.from({ length: 6 }, () => randomInt(0, 10)).join("");
 };
 
-export const sha256Encode = async (input: string) => {
-  return encodeHex(await sha256(new TextEncoder().encode(input)));
+export const hashSHA256Hex = (input: string) => {
+  return createHash("sha256").update(input, "utf-8").digest("hex");
 };
 
 export const validateSessionToken = async (
   candidateSessionToken: SessionToken,
   db: Db,
 ) => {
-  const sessionId = await sha256Encode(candidateSessionToken);
+  const sessionId = hashSHA256Hex(candidateSessionToken);
 
   const session = await selectSession(sessionId, db);
 
@@ -100,11 +96,11 @@ export const validateSessionToken = async (
 };
 
 export const createSession = async (
-  sessionToken: string,
+  sessionToken: SessionToken,
   userId: User["id"],
   db: Db,
 ) => {
-  const sessionId = await sha256Encode(sessionToken);
+  const sessionId = hashSHA256Hex(sessionToken);
 
   const [session] = await db
     .insert(sessionTable)

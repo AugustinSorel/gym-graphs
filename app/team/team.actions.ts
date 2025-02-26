@@ -37,7 +37,7 @@ import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
 import { sendTeamInvitationEmail } from "~/team/team.emails";
-import { sha256Encode } from "~/auth/auth.services";
+import { hashSHA256Hex } from "~/auth/auth.services";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -205,7 +205,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     try {
       const token = generateTeamInvitationToken();
-      const tokenHash = await sha256Encode(token);
+      const tokenHash = hashSHA256Hex(token);
 
       await context.db.transaction(async (tx) => {
         const memberInTeam = await selectMemberInTeamByEmail(
@@ -266,7 +266,7 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    const tokenHash = await sha256Encode(data.token);
+    const tokenHash = hashSHA256Hex(data.token);
 
     const invitation = await selectTeamInvitationByToken(tokenHash, context.db);
 

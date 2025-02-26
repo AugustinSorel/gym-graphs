@@ -20,8 +20,8 @@ import {
   teamTable,
   userTable,
 } from "~/db/db.schemas";
-import { base32 } from "oslo/encoding";
 import { addDate } from "~/utils/date";
+import { randomBytes } from "crypto";
 import type { Db } from "~/libs/db";
 import type {
   Team,
@@ -382,13 +382,9 @@ export const changeTeamVisibility = async (
 };
 
 export const generateTeamInvitationToken = () => {
-  const bytes = new Uint8Array(20);
+  const bytes = randomBytes(20);
 
-  crypto.getRandomValues(bytes);
-
-  const token = base32.encode(bytes, { includePadding: false });
-
-  return token;
+  return bytes.toString("base64");
 };
 
 export const createTeamInvitation = async (
