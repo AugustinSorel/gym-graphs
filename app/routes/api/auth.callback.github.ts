@@ -1,40 +1,39 @@
 import { createAPIFileRoute } from "@tanstack/start/api";
 import { getCookie } from "vinxi/http";
-import { z } from "zod";
 import { setSessionTokenCookie } from "~/auth/auth.cookies";
-import {
-  createOauthAccount,
-  createSession,
-  fetchGithubUser,
-  fetchGithubUserEmail,
-  generateSessionToken,
-} from "~/auth/auth.services";
+import { createSession, generateSessionToken } from "~/auth/auth.services";
 import { db } from "~/libs/db";
-import { github } from "~/libs/github";
 import {
   createUserWithEmailOnly,
   seedUserAccount,
   selectUserByEmail,
   updateEmailVerifiedAt,
 } from "~/user/user.services";
-import type { GithubOauthToken } from "~/auth/auth.services";
 import { inferNameFromEmail } from "~/user/user.utils";
+import {
+  createOAuthAccount,
+  fetchGithubUser,
+  fetchGithubUserEmail,
+  validateGithubOAuthCode,
+} from "~/auth/oauth.services";
+import { githubOAuthCallbackSchema } from "~/auth/oauth.schemas";
+import type { GithubOAuthTokenResponse } from "~/auth/oauth.schemas";
 
 export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
   GET: async ({ request }) => {
     try {
       const url = new URL(request.url);
 
-      const { code, callbackUrl } = githubOauthSchema.parse({
+      const { code, redirectUri } = githubOAuthCallbackSchema.parse({
         state: url.searchParams.get("state"),
         code: url.searchParams.get("code"),
-        callbackUrl: url.searchParams.get("callbackUrl"),
+        redirectUri: url.searchParams.get("redirect_uri"),
         candidateState: getCookie("github_oauth_state"),
       });
 
-      const tokens = await github.validateAuthorizationCode(code);
+      const tokens = await validateGithubOAuthCode(code);
 
-      const user = await githubSignIn(tokens.accessToken());
+      const user = await githubSignIn(tokens.accessToken);
 
       const sessionToken = generateSessionToken();
 
@@ -45,7 +44,7 @@ export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
       return new Response(null, {
         status: 302,
         headers: {
-          Location: callbackUrl ? callbackUrl : "/dashboard",
+          Location: redirectUri ? redirectUri : "/dashboard",
         },
       });
     } catch (e) {
@@ -61,19 +60,7 @@ export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
   },
 });
 
-const githubOauthSchema = z
-  .object({
-    state: z.string(),
-    candidateState: z.string(),
-    code: z.string(),
-    callbackUrl: z.string().nullish(),
-  })
-  .refine((data) => data.state === data.candidateState, {
-    message: "Github state don't match",
-    path: ["state"],
-  });
-
-const githubSignIn = async (token: GithubOauthToken) => {
+const githubSignIn = async (token: GithubOAuthTokenResponse["accessToken"]) => {
   const [githubUser, githubUserEmail] = await Promise.all([
     fetchGithubUser(token),
     fetchGithubUserEmail(token),
@@ -97,7 +84,7 @@ const githubSignIn = async (token: GithubOauthToken) => {
     db,
   );
 
-  await createOauthAccount("github", githubUser.id.toString(), user.id, db);
+  await createOAuthAccount("github", githubUser.id.toString(), user.id, db);
 
   await seedUserAccount(user.id, db);
 

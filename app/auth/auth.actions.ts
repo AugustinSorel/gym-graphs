@@ -17,8 +17,6 @@ import {
   deleteSession,
   deleteSessionByUserId,
   generateEmailVerificationCode,
-  generateGithubOauthToken,
-  generateGithubOauthUrl,
   generatePasswordResetToken,
   generateSalt,
   generateSessionToken,
@@ -30,7 +28,7 @@ import {
 } from "~/auth/auth.services";
 import {
   deleteSessionTokenCookie,
-  setGithubTokenCookie,
+  setGithubStateCookie,
   setSessionTokenCookie,
 } from "~/auth/auth.cookies";
 import { userSchema } from "~/user/user.schemas";
@@ -53,7 +51,10 @@ import { setResponseStatus } from "vinxi/http";
 import { isWithinExpirationDate } from "oslo";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { inferNameFromEmail } from "~/user/user.utils";
-import { env } from "~/env";
+import {
+  generateGithubOAuthUrl,
+  generateOAuthState,
+} from "~/auth/oauth.services";
 
 export const signInAction = createServerFn()
   .middleware([rateLimiterMiddleware, injectDbMiddleware])
@@ -215,20 +216,17 @@ export const sendEmailVerificationCodeAction = createServerFn({
   });
 
 export const githubSignInAction = createServerFn({ method: "POST" })
-  .validator(z.object({ callbackUrl: z.string().nullish() }).optional())
+  .validator(z.object({ callbackUrl: z.string().optional() }).optional())
   .handler(async ({ data }) => {
-    const token = generateGithubOauthToken();
+    const state = generateOAuthState();
 
-    const url = generateGithubOauthUrl(token);
+    const url = generateGithubOAuthUrl(
+      state,
+      ["user:email"],
+      data?.callbackUrl,
+    );
 
-    if (data?.callbackUrl) {
-      url.searchParams.set(
-        "redirect_uri",
-        `${env.APP_URL}/api/auth/callback/github?callbackUrl=${data.callbackUrl}`,
-      );
-    }
-
-    setGithubTokenCookie(token);
+    setGithubStateCookie(state);
 
     return url.toString();
   });

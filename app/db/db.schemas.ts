@@ -178,7 +178,7 @@ export const oauthAccountTable = pgTable(
   (t) => [primaryKey({ columns: [t.providerId, t.providerUserId] })],
 );
 
-export type OauthAccount = Readonly<typeof oauthAccountTable.$inferSelect>;
+export type OAuthAccount = Readonly<typeof oauthAccountTable.$inferSelect>;
 
 export const oauthAccountRelations = relations(
   oauthAccountTable,

@@ -1,6 +1,7 @@
 import { getEvent, setCookie } from "vinxi/http";
 import { env } from "~/env";
-import type { GithubOauthToken, SessionToken } from "~/auth/auth.services";
+import type { SessionToken } from "~/auth/auth.services";
+import type { OAuthState } from "~/auth/oauth.services";
 
 export const setSessionTokenCookie = (
   sessionToken: SessionToken,
@@ -17,10 +18,10 @@ export const setSessionTokenCookie = (
   });
 };
 
-export const setGithubTokenCookie = (token: GithubOauthToken) => {
+export const setGithubStateCookie = (state: OAuthState) => {
   const event = getEvent();
 
-  setCookie(event, "github_oauth_state", token, {
+  setCookie(event, "github_oauth_state", state, {
     httpOnly: true,
     sameSite: "lax",
     secure: env.NODE_ENV === "production",
