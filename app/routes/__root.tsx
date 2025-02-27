@@ -144,6 +144,8 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
+| TODO     | add timeline in team page                             |
 | TODO     | team in home page                                     |
 | TODO     | team team link in headers                             |
+| TODO     | add tests                                             |
 */

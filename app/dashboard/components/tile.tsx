@@ -213,10 +213,7 @@ const CardHeader = ({ className, ...props }: ComponentProps<"header">) => {
 
 const Name = (props: ComponentProps<"h2">) => {
   return (
-    <h2
-      className="min-h-8 truncate text-sm font-semibold capitalize"
-      {...props}
-    />
+    <h2 className="truncate text-sm font-semibold capitalize" {...props} />
   );
 };
 
