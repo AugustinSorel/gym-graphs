@@ -37,7 +37,7 @@ export const createOAuthRequest = (endpoint: string, body: URLSearchParams) => {
 
 export const generateGithubOAuthUrl = (
   state: OAuthState,
-  scopes: ReadonlyArray<string>,
+  scope: ReadonlyArray<string>,
   redirectUri: GithubOAuthCallback["redirectUri"],
 ) => {
   const url = new URL("https://github.com/login/oauth/authorize");
@@ -46,8 +46,8 @@ export const generateGithubOAuthUrl = (
   url.searchParams.set("client_id", env.GITHUB_CLIENT_ID);
   url.searchParams.set("state", state);
 
-  if (scopes?.length) {
-    url.searchParams.set("scopes", scopes.join(" "));
+  if (scope?.length) {
+    url.searchParams.set("scope", scope.join(" "));
   }
 
   if (redirectUri) {
