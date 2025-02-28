@@ -1,4 +1,4 @@
-import type { Set } from "~/db/db.schemas";
+import type { Set, User } from "~/db/db.schemas";
 
 export const convertWeight = (
   weightInKg: Set["weightInKg"],
@@ -12,4 +12,17 @@ export const convertWeight = (
   }
 
   unit satisfies never;
+};
+
+export const convertUserWeightUnitToSymbol = (
+  weightUnit: User["weightUnit"],
+) => {
+  switch (weightUnit) {
+    case "kg":
+      return "kg";
+    case "lbs":
+      return "lbs";
+  }
+
+  weightUnit satisfies never;
 };
