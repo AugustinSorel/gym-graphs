@@ -26,3 +26,14 @@ export const convertUserWeightUnitToSymbol = (
 
   weightUnit satisfies never;
 };
+
+export const convertWeightsInText = (
+  text: string,
+  weightUnit: User["weightUnit"],
+) => {
+  const anyDigitRegex = /\b\d+(\.\d+)?\b/g;
+
+  return text.replace(anyDigitRegex, (weightInKg) => {
+    return `${convertWeight(+weightInKg, weightUnit)} ${convertUserWeightUnitToSymbol(weightUnit)}`;
+  });
+};

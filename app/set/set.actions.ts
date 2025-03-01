@@ -15,6 +15,8 @@ import {
 } from "~/set/set.services";
 import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { createTeamsEvents, selectTeamsByMemberId } from "~/team/team.services";
+import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
 
 export const createSetAction = createServerFn({ method: "POST" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
@@ -37,12 +39,45 @@ export const createSetAction = createServerFn({ method: "POST" })
         throw new Error("exercise not found");
       }
 
-      await createSet(
+      const newSet = await createSet(
         data.weightInKg,
         data.repetitions,
         data.exerciseId,
         context.db,
       );
+
+      const currentBestSet = getBestSetFromSets(exercise.sets);
+
+      if (currentBestSet) {
+        const currentOneRepMaxInKg = calculateOneRepMax(
+          currentBestSet.repetitions,
+          currentBestSet.weightInKg,
+          "epley",
+        );
+
+        const candidateBestOneRepMaxInKg = calculateOneRepMax(
+          newSet.repetitions,
+          newSet.weightInKg,
+          "epley",
+        );
+
+        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+        if (newOneRepMax) {
+          const teams = await selectTeamsByMemberId(
+            context.user.id,
+            context.db,
+          );
+
+          const events = teams.map((team) => ({
+            name: "new one-rep max achieved!",
+            description: `${context.user.name} just crushed a new PR on ${exercise.tile.name}: ${candidateBestOneRepMaxInKg}`,
+            teamId: team.id,
+          }));
+
+          await createTeamsEvents(events, context.db);
+        }
+      }
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
       const duplicateSet =

@@ -63,3 +63,11 @@ const algoToOneRepMax: Record<
     return w / (0.488 + 0.538 * Math.E ** (-0.075 * r));
   },
 };
+
+export const getBestSetFromSets = (sets: ReadonlyArray<Set>) => {
+  const setsSortedDesc = sets.toSorted((a, b) => {
+    return b.repetitions * b.weightInKg - a.repetitions * a.weightInKg;
+  });
+
+  return setsSortedDesc.at(0);
+};

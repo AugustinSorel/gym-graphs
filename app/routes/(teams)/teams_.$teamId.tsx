@@ -6,12 +6,12 @@ import { teamSchema } from "~/team/team.schemas";
 import { Button } from "~/ui/button";
 import { useTeam } from "~/team/hooks/use-team";
 import { ArrowLeft, Check, Cog, Lock } from "lucide-react";
-import { Separator } from "~/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { useMutation } from "@tanstack/react-query";
 import { createTeamJoinRequestAction } from "~/team/team.actions";
 import { Spinner } from "~/ui/spinner";
 import { HideAfter } from "~/ui/hide-after";
+import { TeamEventsTimeline } from "~/team/components/team-events-timeline";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId")({
@@ -136,7 +136,10 @@ const PrivateTeamPage = () => {
         </Button>
       </Header>
 
-      <Separator />
+      <Section>
+        <SubTitle>team events</SubTitle>
+        <TeamEventsTimeline />
+      </Section>
     </Main>
   );
 };
@@ -158,4 +161,14 @@ const Title = (props: ComponentProps<"h1">) => {
   return (
     <h1 className="truncate text-3xl font-semibold capitalize" {...props} />
   );
+};
+
+const SubTitle = (props: ComponentProps<"h2">) => {
+  return (
+    <h2 className="truncate text-xl font-semibold capitalize" {...props} />
+  );
+};
+
+const Section = (props: ComponentProps<"section">) => {
+  return <section className="space-y-10" {...props} />;
 };

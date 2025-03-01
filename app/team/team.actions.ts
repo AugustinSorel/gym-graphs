@@ -9,6 +9,7 @@ import {
   teamMemberSchema,
   teamInvitationSchema,
   teamJoinRequestSchema,
+  teamEventReactionsSchema,
 } from "~/team/team.schemas";
 import {
   acceptInvitation,
@@ -16,6 +17,7 @@ import {
   changeTeamMemberRole,
   changeTeamVisibility,
   createTeam,
+  createTeamEventReaction,
   createTeamInvitation,
   createTeamJoinRequest,
   createTeamMember,
@@ -25,6 +27,7 @@ import {
   kickMemberOutOfTeam,
   leaveTeam,
   rejectTeamJoinRequest,
+  removeTeamEventReaction,
   renameTeamById,
   revokeTeamInvitation,
   selectMemberInTeamByEmail,
@@ -346,4 +349,42 @@ export const acceptTeamJoinRequestAction = createServerFn({ method: "POST" })
         tx,
       );
     });
+  });
+
+export const createTeamEventReactionAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }))
+  .handler(async ({ context, data }) => {
+    try {
+      await createTeamEventReaction(
+        data.teamEventId,
+        context.user.id,
+        data.emoji,
+        context.db,
+      );
+    } catch (e) {
+      const dbError = e instanceof pg.DatabaseError;
+      const duplicateEvent =
+        dbError &&
+        e.constraint ===
+          "team_event_reaction_team_event_id_user_id_emoji_unique";
+
+      if (duplicateEvent) {
+        throw new Error("event already created");
+      }
+
+      throw new Error(e instanceof Error ? e.message : "something went wrong");
+    }
+  });
+
+export const removeTeamEventReactionAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }))
+  .handler(async ({ context, data }) => {
+    await removeTeamEventReaction(
+      data.teamEventId,
+      context.user.id,
+      data.emoji,
+      context.db,
+    );
   });

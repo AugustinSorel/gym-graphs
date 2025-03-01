@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import {
+  teamEventReactionsSchema,
   teamInvitationSchema,
   teamJoinRequestSchema,
   teamMemberSchema,
@@ -50,6 +51,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   teams: many(teamMemberTable),
   teamInvitations: many(teamInvitationTable),
   teamJoinRequests: many(teamJoinRequestTable),
+  teamEventReactions: many(teamEventReactionTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -387,6 +389,7 @@ export type Team = Readonly<typeof teamTable.$inferSelect>;
 
 export const teamRelations = relations(teamTable, ({ many }) => ({
   members: many(teamMemberTable),
+  events: many(teamEventTable),
   invitations: many(teamInvitationTable),
   joinRequests: many(teamJoinRequestTable),
 }));
@@ -523,6 +526,74 @@ export const teamJoinRequestRelations = relations(
     team: one(teamTable, {
       fields: [teamJoinRequestTable.teamId],
       references: [teamTable.id],
+    }),
+  }),
+);
+
+export const teamEventTable = pgTable("team_event", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  teamId: t
+    .integer("team_id")
+    .notNull()
+    .references(() => teamTable.id, { onDelete: "cascade" }),
+  name: t.text("name").notNull(),
+  description: t.text("description").notNull(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type TeamEvent = Readonly<typeof teamEventTable.$inferSelect>;
+
+export const teamEventRelations = relations(
+  teamEventTable,
+  ({ one, many }) => ({
+    team: one(teamTable, {
+      fields: [teamEventTable.teamId],
+      references: [teamTable.id],
+    }),
+    reactions: many(teamEventReactionTable),
+  }),
+);
+
+export const teamEventReactionEmojiEnum = pgEnum(
+  "team_event_reaction_emoji",
+  teamEventReactionsSchema.shape.emoji.options,
+);
+
+export const teamEventReactionTable = pgTable(
+  "team_event_reaction",
+  (t) => ({
+    teamEventId: t
+      .integer("team_event_id")
+      .notNull()
+      .references(() => teamEventTable.id, { onDelete: "cascade" }),
+    userId: t
+      .integer("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    emoji: teamEventReactionEmojiEnum("emoji").notNull(),
+  }),
+  (t) => [primaryKey({ columns: [t.teamEventId, t.userId, t.emoji] })],
+);
+
+export type TeamEventReaction = Readonly<
+  typeof teamEventReactionTable.$inferSelect
+>;
+
+export const teamEventReactionRelations = relations(
+  teamEventReactionTable,
+  ({ one }) => ({
+    event: one(teamEventTable, {
+      fields: [teamEventReactionTable.teamEventId],
+      references: [teamEventTable.id],
+    }),
+    user: one(userTable, {
+      fields: [teamEventReactionTable.userId],
+      references: [userTable.id],
     }),
   }),
 );

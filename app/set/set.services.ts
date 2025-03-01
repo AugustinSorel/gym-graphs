@@ -15,7 +15,16 @@ export const createSet = async (
   exerciseId: Set["exerciseId"],
   db: Db,
 ) => {
-  return db.insert(setTable).values({ weightInKg, repetitions, exerciseId });
+  const [set] = await db
+    .insert(setTable)
+    .values({ weightInKg, repetitions, exerciseId })
+    .returning();
+
+  if (!set) {
+    throw new Error("set returned by db is null");
+  }
+
+  return set;
 };
 
 export const createSets = async (

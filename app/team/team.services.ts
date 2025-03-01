@@ -14,6 +14,8 @@ import {
   sql,
 } from "drizzle-orm";
 import {
+  teamEventReactionTable,
+  teamEventTable,
   teamInvitationTable,
   teamJoinRequestTable,
   teamMemberTable,
@@ -25,6 +27,7 @@ import { randomBytes } from "crypto";
 import type { Db } from "~/libs/db";
 import type {
   Team,
+  TeamEventReaction,
   TeamInvitation,
   TeamJoinRequest,
   TeamMember,
@@ -164,6 +167,21 @@ export const selectTeamById = async (
             columns: {
               name: true,
               email: true,
+            },
+          },
+        },
+      },
+      events: {
+        where: exists(memberInTeam),
+        orderBy: asc(teamEventTable.createdAt),
+        with: {
+          reactions: {
+            with: {
+              user: {
+                columns: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -594,4 +612,90 @@ export const acceptTeamJoinRequest = async (
   }
 
   return joinRequest;
+};
+
+export const createTeamsEvents = async (
+  values: Array<typeof teamEventTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(teamEventTable).values(values);
+};
+
+export const selectTeamsByMemberId = async (
+  userId: TeamMember["userId"],
+  db: Db,
+) => {
+  return db
+    .select(getTableColumns(teamTable))
+    .from(teamMemberTable)
+    .innerJoin(teamTable, eq(teamTable.id, teamMemberTable.teamId))
+    .where(eq(teamMemberTable.userId, userId));
+};
+
+export const createTeamEventReaction = async (
+  teamEventId: TeamEventReaction["teamEventId"],
+  userId: TeamEventReaction["userId"],
+  emoji: TeamEventReaction["emoji"],
+  db: Db,
+) => {
+  const userInTeam = await db
+    .select()
+    .from(teamEventTable)
+    .innerJoin(teamTable, eq(teamTable.id, teamEventTable.teamId))
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamTable.id),
+        eq(teamMemberTable.userId, userId),
+      ),
+    )
+    .where(eq(teamEventTable.id, teamEventId));
+
+  if (!userInTeam.length) {
+    throw new Error("User is not a member of the team for this event");
+  }
+
+  return db.insert(teamEventReactionTable).values({
+    emoji,
+    teamEventId,
+    userId,
+  });
+};
+
+export const removeTeamEventReaction = async (
+  teamEventId: TeamEventReaction["teamEventId"],
+  userId: TeamEventReaction["userId"],
+  emoji: TeamEventReaction["emoji"],
+  db: Db,
+) => {
+  const userInTeam = db
+    .select()
+    .from(teamEventTable)
+    .innerJoin(teamTable, eq(teamTable.id, teamEventTable.teamId))
+    .innerJoin(
+      teamMemberTable,
+      and(
+        eq(teamMemberTable.teamId, teamTable.id),
+        eq(teamMemberTable.userId, userId),
+      ),
+    )
+    .where(eq(teamEventTable.id, teamEventId));
+
+  const res = await db
+    .delete(teamEventReactionTable)
+    .where(
+      and(
+        eq(teamEventReactionTable.emoji, emoji),
+        eq(teamEventReactionTable.teamEventId, teamEventId),
+        eq(teamEventReactionTable.userId, userId),
+        exists(userInTeam),
+      ),
+    )
+    .returning();
+
+  if (!res.length) {
+    throw new Error("User is not a member of the team for this event");
+  }
+
+  return res;
 };

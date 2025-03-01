@@ -74,3 +74,20 @@ export const teamJoinRequestSchema = z.object({
     invalid_type_error: "status must be valid",
   }),
 });
+
+export const teamEventSchema = z.object({
+  id: z
+    .number({
+      required_error: "id is required",
+      invalid_type_error: "id must of type number",
+    })
+    .positive("id must be positive"),
+});
+
+export const teamEventReactionsSchema = z.object({
+  teamEventId: teamEventSchema.shape.id,
+  emoji: z.enum(["🎯", "😤", "🔥", "🎉", "💪"], {
+    required_error: "emoji is required",
+    invalid_type_error: "emoji must be valid",
+  }),
+});
