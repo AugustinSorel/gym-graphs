@@ -343,7 +343,7 @@ const EventName = (props: ComponentProps<"h2">) => {
 };
 
 const EventDescription = (props: ComponentProps<"p">) => {
-  return <p className="text-muted-foreground truncate" {...props} />;
+  return <p className="text-muted-foreground" {...props} />;
 };
 
 const NoEventsMsg = (props: ComponentProps<"p">) => {
