@@ -69,7 +69,7 @@ const EventReactionPicker = (props: { event: Event }) => {
           <Smile className="stroke-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="flex items-center gap-2">
+      <DropdownMenuContent className="flex items-center gap-2" align="start">
         {teamEventReactionsSchema.shape.emoji.options.map((emoji) => (
           <DropdownMenuItem
             key={emoji}
