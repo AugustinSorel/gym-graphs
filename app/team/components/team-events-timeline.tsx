@@ -65,7 +65,11 @@ const EventReactionPicker = (props: { event: Event }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="outline" className="size-8 rounded-full">
+        <Button
+          size="icon"
+          variant="outline"
+          className="size-8 shrink-0 rounded-full"
+        >
           <Smile className="stroke-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
@@ -229,9 +233,7 @@ const EventReactions = (props: {
     <ToggleGroup
       type="multiple"
       value={reactions.map((reaction) => reaction.emoji)}
-      onChange={(d) => {
-        console.log(d);
-      }}
+      className="max-w-full flex-wrap justify-start gap-0"
       onValueChange={(newEmojis) => {
         const currentEmojis = reactions.map((reaction) => reaction.emoji);
 
@@ -276,7 +278,7 @@ const EventReactions = (props: {
         .map((reaction) => (
           <ToggleGroupItem
             key={reaction.emoji}
-            className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
+            className="flex-wrap data-[state=on]:bg-transparent"
             value={reaction.emoji}
           >
             <Badge
@@ -284,7 +286,7 @@ const EventReactions = (props: {
               variant={
                 reaction.likedBy.includes(user.data.id) ? "default" : "outline"
               }
-              className="text-sm tracking-widest"
+              className="text-sm tracking-widest whitespace-nowrap"
             >
               {reaction.emoji} {reaction.likedBy.length}
             </Badge>
