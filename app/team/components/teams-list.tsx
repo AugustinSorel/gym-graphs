@@ -4,7 +4,8 @@ import { Badge } from "~/ui/badge";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Skeleton } from "~/ui/skeleton";
-import { Suspense, type ComponentProps, type ComponentRef } from "react";
+import { Suspense } from "react";
+import type { ComponentProps, ComponentRef } from "react";
 
 export const TeamsList = () => {
   return (

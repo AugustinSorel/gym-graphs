@@ -147,6 +147,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | show new events notification                          |
 | TODO     | add team stats                                        |
 | TODO     | team in home page                                     |
-| TODO     | team team link in headers                             |
 | TODO     | add tests                                             |
 */
