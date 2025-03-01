@@ -173,7 +173,7 @@ export const selectTeamById = async (
       },
       events: {
         where: exists(memberInTeam),
-        orderBy: asc(teamEventTable.createdAt),
+        orderBy: desc(teamEventTable.createdAt),
         with: {
           reactions: {
             with: {
