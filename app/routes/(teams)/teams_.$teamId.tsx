@@ -12,6 +12,8 @@ import { createTeamJoinRequestAction } from "~/team/team.actions";
 import { Spinner } from "~/ui/spinner";
 import { HideAfter } from "~/ui/hide-after";
 import { TeamEventsTimeline } from "~/team/components/team-events-timeline";
+import { Separator } from "~/ui/separator";
+import { TeamFunFactsGrid } from "~/team/components/team-fun-facts-grid";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId")({
@@ -135,6 +137,13 @@ const PrivateTeamPage = () => {
           </Link>
         </Button>
       </Header>
+
+      <Separator />
+
+      <Section>
+        <SubTitle>team overview</SubTitle>
+        <TeamFunFactsGrid />
+      </Section>
 
       <Section>
         <SubTitle>team events</SubTitle>

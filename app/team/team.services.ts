@@ -14,13 +14,17 @@ import {
   sql,
 } from "drizzle-orm";
 import {
+  dashboardTable,
+  setTable,
   teamEventReactionTable,
   teamEventTable,
   teamInvitationTable,
   teamJoinRequestTable,
   teamMemberTable,
   teamTable,
+  tileTable,
   userTable,
+  exerciseTable,
 } from "~/db/db.schemas";
 import { addDate } from "~/utils/date";
 import { randomBytes } from "crypto";
@@ -162,6 +166,33 @@ export const selectTeamById = async (
       members: {
         where: exists(memberInTeam),
         orderBy: asc(teamMemberTable.createdAt),
+        extras: {
+          totalWeightInKg: sql`(${db
+            .select({
+              sum: sql`sum(${setTable.weightInKg}*${setTable.repetitions})`,
+            })
+            .from(teamTable)
+            .innerJoin(
+              teamMemberTable,
+              and(
+                eq(teamMemberTable.teamId, teamTable.id),
+                eq(teamMemberTable.userId, sql`"teamTable_members"."user_id"`),
+              ),
+            )
+            .innerJoin(
+              dashboardTable,
+              eq(dashboardTable.userId, teamMemberTable.userId),
+            )
+            .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+            .innerJoin(
+              exerciseTable,
+              eq(tileTable.exerciseId, exerciseTable.id),
+            )
+            .innerJoin(setTable, eq(setTable.exerciseId, exerciseTable.id))
+            .where(eq(teamTable.id, teamId))})`
+            .mapWith(Number)
+            .as("total_weight_in_kg"),
+        },
         with: {
           user: {
             columns: {
