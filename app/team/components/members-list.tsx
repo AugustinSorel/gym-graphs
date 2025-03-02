@@ -235,6 +235,7 @@ const useAcceptJoinRequest = () => {
             ...team.members,
             {
               role: "member" as const,
+              totalWeightInKg: 0,
               userId: joinRequest.userId,
               teamId: team.id,
               user: joinRequest.user,

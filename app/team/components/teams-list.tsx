@@ -1,11 +1,13 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { teamQueries } from "~/team/team.queries";
 import { Badge } from "~/ui/badge";
-import { getRouteApi, Link } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Skeleton } from "~/ui/skeleton";
 import { Suspense } from "react";
 import type { ComponentProps, ComponentRef } from "react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import { cn } from "~/styles/styles.utils";
 
 export const TeamsList = () => {
   return (
@@ -25,18 +27,21 @@ export const Content = () => {
   return (
     <List>
       {userAndPublicTeams.data.map((team, index) => (
-        <Team
+        <CatchBoundary
+          errorComponent={TeamFallback}
+          getResetKey={() => "reset"}
           key={team.id}
-          isLastItem={index >= userAndPublicTeams.data.length - 1}
         >
-          <Button variant="link" asChild className="absolute inset-0 h-auto">
-            <Link to="/teams/$teamId" params={{ teamId: team.id }} />
-          </Button>
+          <Team isLastItem={index >= userAndPublicTeams.data.length - 1}>
+            <Button variant="link" asChild className="absolute inset-0 h-auto">
+              <Link to="/teams/$teamId" params={{ teamId: team.id }} />
+            </Button>
 
-          <TeamName>{team.name}</TeamName>
-          {team.isUserInTeam && <Badge>joined</Badge>}
-          <Badge variant="outline">{team.visibility}</Badge>
-        </Team>
+            <TeamName>{team.name}</TeamName>
+            {team.isUserInTeam && <Badge>joined</Badge>}
+            <Badge variant="outline">{team.visibility}</Badge>
+          </Team>
+        </CatchBoundary>
       ))}
 
       {userAndPublicTeams.isFetchingNextPage && <TeamsSkeleton />}
@@ -71,6 +76,7 @@ const List = (props: ComponentProps<"ul">) => {
 
 const Team = ({
   isLastItem,
+  className,
   ...props
 }: ComponentProps<"li"> & { isLastItem: boolean }) => {
   const userAndPublicTeams = useUserAndPublicTeams();
@@ -106,7 +112,10 @@ const Team = ({
           tearDownHandler();
         };
       }}
-      className="bg-secondary hover:bg-accent relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors hover:[&>[data-team-name]]:underline"
+      className={cn(
+        "bg-secondary hover:bg-accent relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors hover:[&>[data-team-name]]:underline",
+        className,
+      )}
       {...props}
     />
   );
@@ -120,7 +129,7 @@ const TeamsSkeleton = () => {
   return [...new Array(10).keys()].map((i) => <TeamSkeleton key={i} />);
 };
 
-export const TeamSkeleton = () => {
+const TeamSkeleton = () => {
   return (
     <li>
       <Skeleton className="bg-secondary flex items-center gap-3 rounded-lg border p-6.75">
@@ -137,4 +146,19 @@ const ListSkeleton = () => {
       <TeamsSkeleton />
     </List>
   );
+};
+
+const TeamFallback = (props: ErrorComponentProps) => {
+  return (
+    <Team
+      isLastItem={false}
+      className="border-destructive bg-destructive/10 hover:bg-destructive/15"
+    >
+      <ErrorMsg>{props.error.message}</ErrorMsg>
+    </Team>
+  );
+};
+
+const ErrorMsg = (props: ComponentProps<"code">) => {
+  return <code className="overflow-auto" {...props} />;
 };

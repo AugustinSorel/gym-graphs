@@ -3,15 +3,33 @@ import { WeightValue } from "~/weight-unit/components/weight-value";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { cn } from "~/styles/styles.utils";
 import { useTeam } from "~/team/hooks/use-team";
-import { getRouteApi } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const TeamFunFactsGrid = () => {
   return (
     <Grid>
-      <UserContributionInTeamFunFact />
-      <BestLifterFunFact />
-      <TotalWeightLiftedInTeamFunFact />
+      <CatchBoundary
+        errorComponent={FunFactFallback}
+        getResetKey={() => "reset"}
+      >
+        <UserContributionInTeamFunFact />
+      </CatchBoundary>
+
+      <CatchBoundary
+        errorComponent={FunFactFallback}
+        getResetKey={() => "reset"}
+      >
+        <BestLifterFunFact />
+      </CatchBoundary>
+
+      <CatchBoundary
+        errorComponent={FunFactFallback}
+        getResetKey={() => "reset"}
+      >
+        <TotalWeightLiftedInTeamFunFact />
+      </CatchBoundary>
     </Grid>
   );
 };
@@ -105,4 +123,16 @@ const Strong = (props: ComponentProps<"strong">) => {
       {...props}
     />
   );
+};
+
+const FunFactFallback = (props: ErrorComponentProps) => {
+  return (
+    <FunFact className="border-destructive bg-destructive/10">
+      <ErrorMsg>{props.error.message}</ErrorMsg>
+    </FunFact>
+  );
+};
+
+const ErrorMsg = (props: ComponentProps<"code">) => {
+  return <code className="max-h-32 overflow-auto p-4" {...props} />;
 };

@@ -9,7 +9,7 @@ import {
 } from "~/ui/dropdown-menu";
 import { useUser } from "~/user/hooks/use-user";
 import { useTeam } from "~/team/hooks/use-team";
-import { getRouteApi } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import { teamEventReactionsSchema } from "~/team/team.schemas";
 import { convertWeightsInText } from "~/weight-unit/weight-unit.utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,8 @@ import { teamQueries } from "~/team/team.queries";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import type { ComponentProps } from "react";
 import type { TeamEventReaction, User } from "~/db/db.schemas";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import { cn } from "~/styles/styles.utils";
 
 export const TeamEventsTimeline = () => {
   const params = routeApi.useParams();
@@ -35,17 +37,23 @@ export const TeamEventsTimeline = () => {
   return (
     <Timeline>
       {team.data.events.map((event) => (
-        <Event key={event.id}>
-          <EventName>{event.name}</EventName>
-          <EventDescription>
-            {convertWeightsInText(event.description, user.data.weightUnit)}
-          </EventDescription>
+        <CatchBoundary
+          errorComponent={EventFallback}
+          getResetKey={() => "reset"}
+          key={event.id}
+        >
+          <Event>
+            <EventName>{event.name}</EventName>
+            <EventDescription>
+              {convertWeightsInText(event.description, user.data.weightUnit)}
+            </EventDescription>
 
-          <EventReactionsContainer>
-            <EventReactionPicker event={event} />
-            <EventReactions reactions={event.reactions} />
-          </EventReactionsContainer>
-        </Event>
+            <EventReactionsContainer>
+              <EventReactionPicker event={event} />
+              <EventReactions reactions={event.reactions} />
+            </EventReactionsContainer>
+          </Event>
+        </CatchBoundary>
       ))}
     </Timeline>
   );
@@ -326,10 +334,13 @@ const Timeline = (props: ComponentProps<"ol">) => {
   return <ol {...props} />;
 };
 
-const Event = (props: ComponentProps<"li">) => {
+const Event = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
-      className="before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5"
+      className={cn(
+        "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
+        className,
+      )}
       {...props}
     />
   );
@@ -354,5 +365,18 @@ const NoEventsMsg = (props: ComponentProps<"p">) => {
       className="text-muted-foreground rounded-md border p-6 text-center"
       {...props}
     />
+  );
+};
+
+const ErrorMsg = (props: ComponentProps<"code">) => {
+  return <code className="overflow-auto" {...props} />;
+};
+
+const EventFallback = (props: ErrorComponentProps) => {
+  return (
+    <Event className="border-destructive bg-destructive/10 hover:bg-destructive/15 before:border-destructive after:bg-destructive before:bg-destructive/10 hover:before:border-destructive border before:backdrop-blur-md">
+      <EventName>something went wrong</EventName>
+      <ErrorMsg>{props.error.message}</ErrorMsg>
+    </Event>
   );
 };
