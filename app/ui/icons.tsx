@@ -16,7 +16,7 @@ const Icon = ({ className, ...props }: ComponentProps<"svg">) => {
 
 export const SpinnerIcon = (props: ComponentProps<typeof Icon>) => {
   return (
-    <Icon {...props} stroke-linecap="round" stroke-linejoin="round">
+    <Icon {...props} strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2v4" />
       <path d="m16.2 7.8 2.9-2.9" />
       <path d="M18 12h4" />
@@ -270,7 +270,7 @@ export const LockIcon = (props: ComponentProps<typeof Icon>) => {
 
 export const SmileIcon = (props: ComponentProps<typeof Icon>) => {
   return (
-    <Icon {...props}>
+    <Icon {...props} strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <path d="M8 14s1.5 2 4 2 4-2 4-2" />
       <line x1="9" x2="9.01" y1="9" y2="9" />
