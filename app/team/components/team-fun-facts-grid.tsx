@@ -4,9 +4,9 @@ import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { cn } from "~/styles/styles.utils";
 import { useTeam } from "~/team/hooks/use-team";
 import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
+import { useUser } from "~/user/hooks/use-user";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { useUser } from "~/user/hooks/use-user";
 
 export const TeamFunFactsGrid = () => {
   return (
@@ -143,10 +143,10 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 const useWeightLiftedInTeam = () => {
   const user = useUser();
   const params = routeApi.useParams();
-  const team = useTeam(params.teamId ?? 1);
+  const team = useTeam(params.teamId);
 
   const userMember = team.data.members.find((member) => {
-    return (member.userId = user.data.id);
+    return member.userId === user.data.id;
   });
 
   if (!userMember) {
