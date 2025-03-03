@@ -235,7 +235,7 @@ const EventReactions = (props: {
   const reactions = groupReactionsByEmoji(props.reactions);
 
   if (!reactions.length) {
-    return <p className="text-muted-foreground text-sm">👈 show some love</p>;
+    return <ReactionsMsg>👈 show some love</ReactionsMsg>;
   }
 
   return (
@@ -367,6 +367,10 @@ const NoEventsMsg = (props: ComponentProps<"p">) => {
       {...props}
     />
   );
+};
+
+const ReactionsMsg = (props: ComponentProps<"p">) => {
+  return <p className="text-muted-foreground text-sm leading-9" {...props} />;
 };
 
 const ErrorMsg = (props: ComponentProps<"code">) => {
