@@ -16,7 +16,7 @@ const Icon = ({ className, ...props }: ComponentProps<"svg">) => {
 
 export const SpinnerIcon = (props: ComponentProps<typeof Icon>) => {
   return (
-    <Icon {...props}>
+    <Icon {...props} stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2v4" />
       <path d="m16.2 7.8 2.9-2.9" />
       <path d="M18 12h4" />
