@@ -9,53 +9,44 @@ import { localPoint } from "@visx/event";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { cn } from "~/styles/styles.utils";
-import { useTeam } from "~/team/hooks/use-team";
-import { getRouteApi } from "@tanstack/react-router";
+import { useCallback } from "react";
 import type { Set } from "~/db/db.schemas";
-import {
-  type MouseEvent,
-  type TouchEvent,
-  type ComponentProps,
-  type CSSProperties,
-  useCallback,
+import type {
+  MouseEvent,
+  TouchEvent,
+  ComponentProps,
+  CSSProperties,
 } from "react";
 
-export const GaugeOfWeightLiftedInTeam = () => {
-  const weightLiftedInTeam = useWeightLiftedInTeam();
-
-  if (!weightLiftedInTeam.total) {
+export const GaugeOfWeightLiftedInTeam = (props: Props) => {
+  if (!props.data.totalWeightInKg) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative overflow-hidden">
       {({ height, width }) => (
-        <Graph
-          height={height}
-          width={width}
-          totalWeightInKg={weightLiftedInTeam.total}
-          userTotalWeightInKg={weightLiftedInTeam.user}
-        />
+        <Graph height={height} width={width} data={props.data} />
       )}
     </ParentSize>
   );
 };
 
-const routeApi = getRouteApi("/(teams)/teams_/$teamId");
+type Props = Readonly<Pick<GraphProps, "data">>;
 
 const Graph = (props: GraphProps) => {
   const user = useUser();
   const tooltip = useTooltip<TooltipData>();
 
   const min = 0;
-  const max = props.totalWeightInKg;
+  const max = props.data.totalWeightInKg;
 
   const radius = 120;
   const angleRange = Math.PI;
 
   const normalizedValue = Math.max(
     0,
-    Math.min(1, (props.userTotalWeightInKg - min) / (max - min)),
+    Math.min(1, (props.data.userTotalWeightInKg - min) / (max - min)),
   );
 
   const handleTooltip = useCallback(
@@ -66,8 +57,8 @@ const Graph = (props: GraphProps) => {
         return;
       }
       const data = [
-        props.userTotalWeightInKg,
-        props.totalWeightInKg - props.userTotalWeightInKg,
+        props.data.userTotalWeightInKg,
+        props.data.totalWeightInKg - props.data.userTotalWeightInKg,
       ] as const;
 
       const cx = props.width / 2;
@@ -82,12 +73,12 @@ const Graph = (props: GraphProps) => {
       }
 
       const offset =
-        (360 * props.userTotalWeightInKg) / props.totalWeightInKg / 2;
+        (360 * props.data.userTotalWeightInKg) / props.data.totalWeightInKg / 2;
 
       const angleDegrees = (angle * 180) / Math.PI;
       const z = Math.abs(((angleDegrees + 90 - offset) % 360) - 360);
 
-      const sum = props.totalWeightInKg;
+      const sum = props.data.totalWeightInKg;
 
       const angles = data.map((arc) => {
         return (360 * arc) / sum;
@@ -182,7 +173,7 @@ const Graph = (props: GraphProps) => {
             dy={0}
             fontWeight="bold"
           >
-            {`${props.userTotalWeightInKg} ${convertUserWeightUnitToSymbol(user.data.weightUnit)}`}
+            {`${props.data.userTotalWeightInKg} ${convertUserWeightUnitToSymbol(user.data.weightUnit)}`}
           </Text>
         </Group>
 
@@ -231,35 +222,13 @@ const Graph = (props: GraphProps) => {
   );
 };
 
-const useWeightLiftedInTeam = () => {
-  const params = routeApi.useParams();
-  const user = useUser();
-  const team = useTeam(params.teamId);
-
-  const userMember = team.data.members.find((member) => {
-    return (member.userId = user.data.id);
-  });
-
-  if (!userMember) {
-    throw new Error("user not part of team");
-  }
-
-  const userTotalWeightInKg = userMember.totalWeightInKg;
-  const totalWeightInKg = team.data.members.reduce((acc, curr) => {
-    return acc + curr.totalWeightInKg;
-  }, 0);
-
-  return {
-    user: userTotalWeightInKg,
-    total: totalWeightInKg,
-  };
-};
-
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  totalWeightInKg: Set["weightInKg"];
-  userTotalWeightInKg: Set["weightInKg"];
+  data: Readonly<{
+    totalWeightInKg: Set["weightInKg"];
+    userTotalWeightInKg: Set["weightInKg"];
+  }>;
 }>;
 
 type TooltipData = { weightInKg: Set["weightInKg"]; entity: "you" | "team" };

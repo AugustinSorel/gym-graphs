@@ -20,10 +20,10 @@ import {
 import { selectTeamById } from "~/team/team.services";
 import { teamQueries } from "~/team/team.queries";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
+import { cn } from "~/styles/styles.utils";
 import type { ComponentProps } from "react";
 import type { TeamEventReaction, User } from "~/db/db.schemas";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { cn } from "~/styles/styles.utils";
 
 export const TeamEventsTimeline = () => {
   const params = routeApi.useParams();
@@ -77,6 +77,7 @@ const EventReactionPicker = (props: { event: Event }) => {
           size="icon"
           variant="outline"
           className="size-8 shrink-0 rounded-full"
+          aria-label="pick an emoji to react"
         >
           <SmileIcon className="stroke-muted-foreground" />
         </Button>

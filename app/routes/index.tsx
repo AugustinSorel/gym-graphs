@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon } from "~/ui/icons";
+import { ArrowRightIcon, SmileIcon } from "~/ui/icons";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
@@ -24,6 +24,8 @@ import {
 import { permissions } from "~/libs/permissions";
 import { TilesToTagsCountGraph } from "~/dashboard/components/tiles-to-tags-count-graph";
 import { TilesSetsHeatMapGraph } from "~/dashboard/components/tiles-sets-heat-map-graph";
+import { GaugeOfWeightLiftedInTeam } from "~/team/components/gauge-of-weight-lifted-in-team";
+import { Badge } from "~/ui/badge";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
@@ -44,6 +46,8 @@ const Home = () => {
         <FeatureOne />
 
         <FeatureTwo />
+
+        <FeatureThree />
 
         <HeroSectionTwo />
       </Main>
@@ -147,6 +151,82 @@ const FeatureTwo = () => {
       <CardTwo>
         <ExerciseTable sets={setsMock} columns={homePageExerciseTableColumns} />
       </CardTwo>
+    </FeatureContainer>
+  );
+};
+
+const FeatureThree = () => {
+  return (
+    <FeatureContainer>
+      <HeroTitle>
+        Empower your <GradientText>Team!</GradientText>
+      </HeroTitle>
+      <Text>
+        Create exercises and track your friends performance in real-time.
+        Collaborate, compete and conquer your fitness{" "}
+        <StrongText>goals together</StrongText>, making every workout a shared
+        experience.
+      </Text>
+      <TeamFunFactsGrid>
+        <TeamFunFact className="row-span-2 grid-rows-[auto_200px]">
+          <TeamFunFactName>your contribution:</TeamFunFactName>
+          <GaugeOfWeightLiftedInTeam
+            data={{
+              totalWeightInKg: 4922,
+              userTotalWeightInKg: 1290,
+            }}
+          />
+        </TeamFunFact>
+        <TeamFunFact className="grid-cols-1">
+          <TeamFunFactName>the lift lord:</TeamFunFactName>
+          <TeamFunFactStrong>micheal</TeamFunFactStrong>
+        </TeamFunFact>
+        <TeamFunFact className="grid-cols-1">
+          <TeamFunFactName>total weight lifted:</TeamFunFactName>
+          <TeamFunFactStrong>{4922 + 1290} kg</TeamFunFactStrong>
+        </TeamFunFact>
+      </TeamFunFactsGrid>
+
+      <TeamEventsTimeline>
+        <TeamEvent>
+          <TeamEventName>new one-rep max achieved!</TeamEventName>
+          <TeamEventDescription>
+            micheal just crushed a new PR on bench press: 100kg
+          </TeamEventDescription>
+
+          <TeamEventReactionsContainer>
+            <SmileIcon className="stroke-muted-foreground" />
+            <Badge
+              variant="outline"
+              className="text-sm tracking-widest whitespace-nowrap"
+            >
+              🎯 2
+            </Badge>
+            <Badge className="text-sm tracking-widest whitespace-nowrap">
+              😤 1
+            </Badge>
+          </TeamEventReactionsContainer>
+        </TeamEvent>
+        <TeamEvent>
+          <TeamEventName>new one-rep max achieved!</TeamEventName>
+          <TeamEventDescription>
+            john just crushed a new PR on deadlift: 340kg
+          </TeamEventDescription>
+
+          <TeamEventReactionsContainer>
+            <SmileIcon className="stroke-muted-foreground" />
+            <Badge className="text-sm tracking-widest whitespace-nowrap">
+              🔥 3
+            </Badge>
+            <Badge
+              variant="outline"
+              className="text-sm tracking-widest whitespace-nowrap"
+            >
+              💪 1
+            </Badge>
+          </TeamEventReactionsContainer>
+        </TeamEvent>
+      </TeamEventsTimeline>
     </FeatureContainer>
   );
 };
@@ -341,6 +421,78 @@ const CirclesBluredBg = () => {
       </div>
     </>
   );
+};
+
+const TeamFunFactsGrid = (props: ComponentProps<"ol">) => {
+  return (
+    <ol
+      className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:grid-rows-2"
+      {...props}
+    />
+  );
+};
+
+const TeamFunFact = ({ className, ...props }: ComponentProps<"li">) => {
+  return (
+    <li
+      className={cn(
+        "bg-secondary grid items-center gap-3 rounded-lg border p-3 text-center lg:p-6",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
+
+const TeamFunFactName = (props: ComponentProps<"h2">) => {
+  return (
+    <h2
+      {...props}
+      className="text-sm font-semibold whitespace-nowrap capitalize"
+    />
+  );
+};
+
+const TeamFunFactStrong = (props: ComponentProps<"strong">) => {
+  return (
+    <strong
+      className="bg-brand-gradient truncate bg-clip-text py-1 text-4xl font-bold text-transparent"
+      {...props}
+    />
+  );
+};
+
+const TeamEventsTimeline = (props: ComponentProps<"ol">) => {
+  return <ol className="bg-secondary w-full rounded-md border" {...props} />;
+};
+
+const TeamEvent = ({ className, ...props }: ComponentProps<"li">) => {
+  return (
+    <li
+      className={cn(
+        "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
+
+const TeamEventName = (props: ComponentProps<"h2">) => {
+  return (
+    <h2
+      className="truncate text-lg font-semibold first-letter:capitalize"
+      {...props}
+    />
+  );
+};
+
+const TeamEventDescription = (props: ComponentProps<"p">) => {
+  return <p className="text-muted-foreground" {...props} />;
+};
+
+const TeamEventReactionsContainer = (props: ComponentProps<"div">) => {
+  return <div className="mt-2 flex items-center gap-2" {...props} />;
 };
 
 const useMockQueryClient = () => {

@@ -6,6 +6,7 @@ import { useTeam } from "~/team/hooks/use-team";
 import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { useUser } from "~/user/hooks/use-user";
 
 export const TeamFunFactsGrid = () => {
   return (
@@ -37,10 +38,12 @@ export const TeamFunFactsGrid = () => {
 const routeApi = getRouteApi("/(teams)/teams_/$teamId");
 
 const UserContributionInTeamFunFact = () => {
+  const weightLiftedInTeam = useWeightLiftedInTeam();
+
   return (
     <FunFact className="row-span-2 grid-rows-[auto_200px]">
       <FunFactName>your contribution:</FunFactName>
-      <GaugeOfWeightLiftedInTeam />
+      <GaugeOfWeightLiftedInTeam data={weightLiftedInTeam} />
     </FunFact>
   );
 };
@@ -135,4 +138,28 @@ const FunFactFallback = (props: ErrorComponentProps) => {
 
 const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="max-h-32 overflow-auto p-4" {...props} />;
+};
+
+const useWeightLiftedInTeam = () => {
+  const user = useUser();
+  const params = routeApi.useParams();
+  const team = useTeam(params.teamId ?? 1);
+
+  const userMember = team.data.members.find((member) => {
+    return (member.userId = user.data.id);
+  });
+
+  if (!userMember) {
+    throw new Error("user not part of team");
+  }
+
+  const userTotalWeightInKg = userMember.totalWeightInKg;
+  const totalWeightInKg = team.data.members.reduce((acc, curr) => {
+    return acc + curr.totalWeightInKg;
+  }, 0);
+
+  return {
+    userTotalWeightInKg,
+    totalWeightInKg,
+  };
 };
