@@ -1,16 +1,21 @@
 import { ParentSize } from "@visx/responsive";
-import { Pie } from "@visx/shape";
+import { Bar, Pie } from "@visx/shape";
 import { Group } from "@visx/group";
 import { scaleLog, scaleTime } from "@visx/scale";
 import { GridAngle, GridRadial } from "@visx/grid";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "~/ui/skeleton";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { selectTilesToTagsCountAction } from "~/dashboard/dashboard.actions";
-import type { ComponentProps, CSSProperties } from "react";
+import type {
+  ComponentProps,
+  CSSProperties,
+  MouseEvent,
+  TouchEvent,
+} from "react";
 
 export const TilesToTagsCountGraph = () => {
   const tilesToTagsCount = useTilesToTagsCount();
@@ -51,7 +56,6 @@ const Graph = ({ width, height, data }: GraphProps) => {
   const left = centerX + margin.left;
   const maxY = height / 2.4;
   const tooltip = useTooltip<Point>();
-  let tooltipTimeout: number;
 
   const xScale = useMemo(() => {
     return scaleTime({
@@ -66,6 +70,59 @@ const Graph = ({ width, height, data }: GraphProps) => {
       range: [0, maxY],
     });
   }, [maxY]);
+
+  const handleTooltip = useCallback(
+    (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
+      const point = localPoint(event);
+
+      if (!point) {
+        return;
+      }
+
+      const x = point.x - width / 2;
+      const y = point.y - height / 2;
+
+      let angle = Math.atan2(x, y);
+      if (angle < 0) {
+        angle += 2 * Math.PI;
+      }
+
+      const angleDegrees = (angle * 180) / Math.PI;
+      const z = Math.abs(((angleDegrees + 180) % 360) - 360);
+
+      const sum = data.reduce((acc, curr) => acc + curr.count, 0);
+      const angles = data.map((arc) => {
+        return (360 * arc.count) / sum;
+      });
+
+      let index = 0;
+      let accum = 0;
+
+      for (const angle of angles) {
+        accum += angle;
+
+        if (z < accum) {
+          break;
+        }
+
+        ++index;
+      }
+
+      const tooltipAngle = accum - (angles.at(index) ?? 0) * 0.5;
+
+      const tooltipAngleRadians = (tooltipAngle * Math.PI) / 180;
+
+      const tooltipX = centerX + radius * Math.sin(tooltipAngleRadians) * 4;
+      const tooltipY = centerY - radius * Math.cos(tooltipAngleRadians);
+
+      tooltip.showTooltip({
+        tooltipLeft: Math.max(tooltipX, 0),
+        tooltipTop: Math.max(tooltipY, 0),
+        tooltipData: data.at(index),
+      });
+    },
+    [data, tooltip, width, height],
+  );
 
   return (
     <>
@@ -104,28 +161,19 @@ const Graph = ({ width, height, data }: GraphProps) => {
               return pie.arcs.map((arc) => {
                 const d = pie.path(arc) ?? "";
 
+                if (tooltip.tooltipData?.id === arc.data.id) {
+                  return (
+                    <g key={arc.data.name}>
+                      <path
+                        d={d}
+                        className="fill-primary/50 stroke-primary hover:fill-primary/50 transition-colors"
+                      />
+                    </g>
+                  );
+                }
+
                 return (
-                  <g
-                    key={arc.data.name}
-                    onMouseLeave={() => {
-                      tooltipTimeout = window.setTimeout(() => {
-                        tooltip.hideTooltip();
-                      }, 300);
-                    }}
-                    onMouseMove={(e) => {
-                      if (tooltipTimeout) {
-                        clearTimeout(tooltipTimeout);
-                      }
-
-                      const eventSvgCoords = localPoint(e);
-
-                      tooltip.showTooltip({
-                        tooltipData: arc.data,
-                        tooltipTop: eventSvgCoords?.y,
-                        tooltipLeft: eventSvgCoords?.x,
-                      });
-                    }}
-                  >
+                  <g key={arc.data.name}>
                     <path
                       d={d}
                       className="fill-primary/30 stroke-primary hover:fill-primary/50 transition-colors"
@@ -135,6 +183,19 @@ const Graph = ({ width, height, data }: GraphProps) => {
               });
             }}
           </Pie>
+        </Group>
+
+        {/*hit zone for tooltip*/}
+        <Group top={0} left={0}>
+          <Bar
+            width={width}
+            height={height}
+            fill="transparent"
+            onMouseMove={handleTooltip}
+            onTouchStart={handleTooltip}
+            onTouchMove={handleTooltip}
+            onMouseLeave={tooltip.hideTooltip}
+          />
         </Group>
       </svg>
 
@@ -247,7 +308,9 @@ const useTilesToTagsCount = () => {
   return useSuspenseQuery({
     ...dashboardQueries.tilesToTagsCount,
     select: (tilesToTagsCount) => {
-      return tilesToTagsCount.filter((tag) => tag.count);
+      return tilesToTagsCount
+        .filter((tag) => tag.count)
+        .toSorted((a, b) => b.count - a.count);
     },
   });
 };
