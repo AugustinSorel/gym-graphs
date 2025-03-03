@@ -332,14 +332,14 @@ const groupReactionsByEmoji = (reactions: ReadonlyArray<TeamEventReaction>) => {
 };
 
 const Timeline = (props: ComponentProps<"ol">) => {
-  return <ol {...props} />;
+  return <ol className="bg-secondary rounded-md border" {...props} />;
 };
 
 const Event = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
       className={cn(
-        "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
+        "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
         className,
       )}
       {...props}
