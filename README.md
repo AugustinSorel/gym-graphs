@@ -10,7 +10,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ### Home Page
 
-![home page of Gym Graphs](https://github.com/user-attachments/assets/39813eea-b21b-40c9-a4f2-b0fc84294f41)
+![home page of Gym Graphs](https://github.com/user-attachments/assets/3f590cbd-d95b-4983-a02e-ca0a9b97618f)
 
 ### Sign in page
 
@@ -23,6 +23,10 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ### Dashboard Page
 
 ![dashboard page of Gym Graphs](https://github.com/user-attachments/assets/7a61b29a-7209-4d23-bdde-b624c11316f5)
+
+### Team Page
+
+![team page of Gym Graphs](https://github.com/user-attachments/assets/0d942af4-23e4-49fb-88dc-d110e7045a4a)
 
 ### Settings Page
 
