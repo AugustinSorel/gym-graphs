@@ -1,4 +1,4 @@
-import { Smile } from "lucide-react";
+import { SmileIcon } from "~/ui/icons";
 import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
 import {
@@ -78,7 +78,7 @@ const EventReactionPicker = (props: { event: Event }) => {
           variant="outline"
           className="size-8 shrink-0 rounded-full"
         >
-          <Smile className="stroke-muted-foreground" />
+          <SmileIcon className="stroke-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="flex items-center gap-2" align="start">

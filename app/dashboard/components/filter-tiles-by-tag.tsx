@@ -9,7 +9,7 @@ import {
 } from "~/ui/dropdown-menu";
 import { Button } from "~/ui/button";
 import { useUser } from "~/user/hooks/use-user";
-import { Filter } from "lucide-react";
+import { FilterIcon } from "~/ui/icons";
 import { getRouteApi } from "@tanstack/react-router";
 
 export const FilterTilesByTags = () => {
@@ -27,7 +27,7 @@ export const FilterTilesByTags = () => {
           aria-label="filter exercises by tags"
         >
           <span className="hidden lg:block">tags</span>
-          <Filter className="lg:hidden" />
+          <FilterIcon className="lg:hidden" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-72 w-56 overflow-auto">

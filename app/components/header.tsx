@@ -2,16 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
 import {
-  LogOut,
-  Settings,
-  User2,
-  Laptop,
-  Sun,
-  Moon,
-  Home,
-  UsersRound,
-  ArrowRight,
-} from "lucide-react";
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+  LaptopIcon,
+  SunIcon,
+  MoonIcon,
+  HomeIcon,
+  GroupIcon,
+  ArrowRightIcon,
+} from "~/ui/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +51,7 @@ export const HeaderPublic = () => {
       >
         <Link to="/sign-up">
           <span>sign up</span>
-          <ArrowRight />
+          <ArrowRightIcon />
         </Link>
       </Button>
     </Container>
@@ -116,31 +116,31 @@ const MobileNav = () => {
       <Button
         asChild
         variant="ghost"
-        className="data-[status=active]:bg-accent"
+        className="data-[status=active]:[&>svg]:fill-foreground"
         aria-label="go to teams"
       >
         <Link to="/teams">
-          <UsersRound />
+          <GroupIcon />
         </Link>
       </Button>
       <Button
         asChild
         variant="ghost"
-        className="data-[status=active]:bg-accent"
+        className="data-[status=active]:[&>svg]:fill-foreground"
         aria-label="go to dashboard"
       >
         <Link to="/dashboard">
-          <Home />
+          <HomeIcon />
         </Link>
       </Button>
       <Button
         asChild
         variant="ghost"
-        className="data-[status=active]:bg-accent"
+        className="data-[status=active]:[&>svg]:fill-foreground"
         aria-label="go to settings"
       >
         <Link to="/settings">
-          <User2 />
+          <UserIcon />
         </Link>
       </Button>
     </Nav>
@@ -157,7 +157,7 @@ const UserProfileDropdown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="ml-auto">
-          <User2 className="size-4" />
+          <UserIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-72" align="end">
@@ -171,7 +171,7 @@ const UserProfileDropdown = () => {
         <DropdownMenuItem asChild className="m-2 justify-between px-4 py-2">
           <Link to="/settings">
             <span>settings</span>
-            <Settings className="size-4" />
+            <SettingsIcon />
           </Link>
         </DropdownMenuItem>
         <DropdownMenuGroup className="m-2 flex items-center justify-between gap-2 px-4 py-2">
@@ -212,21 +212,21 @@ const UserProfileDropdown = () => {
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
-              <Laptop className="size-4" />
+              <LaptopIcon />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value={themeSchema.Values.light}
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
-              <Sun className="size-4" />
+              <SunIcon />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value={themeSchema.Values.dark}
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
-              <Moon className="size-4" />
+              <MoonIcon />
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
@@ -241,7 +241,7 @@ const UserProfileDropdown = () => {
           }}
         >
           <span>sign out</span>
-          {signOut.isPending ? <Spinner /> : <LogOut className="size-4" />}
+          {signOut.isPending ? <Spinner /> : <LogOutIcon />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

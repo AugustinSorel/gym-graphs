@@ -5,7 +5,7 @@ import { Spinner } from "~/ui/spinner";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { CircleAlert } from "lucide-react";
+import { AlertCircleIcon } from "~/ui/icons";
 
 const routeApi = getRouteApi("/(auth)/_layout");
 
@@ -32,7 +32,7 @@ export const GithubSignIn = () => {
 
       {search.error && (
         <Alert variant="destructive" className="mt-3">
-          <CircleAlert className="h-4 w-4" />
+          <AlertCircleIcon />
           <AlertTitle>Github Oauth Failed!</AlertTitle>
           <AlertDescription>{search.error}</AlertDescription>
         </Alert>

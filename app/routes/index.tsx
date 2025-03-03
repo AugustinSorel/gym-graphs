@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRightIcon } from "~/ui/icons";
 import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
 import { ExerciseTable } from "~/exercise/components/exercise-table";
@@ -73,7 +73,7 @@ const HeroSection = () => {
         >
           <Link to="/sign-in">
             <span className="sm:text-xl">get started</span>
-            <ArrowRight />
+            <ArrowRightIcon />
           </Link>
         </Button>
       </HeroContent>
@@ -167,7 +167,7 @@ const HeroSectionTwo = () => {
       <Button className="font-semibold" asChild>
         <Link to="/sign-in">
           <span>Get started</span>
-          <ArrowRight aria-label="arrow-right" />
+          <ArrowRightIcon aria-label="arrow-right" />
         </Link>
       </Button>
 

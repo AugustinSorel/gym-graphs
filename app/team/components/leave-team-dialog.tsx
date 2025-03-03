@@ -18,7 +18,7 @@ import { useTeam } from "~/team/hooks/use-team";
 import { leaveTeamAction } from "~/team/team.actions";
 import { teamQueries } from "~/team/team.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { CircleAlert } from "lucide-react";
+import { AlertCircleIcon } from "~/ui/icons";
 
 export const LeaveTeamDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -57,7 +57,7 @@ export const LeaveTeamDialog = () => {
 
           {leaveTeam.error && (
             <Alert variant="destructive">
-              <CircleAlert className="size-4" />
+              <AlertCircleIcon />
               <AlertTitle>Heads up!</AlertTitle>
               <AlertDescription>{leaveTeam.error.message}</AlertDescription>
             </Alert>

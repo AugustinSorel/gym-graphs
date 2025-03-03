@@ -13,11 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import {
-  ArrowDown,
-  ArrowUp,
-  ChevronsUpDown,
-  MoreHorizontal,
-} from "lucide-react";
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronsUpDownIcon,
+  EllipsisIcon,
+} from "~/ui/icons";
 import { Button } from "~/ui/button";
 import { useUser } from "~/user/hooks/use-user";
 import { calculateOneRepMax } from "~/set/set.utils";
@@ -38,11 +38,11 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
           <span className="sm:hidden">pr</span>
 
           {column.getIsSorted() === "desc" ? (
-            <ArrowDown />
+            <ArrowDownIcon />
           ) : column.getIsSorted() === "asc" ? (
-            <ArrowUp />
+            <ArrowUpIcon />
           ) : (
-            <ChevronsUpDown />
+            <ChevronsUpDownIcon />
           )}
         </Button>
       );
@@ -73,11 +73,11 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
         >
           weight
           {column.getIsSorted() === "desc" ? (
-            <ArrowDown />
+            <ArrowDownIcon />
           ) : column.getIsSorted() === "asc" ? (
-            <ArrowUp />
+            <ArrowUpIcon />
           ) : (
-            <ChevronsUpDown />
+            <ChevronsUpDownIcon />
           )}
         </Button>
       );
@@ -103,11 +103,11 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
           <span className="sm:hidden">reps</span>
 
           {column.getIsSorted() === "desc" ? (
-            <ArrowDown />
+            <ArrowDownIcon />
           ) : column.getIsSorted() === "asc" ? (
-            <ArrowUp />
+            <ArrowUpIcon />
           ) : (
-            <ChevronsUpDown />
+            <ChevronsUpDownIcon />
           )}
         </Button>
       );
@@ -124,11 +124,11 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
         >
           date
           {column.getIsSorted() === "desc" ? (
-            <ArrowDown />
+            <ArrowDownIcon />
           ) : column.getIsSorted() === "asc" ? (
-            <ArrowUp />
+            <ArrowUpIcon />
           ) : (
-            <ChevronsUpDown />
+            <ChevronsUpDownIcon />
           )}
         </Button>
       );
@@ -151,7 +151,7 @@ export const exerciseTableColumns: Array<ColumnDef<Set>> = [
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <EllipsisIcon />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

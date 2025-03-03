@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CatchBoundary, createFileRoute, Link } from "@tanstack/react-router";
-import { AlertCircle, ArrowLeft, Check } from "lucide-react";
+import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { DeleteExerciseTileDialog } from "~/dashboard/components/delete-exercise-tile-dialog";
@@ -58,7 +58,7 @@ const RouteComponent = () => {
           className="text-muted-foreground w-max p-0"
         >
           <Link to="..">
-            <ArrowLeft />
+            <ArrowLeftIcon />
             <span>back</span>
           </Link>
         </Button>
@@ -142,7 +142,7 @@ const ExerciseTagsSection = () => {
                 className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
                 variant="outline"
               >
-                <Check className="mr-1 hidden group-aria-pressed:block" />
+                <CheckIcon className="mr-1 hidden group-aria-pressed:block" />
                 {tag.name}
               </Badge>
             </ToggleGroupItem>
@@ -151,7 +151,7 @@ const ExerciseTagsSection = () => {
 
         {updateExerciseTags.error && (
           <Alert variant="destructive">
-            <AlertCircle className="size-4" />
+            <AlertCircleIcon />
             <AlertTitle>Heads up!</AlertTitle>
             <AlertDescription>
               {updateExerciseTags.error.message}

@@ -10,7 +10,7 @@ import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-import { ArrowLeft, Cog } from "lucide-react";
+import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
 import { permissions } from "~/libs/permissions";
 import type { ComponentProps } from "react";
@@ -47,7 +47,7 @@ const RouteComponent = () => {
             aria-label="exercise settings"
           >
             <span className="hidden lg:inline-flex">settings</span>
-            <Cog className="lg:hidden" />
+            <SettingsIcon className="lg:hidden" />
           </Link>
         </Button>
         <CreateSetDialog />
@@ -57,7 +57,7 @@ const RouteComponent = () => {
           className="text-muted-foreground mr-auto p-0"
         >
           <Link to="/dashboard">
-            <ArrowLeft />
+            <ArrowLeftIcon />
             <span>back</span>
           </Link>
         </Button>

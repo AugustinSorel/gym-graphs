@@ -146,6 +146,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | gamification                                          |
 | TODO     | show new events notification                          |
 | TODO     | team in home page                                     |
-| TODO     | remove lucid                                          |
 | TODO     | add tests                                             |
 */

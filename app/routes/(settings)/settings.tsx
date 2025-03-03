@@ -4,7 +4,14 @@ import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";
 import { cn } from "~/styles/styles.utils";
-import { AlertCircle, Check, Github, Laptop, Moon, Sun } from "lucide-react";
+import {
+  CheckIcon,
+  AlertCircleIcon,
+  GithubIcon,
+  LaptopIcon,
+  MoonIcon,
+  SunIcon,
+} from "~/ui/icons";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/user/components/rename-user-dialog";
@@ -209,7 +216,7 @@ const OneRepMaxAlgoSection = () => {
                 className="group-aria-checked:border-primary/50 group-aria-checked:bg-primary/20 group-aria-checked:text-primary hover:group-aria-checked:bg-primary/30"
                 variant="outline"
               >
-                <Check className="mr-1 hidden group-aria-checked:block" />
+                <CheckIcon className="mr-1 hidden group-aria-checked:block" />
                 {algo}
               </Badge>
             </ToggleGroupItem>
@@ -218,7 +225,7 @@ const OneRepMaxAlgoSection = () => {
 
         {updateOneRepMaxAlgo.error && (
           <Alert variant="destructive">
-            <AlertCircle className="size-4" />
+            <AlertCircleIcon />
             <AlertTitle>Heads up!</AlertTitle>
             <AlertDescription>
               {updateOneRepMaxAlgo.error.message}
@@ -321,21 +328,21 @@ const ChangeThemeSection = () => {
               aria-label="Change theme to system"
               variant="outline"
             >
-              <Laptop className="size-4" />
+              <LaptopIcon />
             </ToggleGroupItem>
             <ToggleGroupItem
               value={themeSchema.Values.light}
               aria-label="Change theme to light"
               variant="outline"
             >
-              <Sun className="size-4" />
+              <SunIcon />
             </ToggleGroupItem>
             <ToggleGroupItem
               value={themeSchema.Values.dark}
               aria-label="Change theme to dark"
               variant="outline"
             >
-              <Moon className="size-4" />
+              <MoonIcon />
             </ToggleGroupItem>
           </ToggleGroup>
         </Footer>
@@ -365,7 +372,7 @@ const GithubLinkSection = () => {
               href="https://github.com/augustinsorel/gym-graphs"
               target="_blank"
             >
-              <Github className="size-4" />
+              <GithubIcon />
               <span>view</span>
             </a>
           </Button>

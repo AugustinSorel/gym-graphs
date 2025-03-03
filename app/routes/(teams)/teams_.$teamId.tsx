@@ -5,7 +5,7 @@ import { teamQueries } from "~/team/team.queries";
 import { teamSchema } from "~/team/team.schemas";
 import { Button } from "~/ui/button";
 import { useTeam } from "~/team/hooks/use-team";
-import { ArrowLeft, Check, Cog, Lock } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, SettingsIcon, LockIcon } from "~/ui/icons";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { useMutation } from "@tanstack/react-query";
 import { createTeamJoinRequestAction } from "~/team/team.actions";
@@ -71,7 +71,7 @@ const PublicTeamPage = () => {
           {createTeamJoinRequest.isPending && <Spinner />}
           {createTeamJoinRequest.isSuccess && (
             <HideAfter>
-              <Check />
+              <CheckIcon />
             </HideAfter>
           )}
         </Button>
@@ -81,7 +81,7 @@ const PublicTeamPage = () => {
           className="text-muted-foreground mr-auto p-0"
         >
           <Link to="..">
-            <ArrowLeft />
+            <ArrowLeftIcon />
             <span>back</span>
           </Link>
         </Button>
@@ -89,7 +89,7 @@ const PublicTeamPage = () => {
 
       <Alert className="flex flex-col items-center justify-center gap-5 border-none text-center">
         <div className="w-max rounded-full border-2 border-current p-5">
-          <Lock className="size-24 stroke-1" />
+          <LockIcon className="size-24 stroke-1" />
         </div>
         <AlertTitle className="text-4xl font-bold first-letter:capitalize">
           this team is private
@@ -123,7 +123,7 @@ const PrivateTeamPage = () => {
             aria-label="team settings"
           >
             <span className="hidden lg:inline-flex">settings</span>
-            <Cog className="lg:hidden" />
+            <SettingsIcon className="lg:hidden" />
           </Link>
         </Button>
         <Button
@@ -132,7 +132,7 @@ const PrivateTeamPage = () => {
           className="text-muted-foreground mr-auto p-0"
         >
           <Link to="..">
-            <ArrowLeft />
+            <ArrowLeftIcon />
             <span>back</span>
           </Link>
         </Button>

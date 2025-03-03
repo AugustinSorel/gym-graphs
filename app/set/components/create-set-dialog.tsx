@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import { CreateSetForm } from "~/set/components/create-set-form";
 import { Button } from "~/ui/button";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "~/ui/icons";
 
 export const CreateSetDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,7 @@ export const CreateSetDialog = () => {
         aria-label="create set"
       >
         <DialogTrigger>
-          <Plus />
+          <PlusIcon />
         </DialogTrigger>
       </Button>
 

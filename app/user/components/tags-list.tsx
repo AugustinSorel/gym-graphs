@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import { Button } from "~/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { EllipsisIcon } from "~/ui/icons";
 import { DeleteTagDialog } from "~/tag/components/delete-tag-dialog";
 import { pluralize } from "~/utils/string";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -35,7 +35,7 @@ export const TagsList = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="row-span-3 h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
+                <EllipsisIcon />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

@@ -18,7 +18,7 @@ import { teamQueries } from "~/team/team.queries";
 import { useUser } from "~/user/hooks/use-user";
 import { kickMemberOutOfTeamAction } from "~/team/team.actions";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { CircleAlert } from "lucide-react";
+import { AlertCircleIcon } from "~/ui/icons";
 import { useTeamMember } from "~/team/team-member.context";
 
 export const KickMemberOutDialog = () => {
@@ -63,7 +63,7 @@ export const KickMemberOutDialog = () => {
 
           {kickMemberOut.error && (
             <Alert variant="destructive">
-              <CircleAlert className="size-4" />
+              <AlertCircleIcon />
               <AlertTitle>Heads up!</AlertTitle>
               <AlertDescription>{kickMemberOut.error.message}</AlertDescription>
             </Alert>

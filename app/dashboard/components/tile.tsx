@@ -1,5 +1,5 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { GripVertical } from "lucide-react";
+import { GripVerticalIcon } from "~/ui/icons";
 import { Suspense } from "react";
 import {
   TilesSetsHeatMapGraph,
@@ -182,7 +182,7 @@ const DragButton = (props: ButtonProps) => {
       {...props}
       suppressHydrationWarning
     >
-      <GripVertical className="!size-3" />
+      <GripVerticalIcon className="!size-3" />
     </Button>
   );
 };

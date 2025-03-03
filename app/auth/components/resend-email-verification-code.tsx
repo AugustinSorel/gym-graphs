@@ -2,7 +2,7 @@ import { Button } from "~/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { sendEmailVerificationCodeAction } from "~/auth/auth.actions";
 import { Spinner } from "~/ui/spinner";
-import { Check } from "lucide-react";
+import { CheckIcon } from "~/ui/icons";
 import type { ComponentProps } from "react";
 
 export const ResendEmailVerificationCode = () => {
@@ -20,7 +20,7 @@ export const ResendEmailVerificationCode = () => {
       >
         <span>Get another code</span>
         {sendEmailVerification.isPending && <Spinner />}
-        {sendEmailVerification.isSuccess && <Check />}
+        {sendEmailVerification.isSuccess && <CheckIcon />}
       </Button>
     </RedirectText>
   );

@@ -8,7 +8,7 @@ import {
 import { cn } from "~/styles/styles.utils";
 import { Label } from "~/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { CircleAlert } from "lucide-react";
+import { AlertCircleIcon } from "~/ui/icons";
 import { createContext, use, useId } from "react";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
@@ -171,7 +171,7 @@ const FormAlert = (props: React.ComponentProps<typeof Alert>) => {
 
   return (
     <Alert variant="destructive" {...props}>
-      <CircleAlert className="size-4" />
+      <AlertCircleIcon />
       <AlertTitle>Heads up!</AlertTitle>
       <AlertDescription>{rootErrMsg}</AlertDescription>
     </Alert>

@@ -10,7 +10,7 @@ import { CreateExerciseTileForm } from "~/dashboard/components/create-exercise-t
 import { useState } from "react";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "~/ui/icons";
 
 export const CreateExerciseTileDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +32,7 @@ export const CreateExerciseTileDialog = () => {
         aria-label="create exercise"
       >
         <DialogTrigger>
-          <Plus />
+          <PlusIcon />
         </DialogTrigger>
       </Button>
 

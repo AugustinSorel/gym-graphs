@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { PlusIcon } from "~/ui/icons";
 import { CreateTeamForm } from "~/team/components/create-team-form";
 
 export const CreateTeamDialog = () => {
@@ -32,7 +32,7 @@ export const CreateTeamDialog = () => {
         aria-label="create exercise"
       >
         <DialogTrigger>
-          <Plus />
+          <PlusIcon />
         </DialogTrigger>
       </Button>
 

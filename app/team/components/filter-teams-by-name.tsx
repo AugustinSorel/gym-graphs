@@ -1,5 +1,5 @@
 import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
-import { AlertCircle, Search, X } from "lucide-react";
+import { AlertCircleIcon, SearchIcon, XIcon } from "~/ui/icons";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ export const FilterTeamsByName = () => {
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
         />
-        <Search className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
+        <SearchIcon className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
         {teamName && (
           <Button
             size="icon"
@@ -46,7 +46,7 @@ export const FilterTeamsByName = () => {
             aria-label="clear search"
             onClick={() => clearSearch()}
           >
-            <X />
+            <XIcon />
           </Button>
         )}
       </search>
@@ -62,7 +62,7 @@ const SearchFallback = (props: ErrorComponentProps) => {
       variant="destructive"
       className="flex items-center gap-2 [&>svg]:relative [&>svg]:top-0 [&>svg]:left-0 [&>svg+div]:translate-y-[0px] [&>svg~*]:pl-0"
     >
-      <AlertCircle className="size-4" />
+      <AlertCircleIcon />
       <AlertDescription>{props.error.message}</AlertDescription>
     </Alert>
   );

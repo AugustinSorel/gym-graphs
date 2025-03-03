@@ -6,7 +6,7 @@ import { teamSchema } from "~/team/team.schemas";
 import { cn } from "~/styles/styles.utils";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { Button } from "~/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeftIcon } from "~/ui/icons";
 import { Separator } from "~/ui/separator";
 import { useTeam } from "~/team/hooks/use-team";
 import { RenameTeamDialog } from "~/team/components/rename-team-dialog";
@@ -55,7 +55,7 @@ const RouteComponent = () => {
           className="text-muted-foreground w-max p-0"
         >
           <Link to="..">
-            <ArrowLeft />
+            <ArrowLeftIcon />
             <span>back</span>
           </Link>
         </Button>
