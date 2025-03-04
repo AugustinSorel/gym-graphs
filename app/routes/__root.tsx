@@ -146,4 +146,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | gamification                                          |
 | TODO     | show new events notification                          |
 | TODO     | add tests                                             |
+| TODO     | investigate tanstack form                             |
+| TODO     | refactor tags update                                  |
+| TODO     | fix tooltip in heat map                               |
 */
