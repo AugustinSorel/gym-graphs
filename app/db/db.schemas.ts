@@ -325,7 +325,9 @@ export const tilesToTagsTableTable = pgTable(
   (t) => [primaryKey({ columns: [t.tileId, t.tagId] })],
 );
 
-export const exerciseTagRelations = relations(
+export type TilesToTags = Readonly<typeof tilesToTagsTableTable.$inferSelect>;
+
+export const tilesToTagsRelations = relations(
   tilesToTagsTableTable,
   ({ one }) => ({
     tile: one(tileTable, {

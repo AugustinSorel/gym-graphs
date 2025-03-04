@@ -5,11 +5,10 @@ import {
 } from "~/auth/auth.middlewares";
 import { tagSchema } from "~/tag/tag.schemas";
 import {
-  addTagsToTile,
+  addTagToTile,
   createTag,
-  deleteTagsFromTile,
   deleteTag,
-  selectTileTags,
+  removeTagToTile,
   renameTag,
 } from "~/tag/tag.services";
 import pg from "pg";
@@ -65,42 +64,38 @@ export const deleteTagAction = createServerFn({ method: "POST" })
     await deleteTag(data.tagId, context.user.id, context.db);
   });
 
-export const updateExerciseTagsAction = createServerFn({ method: "POST" })
+export const addTagToTileAction = createServerFn({ method: "POST" })
   .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       tileId: tileSchema.shape.id,
-      newTags: tagSchema.shape.id.array().max(50),
+      tagId: tagSchema.shape.id,
     }),
   )
   .handler(async ({ context, data }) => {
     try {
-      await context.db.transaction(async (tx) => {
-        const exerciseTags = await selectTileTags(
-          context.user.dashboard.id,
-          data.tileId,
-          tx,
-        );
-
-        const newExerciseTagsSet = new Set(data.newTags);
-        const exerciseTagsSet = new Set(exerciseTags.map((e) => e.tagId));
-
-        const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
-        const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
-
-        await addTagsToTile(data.tileId, [...tagsToAddSet], tx);
-
-        await deleteTagsFromTile(data.tileId, [...tagsToRemoveSet], tx);
-      });
+      await addTagToTile(data.tileId, data.tagId, context.user.id, context.db);
     } catch (e) {
       const dbError = e instanceof pg.DatabaseError;
-      const duplicateTag =
-        dbError && e.constraint === "exercise_tag_tag_id_tag_id_fk";
+      const tagAlreadyAdded =
+        dbError && e.constraint === "tile_to_tags_tile_id_tag_id_pk";
 
-      if (duplicateTag) {
-        throw new Error("this tag already exists");
+      if (tagAlreadyAdded) {
+        throw new Error("tag already added");
       }
 
       throw new Error(e instanceof Error ? e.message : "something went wrong");
     }
+  });
+
+export const removeTagToTileAction = createServerFn({ method: "POST" })
+  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .validator(
+    z.object({
+      tileId: tileSchema.shape.id,
+      tagId: tagSchema.shape.id,
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    await removeTagToTile(data.tileId, data.tagId, context.user.id, context.db);
   });

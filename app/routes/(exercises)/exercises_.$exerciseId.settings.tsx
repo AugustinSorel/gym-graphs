@@ -10,7 +10,7 @@ import { exerciseSchema } from "~/exercise/exericse.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
-import { updateExerciseTagsAction } from "~/tag/tag.actions";
+import { addTagToTileAction, removeTagToTileAction } from "~/tag/tag.actions";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
@@ -100,7 +100,8 @@ const ExerciseTagsSection = () => {
   const params = Route.useParams();
   const exercise = useExercise(params.exerciseId);
 
-  const updateExerciseTags = useUpdateExerciseTags();
+  const addTagToTile = useAddTagToTile();
+  const removeTagToTile = useRemoveTagToTile();
 
   return (
     <CatchBoundary
@@ -122,13 +123,40 @@ const ExerciseTagsSection = () => {
           value={exercise.data.tile.tileToTags.map((tileToTag) => {
             return tileToTag.tag.id.toString();
           })}
-          onValueChange={(e) => {
-            updateExerciseTags.mutate({
-              data: {
-                newTags: e.map(Number),
-                tileId: exercise.data.tile.id,
-              },
-            });
+          onValueChange={(newTagsIdsStr) => {
+            const currentTagsIds = exercise.data.tile.tileToTags.map(
+              (tileToTag) => tileToTag.tag.id,
+            );
+            const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
+
+            const currentTagsIdsSet = new Set(currentTagsIds);
+            const newTagsIdsSet = new Set(newTagsIds);
+
+            const tagIdToRemove = Array.from(
+              currentTagsIdsSet.difference(newTagsIdsSet),
+            ).at(0);
+
+            const tagIdToAdd = Array.from(
+              newTagsIdsSet.difference(currentTagsIdsSet),
+            ).at(0);
+
+            if (tagIdToAdd) {
+              addTagToTile.mutate({
+                data: {
+                  tagId: tagIdToAdd,
+                  tileId: exercise.data.tile.id,
+                },
+              });
+            }
+
+            if (tagIdToRemove) {
+              removeTagToTile.mutate({
+                data: {
+                  tagId: tagIdToRemove,
+                  tileId: exercise.data.tile.id,
+                },
+              });
+            }
           }}
         >
           {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
@@ -149,13 +177,19 @@ const ExerciseTagsSection = () => {
           ))}
         </ToggleGroup>
 
-        {updateExerciseTags.error && (
-          <Alert variant="destructive">
+        {addTagToTile.error && (
+          <Alert variant="destructive" className="m-3 w-auto lg:m-6">
             <AlertCircleIcon />
             <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              {updateExerciseTags.error.message}
-            </AlertDescription>
+            <AlertDescription>{addTagToTile.error.message}</AlertDescription>
+          </Alert>
+        )}
+
+        {removeTagToTile.error && (
+          <Alert variant="destructive" className="m-3 w-auto lg:m-6">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
           </Alert>
         )}
 
@@ -254,14 +288,14 @@ const NoTagsText = (props: ComponentProps<"p">) => {
   );
 };
 
-const useUpdateExerciseTags = () => {
+const useAddTagToTile = () => {
   const user = useUser();
   const queryClient = useQueryClient();
   const params = Route.useParams();
   const exercise = useExercise(params.exerciseId);
 
   return useMutation({
-    mutationFn: updateExerciseTagsAction,
+    mutationFn: addTagToTileAction,
     onMutate: (variables) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
@@ -269,23 +303,13 @@ const useUpdateExerciseTags = () => {
         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       };
 
-      const newExerciseTags = new Set(variables.data.newTags);
+      const tag = user.data.tags.find((tag) => {
+        return tag.id === variables.data.tagId;
+      });
 
-      const optimisticTags = user.data.tags
-        .filter((tag) => {
-          if (!newExerciseTags.has(tag.id)) {
-            return false;
-          }
-
-          return true;
-        })
-        .map((tag) => ({
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          tileId: variables.data.tileId,
-          tagId: tag.id,
-          tag,
-        }));
+      if (!tag) {
+        return;
+      }
 
       queryClient.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
@@ -301,7 +325,16 @@ const useUpdateExerciseTags = () => {
                 if (tile.id === variables.data.tileId) {
                   return {
                     ...tile,
-                    tileToTags: optimisticTags,
+                    tileToTags: [
+                      ...tile.tileToTags,
+                      {
+                        tileId: variables.data.tileId,
+                        tagId: tag.id,
+                        tag,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                      },
+                    ],
                   };
                 }
 
@@ -321,7 +354,16 @@ const useUpdateExerciseTags = () => {
           ...exercise,
           tile: {
             ...exercise.tile,
-            tileToTags: optimisticTags,
+            tileToTags: [
+              ...exercise.tile.tileToTags,
+              {
+                tileId: variables.data.tileId,
+                tagId: tag.id,
+                tag,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            ],
           },
         };
       });
@@ -331,23 +373,105 @@ const useUpdateExerciseTags = () => {
           return tilesToTagsCount;
         }
 
-        const newExerciseTagsSet = new Set(variables.data.newTags);
-        const exerciseTagsSet = new Set(
-          exercise.data.tile.tileToTags.map((tileToTag) => tileToTag.tag.id),
-        );
-
-        const tagsToAddSet = newExerciseTagsSet.difference(exerciseTagsSet);
-        const tagsToRemoveSet = exerciseTagsSet.difference(newExerciseTagsSet);
-
         return tilesToTagsCount.map((tilesToTagsCount) => {
-          if (tagsToAddSet.has(tilesToTagsCount.id)) {
+          if (tilesToTagsCount.id === variables.data.tagId) {
             return {
               ...tilesToTagsCount,
               count: tilesToTagsCount.count + 1,
             };
           }
 
-          if (tagsToRemoveSet.has(tilesToTagsCount.id)) {
+          return tilesToTagsCount;
+        });
+      });
+    },
+    onSettled: () => {
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id),
+        tiles: dashboardQueries.tiles(),
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount,
+      } as const;
+
+      void queryClient.invalidateQueries(queries.tiles);
+      void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.tilesToTagsCount);
+    },
+  });
+};
+
+const useRemoveTagToTile = () => {
+  const user = useUser();
+  const queryClient = useQueryClient();
+  const params = Route.useParams();
+  const exercise = useExercise(params.exerciseId);
+
+  return useMutation({
+    mutationFn: removeTagToTileAction,
+    onMutate: (variables) => {
+      const queries = {
+        exercise: exerciseQueries.get(exercise.data.id).queryKey,
+        tiles: dashboardQueries.tiles().queryKey,
+        tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
+      };
+
+      const tag = user.data.tags.find((tag) => {
+        return tag.id === variables.data.tagId;
+      });
+
+      if (!tag) {
+        return;
+      }
+
+      queryClient.setQueryData(queries.tiles, (tiles) => {
+        if (!tiles) {
+          return tiles;
+        }
+
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.id === variables.data.tileId) {
+                  return {
+                    ...tile,
+                    tileToTags: tile.tileToTags.filter((tileToTags) => {
+                      return tileToTags.tagId !== variables.data.tagId;
+                    }),
+                  };
+                }
+
+                return tile;
+              }),
+            };
+          }),
+        };
+      });
+
+      queryClient.setQueryData(queries.exercise, (exercise) => {
+        if (!exercise) {
+          return exercise;
+        }
+
+        return {
+          ...exercise,
+          tile: {
+            ...exercise.tile,
+            tileToTags: exercise.tile.tileToTags.filter((tileToTags) => {
+              return tileToTags.tagId !== variables.data.tagId;
+            }),
+          },
+        };
+      });
+
+      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+        if (!tilesToTagsCount) {
+          return tilesToTagsCount;
+        }
+
+        return tilesToTagsCount.map((tilesToTagsCount) => {
+          if (tilesToTagsCount.id === variables.data.tagId) {
             return {
               ...tilesToTagsCount,
               count: tilesToTagsCount.count - 1,

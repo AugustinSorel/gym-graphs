@@ -1,24 +1,13 @@
-import { and, eq, exists, inArray } from "drizzle-orm";
-import { tagTable, tileTable, tilesToTagsTableTable } from "~/db/db.schemas";
-import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
+import { and, eq, exists } from "drizzle-orm";
+import {
+  dashboardTable,
+  tagTable,
+  tilesToTagsTableTable,
+  tileTable,
+  userTable,
+} from "~/db/db.schemas";
+import type { Tag, Tile, TilesToTags } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-
-export const selectTileTags = async (
-  dashboardId: Dashboard["id"],
-  tileId: Tile["id"],
-  db: Db,
-) => {
-  const tile = db
-    .select()
-    .from(tileTable)
-    .where(
-      and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
-    );
-
-  return db.query.tilesToTagsTableTable.findMany({
-    where: and(eq(tilesToTagsTableTable.tileId, tileId), exists(tile)),
-  });
-};
 
 export const createTag = (name: Tag["name"], userId: Tag["userId"], db: Db) => {
   return db.insert(tagTable).values({ name, userId });
@@ -67,21 +56,64 @@ export const addTagsToTile = async (
     .values(tagsToAdd.map((tagId) => ({ tagId, tileId })));
 };
 
-export const deleteTagsFromTile = async (
-  tileId: Tile["id"],
-  tagsToDelete: Array<Tag["id"]>,
+export const addTagToTile = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
   db: Db,
 ) => {
-  if (!tagsToDelete.length) {
-    return;
+  const [res] = await db
+    .select()
+    .from(tileTable)
+    .innerJoin(dashboardTable, eq(dashboardTable.id, tileTable.dashboardId))
+    .innerJoin(userTable, eq(dashboardTable.userId, userId))
+    .innerJoin(
+      tagTable,
+      and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)),
+    )
+    .where(eq(tileTable.id, tileId));
+
+  if (!res) {
+    throw new Error("unauthorized");
   }
 
-  await db
+  return db.insert(tilesToTagsTableTable).values({
+    tileId,
+    tagId,
+  });
+};
+
+export const removeTagToTile = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  const tag = db
+    .select()
+    .from(tagTable)
+    .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)));
+
+  const tile = db
+    .select()
+    .from(tileTable)
+    .innerJoin(dashboardTable, eq(dashboardTable.id, tileTable.dashboardId))
+    .innerJoin(userTable, eq(dashboardTable.userId, userId))
+    .where(eq(tileTable.id, tileId));
+
+  const res = await db
     .delete(tilesToTagsTableTable)
     .where(
       and(
+        eq(tilesToTagsTableTable.tagId, tagId),
         eq(tilesToTagsTableTable.tileId, tileId),
-        inArray(tilesToTagsTableTable.tagId, tagsToDelete),
+        exists(tag),
+        exists(tile),
       ),
-    );
+    )
+    .returning();
+
+  if (!res.length) {
+    throw new Error("unauthorized");
+  }
 };
