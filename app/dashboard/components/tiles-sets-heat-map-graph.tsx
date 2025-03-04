@@ -2,7 +2,7 @@ import { ParentSize } from "@visx/responsive";
 import { Group } from "@visx/group";
 import { scaleLinear } from "@visx/scale";
 import { HeatmapRect } from "@visx/heatmap";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -10,8 +10,15 @@ import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
-import type { ComponentProps, CSSProperties } from "react";
 import type { selectTilesSetsHeatMap } from "~/dashboard/dashboard.actions";
+import type {
+  ComponentProps,
+  CSSProperties,
+  MouseEvent,
+  TouchEvent,
+} from "react";
+import { Bar } from "@visx/shape";
+import { cn } from "~/styles/styles.utils";
 
 export const TilesSetsHeatMapGraph = () => {
   const setsHeatMap = useSetsHeatMap();
@@ -34,7 +41,7 @@ export const TilesSetsHeatMapGraph = () => {
 };
 
 const Graph = ({ width, height, data }: GraphProps) => {
-  const tooltip = useTooltip<RectCell<Bins, Bin>>();
+  const tooltip = useTooltip<TooltipData>();
 
   const binSize = 30;
   const gap = 5;
@@ -63,6 +70,50 @@ const Graph = ({ width, height, data }: GraphProps) => {
     });
   }, [data]);
 
+  const handleTooltip = useCallback(
+    (event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>) => {
+      const point = localPoint(event);
+
+      if (!point) {
+        return;
+      }
+
+      const x = Math.min(Math.max(point.x - 45, 0), 235);
+      const y = Math.min(Math.max(point.y - 7, 0), 200);
+
+      const binHitSize = binSize + gap;
+
+      const weekIndex = Math.floor(y / binHitSize) as Bin["weekIndex"];
+      const dayIndex = Math.floor(x / binHitSize) as Bins["dayIndex"];
+
+      const row = data.find((day) => day.dayIndex === dayIndex);
+
+      if (!row) {
+        return;
+      }
+
+      const bin = row.bins.find((week) => week.weekIndex === weekIndex);
+
+      if (!bin) {
+        return;
+      }
+
+      const tooltipX = (dayIndex + (1 * dayIndex > 3 ? -2 : 2)) * binHitSize;
+      const tooltipY = (weekIndex + (1 * weekIndex > 2 ? -1 : 1)) * binHitSize;
+
+      tooltip.showTooltip({
+        tooltipData: {
+          dayIndex,
+          weekIndex,
+          count: bin.count,
+        },
+        tooltipLeft: tooltipX,
+        tooltipTop: tooltipY,
+      });
+    },
+    [data, tooltip, width, height],
+  );
+
   return (
     <>
       <svg width={width} height={height}>
@@ -76,42 +127,46 @@ const Graph = ({ width, height, data }: GraphProps) => {
             binHeight={binSize}
             gap={gap}
           >
-            {(heatmap) =>
-              heatmap.map((heatmapBins) =>
-                heatmapBins.map((bin) => (
-                  <rect
-                    key={`heatmap-rect-${bin.row}-${bin.column}`}
-                    width={bin.width}
-                    height={bin.height}
-                    className="stroke-primary/30 hover:!fill-primary/75 transition-colors"
-                    style={{
-                      fill: `hsl(var(--primary)/${(bin.opacity ?? 100) / 2})`,
-                    }}
-                    x={bin.x}
-                    y={bin.y}
-                    onMouseLeave={() => {
-                      tooltipTimeout = window.setTimeout(() => {
-                        tooltip.hideTooltip();
-                      }, 300);
-                    }}
-                    onMouseMove={(e) => {
-                      if (tooltipTimeout) {
-                        clearTimeout(tooltipTimeout);
-                      }
+            {(heatmap) => {
+              return heatmap.map((heatmapBins) => {
+                return heatmapBins.map((bin) => {
+                  const isHovered =
+                    tooltip.tooltipData?.weekIndex === bin.bin.weekIndex &&
+                    tooltip.tooltipData?.dayIndex === bin.datum.dayIndex;
 
-                      const eventSvgCoords = localPoint(e);
-
-                      tooltip.showTooltip({
-                        tooltipData: bin,
-                        tooltipTop: eventSvgCoords?.y,
-                        tooltipLeft: eventSvgCoords?.x,
-                      });
-                    }}
-                  />
-                )),
-              )
-            }
+                  return (
+                    <rect
+                      key={`heatmap-rect-${bin.row}-${bin.column}`}
+                      width={bin.width}
+                      height={bin.height}
+                      className={cn(
+                        "stroke-primary/30 transition-colors",
+                        isHovered && "stroke-primary",
+                      )}
+                      style={{
+                        fill: `hsl(var(--primary)/${(bin.opacity ?? 100) / 2})`,
+                      }}
+                      x={bin.x}
+                      y={bin.y}
+                    />
+                  );
+                });
+              });
+            }}
           </HeatmapRect>
+        </Group>
+
+        {/*hit zone for tooltip*/}
+        <Group top={0} left={0}>
+          <Bar
+            width={width}
+            height={height}
+            fill="transparent"
+            onMouseMove={handleTooltip}
+            onTouchStart={handleTooltip}
+            onTouchMove={handleTooltip}
+            onMouseLeave={tooltip.hideTooltip}
+          />
         </Group>
       </svg>
 
@@ -124,9 +179,9 @@ const Graph = ({ width, height, data }: GraphProps) => {
           <p className="white text-xs font-bold whitespace-nowrap capitalize">
             {new Date(
               new Date().setDate(
-                tooltip.tooltipData.datum.dayIndex +
+                tooltip.tooltipData.dayIndex +
                   1 +
-                  tooltip.tooltipData.bin.weekIndex * 7 -
+                  tooltip.tooltipData.weekIndex * 7 -
                   ((getFirstDayOfMonth().getDay() + 6) % 7),
               ),
             ).toDateString()}
@@ -135,7 +190,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
             <dt className="text-muted-foreground before:bg-primary flex items-center before:mr-2 before:block before:size-2">
               sets logged
             </dt>
-            <dd>{tooltip.tooltipData.bin.count}</dd>
+            <dd>{tooltip.tooltipData.count}</dd>
           </dl>
         </Tooltip>
       )}
@@ -153,7 +208,9 @@ type Bins = GraphProps["data"][number];
 
 type Bin = Bins["bins"][number];
 
-let tooltipTimeout: number;
+type TooltipData = Readonly<
+  Pick<Bin, "weekIndex" | "count"> & Pick<Bins, "dayIndex">
+>;
 
 const max = <Datum,>(data: Array<Datum>, value: (d: Datum) => number) => {
   return Math.max(...data.map(value));
@@ -163,7 +220,7 @@ const getBins = (d: Bins) => d.bins;
 const getCount = (d: Bin) => d.count;
 
 const margin = {
-  top: -15,
+  top: -25,
   left: 0,
   right: 0,
   bottom: 0,
