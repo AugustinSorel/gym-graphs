@@ -134,8 +134,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # TANSTACK BUGS
 | Type     | Description                                           |
 | -------- | ------------------------------------------------------|
-| BUG      | Global Middleware not working at all                  |
-|          | (gather all rate limiting+monitoring middlewares)     |
 | BUG      | tanstack router can't redirect to external url        |
 |          | (Remove `window.location.href` in `github-sign-in`)   |
 | BUG      | Error boundaries not working properly                 |
@@ -150,5 +148,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | gamification                                          |
 | TODO     | show new events notification                          |
 | TODO     | add tests                                             |
-| TODO     | investigate tanstack form                             |
+| TODO     | monitoring                                            |
 */
