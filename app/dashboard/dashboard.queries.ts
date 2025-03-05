@@ -11,9 +11,10 @@ import type { Tag, Tile } from "~/db/db.schemas";
 const tiles = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
   infiniteQueryOptions({
     queryKey: ["dashboard", "tiles", name, tags],
-    queryFn: ({ pageParam }) => {
+    queryFn: ({ pageParam, signal }) => {
       return selectTilesAction({
         data: { page: pageParam, name, tags },
+        signal,
       });
     },
     initialPageParam: 1,
@@ -23,22 +24,22 @@ const tiles = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
 
 const funFacts = queryOptions({
   queryKey: ["dashboard", "tiles", "fun-facts"],
-  queryFn: () => selectTilesFunFactsAction(),
+  queryFn: ({ signal }) => selectTilesFunFactsAction({ signal }),
 });
 
 const tilesToSetsCount = queryOptions({
   queryKey: ["dashboard", "tiles", "sets-count"],
-  queryFn: () => selectTilesToSetsCountAction(),
+  queryFn: ({ signal }) => selectTilesToSetsCountAction({ signal }),
 });
 
 const tilesToTagsCount = queryOptions({
   queryKey: ["dashboard", "tiles", "tags-count"],
-  queryFn: () => selectTilesToTagsCountAction(),
+  queryFn: ({ signal }) => selectTilesToTagsCountAction({ signal }),
 });
 
 const tilesSetsHeatMap = queryOptions({
   queryKey: ["dashboard", "tiles", "sets-heat-map"],
-  queryFn: () => selectTilesSetsHeatMap(),
+  queryFn: ({ signal }) => selectTilesSetsHeatMap({ signal }),
 });
 
 export const dashboardQueries = {

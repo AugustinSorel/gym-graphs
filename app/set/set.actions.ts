@@ -1,8 +1,5 @@
-import { createServerFn } from "@tanstack/start";
-import {
-  authGuardMiddleware,
-  rateLimiterMiddleware,
-} from "~/auth/auth.middlewares";
+import { createServerFn } from "@tanstack/react-start";
+import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { setSchema } from "~/set/set.schemas";
 import { selectExercise } from "~/exercise/exercise.services";
 import pg from "pg";
@@ -19,7 +16,7 @@ import { createTeamsEvents, selectTeamsByMemberId } from "~/team/team.services";
 import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
 
 export const createSetAction = createServerFn({ method: "POST" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     setSchema.pick({
       exerciseId: true,
@@ -92,7 +89,7 @@ export const createSetAction = createServerFn({ method: "POST" })
   });
 
 export const updateSetWeightAction = createServerFn({ method: "POST" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       weightInKg: setSchema.shape.weightInKg,
@@ -111,7 +108,7 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
 export const updateSetRepetitionsAction = createServerFn({
   method: "POST",
 })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       repetitions: setSchema.shape.repetitions,
@@ -130,7 +127,7 @@ export const updateSetRepetitionsAction = createServerFn({
 export const updateSetDoneAtAction = createServerFn({
   method: "POST",
 })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       doneAt: setSchema.shape.doneAt,
@@ -161,7 +158,7 @@ export const updateSetDoneAtAction = createServerFn({
 export const deleteSetAction = createServerFn({
   method: "POST",
 })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteSet(data.setId, context.user.id, context.db);

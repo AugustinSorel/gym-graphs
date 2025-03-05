@@ -5,7 +5,9 @@ import type { Exercise } from "~/db/db.schemas";
 const get = (exerciseId: Exercise["id"]) => {
   return queryOptions({
     queryKey: ["exercises", exerciseId],
-    queryFn: () => selectExerciseAction({ data: { exerciseId } }),
+    queryFn: ({ signal }) => {
+      return selectExerciseAction({ data: { exerciseId }, signal });
+    },
   });
 };
 

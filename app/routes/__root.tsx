@@ -1,6 +1,10 @@
 import appCss from "~/styles/styles.css?url";
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { Meta, Scripts } from "@tanstack/start";
+import {
+  Outlet,
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+} from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
@@ -102,7 +106,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Meta />
+        <HeadContent />
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">

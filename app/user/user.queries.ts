@@ -3,7 +3,7 @@ import { selectUserAction } from "~/user/user.actions";
 
 const get = queryOptions({
   queryKey: ["user"],
-  queryFn: () => selectUserAction(),
+  queryFn: ({ signal }) => selectUserAction({ signal }),
 });
 
 export const userQueries = {

@@ -1,8 +1,5 @@
-import { createServerFn } from "@tanstack/start";
-import {
-  authGuardMiddleware,
-  rateLimiterMiddleware,
-} from "~/auth/auth.middlewares";
+import { createServerFn } from "@tanstack/react-start";
+import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import {
@@ -25,7 +22,7 @@ import {
 import { tagSchema } from "~/tag/tag.schemas";
 
 export const selectTilesAction = createServerFn({ method: "GET" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       name: tileSchema.shape.name
@@ -64,7 +61,7 @@ export const selectTilesAction = createServerFn({ method: "GET" })
 export const reorderTilesAction = createServerFn({
   method: "POST",
 })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(tileSchema.pick({ id: true }).array().max(200))
   .handler(async ({ context, data }) => {
     await reorderTiles(
@@ -75,13 +72,13 @@ export const reorderTilesAction = createServerFn({
   });
 
 export const selectTilesFunFactsAction = createServerFn({ method: "GET" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     return selectTilesFunFacts(context.user.id, context.db);
   });
 
 export const renameTileAction = createServerFn({ method: "POST" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(
     z.object({
       tileId: tileSchema.shape.id,
@@ -109,7 +106,7 @@ export const renameTileAction = createServerFn({ method: "POST" })
   });
 
 export const createExerciseTileAction = createServerFn({ method: "POST" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(tileSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     try {
@@ -136,20 +133,20 @@ export const createExerciseTileAction = createServerFn({ method: "POST" })
   });
 
 export const deleteTileAction = createServerFn({ method: "POST" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ tileId: tileSchema.shape.id }))
   .handler(async ({ context, data }) => {
     return await deleteTile(context.user.dashboard.id, data.tileId, context.db);
   });
 
 export const selectTilesToSetsCountAction = createServerFn({ method: "GET" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     return selectTilesToSetsCount(context.user.dashboard.id, context.db);
   });
 
 export const selectTilesSetsHeatMap = createServerFn({ method: "GET" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     const sets = await selectSetsForThisMonth(context.user.id, context.db);
 
@@ -159,7 +156,7 @@ export const selectTilesSetsHeatMap = createServerFn({ method: "GET" })
   });
 
 export const selectTilesToTagsCountAction = createServerFn({ method: "GET" })
-  .middleware([rateLimiterMiddleware, authGuardMiddleware, injectDbMiddleware])
+  .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
     return selectTilesToTagsCount(context.user.id, context.db);
   });

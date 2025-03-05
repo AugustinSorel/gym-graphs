@@ -1,4 +1,4 @@
-import { createMiddleware } from "@tanstack/start";
+import { createMiddleware } from "@tanstack/react-start";
 import { getCookie, getEvent, setResponseStatus } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
@@ -9,15 +9,7 @@ export const selectSessionTokenMiddleware = createMiddleware()
   .server(async ({ next, context }) => {
     const sessionCookie = getCookie("session");
 
-    if (!sessionCookie) {
-      return next({
-        context: {
-          session: null,
-        },
-      });
-    }
-
-    const session = await validateSessionToken(sessionCookie, context.db);
+    const session = await validateSessionToken(sessionCookie ?? "", context.db);
 
     return next({
       context: {
