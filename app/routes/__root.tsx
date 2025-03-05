@@ -138,7 +138,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 |          | (Remove `window.location.href` in `github-sign-in`)   |
 | BUG      | Error boundaries not working properly                 |
 |          | (test error boundaries + components again)            |
-| BUG      | infiniteQuery fetch state not working when filtering  |
 | BUG      | Dev Docker not working                                |
 
 # APP TAKS
@@ -148,5 +147,4 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | gamification                                          |
 | TODO     | show new events notification                          |
 | TODO     | add tests                                             |
-| TODO     | monitoring                                            |
 */
