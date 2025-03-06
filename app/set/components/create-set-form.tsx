@@ -21,6 +21,7 @@ import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { userQueries } from "~/user/user.queries";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -278,6 +279,7 @@ const useCreateSet = () => {
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
+        user: userQueries.get,
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
@@ -285,6 +287,7 @@ const useCreateSet = () => {
       void queryClient.invalidateQueries(queries.tilesToSetsCount);
       void queryClient.invalidateQueries(queries.setsHeatMap);
       void queryClient.invalidateQueries(queries.funFacts);
+      void queryClient.invalidateQueries(queries.user);
     },
   });
 };
