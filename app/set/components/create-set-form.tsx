@@ -22,6 +22,7 @@ import { exerciseQueries } from "~/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { userQueries } from "~/user/user.queries";
+import { teamQueries } from "~/team/team.queries";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -280,6 +281,7 @@ const useCreateSet = () => {
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
         funFacts: dashboardQueries.funFacts,
         user: userQueries.get,
+        userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
@@ -288,6 +290,7 @@ const useCreateSet = () => {
       void queryClient.invalidateQueries(queries.setsHeatMap);
       void queryClient.invalidateQueries(queries.funFacts);
       void queryClient.invalidateQueries(queries.user);
+      void queryClient.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };
