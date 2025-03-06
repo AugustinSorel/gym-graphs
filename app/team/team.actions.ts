@@ -24,7 +24,7 @@ import {
   generateTeamInvitationToken,
   kickMemberOutOfTeam,
   leaveTeam,
-  readTeamNotifications,
+  readTeamEventNotifications,
   rejectTeamJoinRequest,
   removeTeamEventReaction,
   renameTeamById,
@@ -392,5 +392,5 @@ export const readTeamNotificationsAciton = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(teamNotificationSchema.pick({ teamId: true }))
   .handler(async ({ context, data }) => {
-    await readTeamNotifications(context.user.id, data.teamId, context.db);
+    await readTeamEventNotifications(context.user.id, data.teamId, context.db);
   });

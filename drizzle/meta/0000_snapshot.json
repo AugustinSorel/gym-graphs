@@ -1,5 +1,5 @@
 {
-  "id": "c423d0fc-9fa8-4323-93c7-08581f36418c",
+  "id": "ccd47179-ca10-4ec1-854a-d3062ca42e1e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -556,6 +556,114 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.team_event_notification": {
+      "name": "team_event_notification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "team_event_notification_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team_id": {
+          "name": "team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "team_event_notification_user_id_user_id_fk": {
+          "name": "team_event_notification_user_id_user_id_fk",
+          "tableFrom": "team_event_notification",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "team_event_notification_event_id_team_event_id_fk": {
+          "name": "team_event_notification_event_id_team_event_id_fk",
+          "tableFrom": "team_event_notification",
+          "tableTo": "team_event",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "team_event_notification_team_id_team_id_fk": {
+          "name": "team_event_notification_team_id_team_id_fk",
+          "tableFrom": "team_event_notification",
+          "tableTo": "team",
+          "columnsFrom": [
+            "team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.team_event_reaction": {
       "name": "team_event_reaction",
       "schema": "",
@@ -1017,95 +1125,6 @@
           ]
         }
       },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.team_notification": {
-      "name": "team_notification",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "team_notification_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "team_id": {
-          "name": "team_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "read_at": {
-          "name": "read_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "team_notification_user_id_user_id_fk": {
-          "name": "team_notification_user_id_user_id_fk",
-          "tableFrom": "team_notification",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "team_notification_team_id_team_id_fk": {
-          "name": "team_notification_team_id_team_id_fk",
-          "tableFrom": "team_notification",
-          "tableTo": "team",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

@@ -26,7 +26,7 @@ import {
   tileTable,
   userTable,
   exerciseTable,
-  teamNotificationTable,
+  teamEventNotificationTable,
 } from "~/db/db.schemas";
 import { addDate } from "~/utils/date";
 import { randomBytes } from "crypto";
@@ -37,7 +37,7 @@ import type {
   TeamInvitation,
   TeamJoinRequest,
   TeamMember,
-  TeamNotification,
+  TeamEventNotification,
   User,
 } from "~/db/db.schemas";
 
@@ -76,17 +76,17 @@ export const selectUserAndPublicTeams = async (
       `
         .mapWith(Boolean)
         .as("is_user_in_team"),
-      notificationCount: sql`
+      eventNotificationCount: sql`
         (
           SELECT COUNT(*)
-          FROM ${teamNotificationTable}
-          WHERE ${teamNotificationTable.teamId} = ${teamTable.id}
-            AND ${teamNotificationTable.userId} = ${userId}
-            AND ${teamNotificationTable.readAt} IS NULL
+          FROM ${teamEventNotificationTable}
+          WHERE ${teamEventNotificationTable.teamId} = ${teamTable.id}
+            AND ${teamEventNotificationTable.userId} = ${userId}
+            AND ${teamEventNotificationTable.readAt} IS NULL
         )
       `
         .mapWith(Number)
-        .as("notification_count"),
+        .as("event_notification_count"),
     })
     .from(teamTable)
     .leftJoin(
@@ -105,7 +105,11 @@ export const selectUserAndPublicTeams = async (
         ilike(teamTable.name, `%${name}%`),
       ),
     )
-    .orderBy(desc(sql`is_user_in_team`), desc(teamTable.createdAt))
+    .orderBy(
+      desc(sql`is_user_in_team`),
+      desc(sql`event_notification_count`),
+      desc(teamTable.createdAt),
+    )
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 };
@@ -177,20 +181,13 @@ export const selectTeamById = async (
           },
         },
       },
-      notifications: {
-        where: and(
-          exists(memberInTeam),
-          isNull(teamNotificationTable.readAt),
-          eq(teamNotificationTable.userId, memberId),
-        ),
-      },
       members: {
         where: exists(memberInTeam),
         orderBy: asc(teamMemberTable.createdAt),
         extras: {
           totalWeightInKg: sql`(${db
             .select({
-              sum: sql`sum(${setTable.weightInKg}*${setTable.repetitions})`,
+              sum: sql`coalesce(sum(${setTable.weightInKg}*${setTable.repetitions}), 0)`,
             })
             .from(teamTable)
             .innerJoin(
@@ -227,6 +224,12 @@ export const selectTeamById = async (
         where: exists(memberInTeam),
         orderBy: desc(teamEventTable.createdAt),
         with: {
+          notifications: {
+            where: and(
+              isNull(teamEventNotificationTable.readAt),
+              eq(teamEventNotificationTable.userId, memberId),
+            ),
+          },
           reactions: {
             with: {
               user: {
@@ -670,7 +673,7 @@ export const createTeamsEvents = async (
   values: Array<typeof teamEventTable.$inferInsert>,
   db: Db,
 ) => {
-  return db.insert(teamEventTable).values(values);
+  return db.insert(teamEventTable).values(values).returning();
 };
 
 export const selectTeamMembershipsByMemberId = async (
@@ -757,25 +760,25 @@ export const removeTeamEventReaction = async (
   return res;
 };
 
-export const createTeamNotifications = async (
-  values: Array<typeof teamNotificationTable.$inferInsert>,
+export const createTeamEventNotifications = async (
+  values: Array<typeof teamEventNotificationTable.$inferInsert>,
   db: Db,
 ) => {
-  return db.insert(teamNotificationTable).values(values);
+  return db.insert(teamEventNotificationTable).values(values);
 };
 
-export const readTeamNotifications = async (
-  userId: TeamNotification["userId"],
-  teamId: TeamNotification["teamId"],
+export const readTeamEventNotifications = async (
+  userId: TeamEventNotification["userId"],
+  teamId: TeamEventNotification["teamId"],
   db: Db,
 ) => {
   return db
-    .update(teamNotificationTable)
+    .update(teamEventNotificationTable)
     .set({ readAt: new Date() })
     .where(
       and(
-        eq(teamNotificationTable.userId, userId),
-        eq(teamNotificationTable.teamId, teamId),
+        eq(teamEventNotificationTable.userId, userId),
+        eq(teamEventNotificationTable.teamId, teamId),
       ),
     );
 };

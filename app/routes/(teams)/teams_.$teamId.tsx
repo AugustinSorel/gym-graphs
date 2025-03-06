@@ -46,13 +46,17 @@ export const Route = createFileRoute("/(teams)/teams_/$teamId")({
       team: teamQueries.get(params.teamId),
     } as const;
 
-    await context.queryClient.ensureQueryData(queries.team);
+    const team = await context.queryClient.ensureQueryData(queries.team);
 
     void readTeamNotificationsAciton({
       data: { teamId: params.teamId },
     });
 
-    nukeCachedTeamNotifications(context.queryClient, params.teamId);
+    nukeCachedTeamNotifications(
+      context.queryClient,
+      params.teamId,
+      team.events.reduce((acc, curr) => acc + curr.notifications.length, 0),
+    );
   },
 });
 
@@ -174,7 +178,7 @@ const NewNotificationsBadge = () => {
   const team = useTeam(params.teamId);
   const queryClient = useQueryClient();
 
-  const nukeCachedTeamNotifications = () => {
+  const nukeCachedTeamEventsNotifications = () => {
     const queries = {
       team: teamQueries.get(params.teamId).queryKey,
     } as const;
@@ -186,22 +190,29 @@ const NewNotificationsBadge = () => {
 
       return {
         ...team,
-        notifications: [],
+        events: team.events.map((event) => {
+          return {
+            ...event,
+            notifications: [],
+          };
+        }),
       };
     });
   };
 
   useEffect(() => {
     return () => {
-      nukeCachedTeamNotifications();
+      nukeCachedTeamEventsNotifications();
     };
   }, []);
 
-  if (!team.data.notifications.length) {
+  const notifications = team.data.events.flatMap((e) => e.notifications);
+
+  if (!notifications.length) {
     return null;
   }
 
-  return <Badge className="ml-1">{team.data.notifications.length} new</Badge>;
+  return <Badge className="ml-1">{notifications.length} new</Badge>;
 };
 
 const Main = (props: ComponentProps<"main">) => {
@@ -236,6 +247,7 @@ const Section = (props: ComponentProps<"section">) => {
 const nukeCachedTeamNotifications = (
   queryClient: QueryClient,
   teamId: Team["id"],
+  eventNotificationCount: any,
 ) => {
   const queries = {
     userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
@@ -249,9 +261,8 @@ const nukeCachedTeamNotifications = (
 
     return {
       ...user,
-      teamNotifications: user.teamNotifications.filter((teamNotification) => {
-        return teamNotification.teamId !== teamId;
-      }),
+      teamNotificationCount:
+        user.teamNotificationCount - eventNotificationCount,
     };
   });
 
@@ -269,10 +280,9 @@ const nukeCachedTeamNotifications = (
             if (team.id === teamId) {
               return {
                 ...team,
-                notificationCount: 0,
+                eventNotificationCount: 0,
               };
             }
-
             return team;
           }),
         };

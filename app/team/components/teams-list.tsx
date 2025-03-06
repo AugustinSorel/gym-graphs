@@ -34,7 +34,7 @@ export const Content = () => {
         >
           <Team
             isLastItem={index >= userAndPublicTeams.data.length - 1}
-            data-notification-count={team.notificationCount}
+            data-notification-count={team.eventNotificationCount}
           >
             <Button variant="link" asChild className="absolute inset-0 h-auto">
               <Link to="/teams/$teamId" params={{ teamId: team.id }} />

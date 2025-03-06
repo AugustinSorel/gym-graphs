@@ -1,5 +1,5 @@
-import { asc, eq, isNull } from "drizzle-orm";
-import { tagTable, teamNotificationTable, userTable } from "~/db/db.schemas";
+import { asc, eq, sql } from "drizzle-orm";
+import { tagTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addTagsToTile, createTags } from "~/tag/tag.services";
@@ -65,14 +65,28 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
       name: true,
       oneRepMaxAlgo: true,
     },
+    extras: {
+      teamNotificationCount: sql`
+        (
+          select count(*) from team_member
+            inner join team_event_notification
+              on
+                team_event_notification.team_id=team_member.team_id
+                  and
+                team_event_notification.user_id=${userId}
+          where
+            team_member.user_id=${userId}
+              and
+            team_event_notification.read_at is null
+        )`
+        .mapWith(Number)
+        .as("team_notification_count"),
+    },
     with: {
       dashboard: {
         columns: {
           id: true,
         },
-      },
-      teamNotifications: {
-        where: isNull(teamNotificationTable.readAt),
       },
       tags: {
         orderBy: asc(tagTable.createdAt),

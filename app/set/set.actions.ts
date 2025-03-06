@@ -13,7 +13,7 @@ import {
 import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import {
-  createTeamNotifications,
+  createTeamEventNotifications,
   createTeamsEvents,
   selectTeamMembershipsByMemberId,
 } from "~/team/team.services";
@@ -76,16 +76,24 @@ export const createSetAction = createServerFn({ method: "POST" })
             teamId: teamMembership.teamId,
           }));
 
-          const notifications = teamMemberships
-            .flatMap((teamMembership) => teamMembership.team.members)
-            .map((member) => ({
-              teamId: member.teamId,
-              userId: member.userId,
-            }));
-
           await context.db.transaction(async (tx) => {
-            await createTeamsEvents(events, tx);
-            await createTeamNotifications(notifications, tx);
+            const eventsCreated = await createTeamsEvents(events, tx);
+
+            const notifications = eventsCreated.flatMap((event, index) => {
+              const teamMembership = teamMemberships.at(index);
+
+              if (!teamMembership) {
+                throw new Error("team membership not found");
+              }
+
+              return teamMembership.team.members.map((member) => ({
+                teamId: member.teamId,
+                userId: member.userId,
+                eventId: event.id,
+              }));
+            });
+
+            await createTeamEventNotifications(notifications, tx);
           });
         }
       }
