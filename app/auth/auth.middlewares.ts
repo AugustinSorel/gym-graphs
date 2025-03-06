@@ -2,6 +2,7 @@ import { createMiddleware } from "@tanstack/react-start";
 import { getCookie, getEvent, setResponseStatus } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
+import { env } from "~/env";
 import { rateLimiter } from "~/libs/rate-limiter";
 
 export const selectSessionTokenMiddleware = createMiddleware()
@@ -36,6 +37,10 @@ export const authGuardMiddleware = createMiddleware()
 
 export const rateLimiterMiddleware = createMiddleware().server(
   async ({ next }) => {
+    if (env.NODE_ENV !== "production") {
+      return await next();
+    }
+
     const headers = getEvent().headers;
     const ip = headers.get("x-forwarded-for") || "localhost";
 
