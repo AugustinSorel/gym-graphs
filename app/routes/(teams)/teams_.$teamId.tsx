@@ -195,7 +195,7 @@ const NewNotificationsBadge = () => {
     return () => {
       nukeCachedTeamNotifications();
     };
-  }, [nukeCachedTeamNotifications]);
+  }, []);
 
   if (!team.data.notifications.length) {
     return null;
