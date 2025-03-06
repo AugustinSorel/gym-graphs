@@ -7,7 +7,6 @@ import { cn } from "~/styles/styles.utils";
 import {
   CheckIcon,
   AlertCircleIcon,
-  GithubIcon,
   LaptopIcon,
   MoonIcon,
   SunIcon,
