@@ -7,14 +7,22 @@ import { Button } from "~/ui/button";
 import { useTeam } from "~/team/hooks/use-team";
 import { ArrowLeftIcon, CheckIcon, SettingsIcon, LockIcon } from "~/ui/icons";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { useMutation } from "@tanstack/react-query";
-import { createTeamJoinRequestAction } from "~/team/team.actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  createTeamJoinRequestAction,
+  readTeamNotificationsAciton,
+} from "~/team/team.actions";
 import { Spinner } from "~/ui/spinner";
 import { HideAfter } from "~/ui/hide-after";
 import { TeamEventsTimeline } from "~/team/components/team-events-timeline";
 import { Separator } from "~/ui/separator";
 import { TeamFunFactsGrid } from "~/team/components/team-fun-facts-grid";
+import { userQueries } from "~/user/user.queries";
+import { useEffect } from "react";
+import { Badge } from "~/ui/badge";
 import type { ComponentProps } from "react";
+import type { QueryClient } from "@tanstack/react-query";
+import type { Team } from "~/db/db.schemas";
 
 export const Route = createFileRoute("/(teams)/teams_/$teamId")({
   params: z.object({
@@ -39,6 +47,12 @@ export const Route = createFileRoute("/(teams)/teams_/$teamId")({
     } as const;
 
     await context.queryClient.ensureQueryData(queries.team);
+
+    void readTeamNotificationsAciton({
+      data: { teamId: params.teamId },
+    });
+
+    nukeCachedTeamNotifications(context.queryClient, params.teamId);
   },
 });
 
@@ -146,11 +160,48 @@ const PrivateTeamPage = () => {
       </Section>
 
       <Section>
-        <SubTitle>team events</SubTitle>
+        <SubTitle>
+          team events <NewNotificationsBadge />
+        </SubTitle>
         <TeamEventsTimeline />
       </Section>
     </Main>
   );
+};
+
+const NewNotificationsBadge = () => {
+  const params = Route.useParams();
+  const team = useTeam(params.teamId);
+  const queryClient = useQueryClient();
+
+  const nukeCachedTeamNotifications = () => {
+    const queries = {
+      team: teamQueries.get(params.teamId).queryKey,
+    } as const;
+
+    queryClient.setQueryData(queries.team, (team) => {
+      if (!team) {
+        return team;
+      }
+
+      return {
+        ...team,
+        notifications: [],
+      };
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      nukeCachedTeamNotifications();
+    };
+  }, [nukeCachedTeamNotifications]);
+
+  if (!team.data.notifications.length) {
+    return null;
+  }
+
+  return <Badge className="ml-1">{team.data.notifications.length} new</Badge>;
 };
 
 const Main = (props: ComponentProps<"main">) => {
@@ -180,4 +231,52 @@ const SubTitle = (props: ComponentProps<"h2">) => {
 
 const Section = (props: ComponentProps<"section">) => {
   return <section className="space-y-10" {...props} />;
+};
+
+const nukeCachedTeamNotifications = (
+  queryClient: QueryClient,
+  teamId: Team["id"],
+) => {
+  const queries = {
+    userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
+    user: userQueries.get.queryKey,
+  } as const;
+
+  queryClient.setQueryData(queries.user, (user) => {
+    if (!user) {
+      return user;
+    }
+
+    return {
+      ...user,
+      teamNotifications: user.teamNotifications.filter((teamNotification) => {
+        return teamNotification.teamId !== teamId;
+      }),
+    };
+  });
+
+  queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+    if (!teams) {
+      return teams;
+    }
+
+    return {
+      ...teams,
+      pages: teams.pages.map((page) => {
+        return {
+          ...page,
+          teams: page.teams.map((team) => {
+            if (team.id === teamId) {
+              return {
+                ...team,
+                notificationCount: 0,
+              };
+            }
+
+            return team;
+          }),
+        };
+      }),
+    };
+  });
 };

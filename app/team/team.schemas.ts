@@ -91,3 +91,7 @@ export const teamEventReactionsSchema = z.object({
     invalid_type_error: "emoji must be valid",
   }),
 });
+
+export const teamNotificationSchema = z.object({
+  teamId: teamSchema.shape.id,
+});

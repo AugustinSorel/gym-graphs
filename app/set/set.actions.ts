@@ -12,7 +12,11 @@ import {
 } from "~/set/set.services";
 import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { createTeamsEvents, selectTeamsByMemberId } from "~/team/team.services";
+import {
+  createTeamNotifications,
+  createTeamsEvents,
+  selectTeamMembershipsByMemberId,
+} from "~/team/team.services";
 import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
 
 export const createSetAction = createServerFn({ method: "POST" })
@@ -61,18 +65,28 @@ export const createSetAction = createServerFn({ method: "POST" })
         const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
 
         if (newOneRepMax) {
-          const teams = await selectTeamsByMemberId(
+          const teamMemberships = await selectTeamMembershipsByMemberId(
             context.user.id,
             context.db,
           );
 
-          const events = teams.map((team) => ({
+          const events = teamMemberships.map((teamMembership) => ({
             name: "new one-rep max achieved!",
             description: `${context.user.name} just crushed a new PR on ${exercise.tile.name}: ${candidateBestOneRepMaxInKg}`,
-            teamId: team.id,
+            teamId: teamMembership.teamId,
           }));
 
-          await createTeamsEvents(events, context.db);
+          const notifications = teamMemberships
+            .flatMap((teamMembership) => teamMembership.team.members)
+            .map((member) => ({
+              teamId: member.teamId,
+              userId: member.userId,
+            }));
+
+          await context.db.transaction(async (tx) => {
+            await createTeamsEvents(events, tx);
+            await createTeamNotifications(notifications, tx);
+          });
         }
       }
     } catch (e) {

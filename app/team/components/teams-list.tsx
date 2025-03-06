@@ -32,7 +32,10 @@ export const Content = () => {
           getResetKey={() => "reset"}
           key={team.id}
         >
-          <Team isLastItem={index >= userAndPublicTeams.data.length - 1}>
+          <Team
+            isLastItem={index >= userAndPublicTeams.data.length - 1}
+            data-notification-count={team.notificationCount}
+          >
             <Button variant="link" asChild className="absolute inset-0 h-auto">
               <Link to="/teams/$teamId" params={{ teamId: team.id }} />
             </Button>
@@ -113,7 +116,7 @@ const Team = ({
         };
       }}
       className={cn(
-        "bg-secondary hover:bg-accent relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors hover:[&>[data-team-name]]:underline",
+        "bg-secondary hover:bg-accent after:bg-primary after:text-primary-foreground relative grid grid-flow-col grid-cols-[1fr] items-center gap-3 rounded-lg border p-6 transition-colors after:absolute after:top-0 after:right-0 after:flex after:size-5 after:-translate-y-1/2 after:translate-x-1/2 after:items-center after:justify-center after:rounded-full after:text-xs after:content-[attr(data-notification-count)] data-[notification-count=0]:after:hidden hover:[&>[data-team-name]]:underline",
         className,
       )}
       {...props}

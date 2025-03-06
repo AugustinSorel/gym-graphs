@@ -169,6 +169,7 @@ const useCreateTeam = () => {
           name: variables.data.name,
           isUserInTeam: true,
           memberCounts: 1,
+          notificationCount: 0,
           teamToUsers: [
             {
               teamId,

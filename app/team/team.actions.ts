@@ -7,6 +7,7 @@ import {
   teamInvitationSchema,
   teamJoinRequestSchema,
   teamEventReactionsSchema,
+  teamNotificationSchema,
 } from "~/team/team.schemas";
 import {
   acceptInvitation,
@@ -23,6 +24,7 @@ import {
   generateTeamInvitationToken,
   kickMemberOutOfTeam,
   leaveTeam,
+  readTeamNotifications,
   rejectTeamJoinRequest,
   removeTeamEventReaction,
   renameTeamById,
@@ -384,4 +386,11 @@ export const removeTeamEventReactionAction = createServerFn({ method: "POST" })
       data.emoji,
       context.db,
     );
+  });
+
+export const readTeamNotificationsAciton = createServerFn({ method: "POST" })
+  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .validator(teamNotificationSchema.pick({ teamId: true }))
+  .handler(async ({ context, data }) => {
+    await readTeamNotifications(context.user.id, data.teamId, context.db);
   });

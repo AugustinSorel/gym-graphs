@@ -52,6 +52,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   teamInvitations: many(teamInvitationTable),
   teamJoinRequests: many(teamJoinRequestTable),
   teamEventReactions: many(teamEventReactionTable),
+  teamNotifications: many(teamNotificationTable),
   dashboard: one(dashboardTable, {
     fields: [userTable.id],
     references: [dashboardTable.userId],
@@ -394,6 +395,7 @@ export const teamRelations = relations(teamTable, ({ many }) => ({
   events: many(teamEventTable),
   invitations: many(teamInvitationTable),
   joinRequests: many(teamJoinRequestTable),
+  notifications: many(teamNotificationTable),
 }));
 
 export const teamMemberRoleEnum = pgEnum(
@@ -601,6 +603,43 @@ export const teamEventReactionRelations = relations(
     }),
     user: one(userTable, {
       fields: [teamEventReactionTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
+
+export const teamNotificationTable = pgTable("team_notification", (t) => ({
+  id: t.integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: t
+    .integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  teamId: t
+    .integer("team_id")
+    .notNull()
+    .references(() => teamTable.id, { onDelete: "cascade" }),
+  readAt: t.timestamp("read_at"),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type TeamNotification = Readonly<
+  typeof teamNotificationTable.$inferSelect
+>;
+
+export const teamNotificationRelations = relations(
+  teamNotificationTable,
+  ({ one }) => ({
+    team: one(teamTable, {
+      fields: [teamNotificationTable.teamId],
+      references: [teamTable.id],
+    }),
+    user: one(userTable, {
+      fields: [teamNotificationTable.userId],
       references: [userTable.id],
     }),
   }),

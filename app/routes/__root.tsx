@@ -145,6 +145,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
-| TODO     | show new events notification                          |
 | TODO     | add tests                                             |
+| TODO     | monitoring                                            |
 */

@@ -85,6 +85,8 @@ const DesktopHeader = () => {
 };
 
 const DesktopNav = () => {
+  const user = useUser();
+
   return (
     <Nav className="flex h-full gap-10">
       <Link
@@ -100,8 +102,9 @@ const DesktopNav = () => {
         settings
       </Link>
       <Link
-        className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
+        className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground before:bg-primary before:text-primary-foreground relative flex items-center font-bold capitalize transition-colors before:absolute before:top-0 before:right-0 before:flex before:size-5 before:translate-x-full before:translate-y-1/2 before:items-center before:justify-center before:rounded-full before:text-xs before:content-[attr(data-notification-count)] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[notification-count=0]:before:hidden data-[status=active]:after:opacity-100"
         to="/teams"
+        data-notification-count={user.data.teamNotifications.length}
         activeOptions={{ exact: true }}
       >
         teams

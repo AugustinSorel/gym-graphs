@@ -9,6 +9,7 @@ import {
   gt,
   ilike,
   isNotNull,
+  isNull,
   ne,
   or,
   sql,
@@ -25,6 +26,7 @@ import {
   tileTable,
   userTable,
   exerciseTable,
+  teamNotificationTable,
 } from "~/db/db.schemas";
 import { addDate } from "~/utils/date";
 import { randomBytes } from "crypto";
@@ -35,6 +37,7 @@ import type {
   TeamInvitation,
   TeamJoinRequest,
   TeamMember,
+  TeamNotification,
   User,
 } from "~/db/db.schemas";
 
@@ -73,6 +76,17 @@ export const selectUserAndPublicTeams = async (
       `
         .mapWith(Boolean)
         .as("is_user_in_team"),
+      notificationCount: sql`
+        (
+          SELECT COUNT(*)
+          FROM ${teamNotificationTable}
+          WHERE ${teamNotificationTable.teamId} = ${teamTable.id}
+            AND ${teamNotificationTable.userId} = ${userId}
+            AND ${teamNotificationTable.readAt} IS NULL
+        )
+      `
+        .mapWith(Number)
+        .as("notification_count"),
     })
     .from(teamTable)
     .leftJoin(
@@ -162,6 +176,13 @@ export const selectTeamById = async (
             },
           },
         },
+      },
+      notifications: {
+        where: and(
+          exists(memberInTeam),
+          isNull(teamNotificationTable.readAt),
+          eq(teamNotificationTable.userId, memberId),
+        ),
       },
       members: {
         where: exists(memberInTeam),
@@ -652,15 +673,20 @@ export const createTeamsEvents = async (
   return db.insert(teamEventTable).values(values);
 };
 
-export const selectTeamsByMemberId = async (
+export const selectTeamMembershipsByMemberId = async (
   userId: TeamMember["userId"],
   db: Db,
 ) => {
-  return db
-    .select(getTableColumns(teamTable))
-    .from(teamMemberTable)
-    .innerJoin(teamTable, eq(teamTable.id, teamMemberTable.teamId))
-    .where(eq(teamMemberTable.userId, userId));
+  return db.query.teamMemberTable.findMany({
+    where: eq(teamMemberTable.userId, userId),
+    with: {
+      team: {
+        with: {
+          members: true,
+        },
+      },
+    },
+  });
 };
 
 export const createTeamEventReaction = async (
@@ -729,4 +755,27 @@ export const removeTeamEventReaction = async (
   }
 
   return res;
+};
+
+export const createTeamNotifications = async (
+  values: Array<typeof teamNotificationTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(teamNotificationTable).values(values);
+};
+
+export const readTeamNotifications = async (
+  userId: TeamNotification["userId"],
+  teamId: TeamNotification["teamId"],
+  db: Db,
+) => {
+  return db
+    .update(teamNotificationTable)
+    .set({ readAt: new Date() })
+    .where(
+      and(
+        eq(teamNotificationTable.userId, userId),
+        eq(teamNotificationTable.teamId, teamId),
+      ),
+    );
 };

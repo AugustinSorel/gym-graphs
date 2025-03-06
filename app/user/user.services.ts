@@ -1,5 +1,5 @@
-import { asc, eq } from "drizzle-orm";
-import { tagTable, userTable } from "~/db/db.schemas";
+import { asc, eq, isNull } from "drizzle-orm";
+import { tagTable, teamNotificationTable, userTable } from "~/db/db.schemas";
 import { createExercises } from "~/exercise/exercise.services";
 import { createSets } from "~/set/set.services";
 import { addTagsToTile, createTags } from "~/tag/tag.services";
@@ -70,6 +70,9 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
         columns: {
           id: true,
         },
+      },
+      teamNotifications: {
+        where: isNull(teamNotificationTable.readAt),
       },
       tags: {
         orderBy: asc(tagTable.createdAt),
