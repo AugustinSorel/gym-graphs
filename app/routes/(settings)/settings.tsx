@@ -76,7 +76,6 @@ const RouteComponent = () => {
       <OneRepMaxAlgoSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
-      <GithubLinkSection />
       <DownloadUserData />
       <SignOutSection />
       <DeleteAccountSection />
@@ -345,37 +344,6 @@ const ChangeThemeSection = () => {
               <MoonIcon />
             </ToggleGroupItem>
           </ToggleGroup>
-        </Footer>
-      </Section>
-    </CatchBoundary>
-  );
-};
-
-const GithubLinkSection = () => {
-  return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
-      <Section>
-        <HGroup>
-          <SectionTitle>github</SectionTitle>
-          <SectionDescription>
-            If you&apos;re interested in the behind-the-scenes development of
-            our platform, we invite you to explore the code on our Github! We
-            highly value feedback and contributions from our community.
-          </SectionDescription>
-        </HGroup>
-        <Footer>
-          <Button size="sm" asChild>
-            <a
-              href="https://github.com/augustinsorel/gym-graphs"
-              target="_blank"
-            >
-              <GithubIcon />
-              <span>view</span>
-            </a>
-          </Button>
         </Footer>
       </Section>
     </CatchBoundary>
