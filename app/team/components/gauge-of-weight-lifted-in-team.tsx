@@ -97,11 +97,7 @@ const Graph = (props: GraphProps) => {
         ++index;
       }
 
-      const tooltipAngle = accum - (angles.at(index) ?? 0) * 0.5;
-
-      const tooltipAngleRadians = (tooltipAngle * Math.PI) / 180;
-
-      const tooltipX = cx - radius * Math.sin(tooltipAngleRadians) * 4;
+      const tooltipX = index === 0 ? 0 : props.width;
       const tooltipY = 0;
 
       tooltip.showTooltip({
