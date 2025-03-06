@@ -146,7 +146,9 @@ export const selectSetsForThisMonth = async (
 ) => {
   return db
     .select(getTableColumns(setTable))
-    .from(exerciseTable)
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
     .innerJoin(
       setTable,
       and(
@@ -155,7 +157,6 @@ export const selectSetsForThisMonth = async (
         lte(setTable.doneAt, new Date()),
       ),
     )
-    .innerJoin(dashboardTable, eq(dashboardTable.userId, userId))
     .where(eq(dashboardTable.userId, userId))
     .orderBy(asc(setTable.doneAt));
 };
