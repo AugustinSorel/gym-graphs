@@ -578,6 +578,12 @@ export const teamEventReactionTable = pgTable(
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
     emoji: teamEventReactionEmojiEnum("emoji").notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [primaryKey({ columns: [t.teamEventId, t.userId, t.emoji] })],
 );

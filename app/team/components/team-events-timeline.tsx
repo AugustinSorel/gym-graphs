@@ -152,7 +152,7 @@ const useAddReaction = () => {
                     user: user.data,
                     userId: user.data.id,
                     createdAt: new Date(),
-                    updateAt: new Date(),
+                    updatedAt: new Date(),
                   },
                 ],
               };
