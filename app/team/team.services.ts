@@ -792,13 +792,13 @@ export const notifyTeamsFromNewOneRepMax = async (
 ) => {
   const teamMemberships = await selectTeamMembershipsByMemberId(user.id, db);
 
-  const events = teamMemberships.map((teamMembership) => ({
-    name: "new one-rep max achieved!",
-    description: `${user.name} just crushed a new PR on ${tileName}: ${newOneRepMax}`,
-    teamId: teamMembership.teamId,
-  }));
-
   await db.transaction(async (tx) => {
+    const events = teamMemberships.map((teamMembership) => ({
+      name: "new one-rep max achieved!",
+      description: `${user.name} just crushed a new PR on ${tileName}: ${newOneRepMax}`,
+      teamId: teamMembership.teamId,
+    }));
+
     const eventsCreated = await createTeamsEvents(events, tx);
 
     const notifications = eventsCreated.flatMap((event, index) => {
@@ -808,11 +808,13 @@ export const notifyTeamsFromNewOneRepMax = async (
         throw new Error("team membership not found");
       }
 
-      return teamMembership.team.members.map((member) => ({
-        teamId: member.teamId,
-        userId: member.userId,
-        eventId: event.id,
-      }));
+      return teamMembership.team.members
+        .filter((member) => member.userId !== user.id)
+        .map((member) => ({
+          teamId: member.teamId,
+          userId: member.userId,
+          eventId: event.id,
+        }));
     });
 
     await createTeamEventNotifications(notifications, tx);

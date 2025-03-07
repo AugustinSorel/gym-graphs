@@ -148,5 +148,4 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | TODO     | add tests                                             |
 | TODO     | monitoring                                            |
 | TODO     | show notificaiton when requesting join team           |
-| TODO     | hide notification for user                            |
 */
