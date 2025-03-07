@@ -6,17 +6,14 @@ import pg from "pg";
 import {
   createSet,
   deleteSet,
+  selectSetById,
   updateSetDoneAt,
   updateSetRepetitions,
   updateSetWeight,
 } from "~/set/set.services";
 import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import {
-  createTeamEventNotifications,
-  createTeamsEvents,
-  selectTeamMembershipsByMemberId,
-} from "~/team/team.services";
+import { notifyTeamsFromNewOneRepMax } from "~/team/team.services";
 import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
 
 export const createSetAction = createServerFn({ method: "POST" })
@@ -53,48 +50,24 @@ export const createSetAction = createServerFn({ method: "POST" })
         const currentOneRepMaxInKg = calculateOneRepMax(
           currentBestSet.repetitions,
           currentBestSet.weightInKg,
-          "epley",
+          context.user.oneRepMaxAlgo,
         );
 
         const candidateBestOneRepMaxInKg = calculateOneRepMax(
           newSet.repetitions,
           newSet.weightInKg,
-          "epley",
+          context.user.oneRepMaxAlgo,
         );
 
         const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
 
         if (newOneRepMax) {
-          const teamMemberships = await selectTeamMembershipsByMemberId(
-            context.user.id,
+          await notifyTeamsFromNewOneRepMax(
+            context.user,
+            exercise.tile.name,
+            candidateBestOneRepMaxInKg,
             context.db,
           );
-
-          const events = teamMemberships.map((teamMembership) => ({
-            name: "new one-rep max achieved!",
-            description: `${context.user.name} just crushed a new PR on ${exercise.tile.name}: ${candidateBestOneRepMaxInKg}`,
-            teamId: teamMembership.teamId,
-          }));
-
-          await context.db.transaction(async (tx) => {
-            const eventsCreated = await createTeamsEvents(events, tx);
-
-            const notifications = eventsCreated.flatMap((event, index) => {
-              const teamMembership = teamMemberships.at(index);
-
-              if (!teamMembership) {
-                throw new Error("team membership not found");
-              }
-
-              return teamMembership.team.members.map((member) => ({
-                teamId: member.teamId,
-                userId: member.userId,
-                eventId: event.id,
-              }));
-            });
-
-            await createTeamEventNotifications(notifications, tx);
-          });
         }
       }
     } catch (e) {
@@ -119,12 +92,45 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
+    const set = await selectSetById(context.user.id, data.setId, context.db);
+
+    if (!set) {
+      throw new Error("set not found");
+    }
+
     await updateSetWeight(
       data.setId,
       context.user.id,
       data.weightInKg,
       context.db,
     );
+
+    const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+    if (currentBestSet) {
+      const currentOneRepMaxInKg = calculateOneRepMax(
+        currentBestSet.repetitions,
+        currentBestSet.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
+
+      const candidateBestOneRepMaxInKg = calculateOneRepMax(
+        set.repetitions,
+        data.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
+
+      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+      if (newOneRepMax) {
+        await notifyTeamsFromNewOneRepMax(
+          context.user,
+          set.exercise.tile.name,
+          candidateBestOneRepMaxInKg,
+          context.db,
+        );
+      }
+    }
   });
 
 export const updateSetRepetitionsAction = createServerFn({
@@ -138,12 +144,45 @@ export const updateSetRepetitionsAction = createServerFn({
     }),
   )
   .handler(async ({ context, data }) => {
+    const set = await selectSetById(context.user.id, data.setId, context.db);
+
+    if (!set) {
+      throw new Error("set not found");
+    }
+
     await updateSetRepetitions(
       data.setId,
       context.user.id,
       data.repetitions,
       context.db,
     );
+
+    const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+    if (currentBestSet) {
+      const currentOneRepMaxInKg = calculateOneRepMax(
+        currentBestSet.repetitions,
+        currentBestSet.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
+
+      const candidateBestOneRepMaxInKg = calculateOneRepMax(
+        data.repetitions,
+        set.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
+
+      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+      if (newOneRepMax) {
+        await notifyTeamsFromNewOneRepMax(
+          context.user,
+          set.exercise.tile.name,
+          candidateBestOneRepMaxInKg,
+          context.db,
+        );
+      }
+    }
   });
 
 export const updateSetDoneAtAction = createServerFn({

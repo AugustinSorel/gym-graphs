@@ -149,6 +149,7 @@ export const selectSession = async (sessionId: Session["id"], db: Db) => {
           emailVerifiedAt: true,
           email: true,
           name: true,
+          oneRepMaxAlgo: true,
         },
       },
     },

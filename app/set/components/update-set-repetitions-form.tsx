@@ -21,6 +21,8 @@ import { setSchema } from "~/set/set.schemas";
 import { useSet } from "~/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { teamQueries } from "~/team/team.queries";
+import { userQueries } from "~/user/user.queries";
 
 export const UpdateSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -205,11 +207,15 @@ const useUpdateSetRepetitions = () => {
         exercise: exerciseQueries.get(exercise.data.id),
         funFacts: dashboardQueries.funFacts,
         tiles: dashboardQueries.tiles(),
+        user: userQueries.get,
+        userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
       void queryClient.invalidateQueries(queries.tiles);
       void queryClient.invalidateQueries(queries.funFacts);
       void queryClient.invalidateQueries(queries.exercise);
+      void queryClient.invalidateQueries(queries.user);
+      void queryClient.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

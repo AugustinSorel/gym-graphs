@@ -212,3 +212,29 @@ const setsToHeatMap = (
     return row;
   });
 };
+
+export const selectSetById = (
+  userId: Dashboard["userId"],
+  setId: Set["id"],
+  db: Db,
+) => {
+  const userOwnsSet = db
+    .select()
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
+
+  return db.query.setTable.findFirst({
+    where: and(eq(setTable.id, setId), exists(userOwnsSet)),
+    with: {
+      exercise: {
+        with: {
+          sets: true,
+          tile: true,
+        },
+      },
+    },
+  });
+};

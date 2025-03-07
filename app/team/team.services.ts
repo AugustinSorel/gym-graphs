@@ -39,6 +39,7 @@ import type {
   TeamMember,
   TeamEventNotification,
   User,
+  Tile,
 } from "~/db/db.schemas";
 
 export const createTeam = async (
@@ -781,4 +782,39 @@ export const readTeamEventNotifications = async (
         eq(teamEventNotificationTable.teamId, teamId),
       ),
     );
+};
+
+export const notifyTeamsFromNewOneRepMax = async (
+  user: Pick<User, "id" | "name">,
+  tileName: Tile["name"],
+  newOneRepMax: number,
+  db: Db,
+) => {
+  const teamMemberships = await selectTeamMembershipsByMemberId(user.id, db);
+
+  const events = teamMemberships.map((teamMembership) => ({
+    name: "new one-rep max achieved!",
+    description: `${user.name} just crushed a new PR on ${tileName}: ${newOneRepMax}`,
+    teamId: teamMembership.teamId,
+  }));
+
+  await db.transaction(async (tx) => {
+    const eventsCreated = await createTeamsEvents(events, tx);
+
+    const notifications = eventsCreated.flatMap((event, index) => {
+      const teamMembership = teamMemberships.at(index);
+
+      if (!teamMembership) {
+        throw new Error("team membership not found");
+      }
+
+      return teamMembership.team.members.map((member) => ({
+        teamId: member.teamId,
+        userId: member.userId,
+        eventId: event.id,
+      }));
+    });
+
+    await createTeamEventNotifications(notifications, tx);
+  });
 };
