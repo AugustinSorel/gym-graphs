@@ -30,15 +30,18 @@ import {
   renameTeamById,
   revokeTeamInvitation,
   selectMemberInTeamByEmail,
-  selectMemberInTeamById,
   selectTeamById,
   selectTeamInvitationByToken,
+  selectTeamWithMembers,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
 import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
-import { sendTeamInvitationEmail } from "~/team/team.emails";
+import {
+  sendTeamInvitationEmail,
+  sendTeamJoinRequestEmail,
+} from "~/team/team.emails";
 import { hashSHA256Hex } from "~/auth/auth.services";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
@@ -306,17 +309,33 @@ export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    const member = await selectMemberInTeamById(
+    const team = await selectTeamWithMembers(data.teamId, context.db);
+
+    if (!team) {
+      throw new Error("team not found");
+    }
+
+    const userIsInTeam = team.members.some((member) => {
+      return member.userId === context.user.id;
+    });
+
+    if (userIsInTeam) {
+      throw new Error("member already part of team");
+    }
+
+    const joinRequest = await createTeamJoinRequest(
       context.user.id,
       data.teamId,
       context.db,
     );
 
-    if (member) {
-      throw new Error("member already part of team");
-    }
+    if (joinRequest) {
+      const adminsEmails = team.members
+        .filter((member) => member.role === "admin")
+        .map((adminMember) => adminMember.user.email);
 
-    await createTeamJoinRequest(context.user.id, data.teamId, context.db);
+      await sendTeamJoinRequestEmail(adminsEmails, team);
+    }
   });
 
 export const rejectTeamJoinRequestAction = createServerFn({ method: "POST" })

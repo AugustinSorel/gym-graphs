@@ -520,22 +520,21 @@ export const selectMemberInTeamByEmail = async (
   return member;
 };
 
-export const selectMemberInTeamById = async (
-  memberId: TeamMember["userId"],
-  teamId: TeamMember["teamId"],
-  db: Db,
-) => {
-  const [member] = await db
-    .select()
-    .from(teamMemberTable)
-    .where(
-      and(
-        eq(teamMemberTable.userId, memberId),
-        eq(teamMemberTable.teamId, teamId),
-      ),
-    );
-
-  return member;
+export const selectTeamWithMembers = async (teamId: Team["id"], db: Db) => {
+  return db.query.teamTable.findFirst({
+    where: eq(teamTable.id, teamId),
+    with: {
+      members: {
+        with: {
+          user: {
+            columns: {
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
 };
 
 export const revokeTeamInvitation = async (
@@ -599,15 +598,19 @@ export const createTeamJoinRequest = async (
   teamId: TeamJoinRequest["teamId"],
   db: Db,
 ) => {
-  return db
+  const [joinRequest] = await db
     .insert(teamJoinRequestTable)
     .values({ teamId, userId })
     .onConflictDoUpdate({
       target: [teamJoinRequestTable.teamId, teamJoinRequestTable.userId],
+      setWhere: ne(teamJoinRequestTable.status, "pending"),
       set: {
         status: "pending",
       },
-    });
+    })
+    .returning();
+
+  return joinRequest;
 };
 
 export const rejectTeamJoinRequest = async (
