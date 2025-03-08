@@ -134,6 +134,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # TANSTACK BUGS
 | Type     | Description                                           |
 | -------- | ------------------------------------------------------|
+| BUG      | createServerFn cannot be run in tests file            |
 | BUG      | tanstack router can't redirect to external url        |
 |          | (Remove `window.location.href` in `github-sign-in`)   |
 | BUG      | Error boundaries not working properly                 |
@@ -145,6 +146,5 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | ---------| ------------------------------------------------------|
 | TODO     | allow multiple sets                                   |
 | TODO     | gamification                                          |
-| TODO     | add tests                                             |
 | TODO     | monitoring                                            |
 */
