@@ -4,7 +4,7 @@ import {
   seedUserAccount,
   selectUserByEmail,
   updateEmailVerifiedAt,
-  updatePassword,
+  updatePasswordAndSalt,
 } from "~/user/user.services";
 import {
   createEmailVerificationCode,
@@ -288,7 +288,7 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
       const salt = generateSalt();
       const passwordHash = await hashSecret(data.password, salt);
 
-      await updatePassword(passwordHash, token.userId, tx);
+      await updatePasswordAndSalt(passwordHash, salt, token.userId, tx);
 
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, token.userId, tx);

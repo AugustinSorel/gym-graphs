@@ -133,16 +133,10 @@ export const deleteSession = async (sessionId: Session["id"], db: Db) => {
 };
 
 export const deleteSessionByUserId = async (userId: User["id"], db: Db) => {
-  const [session] = await db
+  return db
     .delete(sessionTable)
     .where(eq(sessionTable.userId, userId))
     .returning();
-
-  if (!session) {
-    throw new SessionNotFoundError();
-  }
-
-  return session;
 };
 
 export const refreshSessionExpiryDate = async (
@@ -258,32 +252,20 @@ export const deletePasswordResetTokenByUserId = async (
   userId: PasswordResetToken["userId"],
   db: Db,
 ) => {
-  const [passwordResetToken] = await db
+  return db
     .delete(passwordResetTokenTable)
     .where(eq(passwordResetTokenTable.userId, userId))
     .returning();
-
-  if (!passwordResetToken) {
-    throw new PasswordResetTokenNotFoundError();
-  }
-
-  return passwordResetToken;
 };
 
 export const deletePasswordResetTokenByToken = async (
   token: PasswordResetToken["token"],
   db: Db,
 ) => {
-  const [passwordResetToken] = await db
+  return db
     .delete(passwordResetTokenTable)
     .where(eq(passwordResetTokenTable.token, token))
     .returning();
-
-  if (!passwordResetToken) {
-    throw new PasswordResetTokenNotFoundError();
-  }
-
-  return passwordResetToken;
 };
 
 export const selectPasswordResetToken = async (

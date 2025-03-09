@@ -173,14 +173,15 @@ export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
   return user;
 };
 
-export const updatePassword = async (
+export const updatePasswordAndSalt = async (
   password: NonNullable<User["password"]>,
+  salt: NonNullable<User["salt"]>,
   userId: User["id"],
   db: Db,
 ) => {
   const [user] = await db
     .update(userTable)
-    .set({ password })
+    .set({ password, salt })
     .where(eq(userTable.id, userId))
     .returning();
 
