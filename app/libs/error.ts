@@ -1,3 +1,6 @@
+import { createMiddleware } from "@tanstack/react-start";
+import { setResponseStatus } from "@tanstack/react-start/server";
+
 export class AppError extends Error {
   public readonly statusCode: number;
 
@@ -11,3 +14,15 @@ export class AppError extends Error {
     Error.captureStackTrace(this);
   }
 }
+
+export const errorMiddleware = createMiddleware().server(async ({ next }) => {
+  try {
+    return await next();
+  } catch (e) {
+    if (e instanceof AppError) {
+      setResponseStatus(e.statusCode);
+    }
+
+    throw e;
+  }
+});
