@@ -125,7 +125,7 @@ export const deleteSession = async (sessionId: Session["id"], db: Db) => {
     .where(eq(sessionTable.id, sessionId))
     .returning();
 
-  if (session) {
+  if (!session) {
     throw new SessionNotFoundError();
   }
 
@@ -138,7 +138,7 @@ export const deleteSessionByUserId = async (userId: User["id"], db: Db) => {
     .where(eq(sessionTable.userId, userId))
     .returning();
 
-  if (session) {
+  if (!session) {
     throw new SessionNotFoundError();
   }
 
@@ -155,7 +155,7 @@ export const refreshSessionExpiryDate = async (
     .where(eq(sessionTable.id, sessionId))
     .returning();
 
-  if (session) {
+  if (!session) {
     throw new SessionNotFoundError();
   }
 

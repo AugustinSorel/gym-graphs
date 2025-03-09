@@ -14,8 +14,6 @@ import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { notifyTeamsFromNewOneRepMax } from "~/team/team.services";
 import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
-import { AppError } from "~/libs/error";
-import { setResponseStatus } from "@tanstack/react-start/server";
 import { ExerciseNotFoundError } from "~/exercise/exercise.errors";
 import { SetNotFoundError } from "~/set/set.errors";
 
@@ -29,54 +27,48 @@ export const createSetAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      const exercise = await selectExercise(
-        context.user.id,
-        data.exerciseId,
-        context.db,
+    const exercise = await selectExercise(
+      context.user.id,
+      data.exerciseId,
+      context.db,
+    );
+
+    if (!exercise) {
+      throw new ExerciseNotFoundError();
+    }
+
+    const newSet = await createSet(
+      data.weightInKg,
+      data.repetitions,
+      data.exerciseId,
+      context.db,
+    );
+
+    const currentBestSet = getBestSetFromSets(exercise.sets);
+
+    if (currentBestSet) {
+      const currentOneRepMaxInKg = calculateOneRepMax(
+        currentBestSet.repetitions,
+        currentBestSet.weightInKg,
+        context.user.oneRepMaxAlgo,
       );
 
-      if (!exercise) {
-        throw new ExerciseNotFoundError();
-      }
-
-      const newSet = await createSet(
-        data.weightInKg,
-        data.repetitions,
-        data.exerciseId,
-        context.db,
+      const candidateBestOneRepMaxInKg = calculateOneRepMax(
+        newSet.repetitions,
+        newSet.weightInKg,
+        context.user.oneRepMaxAlgo,
       );
 
-      const currentBestSet = getBestSetFromSets(exercise.sets);
+      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
 
-      if (currentBestSet) {
-        const currentOneRepMaxInKg = calculateOneRepMax(
-          currentBestSet.repetitions,
-          currentBestSet.weightInKg,
-          context.user.oneRepMaxAlgo,
+      if (newOneRepMax) {
+        await notifyTeamsFromNewOneRepMax(
+          context.user,
+          exercise.tile.name,
+          candidateBestOneRepMaxInKg,
+          context.db,
         );
-
-        const candidateBestOneRepMaxInKg = calculateOneRepMax(
-          newSet.repetitions,
-          newSet.weightInKg,
-          context.user.oneRepMaxAlgo,
-        );
-
-        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-        if (newOneRepMax) {
-          await notifyTeamsFromNewOneRepMax(
-            context.user,
-            exercise.tile.name,
-            candidateBestOneRepMaxInKg,
-            context.db,
-          );
-        }
       }
-    } catch (e) {
-      const code = e instanceof AppError ? e.statusCode : 500;
-      setResponseStatus(code);
-      throw e;
     }
   });
 
@@ -89,50 +81,44 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      const set = await selectSetById(context.user.id, data.setId, context.db);
+    const set = await selectSetById(context.user.id, data.setId, context.db);
 
-      if (!set) {
-        throw new SetNotFoundError();
-      }
+    if (!set) {
+      throw new SetNotFoundError();
+    }
 
-      await updateSetWeight(
-        data.setId,
-        context.user.id,
-        data.weightInKg,
-        context.db,
+    await updateSetWeight(
+      data.setId,
+      context.user.id,
+      data.weightInKg,
+      context.db,
+    );
+
+    const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+    if (currentBestSet) {
+      const currentOneRepMaxInKg = calculateOneRepMax(
+        currentBestSet.repetitions,
+        currentBestSet.weightInKg,
+        context.user.oneRepMaxAlgo,
       );
 
-      const currentBestSet = getBestSetFromSets(set.exercise.sets);
+      const candidateBestOneRepMaxInKg = calculateOneRepMax(
+        set.repetitions,
+        data.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
 
-      if (currentBestSet) {
-        const currentOneRepMaxInKg = calculateOneRepMax(
-          currentBestSet.repetitions,
-          currentBestSet.weightInKg,
-          context.user.oneRepMaxAlgo,
+      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+      if (newOneRepMax) {
+        await notifyTeamsFromNewOneRepMax(
+          context.user,
+          set.exercise.tile.name,
+          candidateBestOneRepMaxInKg,
+          context.db,
         );
-
-        const candidateBestOneRepMaxInKg = calculateOneRepMax(
-          set.repetitions,
-          data.weightInKg,
-          context.user.oneRepMaxAlgo,
-        );
-
-        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-        if (newOneRepMax) {
-          await notifyTeamsFromNewOneRepMax(
-            context.user,
-            set.exercise.tile.name,
-            candidateBestOneRepMaxInKg,
-            context.db,
-          );
-        }
       }
-    } catch (e) {
-      const code = e instanceof AppError ? e.statusCode : 500;
-      setResponseStatus(code);
-      throw e;
     }
   });
 
@@ -147,50 +133,44 @@ export const updateSetRepetitionsAction = createServerFn({
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      const set = await selectSetById(context.user.id, data.setId, context.db);
+    const set = await selectSetById(context.user.id, data.setId, context.db);
 
-      if (!set) {
-        throw new SetNotFoundError();
-      }
+    if (!set) {
+      throw new SetNotFoundError();
+    }
 
-      await updateSetRepetitions(
-        data.setId,
-        context.user.id,
-        data.repetitions,
-        context.db,
+    await updateSetRepetitions(
+      data.setId,
+      context.user.id,
+      data.repetitions,
+      context.db,
+    );
+
+    const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+    if (currentBestSet) {
+      const currentOneRepMaxInKg = calculateOneRepMax(
+        currentBestSet.repetitions,
+        currentBestSet.weightInKg,
+        context.user.oneRepMaxAlgo,
       );
 
-      const currentBestSet = getBestSetFromSets(set.exercise.sets);
+      const candidateBestOneRepMaxInKg = calculateOneRepMax(
+        data.repetitions,
+        set.weightInKg,
+        context.user.oneRepMaxAlgo,
+      );
 
-      if (currentBestSet) {
-        const currentOneRepMaxInKg = calculateOneRepMax(
-          currentBestSet.repetitions,
-          currentBestSet.weightInKg,
-          context.user.oneRepMaxAlgo,
+      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+      if (newOneRepMax) {
+        await notifyTeamsFromNewOneRepMax(
+          context.user,
+          set.exercise.tile.name,
+          candidateBestOneRepMaxInKg,
+          context.db,
         );
-
-        const candidateBestOneRepMaxInKg = calculateOneRepMax(
-          data.repetitions,
-          set.weightInKg,
-          context.user.oneRepMaxAlgo,
-        );
-
-        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-        if (newOneRepMax) {
-          await notifyTeamsFromNewOneRepMax(
-            context.user,
-            set.exercise.tile.name,
-            candidateBestOneRepMaxInKg,
-            context.db,
-          );
-        }
       }
-    } catch (e) {
-      const code = e instanceof AppError ? e.statusCode : 500;
-      setResponseStatus(code);
-      throw e;
     }
   });
 
@@ -205,18 +185,7 @@ export const updateSetDoneAtAction = createServerFn({
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      await updateSetDoneAt(
-        data.setId,
-        context.user.id,
-        data.doneAt,
-        context.db,
-      );
-    } catch (e) {
-      const code = e instanceof AppError ? e.statusCode : 500;
-      setResponseStatus(code);
-      throw e;
-    }
+    await updateSetDoneAt(data.setId, context.user.id, data.doneAt, context.db);
   });
 
 export const deleteSetAction = createServerFn({
