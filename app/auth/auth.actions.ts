@@ -33,7 +33,6 @@ import {
 } from "~/auth/auth.cookies";
 import { userSchema } from "~/user/user.schemas";
 import { z } from "zod";
-import pg from "pg";
 import {
   authGuardMiddleware,
   selectSessionTokenMiddleware,
@@ -53,39 +52,56 @@ import {
   generateGithubOAuthUrl,
   generateOAuthState,
 } from "~/auth/oauth.services";
+import {
+  AuthAccountMissingCredentialsError,
+  AuthEmailNotVerifiedError,
+  AuthInvalidCredentialsError,
+  EmailVerificationCodeExpiredError,
+  EmailVerificationCodeInvalidError,
+  PasswordResetTokenExpiredError,
+  PasswordResetTokenNotFoundError,
+} from "~/auth/auth.errors";
+import { AppError } from "~/libs/error";
+import { UserNotFoundError } from "~/user/user.errors";
 
 export const signInAction = createServerFn()
   .middleware([injectDbMiddleware])
   .validator(userSchema.pick({ email: true, password: true }))
   .handler(async ({ data, context }) => {
-    const user = await selectUserByEmail(data.email, context.db);
+    try {
+      const user = await selectUserByEmail(data.email, context.db);
 
-    if (!user) {
-      throw new Error("email or password is invalid");
+      if (!user) {
+        throw new AuthInvalidCredentialsError();
+      }
+
+      if (!user.emailVerifiedAt) {
+        throw new AuthEmailNotVerifiedError();
+      }
+
+      if (!user.password || !user.salt) {
+        throw new AuthAccountMissingCredentialsError();
+      }
+
+      const validPassword = await verifySecret(
+        data.password,
+        user.password,
+        user.salt,
+      );
+
+      if (!validPassword) {
+        throw new AuthInvalidCredentialsError();
+      }
+
+      const sessionToken = generateSessionToken();
+      const session = await createSession(sessionToken, user.id, context.db);
+
+      setSessionTokenCookie(sessionToken, session.expiresAt);
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
-
-    if (!user.emailVerifiedAt) {
-      throw new Error("email address not verified");
-    }
-
-    if (!user.password || !user.salt) {
-      throw new Error("this account has been set up using oauth");
-    }
-
-    const validPassword = await verifySecret(
-      data.password,
-      user.password,
-      user.salt,
-    );
-
-    if (!validPassword) {
-      throw new Error("email or password is invalid");
-    }
-
-    const sessionToken = generateSessionToken();
-    const session = await createSession(sessionToken, user.id, context.db);
-
-    setSessionTokenCookie(sessionToken, session.expiresAt);
   });
 
 export const signUpAction = createServerFn({ method: "POST" })
@@ -129,22 +145,23 @@ export const signUpAction = createServerFn({ method: "POST" })
         setSessionTokenCookie(sessionToken, session.expiresAt);
       });
     } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateEmail = dbError && e.constraint === "user_email_unique";
-
-      if (duplicateEmail) {
-        throw new Error("email is already used");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
   });
 
 export const signOutAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    await deleteSession(context.session.id, context.db);
-    deleteSessionTokenCookie();
+    try {
+      await deleteSession(context.session.id, context.db);
+      deleteSessionTokenCookie();
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
+    }
   });
 
 export const selectSessionTokenAction = createServerFn({ method: "GET" })
@@ -157,40 +174,44 @@ export const verifyEmailAction = createServerFn()
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(emailVerificationCodeSchema.pick({ code: true }))
   .handler(async ({ context, data }) => {
-    return await context.db.transaction(async (tx) => {
-      const emailVerificatonCode = await selectEmailVerificationCode(
-        context.user.id,
-        tx,
-      );
+    try {
+      await context.db.transaction(async (tx) => {
+        const emailVerificatonCode = await selectEmailVerificationCode(
+          context.user.id,
+          tx,
+        );
 
-      if (emailVerificatonCode?.code !== data.code) {
-        setResponseStatus(401);
-        throw new Error("invalid code");
-      }
+        if (emailVerificatonCode?.code !== data.code) {
+          throw new EmailVerificationCodeInvalidError();
+        }
 
-      await deleteEmailVerificationCodeById(emailVerificatonCode.id, tx);
+        await deleteEmailVerificationCodeById(emailVerificatonCode.id, tx);
 
-      const codeExpired =
-        Date.now() >= emailVerificatonCode.expiresAt.getTime();
+        const codeExpired =
+          Date.now() >= emailVerificatonCode.expiresAt.getTime();
 
-      if (codeExpired) {
-        throw new Error("code expired");
-      }
+        if (codeExpired) {
+          throw new EmailVerificationCodeExpiredError();
+        }
 
-      if (emailVerificatonCode.user.email !== context.user.email) {
-        setResponseStatus(401);
-        throw new Error("invalid code");
-      }
+        if (emailVerificatonCode.user.email !== context.user.email) {
+          throw new EmailVerificationCodeInvalidError();
+        }
 
-      await deleteSessionByUserId(context.user.id, tx);
+        await deleteSessionByUserId(context.user.id, tx);
 
-      await updateEmailVerifiedAt(context.user.id, tx);
+        await updateEmailVerifiedAt(context.user.id, tx);
 
-      const sessionToken = generateSessionToken();
-      const session = await createSession(sessionToken, context.user.id, tx);
+        const sessionToken = generateSessionToken();
+        const session = await createSession(sessionToken, context.user.id, tx);
 
-      setSessionTokenCookie(sessionToken, session.expiresAt);
-    });
+        setSessionTokenCookie(sessionToken, session.expiresAt);
+      });
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
+    }
   });
 
 export const sendEmailVerificationCodeAction = createServerFn({
@@ -198,22 +219,28 @@ export const sendEmailVerificationCodeAction = createServerFn({
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    await context.db.transaction(async (tx) => {
-      await deleteEmailVerificationCodesByUserId(context.user.id, tx);
+    try {
+      await context.db.transaction(async (tx) => {
+        await deleteEmailVerificationCodesByUserId(context.user.id, tx);
 
-      const emailVerificationCode = generateEmailVerificationCode();
+        const emailVerificationCode = generateEmailVerificationCode();
 
-      await createEmailVerificationCode(
-        emailVerificationCode,
-        context.user.id,
-        tx,
-      );
+        await createEmailVerificationCode(
+          emailVerificationCode,
+          context.user.id,
+          tx,
+        );
 
-      await sendVerificationCodeEmail(
-        context.user.email,
-        emailVerificationCode,
-      );
-    });
+        await sendVerificationCodeEmail(
+          context.user.email,
+          emailVerificationCode,
+        );
+      });
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
+    }
   });
 
 export const githubSignInAction = createServerFn({ method: "POST" })
@@ -236,23 +263,28 @@ export const requestResetPasswordAction = createServerFn({ method: "POST" })
   .middleware([injectDbMiddleware])
   .validator(userSchema.pick({ email: true }))
   .handler(async ({ data, context }) => {
-    return await context.db.transaction(async (tx) => {
-      const user = await selectUserByEmail(data.email, tx);
+    try {
+      await context.db.transaction(async (tx) => {
+        const user = await selectUserByEmail(data.email, tx);
 
-      if (!user) {
-        setResponseStatus(404);
-        throw new Error("user not found");
-      }
+        if (!user) {
+          throw new UserNotFoundError();
+        }
 
-      await deletePasswordResetTokenByUserId(user.id, tx);
+        await deletePasswordResetTokenByUserId(user.id, tx);
 
-      const token = generatePasswordResetToken();
-      const tokenHash = hashSHA256Hex(token);
+        const token = generatePasswordResetToken();
+        const tokenHash = hashSHA256Hex(token);
 
-      await createPasswordResetToken(tokenHash, user.id, tx);
+        await createPasswordResetToken(tokenHash, user.id, tx);
 
-      await sendResetPasswordEmail(user.email, token);
-    });
+        await sendResetPasswordEmail(user.email, token);
+      });
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
+    }
   });
 
 export const resetPasswordAction = createServerFn({ method: "POST" })
@@ -270,36 +302,41 @@ export const resetPasswordAction = createServerFn({ method: "POST" })
       }),
   )
   .handler(async ({ data, context }) => {
-    return context.db.transaction(async (tx) => {
-      const tokenHash = hashSHA256Hex(data.token);
+    try {
+      await context.db.transaction(async (tx) => {
+        const tokenHash = hashSHA256Hex(data.token);
 
-      const [token] = await selectPasswordResetToken(tokenHash, tx);
+        const [token] = await selectPasswordResetToken(tokenHash, tx);
 
-      if (token) {
-        await deletePasswordResetTokenByToken(tokenHash, tx);
-      }
+        if (token) {
+          await deletePasswordResetTokenByToken(tokenHash, tx);
+        }
 
-      if (!token) {
-        setResponseStatus(404);
-        throw new Error("token not found");
-      }
+        if (!token) {
+          throw new PasswordResetTokenNotFoundError();
+        }
 
-      const codeExpired = Date.now() >= token.expiresAt.getTime();
+        const codeExpired = Date.now() >= token.expiresAt.getTime();
 
-      if (codeExpired) {
-        throw new Error("token expired");
-      }
+        if (codeExpired) {
+          throw new PasswordResetTokenExpiredError();
+        }
 
-      await deleteSessionByUserId(token.userId, tx);
+        await deleteSessionByUserId(token.userId, tx);
 
-      const salt = generateSalt();
-      const passwordHash = await hashSecret(data.password, salt);
+        const salt = generateSalt();
+        const passwordHash = await hashSecret(data.password, salt);
 
-      await updatePassword(passwordHash, token.userId, tx);
+        await updatePassword(passwordHash, token.userId, tx);
 
-      const sessionToken = generateSessionToken();
-      const session = await createSession(sessionToken, token.userId, tx);
+        const sessionToken = generateSessionToken();
+        const session = await createSession(sessionToken, token.userId, tx);
 
-      setSessionTokenCookie(sessionToken, session.expiresAt);
-    });
+        setSessionTokenCookie(sessionToken, session.expiresAt);
+      });
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
+    }
   });

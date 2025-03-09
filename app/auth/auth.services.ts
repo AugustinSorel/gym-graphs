@@ -9,6 +9,11 @@ import {
   createHash,
   randomInt,
 } from "crypto";
+import {
+  EmailVerificationCodeNotFoundError,
+  PasswordResetTokenNotFoundError,
+  SessionNotFoundError,
+} from "~/auth/auth.errors";
 import type { Db } from "~/libs/db";
 import type {
   EmailVerificationCode,
@@ -108,28 +113,53 @@ export const createSession = async (
     .returning();
 
   if (!session) {
-    throw new Error("session returned by db is null");
+    throw new SessionNotFoundError();
   }
 
   return session;
 };
 
 export const deleteSession = async (sessionId: Session["id"], db: Db) => {
-  await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+  const [session] = await db
+    .delete(sessionTable)
+    .where(eq(sessionTable.id, sessionId))
+    .returning();
+
+  if (session) {
+    throw new SessionNotFoundError();
+  }
+
+  return session;
 };
 
 export const deleteSessionByUserId = async (userId: User["id"], db: Db) => {
-  return db.delete(sessionTable).where(eq(sessionTable.userId, userId));
+  const [session] = await db
+    .delete(sessionTable)
+    .where(eq(sessionTable.userId, userId))
+    .returning();
+
+  if (session) {
+    throw new SessionNotFoundError();
+  }
+
+  return session;
 };
 
 export const refreshSessionExpiryDate = async (
   sessionId: Session["id"],
   db: Db,
 ) => {
-  await db
+  const [session] = await db
     .update(sessionTable)
     .set({ expiresAt: new Date(Date.now() + thirtyDaysInMs) })
-    .where(eq(sessionTable.id, sessionId));
+    .where(eq(sessionTable.id, sessionId))
+    .returning();
+
+  if (session) {
+    throw new SessionNotFoundError();
+  }
+
+  return session;
 };
 
 export const selectSession = async (sessionId: Session["id"], db: Db) => {
@@ -160,18 +190,32 @@ export const deleteEmailVerificationCodeById = async (
   id: EmailVerificationCode["id"],
   db: Db,
 ) => {
-  return db
+  const [emailVerificationCode] = await db
     .delete(emailVerificationCodeTable)
-    .where(eq(emailVerificationCodeTable.id, id));
+    .where(eq(emailVerificationCodeTable.id, id))
+    .returning();
+
+  if (!emailVerificationCode) {
+    throw new EmailVerificationCodeNotFoundError();
+  }
+
+  return emailVerificationCode;
 };
 
 export const deleteEmailVerificationCodesByUserId = async (
   userId: EmailVerificationCode["userId"],
   db: Db,
 ) => {
-  return db
+  const [emailVerificationCode] = await db
     .delete(emailVerificationCodeTable)
-    .where(eq(emailVerificationCodeTable.userId, userId));
+    .where(eq(emailVerificationCodeTable.userId, userId))
+    .returning();
+
+  if (!emailVerificationCode) {
+    throw new EmailVerificationCodeNotFoundError();
+  }
+
+  return emailVerificationCode;
 };
 
 export const createEmailVerificationCode = async (
@@ -188,7 +232,7 @@ export const createEmailVerificationCode = async (
     .returning();
 
   if (!emailVerification) {
-    throw new Error("email verification returned by db is null");
+    throw new EmailVerificationCodeNotFoundError();
   }
 
   return emailVerification;
@@ -214,18 +258,32 @@ export const deletePasswordResetTokenByUserId = async (
   userId: PasswordResetToken["userId"],
   db: Db,
 ) => {
-  return db
+  const [passwordResetToken] = await db
     .delete(passwordResetTokenTable)
-    .where(eq(passwordResetTokenTable.userId, userId));
+    .where(eq(passwordResetTokenTable.userId, userId))
+    .returning();
+
+  if (!passwordResetToken) {
+    throw new PasswordResetTokenNotFoundError();
+  }
+
+  return passwordResetToken;
 };
 
 export const deletePasswordResetTokenByToken = async (
   token: PasswordResetToken["token"],
   db: Db,
 ) => {
-  return db
+  const [passwordResetToken] = await db
     .delete(passwordResetTokenTable)
-    .where(eq(passwordResetTokenTable.token, token));
+    .where(eq(passwordResetTokenTable.token, token))
+    .returning();
+
+  if (!passwordResetToken) {
+    throw new PasswordResetTokenNotFoundError();
+  }
+
+  return passwordResetToken;
 };
 
 export const selectPasswordResetToken = async (
@@ -243,5 +301,14 @@ export const createPasswordResetToken = async (
   userId: PasswordResetToken["userId"],
   db: Db,
 ) => {
-  return db.insert(passwordResetTokenTable).values({ token, userId });
+  const [passwordResetToken] = await db
+    .insert(passwordResetTokenTable)
+    .values({ token, userId })
+    .returning();
+
+  if (!passwordResetToken) {
+    throw new PasswordResetTokenNotFoundError();
+  }
+
+  return passwordResetToken;
 };

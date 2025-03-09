@@ -9,6 +9,7 @@ import { createDashboard, createTiles } from "~/dashboard/dashboard.services";
 import { UserNotFoundError } from "~/user/user.errors";
 import type { Db } from "~/libs/db";
 import type { User } from "~/db/db.schemas";
+import { AuthDuplicateEmail } from "~/auth/auth.errors";
 
 export const createUserWithEmailAndPassword = async (
   email: User["email"],
@@ -17,16 +18,24 @@ export const createUserWithEmailAndPassword = async (
   name: User["name"],
   db: Db,
 ) => {
-  const [user] = await db
-    .insert(userTable)
-    .values({ email, password, name, salt })
-    .returning();
+  try {
+    const [user] = await db
+      .insert(userTable)
+      .values({ email, password, name, salt })
+      .returning();
 
-  if (!user) {
-    throw new UserNotFoundError();
+    if (!user) {
+      throw new UserNotFoundError();
+    }
+
+    return user;
+  } catch (e) {
+    if (AuthDuplicateEmail.check(e)) {
+      throw new AuthDuplicateEmail();
+    }
+
+    throw e;
   }
-
-  return user;
 };
 
 export const createUserWithEmailOnly = async (
