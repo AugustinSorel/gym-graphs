@@ -6,10 +6,9 @@ import {
   tileTable,
 } from "~/db/db.schemas";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
-import pg from "pg";
+import { SetDuplicateError, SetNotFoundError } from "~/set/set.errors";
 import type { Dashboard, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import { SetDuplicateError, SetNotFoundError } from "./set.errors";
 
 export const createSet = async (
   weightInKg: Set["weightInKg"],
@@ -29,11 +28,7 @@ export const createSet = async (
 
     return set;
   } catch (e) {
-    const duplicateSet =
-      e instanceof pg.DatabaseError &&
-      e.constraint === "set_done_at_exercise_id_unique";
-
-    if (duplicateSet) {
+    if (SetDuplicateError.check(e)) {
       throw new SetDuplicateError();
     }
 
@@ -129,11 +124,7 @@ export const updateSetDoneAt = async (
 
     return set;
   } catch (e) {
-    const dbError = e instanceof pg.DatabaseError;
-    const duplicateSet =
-      dbError && e.constraint === "exercise_set_done_at_exercise_id_unique";
-
-    if (duplicateSet) {
+    if (SetDuplicateError.check(e)) {
       throw new SetDuplicateError();
     }
 

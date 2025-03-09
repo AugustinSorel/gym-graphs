@@ -17,7 +17,7 @@ import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
 import { AppError } from "~/libs/error";
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { ExerciseNotFoundError } from "~/exercise/exercise.errors";
-import { SetNotFoundError } from "./set.errors";
+import { SetNotFoundError } from "~/set/set.errors";
 
 export const createSetAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])

@@ -6,23 +6,61 @@ import {
   tileTable,
   userTable,
 } from "~/db/db.schemas";
+import { TagDuplicateError, TagNotFoundError } from "~/tag/tag.errors";
+import { TileNotFoundError } from "~/dashboard/dashboard.errors";
 import type { Tag, Tile, TilesToTags } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
-export const createTag = (name: Tag["name"], userId: Tag["userId"], db: Db) => {
-  return db.insert(tagTable).values({ name, userId });
+export const createTag = async (
+  name: Tag["name"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  try {
+    const [tag] = await db
+      .insert(tagTable)
+      .values({ name, userId })
+      .returning();
+
+    if (!tag) {
+      throw new TagNotFoundError();
+    }
+
+    return tag;
+  } catch (e) {
+    if (TagDuplicateError.check(e)) {
+      throw new TagDuplicateError();
+    }
+
+    throw e;
+  }
 };
 
-export const renameTag = (
+export const renameTag = async (
   name: Tag["name"],
   userId: Tag["userId"],
   tagId: Tag["id"],
   db: Db,
 ) => {
-  return db
-    .update(tagTable)
-    .set({ name })
-    .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)));
+  try {
+    const [tag] = await db
+      .update(tagTable)
+      .set({ name })
+      .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)))
+      .returning();
+
+    if (!tag) {
+      throw new TagNotFoundError();
+    }
+
+    return tag;
+  } catch (e) {
+    if (TagDuplicateError.check(e)) {
+      throw new TagDuplicateError();
+    }
+
+    throw e;
+  }
 };
 
 export const createTags = async (
@@ -37,9 +75,16 @@ export const deleteTag = async (
   userId: Tag["userId"],
   db: Db,
 ) => {
-  return db
+  const [tag] = await db
     .delete(tagTable)
-    .where(and(eq(tagTable.id, tagId), eq(tagTable.userId, userId)));
+    .where(and(eq(tagTable.id, tagId), eq(tagTable.userId, userId)))
+    .returning();
+
+  if (!tag) {
+    throw new TagNotFoundError();
+  }
+
+  return tag;
 };
 
 export const addTagsToTile = async (
@@ -51,9 +96,10 @@ export const addTagsToTile = async (
     return;
   }
 
-  await db
+  return db
     .insert(tilesToTagsTableTable)
-    .values(tagsToAdd.map((tagId) => ({ tagId, tileId })));
+    .values(tagsToAdd.map((tagId) => ({ tagId, tileId })))
+    .returning();
 };
 
 export const addTagToTile = async (
@@ -62,7 +108,7 @@ export const addTagToTile = async (
   userId: Tag["userId"],
   db: Db,
 ) => {
-  const [res] = await db
+  const [tile] = await db
     .select()
     .from(tileTable)
     .innerJoin(dashboardTable, eq(dashboardTable.id, tileTable.dashboardId))
@@ -73,14 +119,23 @@ export const addTagToTile = async (
     )
     .where(eq(tileTable.id, tileId));
 
-  if (!res) {
-    throw new Error("unauthorized");
+  if (!tile) {
+    throw new TileNotFoundError();
   }
 
-  return db.insert(tilesToTagsTableTable).values({
-    tileId,
-    tagId,
-  });
+  const [tag] = await db
+    .insert(tilesToTagsTableTable)
+    .values({
+      tileId,
+      tagId,
+    })
+    .returning();
+
+  if (!tag) {
+    throw new TagNotFoundError();
+  }
+
+  return tag;
 };
 
 export const removeTagToTile = async (
@@ -101,7 +156,7 @@ export const removeTagToTile = async (
     .innerJoin(userTable, eq(dashboardTable.userId, userId))
     .where(eq(tileTable.id, tileId));
 
-  const res = await db
+  const [res] = await db
     .delete(tilesToTagsTableTable)
     .where(
       and(
@@ -113,7 +168,9 @@ export const removeTagToTile = async (
     )
     .returning();
 
-  if (!res.length) {
-    throw new Error("unauthorized");
+  if (!res) {
+    throw new TagNotFoundError();
   }
+
+  return res;
 };

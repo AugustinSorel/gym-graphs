@@ -6,7 +6,7 @@ import {
   dashboardTable,
   tileTable,
 } from "~/db/db.schemas";
-import { ExerciseNotFoundError } from "./exercise.errors";
+import { ExerciseNotFoundError } from "~/exercise/exercise.errors";
 import type { Dashboard, Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
