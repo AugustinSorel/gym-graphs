@@ -182,7 +182,13 @@ export const selectTeamById = async (
     );
 
   return db.query.teamTable.findFirst({
-    where: eq(teamTable.id, teamId),
+    where: and(
+      eq(teamTable.id, teamId),
+      or(
+        and(exists(memberInTeam), eq(teamTable.visibility, "private")),
+        eq(teamTable.visibility, "public"),
+      ),
+    ),
     extras: {
       memberInTeam: sql`(SELECT EXISTS ${memberInTeam} END)`
         .mapWith(Boolean)
