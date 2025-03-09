@@ -13,7 +13,6 @@ import {
   selectTilesToTagsCount,
 } from "~/dashboard/dashboard.services";
 import { z } from "zod";
-import pg from "pg";
 import { createExercise } from "~/exercise/exercise.services";
 import {
   selectSetsForThisMonth,
@@ -86,57 +85,35 @@ export const renameTileAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      return await renameTile(
-        context.user.dashboard.id,
-        data.tileId,
-        data.name,
-        context.db,
-      );
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateExercise = dbError && e.constraint === "tile_name_unique";
-
-      if (duplicateExercise) {
-        throw new Error("name already created");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+    await renameTile(
+      context.user.dashboard.id,
+      data.tileId,
+      data.name,
+      context.db,
+    );
   });
 
 export const createExerciseTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(tileSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
-    try {
-      await context.db.transaction(async (tx) => {
-        const exercise = await createExercise(tx);
-        await createTile(
-          data.name,
-          "exercise",
-          exercise.id,
-          context.user.dashboard.id,
-          tx,
-        );
-      });
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateExercise = dbError && e.constraint === "tile_name_unique";
-
-      if (duplicateExercise) {
-        throw new Error("exercise already created");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+    await context.db.transaction(async (tx) => {
+      const exercise = await createExercise(tx);
+      await createTile(
+        data.name,
+        "exercise",
+        exercise.id,
+        context.user.dashboard.id,
+        tx,
+      );
+    });
   });
 
 export const deleteTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(z.object({ tileId: tileSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    return await deleteTile(context.user.dashboard.id, data.tileId, context.db);
+    await deleteTile(context.user.dashboard.id, data.tileId, context.db);
   });
 
 export const selectTilesToSetsCountAction = createServerFn({ method: "GET" })

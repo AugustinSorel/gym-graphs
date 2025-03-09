@@ -17,6 +17,11 @@ import {
   tileTable,
   tilesToTagsTableTable,
 } from "~/db/db.schemas";
+import {
+  DashboardNotFoundError,
+  TileDuplcateError,
+  TileNotFoundError,
+} from "~/dashboard/dashboard.errors";
 import type { SQL } from "drizzle-orm";
 import type { Dashboard, Tag, Tile } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
@@ -106,7 +111,7 @@ export const createDashboard = async (userId: Dashboard["userId"], db: Db) => {
     .returning();
 
   if (!dashboard) {
-    throw new Error("dashboard returned by db is null");
+    throw new DashboardNotFoundError();
   }
 
   return dashboard;
@@ -126,7 +131,24 @@ export const createTile = async (
   dashboardId: Tile["dashboardId"],
   db: Db,
 ) => {
-  return db.insert(tileTable).values({ name, type, dashboardId, exerciseId });
+  try {
+    const [tile] = await db
+      .insert(tileTable)
+      .values({ name, type, dashboardId, exerciseId })
+      .returning();
+
+    if (!tile) {
+      throw new TileNotFoundError();
+    }
+
+    return tile;
+  } catch (e) {
+    if (TileDuplcateError.check(e)) {
+      throw new TileDuplcateError();
+    }
+
+    throw e;
+  }
 };
 
 export const selectTilesTotalWeightInKg = async (
@@ -261,12 +283,27 @@ export const renameTile = async (
   name: Tile["name"],
   db: Db,
 ) => {
-  return db
-    .update(tileTable)
-    .set({ name })
-    .where(
-      and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
-    );
+  try {
+    const [tile] = await db
+      .update(tileTable)
+      .set({ name })
+      .where(
+        and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
+      )
+      .returning();
+
+    if (!tile) {
+      throw new TileNotFoundError();
+    }
+
+    return tile;
+  } catch (e) {
+    if (TileDuplcateError.check(e)) {
+      throw new TileDuplcateError();
+    }
+
+    throw e;
+  }
 };
 
 export const deleteTile = async (
@@ -274,11 +311,18 @@ export const deleteTile = async (
   tileId: Tile["id"],
   db: Db,
 ) => {
-  return db
+  const [tile] = await db
     .delete(tileTable)
     .where(
       and(eq(tileTable.dashboardId, dashboardId), eq(tileTable.id, tileId)),
-    );
+    )
+    .returning();
+
+  if (!tile) {
+    throw new TileNotFoundError();
+  }
+
+  return tile;
 };
 
 export const selectTilesToSetsCount = async (

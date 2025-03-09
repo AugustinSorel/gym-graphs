@@ -110,7 +110,7 @@ export const tileTable = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   }),
-  (t) => [t.name, t.dashboardId],
+  (t) => [unique().on(t.name, t.dashboardId)],
 );
 
 export type Tile = Readonly<typeof tileTable.$inferSelect>;

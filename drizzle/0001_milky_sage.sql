@@ -1,0 +1,1 @@
+ALTER TABLE "tile" ADD CONSTRAINT "tile_name_dashboard_id_unique" UNIQUE("name","dashboard_id");
