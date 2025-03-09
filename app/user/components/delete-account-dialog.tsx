@@ -15,6 +15,8 @@ import { deleteAccountAction } from "~/user/user.actions";
 import { Spinner } from "~/ui/spinner";
 import { useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 
 export const DeleteAccountDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -49,6 +51,13 @@ export const DeleteAccountDialog = () => {
             account and remove your data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        {deleteAccount.error?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>{deleteAccount.error.message}</AlertDescription>
+          </Alert>
+        )}
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction

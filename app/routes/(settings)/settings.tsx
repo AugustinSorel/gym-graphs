@@ -34,7 +34,7 @@ import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithm
 import { permissions } from "~/libs/permissions";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { TagsList } from "~/user/components/tags-list";
-import type { ComponentProps } from "react";
+import type { ComponentProps, PropsWithChildren } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(settings)/settings")({
@@ -222,13 +222,9 @@ const OneRepMaxAlgoSection = () => {
         </ToggleGroup>
 
         {updateOneRepMaxAlgo.error && (
-          <Alert variant="destructive">
-            <AlertCircleIcon />
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              {updateOneRepMaxAlgo.error.message}
-            </AlertDescription>
-          </Alert>
+          <SectionErrorAlert>
+            {updateOneRepMaxAlgo.error.message}
+          </SectionErrorAlert>
         )}
 
         <div className="m-3 rounded-md border lg:m-6">
@@ -255,6 +251,13 @@ const ChangeWeightUnitSection = () => {
             Tailor your experience by selecting your preferred weight unit.
           </SectionDescription>
         </HGroup>
+
+        {updateWeightUnit.error?.message && (
+          <SectionErrorAlert>
+            {updateWeightUnit.error.message}
+          </SectionErrorAlert>
+        )}
+
         <Footer>
           <ToggleGroup
             type="single"
@@ -364,6 +367,13 @@ const DownloadUserData = () => {
             feel free to download your data in json format.
           </SectionDescription>
         </HGroup>
+
+        {downloadUserData.error?.message && (
+          <SectionErrorAlert>
+            {downloadUserData.error.message}
+          </SectionErrorAlert>
+        )}
+
         <Footer>
           <Button
             size="sm"
@@ -483,6 +493,16 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
       )}
       {...props}
     />
+  );
+};
+
+const SectionErrorAlert = (props: Readonly<PropsWithChildren>) => {
+  return (
+    <Alert variant="destructive" className="mx-3 mb-3 w-auto lg:mx-6 lg:mb-6">
+      <AlertCircleIcon />
+      <AlertTitle>Heads up!</AlertTitle>
+      <AlertDescription>{props.children}</AlertDescription>
+    </Alert>
   );
 };
 

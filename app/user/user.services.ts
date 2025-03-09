@@ -6,6 +6,8 @@ import { addTagsToTile, createTags } from "~/tag/tag.services";
 import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { addDate } from "~/utils/date";
 import { createDashboard, createTiles } from "~/dashboard/dashboard.services";
+import { UserNotFoundError } from "~/user/user.errors";
+import { tryCatch } from "~/libs/error";
 import type { Db } from "~/libs/db";
 import type { User } from "~/db/db.schemas";
 
@@ -16,16 +18,21 @@ export const createUserWithEmailAndPassword = async (
   name: User["name"],
   db: Db,
 ) => {
-  const [user] = await db
-    .insert(userTable)
-    .values({ email, password, name, salt })
-    .returning();
+  const user = await tryCatch(
+    db.insert(userTable).values({ email, password, name, salt }).returning(),
+  );
 
-  if (!user) {
-    throw new Error("user returned by db is null");
+  if (user.error) {
+    throw user.error;
   }
 
-  return user;
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const createUserWithEmailOnly = async (
@@ -33,40 +40,57 @@ export const createUserWithEmailOnly = async (
   name: User["name"],
   db: Db,
 ) => {
-  const [user] = await db
-    .insert(userTable)
-    .values({
-      email,
-      name,
-      emailVerifiedAt: new Date(),
-    })
-    .returning();
+  const user = await tryCatch(
+    db
+      .insert(userTable)
+      .values({
+        email,
+        name,
+        emailVerifiedAt: new Date(),
+      })
+      .returning(),
+  );
 
-  if (!user) {
-    throw new Error("user returned by db is null");
+  if (user.error) {
+    throw user.error;
   }
 
-  return user;
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const selectUserByEmail = async (email: User["email"], db: Db) => {
-  return db.query.userTable.findFirst({
-    where: eq(userTable.email, email),
-  });
+  const user = await tryCatch(
+    db.query.userTable.findFirst({
+      where: eq(userTable.email, email),
+    }),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  return user.data;
 };
 
 export const selectClientUser = async (userId: User["id"], db: Db) => {
-  return db.query.userTable.findFirst({
-    where: eq(userTable.id, userId),
-    columns: {
-      id: true,
-      email: true,
-      weightUnit: true,
-      name: true,
-      oneRepMaxAlgo: true,
-    },
-    extras: {
-      teamNotificationCount: sql`
+  const user = await tryCatch(
+    db.query.userTable.findFirst({
+      where: eq(userTable.id, userId),
+      columns: {
+        id: true,
+        email: true,
+        weightUnit: true,
+        name: true,
+        oneRepMaxAlgo: true,
+      },
+      extras: {
+        teamNotificationCount: sql`
         (
           select count(*) from team_member
             inner join team_event_notification
@@ -79,20 +103,27 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
               and
             team_event_notification.read_at is null
         )`
-        .mapWith(Number)
-        .as("team_notification_count"),
-    },
-    with: {
-      dashboard: {
-        columns: {
-          id: true,
+          .mapWith(Number)
+          .as("team_notification_count"),
+      },
+      with: {
+        dashboard: {
+          columns: {
+            id: true,
+          },
+        },
+        tags: {
+          orderBy: asc(tagTable.createdAt),
         },
       },
-      tags: {
-        orderBy: asc(tagTable.createdAt),
-      },
-    },
-  });
+    }),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  return user.data;
 };
 
 export const renameUser = async (
@@ -100,7 +131,25 @@ export const renameUser = async (
   userId: User["id"],
   db: Db,
 ) => {
-  await db.update(userTable).set({ name }).where(eq(userTable.id, userId));
+  const user = await tryCatch(
+    db
+      .update(userTable)
+      .set({ name })
+      .where(eq(userTable.id, userId))
+      .returning(),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const updateWeightUnit = async (
@@ -108,10 +157,25 @@ export const updateWeightUnit = async (
   userId: User["id"],
   db: Db,
 ) => {
-  await db
-    .update(userTable)
-    .set({ weightUnit })
-    .where(eq(userTable.id, userId));
+  const user = await tryCatch(
+    db
+      .update(userTable)
+      .set({ weightUnit })
+      .where(eq(userTable.id, userId))
+      .returning(),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const updateOneRepMaxAlgo = async (
@@ -119,24 +183,47 @@ export const updateOneRepMaxAlgo = async (
   userId: User["id"],
   db: Db,
 ) => {
-  await db
-    .update(userTable)
-    .set({ oneRepMaxAlgo })
-    .where(eq(userTable.id, userId));
+  const user = await tryCatch(
+    db
+      .update(userTable)
+      .set({ oneRepMaxAlgo })
+      .where(eq(userTable.id, userId))
+      .returning(),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
-  const [user] = await db
-    .update(userTable)
-    .set({ emailVerifiedAt: new Date() })
-    .where(eq(userTable.id, userId))
-    .returning();
+  const user = await tryCatch(
+    db
+      .update(userTable)
+      .set({ emailVerifiedAt: new Date() })
+      .where(eq(userTable.id, userId))
+      .returning(),
+  );
 
-  if (!user) {
-    throw new Error("user returned by db is null");
+  if (user.error) {
+    throw user.error;
   }
 
-  return user;
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const updatePassword = async (
@@ -144,14 +231,43 @@ export const updatePassword = async (
   userId: User["id"],
   db: Db,
 ) => {
-  return await db
-    .update(userTable)
-    .set({ password })
-    .where(eq(userTable.id, userId));
+  const user = await tryCatch(
+    db
+      .update(userTable)
+      .set({ password })
+      .where(eq(userTable.id, userId))
+      .returning(),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const deleteUser = async (userId: User["id"], db: Db) => {
-  await db.delete(userTable).where(eq(userTable.id, userId));
+  const user = await tryCatch(
+    db.delete(userTable).where(eq(userTable.id, userId)).returning(),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  const newUser = user.data.at(0);
+
+  if (!newUser) {
+    throw new UserNotFoundError();
+  }
+
+  return newUser;
 };
 
 export const seedUserAccount = async (userId: User["id"], db: Db) => {
@@ -294,30 +410,38 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
 };
 
 export const selectUserData = async (userId: User["id"], db: Db) => {
-  return db.query.userTable.findFirst({
-    where: eq(userTable.id, userId),
-    columns: {
-      name: true,
-      email: true,
-      oneRepMaxAlgo: true,
-      weightUnit: true,
-    },
-    with: {
-      tags: true,
-      dashboard: {
-        with: {
-          tiles: {
-            with: {
-              exercise: {
-                with: {
-                  sets: true,
+  const user = await tryCatch(
+    db.query.userTable.findFirst({
+      where: eq(userTable.id, userId),
+      columns: {
+        name: true,
+        email: true,
+        oneRepMaxAlgo: true,
+        weightUnit: true,
+      },
+      with: {
+        tags: true,
+        dashboard: {
+          with: {
+            tiles: {
+              with: {
+                exercise: {
+                  with: {
+                    sets: true,
+                  },
                 },
+                tileToTags: true,
               },
-              tileToTags: true,
             },
           },
         },
       },
-    },
-  });
+    }),
+  );
+
+  if (user.error) {
+    throw user.error;
+  }
+
+  return user.data;
 };
