@@ -1,13 +1,12 @@
+import { z } from "zod";
 import { AppError } from "~/libs/error";
-import pg from "pg";
 
 export class SetDuplicateError extends AppError {
   public static check = (e: unknown) => {
-    const isDuplicate =
-      e instanceof pg.DatabaseError &&
-      e.constraint === "set_done_at_exercise_id_unique";
-
-    return isDuplicate;
+    return z
+      .object({ constraint: z.string() })
+      .refine((e) => e.constraint === "set_done_at_exercise_id_unique")
+      .safeParse(e).success;
   };
 
   constructor() {

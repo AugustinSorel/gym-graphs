@@ -1,5 +1,5 @@
+import { z } from "zod";
 import { AppError } from "~/libs/error";
-import pg from "pg";
 
 export class AuthInvalidCredentialsError extends AppError {
   constructor() {
@@ -21,10 +21,10 @@ export class AuthAccountMissingCredentialsError extends AppError {
 
 export class AuthDuplicateEmail extends AppError {
   public static check = (e: unknown) => {
-    const dbError = e instanceof pg.DatabaseError;
-    const isDuplicate = dbError && e.constraint === "user_email_unique";
-
-    return isDuplicate;
+    return z
+      .object({ constraint: z.string() })
+      .refine((e) => e.constraint === "user_email_unique")
+      .safeParse(e).success;
   };
 
   constructor() {
