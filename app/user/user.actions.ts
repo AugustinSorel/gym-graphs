@@ -5,14 +5,13 @@ import {
   deleteUser,
   renameUser,
   selectClientUser,
+  selectUserData,
   updateOneRepMaxAlgo,
   updateWeightUnit,
 } from "~/user/user.services";
 import { deleteSessionTokenCookie } from "~/auth/auth.cookies";
-import { setResponseStatus } from "vinxi/http";
 import { injectDbMiddleware } from "~/db/db.middlewares";
-import { userTable } from "~/db/db.schemas";
-import { eq } from "drizzle-orm";
+import { setResponseStatus } from "@tanstack/react-start/server";
 
 export const selectUserAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -58,32 +57,7 @@ export const updateOneRepMaxAlgoAction = createServerFn({ method: "POST" })
 export const selectUserDataAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .handler(async ({ context }) => {
-    const user = await context.db.query.userTable.findFirst({
-      where: eq(userTable.id, context.user.id),
-      columns: {
-        name: true,
-        email: true,
-        oneRepMaxAlgo: true,
-        weightUnit: true,
-      },
-      with: {
-        tags: true,
-        dashboard: {
-          with: {
-            tiles: {
-              with: {
-                exercise: {
-                  with: {
-                    sets: true,
-                  },
-                },
-                tileToTags: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const user = await selectUserData(context.user.id, context.db);
 
     if (!user) {
       setResponseStatus(404);

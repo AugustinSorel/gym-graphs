@@ -292,3 +292,32 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
 
   await Promise.all(operations);
 };
+
+export const selectUserData = async (userId: User["id"], db: Db) => {
+  return db.query.userTable.findFirst({
+    where: eq(userTable.id, userId),
+    columns: {
+      name: true,
+      email: true,
+      oneRepMaxAlgo: true,
+      weightUnit: true,
+    },
+    with: {
+      tags: true,
+      dashboard: {
+        with: {
+          tiles: {
+            with: {
+              exercise: {
+                with: {
+                  sets: true,
+                },
+              },
+              tileToTags: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
