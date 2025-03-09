@@ -6,6 +6,7 @@ import {
   dashboardTable,
   tileTable,
 } from "~/db/db.schemas";
+import { ExerciseNotFoundError } from "./exercise.errors";
 import type { Dashboard, Exercise } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -14,7 +15,7 @@ export const selectExercise = async (
   exerciseId: Exercise["id"],
   db: Db,
 ) => {
-  const exercise = db
+  const userExercise = db
     .select()
     .from(dashboardTable)
     .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
@@ -22,7 +23,7 @@ export const selectExercise = async (
     .where(eq(dashboardTable.userId, userId));
 
   return db.query.exerciseTable.findFirst({
-    where: and(eq(exerciseTable.id, exerciseId), exists(exercise)),
+    where: and(eq(exerciseTable.id, exerciseId), exists(userExercise)),
     with: {
       tile: {
         with: {
@@ -45,7 +46,7 @@ export const createExercise = async (db: Db) => {
   const [exercise] = await db.insert(exerciseTable).values({}).returning();
 
   if (!exercise) {
-    throw new Error("exercise returned by db is null");
+    throw new ExerciseNotFoundError();
   }
 
   return exercise;
