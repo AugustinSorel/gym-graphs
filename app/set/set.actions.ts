@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { authGuardMiddleware } from "~/auth/auth.middlewares";
 import { setSchema } from "~/set/set.schemas";
 import { selectExercise } from "~/exercise/exercise.services";
-import pg from "pg";
 import {
   createSet,
   deleteSet,
@@ -15,6 +14,10 @@ import { z } from "zod";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { notifyTeamsFromNewOneRepMax } from "~/team/team.services";
 import { calculateOneRepMax, getBestSetFromSets } from "~/set/set.utils";
+import { AppError } from "~/libs/error";
+import { setResponseStatus } from "@tanstack/react-start/server";
+import { ExerciseNotFoundError } from "~/exercise/exercise.errors";
+import { SetNotFoundError } from "./set.errors";
 
 export const createSetAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -34,7 +37,7 @@ export const createSetAction = createServerFn({ method: "POST" })
       );
 
       if (!exercise) {
-        throw new Error("exercise not found");
+        throw new ExerciseNotFoundError();
       }
 
       const newSet = await createSet(
@@ -71,15 +74,9 @@ export const createSetAction = createServerFn({ method: "POST" })
         }
       }
     } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateSet =
-        dbError && e.constraint === "exercise_set_done_at_exercise_id_unique";
-
-      if (duplicateSet) {
-        throw new Error("set already created for today");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
   });
 
@@ -92,44 +89,50 @@ export const updateSetWeightAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    const set = await selectSetById(context.user.id, data.setId, context.db);
+    try {
+      const set = await selectSetById(context.user.id, data.setId, context.db);
 
-    if (!set) {
-      throw new Error("set not found");
-    }
-
-    await updateSetWeight(
-      data.setId,
-      context.user.id,
-      data.weightInKg,
-      context.db,
-    );
-
-    const currentBestSet = getBestSetFromSets(set.exercise.sets);
-
-    if (currentBestSet) {
-      const currentOneRepMaxInKg = calculateOneRepMax(
-        currentBestSet.repetitions,
-        currentBestSet.weightInKg,
-        context.user.oneRepMaxAlgo,
-      );
-
-      const candidateBestOneRepMaxInKg = calculateOneRepMax(
-        set.repetitions,
-        data.weightInKg,
-        context.user.oneRepMaxAlgo,
-      );
-
-      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-      if (newOneRepMax) {
-        await notifyTeamsFromNewOneRepMax(
-          context.user,
-          set.exercise.tile.name,
-          candidateBestOneRepMaxInKg,
-          context.db,
-        );
+      if (!set) {
+        throw new SetNotFoundError();
       }
+
+      await updateSetWeight(
+        data.setId,
+        context.user.id,
+        data.weightInKg,
+        context.db,
+      );
+
+      const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+      if (currentBestSet) {
+        const currentOneRepMaxInKg = calculateOneRepMax(
+          currentBestSet.repetitions,
+          currentBestSet.weightInKg,
+          context.user.oneRepMaxAlgo,
+        );
+
+        const candidateBestOneRepMaxInKg = calculateOneRepMax(
+          set.repetitions,
+          data.weightInKg,
+          context.user.oneRepMaxAlgo,
+        );
+
+        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+        if (newOneRepMax) {
+          await notifyTeamsFromNewOneRepMax(
+            context.user,
+            set.exercise.tile.name,
+            candidateBestOneRepMaxInKg,
+            context.db,
+          );
+        }
+      }
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
   });
 
@@ -144,44 +147,50 @@ export const updateSetRepetitionsAction = createServerFn({
     }),
   )
   .handler(async ({ context, data }) => {
-    const set = await selectSetById(context.user.id, data.setId, context.db);
+    try {
+      const set = await selectSetById(context.user.id, data.setId, context.db);
 
-    if (!set) {
-      throw new Error("set not found");
-    }
-
-    await updateSetRepetitions(
-      data.setId,
-      context.user.id,
-      data.repetitions,
-      context.db,
-    );
-
-    const currentBestSet = getBestSetFromSets(set.exercise.sets);
-
-    if (currentBestSet) {
-      const currentOneRepMaxInKg = calculateOneRepMax(
-        currentBestSet.repetitions,
-        currentBestSet.weightInKg,
-        context.user.oneRepMaxAlgo,
-      );
-
-      const candidateBestOneRepMaxInKg = calculateOneRepMax(
-        data.repetitions,
-        set.weightInKg,
-        context.user.oneRepMaxAlgo,
-      );
-
-      const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-      if (newOneRepMax) {
-        await notifyTeamsFromNewOneRepMax(
-          context.user,
-          set.exercise.tile.name,
-          candidateBestOneRepMaxInKg,
-          context.db,
-        );
+      if (!set) {
+        throw new SetNotFoundError();
       }
+
+      await updateSetRepetitions(
+        data.setId,
+        context.user.id,
+        data.repetitions,
+        context.db,
+      );
+
+      const currentBestSet = getBestSetFromSets(set.exercise.sets);
+
+      if (currentBestSet) {
+        const currentOneRepMaxInKg = calculateOneRepMax(
+          currentBestSet.repetitions,
+          currentBestSet.weightInKg,
+          context.user.oneRepMaxAlgo,
+        );
+
+        const candidateBestOneRepMaxInKg = calculateOneRepMax(
+          data.repetitions,
+          set.weightInKg,
+          context.user.oneRepMaxAlgo,
+        );
+
+        const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
+
+        if (newOneRepMax) {
+          await notifyTeamsFromNewOneRepMax(
+            context.user,
+            set.exercise.tile.name,
+            candidateBestOneRepMaxInKg,
+            context.db,
+          );
+        }
+      }
+    } catch (e) {
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
   });
 
@@ -204,15 +213,9 @@ export const updateSetDoneAtAction = createServerFn({
         context.db,
       );
     } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateSet =
-        dbError && e.constraint === "exercise_set_done_at_exercise_id_unique";
-
-      if (duplicateSet) {
-        throw new Error("set already created for this date");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
+      const code = e instanceof AppError ? e.statusCode : 500;
+      setResponseStatus(code);
+      throw e;
     }
   });
 

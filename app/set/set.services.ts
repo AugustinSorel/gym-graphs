@@ -6,8 +6,10 @@ import {
   tileTable,
 } from "~/db/db.schemas";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
+import pg from "pg";
 import type { Dashboard, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import { SetDuplicateError, SetNotFoundError } from "./set.errors";
 
 export const createSet = async (
   weightInKg: Set["weightInKg"],
@@ -15,16 +17,28 @@ export const createSet = async (
   exerciseId: Set["exerciseId"],
   db: Db,
 ) => {
-  const [set] = await db
-    .insert(setTable)
-    .values({ weightInKg, repetitions, exerciseId })
-    .returning();
+  try {
+    const [set] = await db
+      .insert(setTable)
+      .values({ weightInKg, repetitions, exerciseId })
+      .returning();
 
-  if (!set) {
-    throw new Error("set returned by db is null");
+    if (!set) {
+      throw new SetNotFoundError();
+    }
+
+    return set;
+  } catch (e) {
+    const duplicateSet =
+      e instanceof pg.DatabaseError &&
+      e.constraint === "set_done_at_exercise_id_unique";
+
+    if (duplicateSet) {
+      throw new SetDuplicateError();
+    }
+
+    throw e;
   }
-
-  return set;
 };
 
 export const createSets = async (
@@ -48,17 +62,17 @@ export const updateSetWeight = async (
     .innerJoin(setTable, eq(setTable.id, setId))
     .where(eq(dashboardTable.userId, userId));
 
-  const updatedSets = await db
+  const [set] = await db
     .update(setTable)
     .set({ weightInKg })
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 
-  if (!updatedSets.length) {
-    throw new Error("exercise set not found");
+  if (!set) {
+    throw new SetNotFoundError();
   }
 
-  return updatedSets;
+  return set;
 };
 
 export const updateSetRepetitions = async (
@@ -75,17 +89,17 @@ export const updateSetRepetitions = async (
     .innerJoin(setTable, eq(setTable.id, setId))
     .where(eq(dashboardTable.userId, userId));
 
-  const updatedExerciseSets = await db
+  const [set] = await db
     .update(setTable)
     .set({ repetitions })
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 
-  if (!updatedExerciseSets.length) {
-    throw new Error("exercise set not found");
+  if (!set) {
+    throw new SetNotFoundError();
   }
 
-  return updatedExerciseSets;
+  return set;
 };
 
 export const updateSetDoneAt = async (
@@ -94,25 +108,37 @@ export const updateSetDoneAt = async (
   doneAt: Set["doneAt"],
   db: Db,
 ) => {
-  const exercise = db
-    .select()
-    .from(dashboardTable)
-    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
-    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
-    .innerJoin(setTable, eq(setTable.id, setId))
-    .where(eq(dashboardTable.userId, userId));
+  try {
+    const exercise = db
+      .select()
+      .from(dashboardTable)
+      .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+      .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+      .innerJoin(setTable, eq(setTable.id, setId))
+      .where(eq(dashboardTable.userId, userId));
 
-  const updatedExerciseSets = await db
-    .update(setTable)
-    .set({ doneAt })
-    .where(and(eq(setTable.id, setId), exists(exercise)))
-    .returning();
+    const [set] = await db
+      .update(setTable)
+      .set({ doneAt })
+      .where(and(eq(setTable.id, setId), exists(exercise)))
+      .returning();
 
-  if (!updatedExerciseSets.length) {
-    throw new Error("exercise set not found");
+    if (!set) {
+      throw new SetNotFoundError();
+    }
+
+    return set;
+  } catch (e) {
+    const dbError = e instanceof pg.DatabaseError;
+    const duplicateSet =
+      dbError && e.constraint === "exercise_set_done_at_exercise_id_unique";
+
+    if (duplicateSet) {
+      throw new SetDuplicateError();
+    }
+
+    throw e;
   }
-
-  return updatedExerciseSets;
 };
 
 export const deleteSet = async (
@@ -128,16 +154,16 @@ export const deleteSet = async (
     .innerJoin(setTable, eq(setTable.id, setId))
     .where(eq(dashboardTable.userId, userId));
 
-  const updatedExerciseSets = await db
+  const [set] = await db
     .delete(setTable)
     .where(and(eq(setTable.id, setId), exists(exercise)))
     .returning();
 
-  if (!updatedExerciseSets.length) {
-    throw new Error("exercise set not found");
+  if (!set) {
+    throw new SetNotFoundError();
   }
 
-  return updatedExerciseSets;
+  return set;
 };
 
 export const selectSetsForThisMonth = async (
