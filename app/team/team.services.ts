@@ -30,6 +30,16 @@ import {
 } from "~/db/db.schemas";
 import { addDate } from "~/utils/date";
 import { randomBytes } from "crypto";
+import {
+  TeamDuplicateError,
+  TeamEventReactionNotFoundError,
+  TeamInvitationAdminInviterError,
+  TeamInvitationNotFoundError,
+  TeamJoinRequestAcceptPrivilegeError,
+  TeamJoinRequestRejectPrivilegeError,
+  TeamMemberNotFoundError,
+  TeamNotFoundError,
+} from "~/team/team.errors";
 import type { Db } from "~/libs/db";
 import type {
   Team,
@@ -47,16 +57,24 @@ export const createTeam = async (
   visibility: Team["visibility"],
   db: Db,
 ) => {
-  const [team] = await db
-    .insert(teamTable)
-    .values({ name, visibility })
-    .returning();
+  try {
+    const [team] = await db
+      .insert(teamTable)
+      .values({ name, visibility })
+      .returning();
 
-  if (!team) {
-    throw new Error("team returned by db is null");
+    if (!team) {
+      throw new TeamNotFoundError();
+    }
+
+    return team;
+  } catch (e) {
+    if (TeamDuplicateError.check(e)) {
+      throw TeamDuplicateError();
+    }
+
+    throw e;
   }
-
-  return team;
 };
 
 export const selectUserAndPublicTeams = async (
@@ -121,11 +139,20 @@ export const createTeamMember = async (
   role: TeamMember["role"],
   db: Db,
 ) => {
-  return db.insert(teamMemberTable).values({
-    teamId,
-    userId,
-    role,
-  });
+  const [member] = await db
+    .insert(teamMemberTable)
+    .values({
+      teamId,
+      userId,
+      role,
+    })
+    .returning();
+
+  if (!member) {
+    throw new TeamMemberNotFoundError();
+  }
+
+  return member;
 };
 
 export const selectTeamById = async (
@@ -252,21 +279,36 @@ export const renameTeamById = async (
   name: Team["name"],
   db: Db,
 ) => {
-  const adminUserInTeam = db
-    .select()
-    .from(teamMemberTable)
-    .where(
-      and(
-        eq(teamMemberTable.userId, userId),
-        eq(teamMemberTable.teamId, teamId),
-        eq(teamMemberTable.role, "admin"),
-      ),
-    );
+  try {
+    const adminUserInTeam = db
+      .select()
+      .from(teamMemberTable)
+      .where(
+        and(
+          eq(teamMemberTable.userId, userId),
+          eq(teamMemberTable.teamId, teamId),
+          eq(teamMemberTable.role, "admin"),
+        ),
+      );
 
-  return db
-    .update(teamTable)
-    .set({ name })
-    .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
+    const [team] = await db
+      .update(teamTable)
+      .set({ name })
+      .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)))
+      .returning();
+
+    if (!team) {
+      throw new TeamNotFoundError();
+    }
+
+    return team;
+  } catch (e) {
+    if (TeamDuplicateError.check(e)) {
+      throw new TeamDuplicateError();
+    }
+
+    throw e;
+  }
 };
 
 export const deleteTeamById = async (
@@ -285,9 +327,16 @@ export const deleteTeamById = async (
       ),
     );
 
-  return db
+  const [team] = await db
     .delete(teamTable)
-    .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)));
+    .where(and(eq(teamTable.id, teamId), exists(adminUserInTeam)))
+    .returning();
+
+  if (!team) {
+    throw new TeamNotFoundError();
+  }
+
+  return team;
 };
 
 export const leaveTeam = async (
@@ -309,7 +358,7 @@ export const leaveTeam = async (
       ),
   );
 
-  const rows = await db
+  const [member] = await db
     .with(teamAdmins)
     .delete(teamMemberTable)
     .where(
@@ -327,11 +376,11 @@ export const leaveTeam = async (
     )
     .returning();
 
-  if (!rows.length) {
-    throw new Error(
-      "You cannot leave the team because you are the only admin.",
-    );
+  if (!member) {
+    throw new TeamMemberNotFoundError();
   }
+
+  return member;
 };
 
 export const kickMemberOutOfTeam = async (
@@ -367,7 +416,7 @@ export const kickMemberOutOfTeam = async (
     )
     .where(eq(teamTable.id, teamId));
 
-  const rows = await db
+  const [member] = await db
     .with(teamAdmins)
     .delete(teamMemberTable)
     .where(
@@ -386,9 +435,11 @@ export const kickMemberOutOfTeam = async (
     )
     .returning();
 
-  if (!rows.length) {
-    throw new Error("Only an admin can kick a member out");
+  if (!member) {
+    throw new TeamMemberNotFoundError();
   }
+
+  return member;
 };
 
 export const changeTeamMemberRole = async (
@@ -411,7 +462,7 @@ export const changeTeamMemberRole = async (
     )
     .where(eq(teamTable.id, teamId));
 
-  const res = await db
+  const [member] = await db
     .update(teamMemberTable)
     .set({ role })
     .where(
@@ -423,11 +474,11 @@ export const changeTeamMemberRole = async (
     )
     .returning();
 
-  if (!res.length) {
-    throw new Error("Only admins can change a member role");
+  if (!member) {
+    throw new TeamMemberNotFoundError();
   }
 
-  return res;
+  return member;
 };
 
 export const changeTeamVisibility = async (
@@ -449,10 +500,17 @@ export const changeTeamVisibility = async (
     )
     .where(eq(teamTable.id, teamId));
 
-  return db
+  const [team] = await db
     .update(teamTable)
     .set({ visibility })
-    .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)));
+    .where(and(eq(teamTable.id, teamId), exists(userIsAdmin)))
+    .returning();
+
+  if (!team) {
+    throw new TeamNotFoundError();
+  }
+
+  return team;
 };
 
 export const generateTeamInvitationToken = () => {
@@ -468,7 +526,7 @@ export const createTeamInvitation = async (
   token: TeamInvitation["token"],
   db: Db,
 ) => {
-  const inviter = await db.query.teamMemberTable.findFirst({
+  const adminInviter = await db.query.teamMemberTable.findFirst({
     where: and(
       eq(teamMemberTable.teamId, teamId),
       eq(teamMemberTable.userId, inviterId),
@@ -476,11 +534,11 @@ export const createTeamInvitation = async (
     ),
   });
 
-  if (!inviter) {
-    throw new Error("only admins are allowed to invite new members");
+  if (!adminInviter) {
+    throw new TeamInvitationAdminInviterError();
   }
 
-  return db
+  const [invitation] = await db
     .insert(teamInvitationTable)
     .values({
       email,
@@ -497,7 +555,14 @@ export const createTeamInvitation = async (
         createdAt: new Date(),
       },
       targetWhere: eq(teamInvitationTable.status, "pending"),
-    });
+    })
+    .returning();
+
+  if (!invitation) {
+    throw new TeamInvitationNotFoundError();
+  }
+
+  return invitation;
 };
 
 export const selectMemberInTeamByEmail = async (
@@ -555,10 +620,17 @@ export const revokeTeamInvitation = async (
     )
     .where(eq(teamInvitationTable.id, invitationId));
 
-  return db
+  const [teamInvitation] = await db
     .update(teamInvitationTable)
     .set({ status: "revoked" })
-    .where(and(eq(teamInvitationTable.id, invitationId), exists(userIsAdmin)));
+    .where(and(eq(teamInvitationTable.id, invitationId), exists(userIsAdmin)))
+    .returning();
+
+  if (!teamInvitation) {
+    throw new TeamInvitationNotFoundError();
+  }
+
+  return teamInvitation;
 };
 
 export const selectTeamInvitationByToken = async (
@@ -577,20 +649,34 @@ export const expireTeamInvitation = async (
   invitationId: TeamInvitation["id"],
   db: Db,
 ) => {
-  return db
+  const [teamInvitation] = await db
     .update(teamInvitationTable)
     .set({ status: "expired" })
-    .where(and(eq(teamInvitationTable.id, invitationId)));
+    .where(and(eq(teamInvitationTable.id, invitationId)))
+    .returning();
+
+  if (!teamInvitation) {
+    throw new TeamInvitationNotFoundError();
+  }
+
+  return teamInvitation;
 };
 
 export const acceptInvitation = async (
   invitationId: TeamInvitation["id"],
   db: Db,
 ) => {
-  return db
+  const [teamInvitation] = await db
     .update(teamInvitationTable)
     .set({ status: "accepted" })
-    .where(and(eq(teamInvitationTable.id, invitationId)));
+    .where(and(eq(teamInvitationTable.id, invitationId)))
+    .returning();
+
+  if (!teamInvitation) {
+    throw new TeamInvitationNotFoundError();
+  }
+
+  return teamInvitation;
 };
 
 export const createTeamJoinRequest = async (
@@ -638,8 +724,10 @@ export const rejectTeamJoinRequest = async (
     .returning();
 
   if (!joinRequest) {
-    throw new Error("only admin can reject team request");
+    throw new TeamJoinRequestRejectPrivilegeError();
   }
+
+  return joinRequest;
 };
 
 export const acceptTeamJoinRequest = async (
@@ -667,7 +755,7 @@ export const acceptTeamJoinRequest = async (
     .returning();
 
   if (!joinRequest) {
-    throw new Error("only admin can accept team request");
+    throw new TeamJoinRequestAcceptPrivilegeError();
   }
 
   return joinRequest;
@@ -702,7 +790,7 @@ export const createTeamEventReaction = async (
   emoji: TeamEventReaction["emoji"],
   db: Db,
 ) => {
-  const userInTeam = await db
+  const [userInTeam] = await db
     .select()
     .from(teamEventTable)
     .innerJoin(teamTable, eq(teamTable.id, teamEventTable.teamId))
@@ -715,15 +803,20 @@ export const createTeamEventReaction = async (
     )
     .where(eq(teamEventTable.id, teamEventId));
 
-  if (!userInTeam.length) {
-    throw new Error("User is not a member of the team for this event");
+  if (!userInTeam) {
+    throw new TeamMemberNotFoundError();
   }
 
-  return db.insert(teamEventReactionTable).values({
-    emoji,
-    teamEventId,
-    userId,
-  });
+  const [reaction] = await db
+    .insert(teamEventReactionTable)
+    .values({ emoji, teamEventId, userId })
+    .returning();
+
+  if (!reaction) {
+    throw new TeamEventReactionNotFoundError();
+  }
+
+  return reaction;
 };
 
 export const removeTeamEventReaction = async (
@@ -745,7 +838,7 @@ export const removeTeamEventReaction = async (
     )
     .where(eq(teamEventTable.id, teamEventId));
 
-  const res = await db
+  const [reaction] = await db
     .delete(teamEventReactionTable)
     .where(
       and(
@@ -757,11 +850,11 @@ export const removeTeamEventReaction = async (
     )
     .returning();
 
-  if (!res.length) {
-    throw new Error("User is not a member of the team for this event");
+  if (!reaction) {
+    throw new TeamEventReactionNotFoundError();
   }
 
-  return res;
+  return reaction;
 };
 
 export const createTeamEventNotifications = async (
@@ -808,7 +901,7 @@ export const notifyTeamsFromNewOneRepMax = async (
       const teamMembership = teamMemberships.at(index);
 
       if (!teamMembership) {
-        throw new Error("team membership not found");
+        throw new TeamMemberNotFoundError();
       }
 
       return teamMembership.team.members

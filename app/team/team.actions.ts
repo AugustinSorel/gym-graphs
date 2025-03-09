@@ -35,7 +35,6 @@ import {
   selectTeamWithMembers,
   selectUserAndPublicTeams,
 } from "~/team/team.services";
-import pg from "pg";
 import { z } from "zod";
 import { redirect } from "@tanstack/react-router";
 import {
@@ -79,21 +78,10 @@ export const createTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(teamSchema.pick({ name: true, visibility: true }))
   .handler(async ({ context, data }) => {
-    try {
-      await context.db.transaction(async (tx) => {
-        const team = await createTeam(data.name, data.visibility, tx);
-        await createTeamMember(team.id, context.user.id, "admin", tx);
-      });
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateTeam = dbError && e.constraint === "team_name_unique";
-
-      if (duplicateTeam) {
-        throw new Error("team already created");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+    await context.db.transaction(async (tx) => {
+      const team = await createTeam(data.name, data.visibility, tx);
+      await createTeamMember(team.id, context.user.id, "admin", tx);
+    });
   });
 
 export const selectTeamByIdAction = createServerFn({ method: "GET" })
@@ -118,18 +106,7 @@ export const renameTeamAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      await renameTeamById(context.user.id, data.teamId, data.name, context.db);
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateTeam = dbError && e.constraint === "team_name_unique";
-
-      if (duplicateTeam) {
-        throw new Error("team already created");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+    await renameTeamById(context.user.id, data.teamId, data.name, context.db);
   });
 
 export const deleteTeamAction = createServerFn({ method: "POST" })
@@ -208,68 +185,48 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ context, data }) => {
-    try {
-      const token = generateTeamInvitationToken();
-      const tokenHash = hashSHA256Hex(token);
+    const token = generateTeamInvitationToken();
+    const tokenHash = hashSHA256Hex(token);
 
-      await context.db.transaction(async (tx) => {
-        const memberInTeam = await selectMemberInTeamByEmail(
-          data.newMemberEmail,
-          data.teamId,
-          tx,
-        );
+    await context.db.transaction(async (tx) => {
+      const memberInTeam = await selectMemberInTeamByEmail(
+        data.newMemberEmail,
+        data.teamId,
+        tx,
+      );
 
-        if (memberInTeam) {
-          throw new Error("User already joined the team.");
-        }
-
-        await createTeamInvitation(
-          data.newMemberEmail,
-          context.user.id,
-          data.teamId,
-          tokenHash,
-          tx,
-        );
-
-        const team = await selectTeamById(context.user.id, data.teamId, tx);
-
-        if (!team) {
-          throw new Error("team not found");
-        }
-
-        await sendTeamInvitationEmail(data.newMemberEmail, team, token);
-      });
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const invitationAlreadySent =
-        dbError && e.constraint === "team_invitation_team_id_email_unique";
-
-      if (invitationAlreadySent) {
-        throw new Error("invitation already sent");
+      if (memberInTeam) {
+        throw new Error("User already joined the team.");
       }
 
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+      await createTeamInvitation(
+        data.newMemberEmail,
+        context.user.id,
+        data.teamId,
+        tokenHash,
+        tx,
+      );
+
+      const team = await selectTeamById(context.user.id, data.teamId, tx);
+
+      if (!team) {
+        throw new Error("team not found");
+      }
+
+      await sendTeamInvitationEmail(data.newMemberEmail, team, token);
+    });
   });
 
 export const revokeTeamInvitationAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
-    z.object({
-      invitationId: teamInvitationSchema.shape.id,
-    }),
-  )
+  .validator(z.object({ invitationId: teamInvitationSchema.shape.id }))
   .handler(async ({ context, data }) => {
-    return revokeTeamInvitation(context.user.id, data.invitationId, context.db);
+    await revokeTeamInvitation(context.user.id, data.invitationId, context.db);
   });
 
 export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
-    z.object({
-      token: teamInvitationSchema.shape.token,
-    }),
-  )
+  .validator(z.object({ token: teamInvitationSchema.shape.token }))
   .handler(async ({ context, data }) => {
     const tokenHash = hashSHA256Hex(data.token);
 
@@ -373,26 +330,12 @@ export const createTeamEventReactionAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
   .validator(teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }))
   .handler(async ({ context, data }) => {
-    try {
-      await createTeamEventReaction(
-        data.teamEventId,
-        context.user.id,
-        data.emoji,
-        context.db,
-      );
-    } catch (e) {
-      const dbError = e instanceof pg.DatabaseError;
-      const duplicateEvent =
-        dbError &&
-        e.constraint ===
-          "team_event_reaction_team_event_id_user_id_emoji_unique";
-
-      if (duplicateEvent) {
-        throw new Error("event already created");
-      }
-
-      throw new Error(e instanceof Error ? e.message : "something went wrong");
-    }
+    await createTeamEventReaction(
+      data.teamEventId,
+      context.user.id,
+      data.emoji,
+      context.db,
+    );
   });
 
 export const removeTeamEventReactionAction = createServerFn({ method: "POST" })

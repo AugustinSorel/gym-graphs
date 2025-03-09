@@ -22,6 +22,6 @@ export class TileDuplcateError extends AppError {
   };
 
   constructor() {
-    super("tile name already exists", 404);
+    super("tile name already exists", 409);
   }
 }
