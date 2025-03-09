@@ -42,6 +42,13 @@ import {
   sendTeamJoinRequestEmail,
 } from "~/team/team.emails";
 import { hashSHA256Hex } from "~/auth/auth.services";
+import {
+  TeamInvitationExpiredError,
+  TeamInvitationNotFoundError,
+  TeamJoinRequestPrivateVisibilityError,
+  TeamMemberAlreadyInTeamError,
+  TeamNotFoundError,
+} from "~/team/team.errors";
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
@@ -196,7 +203,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
       );
 
       if (memberInTeam) {
-        throw new Error("User already joined the team.");
+        throw new TeamMemberAlreadyInTeamError();
       }
 
       await createTeamInvitation(
@@ -210,7 +217,7 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
       const team = await selectTeamById(context.user.id, data.teamId, tx);
 
       if (!team) {
-        throw new Error("team not found");
+        throw new TeamNotFoundError();
       }
 
       await sendTeamInvitationEmail(data.newMemberEmail, team, token);
@@ -233,7 +240,7 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     const invitation = await selectTeamInvitationByToken(tokenHash, context.db);
 
     if (!invitation) {
-      throw new Error("Invalid invitation");
+      throw new TeamInvitationNotFoundError();
     }
 
     const invitationExpired = invitation.expiresAt < new Date();
@@ -241,7 +248,7 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     if (invitationExpired) {
       await expireTeamInvitation(invitation.id, context.db);
 
-      throw new Error("Invitation has expired");
+      throw new TeamInvitationExpiredError();
     }
 
     const memberInTeam = await selectMemberInTeamByEmail(
@@ -251,7 +258,7 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
     );
 
     if (memberInTeam) {
-      throw new Error("User already joined the team.");
+      throw new TeamMemberAlreadyInTeamError();
     }
 
     await context.db.transaction(async (tx) => {
@@ -269,7 +276,11 @@ export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
     const team = await selectTeamWithMembers(data.teamId, context.db);
 
     if (!team) {
-      throw new Error("team not found");
+      throw new TeamNotFoundError();
+    }
+
+    if (team.visibility === "private") {
+      throw new TeamJoinRequestPrivateVisibilityError();
     }
 
     const userIsInTeam = team.members.some((member) => {
@@ -277,7 +288,7 @@ export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
     });
 
     if (userIsInTeam) {
-      throw new Error("member already part of team");
+      throw new TeamMemberAlreadyInTeamError();
     }
 
     const joinRequest = await createTeamJoinRequest(

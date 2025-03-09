@@ -888,6 +888,10 @@ export const notifyTeamsFromNewOneRepMax = async (
 ) => {
   const teamMemberships = await selectTeamMembershipsByMemberId(user.id, db);
 
+  if (!teamMemberships.length) {
+    return;
+  }
+
   await db.transaction(async (tx) => {
     const events = teamMemberships.map((teamMembership) => ({
       name: "new one-rep max achieved!",

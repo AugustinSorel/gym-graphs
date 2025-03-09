@@ -7,9 +7,11 @@ import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { addDate } from "~/utils/date";
 import { createDashboard, createTiles } from "~/dashboard/dashboard.services";
 import { UserNotFoundError } from "~/user/user.errors";
+import { AuthDuplicateEmail } from "~/auth/auth.errors";
+import { ExerciseNotFoundError } from "~/exercise/exercise.errors";
+import { TileNotFoundError } from "~/dashboard/dashboard.errors";
 import type { Db } from "~/libs/db";
 import type { User } from "~/db/db.schemas";
-import { AuthDuplicateEmail } from "~/auth/auth.errors";
 
 export const createUserWithEmailAndPassword = async (
   email: User["email"],
@@ -239,7 +241,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   ]);
 
   if (!benchPress || !squat || !deadlift) {
-    throw new Error("exercises returned by db are null");
+    throw new ExerciseNotFoundError();
   }
 
   const [
@@ -295,7 +297,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   );
 
   if (!benchPressTile || !squatTile || !deadliftTile) {
-    throw new Error("tiles not created");
+    throw new TileNotFoundError();
   }
 
   const operations = [
