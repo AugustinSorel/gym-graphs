@@ -20,4 +20,4 @@ const createTokenBucketRateLimiter = (
   return { checkRate };
 };
 
-export const rateLimiter = createTokenBucketRateLimiter("global_ip", 50, 2);
+export const rateLimiter = createTokenBucketRateLimiter("global_ip", 100, 2);
