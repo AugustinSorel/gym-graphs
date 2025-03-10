@@ -1,9 +1,10 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { getCookie, getEvent, setResponseStatus } from "vinxi/http";
+import { getCookie, getEvent } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { env } from "~/env";
 import { rateLimiter } from "~/libs/rate-limiter";
+import { TooManyRequestsError, UnauthorizedError } from "~/auth/auth.errors";
 
 export const selectSessionTokenMiddleware = createMiddleware()
   .middleware([injectDbMiddleware])
@@ -23,8 +24,7 @@ export const authGuardMiddleware = createMiddleware()
   .middleware([selectSessionTokenMiddleware])
   .server(async ({ next, context }) => {
     if (!context.session) {
-      setResponseStatus(401);
-      throw new Error("unauthorized");
+      throw new UnauthorizedError();
     }
 
     return next({
@@ -47,8 +47,7 @@ export const rateLimiterMiddleware = createMiddleware().server(
     const isValid = await rateLimiter.checkRate(ip, 1);
 
     if (!isValid) {
-      setResponseStatus(429);
-      throw new Error("Too many requests");
+      throw new TooManyRequestsError();
     }
 
     return await next();

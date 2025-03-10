@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { AppError } from "~/libs/error";
 
+export class UnauthorizedError extends AppError {
+  constructor() {
+    super("unauthorized", 401);
+  }
+}
+
+export class TooManyRequestsError extends AppError {
+  constructor() {
+    super("unauthorized", 429);
+  }
+}
+
 export class AuthInvalidCredentialsError extends AppError {
   constructor() {
     super("email or password is invalid", 403);
