@@ -70,7 +70,7 @@ export const createTeam = async (
     return team;
   } catch (e) {
     if (TeamDuplicateError.check(e)) {
-      throw TeamDuplicateError();
+      throw new TeamDuplicateError();
     }
 
     throw e;
