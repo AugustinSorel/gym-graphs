@@ -139,7 +139,7 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 |          | (Remove `window.location.href` in `github-sign-in`)   |
 | BUG      | Error boundaries not working properly                 |
 |          | (test error boundaries + components again)            |
-| BUG      | Dev Docker not working                                |
+| BUG      | Dev Docker not working due to vinxi???                |
 
 # APP TAKS
 | Type     | Description                                           |
