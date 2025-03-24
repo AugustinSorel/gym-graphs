@@ -97,25 +97,7 @@ type Props = Readonly<{
 }>;
 
 const useFormSchema = () => {
-  const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const set = useSet();
-
-  return setSchema.pick({ doneAt: true }).refine(
-    (data) => {
-      const duplicateSet = exercise.data.sets.find(
-        (s) =>
-          dateAsYYYYMMDD(s.doneAt) === dateAsYYYYMMDD(data.doneAt) &&
-          s.id !== set.id,
-      );
-
-      return !duplicateSet;
-    },
-    {
-      message: "set already created for this date",
-      path: ["doneAt"],
-    },
-  );
+  return setSchema.pick({ doneAt: true });
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;

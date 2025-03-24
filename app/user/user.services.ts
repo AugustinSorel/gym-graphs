@@ -309,15 +309,33 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
           exerciseId: benchPress.id,
           doneAt: addDate(new Date(), ++i * -1),
         })),
+        ...sets.benchPress.slice(0, 3).map((set, i) => ({
+          weightInKg: set,
+          repetitions: set - ++i,
+          exerciseId: benchPress.id,
+          doneAt: addDate(new Date(), ++i * -1),
+        })),
         ...sets.squat.map((set, i) => ({
           weightInKg: set,
           repetitions: set,
           exerciseId: squat.id,
           doneAt: addDate(new Date(), ++i * -1),
         })),
+        ...sets.squat.slice(1, 4).map((set, i) => ({
+          weightInKg: set,
+          repetitions: set - ++i * 3,
+          exerciseId: squat.id,
+          doneAt: addDate(new Date(), ++i * -1),
+        })),
         ...sets.deadlift.map((set, i) => ({
           weightInKg: set,
           repetitions: set,
+          exerciseId: deadlift.id,
+          doneAt: addDate(new Date(), ++i * -1),
+        })),
+        ...sets.deadlift.slice(1, 3).map((set, i) => ({
+          weightInKg: set,
+          repetitions: set - ++i * 4,
           exerciseId: deadlift.id,
           doneAt: addDate(new Date(), ++i * -1),
         })),

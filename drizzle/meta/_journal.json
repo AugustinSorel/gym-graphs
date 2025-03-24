@@ -15,6 +15,13 @@
       "when": 1741543439968,
       "tag": "0001_milky_sage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1742850212287,
+      "tag": "0002_jittery_star_brand",
+      "breakpoints": true
     }
   ]
 }

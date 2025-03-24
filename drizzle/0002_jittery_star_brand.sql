@@ -1,0 +1,1 @@
+ALTER TABLE "set" DROP CONSTRAINT "set_done_at_exercise_id_unique";

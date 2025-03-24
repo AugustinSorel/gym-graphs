@@ -17,7 +17,7 @@ import { Button } from "~/ui/button";
 import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
 import { useExercise } from "~/exercise/hooks/use-exercise";
-import { dateAsYYYYMMDD, getCalendarPositions } from "~/utils/date";
+import { getCalendarPositions } from "~/utils/date";
 import { exerciseQueries } from "~/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
@@ -108,28 +108,12 @@ type Props = Readonly<{
 const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
 
 const useFormSchema = () => {
-  const params = routeApi.useParams();
-  const exericse = useExercise(params.exerciseId);
-
   return z
     .object({
       repetitions: z.coerce.number(),
       weightInKg: z.coerce.number(),
     })
-    .pipe(setSchema.pick({ repetitions: true, weightInKg: true }))
-    .refine(
-      () => {
-        const setAlreadyExists = exericse.data.sets.find(
-          (set) => dateAsYYYYMMDD(set.doneAt) === dateAsYYYYMMDD(new Date()),
-        );
-
-        return !setAlreadyExists;
-      },
-      {
-        message: "set already created for today",
-        path: ["repetitions"],
-      },
-    );
+    .pipe(setSchema.pick({ repetitions: true, weightInKg: true }));
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;

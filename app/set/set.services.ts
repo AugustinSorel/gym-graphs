@@ -6,7 +6,7 @@ import {
   tileTable,
 } from "~/db/db.schemas";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
-import { SetDuplicateError, SetNotFoundError } from "~/set/set.errors";
+import { SetNotFoundError } from "~/set/set.errors";
 import type { Dashboard, Set, User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -16,24 +16,16 @@ export const createSet = async (
   exerciseId: Set["exerciseId"],
   db: Db,
 ) => {
-  try {
-    const [set] = await db
-      .insert(setTable)
-      .values({ weightInKg, repetitions, exerciseId })
-      .returning();
+  const [set] = await db
+    .insert(setTable)
+    .values({ weightInKg, repetitions, exerciseId })
+    .returning();
 
-    if (!set) {
-      throw new SetNotFoundError();
-    }
-
-    return set;
-  } catch (e) {
-    if (SetDuplicateError.check(e)) {
-      throw new SetDuplicateError();
-    }
-
-    throw e;
+  if (!set) {
+    throw new SetNotFoundError();
   }
+
+  return set;
 };
 
 export const createSets = async (
@@ -103,33 +95,25 @@ export const updateSetDoneAt = async (
   doneAt: Set["doneAt"],
   db: Db,
 ) => {
-  try {
-    const exercise = db
-      .select()
-      .from(dashboardTable)
-      .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
-      .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
-      .innerJoin(setTable, eq(setTable.id, setId))
-      .where(eq(dashboardTable.userId, userId));
+  const exercise = db
+    .select()
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(exerciseTable, eq(exerciseTable.id, tileTable.exerciseId))
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
 
-    const [set] = await db
-      .update(setTable)
-      .set({ doneAt })
-      .where(and(eq(setTable.id, setId), exists(exercise)))
-      .returning();
+  const [set] = await db
+    .update(setTable)
+    .set({ doneAt })
+    .where(and(eq(setTable.id, setId), exists(exercise)))
+    .returning();
 
-    if (!set) {
-      throw new SetNotFoundError();
-    }
-
-    return set;
-  } catch (e) {
-    if (SetDuplicateError.check(e)) {
-      throw new SetDuplicateError();
-    }
-
-    throw e;
+  if (!set) {
+    throw new SetNotFoundError();
   }
+
+  return set;
 };
 
 export const deleteSet = async (

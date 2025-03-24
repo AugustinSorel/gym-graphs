@@ -275,26 +275,22 @@ export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   }),
 }));
 
-export const setTable = pgTable(
-  "set",
-  (t) => ({
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    exerciseId: t
-      .integer("exercise_id")
-      .notNull()
-      .references(() => exerciseTable.id, { onDelete: "cascade" }),
-    weightInKg: t.integer("weight_in_kg").notNull(),
-    repetitions: t.integer("repetitions").notNull(),
-    doneAt: t.date("done_at", { mode: "date" }).notNull().defaultNow(),
-    createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t
-      .timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  }),
-  (t) => [unique().on(t.doneAt, t.exerciseId)],
-);
+export const setTable = pgTable("set", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  exerciseId: t
+    .integer("exercise_id")
+    .notNull()
+    .references(() => exerciseTable.id, { onDelete: "cascade" }),
+  weightInKg: t.integer("weight_in_kg").notNull(),
+  repetitions: t.integer("repetitions").notNull(),
+  doneAt: t.date("done_at", { mode: "date" }).notNull().defaultNow(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
 
 export type Set = Readonly<typeof setTable.$inferSelect>;
 
