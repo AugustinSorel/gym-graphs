@@ -65,19 +65,34 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section className="py-2 sm:p-4">
-        <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+      <Section>
+        <SectionTitle>
+          1 <Abbr title="repetitions">rep</Abbr>{" "}
+          <Abbr title="maximum">max</Abbr> graph
+        </SectionTitle>
+
+        <SectionPanel className="py-2 sm:p-4">
+          <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+        </SectionPanel>
       </Section>
 
       <Section>
-        <ExerciseTagsList />
+        <SectionTitle>tags</SectionTitle>
+
+        <SectionPanel>
+          <ExerciseTagsList />
+        </SectionPanel>
       </Section>
 
       <Section>
-        <ExerciseTable
-          sets={exercise.data.sets}
-          columns={exerciseTableColumns}
-        />
+        <SectionTitle>sets</SectionTitle>
+
+        <SectionPanel>
+          <ExerciseTable
+            sets={exercise.data.sets}
+            columns={exerciseTableColumns}
+          />
+        </SectionPanel>
       </Section>
     </Main>
   );
@@ -93,12 +108,15 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Section = ({ className, ...props }: ComponentProps<"section">) => {
-  return (
-    <section
-      className={cn("bg-secondary relative grid rounded-md border", className)}
-      {...props}
-    />
-  );
+  return <section className={cn("space-y-4", className)} {...props} />;
+};
+
+const SectionTitle = (props: ComponentProps<"h2">) => {
+  return <h2 className="font-semibold" {...props} />;
+};
+
+const Abbr = (props: ComponentProps<"abbr">) => {
+  return <abbr className="no-underline" {...props} />;
 };
 
 const Header = (props: ComponentProps<"header">) => {
@@ -113,5 +131,14 @@ const Header = (props: ComponentProps<"header">) => {
 const Title = (props: ComponentProps<"h1">) => {
   return (
     <h1 className="truncate text-3xl font-semibold capitalize" {...props} />
+  );
+};
+
+const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
+  return (
+    <div
+      className={cn("bg-secondary relative grid rounded-md border", className)}
+      {...props}
+    />
   );
 };
