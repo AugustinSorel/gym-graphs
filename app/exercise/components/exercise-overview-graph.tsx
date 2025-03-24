@@ -5,16 +5,17 @@ import { useParentSize } from "@visx/responsive";
 import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
+import { useMemo } from "react";
+import { useSetsByDoneAt } from "~/set/hooks/use-sets-by-done-at";
+import { useBestSetsFromDoneAt } from "~/set/hooks/use-best-sets-from-done-at";
+import { useSortSetsByDoneAt } from "~/set/hooks/use-sort-sets-by-done-at";
 import type { Set } from "~/db/db.schemas";
 import type { ComponentProps } from "react";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
   const user = useUser();
-
-  const sets = props.sets.toSorted(
-    (a, b) => a.doneAt.getTime() - b.doneAt.getTime(),
-  );
+  const sets = useSets(props.sets);
 
   const timeScale = scaleTime({
     domain: extent(sets, getDoneAt) as [Date, Date],
@@ -66,9 +67,17 @@ const margin = {
 type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
 
 type Props = Readonly<{
-  sets: ReadonlyArray<Point>;
+  sets: Array<Point>;
 }>;
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
+};
+
+const useSets = (sets: Props["sets"]) => {
+  const doneAtToSets = useSetsByDoneAt(sets);
+  const bestSets = useBestSetsFromDoneAt(doneAtToSets);
+  const graphSets = useSortSetsByDoneAt(bestSets);
+
+  return useMemo(() => graphSets, [graphSets]);
 };

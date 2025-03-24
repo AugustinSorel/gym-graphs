@@ -14,6 +14,8 @@ import { WeightValue } from "~/weight-unit/components/weight-value";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import { dateAsYYYYMMDD } from "~/utils/date";
+import { useSetsByDoneAt } from "~/set/hooks/use-sets-by-done-at";
+import { useSortSetsByDoneAt } from "~/set/hooks/use-sort-sets-by-done-at";
 import type { Set } from "~/db/db.schemas";
 import type {
   ComponentProps,
@@ -318,32 +320,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
 };
 
 const useSets = (sets: GraphProps["sets"]) => {
-  const user = useUser();
+  const sortedSets = useSortSetsByDoneAt(sets);
 
-  return useMemo(() => {
-    return sets.toSorted((a, b) => {
-      return (
-        a.doneAt.getTime() - b.doneAt.getTime() ||
-        getOneRepMax(b, user.data.oneRepMaxAlgo) -
-          getOneRepMax(a, user.data.oneRepMaxAlgo)
-      );
-    });
-  }, [sets]);
-};
-
-const useSetsByDoneAt = (sets: GraphProps["sets"]) => {
-  return useMemo(() => {
-    return sets.reduce((map, set) => {
-      const key = dateAsYYYYMMDD(set.doneAt);
-      const sets = map.get(key);
-
-      if (sets) {
-        sets.push(set);
-      } else {
-        map.set(key, [set]);
-      }
-
-      return map;
-    }, new Map<string, GraphProps["sets"]>());
-  }, [sets]);
+  return useMemo(() => sortedSets, [sortedSets]);
 };

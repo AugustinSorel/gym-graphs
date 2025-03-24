@@ -15,7 +15,9 @@ import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
-import { dateAsYYYYMMDD } from "~/utils/date";
+import { useSetsByDoneAt } from "~/set/hooks/use-sets-by-done-at";
+import { useBestSetsFromDoneAt } from "~/set/hooks/use-best-sets-from-done-at";
+import { useSortSetsByDoneAt } from "~/set/hooks/use-sort-sets-by-done-at";
 import type { Set } from "~/db/db.schemas";
 import type {
   ComponentProps,
@@ -305,57 +307,4 @@ const useSets = (sets: GraphProps["sets"]) => {
   const graphSets = useSortSetsByDoneAt(bestSets);
 
   return useMemo(() => graphSets, [graphSets]);
-};
-
-const useBestSetsFromDoneAt = (setsByDoneAt: SetsByDoneAt) => {
-  const user = useUser();
-
-  return useMemo(() => {
-    return Array.from(setsByDoneAt).reduce<GraphProps["sets"]>(
-      (acc, [_key, sets]) => {
-        const sortedSetsByOneRepMax = sets.toSorted((a, b) => {
-          return (
-            getOneRepMax(b, user.data.oneRepMaxAlgo) -
-            getOneRepMax(a, user.data.oneRepMaxAlgo)
-          );
-        });
-
-        const bestSet = sortedSetsByOneRepMax.at(0);
-
-        if (bestSet) {
-          acc.push(bestSet);
-        }
-
-        return acc;
-      },
-      [],
-    );
-  }, [setsByDoneAt]);
-};
-
-const useSetsByDoneAt = (sets: GraphProps["sets"]) => {
-  return useMemo(() => {
-    return sets.reduce((map, set) => {
-      const key = dateAsYYYYMMDD(set.doneAt);
-      const sets = map.get(key);
-
-      if (sets) {
-        sets.push(set);
-      } else {
-        map.set(key, [set]);
-      }
-
-      return map;
-    }, new Map<string, GraphProps["sets"]>());
-  }, [sets]);
-};
-
-type SetsByDoneAt = ReturnType<typeof useSetsByDoneAt>;
-
-const useSortSetsByDoneAt = (sets: GraphProps["sets"]) => {
-  return useMemo(() => {
-    return sets.toSorted((a, b) => {
-      return a.doneAt.getTime() - b.doneAt.getTime();
-    });
-  }, [sets]);
 };
