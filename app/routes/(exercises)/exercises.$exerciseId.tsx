@@ -13,6 +13,7 @@ import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
 import { permissions } from "~/libs/permissions";
+import { ExerciseSetsFrequencyGraph } from "~/exercise/components/exercise-sets-frequency-graph";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
@@ -73,6 +74,14 @@ const RouteComponent = () => {
 
         <SectionPanel className="py-2 sm:p-4">
           <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+        </SectionPanel>
+      </Section>
+
+      <Section>
+        <SectionTitle>sets frequency</SectionTitle>
+
+        <SectionPanel className="py-2 sm:p-4">
+          <ExerciseSetsFrequencyGraph sets={exercise.data.sets} />
         </SectionPanel>
       </Section>
 

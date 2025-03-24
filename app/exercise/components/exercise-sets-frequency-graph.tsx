@@ -1,15 +1,13 @@
 import { bisector, extent, max } from "@visx/vendor/d3-array";
-import { curveMonotoneX } from "@visx/curve";
-import { GridRows } from "@visx/grid";
-import { LinePath, AreaClosed, Bar } from "@visx/shape";
+import { GridRows, GridColumns } from "@visx/grid";
+import { Bar, Circle, Line } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { ParentSize } from "@visx/responsive";
 import { AxisBottom } from "@visx/axis";
 import { Group } from "@visx/group";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
-import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
-import { useCallback, useMemo } from "react";
+import { Fragment, useCallback, useMemo } from "react";
 import { z } from "zod";
 import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
@@ -24,7 +22,7 @@ import type {
   TouchEvent,
 } from "react";
 
-export const ExerciseAdvanceOverviewGraph = (props: Props) => {
+export const ExerciseSetsFrequencyGraph = (props: Props) => {
   const sets = useSets(props.sets);
   const noSets = !sets.length;
 
@@ -42,8 +40,9 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 };
 
 const Graph = ({ height, width, sets }: GraphProps) => {
-  const tooltip = useTooltip<Point>();
+  const tooltip = useTooltip<string>();
   const user = useUser();
+  const setsByDoneAt = useSetsByDoneAt(sets);
 
   const timeScale = useMemo(() => {
     return scaleTime({
@@ -69,6 +68,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       const index = bisectDate(sets, x0, 1);
 
       const d0: Point = sets.at(index - 1) ?? {
+        id: -1,
         doneAt: new Date(),
         repetitions: 0,
         weightInKg: 0,
@@ -86,10 +86,19 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             : d0;
       }
 
+      const key = dateAsYYYYMMDD(d.doneAt);
+
+      const z = setsByDoneAt.get(key)?.at(0) ?? {
+        id: -1,
+        doneAt: new Date(),
+        repetitions: 0,
+        weightInKg: 0,
+      };
+
       tooltip.showTooltip({
-        tooltipData: d,
-        tooltipLeft: timeScale(getDoneAt(d)),
-        tooltipTop: oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo)),
+        tooltipData: key,
+        tooltipLeft: timeScale(getDoneAt(z)),
+        tooltipTop: oneRepMaxScale(getOneRepMax(z, user.data.oneRepMaxAlgo)),
       });
     },
     [tooltip, timeScale, sets, user.data.oneRepMaxAlgo, oneRepMaxScale],
@@ -128,7 +137,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           />
         </Group>
 
-        {/*background horizontal line*/}
+        {/*background lines*/}
         <Group top={margin.top} left={margin.left}>
           <GridRows
             scale={oneRepMaxScale}
@@ -136,40 +145,30 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             height={height - margin.top - margin.bottom}
             stroke="hsl(var(--border))"
             strokeOpacity={0.5}
-            numTicks={4}
+            numTicks={10}
+          />
+
+          <GridColumns
+            scale={timeScale}
+            width={width - margin.left - margin.right}
+            height={height - margin.top - margin.bottom}
+            stroke="hsl(var(--border))"
+            strokeOpacity={0.5}
+            numTicks={10}
           />
         </Group>
 
-        {/*line graph + the gradient underneath*/}
+        {/*circles*/}
         <Group top={margin.top} left={margin.left}>
-          <LinearGradient
-            id="area-gradient"
-            from="hsl(var(--primary))"
-            to="hsl(var(--primary))"
-            toOpacity={0.25}
-            fromOpacity={0.25}
-          />
-
-          <AreaClosed<Point>
-            data={sets}
-            x={(d) => timeScale(getDoneAt(d))}
-            y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
-            yScale={oneRepMaxScale}
-            strokeWidth={0}
-            stroke="url(#area-gradient)"
-            fill="url(#area-gradient)"
-            curve={curveMonotoneX}
-          />
-
-          <LinePath<Point>
-            curve={curveMonotoneX}
-            data={sets}
-            x={(d) => timeScale(getDoneAt(d))}
-            y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
-            className="stroke-primary"
-            strokeWidth={2}
-            shapeRendering="geometricPrecision"
-          />
+          {sets.map((set) => (
+            <Circle
+              key={set.id}
+              r={4}
+              cx={timeScale(getDoneAt(set))}
+              cy={oneRepMaxScale(getOneRepMax(set, user.data.oneRepMaxAlgo))}
+              className="fill-primary"
+            />
+          ))}
         </Group>
 
         {/*hit zone for tooltip*/}
@@ -185,16 +184,36 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           />
         </Group>
 
+        {tooltip.tooltipData && (
+          <Group top={margin.top} left={margin.left}>
+            <Line
+              from={{ x: tooltip.tooltipLeft, y: 0 }}
+              to={{ x: tooltip.tooltipLeft, y: innerHeight }}
+              className="stroke-primary/50"
+              strokeWidth={2}
+              pointerEvents="none"
+              strokeDasharray="5,2"
+            />
+          </Group>
+        )}
+
         {/*tooltip circle indicator*/}
         {tooltip.tooltipData && (
           <Group top={margin.top} left={margin.left}>
-            <circle
-              cx={tooltip.tooltipLeft ?? 0}
-              cy={tooltip.tooltipTop ?? 0}
-              r={6}
-              className="fill-primary"
-              pointerEvents="none"
-            />
+            {setsByDoneAt
+              .get(tooltip.tooltipData)
+              ?.map((set) => (
+                <Circle
+                  key={set.id}
+                  r={8}
+                  cx={timeScale(getDoneAt(set))}
+                  cy={oneRepMaxScale(
+                    getOneRepMax(set, user.data.oneRepMaxAlgo),
+                  )}
+                  className="fill-primary/50"
+                  pointerEvents="none"
+                />
+              ))}
           </Group>
         )}
       </svg>
@@ -204,39 +223,36 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           top={(tooltip.tooltipTop ?? 0) - tooltipMargin.top}
           left={Math.min(
             Math.max((tooltip.tooltipLeft ?? 0) - tooltipMargin.left, 0),
-            width - 150,
+            width - 125,
           )}
           style={tooltipStyles}
         >
           <time
-            dateTime={tooltip.tooltipData.doneAt.toString()}
+            dateTime={new Date(tooltip.tooltipData).toString()}
             className="text-xs font-bold"
           >
-            {tooltip.tooltipData.doneAt.toLocaleDateString("en-US", {
+            {new Date(tooltip.tooltipData).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
             })}
           </time>
 
           <dl className="[&>dt]:text-muted-foreground grid grid-cols-[1fr_auto] gap-x-2 text-xs whitespace-nowrap [&>dd]:ml-auto [&>dd]:font-semibold">
-            <dt>1 rep max</dt>
-            <dd>
-              <WeightValue
-                weightInKg={calculateOneRepMax(
-                  tooltip.tooltipData.weightInKg,
-                  tooltip.tooltipData.repetitions,
-                  user.data.oneRepMaxAlgo,
-                )}
-              />{" "}
-              <WeightUnit />
-            </dd>
-            <dt>weight</dt>
-            <dd>
-              <WeightValue weightInKg={tooltip.tooltipData.weightInKg} />{" "}
-              <WeightUnit />
-            </dd>
-            <dt>repetitions</dt>
-            <dd>{tooltip.tooltipData.repetitions}</dd>
+            {setsByDoneAt.get(tooltip.tooltipData)?.map((set, i) => (
+              <Fragment key={set.id}>
+                <dt>set {i + 1}</dt>
+                <dd>
+                  <WeightValue
+                    weightInKg={calculateOneRepMax(
+                      set.weightInKg,
+                      set.repetitions,
+                      user.data.oneRepMaxAlgo,
+                    )}
+                  />{" "}
+                  <WeightUnit />
+                </dd>
+              </Fragment>
+            ))}
           </dl>
         </Tooltip>
       )}
@@ -259,9 +275,9 @@ const margin = {
 } as const;
 
 const tooltipMargin = {
-  top: 100,
+  top: 50,
   bottom: 0,
-  left: 35,
+  left: -10,
   right: 0,
 } as const;
 
@@ -277,7 +293,9 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
+type Point = Readonly<
+  Pick<Set, "weightInKg" | "repetitions" | "doneAt" | "id">
+>;
 
 type Props = Readonly<{
   sets: Array<Point>;
@@ -300,37 +318,17 @@ const NoDataText = (props: ComponentProps<"p">) => {
 };
 
 const useSets = (sets: GraphProps["sets"]) => {
-  const doneAtToSets = useSetsByDoneAt(sets);
-  const bestSets = useBestSetsFromDoneAt(doneAtToSets);
-  const graphSets = useSortSetsByDoneAt(bestSets);
-
-  return useMemo(() => graphSets, [graphSets]);
-};
-
-const useBestSetsFromDoneAt = (setsByDoneAt: SetsByDoneAt) => {
   const user = useUser();
 
   return useMemo(() => {
-    return Array.from(setsByDoneAt).reduce<GraphProps["sets"]>(
-      (acc, [_key, sets]) => {
-        const sortedSetsByOneRepMax = sets.toSorted((a, b) => {
-          return (
-            getOneRepMax(b, user.data.oneRepMaxAlgo) -
-            getOneRepMax(a, user.data.oneRepMaxAlgo)
-          );
-        });
-
-        const bestSet = sortedSetsByOneRepMax.at(0);
-
-        if (bestSet) {
-          acc.push(bestSet);
-        }
-
-        return acc;
-      },
-      [],
-    );
-  }, [setsByDoneAt]);
+    return sets.toSorted((a, b) => {
+      return (
+        a.doneAt.getTime() - b.doneAt.getTime() ||
+        getOneRepMax(b, user.data.oneRepMaxAlgo) -
+          getOneRepMax(a, user.data.oneRepMaxAlgo)
+      );
+    });
+  }, [sets]);
 };
 
 const useSetsByDoneAt = (sets: GraphProps["sets"]) => {
@@ -347,15 +345,5 @@ const useSetsByDoneAt = (sets: GraphProps["sets"]) => {
 
       return map;
     }, new Map<string, GraphProps["sets"]>());
-  }, [sets]);
-};
-
-type SetsByDoneAt = ReturnType<typeof useSetsByDoneAt>;
-
-const useSortSetsByDoneAt = (sets: GraphProps["sets"]) => {
-  return useMemo(() => {
-    return sets.toSorted((a, b) => {
-      return a.doneAt.getTime() - b.doneAt.getTime();
-    });
   }, [sets]);
 };
