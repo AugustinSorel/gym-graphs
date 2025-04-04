@@ -15,7 +15,7 @@ export const HideAfter = (
     return () => {
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [time]);
 
   if (hide) {
     return null;

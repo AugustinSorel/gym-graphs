@@ -121,7 +121,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
         tooltipData: data.at(index),
       });
     },
-    [data, tooltip, width, height],
+    [data, tooltip, width, height, centerX, centerY, radius],
   );
 
   return (

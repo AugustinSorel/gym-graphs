@@ -35,5 +35,5 @@ export const useBestSetsFromDoneAt = <
 
       return acc;
     }, []);
-  }, [setsByDoneAt]);
+  }, [setsByDoneAt, user.data.oneRepMaxAlgo]);
 };

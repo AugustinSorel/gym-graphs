@@ -247,7 +247,7 @@ const Section = (props: ComponentProps<"section">) => {
 const nukeCachedTeamNotifications = (
   queryClient: QueryClient,
   teamId: Team["id"],
-  eventNotificationCount: any,
+  eventNotificationCount: number,
 ) => {
   const queries = {
     userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,

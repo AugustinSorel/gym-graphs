@@ -9,7 +9,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "~/ui/skeleton";
 import { getFirstDayOfMonth } from "~/utils/date";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import type { RectCell } from "@visx/heatmap/lib/heatmaps/HeatmapRect";
 import type { selectTilesSetsHeatMap } from "~/dashboard/dashboard.actions";
 import type {
   ComponentProps,
@@ -111,7 +110,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
         tooltipTop: tooltipY,
       });
     },
-    [data, tooltip, width, height],
+    [data, tooltip],
   );
 
   return (

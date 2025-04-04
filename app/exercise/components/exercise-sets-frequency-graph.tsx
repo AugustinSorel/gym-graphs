@@ -103,7 +103,14 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         tooltipTop: oneRepMaxScale(getOneRepMax(z, user.data.oneRepMaxAlgo)),
       });
     },
-    [tooltip, timeScale, sets, user.data.oneRepMaxAlgo, oneRepMaxScale],
+    [
+      tooltip,
+      timeScale,
+      sets,
+      user.data.oneRepMaxAlgo,
+      oneRepMaxScale,
+      setsByDoneAt,
+    ],
   );
 
   return (
