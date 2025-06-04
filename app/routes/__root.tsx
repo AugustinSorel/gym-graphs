@@ -53,7 +53,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           title: "Gym Graphs",
         },
         {
-          naem: "keywords",
+          name: "keywords",
           content: "gym, gym graphs, gym monitor, gym tracker",
         },
         {
