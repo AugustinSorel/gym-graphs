@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import appCss from "~/styles/styles.css?url";
 import {
   Outlet,

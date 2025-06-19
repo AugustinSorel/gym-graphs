@@ -15,14 +15,16 @@ export class AppError extends Error {
   }
 }
 
-export const errorMiddleware = createMiddleware().server(async ({ next }) => {
-  try {
-    return await next();
-  } catch (e) {
-    if (e instanceof AppError) {
-      setResponseStatus(e.statusCode);
-    }
+export const errorMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    try {
+      return await next();
+    } catch (e) {
+      if (e instanceof AppError) {
+        setResponseStatus(e.statusCode);
+      }
 
-    throw e;
-  }
-});
+      throw e;
+    }
+  },
+);

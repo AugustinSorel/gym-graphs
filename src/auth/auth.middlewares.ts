@@ -1,12 +1,14 @@
+import { getCookie, getHeader } from "@tanstack/react-start/server";
 import { createMiddleware } from "@tanstack/react-start";
-import { getCookie, getEvent } from "vinxi/http";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
 import { env } from "~/env";
 import { rateLimiter } from "~/libs/rate-limiter";
 import { TooManyRequestsError, UnauthorizedError } from "~/auth/auth.errors";
 
-export const selectSessionTokenMiddleware = createMiddleware()
+export const selectSessionTokenMiddleware = createMiddleware({
+  type: "function",
+})
   .middleware([injectDbMiddleware])
   .server(async ({ next, context }) => {
     const sessionCookie = getCookie("session");
@@ -20,7 +22,7 @@ export const selectSessionTokenMiddleware = createMiddleware()
     });
   });
 
-export const authGuardMiddleware = createMiddleware()
+export const authGuardMiddleware = createMiddleware({ type: "function" })
   .middleware([selectSessionTokenMiddleware])
   .server(async ({ next, context }) => {
     if (!context.session) {
@@ -35,21 +37,20 @@ export const authGuardMiddleware = createMiddleware()
     });
   });
 
-export const rateLimiterMiddleware = createMiddleware().server(
-  async ({ next }) => {
-    if (env.NODE_ENV !== "production") {
-      return await next();
-    }
-
-    const headers = getEvent().headers;
-    const ip = headers.get("x-forwarded-for") || "localhost";
-
-    const isValid = await rateLimiter.checkRate(ip, 1);
-
-    if (!isValid) {
-      throw new TooManyRequestsError();
-    }
-
+export const rateLimiterMiddleware = createMiddleware({
+  type: "function",
+}).server(async ({ next }) => {
+  if (env.NODE_ENV !== "production") {
     return await next();
-  },
-);
+  }
+
+  const ip = getHeader("x-forwarded-for") || "localhost";
+
+  const isValid = await rateLimiter.checkRate(ip, 1);
+
+  if (!isValid) {
+    throw new TooManyRequestsError();
+  }
+
+  return await next();
+});

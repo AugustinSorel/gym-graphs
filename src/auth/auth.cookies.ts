@@ -1,4 +1,4 @@
-import { getEvent, setCookie } from "vinxi/http";
+import { setCookie } from "@tanstack/react-start/server";
 import { env } from "~/env";
 import type { SessionToken } from "~/auth/auth.services";
 import type { OAuthState } from "~/auth/oauth.services";
@@ -7,9 +7,7 @@ export const setSessionTokenCookie = (
   sessionToken: SessionToken,
   expiresAt: Date,
 ) => {
-  const event = getEvent();
-
-  setCookie(event, "session", sessionToken, {
+  setCookie("session", sessionToken, {
     httpOnly: true,
     sameSite: "lax",
     secure: env.NODE_ENV === "production",
@@ -19,9 +17,7 @@ export const setSessionTokenCookie = (
 };
 
 export const setGithubStateCookie = (state: OAuthState) => {
-  const event = getEvent();
-
-  setCookie(event, "github_oauth_state", state, {
+  setCookie("github_oauth_state", state, {
     httpOnly: true,
     sameSite: "lax",
     secure: env.NODE_ENV === "production",
@@ -31,9 +27,7 @@ export const setGithubStateCookie = (state: OAuthState) => {
 };
 
 export const deleteSessionTokenCookie = () => {
-  const event = getEvent();
-
-  setCookie(event, "session", "", {
+  setCookie("session", "", {
     httpOnly: true,
     sameSite: "lax",
     secure: env.NODE_ENV === "production",

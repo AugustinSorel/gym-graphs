@@ -1,5 +1,4 @@
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { getCookie } from "vinxi/http";
+import { createServerFileRoute, getCookie } from "@tanstack/react-start/server";
 import { setSessionTokenCookie } from "~/auth/auth.cookies";
 import { createSession, generateSessionToken } from "~/auth/auth.services";
 import { db } from "~/libs/db";
@@ -19,7 +18,9 @@ import {
 import { githubOAuthCallbackSchema } from "~/auth/oauth.schemas";
 import type { GithubOAuthTokenResponse } from "~/auth/oauth.schemas";
 
-export const APIRoute = createAPIFileRoute("/api/auth/callback/github")({
+export const ServerRoute = createServerFileRoute(
+  "/api/auth/callback/github",
+).methods({
   GET: async ({ request }) => {
     try {
       const url = new URL(request.url);

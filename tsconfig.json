@@ -9,10 +9,16 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
-    "lib": ["ESNext.Array", "DOM", "ESNext"],
+    "lib": [
+      "ESNext.Array",
+      "DOM",
+      "ESNext"
+    ],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": [
+        "./src/*"
+      ]
     }
   }
 }
