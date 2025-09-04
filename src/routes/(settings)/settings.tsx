@@ -195,11 +195,15 @@ const OneRepMaxAlgoSection = () => {
           value={user.data.oneRepMaxAlgo}
           onValueChange={(unsafeOneRepMaxAlgo) => {
             const oneRepMaxAlgo =
-              userSchema.shape.oneRepMaxAlgo.parse(unsafeOneRepMaxAlgo);
+              userSchema.shape.oneRepMaxAlgo.safeParse(unsafeOneRepMaxAlgo);
+
+            if (!oneRepMaxAlgo.success) {
+              return;
+            }
 
             updateOneRepMaxAlgo.mutate({
               data: {
-                oneRepMaxAlgo,
+                oneRepMaxAlgo: oneRepMaxAlgo.data,
               },
             });
           }}
