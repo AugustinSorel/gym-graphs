@@ -15,9 +15,7 @@ import { WeightUnit } from "~/weight-unit/components/weight-unit";
 import { WeightValue } from "~/weight-unit/components/weight-value";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
-import { useSetsByDoneAt } from "~/set/hooks/use-sets-by-done-at";
-import { useBestSetsFromDoneAt } from "~/set/hooks/use-best-sets-from-done-at";
-import { useSortSetsByDoneAt } from "~/set/hooks/use-sort-sets-by-done-at";
+import { useBestSortedSets } from "~/set/hooks/use-best-sorted-sets";
 import type { Set } from "~/db/db.schemas";
 import type {
   ComponentProps,
@@ -27,7 +25,7 @@ import type {
 } from "react";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
-  const sets = useSets(props.sets);
+  const sets = useBestSortedSets(props.sets);
   const noSets = !sets.length;
 
   if (noSets) {
@@ -299,12 +297,4 @@ const NoDataText = (props: ComponentProps<"p">) => {
       {...props}
     />
   );
-};
-
-const useSets = (sets: GraphProps["sets"]) => {
-  const doneAtToSets = useSetsByDoneAt(sets);
-  const bestSets = useBestSetsFromDoneAt(doneAtToSets);
-  const graphSets = useSortSetsByDoneAt(bestSets);
-
-  return useMemo(() => graphSets, [graphSets]);
 };
