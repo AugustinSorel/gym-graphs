@@ -31,3 +31,5 @@ export const tileSchema = z.object({
     .min(3, "name must be at least 3 characters")
     .max(255, "name must be at most 255 characters"),
 });
+
+export const dashboardViewSchema = z.enum(["grid", "list"]);

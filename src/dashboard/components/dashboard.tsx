@@ -1,4 +1,4 @@
-import { CatchBoundary } from "@tanstack/react-router";
+import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import {
   closestCenter,
   DndContext,
@@ -20,7 +20,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { reorderTilesAction } from "~/dashboard/dashboard.actions";
-import { Tile, TileFallback, TileSkeleton } from "~/dashboard/components/tile";
+import {
+  GridTile,
+  GridTileFallback,
+  GridTileSkeleton,
+} from "~/dashboard/components/grid-tile";
+import {
+  ListTile,
+  ListTileFallback,
+  ListTileSkeleton,
+} from "~/dashboard/components/list-tile";
 import type {
   ComponentProps,
   CSSProperties,
@@ -37,25 +46,59 @@ import type {
 
 export const Dashboard = () => {
   return (
-    <Suspense fallback={<GridSkeleton />}>
+    <NoTilesFallback>
       <Content />
-    </Suspense>
+    </NoTilesFallback>
   );
 };
 
-const Content = () => {
+const NoTilesFallback = (props: PropsWithChildren) => {
   const tiles = useTiles();
 
   if (!tiles.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
+  return props.children;
+};
+
+//TODO: refactor this with the new Activity Component
+//      whenever it get released by React
+const Content = () => {
+  const search = routeApi.useSearch();
+
+  const view = search.view ?? "grid";
+
+  if (view === "grid") {
+    return (
+      <Suspense fallback={<GridSkeleton />}>
+        <GridContent />
+      </Suspense>
+    );
+  }
+
+  if (view === "list") {
+    return (
+      <Suspense fallback={<ListSkeleton />}>
+        <ListContent />
+      </Suspense>
+    );
+  }
+
+  view satisfies never;
+};
+
+const routeApi = getRouteApi("/(dashboard)/dashboard");
+
+const ListContent = () => {
+  const tiles = useTiles();
+
   return (
-    <Grid>
+    <List>
       <SortableGrid>
         {(tile, index) => (
           <CatchBoundary
-            errorComponent={TileFallback}
+            errorComponent={ListTileFallback}
             getResetKey={() => "reset"}
             key={tile.id}
           >
@@ -63,13 +106,38 @@ const Content = () => {
               isLastItem={index >= tiles.data.length - 1}
               id={tile.id}
             >
-              <Tile tile={tile} />
+              <ListTile tile={tile} />
+            </SortableItem>
+          </CatchBoundary>
+        )}
+      </SortableGrid>
+    </List>
+  );
+};
+
+const GridContent = () => {
+  const tiles = useTiles();
+
+  return (
+    <Grid>
+      <SortableGrid>
+        {(tile, index) => (
+          <CatchBoundary
+            errorComponent={GridTileFallback}
+            getResetKey={() => "reset"}
+            key={tile.id}
+          >
+            <SortableItem
+              isLastItem={index >= tiles.data.length - 1}
+              id={tile.id}
+            >
+              <GridTile tile={tile} />
             </SortableItem>
           </CatchBoundary>
         )}
       </SortableGrid>
 
-      {tiles.isFetchingNextPage && <TilesSkeleton />}
+      {tiles.isFetchingNextPage && <GridTilesSkeleton />}
     </Grid>
   );
 };
@@ -269,15 +337,27 @@ const SortableGrid = (props: {
   );
 };
 
-const TilesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => <TileSkeleton key={i} />);
+const GridTilesSkeleton = () => {
+  return [...new Array(10).keys()].map((i) => <GridTileSkeleton key={i} />);
+};
+
+const ListTilesSkeleton = () => {
+  return [...new Array(10).keys()].map((i) => <ListTileSkeleton key={i} />);
 };
 
 const GridSkeleton = () => {
   return (
     <Grid>
-      <TilesSkeleton />
+      <GridTilesSkeleton />
     </Grid>
+  );
+};
+
+const ListSkeleton = () => {
+  return (
+    <List>
+      <ListTilesSkeleton />
+    </List>
   );
 };
 
@@ -298,6 +378,10 @@ const Grid = (props: ComponentProps<"div">) => {
       {...props}
     />
   );
+};
+
+const List = (props: ComponentProps<"ol">) => {
+  return <ol className="space-y-5" {...props} />;
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {

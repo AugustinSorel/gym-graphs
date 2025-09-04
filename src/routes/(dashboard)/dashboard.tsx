@@ -7,8 +7,9 @@ import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
-import { tileSchema } from "~/dashboard/dashboard.schemas";
+import { tileSchema, dashboardViewSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
+import { ViewToggle } from "~/dashboard/components/view-toggle";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/(dashboard)/dashboard")({
   validateSearch: z.object({
     name: tileSchema.shape.name.catch((e) => e.input).optional(),
     tags: tagSchema.shape.name.array().optional(),
+    view: dashboardViewSchema.optional(),
   }),
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),
@@ -58,6 +60,7 @@ const RouteComponent = () => {
       <Header>
         <FilterTilesByName />
         <FilterTilesByTags />
+        <ViewToggle />
         <CreateExerciseTileDialog />
       </Header>
 
@@ -76,5 +79,7 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
+  return (
+    <header className="grid grid-cols-[1fr_auto_auto_auto] gap-2" {...props} />
+  );
 };
