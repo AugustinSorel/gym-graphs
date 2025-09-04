@@ -27,7 +27,7 @@ import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
 
-export const Tile = (props: TileProps) => {
+export const GridTile = (props: TileProps) => {
   switch (props.tile.type) {
     case "exercise":
       return <ExerciseTile tile={props.tile} />;
@@ -44,7 +44,7 @@ export const Tile = (props: TileProps) => {
   props.tile.type satisfies never;
 };
 
-export const TileFallback = (props: ErrorComponentProps) => {
+export const GridTileFallback = (props: ErrorComponentProps) => {
   return (
     <Card className="border-destructive bg-destructive/10">
       <header className="border-destructive border-b p-4">
@@ -55,7 +55,7 @@ export const TileFallback = (props: ErrorComponentProps) => {
   );
 };
 
-export const TileSkeleton = () => {
+export const GridTileSkeleton = () => {
   return (
     <Skeleton>
       <Card>
