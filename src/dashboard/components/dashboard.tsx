@@ -117,6 +117,8 @@ const ListContent = () => {
           );
         }}
       </SortableGrid>
+
+      {tiles.isFetchingNextPage && <GridTilesSkeleton />}
     </List>
   );
 };
