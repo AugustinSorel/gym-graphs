@@ -96,20 +96,26 @@ const ListContent = () => {
   return (
     <List>
       <SortableGrid>
-        {(tile, index) => (
-          <CatchBoundary
-            errorComponent={ListTileFallback}
-            getResetKey={() => "reset"}
-            key={tile.id}
-          >
-            <SortableItem
-              isLastItem={index >= tiles.data.length - 1}
-              id={tile.id}
+        {(tile, index) => {
+          if (!tile.exercise) {
+            return null;
+          }
+
+          return (
+            <CatchBoundary
+              errorComponent={ListTileFallback}
+              getResetKey={() => "reset"}
+              key={tile.id}
             >
-              <ListTile tile={tile} />
-            </SortableItem>
-          </CatchBoundary>
-        )}
+              <SortableItem
+                isLastItem={index >= tiles.data.length - 1}
+                id={tile.id}
+              >
+                <ListTile tile={tile} />
+              </SortableItem>
+            </CatchBoundary>
+          );
+        }}
       </SortableGrid>
     </List>
   );
@@ -380,8 +386,15 @@ const Grid = (props: ComponentProps<"div">) => {
   );
 };
 
-const List = (props: ComponentProps<"ol">) => {
-  return <ol className="space-y-5" {...props} />;
+const List = (props: ComponentProps<"div">) => {
+  return (
+    <div
+      role="list"
+      aria-sort="descending"
+      className="flex flex-col gap-5"
+      {...props}
+    />
+  );
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {

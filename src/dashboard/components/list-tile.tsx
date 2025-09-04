@@ -10,43 +10,10 @@ import { Set } from "~/db/db.schemas";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import { useBestSortedSets } from "~/set/hooks/use-best-sorted-sets";
-import type { ComponentProps } from "react";
 import { percentageChange } from "~/utils/math";
+import type { ComponentProps } from "react";
 
 export const ListTile = (props: { tile: Tile }) => {
-  switch (props.tile.type) {
-    case "exercise":
-      return <ExerciseTile tile={props.tile} />;
-    case "tilesToSetsCount":
-    case "tilesToTagsCount":
-    case "tilesSetsHeatMap":
-    case "tilesFunFacts":
-      return null;
-  }
-
-  props.tile.type satisfies never;
-};
-
-export const ListTileFallback = (props: ErrorComponentProps) => {
-  return (
-    <Card className="border-destructive bg-destructive/10">
-      <Name>Something went wrong</Name>
-      <ErrorMsg>{props.error.message}</ErrorMsg>
-    </Card>
-  );
-};
-
-export const ListTileSkeleton = () => {
-  return (
-    <Skeleton>
-      <Card className="h-14" />
-    </Skeleton>
-  );
-};
-
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
-
-const ExerciseTile = (props: { tile: Tile }) => {
   const sortable = useSortable({ id: props.tile.id });
 
   if (!props.tile.exercise) {
@@ -79,6 +46,25 @@ const ExerciseTile = (props: { tile: Tile }) => {
     </Card>
   );
 };
+
+export const ListTileFallback = (props: ErrorComponentProps) => {
+  return (
+    <Card className="border-destructive bg-destructive/10">
+      <Name>Something went wrong</Name>
+      <ErrorMsg>{props.error.message}</ErrorMsg>
+    </Card>
+  );
+};
+
+export const ListTileSkeleton = () => {
+  return (
+    <Skeleton>
+      <Card className="h-14" />
+    </Skeleton>
+  );
+};
+
+type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 
 const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
   const user = useUser();
