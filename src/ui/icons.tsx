@@ -9,6 +9,8 @@ const Icon = ({ className, ...props }: ComponentProps<"svg">) => {
       height="24"
       viewBox="0 0 24 24"
       className={cn("size-4 fill-none stroke-current stroke-2", className)}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       {...props}
     ></svg>
   );
@@ -315,6 +317,30 @@ export const MinusIcon = (props: ComponentProps<typeof Icon>) => {
   return (
     <Icon {...props}>
       <path d="M5 12h14" />
+    </Icon>
+  );
+};
+
+export const GridIcon = (props: ComponentProps<typeof Icon>) => {
+  return (
+    <Icon {...props}>
+      <rect width="7" height="7" x="3" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="14" rx="1" />
+      <rect width="7" height="7" x="3" y="14" rx="1" />
+    </Icon>
+  );
+};
+
+export const ListIcon = (props: ComponentProps<typeof Icon>) => {
+  return (
+    <Icon {...props}>
+      <path d="M3 5h.01" />
+      <path d="M3 12h.01" />
+      <path d="M3 19h.01" />
+      <path d="M8 5h13" />
+      <path d="M8 12h13" />
+      <path d="M8 19h13" />
     </Icon>
   );
 };
