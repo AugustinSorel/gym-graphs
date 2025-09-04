@@ -69,7 +69,7 @@ const RouteComponent = () => {
 const Main = (props: ComponentProps<"main">) => {
   return (
     <main
-      className="max-w-app mx-auto flex flex-col gap-10 px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
+      className="max-w-app mx-auto flex flex-col gap-10 overflow-hidden px-2 pt-10 pb-20 sm:px-4 lg:gap-20 lg:pt-20"
       {...props}
     />
   );
