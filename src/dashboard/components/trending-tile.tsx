@@ -104,7 +104,7 @@ const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
     );
   }
 
-  if (ratio > 100) {
+  if (ratio > 0) {
     return (
       <Badge variant="success" className="gap-0.5">
         <ArrowUpIcon />
