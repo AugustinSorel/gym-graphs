@@ -95,7 +95,7 @@ const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
 
   const ratio = percentageChange(oneRepMax.a, oneRepMax.b);
 
-  if (ratio === 100) {
+  if (ratio === 0) {
     return (
       <Badge variant="outline" className="gap-0.5">
         <EqualIcon />
