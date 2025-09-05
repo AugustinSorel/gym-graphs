@@ -77,7 +77,7 @@ const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
   };
 
   if (!set.a || !set.b) {
-    return <p className="text-muted-foreground text-xs">not enough sets</p>;
+    return <p className="text-muted-foreground text-xs">no data</p>;
   }
 
   const oneRepMax = {
