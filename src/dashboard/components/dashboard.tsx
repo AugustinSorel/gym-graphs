@@ -30,6 +30,7 @@ import {
   TrendingTileFallback,
   TrendingTileSkeleton,
 } from "~/dashboard/components/trending-tile";
+import { useUser } from "~/user/hooks/use-user";
 import type {
   ComponentProps,
   CSSProperties,
@@ -43,7 +44,6 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import { useUser } from "~/user/hooks/use-user";
 
 export const Dashboard = () => {
   return (

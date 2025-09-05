@@ -52,7 +52,7 @@ const ExerciseTile = (props: { tile: Tile }) => {
   }
 
   return (
-    <Card>
+    <Card className="hover:bg-accent group transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
@@ -61,7 +61,7 @@ const ExerciseTile = (props: { tile: Tile }) => {
         />
       </Button>
 
-      <Name>{props.tile.name}</Name>
+      <Name className="group-hover:underline">{props.tile.name}</Name>
       <LastTwoSetsProgress sets={props.tile.exercise.sets} />
     </Card>
   );
@@ -133,9 +133,12 @@ const Card = ({ className, ...rest }: ComponentProps<"li">) => {
   );
 };
 
-const Name = (props: ComponentProps<"h2">) => {
+const Name = ({ className, ...props }: ComponentProps<"h2">) => {
   return (
-    <h2 {...props} className="truncate text-sm font-semibold capitalize" />
+    <h2
+      {...props}
+      className={cn("truncate text-sm font-semibold capitalize", className)}
+    />
   );
 };
 

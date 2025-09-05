@@ -73,7 +73,7 @@ const ExerciseTile = (props: TileProps) => {
   }
 
   return (
-    <Card>
+    <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
@@ -83,7 +83,7 @@ const ExerciseTile = (props: TileProps) => {
       </Button>
 
       <CardHeader>
-        <Name>{props.tile.name}</Name>
+        <Name className="group-hover:underline">{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
@@ -211,9 +211,12 @@ const CardHeader = ({ className, ...props }: ComponentProps<"header">) => {
   );
 };
 
-const Name = (props: ComponentProps<"h2">) => {
+const Name = ({ className, ...props }: ComponentProps<"h2">) => {
   return (
-    <h2 className="truncate text-sm font-semibold capitalize" {...props} />
+    <h2
+      className={cn(className, "truncate text-sm font-semibold capitalize")}
+      {...props}
+    />
   );
 };
 
