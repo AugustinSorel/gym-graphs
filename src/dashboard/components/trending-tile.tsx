@@ -1,21 +1,52 @@
-import { Button, ButtonProps } from "~/ui/button";
+import { Button } from "~/ui/button";
 import { useTiles } from "~/dashboard/hooks/use-tiles";
-import { ErrorComponentProps, getRouteApi, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Badge } from "~/ui/badge";
 import { Skeleton } from "~/ui/skeleton";
 import { cn } from "~/styles/styles.utils";
-import { ArrowDownIcon, ArrowUpIcon, GripVerticalIcon } from "~/ui/icons";
-import { useSortable } from "@dnd-kit/sortable";
-import { Set } from "~/db/db.schemas";
+import { ArrowDownIcon, ArrowUpIcon, EqualIcon } from "~/ui/icons";
 import { calculateOneRepMax } from "~/set/set.utils";
 import { useUser } from "~/user/hooks/use-user";
 import { useBestSortedSets } from "~/set/hooks/use-best-sorted-sets";
 import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
+import type { Set } from "~/db/db.schemas";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 
-export const ListTile = (props: { tile: Tile }) => {
-  const sortable = useSortable({ id: props.tile.id });
+export const TrendingTile = (props: { tile: Tile }) => {
+  switch (props.tile.type) {
+    case "exercise":
+      return <ExerciseTile tile={props.tile} />;
+    case "tilesToSetsCount":
+    case "tilesToTagsCount":
+    case "tilesSetsHeatMap":
+    case "tilesFunFacts":
+      return null;
+  }
 
+  props.tile.type satisfies never;
+};
+
+export const TrendingTileFallback = (props: ErrorComponentProps) => {
+  return (
+    <Card className="border-destructive bg-destructive/10">
+      <Name>Something went wrong</Name>
+      <ErrorMsg>{props.error.message}</ErrorMsg>
+    </Card>
+  );
+};
+
+export const TrendingTileSkeleton = () => {
+  return (
+    <Skeleton>
+      <Card className="h-14" />
+    </Skeleton>
+  );
+};
+
+type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+
+const ExerciseTile = (props: { tile: Tile }) => {
   if (!props.tile.exercise) {
     throw new Error("no exercise");
   }
@@ -30,41 +61,11 @@ export const ListTile = (props: { tile: Tile }) => {
         />
       </Button>
 
-      <div className="flex items-center gap-2 truncate">
-        <Name>{props.tile.name}</Name>
-        <LastTwoSetsProgress sets={props.tile.exercise.sets} />
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2 truncate">
-        {props.tile.tileToTags.map((tileToTag) => (
-          <Badge key={tileToTag.tagId} variant="outline">
-            {tileToTag.tag.name}
-          </Badge>
-        ))}
-        <DragButton {...sortable.listeners} {...sortable.attributes} />
-      </div>
+      <Name>{props.tile.name}</Name>
+      <LastTwoSetsProgress sets={props.tile.exercise.sets} />
     </Card>
   );
 };
-
-export const ListTileFallback = (props: ErrorComponentProps) => {
-  return (
-    <Card className="border-destructive bg-destructive/10">
-      <Name>Something went wrong</Name>
-      <ErrorMsg>{props.error.message}</ErrorMsg>
-    </Card>
-  );
-};
-
-export const ListTileSkeleton = () => {
-  return (
-    <Skeleton>
-      <Card className="h-14" />
-    </Skeleton>
-  );
-};
-
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 
 const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
   const user = useUser();
@@ -95,7 +96,12 @@ const LastTwoSetsProgress = (props: { sets: Array<Set> }) => {
   const ratio = percentageChange(oneRepMax.a, oneRepMax.b);
 
   if (ratio === 100) {
-    return null;
+    return (
+      <Badge variant="outline" className="gap-0.5">
+        <EqualIcon />
+        {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
+      </Badge>
+    );
   }
 
   if (ratio > 100) {
@@ -136,28 +142,3 @@ const Name = (props: ComponentProps<"h2">) => {
 const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="overflow-auto" {...props} />;
 };
-
-const DragButton = (props: ButtonProps) => {
-  const search = routeApi.useSearch();
-
-  const isFiltering = Boolean(search.name ?? search.tags?.length);
-
-  if (isFiltering) {
-    return null;
-  }
-
-  return (
-    <Button
-      size="icon"
-      variant="ghost"
-      className="opacity-full-on-touch-device z-10 cursor-grab opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
-      aria-label="drag tile"
-      {...props}
-      suppressHydrationWarning
-    >
-      <GripVerticalIcon className="!size-3" />
-    </Button>
-  );
-};
-
-const routeApi = getRouteApi("/(dashboard)/dashboard");

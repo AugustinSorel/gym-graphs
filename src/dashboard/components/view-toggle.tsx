@@ -1,5 +1,10 @@
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-import { GridIcon, ListIcon } from "~/ui/icons";
+import {
+  ChartLineIcon,
+  GridIcon,
+  ListIcon,
+  TrendingUpDownIcon,
+} from "~/ui/icons";
 import { getRouteApi } from "@tanstack/react-router";
 import { dashboardViewSchema } from "~/dashboard/dashboard.schemas";
 
@@ -8,7 +13,7 @@ export const ViewToggle = () => {
   const navigate = routeApi.useNavigate();
 
   //TODO: from user obj
-  const view = search.view ?? "grid";
+  const view = search.view ?? "graph";
 
   return (
     <ToggleGroup
@@ -30,11 +35,19 @@ export const ViewToggle = () => {
         });
       }}
     >
-      <ToggleGroupItem value="grid" aria-label="Toggle grid" size="sm">
-        <GridIcon />
+      <ToggleGroupItem
+        value={dashboardViewSchema.enum.graph}
+        aria-label="Toggle grid"
+        size="sm"
+      >
+        <ChartLineIcon />
       </ToggleGroupItem>
-      <ToggleGroupItem value="list" aria-label="Toggle list" size="sm">
-        <ListIcon />
+      <ToggleGroupItem
+        value={dashboardViewSchema.enum.trending}
+        aria-label="Toggle list"
+        size="sm"
+      >
+        <TrendingUpDownIcon />
       </ToggleGroupItem>
     </ToggleGroup>
   );

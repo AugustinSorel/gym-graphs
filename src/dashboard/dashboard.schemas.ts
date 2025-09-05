@@ -32,4 +32,4 @@ export const tileSchema = z.object({
     .max(255, "name must be at most 255 characters"),
 });
 
-export const dashboardViewSchema = z.enum(["grid", "list"]);
+export const dashboardViewSchema = z.enum(["graph", "trending"]);

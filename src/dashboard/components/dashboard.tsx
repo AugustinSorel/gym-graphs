@@ -21,15 +21,15 @@ import { useTiles } from "~/dashboard/hooks/use-tiles";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { reorderTilesAction } from "~/dashboard/dashboard.actions";
 import {
-  GridTile,
-  GridTileFallback,
-  GridTileSkeleton,
-} from "~/dashboard/components/grid-tile";
+  GraphTile,
+  GraphTileFallback,
+  GraphTileSkeleton,
+} from "~/dashboard/components/graph-tile";
 import {
-  ListTile,
-  ListTileFallback,
-  ListTileSkeleton,
-} from "~/dashboard/components/list-tile";
+  TrendingTile,
+  TrendingTileFallback,
+  TrendingTileSkeleton,
+} from "~/dashboard/components/trending-tile";
 import type {
   ComponentProps,
   CSSProperties,
@@ -67,20 +67,20 @@ const NoTilesFallback = (props: PropsWithChildren) => {
 const Content = () => {
   const search = routeApi.useSearch();
 
-  const view = search.view ?? "grid";
+  const view = search.view ?? "graph";
 
-  if (view === "grid") {
+  if (view === "graph") {
     return (
-      <Suspense fallback={<GridSkeleton />}>
-        <GridContent />
+      <Suspense fallback={<GraphContentSkeleton />}>
+        <GraphContent />
       </Suspense>
     );
   }
 
-  if (view === "list") {
+  if (view === "trending") {
     return (
-      <Suspense fallback={<ListSkeleton />}>
-        <ListContent />
+      <Suspense fallback={<TrendingContentSkeleton />}>
+        <TrendingContent />
       </Suspense>
     );
   }
@@ -90,40 +90,26 @@ const Content = () => {
 
 const routeApi = getRouteApi("/(dashboard)/dashboard");
 
-const ListContent = () => {
+const TrendingContent = () => {
   const tiles = useTiles();
 
   return (
-    <List>
-      <SortableGrid>
-        {(tile, index) => {
-          if (!tile.exercise) {
-            return null;
-          }
+    <Grid>
+      <CatchBoundary
+        errorComponent={TrendingTileFallback}
+        getResetKey={() => "reset"}
+      >
+        {tiles.data.map((tile) => (
+          <TrendingTile key={tile.id} tile={tile} />
+        ))}
+      </CatchBoundary>
 
-          return (
-            <CatchBoundary
-              errorComponent={ListTileFallback}
-              getResetKey={() => "reset"}
-              key={tile.id}
-            >
-              <SortableItem
-                isLastItem={index >= tiles.data.length - 1}
-                id={tile.id}
-              >
-                <ListTile tile={tile} />
-              </SortableItem>
-            </CatchBoundary>
-          );
-        }}
-      </SortableGrid>
-
-      {tiles.isFetchingNextPage && <GridTilesSkeleton />}
-    </List>
+      {tiles.isFetchingNextPage && <TrendingTilesSkeleton />}
+    </Grid>
   );
 };
 
-const GridContent = () => {
+const GraphContent = () => {
   const tiles = useTiles();
 
   return (
@@ -131,7 +117,7 @@ const GridContent = () => {
       <SortableGrid>
         {(tile, index) => (
           <CatchBoundary
-            errorComponent={GridTileFallback}
+            errorComponent={GraphTileFallback}
             getResetKey={() => "reset"}
             key={tile.id}
           >
@@ -139,13 +125,13 @@ const GridContent = () => {
               isLastItem={index >= tiles.data.length - 1}
               id={tile.id}
             >
-              <GridTile tile={tile} />
+              <GraphTile tile={tile} />
             </SortableItem>
           </CatchBoundary>
         )}
       </SortableGrid>
 
-      {tiles.isFetchingNextPage && <GridTilesSkeleton />}
+      {tiles.isFetchingNextPage && <GraphTilesSkeleton />}
     </Grid>
   );
 };
@@ -281,43 +267,47 @@ const SortableGrid = (props: {
   const dragEndHandler = ({ over }: DragEndEvent) => {
     setActiveId(null);
 
-    if (over) {
-      const overIndex = getIndex(over.id);
+    if (!over) {
+      return;
+    }
 
-      if (activeIndex !== overIndex) {
-        const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
+    const overIndex = getIndex(over.id);
 
-        const queries = {
-          tiles: dashboardQueries.tiles().queryKey,
-        } as const;
+    if (activeIndex === overIndex) {
+      return;
+    }
 
-        queryClient.setQueryData(queries.tiles, (tiles) => {
-          if (!tiles) {
-            return tiles;
-          }
+    const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
 
+    const queries = {
+      tiles: dashboardQueries.tiles().queryKey,
+    } as const;
+
+    queryClient.setQueryData(queries.tiles, (tiles) => {
+      if (!tiles) {
+        return tiles;
+      }
+
+      return {
+        ...tiles,
+        pages: tiles.pages.map((page, i) => {
           return {
-            ...tiles,
-            pages: tiles.pages.map((page, i) => {
-              return {
-                ...page,
-                tiles: page.tiles.map((_tile, j) => {
-                  const tile = tilesOrdered.at(i * page.tiles.length + j);
+            ...page,
+            tiles: page.tiles.map((_tile, j) => {
+              const tile = tilesOrdered.at(i * page.tiles.length + j);
 
-                  if (!tile) {
-                    throw new Error("tile not found when reordering");
-                  }
+              if (!tile) {
+                throw new Error("tile not found when reordering");
+              }
 
-                  return tile;
-                }),
-              };
+              return tile;
             }),
           };
-        });
+        }),
+      };
+    });
 
-        reorderTiles.mutate({ data: tilesOrdered });
-      }
-    }
+    reorderTiles.mutate({ data: tilesOrdered });
   };
 
   const dragCancelHandler = () => {
@@ -345,27 +335,28 @@ const SortableGrid = (props: {
   );
 };
 
-const GridTilesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => <GridTileSkeleton key={i} />);
+//TODO:
+const GraphTilesSkeleton = () => {
+  return [...new Array(10).keys()].map((i) => <GraphTileSkeleton key={i} />);
 };
 
-const ListTilesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => <ListTileSkeleton key={i} />);
+const TrendingTilesSkeleton = () => {
+  return [...new Array(10).keys()].map((i) => <TrendingTileSkeleton key={i} />);
 };
 
-const GridSkeleton = () => {
+const GraphContentSkeleton = () => {
   return (
     <Grid>
-      <GridTilesSkeleton />
+      <GraphTilesSkeleton />
     </Grid>
   );
 };
 
-const ListSkeleton = () => {
+const TrendingContentSkeleton = () => {
   return (
-    <List>
-      <ListTilesSkeleton />
-    </List>
+    <Grid>
+      <TrendingTilesSkeleton />
+    </Grid>
   );
 };
 
@@ -383,17 +374,6 @@ const Grid = (props: ComponentProps<"div">) => {
       role="list"
       aria-sort="descending"
       className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
-      {...props}
-    />
-  );
-};
-
-const List = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      role="list"
-      aria-sort="descending"
-      className="flex flex-col gap-5"
       {...props}
     />
   );
