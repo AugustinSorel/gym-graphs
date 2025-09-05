@@ -269,7 +269,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
   );
 };
 
-const getDoneAt = (d: Point) => d.doneAt;
+const getDoneAt = (d: Point) => new Date(d.doneAt.toDateString());
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],

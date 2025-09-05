@@ -145,7 +145,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| BUG      | optimistic update date wrong when adding a new set    |
 | TODO     | branded types                                         |
 | TODO     | better css dark mode                                  |
 | TODO     | gamification                                          |
