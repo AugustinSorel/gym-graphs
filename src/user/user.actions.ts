@@ -6,6 +6,7 @@ import {
   renameUser,
   selectClientUser,
   selectUserData,
+  updateDashboardView,
   updateOneRepMaxAlgo,
   updateWeightUnit,
 } from "~/user/user.services";
@@ -63,4 +64,11 @@ export const selectUserDataAction = createServerFn({ method: "GET" })
     }
 
     return user;
+  });
+
+export const updateDashboardViewAction = createServerFn({ method: "POST" })
+  .middleware([authGuardMiddleware, injectDbMiddleware])
+  .validator(userSchema.pick({ dashboardView: true }))
+  .handler(async ({ context, data }) => {
+    return updateDashboardView(context.user.id, data.dashboardView, context.db);
   });

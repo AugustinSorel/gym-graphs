@@ -7,7 +7,7 @@ import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { permissions } from "~/libs/permissions";
 import { Dashboard } from "~/dashboard/components/dashboard";
-import { tileSchema, dashboardViewSchema } from "~/dashboard/dashboard.schemas";
+import { tileSchema } from "~/dashboard/dashboard.schemas";
 import { tagSchema } from "~/tag/tag.schemas";
 import { ViewToggle } from "~/dashboard/components/view-toggle";
 import type { ComponentProps } from "react";
@@ -17,7 +17,6 @@ export const Route = createFileRoute("/(dashboard)/dashboard")({
   validateSearch: z.object({
     name: tileSchema.shape.name.catch((e) => e.input).optional(),
     tags: tagSchema.shape.name.array().optional(),
-    view: dashboardViewSchema.optional(),
   }),
   component: () => RouteComponent(),
   errorComponent: (props) => RouteFallback(props),

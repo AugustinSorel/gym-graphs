@@ -1,4 +1,4 @@
-import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
+import { CatchBoundary } from "@tanstack/react-router";
 import {
   closestCenter,
   DndContext,
@@ -43,6 +43,7 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
+import { useUser } from "~/user/hooks/use-user";
 
 export const Dashboard = () => {
   return (
@@ -65,11 +66,9 @@ const NoTilesFallback = (props: PropsWithChildren) => {
 //TODO: refactor this with the new Activity Component
 //      whenever it get released by React
 const Content = () => {
-  const search = routeApi.useSearch();
+  const user = useUser();
 
-  const view = search.view ?? "graph";
-
-  if (view === "graph") {
+  if (user.data.dashboardView === "graph") {
     return (
       <Suspense fallback={<GraphContentSkeleton />}>
         <GraphContent />
@@ -77,7 +76,7 @@ const Content = () => {
     );
   }
 
-  if (view === "trending") {
+  if (user.data.dashboardView === "trending") {
     return (
       <Suspense fallback={<TrendingContentSkeleton />}>
         <TrendingContent />
@@ -85,10 +84,8 @@ const Content = () => {
     );
   }
 
-  view satisfies never;
+  user.data.dashboardView satisfies never;
 };
-
-const routeApi = getRouteApi("/(dashboard)/dashboard");
 
 const TrendingContent = () => {
   const tiles = useTiles();

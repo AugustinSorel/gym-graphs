@@ -76,6 +76,7 @@ export const selectClientUser = async (userId: User["id"], db: Db) => {
       weightUnit: true,
       name: true,
       oneRepMaxAlgo: true,
+      dashboardView: true,
     },
     extras: {
       teamNotificationCount: sql`
@@ -391,4 +392,15 @@ export const selectUserData = async (userId: User["id"], db: Db) => {
       },
     },
   });
+};
+
+export const updateDashboardView = async (
+  userId: User["id"],
+  dashboardView: User["dashboardView"],
+  db: Db,
+) => {
+  return db
+    .update(userTable)
+    .set({ dashboardView })
+    .where(eq(userTable.id, userId));
 };

@@ -20,6 +20,11 @@ export const oneRepMaxAlgoEnum = pgEnum(
   userSchema.shape.oneRepMaxAlgo.options,
 );
 
+export const dashboardViewEnum = pgEnum(
+  "dashboard_view",
+  userSchema.shape.dashboardView.options,
+);
+
 export const userTable = pgTable("user", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   email: t.text("email").notNull().unique(),
@@ -28,6 +33,7 @@ export const userTable = pgTable("user", (t) => ({
   salt: t.text("salt"),
   weightUnit: weightUnitEnum().notNull().default("kg"),
   oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
+  dashboardView: dashboardViewEnum().notNull().default("graph"),
   emailVerifiedAt: t.timestamp("email_verified_at"),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
   updatedAt: t

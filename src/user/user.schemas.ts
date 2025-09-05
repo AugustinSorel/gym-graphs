@@ -57,4 +57,5 @@ export const userSchema = z.object({
       invalid_type_error: "one rep max algo must be valid",
     },
   ),
+  dashboardView: z.enum(["graph", "trending"]),
 });

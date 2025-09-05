@@ -14,4 +14,5 @@ export const userMock: Readonly<
   tags: tagsMock,
   oneRepMaxAlgo: "epley",
   teamNotificationCount: 0,
+  dashboardView: "graph",
 };
