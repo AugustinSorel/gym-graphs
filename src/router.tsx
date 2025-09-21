@@ -25,6 +25,7 @@ export const createRouter = () => {
   const router = createTanStackRouter({
     routeTree,
     context: { queryClient },
+    scrollRestoration: true,
     defaultPreload: "intent",
     defaultErrorComponent: (props) => RouterFallback(props),
     defaultNotFoundComponent: (props) => RouterNotFound(props),
