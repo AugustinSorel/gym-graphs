@@ -146,17 +146,16 @@ const useCreateTeamForm = () => {
 };
 
 const useCreateTeam = () => {
-  const queryClient = useQueryClient();
   const user = useUser();
 
   return useMutation({
     mutationFn: createTeamAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+      ctx.client.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
@@ -198,12 +197,12 @@ const useCreateTeam = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _err, _variables, _res, ctx) => {
       const queries = {
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -120,17 +120,15 @@ const useRenameTagForm = () => {
 };
 
 const useRenameTag = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: renameTagAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         user: userQueries.get.queryKey,
         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.user, (user) => {
+      ctx.client.setQueryData(queries.user, (user) => {
         if (!user) {
           return user;
         }
@@ -150,7 +148,7 @@ const useRenameTag = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+      ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
         if (!tilesToTagsCount) {
           return tilesToTagsCount;
         }
@@ -167,14 +165,14 @@ const useRenameTag = () => {
         });
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         user: userQueries.get,
         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
-      void queryClient.invalidateQueries(queries.user);
-      void queryClient.invalidateQueries(queries.tilesToTagsCount);
+      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

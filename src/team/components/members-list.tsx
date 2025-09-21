@@ -16,7 +16,7 @@ import { ChangeMemberRoleDialog } from "~/team/components/change-member-role-dia
 import { TeamMemberProvider } from "~/team/team-member.context";
 import { inferNameFromEmail } from "~/user/user.utils";
 import { RevokeInvitationDialog } from "~/team/components/revoke-invitation-dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   acceptTeamJoinRequestAction,
   rejectTeamJoinRequestAction,
@@ -170,16 +170,15 @@ const useTeamMembers = () => {
 
 const useRejectJoinRequest = () => {
   const params = routeApi.useParams();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: rejectTeamJoinRequestAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId).queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -192,28 +191,27 @@ const useRejectJoinRequest = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.team);
     },
   });
 };
 
 const useAcceptJoinRequest = () => {
   const params = routeApi.useParams();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: acceptTeamJoinRequestAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId).queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -246,12 +244,12 @@ const useAcceptJoinRequest = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.team);
     },
   });
 };

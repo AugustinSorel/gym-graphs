@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,19 +74,17 @@ export const DeleteTeamDialog = () => {
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
 const useDeleteTeam = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteTeamAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
-      queryClient.removeQueries(queries.team);
+      ctx.client.removeQueries(queries.team);
 
-      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+      ctx.client.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
@@ -104,14 +102,14 @@ const useDeleteTeam = () => {
         };
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _error, variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

@@ -23,7 +23,7 @@ import { useSignOut } from "~/auth/hooks/use-sign-out";
 import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   selectUserDataAction,
   updateOneRepMaxAlgoAction,
@@ -149,12 +149,10 @@ const TagsSection = () => {
 };
 
 const useUpdateOneRepMaxAlgo = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updateOneRepMaxAlgoAction,
-    onMutate: (variables) => {
-      queryClient.setQueryData(userQueries.get.queryKey, (user) => {
+    onMutate: (variables, ctx) => {
+      ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -165,8 +163,8 @@ const useUpdateOneRepMaxAlgo = () => {
         };
       });
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries(userQueries.get);
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(userQueries.get);
     },
   });
 };

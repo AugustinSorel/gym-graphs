@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,13 +81,12 @@ export const DeleteExerciseTileDialog = () => {
 const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
 
 const useDeleteExerciseTile = () => {
-  const queryClient = useQueryClient();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: deleteTileAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles().queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
@@ -96,7 +95,7 @@ const useDeleteExerciseTile = () => {
         tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -114,7 +113,7 @@ const useDeleteExerciseTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+      ctx.client.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
         if (!tilesToSetsCount) {
           return tilesToSetsCount;
         }
@@ -124,7 +123,7 @@ const useDeleteExerciseTile = () => {
         });
       });
 
-      queryClient.setQueryData(queries.funFacts, (funFacts) => {
+      ctx.client.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -151,7 +150,7 @@ const useDeleteExerciseTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.setsHeatMap, (heatMapData) => {
+      ctx.client.setQueryData(queries.setsHeatMap, (heatMapData) => {
         if (!heatMapData) {
           return heatMapData;
         }
@@ -186,9 +185,9 @@ const useDeleteExerciseTile = () => {
         });
       });
 
-      queryClient.removeQueries(queries.exercise);
+      ctx.client.removeQueries(queries.exercise);
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles(),
         exercise: exerciseQueries.get(exercise.data.id),
@@ -197,11 +196,11 @@ const useDeleteExerciseTile = () => {
         funFacts: dashboardQueries.funFacts,
       } as const;
 
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.tilesToSetsCount);
-      void queryClient.invalidateQueries(queries.setsHeatMap);
-      void queryClient.invalidateQueries(queries.funFacts);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.tilesToSetsCount);
+      void ctx.client.invalidateQueries(queries.setsHeatMap);
+      void ctx.client.invalidateQueries(queries.funFacts);
     },
   });
 };

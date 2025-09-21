@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "~/ui/select";
 import { teamMemberSchema } from "~/team/team.schemas";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { changeTeamMemberRoleAction } from "~/team/team.actions";
 import { getRouteApi } from "@tanstack/react-router";
 import { teamQueries } from "~/team/team.queries";
@@ -122,16 +122,14 @@ const useChangeMemberPermissionForm = () => {
 };
 
 const useChangeMemberRole = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: changeTeamMemberRoleAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -151,12 +149,12 @@ const useChangeMemberRole = () => {
         };
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _error, variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.team);
     },
   });
 };

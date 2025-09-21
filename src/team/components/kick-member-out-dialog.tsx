@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,18 +88,17 @@ export const KickMemberOutDialog = () => {
 };
 
 const useKickMemberOut = () => {
-  const queryClient = useQueryClient();
   const user = useUser();
 
   return useMutation({
     mutationFn: kickMemberOutOfTeamAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
         userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -112,7 +111,7 @@ const useKickMemberOut = () => {
         };
       });
 
-      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+      ctx.client.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
@@ -144,14 +143,14 @@ const useKickMemberOut = () => {
         };
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _error, variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

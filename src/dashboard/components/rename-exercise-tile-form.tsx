@@ -134,19 +134,18 @@ const useRenameExerciseTileForm = () => {
 };
 
 const useRenameExericseTile = () => {
-  const queryClient = useQueryClient();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: renameTileAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles().queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -171,7 +170,7 @@ const useRenameExericseTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
+      ctx.client.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -185,14 +184,14 @@ const useRenameExericseTile = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };

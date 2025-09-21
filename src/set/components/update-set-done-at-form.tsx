@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -115,21 +115,20 @@ const useUpdateSetDoneAtForm = () => {
 };
 
 const useUpdateSetDoneAt = () => {
-  const queryClient = useQueryClient();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
   const set = useSet();
 
   return useMutation({
     mutationFn: updateSetDoneAtAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles().queryKey,
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -166,7 +165,7 @@ const useUpdateSetDoneAt = () => {
         };
       });
 
-      queryClient.setQueryData(queries.setsHeatMap, (data) => {
+      ctx.client.setQueryData(queries.setsHeatMap, (data) => {
         if (!data) {
           return data;
         }
@@ -211,7 +210,7 @@ const useUpdateSetDoneAt = () => {
         });
       });
 
-      queryClient.setQueryData(queries.exercise, (exexercise) => {
+      ctx.client.setQueryData(queries.exercise, (exexercise) => {
         if (!exexercise) {
           return exexercise;
         }
@@ -231,16 +230,16 @@ const useUpdateSetDoneAt = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
         setsHeatMap: dashboardQueries.tilesSetsHeatMap,
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.setsHeatMap);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.setsHeatMap);
     },
   });
 };

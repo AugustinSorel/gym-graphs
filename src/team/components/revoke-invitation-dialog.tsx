@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,17 +80,16 @@ type Props = Readonly<{
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
 const useRevokeInvitation = () => {
-  const queryClient = useQueryClient();
   const params = routeApi.useParams();
 
   return useMutation({
     mutationFn: revokeTeamInvitationAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId).queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -103,12 +102,12 @@ const useRevokeInvitation = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _err, _variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(params.teamId),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.team);
     },
   });
 };

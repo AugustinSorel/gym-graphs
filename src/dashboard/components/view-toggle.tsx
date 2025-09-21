@@ -2,21 +2,19 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ChartLineIcon, TrendingUpDownIcon } from "~/ui/icons";
 import { userSchema } from "~/user/user.schemas";
 import { useUser } from "~/user/hooks/use-user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { updateDashboardViewAction } from "~/user/user.actions";
 import { userQueries } from "~/user/user.queries";
 
 const useUpdateDashboadView = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updateDashboardViewAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         user: userQueries.get.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.user, (user) => {
+      ctx.client.setQueryData(queries.user, (user) => {
         if (!user) {
           return user;
         }
@@ -27,12 +25,12 @@ const useUpdateDashboadView = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         user: userQueries.get,
       } as const;
 
-      void queryClient.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.user);
     },
   });
 };

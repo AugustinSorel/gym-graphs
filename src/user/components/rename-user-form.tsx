@@ -14,7 +14,7 @@ import { userSchema } from "~/user/user.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useUser } from "~/user/hooks/use-user";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { renameUserAction } from "~/user/user.actions";
 import { userQueries } from "~/user/user.queries";
 import type { z } from "zod";
@@ -93,12 +93,10 @@ const useCreateExerciseForm = () => {
 };
 
 const useRenameUser = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: renameUserAction,
-    onMutate: (variables) => {
-      queryClient.setQueryData(userQueries.get.queryKey, (user) => {
+    onMutate: (variables, ctx) => {
+      ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user) {
           return user;
         }
@@ -109,8 +107,8 @@ const useRenameUser = () => {
         };
       });
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries(userQueries.get);
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(userQueries.get);
     },
   });
 };

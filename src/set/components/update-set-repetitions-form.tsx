@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -112,21 +112,20 @@ const useCreateExerciseForm = () => {
 };
 
 const useUpdateSetRepetitions = () => {
-  const queryClient = useQueryClient();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
   const set = useSet();
 
   return useMutation({
     mutationFn: updateSetRepetitionsAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles().queryKey,
         exericse: exerciseQueries.get(exercise.data.id).queryKey,
         funFacts: dashboardQueries.funFacts.queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -163,7 +162,7 @@ const useUpdateSetRepetitions = () => {
         };
       });
 
-      queryClient.setQueryData(queries.funFacts, (funFacts) => {
+      ctx.client.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -182,7 +181,7 @@ const useUpdateSetRepetitions = () => {
         };
       });
 
-      queryClient.setQueryData(queries.exericse, (exercise) => {
+      ctx.client.setQueryData(queries.exericse, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -202,7 +201,7 @@ const useUpdateSetRepetitions = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         funFacts: dashboardQueries.funFacts,
@@ -211,11 +210,11 @@ const useUpdateSetRepetitions = () => {
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.funFacts);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.user);
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.funFacts);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

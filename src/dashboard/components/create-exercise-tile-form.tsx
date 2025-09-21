@@ -119,11 +119,10 @@ const useCreateExerciseForm = () => {
 
 const useCreateExerciseTile = () => {
   const user = useUser();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createExerciseTileAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles().queryKey,
         tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
@@ -151,7 +150,7 @@ const useCreateExerciseTile = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -171,7 +170,7 @@ const useCreateExerciseTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+      ctx.client.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
         if (!tilesToSetsCount) {
           return tilesToSetsCount;
         }
@@ -179,14 +178,14 @@ const useCreateExerciseTile = () => {
         return [{ name: variables.data.name, count: 0 }, ...tilesToSetsCount];
       });
     },
-    onSettled: async () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         tiles: dashboardQueries.tiles(),
         tilesToSetsCount: dashboardQueries.tilesToSetsCount,
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.tilesToSetsCount);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.tilesToSetsCount);
     },
   });
 };

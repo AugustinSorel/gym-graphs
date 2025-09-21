@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -133,11 +133,10 @@ const useCreateExerciseSetForm = () => {
 const useCreateSet = () => {
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createSetAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles().queryKey,
@@ -156,7 +155,7 @@ const useCreateSet = () => {
         updatedAt: new Date(),
       };
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -184,7 +183,7 @@ const useCreateSet = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
+      ctx.client.setQueryData(queries.tilesToSetsCount, (tilesToSetsCount) => {
         if (!tilesToSetsCount) {
           return tilesToSetsCount;
         }
@@ -201,7 +200,7 @@ const useCreateSet = () => {
         });
       });
 
-      queryClient.setQueryData(queries.funFacts, (funFacts) => {
+      ctx.client.setQueryData(queries.funFacts, (funFacts) => {
         if (!funFacts) {
           return funFacts;
         }
@@ -217,7 +216,7 @@ const useCreateSet = () => {
         };
       });
 
-      queryClient.setQueryData(queries.setsHeatMap, (setsHeatMap) => {
+      ctx.client.setQueryData(queries.setsHeatMap, (setsHeatMap) => {
         if (!setsHeatMap) {
           return setsHeatMap;
         }
@@ -246,7 +245,7 @@ const useCreateSet = () => {
         });
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
+      ctx.client.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -257,7 +256,7 @@ const useCreateSet = () => {
         };
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
@@ -268,13 +267,13 @@ const useCreateSet = () => {
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tilesToSetsCount);
-      void queryClient.invalidateQueries(queries.setsHeatMap);
-      void queryClient.invalidateQueries(queries.funFacts);
-      void queryClient.invalidateQueries(queries.user);
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.tilesToSetsCount);
+      void ctx.client.invalidateQueries(queries.setsHeatMap);
+      void ctx.client.invalidateQueries(queries.funFacts);
+      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };

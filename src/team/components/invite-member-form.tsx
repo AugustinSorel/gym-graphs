@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -125,16 +125,14 @@ const useInviteMemberForm = () => {
 };
 
 const useInviteMember = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: inviteMemberToTeamAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -163,12 +161,12 @@ const useInviteMember = () => {
         };
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _error, variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.team);
     },
   });
 };

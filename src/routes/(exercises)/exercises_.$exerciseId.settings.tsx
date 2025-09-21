@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { CatchBoundary, createFileRoute, Link } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
@@ -290,13 +290,12 @@ const NoTagsText = (props: ComponentProps<"p">) => {
 
 const useAddTagToTile = () => {
   const user = useUser();
-  const queryClient = useQueryClient();
   const params = Route.useParams();
   const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: addTagToTileAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles().queryKey,
@@ -311,7 +310,7 @@ const useAddTagToTile = () => {
         return;
       }
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -345,7 +344,7 @@ const useAddTagToTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
+      ctx.client.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -368,7 +367,7 @@ const useAddTagToTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+      ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
         if (!tilesToTagsCount) {
           return tilesToTagsCount;
         }
@@ -385,29 +384,28 @@ const useAddTagToTile = () => {
         });
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tilesToTagsCount);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };
 
 const useRemoveTagToTile = () => {
   const user = useUser();
-  const queryClient = useQueryClient();
   const params = Route.useParams();
   const exercise = useExercise(params.exerciseId);
 
   return useMutation({
     mutationFn: removeTagToTileAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id).queryKey,
         tiles: dashboardQueries.tiles().queryKey,
@@ -422,7 +420,7 @@ const useRemoveTagToTile = () => {
         return;
       }
 
-      queryClient.setQueryData(queries.tiles, (tiles) => {
+      ctx.client.setQueryData(queries.tiles, (tiles) => {
         if (!tiles) {
           return tiles;
         }
@@ -449,7 +447,7 @@ const useRemoveTagToTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.exercise, (exercise) => {
+      ctx.client.setQueryData(queries.exercise, (exercise) => {
         if (!exercise) {
           return exercise;
         }
@@ -465,7 +463,7 @@ const useRemoveTagToTile = () => {
         };
       });
 
-      queryClient.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
+      ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
         if (!tilesToTagsCount) {
           return tilesToTagsCount;
         }
@@ -482,16 +480,16 @@ const useRemoveTagToTile = () => {
         });
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, _res, ctx) => {
       const queries = {
         exercise: exerciseQueries.get(exercise.data.id),
         tiles: dashboardQueries.tiles(),
         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
       } as const;
 
-      void queryClient.invalidateQueries(queries.tiles);
-      void queryClient.invalidateQueries(queries.exercise);
-      void queryClient.invalidateQueries(queries.tilesToTagsCount);
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+      void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

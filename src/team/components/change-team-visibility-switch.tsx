@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Switch } from "~/ui/switch";
 import { teamQueries } from "~/team/team.queries";
 import { useTeam } from "~/team/hooks/use-team";
@@ -28,17 +28,15 @@ export const ChangeTeamVisibilitySwitch = () => {
 const routeApi = getRouteApi("/(teams)/teams_/$teamId_/settings");
 
 const useChangeTeamVisibility = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: changeTeamVisibilityAction,
-    onMutate: (variables) => {
+    onMutate: (variables, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId).queryKey,
         userAndPublicTeams: teamQueries.userAndPublicTeams().queryKey,
       } as const;
 
-      queryClient.setQueryData(queries.team, (team) => {
+      ctx.client.setQueryData(queries.team, (team) => {
         if (!team) {
           return team;
         }
@@ -49,7 +47,7 @@ const useChangeTeamVisibility = () => {
         };
       });
 
-      queryClient.setQueryData(queries.userAndPublicTeams, (teams) => {
+      ctx.client.setQueryData(queries.userAndPublicTeams, (teams) => {
         if (!teams) {
           return teams;
         }
@@ -74,14 +72,14 @@ const useChangeTeamVisibility = () => {
         };
       });
     },
-    onSettled: (_data, _error, variables) => {
+    onSettled: (_data, _error, variables, _res, ctx) => {
       const queries = {
         team: teamQueries.get(variables.data.teamId),
         userAndPublicTeams: teamQueries.userAndPublicTeams(),
       } as const;
 
-      void queryClient.invalidateQueries(queries.team);
-      void queryClient.invalidateQueries(queries.userAndPublicTeams);
+      void ctx.client.invalidateQueries(queries.team);
+      void ctx.client.invalidateQueries(queries.userAndPublicTeams);
     },
   });
 };
