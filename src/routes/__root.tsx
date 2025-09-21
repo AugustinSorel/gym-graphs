@@ -146,7 +146,9 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | branded types                                         |
-| TODO     | better css dark mode                                  |
+| TODO     | change @tanstack/react-router-with-query              |
+| TODO     | remove useQueryClient                                 |
+| TODO     | create better input for creating new sets             |
 | TODO     | gamification                                          |
 | TODO     | monitoring                                            |
 */
