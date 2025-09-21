@@ -4,7 +4,6 @@ import {
   Link,
 } from "@tanstack/react-router";
 import { routeTree } from "~/routeTree.gen";
-import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { MapIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
@@ -12,6 +11,7 @@ import type {
   ErrorComponentProps,
   NotFoundRouteProps,
 } from "@tanstack/react-router";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 export const createRouter = () => {
   const queryClient = new QueryClient({
@@ -22,15 +22,20 @@ export const createRouter = () => {
     },
   });
 
-  return routerWithQueryClient(
-    createTanStackRouter({
-      routeTree,
-      context: { queryClient },
-      defaultErrorComponent: (props) => RouterFallback(props),
-      defaultNotFoundComponent: (props) => RouterNotFound(props),
-    }),
+  const router = createTanStackRouter({
+    routeTree,
+    context: { queryClient },
+    defaultPreload: "intent",
+    defaultErrorComponent: (props) => RouterFallback(props),
+    defaultNotFoundComponent: (props) => RouterNotFound(props),
+  });
+
+  setupRouterSsrQueryIntegration({
+    router,
     queryClient,
-  );
+  });
+
+  return router;
 };
 
 const RouterFallback = (props: Readonly<ErrorComponentProps>) => {

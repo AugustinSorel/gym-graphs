@@ -3,6 +3,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
   server: {
@@ -19,7 +20,9 @@ export default defineConfig({
     }),
     tanstackStart({
       target: "node-server",
+      customViteReactPlugin: true,
     }),
     tailwindcss(),
+    viteReact(),
   ],
 });
