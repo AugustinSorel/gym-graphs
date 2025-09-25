@@ -1,3 +1,6 @@
+import { createStart } from "@tanstack/react-start";
+import { errorMiddleware } from "./libs/error";
+import { rateLimiterMiddleware } from "./auth/auth.middlewares";
 import { QueryClient } from "@tanstack/react-query";
 import {
   createRouter as createTanStackRouter,
@@ -13,7 +16,7 @@ import type {
 } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
-export const createRouter = () => {
+export const getRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -62,8 +65,14 @@ const RouterNotFound = (_props: Readonly<NotFoundRouteProps>) => {
   );
 };
 
+export const startInstance = createStart(() => {
+  return {
+    requestMiddleware: [],
+  };
+});
+
 declare module "@tanstack/react-router" {
   interface Register {
-    router: ReturnType<typeof createRouter>;
+    router: ReturnType<typeof getRouter>;
   }
 }
