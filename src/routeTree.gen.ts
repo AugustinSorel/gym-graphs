@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as teamsTeamsRouteImport } from './routes/(teams)/teams'
@@ -26,6 +28,12 @@ import { Route as exercisesExercisesExerciseIdSettingsRouteImport } from './rout
 import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
 import { Route as invitationsInvitationsTeamsTokenAcceptRouteImport } from './routes/(invitations)/invitations.teams.$token.accept'
 
+const authRouteImport = createFileRoute('/(auth)')()
+
+const authRoute = authRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -112,7 +120,7 @@ const invitationsInvitationsTeamsTokenAcceptRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
@@ -129,7 +137,7 @@ export interface FileRoutesByFullPath {
   '/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
   '/(dashboard)/dashboard': typeof dashboardDashboardRoute
   '/(settings)/settings': typeof settingsSettingsRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/(auth)'
     | '/(auth)/_layout'
     | '/(dashboard)/dashboard'
     | '/(settings)/settings'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authRoute: typeof authRouteWithChildren
   dashboardDashboardRoute: typeof dashboardDashboardRoute
   settingsSettingsRoute: typeof settingsSettingsRoute
   teamsTeamsRoute: typeof teamsTeamsRoute
@@ -234,6 +245,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(auth)': {
+      id: '/(auth)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -264,8 +282,8 @@ declare module '@tanstack/react-router' {
     }
     '/(auth)/_layout': {
       id: '/(auth)/_layout'
-      path: ''
-      fullPath: ''
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof authRoute
     }
@@ -349,8 +367,39 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface authLayoutRouteChildren {
+  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
+  authLayoutSignInRoute: typeof authLayoutSignInRoute
+  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
+  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
+  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
+}
+
+const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
+  authLayoutSignInRoute: authLayoutSignInRoute,
+  authLayoutSignUpRoute: authLayoutSignUpRoute,
+  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
+  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
+}
+
+const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
+  authLayoutRouteChildren,
+)
+
+interface authRouteChildren {
+  authLayoutRoute: typeof authLayoutRouteWithChildren
+}
+
+const authRouteChildren: authRouteChildren = {
+  authLayoutRoute: authLayoutRouteWithChildren,
+}
+
+const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authRoute: authRouteWithChildren,
   dashboardDashboardRoute: dashboardDashboardRoute,
   settingsSettingsRoute: settingsSettingsRoute,
   teamsTeamsRoute: teamsTeamsRoute,
