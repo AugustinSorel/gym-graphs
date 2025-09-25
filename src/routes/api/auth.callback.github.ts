@@ -1,4 +1,5 @@
-import { createServerFileRoute, getCookie } from "@tanstack/react-start/server";
+import { getCookie } from "@tanstack/react-start/server";
+import { createFileRoute } from "@tanstack/react-router";
 import { setSessionTokenCookie } from "~/auth/auth.cookies";
 import { createSession, generateSessionToken } from "~/auth/auth.services";
 import { db } from "~/libs/db";
@@ -18,46 +19,49 @@ import {
 import { githubOAuthCallbackSchema } from "~/auth/oauth.schemas";
 import type { GithubOAuthTokenResponse } from "~/auth/oauth.schemas";
 
-export const ServerRoute = createServerFileRoute(
-  "/api/auth/callback/github",
-).methods({
-  GET: async ({ request }) => {
-    try {
-      const url = new URL(request.url);
+export const Route = createFileRoute("/api/auth/callback/github")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        try {
+          const url = new URL(request.url);
 
-      const { code, redirectUri } = githubOAuthCallbackSchema.parse({
-        state: url.searchParams.get("state"),
-        code: url.searchParams.get("code"),
-        redirectUri: url.searchParams.get("redirect_uri"),
-        candidateState: getCookie("github_oauth_state"),
-      });
+          const { code, redirectUri } = githubOAuthCallbackSchema.parse({
+            state: url.searchParams.get("state"),
+            code: url.searchParams.get("code"),
+            redirectUri: url.searchParams.get("redirect_uri"),
+            candidateState: getCookie("github_oauth_state"),
+          });
 
-      const tokens = await validateGithubOAuthCode(code);
+          const tokens = await validateGithubOAuthCode(code);
 
-      const user = await githubSignIn(tokens.accessToken);
+          const user = await githubSignIn(tokens.accessToken);
 
-      const sessionToken = generateSessionToken();
+          const sessionToken = generateSessionToken();
 
-      const session = await createSession(sessionToken, user.id, db);
+          const session = await createSession(sessionToken, user.id, db);
 
-      setSessionTokenCookie(sessionToken, session.expiresAt);
+          setSessionTokenCookie(sessionToken, session.expiresAt);
 
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: redirectUri ? redirectUri : "/dashboard",
-        },
-      });
-    } catch (e) {
-      const errorMsg = e instanceof Error ? e.message : "something went wrong";
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: redirectUri ? redirectUri : "/dashboard",
+            },
+          });
+        } catch (e) {
+          const errorMsg =
+            e instanceof Error ? e.message : "something went wrong";
 
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: `/sign-up?error=${encodeURIComponent(errorMsg)}`,
-        },
-      });
-    }
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: `/sign-up?error=${encodeURIComponent(errorMsg)}`,
+            },
+          });
+        }
+      },
+    },
   },
 });
 
