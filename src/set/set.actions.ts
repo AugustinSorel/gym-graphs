@@ -19,7 +19,7 @@ import { SetNotFoundError } from "~/set/set.errors";
 
 export const createSetAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     setSchema.pick({
       exerciseId: true,
       repetitions: true,
@@ -74,7 +74,7 @@ export const createSetAction = createServerFn({ method: "POST" })
 
 export const updateSetWeightAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       weightInKg: setSchema.shape.weightInKg,
       setId: setSchema.shape.id,
@@ -126,7 +126,7 @@ export const updateSetRepetitionsAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       repetitions: setSchema.shape.repetitions,
       setId: setSchema.shape.id,
@@ -178,7 +178,7 @@ export const updateSetDoneAtAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       doneAt: setSchema.shape.doneAt,
       setId: setSchema.shape.id,
@@ -192,7 +192,7 @@ export const deleteSetAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ setId: setSchema.shape.id }))
+  .inputValidator(z.object({ setId: setSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteSet(data.setId, context.user.id, context.db);
   });

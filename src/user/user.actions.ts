@@ -28,7 +28,7 @@ export const selectUserAction = createServerFn({ method: "GET" })
 
 export const renameUserAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(userSchema.pick({ name: true }))
+  .inputValidator(userSchema.pick({ name: true }))
   .handler(async ({ data, context }) => {
     await renameUser(data.name, context.user.id, context.db);
   });
@@ -42,14 +42,14 @@ export const deleteAccountAction = createServerFn({ method: "POST" })
 
 export const updateWeightUnitAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(userSchema.pick({ weightUnit: true }))
+  .inputValidator(userSchema.pick({ weightUnit: true }))
   .handler(async ({ context, data }) => {
     await updateWeightUnit(data.weightUnit, context.user.id, context.db);
   });
 
 export const updateOneRepMaxAlgoAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(userSchema.pick({ oneRepMaxAlgo: true }))
+  .inputValidator(userSchema.pick({ oneRepMaxAlgo: true }))
   .handler(async ({ context, data }) => {
     await updateOneRepMaxAlgo(data.oneRepMaxAlgo, context.user.id, context.db);
   });
@@ -68,7 +68,7 @@ export const selectUserDataAction = createServerFn({ method: "GET" })
 
 export const updateDashboardViewAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(userSchema.pick({ dashboardView: true }))
+  .inputValidator(userSchema.pick({ dashboardView: true }))
   .handler(async ({ context, data }) => {
     return updateDashboardView(context.user.id, data.dashboardView, context.db);
   });

@@ -64,7 +64,7 @@ import { UserNotFoundError } from "~/user/user.errors";
 
 export const signInAction = createServerFn()
   .middleware([injectDbMiddleware])
-  .validator(userSchema.pick({ email: true, password: true }))
+  .inputValidator(userSchema.pick({ email: true, password: true }))
   .handler(async ({ data, context }) => {
     const user = await selectUserByEmail(data.email, context.db);
 
@@ -98,7 +98,7 @@ export const signInAction = createServerFn()
 
 export const signUpAction = createServerFn({ method: "POST" })
   .middleware([injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z
       .object({
         email: userSchema.shape.email,
@@ -152,7 +152,7 @@ export const selectSessionTokenAction = createServerFn({ method: "GET" })
 
 export const verifyEmailAction = createServerFn()
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(emailVerificationCodeSchema.pick({ code: true }))
+  .inputValidator(emailVerificationCodeSchema.pick({ code: true }))
   .handler(async ({ context, data }) => {
     await context.db.transaction(async (tx) => {
       const emailVerificatonCode = await selectEmailVerificationCode(
@@ -212,7 +212,7 @@ export const sendEmailVerificationCodeAction = createServerFn({
   });
 
 export const githubSignInAction = createServerFn({ method: "POST" })
-  .validator(z.object({ callbackUrl: z.string().optional() }).optional())
+  .inputValidator(z.object({ callbackUrl: z.string().optional() }).optional())
   .handler(async ({ data }) => {
     const state = generateOAuthState();
 
@@ -229,7 +229,7 @@ export const githubSignInAction = createServerFn({ method: "POST" })
 
 export const requestResetPasswordAction = createServerFn({ method: "POST" })
   .middleware([injectDbMiddleware])
-  .validator(userSchema.pick({ email: true }))
+  .inputValidator(userSchema.pick({ email: true }))
   .handler(async ({ data, context }) => {
     await context.db.transaction(async (tx) => {
       const user = await selectUserByEmail(data.email, tx);
@@ -251,7 +251,7 @@ export const requestResetPasswordAction = createServerFn({ method: "POST" })
 
 export const resetPasswordAction = createServerFn({ method: "POST" })
   .middleware([injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z
       .object({
         password: userSchema.shape.password,

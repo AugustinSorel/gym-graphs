@@ -14,14 +14,14 @@ import { tileSchema } from "~/dashboard/dashboard.schemas";
 
 export const createTagAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(tagSchema.pick({ name: true }))
+  .inputValidator(tagSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     await createTag(data.name, context.user.id, context.db);
   });
 
 export const renameTagAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       tagId: tagSchema.shape.id,
       name: tagSchema.shape.name,
@@ -33,14 +33,14 @@ export const renameTagAction = createServerFn({ method: "POST" })
 
 export const deleteTagAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ tagId: tagSchema.shape.id }))
+  .inputValidator(z.object({ tagId: tagSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteTag(data.tagId, context.user.id, context.db);
   });
 
 export const addTagToTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       tileId: tileSchema.shape.id,
       tagId: tagSchema.shape.id,
@@ -52,7 +52,7 @@ export const addTagToTileAction = createServerFn({ method: "POST" })
 
 export const removeTagToTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       tileId: tileSchema.shape.id,
       tagId: tagSchema.shape.id,

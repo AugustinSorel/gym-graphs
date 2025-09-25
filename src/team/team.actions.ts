@@ -52,7 +52,7 @@ import {
 
 export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       name: teamSchema.shape.name
         .catch((e) => e.input)
@@ -83,7 +83,7 @@ export const selectUserAndPublicTeamsAction = createServerFn({ method: "GET" })
 
 export const createTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(teamSchema.pick({ name: true, visibility: true }))
+  .inputValidator(teamSchema.pick({ name: true, visibility: true }))
   .handler(async ({ context, data }) => {
     await context.db.transaction(async (tx) => {
       const team = await createTeam(data.name, data.visibility, tx);
@@ -93,7 +93,7 @@ export const createTeamAction = createServerFn({ method: "POST" })
 
 export const selectTeamByIdAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .inputValidator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
     const team = await selectTeamById(context.user.id, data.teamId, context.db);
 
@@ -106,7 +106,7 @@ export const selectTeamByIdAction = createServerFn({ method: "GET" })
 
 export const renameTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       teamId: teamSchema.shape.id,
       name: teamSchema.shape.name,
@@ -118,21 +118,21 @@ export const renameTeamAction = createServerFn({ method: "POST" })
 
 export const deleteTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .inputValidator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteTeamById(context.user.id, data.teamId, context.db);
   });
 
 export const leaveTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .inputValidator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await leaveTeam(context.user.id, data.teamId, context.db);
   });
 
 export const kickMemberOutOfTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       teamId: teamMemberSchema.shape.teamId,
       memberId: teamMemberSchema.shape.userId,
@@ -149,7 +149,7 @@ export const kickMemberOutOfTeamAction = createServerFn({ method: "POST" })
 
 export const changeTeamMemberRoleAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       teamId: teamMemberSchema.shape.teamId,
       memberId: teamMemberSchema.shape.userId,
@@ -168,7 +168,7 @@ export const changeTeamMemberRoleAction = createServerFn({ method: "POST" })
 
 export const changeTeamVisibilityAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       teamId: teamSchema.shape.id,
       visibility: teamSchema.shape.visibility,
@@ -185,7 +185,7 @@ export const changeTeamVisibilityAction = createServerFn({ method: "POST" })
 
 export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       teamId: teamInvitationSchema.shape.teamId,
       newMemberEmail: teamInvitationSchema.shape.email,
@@ -226,14 +226,14 @@ export const inviteMemberToTeamAction = createServerFn({ method: "POST" })
 
 export const revokeTeamInvitationAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ invitationId: teamInvitationSchema.shape.id }))
+  .inputValidator(z.object({ invitationId: teamInvitationSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await revokeTeamInvitation(context.user.id, data.invitationId, context.db);
   });
 
 export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ token: teamInvitationSchema.shape.token }))
+  .inputValidator(z.object({ token: teamInvitationSchema.shape.token }))
   .handler(async ({ context, data }) => {
     const tokenHash = hashSHA256Hex(data.token);
 
@@ -271,7 +271,7 @@ export const acceptTeamInvitationAction = createServerFn({ method: "POST" })
 
 export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ teamId: teamSchema.shape.id }))
+  .inputValidator(z.object({ teamId: teamSchema.shape.id }))
   .handler(async ({ context, data }) => {
     const team = await selectTeamWithMembers(data.teamId, context.db);
 
@@ -308,7 +308,7 @@ export const createTeamJoinRequestAction = createServerFn({ method: "POST" })
 
 export const rejectTeamJoinRequestAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
+  .inputValidator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await rejectTeamJoinRequest(
       data.joinRequestId,
@@ -319,7 +319,7 @@ export const rejectTeamJoinRequestAction = createServerFn({ method: "POST" })
 
 export const acceptTeamJoinRequestAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
+  .inputValidator(z.object({ joinRequestId: teamJoinRequestSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await context.db.transaction(async (tx) => {
       const joinRequest = await acceptTeamJoinRequest(
@@ -339,7 +339,9 @@ export const acceptTeamJoinRequestAction = createServerFn({ method: "POST" })
 
 export const createTeamEventReactionAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }))
+  .inputValidator(
+    teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }),
+  )
   .handler(async ({ context, data }) => {
     await createTeamEventReaction(
       data.teamEventId,
@@ -351,7 +353,9 @@ export const createTeamEventReactionAction = createServerFn({ method: "POST" })
 
 export const removeTeamEventReactionAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }))
+  .inputValidator(
+    teamEventReactionsSchema.pick({ emoji: true, teamEventId: true }),
+  )
   .handler(async ({ context, data }) => {
     await removeTeamEventReaction(
       data.teamEventId,
@@ -363,7 +367,7 @@ export const removeTeamEventReactionAction = createServerFn({ method: "POST" })
 
 export const readTeamNotificationsAciton = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(teamNotificationSchema.pick({ teamId: true }))
+  .inputValidator(teamNotificationSchema.pick({ teamId: true }))
   .handler(async ({ context, data }) => {
     await readTeamEventNotifications(context.user.id, data.teamId, context.db);
   });

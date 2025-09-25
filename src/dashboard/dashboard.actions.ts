@@ -22,7 +22,7 @@ import { tagSchema } from "~/tag/tag.schemas";
 
 export const selectTilesAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       name: tileSchema.shape.name
         .catch((e) => e.input)
@@ -61,7 +61,7 @@ export const reorderTilesAction = createServerFn({
   method: "POST",
 })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(tileSchema.pick({ id: true }).array().max(200))
+  .inputValidator(tileSchema.pick({ id: true }).array().max(200))
   .handler(async ({ context, data }) => {
     await reorderTiles(
       data.toReversed().flatMap((d) => d.id),
@@ -78,7 +78,7 @@ export const selectTilesFunFactsAction = createServerFn({ method: "GET" })
 
 export const renameTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       tileId: tileSchema.shape.id,
       name: tileSchema.shape.name,
@@ -95,7 +95,7 @@ export const renameTileAction = createServerFn({ method: "POST" })
 
 export const createExerciseTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(tileSchema.pick({ name: true }))
+  .inputValidator(tileSchema.pick({ name: true }))
   .handler(async ({ context, data }) => {
     await context.db.transaction(async (tx) => {
       const exercise = await createExercise(tx);
@@ -111,7 +111,7 @@ export const createExerciseTileAction = createServerFn({ method: "POST" })
 
 export const deleteTileAction = createServerFn({ method: "POST" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ tileId: tileSchema.shape.id }))
+  .inputValidator(z.object({ tileId: tileSchema.shape.id }))
   .handler(async ({ context, data }) => {
     await deleteTile(context.user.dashboard.id, data.tileId, context.db);
   });

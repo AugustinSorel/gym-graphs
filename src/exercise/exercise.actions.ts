@@ -8,7 +8,7 @@ import { injectDbMiddleware } from "~/db/db.middlewares";
 
 export const selectExerciseAction = createServerFn({ method: "GET" })
   .middleware([authGuardMiddleware, injectDbMiddleware])
-  .validator(z.object({ exerciseId: exerciseSchema.shape.id }))
+  .inputValidator(z.object({ exerciseId: exerciseSchema.shape.id }))
   .handler(async ({ context, data }) => {
     const exercise = await selectExercise(
       context.user.id,
