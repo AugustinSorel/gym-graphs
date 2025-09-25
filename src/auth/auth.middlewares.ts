@@ -1,4 +1,4 @@
-import { getCookie, getHeader } from "@tanstack/react-start/server";
+import { getCookie, getRequestHeader } from "@tanstack/react-start/server";
 import { createMiddleware } from "@tanstack/react-start";
 import { validateSessionToken } from "~/auth/auth.services";
 import { injectDbMiddleware } from "~/db/db.middlewares";
@@ -37,20 +37,20 @@ export const authGuardMiddleware = createMiddleware({ type: "function" })
     });
   });
 
-export const rateLimiterMiddleware = createMiddleware({
-  type: "function",
-}).server(async ({ next }) => {
-  if (env.NODE_ENV !== "production") {
+export const rateLimiterMiddleware = createMiddleware().server(
+  async ({ next }) => {
+    if (env.NODE_ENV !== "production") {
+      return await next();
+    }
+
+    const ip = getRequestHeader("x-forwarded-for") || "localhost";
+
+    const isValid = await rateLimiter.checkRate(ip, 1);
+
+    if (!isValid) {
+      throw new TooManyRequestsError();
+    }
+
     return await next();
-  }
-
-  const ip = getHeader("x-forwarded-for") || "localhost";
-
-  const isValid = await rateLimiter.checkRate(ip, 1);
-
-  if (!isValid) {
-    throw new TooManyRequestsError();
-  }
-
-  return await next();
-});
+  },
+);

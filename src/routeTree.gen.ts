@@ -8,9 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as teamsTeamsRouteImport } from './routes/(teams)/teams'
@@ -23,19 +20,12 @@ import { Route as authLayoutVerifyEmailRouteImport } from './routes/(auth)/_layo
 import { Route as authLayoutSignUpRouteImport } from './routes/(auth)/_layout.sign-up'
 import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.sign-in'
 import { Route as authLayoutResetPasswordRouteImport } from './routes/(auth)/_layout.reset-password'
+import { Route as ApiAuthCallbackGithubRouteImport } from './routes/api/auth.callback.github'
 import { Route as teamsTeamsTeamIdSettingsRouteImport } from './routes/(teams)/teams_.$teamId_.settings'
 import { Route as exercisesExercisesExerciseIdSettingsRouteImport } from './routes/(exercises)/exercises_.$exerciseId.settings'
 import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
 import { Route as invitationsInvitationsTeamsTokenAcceptRouteImport } from './routes/(invitations)/invitations.teams.$token.accept'
-import { ServerRoute as ApiAuthCallbackGithubServerRouteImport } from './routes/api/auth.callback.github'
 
-const authRouteImport = createFileRoute('/(auth)')()
-const rootServerRouteImport = createServerRootRoute()
-
-const authRoute = authRouteImport.update({
-  id: '/(auth)',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -91,6 +81,11 @@ const authLayoutResetPasswordRoute = authLayoutResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => authLayoutRoute,
 } as any)
+const ApiAuthCallbackGithubRoute = ApiAuthCallbackGithubRouteImport.update({
+  id: '/api/auth/callback/github',
+  path: '/api/auth/callback/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const teamsTeamsTeamIdSettingsRoute =
   teamsTeamsTeamIdSettingsRouteImport.update({
     id: '/(teams)/teams_/$teamId_/settings',
@@ -115,15 +110,9 @@ const invitationsInvitationsTeamsTokenAcceptRoute =
     path: '/invitations/teams/$token/accept',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiAuthCallbackGithubServerRoute =
-  ApiAuthCallbackGithubServerRouteImport.update({
-    id: '/api/auth/callback/github',
-    path: '/api/auth/callback/github',
-    getParentRoute: () => rootServerRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof authLayoutRouteWithChildren
+  '/': typeof IndexRoute
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
@@ -136,10 +125,11 @@ export interface FileRoutesByFullPath {
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
   '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
   '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
+  '/api/auth/callback/github': typeof ApiAuthCallbackGithubRoute
   '/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof authLayoutRouteWithChildren
+  '/': typeof IndexRoute
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
   '/teams': typeof teamsTeamsRoute
@@ -152,12 +142,12 @@ export interface FileRoutesByTo {
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
   '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
   '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
+  '/api/auth/callback/github': typeof ApiAuthCallbackGithubRoute
   '/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
   '/(dashboard)/dashboard': typeof dashboardDashboardRoute
   '/(settings)/settings': typeof settingsSettingsRoute
@@ -171,6 +161,7 @@ export interface FileRoutesById {
   '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
   '/(exercises)/exercises_/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
   '/(teams)/teams_/$teamId_/settings': typeof teamsTeamsTeamIdSettingsRoute
+  '/api/auth/callback/github': typeof ApiAuthCallbackGithubRoute
   '/(invitations)/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 export interface FileRouteTypes {
@@ -189,6 +180,7 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
     | '/teams/$teamId/settings'
+    | '/api/auth/callback/github'
     | '/invitations/teams/$token/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,11 +197,11 @@ export interface FileRouteTypes {
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
     | '/teams/$teamId/settings'
+    | '/api/auth/callback/github'
     | '/invitations/teams/$token/accept'
   id:
     | '__root__'
     | '/'
-    | '/(auth)'
     | '/(auth)/_layout'
     | '/(dashboard)/dashboard'
     | '/(settings)/settings'
@@ -223,12 +215,12 @@ export interface FileRouteTypes {
     | '/(auth)/_layout/reset-password_/$token'
     | '/(exercises)/exercises_/$exerciseId/settings'
     | '/(teams)/teams_/$teamId_/settings'
+    | '/api/auth/callback/github'
     | '/(invitations)/invitations/teams/$token/accept'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRoute: typeof authRouteWithChildren
   dashboardDashboardRoute: typeof dashboardDashboardRoute
   settingsSettingsRoute: typeof settingsSettingsRoute
   teamsTeamsRoute: typeof teamsTeamsRoute
@@ -236,39 +228,12 @@ export interface RootRouteChildren {
   teamsTeamsTeamIdRoute: typeof teamsTeamsTeamIdRoute
   exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
   teamsTeamsTeamIdSettingsRoute: typeof teamsTeamsTeamIdSettingsRoute
+  ApiAuthCallbackGithubRoute: typeof ApiAuthCallbackGithubRoute
   invitationsInvitationsTeamsTokenAcceptRoute: typeof invitationsInvitationsTeamsTokenAcceptRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/callback/github'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/callback/github'
-  id: '__root__' | '/api/auth/callback/github'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiAuthCallbackGithubServerRoute: typeof ApiAuthCallbackGithubServerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -299,8 +264,8 @@ declare module '@tanstack/react-router' {
     }
     '/(auth)/_layout': {
       id: '/(auth)/_layout'
-      path: '/'
-      fullPath: '/'
+      path: ''
+      fullPath: ''
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof authRoute
     }
@@ -346,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLayoutResetPasswordRouteImport
       parentRoute: typeof authLayoutRoute
     }
+    '/api/auth/callback/github': {
+      id: '/api/auth/callback/github'
+      path: '/api/auth/callback/github'
+      fullPath: '/api/auth/callback/github'
+      preLoaderRoute: typeof ApiAuthCallbackGithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(teams)/teams_/$teamId_/settings': {
       id: '/(teams)/teams_/$teamId_/settings'
       path: '/teams/$teamId/settings'
@@ -376,51 +348,9 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/auth/callback/github': {
-      id: '/api/auth/callback/github'
-      path: '/api/auth/callback/github'
-      fullPath: '/api/auth/callback/github'
-      preLoaderRoute: typeof ApiAuthCallbackGithubServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
-
-interface authLayoutRouteChildren {
-  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
-  authLayoutSignInRoute: typeof authLayoutSignInRoute
-  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
-  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
-  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
-}
-
-const authLayoutRouteChildren: authLayoutRouteChildren = {
-  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
-  authLayoutSignInRoute: authLayoutSignInRoute,
-  authLayoutSignUpRoute: authLayoutSignUpRoute,
-  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
-  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
-}
-
-const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
-  authLayoutRouteChildren,
-)
-
-interface authRouteChildren {
-  authLayoutRoute: typeof authLayoutRouteWithChildren
-}
-
-const authRouteChildren: authRouteChildren = {
-  authLayoutRoute: authLayoutRouteWithChildren,
-}
-
-const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRoute: authRouteWithChildren,
   dashboardDashboardRoute: dashboardDashboardRoute,
   settingsSettingsRoute: settingsSettingsRoute,
   teamsTeamsRoute: teamsTeamsRoute,
@@ -429,15 +359,20 @@ const rootRouteChildren: RootRouteChildren = {
   exercisesExercisesExerciseIdSettingsRoute:
     exercisesExercisesExerciseIdSettingsRoute,
   teamsTeamsTeamIdSettingsRoute: teamsTeamsTeamIdSettingsRoute,
+  ApiAuthCallbackGithubRoute: ApiAuthCallbackGithubRoute,
   invitationsInvitationsTeamsTokenAcceptRoute:
     invitationsInvitationsTeamsTokenAcceptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiAuthCallbackGithubServerRoute: ApiAuthCallbackGithubServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.tsx'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()
