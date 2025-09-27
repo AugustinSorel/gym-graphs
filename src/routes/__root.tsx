@@ -145,7 +145,6 @@ const RootDocument = (props: Readonly<PropsWithChildren>) => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | create better input for creating new sets             |
 | TODO     | gamification                                          |
 | TODO     | monitoring                                            |
 */
