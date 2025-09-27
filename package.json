@@ -55,6 +55,7 @@
     "@visx/vendor": "^3.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.2",
     "drizzle-orm": "^0.39.1",
     "input-otp": "^1.4.2",
     "ioredis": "^5.5.0",
@@ -69,7 +70,7 @@
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^5.62.11",
-    "@tanstack/router-devtools": "^1.92.11",
+    "@tanstack/react-router-devtools": "^1.132.11",
     "@types/pg": "^8.11.10",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
