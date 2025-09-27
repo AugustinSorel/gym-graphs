@@ -3,6 +3,9 @@ import { Button, ButtonProps } from "~/ui/button";
 import { useFormField } from "~/ui/form";
 import { Input, InputProps } from "~/ui/input";
 import { MinusIcon, PlusIcon } from "~/ui/icons";
+import { z } from "zod";
+
+const counterSchema = z.coerce.number().catch(0);
 
 export const CounterDec = (props: ButtonProps) => {
   const formField = useFormField();
@@ -12,7 +15,13 @@ export const CounterDec = (props: ButtonProps) => {
   return (
     <Button
       type="button"
-      onClick={() => controller.field.onChange(controller.field.value - 1)}
+      onClick={() => {
+        const value = counterSchema
+          .transform((x) => x - 1)
+          .parse(controller.field.value);
+
+        controller.field.onChange(value);
+      }}
       {...props}
     />
   );
@@ -26,7 +35,13 @@ export const CounterInc = (props: ButtonProps) => {
   return (
     <Button
       type="button"
-      onClick={() => controller.field.onChange(controller.field.value + 1)}
+      onClick={() => {
+        const value = counterSchema
+          .transform((x) => x + 1)
+          .parse(controller.field.value);
+
+        controller.field.onChange(value);
+      }}
       {...props}
     />
   );
