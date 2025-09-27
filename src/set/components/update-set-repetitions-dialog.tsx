@@ -20,7 +20,10 @@ export const UpdateSetRepetitionsDialog = () => {
           update repetitions
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Update repetitions</DialogTitle>
           <DialogDescription>

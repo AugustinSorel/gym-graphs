@@ -30,7 +30,10 @@ export const CreateSetDialog = () => {
         </DialogTrigger>
       </Button>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Add a new set</DialogTitle>
           <DialogDescription>Add a new set to the exercise</DialogDescription>

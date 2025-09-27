@@ -20,7 +20,10 @@ export const UpdateSetWeightDialog = () => {
           update weight
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Update weight</DialogTitle>
           <DialogDescription>
