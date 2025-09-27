@@ -12,7 +12,6 @@ import {
 } from "~/ui/form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
-import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { createSetAction } from "~/set/set.actions";
 import { setSchema } from "~/set/set.schemas";
@@ -23,18 +22,21 @@ import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { userQueries } from "~/user/user.queries";
 import { teamQueries } from "~/team/team.queries";
+import { CounterInput } from "~/ui/counter-input";
+import { useLastSet } from "~/set/hooks/use-last-set";
+import { WeightUnit } from "~/weight-unit/components/weight-unit";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
   const createSet = useCreateSet();
   const params = routeApi.useParams();
-  const exericse = useExercise(params.exerciseId);
+  const exercise = useExercise(params.exerciseId);
 
   const onSubmit = async (data: CreateExerciseSchema) => {
     await createSet.mutateAsync(
       {
         data: {
-          exerciseId: exericse.data.id,
+          exerciseId: exercise.data.id,
           repetitions: data.repetitions,
           weightInKg: data.weightInKg,
         },
@@ -58,11 +60,14 @@ export const CreateSetForm = (props: Props) => {
         <FormField
           control={form.control}
           name="weightInKg"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>weight:</FormLabel>
+          render={() => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>
+                weight (<WeightUnit />
+                ):
+              </FormLabel>
               <FormControl>
-                <Input type="number" placeholder="75" autoFocus {...field} />
+                <CounterInput />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,11 +77,11 @@ export const CreateSetForm = (props: Props) => {
         <FormField
           control={form.control}
           name="repetitions"
-          render={({ field }) => (
-            <FormItem>
+          render={() => (
+            <FormItem className="flex flex-col gap-1">
               <FormLabel>repetitions:</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10" {...field} />
+                <CounterInput />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,12 +125,16 @@ type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateExerciseSetForm = () => {
   const formSchema = useFormSchema();
+  const params = routeApi.useParams();
+  const exercise = useExercise(params.exerciseId);
+
+  const lastSet = useLastSet(exercise.data.sets);
 
   return useForm<CreateExerciseSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repetitions: 0,
-      weightInKg: 0,
+      repetitions: lastSet?.repetitions ?? 0,
+      weightInKg: lastSet?.weightInKg ?? 0,
     },
   });
 };

@@ -13,7 +13,6 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
 import { exerciseQueries } from "~/exercise/exercise.queries";
-import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { useExercise } from "~/exercise/hooks/use-exercise";
 import { updateSetRepetitionsAction } from "~/set/set.actions";
@@ -23,6 +22,8 @@ import { getRouteApi } from "@tanstack/react-router";
 import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { teamQueries } from "~/team/team.queries";
 import { userQueries } from "~/user/user.queries";
+import { WeightUnit } from "~/weight-unit/components/weight-unit";
+import { CounterInput } from "~/ui/counter-input";
 
 export const UpdateSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -56,11 +57,11 @@ export const UpdateSetRepetitionsForm = (props: Props) => {
         <FormField
           control={form.control}
           name="repetitions"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>weight:</FormLabel>
+          render={() => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>repetitions</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10" autoFocus {...field} />
+                <CounterInput />
               </FormControl>
               <FormMessage />
             </FormItem>
