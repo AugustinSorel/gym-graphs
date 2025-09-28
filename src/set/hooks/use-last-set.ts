@@ -1,5 +1,5 @@
 import type { Set } from "~/db/db.schemas";
-import { useSortSetsByDoneAt } from "./use-sort-sets-by-done-at";
+import { useSortSetsByDoneAt } from "~/set/hooks/use-sort-sets-by-done-at";
 
 export const useLastSet = <TSet extends Pick<Set, "doneAt">>(
   sets: ReadonlyArray<TSet>,
