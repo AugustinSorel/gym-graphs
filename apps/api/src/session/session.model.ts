@@ -1,6 +1,6 @@
 import { sessionTable } from "~/db/db.schemas";
 import { hashSHA256Hex } from "~/session/session.utils";
-import { SessionNotFoundError } from "~/session/session.errors";
+import { HTTPException } from "hono/http-exception";
 import type { User } from "~/db/db.schemas";
 import type { SessionToken } from "~/session/session.utils";
 import type { Db } from "~/libs/db";
@@ -16,7 +16,7 @@ export const createSessionModel = (db: Db) => {
         .returning();
 
       if (!session) {
-        throw new SessionNotFoundError();
+        throw new HTTPException(404, { message: "session not found" });
       }
 
       return session;

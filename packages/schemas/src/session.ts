@@ -13,3 +13,7 @@ export const signUpSchema = z
   });
 
 export type SignUpSchema = z.infer<typeof signUpSchema>;
+
+export const signInSchema = userSchema.pick({ email: true, password: true });
+
+export type SignInSchema = z.infer<typeof signInSchema>;

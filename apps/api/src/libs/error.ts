@@ -1,13 +1,14 @@
-export class AppError extends Error {
-  public readonly statusCode: number;
+import { HTTPException } from "hono/http-exception";
+import type { ErrorHandler } from "hono";
+import type { Ctx } from "~/index";
 
-  constructor(message: string, statusCode = 500) {
-    super(message);
+//TODO: build better error msg
 
-    Object.setPrototypeOf(this, new.target.prototype);
-
-    this.statusCode = statusCode;
-
-    Error.captureStackTrace(this);
+export const errorHandler: ErrorHandler<Ctx> = (err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ message: err.message }, err.status);
   }
-}
+
+  console.error(err);
+  return c.json({ message: "internal server error" }, 500);
+};

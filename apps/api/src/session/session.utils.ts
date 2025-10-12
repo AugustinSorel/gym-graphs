@@ -1,4 +1,4 @@
-import { scrypt, randomBytes, createHash } from "crypto";
+import { scrypt, randomBytes, createHash, timingSafeEqual } from "crypto";
 
 export const generateSalt = () => {
   return randomBytes(16).toString("hex").normalize();
@@ -14,6 +14,18 @@ export const hashSecret = (input: string, salt: string) => {
   });
 };
 
+export const verifySecret = async (
+  candidateSecret: string,
+  hashedSecret: string,
+  salt: string,
+) => {
+  const candidateHashedSecret = await hashSecret(candidateSecret, salt);
+
+  return timingSafeEqual(
+    Buffer.from(candidateHashedSecret, "hex"),
+    Buffer.from(hashedSecret, "hex"),
+  );
+};
 export const generateSessionToken = () => {
   const bytes = randomBytes(20);
 

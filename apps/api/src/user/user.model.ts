@@ -1,8 +1,7 @@
 import { userTable } from "~/db/db.schemas";
-import {
-  UserDuplicateEmailErrorr,
-  UserNotFoundError,
-} from "~/user/user.errors";
+import { HTTPException } from "hono/http-exception";
+import { DatabaseError } from "pg";
+import { eq } from "drizzle-orm";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -21,17 +20,29 @@ export const createUserModel = (db: Db) => {
           .returning();
 
         if (!user) {
-          throw new UserNotFoundError();
+          throw new HTTPException(404, { message: "user not found" });
         }
 
         return user;
       } catch (e) {
-        if (UserDuplicateEmailErrorr.check(e)) {
-          throw new UserDuplicateEmailErrorr();
+        const duplicateEmail =
+          e instanceof DatabaseError && e.constraint === "user_email_unique";
+
+        if (duplicateEmail) {
+          throw new HTTPException(409, {
+            message: "email is already used",
+            cause: e,
+          });
         }
 
         throw e;
       }
+    },
+
+    selectByEmail: async (email: User["email"]) => {
+      return db.query.userTable.findFirst({
+        where: eq(userTable.email, email),
+      });
     },
   };
 };
