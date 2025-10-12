@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { createFileRoute } from '@tanstack/react-router'
-import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,10 +26,8 @@ import { Route as teamsTeamsTeamIdSettingsRouteImport } from './routes/(teams)/t
 import { Route as exercisesExercisesExerciseIdSettingsRouteImport } from './routes/(exercises)/exercises_.$exerciseId.settings'
 import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
 import { Route as invitationsInvitationsTeamsTokenAcceptRouteImport } from './routes/(invitations)/invitations.teams.$token.accept'
-import { ServerRoute as ApiAuthCallbackGithubServerRouteImport } from './routes/api/auth.callback.github'
 
 const authRouteImport = createFileRoute('/(auth)')()
-const rootServerRouteImport = createServerRootRoute()
 
 const authRoute = authRouteImport.update({
   id: '/(auth)',
@@ -114,12 +111,6 @@ const invitationsInvitationsTeamsTokenAcceptRoute =
     id: '/(invitations)/invitations/teams/$token/accept',
     path: '/invitations/teams/$token/accept',
     getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiAuthCallbackGithubServerRoute =
-  ApiAuthCallbackGithubServerRouteImport.update({
-    id: '/api/auth/callback/github',
-    path: '/api/auth/callback/github',
-    getParentRoute: () => rootServerRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -238,27 +229,6 @@ export interface RootRouteChildren {
   teamsTeamsTeamIdSettingsRoute: typeof teamsTeamsTeamIdSettingsRoute
   invitationsInvitationsTeamsTokenAcceptRoute: typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
-export interface FileServerRoutesByFullPath {
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/auth/callback/github': typeof ApiAuthCallbackGithubServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/callback/github'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/callback/github'
-  id: '__root__' | '/api/auth/callback/github'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiAuthCallbackGithubServerRoute: typeof ApiAuthCallbackGithubServerRoute
-}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -376,17 +346,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/auth/callback/github': {
-      id: '/api/auth/callback/github'
-      path: '/api/auth/callback/github'
-      fullPath: '/api/auth/callback/github'
-      preLoaderRoute: typeof ApiAuthCallbackGithubServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
 
 interface authLayoutRouteChildren {
   authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
@@ -435,9 +394,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiAuthCallbackGithubServerRoute: ApiAuthCallbackGithubServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()
