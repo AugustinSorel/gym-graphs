@@ -15,6 +15,10 @@ export default defineConfig({
       "~": path.resolve(__dirname, "src"),
     },
   },
+  //FIX: marking aws as external, idk why
+  ssr: {
+    noExternal: ["@aws-sdk/client-ses"],
+  },
   plugins: [
     tsconfigPaths({
       projects: ["./tsconfig.json"],
