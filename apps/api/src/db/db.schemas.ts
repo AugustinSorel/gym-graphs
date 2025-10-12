@@ -1,87 +1,14 @@
 import { relations, sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
-import z from "zod";
-
-//FIX: this is duplication, move to packages/schemas ===========
-const userSchema = z.object({
-  weightUnit: z.enum(["kg", "lbs"], {
-    required_error: "weight unit is required",
-    invalid_type_error: "weight unit must be valid",
-  }),
-  oneRepMaxAlgo: z.enum(
-    [
-      "adams",
-      "baechle",
-      "berger",
-      "brown",
-      "brzycki",
-      "epley",
-      "kemmler",
-      "landers",
-      "lombardi",
-      "mayhew",
-      "naclerio",
-      "oConner",
-      "wathen",
-    ],
-    {
-      required_error: "one rep max algo is required",
-      invalid_type_error: "one rep max algo must be valid",
-    },
-  ),
-  dashboardView: z.enum(["graph", "trending"]),
-});
-
-const teamSchema = z.object({
-  visibility: z.enum(["public", "private"], {
-    required_error: "visibility is required",
-    invalid_type_error: "visibility must be valid",
-  }),
-});
-
-const teamMemberSchema = z.object({
-  role: z.enum(["admin", "member"], {
-    required_error: "role is required",
-    invalid_type_error: "role must be valid",
-  }),
-});
-
-const teamInvitationSchema = z.object({
-  status: z.enum(["pending", "accepted", "expired", "revoked"], {
-    required_error: "status is required",
-    invalid_type_error: "status must be valid",
-  }),
-});
-
-const teamJoinRequestSchema = z.object({
-  status: z.enum(["pending", "accepted", "rejected"], {
-    required_error: "status is required",
-    invalid_type_error: "status must be valid",
-  }),
-});
-
-const teamEventReactionsSchema = z.object({
-  emoji: z.enum(["🎯", "😤", "🔥", "🎉", "💪"], {
-    required_error: "emoji is required",
-    invalid_type_error: "emoji must be valid",
-  }),
-});
-
-const tileSchema = z.object({
-  type: z.enum(
-    [
-      "exercise",
-      "tilesToSetsCount",
-      "tilesToTagsCount",
-      "tilesSetsHeatMap",
-      "tilesFunFacts",
-    ],
-    {
-      required_error: "type is required",
-      invalid_type_error: "type must be valid",
-    },
-  ),
-});
+import { userSchema } from "@gym-graphs/schemas/user";
+import { tileSchema } from "@gym-graphs/schemas/dashboard";
+import {
+  teamInvitationSchema,
+  teamEventReactionsSchema,
+  teamMemberSchema,
+  teamSchema,
+  teamJoinRequestSchema,
+} from "@gym-graphs/schemas/team";
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",

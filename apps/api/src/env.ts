@@ -5,6 +5,8 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
 
+  PORT: z.coerce.number(),
+
   DB_PASSWORD: z.string().trim().nonempty(),
   DB_USER: z.string().trim().nonempty(),
   DB_NAME: z.string().trim().nonempty(),
@@ -28,6 +30,7 @@ const envSchema = z.object({
 
 export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
 
   DB_PASSWORD: process.env.DB_PASSWORD,
   DB_USER: process.env.DB_USER,

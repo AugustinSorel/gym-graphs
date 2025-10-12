@@ -1,7 +1,18 @@
-import { Elysia } from "elysia";
+import { Hono } from "hono";
+import { env } from "~/env";
+import { sessionRouter } from "~/session/session.router";
+import { injectDbMiddleware } from "~/db/db.middlewares";
+import type { Db } from "~/libs/db";
 
-new Elysia()
-  .get("/", "Hello Elysia")
-  .get("/user/:id", ({ params: { id } }) => id)
-  .post("/form", ({ body }) => body)
-  .listen(3000);
+export type Ctx = {
+  Variables: {
+    db: Db;
+  };
+};
+
+const app = new Hono<Ctx>().use(injectDbMiddleware).route("/", sessionRouter);
+
+export default {
+  port: env.PORT,
+  fetch: app.fetch,
+};
