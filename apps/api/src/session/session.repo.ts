@@ -5,7 +5,7 @@ import type { User } from "~/db/db.schemas";
 import type { SessionToken } from "~/session/session.utils";
 import type { Db } from "~/libs/db";
 
-export const createSessionModel = (db: Db) => {
+export const createSessionRepo = (db: Db) => {
   return {
     create: async (sessionToken: SessionToken, userId: User["id"]) => {
       const sessionId = hashSHA256Hex(sessionToken);

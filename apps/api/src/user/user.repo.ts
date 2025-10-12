@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
-export const createUserModel = (db: Db) => {
+export const createUserRepo = (db: Db) => {
   return {
     createWithEmailAndPassword: async (
       email: User["email"],
