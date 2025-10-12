@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "web": "pnpm --filter web",
-    "api": "pnpm --filter api"
+    "web": "pnpm --filter @gym-graphs/web",
+    "api": "pnpm --filter @gym-graphs/api",
+    "schemas": "pnpm --filter @gym-graphs/schemas"
   },
   "keywords": [],
   "author": "",

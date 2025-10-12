@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@gym-graphs/api",
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -13,7 +13,8 @@
     "drizzle-orm": "^0.39.1",
     "elysia": "^1.4.11",
     "pg": "^8.13.1",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "@gym-graphs/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
