@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "web": "pnpm --filter web"
+    "web": "pnpm --filter web",
+    "api": "pnpm --filter api"
   },
   "keywords": [],
   "author": "",
