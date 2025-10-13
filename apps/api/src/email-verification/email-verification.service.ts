@@ -37,7 +37,7 @@ const verifyCode = async (
     throw new HTTPException(401, { message: "invalid code" });
   }
 
-  await emailVerificationRepo.remove(emailVerificatonCode.id, db);
+  await emailVerificationRepo.deleteById(emailVerificatonCode.id, db);
 
   const codeExpired = Date.now() >= emailVerificatonCode.expiresAt.getTime();
 
@@ -48,8 +48,11 @@ const verifyCode = async (
   await userRepo.updateEmailVerifiedAt(userId, db);
 };
 
-const refresh = async (userId: EmailVerificationCode["userId"], db: Db) => {
-  const emailVerification = await emailVerificationRepo.removeByUserId(
+const deleteByUserId = async (
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  const emailVerification = await emailVerificationRepo.deleteByUserId(
     userId,
     db,
   );
@@ -60,11 +63,11 @@ const refresh = async (userId: EmailVerificationCode["userId"], db: Db) => {
     });
   }
 
-  return create(userId, db);
+  return emailVerification;
 };
 
 export const emailVerificationService = {
   create,
   verifyCode,
-  refresh,
+  deleteByUserId,
 };

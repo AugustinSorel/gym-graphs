@@ -3,21 +3,32 @@ import { generatePasswordResetToken } from "~/password-reset/password-reset.util
 import { hashSHA256Hex } from "~/session/session.utils";
 import type { PasswordResetToken } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import { HTTPException } from "hono/http-exception";
 
 const create = async (userId: PasswordResetToken["userId"], db: Db) => {
   const token = generatePasswordResetToken();
   const tokenHash = hashSHA256Hex(token);
 
-  return await passwordResetRepo.create(tokenHash, userId, db);
+  const passwordReset = await passwordResetRepo.create(tokenHash, userId, db);
+
+  if (!passwordReset) {
+    throw new HTTPException(404, { message: "password reset not found" });
+  }
+
+  return passwordReset;
 };
 
-const refresh = async (userId: PasswordResetToken["userId"], db: Db) => {
-  await passwordResetRepo.deleteByUserId(userId, db);
+const deleteByUserId = async (userId: PasswordResetToken["userId"], db: Db) => {
+  const passwordReset = await passwordResetRepo.deleteByUserId(userId, db);
 
-  return create(userId, db);
+  if (!passwordReset) {
+    throw new HTTPException(404, { message: "password reset not found" });
+  }
+
+  return passwordReset;
 };
 
 export const passwordResetService = {
   create,
-  refresh,
+  deleteByUserId,
 };

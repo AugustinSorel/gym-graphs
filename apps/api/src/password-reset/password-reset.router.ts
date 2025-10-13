@@ -17,7 +17,9 @@ passwordResetRouter.post(
     await c.var.db.transaction(async (tx) => {
       const user = await userService.selectByEmail(input.email, tx);
 
-      const passwordReset = await passwordResetService.refresh(
+      await passwordResetService.deleteByUserId(user.id, c.var.db);
+
+      const passwordReset = await passwordResetService.create(
         user.id,
         c.var.db,
       );

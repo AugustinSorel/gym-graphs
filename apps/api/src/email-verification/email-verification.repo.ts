@@ -32,7 +32,7 @@ const selectByUserId = async (
   });
 };
 
-const remove = async (id: EmailVerificationCode["id"], db: Db) => {
+const deleteById = async (id: EmailVerificationCode["id"], db: Db) => {
   const [emailVerification] = await db
     .delete(emailVerificationCodeTable)
     .where(eq(emailVerificationCodeTable.id, id))
@@ -41,7 +41,7 @@ const remove = async (id: EmailVerificationCode["id"], db: Db) => {
   return emailVerification;
 };
 
-const removeByUserId = async (
+const deleteByUserId = async (
   userId: EmailVerificationCode["userId"],
   db: Db,
 ) => {
@@ -56,6 +56,6 @@ const removeByUserId = async (
 export const emailVerificationRepo = {
   create,
   selectByUserId,
-  remove,
-  removeByUserId,
+  deleteById,
+  deleteByUserId,
 };

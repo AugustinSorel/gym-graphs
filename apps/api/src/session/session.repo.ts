@@ -21,7 +21,7 @@ const create = async (
   return session;
 };
 
-const remove = async (sessionId: Session["id"], db: Db) => {
+const deleteById = async (sessionId: Session["id"], db: Db) => {
   const [session] = await db
     .delete(sessionTable)
     .where(eq(sessionTable.id, sessionId))
@@ -30,7 +30,7 @@ const remove = async (sessionId: Session["id"], db: Db) => {
   return session;
 };
 
-const removeByUserId = async (userId: Session["userId"], db: Db) => {
+const deleteByUserId = async (userId: Session["userId"], db: Db) => {
   const [session] = await db
     .delete(sessionTable)
     .where(eq(sessionTable.userId, userId))
@@ -39,7 +39,7 @@ const removeByUserId = async (userId: Session["userId"], db: Db) => {
   return session;
 };
 
-const select = async (sessionId: Session["id"], db: Db) => {
+const selectById = async (sessionId: Session["id"], db: Db) => {
   return db.query.sessionTable.findFirst({
     where: eq(sessionTable.id, sessionId),
     with: {
@@ -75,8 +75,8 @@ const refreshExpiryDate = async (sessionId: Session["id"], db: Db) => {
 
 export const sessionRepo = {
   create,
-  remove,
-  removeByUserId,
-  select,
+  deleteById,
+  deleteByUserId,
+  selectById,
   refreshExpiryDate,
 };

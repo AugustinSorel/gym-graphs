@@ -13,7 +13,9 @@ export const emailVerificationRouter = new Hono<Ctx>();
 
 emailVerificationRouter.post("/", requireAuthMiddleware, async (c) => {
   await c.var.db.transaction(async (tx) => {
-    const emailVerification = await emailVerificationService.refresh(
+    await emailVerificationService.deleteByUserId(c.var.user.id, tx);
+
+    const emailVerification = await emailVerificationService.create(
       c.var.user.id,
       tx,
     );
@@ -40,7 +42,9 @@ emailVerificationRouter.post(
     await c.var.db.transaction(async (tx) => {
       await emailVerificationService.verifyCode(c.var.user.id, input.code, tx);
 
-      const session = await sessionService.refresh(c.var.user.id, tx);
+      await sessionService.deleteByUserId(c.var.user.id, tx);
+
+      const session = await sessionService.create(c.var.user.id, tx);
 
       setCookie(
         c,

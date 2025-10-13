@@ -22,7 +22,7 @@ const create = async (userId: Session["userId"], db: Db) => {
 };
 
 const revoke = async (sessionId: Session["id"], db: Db) => {
-  const session = await sessionRepo.remove(sessionId, db);
+  const session = await sessionRepo.deleteById(sessionId, db);
 
   if (!session) {
     throw new HTTPException(404, { message: "session not found" });
@@ -34,7 +34,7 @@ const revoke = async (sessionId: Session["id"], db: Db) => {
 const validate = async (candidateSessionToken: SessionToken, db: Db) => {
   const sessionId = hashSHA256Hex(candidateSessionToken);
 
-  const session = await sessionRepo.select(sessionId, db);
+  const session = await sessionRepo.selectById(sessionId, db);
 
   if (!session) {
     return null;
@@ -43,7 +43,7 @@ const validate = async (candidateSessionToken: SessionToken, db: Db) => {
   const sessionExpired = Date.now() >= session.expiresAt.getTime();
 
   if (sessionExpired) {
-    await sessionRepo.remove(session.id, db);
+    await sessionRepo.deleteById(session.id, db);
 
     return null;
   }
@@ -58,14 +58,14 @@ const validate = async (candidateSessionToken: SessionToken, db: Db) => {
   return session;
 };
 
-const refresh = async (userId: Session["userId"], db: Db) => {
-  const session = await sessionRepo.removeByUserId(userId, db);
+const deleteByUserId = async (userId: Session["userId"], db: Db) => {
+  const session = await sessionRepo.deleteByUserId(userId, db);
 
   if (!session) {
     throw new HTTPException(404, { message: "session not found" });
   }
 
-  return create(userId, db);
+  return session;
 };
 
 export type SessionCtx = Awaited<ReturnType<typeof validate>>;
@@ -73,6 +73,6 @@ export type SessionCtx = Awaited<ReturnType<typeof validate>>;
 export const sessionService = {
   create,
   revoke,
-  refresh,
+  deleteByUserId,
   validate,
 };
