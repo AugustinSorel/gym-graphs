@@ -8,6 +8,7 @@ import { HTTPException } from "hono/http-exception";
 import { userRepo } from "~/user/user.repo";
 import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";
 import type { Db } from "~/libs/db";
+import type { User } from "~/db/db.schemas";
 
 const signUpWithEmailAndPassword = async (input: SignUpSchema, db: Db) => {
   const salt = generateSalt();
@@ -66,7 +67,18 @@ const signInWithEmailAndPassword = async (input: SignInSchema, db: Db) => {
   return user;
 };
 
+const selectByEmail = async (email: User["email"], db: Db) => {
+  const user = await userRepo.selectByEmail(email, db);
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
+
+  return user;
+};
+
 export const userService = {
   signUpWithEmailAndPassword,
   signInWithEmailAndPassword,
+  selectByEmail,
 };
