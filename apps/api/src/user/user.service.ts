@@ -16,13 +16,17 @@ const signUpWithEmailAndPassword = async (input: SignUpSchema, db: Db) => {
 
   const name = inferNameFromEmail(input.email);
 
-  const user = await userRepo.createWithEmailAndPassword(
+  const [user] = await userRepo.createWithEmailAndPassword(
     input.email,
     hashedPassword,
     salt,
     name,
     db,
   );
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
 
   return user;
 };
@@ -58,6 +62,16 @@ const signInWithEmailAndPassword = async (input: SignInSchema, db: Db) => {
     throw new HTTPException(403, {
       message: "email or password is invalid",
     });
+  }
+
+  return user;
+};
+
+const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
+  const [user] = await userRepo.updateEmailVerifiedAt(userId, db);
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
   }
 
   return user;
@@ -204,6 +218,7 @@ const seed = async (userId: User["id"]) => {
 export const userService = {
   signUpWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateEmailVerifiedAt,
 };
 
 const seedData = {

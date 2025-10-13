@@ -7,13 +7,13 @@ import { injectEmailMiddleware } from "~/libs/email";
 import { injectSessionMiddleware } from "~/session/session.middlewares";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
-import type { Session } from "~/db/db.schemas";
+import type { SessionCtx } from "~/session/session.service";
 
 export type Ctx = {
   Variables: {
     db: Db;
     email: Email;
-    session: Session | null;
+    session: SessionCtx;
   };
 };
 

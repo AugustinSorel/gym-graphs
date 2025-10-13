@@ -13,16 +13,10 @@ const createWithEmailAndPassword = async (
   db: Db,
 ) => {
   try {
-    const [user] = await db
+    return db
       .insert(userTable)
       .values({ email, password, name, salt })
       .returning();
-
-    if (!user) {
-      throw new HTTPException(404, { message: "user not found" });
-    }
-
-    return user;
   } catch (e) {
     const duplicateEmail =
       e instanceof DatabaseError && e.constraint === "user_email_unique";
@@ -44,7 +38,16 @@ const selectByEmail = async (email: User["email"], db: Db) => {
   });
 };
 
+const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
+  return db
+    .update(userTable)
+    .set({ emailVerifiedAt: new Date() })
+    .where(eq(userTable.id, userId))
+    .returning();
+};
+
 export const userRepo = {
   createWithEmailAndPassword,
   selectByEmail,
+  updateEmailVerifiedAt,
 };

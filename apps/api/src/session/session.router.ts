@@ -9,6 +9,7 @@ import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
 import { HTTPException } from "hono/http-exception";
+import { emailVerificationCodeSchema } from "@gym-graphs/schemas/auth";
 import type { Ctx } from "~/index";
 
 export const sessionRouter = new Hono<Ctx>();
@@ -81,3 +82,35 @@ sessionRouter.post("/sign-out", async (c) => {
 
   return c.json(undefined, 200);
 });
+
+sessionRouter.post(
+  "/verify-email",
+  zValidator("json", emailVerificationCodeSchema.pick({ code: true })),
+  async (c) => {
+    const user = c.var.session?.user;
+    const input = c.req.valid("json");
+
+    if (!user) {
+      throw new HTTPException(401, { message: "unauthorized" });
+    }
+
+    await c.var.db.transaction(async (tx) => {
+      await emailVerificationService.verifyCode(user.id, input.code, tx);
+
+      await sessionService.removeByUserId(user.id, tx);
+
+      await userService.updateEmailVerifiedAt(user.id, tx);
+
+      const session = await sessionService.create(user.id, tx);
+
+      setCookie(
+        c,
+        sessionCookieConfig.name,
+        session.token,
+        sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
+      );
+    });
+
+    return c.json(undefined, 200);
+  },
+);
