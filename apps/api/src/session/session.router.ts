@@ -84,7 +84,7 @@ sessionRouter.post("/sign-out", async (c) => {
 });
 
 sessionRouter.post(
-  "/verify-email",
+  "/email-verification/confirm",
   zValidator("json", emailVerificationCodeSchema.pick({ code: true })),
   async (c) => {
     const user = c.var.session?.user;
@@ -114,3 +114,29 @@ sessionRouter.post(
     return c.json(undefined, 200);
   },
 );
+
+sessionRouter.post("/email-verification", async (c) => {
+  const user = c.var.session?.user;
+
+  if (!user) {
+    throw new HTTPException(401, { message: "unauthorized" });
+  }
+
+  await c.var.db.transaction(async (tx) => {
+    await emailVerificationService.removeByUserId(user.id, tx);
+
+    const emailVerification = await emailVerificationService.create(
+      user.id,
+      tx,
+    );
+
+    const emailBody = emailVerificationEmailBody(emailVerification.code);
+    await emailService.sendEmailVerificationCode(
+      user.email,
+      emailBody,
+      c.var.email,
+    );
+  });
+
+  return c.json(undefined, 200);
+});

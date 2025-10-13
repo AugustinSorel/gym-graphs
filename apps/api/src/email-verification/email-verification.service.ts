@@ -45,7 +45,26 @@ const verifyCode = async (
   }
 };
 
+const removeByUserId = async (
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  const emailVerification = await emailVerificationRepo.removeByUserId(
+    userId,
+    db,
+  );
+
+  if (!emailVerification) {
+    throw new HTTPException(404, {
+      message: "email verification code not found",
+    });
+  }
+
+  return emailVerification;
+};
+
 export const emailVerificationService = {
   create,
   verifyCode,
+  removeByUserId,
 };

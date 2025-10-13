@@ -37,8 +37,16 @@ const remove = async (id: EmailVerificationCode["id"], db: Db) => {
     .returning();
 };
 
+const removeByUserId = (userId: EmailVerificationCode["userId"], db: Db) => {
+  return db
+    .delete(emailVerificationCodeTable)
+    .where(eq(emailVerificationCodeTable.userId, userId))
+    .returning();
+};
+
 export const emailVerificationRepo = {
   create,
   selectByUserId,
   remove,
+  removeByUserId,
 };
