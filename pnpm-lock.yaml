@@ -10,6 +10,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@aws-sdk/client-ses':
+        specifier: ^3.726.1
+        version: 3.908.0
       '@gym-graphs/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -44,9 +47,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@aws-sdk/client-ses':
-        specifier: ^3.726.1
-        version: 3.908.0
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
