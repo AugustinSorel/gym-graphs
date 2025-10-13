@@ -67,18 +67,7 @@ const signInWithEmailAndPassword = async (input: SignInSchema, db: Db) => {
   return user;
 };
 
-const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
-  const user = await userRepo.updateEmailVerifiedAt(userId, db);
-
-  if (!user) {
-    throw new HTTPException(404, { message: "user not found" });
-  }
-
-  return user;
-};
-
 export const userService = {
   signUpWithEmailAndPassword,
   signInWithEmailAndPassword,
-  updateEmailVerifiedAt,
 };

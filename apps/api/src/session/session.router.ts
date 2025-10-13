@@ -72,7 +72,7 @@ sessionRouter.post("/sign-out", async (c) => {
     throw new HTTPException(401, { message: "unauthorized" });
   }
 
-  await sessionService.remove(c.var.session.id, c.var.db);
+  await sessionService.revoke(c.var.session.id, c.var.db);
 
   setCookie(
     c,
@@ -98,11 +98,7 @@ sessionRouter.post(
     await c.var.db.transaction(async (tx) => {
       await emailVerificationService.verifyCode(user.id, input.code, tx);
 
-      await sessionService.removeByUserId(user.id, tx);
-
-      await userService.updateEmailVerifiedAt(user.id, tx);
-
-      const session = await sessionService.create(user.id, tx);
+      const session = await sessionService.refresh(user.id, tx);
 
       setCookie(
         c,

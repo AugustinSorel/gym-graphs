@@ -1,5 +1,6 @@
 import { generateEmailVerificationCode } from "~/email-verification/email-verification.utils";
 import { emailVerificationRepo } from "~/email-verification/email-verification.repo";
+import { userRepo } from "~/user/user.repo";
 import { HTTPException } from "hono/http-exception";
 import type { Db } from "~/libs/db";
 import type { EmailVerificationCode, User } from "~/db/db.schemas";
@@ -43,6 +44,8 @@ const verifyCode = async (
   if (codeExpired) {
     throw new HTTPException(401, { message: "code expired" });
   }
+
+  await userRepo.updateEmailVerifiedAt(userId, db);
 };
 
 const removeByUserId = async (
