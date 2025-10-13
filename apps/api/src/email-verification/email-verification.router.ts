@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { sessionService } from "~/session/session.service";
 import { setCookie } from "hono/cookie";
-import { sessionCookieConfig } from "~/session/session.cookies";
+import { sessionCookie } from "~/session/session.cookies";
 import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
@@ -44,9 +44,9 @@ emailVerificationRouter.post(
 
       setCookie(
         c,
-        sessionCookieConfig.name,
+        sessionCookie.name,
         session.token,
-        sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
+        sessionCookie.optionsForExpiry(session.session.expiresAt),
       );
     });
 

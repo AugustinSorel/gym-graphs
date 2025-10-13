@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { signUpSchema, signInSchema } from "@gym-graphs/schemas/session";
 import { sessionService } from "~/session/session.service";
 import { setCookie } from "hono/cookie";
-import { sessionCookieConfig } from "~/session/session.cookies";
+import { sessionCookie } from "~/session/session.cookies";
 import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
@@ -38,9 +38,9 @@ sessionRouter.post("/sign-up", zValidator("json", signUpSchema), async (c) => {
 
     setCookie(
       c,
-      sessionCookieConfig.name,
+      sessionCookie.name,
       session.token,
-      sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
+      sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
   });
 
@@ -57,9 +57,9 @@ sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
 
     setCookie(
       c,
-      sessionCookieConfig.name,
+      sessionCookie.name,
       session.token,
-      sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
+      sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
   });
 
@@ -69,12 +69,7 @@ sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
 sessionRouter.post("/sign-out", requireAuthMiddleware, async (c) => {
   await sessionService.revoke(c.var.session.id, c.var.db);
 
-  setCookie(
-    c,
-    sessionCookieConfig.name,
-    "",
-    sessionCookieConfig.optionsForDeletion,
-  );
+  setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
 
   return c.json(undefined, 200);
 });

@@ -1,7 +1,7 @@
 import { env } from "~/env";
 import type { CookieOptions } from "hono/utils/cookie";
 
-export const sessionCookieConfig = {
+export const sessionCookie = {
   name: "session",
   optionsForExpiry: (expiresAt: Date): CookieOptions => {
     return {

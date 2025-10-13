@@ -1,13 +1,13 @@
 import { createMiddleware } from "hono/factory";
 import { getCookie } from "hono/cookie";
-import { sessionCookieConfig } from "~/session/session.cookies";
+import { sessionCookie } from "~/session/session.cookies";
 import { sessionService } from "~/session/session.service";
 import { HTTPException } from "hono/http-exception";
 import type { Ctx } from "~/index";
 import type { SessionCtx } from "~/session/session.service";
 
 export const injectSessionMiddleware = createMiddleware<Ctx>(async (c, n) => {
-  const token = getCookie(c, sessionCookieConfig.name) ?? "";
+  const token = getCookie(c, sessionCookie.name) ?? "";
 
   const session = await sessionService.validate(token, c.var.db);
 
