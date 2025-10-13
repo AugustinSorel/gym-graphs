@@ -6,11 +6,12 @@ import { createSeedUserService, createUserService } from "~/user/user.service";
 import { createUserRepo } from "~/user/user.repo";
 import { createSessionRepo } from "~/session/session.repo";
 import { setCookie } from "hono/cookie";
-import { sessionCookie } from "~/session/session.cookies";
+import { sessionCookieConfig } from "~/session/session.cookies";
 import { createEmailService } from "~/email/email.service";
 import { createEmailVerificationService } from "~/email-verification/email-verification.service";
 import { createEmailVerificationRepo } from "~/email-verification/email-verification.repo";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
+import { HTTPException } from "hono/http-exception";
 import type { Ctx } from "~/index";
 
 export const sessionRouter = new Hono<Ctx>();
@@ -41,13 +42,13 @@ sessionRouter.post("/sign-up", zValidator("json", signUpSchema), async (c) => {
 
     setCookie(
       c,
-      sessionCookie.name,
+      sessionCookieConfig.name,
       session.token,
-      sessionCookie.options(session.session.expiresAt),
+      sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
     );
   });
 
-  return c.json(undefined, 201);
+  return c.json(undefined, 200);
 });
 
 sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
@@ -63,11 +64,30 @@ sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
 
     setCookie(
       c,
-      sessionCookie.name,
+      sessionCookieConfig.name,
       session.token,
-      sessionCookie.options(session.session.expiresAt),
+      sessionCookieConfig.optionsForExpiry(session.session.expiresAt),
     );
   });
 
-  return c.json(undefined, 201);
+  return c.json(undefined, 200);
+});
+
+sessionRouter.post("/sign-out", async (c) => {
+  if (!c.var.session) {
+    throw new HTTPException(401, { message: "unauthorized" });
+  }
+
+  const sessionService = createSessionService(createSessionRepo(c.var.db));
+
+  await sessionService.delete(c.var.session.id);
+
+  setCookie(
+    c,
+    sessionCookieConfig.name,
+    "",
+    sessionCookieConfig.optionsForDeletion,
+  );
+
+  return c.json(undefined, 200);
 });

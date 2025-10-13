@@ -1,9 +1,9 @@
 import { env } from "~/env";
 import type { CookieOptions } from "hono/utils/cookie";
 
-export const sessionCookie = {
+export const sessionCookieConfig = {
   name: "session",
-  options: (expiresAt: Date): CookieOptions => {
+  optionsForExpiry: (expiresAt: Date): CookieOptions => {
     return {
       httpOnly: true,
       sameSite: "lax",
@@ -12,4 +12,11 @@ export const sessionCookie = {
       path: "/",
     };
   },
+  optionsForDeletion: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: env.NODE_ENV === "production",
+    maxAge: 0,
+    path: "/",
+  } satisfies CookieOptions,
 };

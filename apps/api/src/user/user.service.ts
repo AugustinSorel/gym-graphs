@@ -62,10 +62,6 @@ export const createUserService = (repo: ReturnType<typeof createUserRepo>) => {
 
       return user;
     },
-
-    seed: async (userId: User["id"]) => {
-      //TODO: seed user
-    },
   };
 };
 
