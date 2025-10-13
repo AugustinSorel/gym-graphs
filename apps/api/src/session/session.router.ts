@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { signUpSchema, signInSchema } from "@gym-graphs/schemas/session";
 import { sessionService } from "~/session/session.service";
-import { seedUserService, userService } from "~/user/user.service";
 import { setCookie } from "hono/cookie";
 import { sessionCookieConfig } from "~/session/session.cookies";
 import { emailService } from "~/email/email.service";
@@ -10,6 +9,8 @@ import { emailVerificationService } from "~/email-verification/email-verificatio
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
 import { HTTPException } from "hono/http-exception";
 import { emailVerificationCodeSchema } from "@gym-graphs/schemas/auth";
+import { userService } from "~/user/user.service";
+import { seedUserAccount } from "~/user/user.seed";
 import type { Ctx } from "~/index";
 
 export const sessionRouter = new Hono<Ctx>();
@@ -20,7 +21,7 @@ sessionRouter.post("/sign-up", zValidator("json", signUpSchema), async (c) => {
   await c.var.db.transaction(async (tx) => {
     const user = await userService.signUpWithEmailAndPassword(input, tx);
 
-    await seedUserService.seed(user.id);
+    await seedUserAccount(user.id);
 
     const emailVerification = await emailVerificationService.create(
       user.id,
