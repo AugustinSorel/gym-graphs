@@ -3,7 +3,6 @@ import { zValidator } from "@hono/zod-validator";
 import { sessionService } from "~/session/session.service";
 import { setCookie } from "hono/cookie";
 import { sessionCookie } from "~/session/session.cookies";
-import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
 import { emailVerificationCodeSchema } from "@gym-graphs/schemas/auth";
@@ -19,12 +18,13 @@ emailVerificationRouter.post("/", requireAuthMiddleware, async (c) => {
       tx,
     );
 
-    const emailBody = emailVerificationEmailBody(emailVerification.code);
-    await emailService.sendEmailVerificationCode(
-      c.var.user.email,
-      emailBody,
-      c.var.email,
+    const config = c.var.email.buildConfig(
+      [c.var.user.email],
+      "Verification code",
+      emailVerificationEmailBody(emailVerification.code),
     );
+
+    await c.var.email.client.send(config);
   });
 
   return c.json(undefined, 200);

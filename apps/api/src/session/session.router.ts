@@ -4,7 +4,6 @@ import { signUpSchema, signInSchema } from "@gym-graphs/schemas/session";
 import { sessionService } from "~/session/session.service";
 import { setCookie } from "hono/cookie";
 import { sessionCookie } from "~/session/session.cookies";
-import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
 import { userService } from "~/user/user.service";
@@ -27,12 +26,13 @@ sessionRouter.post("/sign-up", zValidator("json", signUpSchema), async (c) => {
       tx,
     );
 
-    const emailBody = emailVerificationEmailBody(emailVerification.code);
-    await emailService.sendEmailVerificationCode(
-      user.email,
-      emailBody,
-      c.var.email,
+    const config = c.var.email.buildConfig(
+      [user.email],
+      "Verification code",
+      emailVerificationEmailBody(emailVerification.code),
     );
+
+    await c.var.email.client.send(config);
 
     const session = await sessionService.create(user.id, tx);
 
