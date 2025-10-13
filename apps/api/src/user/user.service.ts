@@ -7,7 +7,6 @@ import {
 import { HTTPException } from "hono/http-exception";
 import { userRepo } from "~/user/user.repo";
 import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";
-import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 const signUpWithEmailAndPassword = async (input: SignUpSchema, db: Db) => {

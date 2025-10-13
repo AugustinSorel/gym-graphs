@@ -48,10 +48,7 @@ const verifyCode = async (
   await userRepo.updateEmailVerifiedAt(userId, db);
 };
 
-const removeByUserId = async (
-  userId: EmailVerificationCode["userId"],
-  db: Db,
-) => {
+const refresh = async (userId: EmailVerificationCode["userId"], db: Db) => {
   const emailVerification = await emailVerificationRepo.removeByUserId(
     userId,
     db,
@@ -63,11 +60,11 @@ const removeByUserId = async (
     });
   }
 
-  return emailVerification;
+  return create(userId, db);
 };
 
 export const emailVerificationService = {
   create,
   verifyCode,
-  removeByUserId,
+  refresh,
 };
