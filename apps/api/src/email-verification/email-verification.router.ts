@@ -6,28 +6,22 @@ import { sessionCookieConfig } from "~/session/session.cookies";
 import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
-import { HTTPException } from "hono/http-exception";
 import { emailVerificationCodeSchema } from "@gym-graphs/schemas/auth";
+import { requireAuthMiddleware } from "~/session/session.middlewares";
 import type { Ctx } from "~/index";
 
 export const emailVerificationRouter = new Hono<Ctx>();
 
-emailVerificationRouter.post("/", async (c) => {
-  const user = c.var.session?.user;
-
-  if (!user) {
-    throw new HTTPException(401, { message: "unauthorized" });
-  }
-
+emailVerificationRouter.post("/", requireAuthMiddleware, async (c) => {
   await c.var.db.transaction(async (tx) => {
     const emailVerification = await emailVerificationService.refresh(
-      user.id,
+      c.var.user.id,
       tx,
     );
 
     const emailBody = emailVerificationEmailBody(emailVerification.code);
     await emailService.sendEmailVerificationCode(
-      user.email,
+      c.var.user.email,
       emailBody,
       c.var.email,
     );
@@ -38,19 +32,15 @@ emailVerificationRouter.post("/", async (c) => {
 
 emailVerificationRouter.post(
   "/confirm",
+  requireAuthMiddleware,
   zValidator("json", emailVerificationCodeSchema.pick({ code: true })),
   async (c) => {
-    const user = c.var.session?.user;
     const input = c.req.valid("json");
 
-    if (!user) {
-      throw new HTTPException(401, { message: "unauthorized" });
-    }
-
     await c.var.db.transaction(async (tx) => {
-      await emailVerificationService.verifyCode(user.id, input.code, tx);
+      await emailVerificationService.verifyCode(c.var.user.id, input.code, tx);
 
-      const session = await sessionService.refresh(user.id, tx);
+      const session = await sessionService.refresh(c.var.user.id, tx);
 
       setCookie(
         c,

@@ -7,9 +7,9 @@ import { sessionCookieConfig } from "~/session/session.cookies";
 import { emailService } from "~/email/email.service";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
-import { HTTPException } from "hono/http-exception";
 import { userService } from "~/user/user.service";
 import { seedUserAccount } from "~/user/user.seed";
+import { requireAuthMiddleware } from "~/session/session.middlewares";
 import type { Ctx } from "~/index";
 
 export const sessionRouter = new Hono<Ctx>();
@@ -66,11 +66,7 @@ sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
   return c.json(undefined, 200);
 });
 
-sessionRouter.post("/sign-out", async (c) => {
-  if (!c.var.session) {
-    throw new HTTPException(401, { message: "unauthorized" });
-  }
-
+sessionRouter.post("/sign-out", requireAuthMiddleware, async (c) => {
   await sessionService.revoke(c.var.session.id, c.var.db);
 
   setCookie(

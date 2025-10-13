@@ -10,15 +10,15 @@ import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/session/session.service";
 
-export type Ctx = {
-  Variables: {
+export type Ctx = Readonly<{
+  Variables: Readonly<{
     db: Db;
     email: Email;
     session: SessionCtx;
-  };
-};
+  }>;
+}>;
 
-const app = new Hono()
+const app = new Hono<Ctx>()
   .basePath("/api")
   .use(injectDbMiddleware)
   .use(injectEmailMiddleware)
