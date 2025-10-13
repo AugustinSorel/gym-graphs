@@ -1,9 +1,5 @@
 import { inferNameFromEmail } from "~/user/user.utils";
-import {
-  generateSalt,
-  hashSecret,
-  verifySecret,
-} from "~/session/session.utils";
+import { generateSalt, hashSecret, verifySecret } from "~/libs/crypto";
 import { HTTPException } from "hono/http-exception";
 import { userRepo } from "~/user/user.repo";
 import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";

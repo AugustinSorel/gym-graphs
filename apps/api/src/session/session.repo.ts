@@ -1,7 +1,7 @@
 import { sessionTable } from "~/db/db.schemas";
-import { hashSHA256Hex } from "~/session/session.utils";
 import { eq } from "drizzle-orm";
 import { thirtyDaysInMs } from "~/utils/dates";
+import { hashSHA256Hex } from "~/libs/crypto";
 import type { Session } from "~/db/db.schemas";
 import type { SessionToken } from "~/session/session.utils";
 import type { Db } from "~/libs/db";

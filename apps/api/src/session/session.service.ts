@@ -1,7 +1,8 @@
-import { generateSessionToken, hashSHA256Hex } from "~/session/session.utils";
+import { generateSessionToken } from "~/session/session.utils";
 import { fifteenDaysInMs } from "~/utils/dates";
 import { sessionRepo } from "./session.repo";
 import { HTTPException } from "hono/http-exception";
+import { hashSHA256Hex } from "~/libs/crypto";
 import type { Session } from "~/db/db.schemas";
 import type { SessionToken } from "~/session/session.utils";
 import type { Db } from "~/libs/db";

@@ -1,9 +1,9 @@
 import { passwordResetRepo } from "~/password-reset/password-reset.repo";
 import { generatePasswordResetToken } from "~/password-reset/password-reset.utils";
-import { hashSHA256Hex } from "~/session/session.utils";
+import { HTTPException } from "hono/http-exception";
+import { hashSHA256Hex } from "~/libs/crypto";
 import type { PasswordResetToken } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
-import { HTTPException } from "hono/http-exception";
 
 const create = async (userId: PasswordResetToken["userId"], db: Db) => {
   const token = generatePasswordResetToken();
