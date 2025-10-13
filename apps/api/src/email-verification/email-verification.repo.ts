@@ -8,10 +8,12 @@ const create = async (
   userId: EmailVerificationCode["userId"],
   db: Db,
 ) => {
-  return db
+  const [emailVerification] = await db
     .insert(emailVerificationCodeTable)
     .values({ userId, code })
     .returning();
+
+  return emailVerification;
 };
 
 const selectByUserId = async (
@@ -31,17 +33,24 @@ const selectByUserId = async (
 };
 
 const remove = async (id: EmailVerificationCode["id"], db: Db) => {
-  return db
+  const [emailVerification] = await db
     .delete(emailVerificationCodeTable)
     .where(eq(emailVerificationCodeTable.id, id))
     .returning();
+
+  return emailVerification;
 };
 
-const removeByUserId = (userId: EmailVerificationCode["userId"], db: Db) => {
-  return db
+const removeByUserId = async (
+  userId: EmailVerificationCode["userId"],
+  db: Db,
+) => {
+  const [emailVerification] = await db
     .delete(emailVerificationCodeTable)
     .where(eq(emailVerificationCodeTable.userId, userId))
     .returning();
+
+  return emailVerification;
 };
 
 export const emailVerificationRepo = {

@@ -7,7 +7,7 @@ import type { EmailVerificationCode, User } from "~/db/db.schemas";
 const create = async (userId: User["id"], db: Db) => {
   const emailVerificationCode = generateEmailVerificationCode();
 
-  const [emailVerification] = await emailVerificationRepo.create(
+  const emailVerification = await emailVerificationRepo.create(
     emailVerificationCode,
     userId,
     db,

@@ -16,7 +16,7 @@ const signUpWithEmailAndPassword = async (input: SignUpSchema, db: Db) => {
 
   const name = inferNameFromEmail(input.email);
 
-  const [user] = await userRepo.createWithEmailAndPassword(
+  const user = await userRepo.createWithEmailAndPassword(
     input.email,
     hashedPassword,
     salt,
@@ -68,7 +68,7 @@ const signInWithEmailAndPassword = async (input: SignInSchema, db: Db) => {
 };
 
 const updateEmailVerifiedAt = async (userId: User["id"], db: Db) => {
-  const [user] = await userRepo.updateEmailVerifiedAt(userId, db);
+  const user = await userRepo.updateEmailVerifiedAt(userId, db);
 
   if (!user) {
     throw new HTTPException(404, { message: "user not found" });

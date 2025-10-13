@@ -9,7 +9,7 @@ import type { Db } from "~/libs/db";
 const create = async (userId: Session["userId"], db: Db) => {
   const token = generateSessionToken();
 
-  const [session] = await sessionRepo.create(token, userId, db);
+  const session = await sessionRepo.create(token, userId, db);
 
   if (!session) {
     throw new HTTPException(404, { message: "session not found" });
@@ -22,7 +22,7 @@ const create = async (userId: Session["userId"], db: Db) => {
 };
 
 const remove = async (sessionId: Session["id"], db: Db) => {
-  const [session] = await sessionRepo.remove(sessionId, db);
+  const session = await sessionRepo.remove(sessionId, db);
 
   if (!session) {
     throw new HTTPException(404, { message: "session not found" });
@@ -32,7 +32,7 @@ const remove = async (sessionId: Session["id"], db: Db) => {
 };
 
 const removeByUserId = async (userId: Session["userId"], db: Db) => {
-  const [session] = await sessionRepo.removeByUserId(userId, db);
+  const session = await sessionRepo.removeByUserId(userId, db);
 
   if (!session) {
     throw new HTTPException(404, { message: "session not found" });

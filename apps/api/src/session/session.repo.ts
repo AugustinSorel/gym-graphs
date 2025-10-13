@@ -13,21 +13,30 @@ const create = async (
 ) => {
   const sessionId = hashSHA256Hex(sessionToken);
 
-  return db.insert(sessionTable).values({ id: sessionId, userId }).returning();
+  const [session] = await db
+    .insert(sessionTable)
+    .values({ id: sessionId, userId })
+    .returning();
+
+  return session;
 };
 
 const remove = async (sessionId: Session["id"], db: Db) => {
-  return db
+  const [session] = await db
     .delete(sessionTable)
     .where(eq(sessionTable.id, sessionId))
     .returning();
+
+  return session;
 };
 
 const removeByUserId = async (userId: Session["userId"], db: Db) => {
-  return db
+  const [session] = await db
     .delete(sessionTable)
     .where(eq(sessionTable.userId, userId))
     .returning();
+
+  return session;
 };
 
 const select = async (sessionId: Session["id"], db: Db) => {
@@ -55,11 +64,13 @@ const select = async (sessionId: Session["id"], db: Db) => {
 };
 
 const refreshExpiryDate = async (sessionId: Session["id"], db: Db) => {
-  return db
+  const [session] = await db
     .update(sessionTable)
     .set({ expiresAt: new Date(Date.now() + thirtyDaysInMs) })
     .where(eq(sessionTable.id, sessionId))
     .returning();
+
+  return session;
 };
 
 export const sessionRepo = {
