@@ -5,44 +5,46 @@ import { eq } from "drizzle-orm";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
-export const createUserRepo = (db: Db) => {
-  return {
-    createWithEmailAndPassword: async (
-      email: User["email"],
-      password: NonNullable<User["password"]>,
-      salt: NonNullable<User["salt"]>,
-      name: User["name"],
-    ) => {
-      try {
-        const [user] = await db
-          .insert(userTable)
-          .values({ email, password, name, salt })
-          .returning();
+const createWithEmailAndPassword = async (
+  email: User["email"],
+  password: NonNullable<User["password"]>,
+  salt: NonNullable<User["salt"]>,
+  name: User["name"],
+  db: Db,
+) => {
+  try {
+    const [user] = await db
+      .insert(userTable)
+      .values({ email, password, name, salt })
+      .returning();
 
-        if (!user) {
-          throw new HTTPException(404, { message: "user not found" });
-        }
+    if (!user) {
+      throw new HTTPException(404, { message: "user not found" });
+    }
 
-        return user;
-      } catch (e) {
-        const duplicateEmail =
-          e instanceof DatabaseError && e.constraint === "user_email_unique";
+    return user;
+  } catch (e) {
+    const duplicateEmail =
+      e instanceof DatabaseError && e.constraint === "user_email_unique";
 
-        if (duplicateEmail) {
-          throw new HTTPException(409, {
-            message: "email is already used",
-            cause: e,
-          });
-        }
-
-        throw e;
-      }
-    },
-
-    selectByEmail: async (email: User["email"]) => {
-      return db.query.userTable.findFirst({
-        where: eq(userTable.email, email),
+    if (duplicateEmail) {
+      throw new HTTPException(409, {
+        message: "email is already used",
+        cause: e,
       });
-    },
-  };
+    }
+
+    throw e;
+  }
+};
+
+const selectByEmail = async (email: User["email"], db: Db) => {
+  return db.query.userTable.findFirst({
+    where: eq(userTable.email, email),
+  });
+};
+
+export const userRepo = {
+  createWithEmailAndPassword,
+  selectByEmail,
 };
