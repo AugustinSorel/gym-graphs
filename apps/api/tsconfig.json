@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     // Enable latest features
     "lib": [
@@ -14,21 +15,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    // Best practices
-    "strict": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    // Output settings
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "noEmit": false,
-    "emitDecoratorMetadata": false,
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": false,
     "baseUrl": ".",
     "paths": {
       "~/*": [

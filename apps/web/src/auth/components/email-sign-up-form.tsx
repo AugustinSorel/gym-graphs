@@ -18,6 +18,8 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { signUpAction } from "~/auth/auth.actions";
+import type { Api } from "@gym-graphs/api";
+import { hc } from "hono/client";
 
 export const EmailSignUpForm = () => {
   const navigate = useNavigate({ from: "/sign-up" });
