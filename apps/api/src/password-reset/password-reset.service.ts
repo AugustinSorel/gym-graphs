@@ -2,33 +2,45 @@ import { passwordResetRepo } from "~/password-reset/password-reset.repo";
 import { generatePasswordResetToken } from "~/password-reset/password-reset.utils";
 import { HTTPException } from "hono/http-exception";
 import { hashSHA256Hex } from "~/libs/crypto";
-import type { PasswordResetToken } from "~/db/db.schemas";
+import { passwordResetEmailBody } from "~/password-reset/password-reset.email";
+import { userRepo } from "~/user/user.repo";
+import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import type { Email } from "~/libs/email";
 
-const create = async (userId: PasswordResetToken["userId"], db: Db) => {
-  const token = generatePasswordResetToken();
-  const tokenHash = hashSHA256Hex(token);
+const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
+  await db.transaction(async (tx) => {
+    const user = await userRepo.selectByEmail(input.email, tx);
 
-  const passwordReset = await passwordResetRepo.create(tokenHash, userId, db);
+    if (!user) {
+      throw new HTTPException(404, { message: "user not found" });
+    }
 
-  if (!passwordReset) {
-    throw new HTTPException(404, { message: "password reset not found" });
-  }
+    await passwordResetRepo.deleteByUserId(user.id, tx);
 
-  return passwordReset;
-};
+    const token = generatePasswordResetToken();
+    const tokenHash = hashSHA256Hex(token);
 
-const deleteByUserId = async (userId: PasswordResetToken["userId"], db: Db) => {
-  const passwordReset = await passwordResetRepo.deleteByUserId(userId, db);
+    const passwordReset = await passwordResetRepo.create(
+      tokenHash,
+      user.id,
+      db,
+    );
 
-  if (!passwordReset) {
-    throw new HTTPException(404, { message: "password reset not found" });
-  }
+    if (!passwordReset) {
+      throw new HTTPException(404, { message: "password reset not found" });
+    }
 
-  return passwordReset;
+    const config = email.buildConfig(
+      [user.email],
+      "Reset your password",
+      passwordResetEmailBody(passwordReset.token),
+    );
+
+    await email.client.send(config);
+  });
 };
 
 export const passwordResetService = {
   create,
-  deleteByUserId,
 };
