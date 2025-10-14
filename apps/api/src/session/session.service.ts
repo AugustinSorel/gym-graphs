@@ -74,10 +74,6 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
       tx,
     );
 
-    if (!user) {
-      throw new HTTPException(404, { message: "user not found" });
-    }
-
     await seedUserAccount(user.id);
 
     const emailVerificationCode = generateEmailVerificationCode();
@@ -87,12 +83,6 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
       user.id,
       tx,
     );
-
-    if (!emailVerification) {
-      throw new HTTPException(404, {
-        message: "email verification code not found",
-      });
-    }
 
     const config = email.buildConfig(
       [user.email],
@@ -105,10 +95,6 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
     const token = generateSessionToken();
 
     const session = await sessionRepo.create(token, user.id, tx);
-
-    if (!session) {
-      throw new HTTPException(404, { message: "session not found" });
-    }
 
     return {
       session,
@@ -154,10 +140,6 @@ const signIn = async (input: SignInSchema, db: Db) => {
     const token = generateSessionToken();
 
     const session = await sessionRepo.create(token, user.id, tx);
-
-    if (!session) {
-      throw new HTTPException(404, { message: "session not found" });
-    }
 
     return {
       session,

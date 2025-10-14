@@ -27,10 +27,6 @@ const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
       db,
     );
 
-    if (!passwordReset) {
-      throw new HTTPException(404, { message: "password reset not found" });
-    }
-
     const config = email.buildConfig(
       [user.email],
       "Reset your password",

@@ -13,6 +13,10 @@ const create = async (
     .values({ userId, code })
     .returning();
 
+  if (!emailVerification) {
+    throw new Error("db did not return an email verification");
+  }
+
   return emailVerification;
 };
 

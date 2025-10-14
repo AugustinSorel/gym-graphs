@@ -18,6 +18,10 @@ const create = async (
     .values({ id: sessionId, userId })
     .returning();
 
+  if (!session) {
+    throw new Error("db did not create a session");
+  }
+
   return session;
 };
 

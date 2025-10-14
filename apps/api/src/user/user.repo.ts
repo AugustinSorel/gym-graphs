@@ -18,6 +18,10 @@ const createWithEmailAndPassword = async (
       .values({ email, password, name, salt })
       .returning();
 
+    if (!user) {
+      throw new Error("db did not create a user");
+    }
+
     return user;
   } catch (e) {
     const duplicateEmail =

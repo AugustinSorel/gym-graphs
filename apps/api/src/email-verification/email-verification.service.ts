@@ -50,12 +50,6 @@ const create = async (
       tx,
     );
 
-    if (!emailVerification) {
-      throw new HTTPException(404, {
-        message: "email verification code not found",
-      });
-    }
-
     const config = email.buildConfig(
       [user.email],
       "Verification code",
@@ -79,10 +73,6 @@ const confirm = async (
     const token = generateSessionToken();
 
     const session = await sessionRepo.create(token, userId, tx);
-
-    if (!session) {
-      throw new HTTPException(404, { message: "session not found" });
-    }
 
     return {
       session,

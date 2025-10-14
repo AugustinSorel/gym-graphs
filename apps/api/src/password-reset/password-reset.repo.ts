@@ -17,12 +17,16 @@ const create = async (
   userId: PasswordResetToken["userId"],
   db: Db,
 ) => {
-  const [passwordResetToken] = await db
+  const [passwordReset] = await db
     .insert(passwordResetTokenTable)
     .values({ token, userId })
     .returning();
 
-  return passwordResetToken;
+  if (!passwordReset) {
+    throw new Error("db did not returned a password reset");
+  }
+
+  return passwordReset;
 };
 
 export const passwordResetRepo = {
