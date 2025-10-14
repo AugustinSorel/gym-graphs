@@ -12,6 +12,15 @@ const deleteByUserId = async (userId: PasswordResetToken["userId"], db: Db) => {
   return passwordReset;
 };
 
+const deleteByToken = async (token: PasswordResetToken["token"], db: Db) => {
+  const [passwordReset] = await db
+    .delete(passwordResetTokenTable)
+    .where(eq(passwordResetTokenTable.token, token))
+    .returning();
+
+  return passwordReset;
+};
+
 const create = async (
   token: PasswordResetToken["token"],
   userId: PasswordResetToken["userId"],
@@ -29,7 +38,18 @@ const create = async (
   return passwordReset;
 };
 
+const selectByToken = async (token: PasswordResetToken["token"], db: Db) => {
+  const [passwordReset] = await db
+    .select()
+    .from(passwordResetTokenTable)
+    .where(eq(passwordResetTokenTable.token, token));
+
+  return passwordReset;
+};
+
 export const passwordResetRepo = {
   deleteByUserId,
+  deleteByToken,
+  selectByToken,
   create,
 };

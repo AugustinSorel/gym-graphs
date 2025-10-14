@@ -1,13 +1,16 @@
 import { passwordResetRepo } from "~/password-reset/password-reset.repo";
 import { generatePasswordResetToken } from "~/password-reset/password-reset.utils";
 import { HTTPException } from "hono/http-exception";
-import { hashSHA256Hex } from "~/libs/crypto";
+import { generateSalt, hashSecret, hashSHA256Hex } from "~/libs/crypto";
 import { passwordResetEmailBody } from "~/password-reset/password-reset.email";
 import { userRepo } from "~/user/user.repo";
 import { sendEmail } from "~/libs/email";
+import { sessionRepo } from "~/session/session.repo";
+import { generateSessionToken } from "~/session/session.utils";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
+import type { ConfirmPasswordResetSchema } from "@gym-graphs/schemas/password-reset";
 
 const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
   await db.transaction(async (tx) => {
@@ -37,6 +40,47 @@ const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
   });
 };
 
+const confirm = async (input: ConfirmPasswordResetSchema, db: Db) => {
+  return db.transaction(async (tx) => {
+    const tokenHash = hashSHA256Hex(input.token);
+
+    const passwordReset = await passwordResetRepo.selectByToken(tokenHash, tx);
+
+    if (!passwordReset) {
+      throw new HTTPException(404, { message: "token not found" });
+    }
+
+    await passwordResetRepo.deleteByToken(passwordReset.token, tx);
+
+    const codeExpired = Date.now() >= passwordReset.expiresAt.getTime();
+
+    if (codeExpired) {
+      throw new HTTPException(401, { message: "token expired" });
+    }
+
+    await sessionRepo.deleteByUserId(passwordReset.userId, tx);
+
+    const salt = generateSalt();
+    const passwordHash = await hashSecret(input.password, salt);
+
+    await userRepo.updatePasswordAndSalt(
+      passwordHash,
+      salt,
+      passwordReset.userId,
+      tx,
+    );
+
+    const token = generateSessionToken();
+    const session = await sessionRepo.create(token, passwordReset.userId, tx);
+
+    return {
+      session,
+      token,
+    };
+  });
+};
+
 export const passwordResetService = {
   create,
+  confirm,
 };

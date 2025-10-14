@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { setCookie } from "hono/cookie";
 import { sessionCookie } from "~/session/session.cookies";
 import { emailVerificationService } from "~/email-verification/email-verification.service";
-import { emailVerificationCodeSchema } from "@gym-graphs/schemas/auth";
+import { emailVerificationCodeSchema } from "@gym-graphs/schemas/email-verification";
 import { requireAuthMiddleware } from "~/session/session.middlewares";
 import type { Ctx } from "~/index";
 
