@@ -155,6 +155,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      hono:
+        specifier: ^4.9.11
+        version: 4.9.11
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -177,9 +180,12 @@ importers:
         specifier: ^6.3.5
         version: 6.3.6(@types/node@24.7.2)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.20.6)
       zod:
-        specifier: ^3.24.1
-        version: 3.25.76
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
+      '@gym-graphs/api':
+        specifier: workspace:*
+        version: link:../api
       '@tanstack/react-query-devtools':
         specifier: ^5.62.11
         version: 5.90.2(@tanstack/react-query@5.90.2(react@19.2.0))(react@19.2.0)

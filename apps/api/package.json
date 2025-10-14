@@ -2,6 +2,7 @@
   "name": "@gym-graphs/api",
   "module": "index.ts",
   "type": "module",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "dev": "bun --watch ./src/index.ts",
     "db:bash": "docker exec -it gym_graphs_db bash -c 'psql -U postgres -d gym_graphs'",

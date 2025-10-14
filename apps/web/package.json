@@ -49,6 +49,7 @@
     "@visx/vendor": "^3.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "hono": "^4.9.11",
     "input-otp": "^1.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -56,9 +57,10 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vite": "^6.3.5",
-    "zod": "^3.24.1"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@gym-graphs/api": "workspace:*",
     "@tanstack/react-query-devtools": "^5.62.11",
     "@tanstack/router-devtools": "^1.92.11",
     "@types/react": "^19.0.2",

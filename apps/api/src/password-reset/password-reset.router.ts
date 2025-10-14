@@ -7,35 +7,33 @@ import { setCookie } from "hono/cookie";
 import { sessionCookie } from "~/session/session.cookies";
 import type { Ctx } from "~/index";
 
-export const passwordResetRouter = new Hono<Ctx>();
+export const passwordResetRouter = new Hono<Ctx>()
+  .post(
+    "/",
+    zValidator("json", userSchema.pick({ email: true })),
+    async (c) => {
+      const input = c.req.valid("json");
 
-passwordResetRouter.post(
-  "/",
-  zValidator("json", userSchema.pick({ email: true })),
-  async (c) => {
-    const input = c.req.valid("json");
+      await passwordResetService.create(input, c.var.db, c.var.email);
 
-    await passwordResetService.create(input, c.var.db, c.var.email);
+      return c.json(undefined, 200);
+    },
+  )
+  .post(
+    "/confirm",
+    zValidator("json", confirmPasswordResetSchema),
+    async (c) => {
+      const input = c.req.valid("json");
 
-    return c.json(undefined, 200);
-  },
-);
+      const session = await passwordResetService.confirm(input, c.var.db);
 
-passwordResetRouter.post(
-  "/confirm",
-  zValidator("json", confirmPasswordResetSchema),
-  async (c) => {
-    const input = c.req.valid("json");
+      setCookie(
+        c,
+        sessionCookie.name,
+        session.token,
+        sessionCookie.optionsForExpiry(session.session.expiresAt),
+      );
 
-    const session = await passwordResetService.confirm(input, c.var.db);
-
-    setCookie(
-      c,
-      sessionCookie.name,
-      session.token,
-      sessionCookie.optionsForExpiry(session.session.expiresAt),
-    );
-
-    c.json(undefined, 200);
-  },
-);
+      c.json(undefined, 200);
+    },
+  );

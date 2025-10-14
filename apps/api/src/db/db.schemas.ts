@@ -12,16 +12,19 @@ import {
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",
+  //@ts-ignore
   userSchema.shape.weightUnit.options,
 );
 
 export const oneRepMaxAlgoEnum = pgEnum(
   "one_rep_max_algo",
+  //@ts-ignore
   userSchema.shape.oneRepMaxAlgo.options,
 );
 
 export const dashboardViewEnum = pgEnum(
   "dashboard_view",
+  //@ts-ignore
   userSchema.shape.dashboardView.options,
 );
 
@@ -93,6 +96,7 @@ export const dashboardRelations = relations(
   }),
 );
 
+//@ts-ignore
 export const tileTypeEnum = pgEnum("tile_type", tileSchema.shape.type.options);
 
 export const tileTable = pgTable(
@@ -375,6 +379,7 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
 
 export const teamVisibilityEnum = pgEnum(
   "team_visibility",
+  //@ts-ignore
   teamSchema.shape.visibility.options,
 );
 
@@ -401,6 +406,7 @@ export const teamRelations = relations(teamTable, ({ many }) => ({
 
 export const teamMemberRoleEnum = pgEnum(
   "team_member_role",
+  //@ts-ignore
   teamMemberSchema.shape.role.options,
 );
 
@@ -441,6 +447,7 @@ export const teamMemberRelations = relations(teamMemberTable, ({ one }) => ({
 
 export const teamInvitationStatusEnum = pgEnum(
   "team_invitation_status",
+  //@ts-ignore
   teamInvitationSchema.shape.status.options,
 );
 
@@ -491,6 +498,7 @@ export const teamInvitationRelations = relations(
 
 export const teamJoinRequestStatusEnum = pgEnum(
   "team_join_request_status",
+  //@ts-ignore
   teamJoinRequestSchema.shape.status.options,
 );
 
@@ -567,6 +575,7 @@ export const teamEventRelations = relations(
 
 export const teamEventReactionEmojiEnum = pgEnum(
   "team_event_reaction_emoji",
+  //@ts-ignore
   teamEventReactionsSchema.shape.emoji.options,
 );
 

@@ -7,42 +7,39 @@ import { sessionCookie } from "~/session/session.cookies";
 import { requireAuthMiddleware } from "~/session/session.middlewares";
 import type { Ctx } from "~/index";
 
-export const sessionRouter = new Hono<Ctx>();
+export const sessionRouter = new Hono<Ctx>()
+  .post("/sign-up", zValidator("json", signUpSchema), async (c) => {
+    const input = c.req.valid("json");
 
-sessionRouter.post("/sign-up", zValidator("json", signUpSchema), async (c) => {
-  const input = c.req.valid("json");
+    const session = await sessionService.signUp(input, c.var.db, c.var.email);
 
-  const session = await sessionService.signUp(input, c.var.db, c.var.email);
+    setCookie(
+      c,
+      sessionCookie.name,
+      session.token,
+      sessionCookie.optionsForExpiry(session.session.expiresAt),
+    );
 
-  setCookie(
-    c,
-    sessionCookie.name,
-    session.token,
-    sessionCookie.optionsForExpiry(session.session.expiresAt),
-  );
+    return c.json(undefined, 200);
+  })
+  .post("/sign-in", zValidator("json", signInSchema), async (c) => {
+    const input = c.req.valid("json");
 
-  return c.json(undefined, 200);
-});
+    const session = await sessionService.signIn(input, c.var.db);
 
-sessionRouter.post("/sign-in", zValidator("json", signInSchema), async (c) => {
-  const input = c.req.valid("json");
+    setCookie(
+      c,
+      sessionCookie.name,
+      session.token,
+      sessionCookie.optionsForExpiry(session.session.expiresAt),
+    );
 
-  const session = await sessionService.signIn(input, c.var.db);
+    return c.json(undefined, 200);
+  })
+  .post("/sign-out", requireAuthMiddleware, async (c) => {
+    await sessionService.signOut(c.var.session.id, c.var.db);
 
-  setCookie(
-    c,
-    sessionCookie.name,
-    session.token,
-    sessionCookie.optionsForExpiry(session.session.expiresAt),
-  );
+    setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
 
-  return c.json(undefined, 200);
-});
-
-sessionRouter.post("/sign-out", requireAuthMiddleware, async (c) => {
-  await sessionService.signOut(c.var.session.id, c.var.db);
-
-  setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
-
-  return c.json(undefined, 200);
-});
+    return c.json(undefined, 200);
+  });

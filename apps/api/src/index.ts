@@ -25,11 +25,13 @@ const app = new Hono<Ctx>()
   .use(injectDbMiddleware)
   .use(injectEmailMiddleware)
   .use(injectSessionMiddleware)
-  .route("/", sessionRouter)
+  .route("/sessions", sessionRouter)
   .route("/email-verification", emailVerificationRouter)
   .route("/password-reset", passwordResetRouter)
   .route("/oauth", oauthRouter)
   .onError(errorHandler);
+
+export type Api = typeof app;
 
 export default {
   port: env.PORT,

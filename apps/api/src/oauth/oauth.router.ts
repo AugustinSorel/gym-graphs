@@ -13,64 +13,70 @@ import { sessionCookie } from "~/session/session.cookies";
 import { HTTPException } from "hono/http-exception";
 import type { Ctx } from "~/index";
 
-export const oauthRouter = new Hono<Ctx>();
-
-oauthRouter.post(
-  "/github",
-  zValidator(
-    "query",
-    z.object({ callbackUrl: z.string().optional() }).optional(),
-  ),
-  async (c) => {
-    const query = c.req.valid("query");
-
-    const state = generateOAuthState();
-
-    const url = generateGithubOAuthUrl(
-      state,
-      ["user:email"],
-      query?.callbackUrl,
-    );
-
-    setCookie(c, oauthCookies.github.name, state, oauthCookies.github.options);
-
-    return c.redirect(url);
-  },
-);
-
-oauthRouter
+export const oauthRouter = new Hono<Ctx>()
   .post(
-    "/github/callback",
-    zValidator("query", githubOAuthCallbackQuerySchema),
+    "/github",
+    zValidator(
+      "query",
+      z.object({ callbackUrl: z.string().optional() }).optional(),
+    ),
     async (c) => {
       const query = c.req.valid("query");
-      const candidateState = getCookie(c, oauthCookies.github.name);
 
-      if (candidateState !== query.state) {
-        throw new HTTPException(401, { message: "state do not match" });
-      }
+      const state = generateOAuthState();
 
-      const tokens = await oauthService.validateGithubOAuthCode(query.code);
-
-      const session = await oauthService.githubSignIn(
-        tokens.accessToken,
-        c.var.db,
+      const url = generateGithubOAuthUrl(
+        state,
+        ["user:email"],
+        query?.callbackUrl,
       );
 
       setCookie(
         c,
-        sessionCookie.name,
-        session.token,
-        sessionCookie.optionsForExpiry(session.session.expiresAt),
+        oauthCookies.github.name,
+        state,
+        oauthCookies.github.options,
       );
 
-      return c.redirect(query.redirectUri ? query.redirectUri : "/dashboard");
+      return c.redirect(url);
     },
   )
-  .onError((e, c) => {
-    const errorMsg = e instanceof Error ? e.message : "something went wrong";
+  .post(
+    "/github/callback",
+    zValidator("query", githubOAuthCallbackQuerySchema),
+    async (c) => {
+      try {
+        const query = c.req.valid("query");
+        const candidateState = getCookie(c, oauthCookies.github.name);
 
-    //FIX:
-    const base = "http://localhost:3000";
-    return c.redirect(`${base}/sign-up?error=${encodeURIComponent(errorMsg)}`);
-  });
+        if (candidateState !== query.state) {
+          throw new HTTPException(401, { message: "state do not match" });
+        }
+
+        const tokens = await oauthService.validateGithubOAuthCode(query.code);
+
+        const session = await oauthService.githubSignIn(
+          tokens.accessToken,
+          c.var.db,
+        );
+
+        setCookie(
+          c,
+          sessionCookie.name,
+          session.token,
+          sessionCookie.optionsForExpiry(session.session.expiresAt),
+        );
+
+        return c.redirect(query.redirectUri ? query.redirectUri : "/dashboard");
+      } catch (e) {
+        const errorMsg =
+          e instanceof Error ? e.message : "something went wrong";
+
+        //FIX:
+        const base = "http://localhost:3000";
+        return c.redirect(
+          `${base}/sign-up?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+    },
+  );
