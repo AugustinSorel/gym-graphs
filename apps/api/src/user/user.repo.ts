@@ -38,6 +38,27 @@ const createWithEmailAndPassword = async (
   }
 };
 
+const createWithEmail = async (
+  email: User["email"],
+  name: User["name"],
+  db: Db,
+) => {
+  const [user] = await db
+    .insert(userTable)
+    .values({
+      email,
+      name,
+      emailVerifiedAt: new Date(),
+    })
+    .returning();
+
+  if (!user) {
+    throw new HTTPException(500, { message: "db did not return a user" });
+  }
+
+  return user;
+};
+
 const selectByEmail = async (email: User["email"], db: Db) => {
   return db.query.userTable.findFirst({
     where: eq(userTable.email, email),
@@ -71,6 +92,7 @@ const updatePasswordAndSalt = async (
 
 export const userRepo = {
   createWithEmailAndPassword,
+  createWithEmail,
   selectByEmail,
   updateEmailVerifiedAt,
   updatePasswordAndSalt,

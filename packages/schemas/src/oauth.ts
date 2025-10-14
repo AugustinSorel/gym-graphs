@@ -1,19 +1,13 @@
 import { z } from "zod";
 
-export const githubOAuthCallbackSchema = z
-  .object({
-    state: z.string(),
-    candidateState: z.string(),
-    code: z.string(),
-    redirectUri: z.string().nullish(),
-  })
-  .refine((data) => data.state === data.candidateState, {
-    message: "Github state don't match",
-    path: ["state"],
-  });
+export const githubOAuthCallbackQuerySchema = z.object({
+  state: z.string(),
+  code: z.string(),
+  redirectUri: z.string().nullish(),
+});
 
-export type GithubOAuthCallback = Readonly<
-  z.infer<typeof githubOAuthCallbackSchema>
+export type GithubOAuthCallbackQuery = Readonly<
+  z.infer<typeof githubOAuthCallbackQuerySchema>
 >;
 
 export const githubOAuthTokenResponseSchema = z
