@@ -4,6 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import { hashSHA256Hex } from "~/libs/crypto";
 import { passwordResetEmailBody } from "~/password-reset/password-reset.email";
 import { userRepo } from "~/user/user.repo";
+import { sendEmail } from "~/libs/email";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
@@ -27,13 +28,12 @@ const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
       db,
     );
 
-    const config = email.buildConfig(
+    await sendEmail(
       [user.email],
       "Reset your password",
       passwordResetEmailBody(passwordReset.token),
+      email,
     );
-
-    await email.client.send(config);
   });
 };
 
