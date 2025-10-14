@@ -7,7 +7,7 @@ import { sessionRepo } from "~/session/session.repo";
 import { generateSessionToken } from "~/session/session.utils";
 import type { Db } from "~/libs/db";
 import type { EmailVerificationCode, User } from "~/db/db.schemas";
-import type { Email } from "~/libs/email";
+import { sendEmail, type Email } from "~/libs/email";
 
 const verifyCode = async (
   userId: EmailVerificationCode["userId"],
@@ -50,13 +50,12 @@ const create = async (
       tx,
     );
 
-    const config = email.buildConfig(
+    await sendEmail(
       [user.email],
       "Verification code",
       emailVerificationEmailBody(emailVerification.code),
+      email,
     );
-
-    await email.client.send(config);
   });
 };
 

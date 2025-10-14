@@ -14,6 +14,7 @@ import { seedUserAccount } from "~/user/user.seed";
 import { generateEmailVerificationCode } from "~/email-verification/email-verification.utils";
 import { emailVerificationRepo } from "~/email-verification/email-verification.repo";
 import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
+import { sendEmail } from "~/libs/email";
 import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";
 import type { Email } from "~/libs/email";
 import type { Session } from "~/db/db.schemas";
@@ -84,13 +85,12 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
       tx,
     );
 
-    const config = email.buildConfig(
+    await sendEmail(
       [user.email],
       "Verification code",
       emailVerificationEmailBody(emailVerification.code),
+      email,
     );
-
-    await email.client.send(config);
 
     const token = generateSessionToken();
 
