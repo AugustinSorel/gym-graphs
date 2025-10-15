@@ -6,3 +6,5 @@ dist
 .output
 .tanstack
 .nitro
+
+tsconfig.tsbuildinfo
