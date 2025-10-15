@@ -8,6 +8,7 @@ import { injectSessionMiddleware } from "~/domains/session/session.middlewares";
 import { emailVerificationRouter } from "~/domains/email-verification/email-verification.router";
 import { passwordResetRouter } from "~/domains/password-reset/password-reset.router";
 import { oauthRouter } from "~/domains/oauth/oauth.router";
+import { userRouter } from "~/domains/user/user.router";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
@@ -26,8 +27,9 @@ const app = new Hono<Ctx>()
   .use(injectEmailMiddleware)
   .use(injectSessionMiddleware)
   .route("/sessions", sessionRouter)
-  .route("/email-verification", emailVerificationRouter)
-  .route("/password-reset", passwordResetRouter)
+  .route("/users", userRouter)
+  .route("/email-verifications", emailVerificationRouter)
+  .route("/password-resets", passwordResetRouter)
   .route("/oauth", oauthRouter)
   .onError(errorHandler);
 

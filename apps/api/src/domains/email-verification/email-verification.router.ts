@@ -14,7 +14,7 @@ export const emailVerificationRouter = new Hono<Ctx>()
     return c.json(undefined, 200);
   })
   .post(
-    "/confirm",
+    "/verify",
     requireAuthMiddleware,
     zValidator("json", emailVerificationCodeSchema.pick({ code: true })),
     async (c) => {

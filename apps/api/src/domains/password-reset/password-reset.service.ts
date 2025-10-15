@@ -10,7 +10,7 @@ import { generateSessionToken } from "~/domains/session/session.utils";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
-import type { ConfirmPasswordResetSchema } from "@gym-graphs/schemas/password-reset";
+import type { PasswordResetResetSchema } from "@gym-graphs/schemas/password-reset";
 
 const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
   await db.transaction(async (tx) => {
@@ -40,7 +40,7 @@ const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
   });
 };
 
-const confirm = async (input: ConfirmPasswordResetSchema, db: Db) => {
+const confirm = async (input: PasswordResetResetSchema, db: Db) => {
   return db.transaction(async (tx) => {
     const tokenHash = hashSHA256Hex(input.token);
 

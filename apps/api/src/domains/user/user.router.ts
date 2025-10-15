@@ -1,3 +1,26 @@
+import { signUpSchema } from "@gym-graphs/schemas/session";
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { setCookie } from "hono/cookie";
+import { userService } from "~/domains/user/user.service";
+import { sessionCookie } from "~/domains//session/session.cookies";
+import type { Ctx } from "~/index";
 
-export const userRouter = new Hono();
+export const userRouter = new Hono<Ctx>().post(
+  "/",
+  zValidator("json", signUpSchema),
+  async (c) => {
+    const input = c.req.valid("json");
+
+    const session = await userService.signUp(input, c.var.db, c.var.email);
+
+    setCookie(
+      c,
+      sessionCookie.name,
+      session.token,
+      sessionCookie.optionsForExpiry(session.session.expiresAt),
+    );
+
+    return c.json(undefined, 200);
+  },
+);

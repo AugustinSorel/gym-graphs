@@ -9,7 +9,7 @@ export const passwordResetTokenSchema = z.object({
     .max(255, "token must be at most 255 characters"),
 });
 
-export const confirmPasswordResetSchema = z
+export const passwordResetResetSchema = z
   .object({
     password: userSchema.shape.password,
     confirmPassword: userSchema.shape.password,
@@ -20,6 +20,4 @@ export const confirmPasswordResetSchema = z
     path: ["confirmPassword"],
   });
 
-export type ConfirmPasswordResetSchema = z.infer<
-  typeof confirmPasswordResetSchema
->;
+export type PasswordResetResetSchema = z.infer<typeof passwordResetResetSchema>;

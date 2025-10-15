@@ -2,21 +2,9 @@ import { generateSessionToken } from "~/domains/session/session.utils";
 import { fifteenDaysInMs } from "~/utils/dates";
 import { sessionRepo } from "~/domains/session/session.repo";
 import { HTTPException } from "hono/http-exception";
-import {
-  generateSalt,
-  hashSecret,
-  hashSHA256Hex,
-  verifySecret,
-} from "~/libs/crypto";
-import { inferNameFromEmail } from "~/domains/user/user.utils";
+import { hashSHA256Hex, verifySecret } from "~/libs/crypto";
 import { userRepo } from "~/domains/user/user.repo";
-import { seedUserAccount } from "~/domains/user/user.seed";
-import { generateEmailVerificationCode } from "~/domains/email-verification/email-verification.utils";
-import { emailVerificationRepo } from "~/domains/email-verification/email-verification.repo";
-import { emailVerificationEmailBody } from "~/domains/email-verification/email-verification.emails";
-import { sendEmail } from "~/libs/email";
-import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";
-import type { Email } from "~/libs/email";
+import type { SignInSchema } from "@gym-graphs/schemas/session";
 import type { Session } from "~/db/db.schemas";
 import type { SessionToken } from "~/domains/session/session.utils";
 import type { Db } from "~/libs/db";
@@ -59,49 +47,6 @@ const validate = async (candidateSessionToken: SessionToken, db: Db) => {
 };
 
 export type SessionCtx = Awaited<ReturnType<typeof validate>>;
-
-const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
-  return db.transaction(async (tx) => {
-    const salt = generateSalt();
-    const hashedPassword = await hashSecret(input.password, salt);
-
-    const name = inferNameFromEmail(input.email);
-
-    const user = await userRepo.createWithEmailAndPassword(
-      input.email,
-      hashedPassword,
-      salt,
-      name,
-      tx,
-    );
-
-    await seedUserAccount(user.id);
-
-    const emailVerificationCode = generateEmailVerificationCode();
-
-    const emailVerification = await emailVerificationRepo.create(
-      emailVerificationCode,
-      user.id,
-      tx,
-    );
-
-    await sendEmail(
-      [user.email],
-      "Verification code",
-      emailVerificationEmailBody(emailVerification.code),
-      email,
-    );
-
-    const token = generateSessionToken();
-
-    const session = await sessionRepo.create(token, user.id, tx);
-
-    return {
-      session,
-      token,
-    };
-  });
-};
 
 const signIn = async (input: SignInSchema, db: Db) => {
   return db.transaction(async (tx) => {
@@ -150,7 +95,6 @@ const signIn = async (input: SignInSchema, db: Db) => {
 
 export const sessionService = {
   validate,
-  signUp,
   signIn,
   signOut,
 };
