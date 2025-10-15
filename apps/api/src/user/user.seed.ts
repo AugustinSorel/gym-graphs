@@ -1,26 +1,26 @@
 import type { User } from "~/db/db.schemas";
 
-const data = {
-  exercisesName: ["bench press", "squat", "deadlift"],
-  tags: [
-    "legs",
-    "chest",
-    "biceps",
-    "triceps",
-    "back",
-    "shoulders",
-    "calfs",
-    "abs",
-    "traps",
-  ],
-  sets: {
-    benchPress: [10, 20, 10, 30],
-    squat: [20, 10, 30, 10],
-    deadlift: [30, 10, 20, 30],
-  },
-};
+// const data = {
+//   exercisesName: ["bench press", "squat", "deadlift"],
+//   tags: [
+//     "legs",
+//     "chest",
+//     "biceps",
+//     "triceps",
+//     "back",
+//     "shoulders",
+//     "calfs",
+//     "abs",
+//     "traps",
+//   ],
+//   sets: {
+//     benchPress: [10, 20, 10, 30],
+//     squat: [20, 10, 30, 10],
+//     deadlift: [30, 10, 20, 30],
+//   },
+// };
 
-export const seedUserAccount = async (userId: User["id"]) => {
+export const seedUserAccount = async (_userId: User["id"]) => {
   //TODO: this
   // const [tags, dashboard, [benchPress, squat, deadlift]] =
   //   await Promise.all([
