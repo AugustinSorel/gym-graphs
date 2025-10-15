@@ -1,3 +1,4 @@
+//FIX: the ts ignore bs
 import { relations, sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { userSchema } from "@gym-graphs/schemas/user";
