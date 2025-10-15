@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { signUpSchema, signInSchema } from "@gym-graphs/schemas/session";
-import { sessionService } from "~/session/session.service";
+import { sessionService } from "~/domains/session/session.service";
 import { setCookie } from "hono/cookie";
-import { sessionCookie } from "~/session/session.cookies";
-import { requireAuthMiddleware } from "~/session/session.middlewares";
+import { sessionCookie } from "~/domains/session/session.cookies";
+import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
 import type { Ctx } from "~/index";
 
 export const sessionRouter = new Hono<Ctx>()

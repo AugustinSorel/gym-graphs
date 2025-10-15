@@ -1,6 +1,6 @@
-import { generateSessionToken } from "~/session/session.utils";
+import { generateSessionToken } from "~/domains/session/session.utils";
 import { fifteenDaysInMs } from "~/utils/dates";
-import { sessionRepo } from "~/session/session.repo";
+import { sessionRepo } from "~/domains/session/session.repo";
 import { HTTPException } from "hono/http-exception";
 import {
   generateSalt,
@@ -8,17 +8,17 @@ import {
   hashSHA256Hex,
   verifySecret,
 } from "~/libs/crypto";
-import { inferNameFromEmail } from "~/user/user.utils";
-import { userRepo } from "~/user/user.repo";
-import { seedUserAccount } from "~/user/user.seed";
-import { generateEmailVerificationCode } from "~/email-verification/email-verification.utils";
-import { emailVerificationRepo } from "~/email-verification/email-verification.repo";
-import { emailVerificationEmailBody } from "~/email-verification/email-verification.emails";
+import { inferNameFromEmail } from "~/domains/user/user.utils";
+import { userRepo } from "~/domains/user/user.repo";
+import { seedUserAccount } from "~/domains/user/user.seed";
+import { generateEmailVerificationCode } from "~/domains/email-verification/email-verification.utils";
+import { emailVerificationRepo } from "~/domains/email-verification/email-verification.repo";
+import { emailVerificationEmailBody } from "~/domains/email-verification/email-verification.emails";
 import { sendEmail } from "~/libs/email";
 import type { SignInSchema, SignUpSchema } from "@gym-graphs/schemas/session";
 import type { Email } from "~/libs/email";
 import type { Session } from "~/db/db.schemas";
-import type { SessionToken } from "~/session/session.utils";
+import type { SessionToken } from "~/domains/session/session.utils";
 import type { Db } from "~/libs/db";
 
 const signOut = async (sessionId: Session["id"], db: Db) => {

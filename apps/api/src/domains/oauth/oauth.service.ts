@@ -5,19 +5,19 @@ import {
   fetchGithubUser,
   fetchGithubUserEmail,
   sendTokenRequest,
-} from "./oauth.utils";
-import { userRepo } from "~/user/user.repo";
+} from "~/domains/oauth/oauth.utils";
+import { userRepo } from "~/domains/user/user.repo";
+import { seedUserAccount } from "~/domains/user/user.seed";
+import { inferNameFromEmail } from "~/domains/user/user.utils";
+import { oauthRepo } from "./oauth.repo";
+import { HTTPException } from "hono/http-exception";
+import { generateSessionToken } from "~/domains/session/session.utils";
+import { sessionRepo } from "~/domains/session/session.repo";
+import type { Db } from "~/libs/db";
 import type {
   GithubOAuthCallbackQuery,
   GithubOAuthTokenResponse,
 } from "@gym-graphs/schemas/oauth";
-import { seedUserAccount } from "~/user/user.seed";
-import { inferNameFromEmail } from "~/user/user.utils";
-import { oauthRepo } from "./oauth.repo";
-import { HTTPException } from "hono/http-exception";
-import type { Db } from "~/libs/db";
-import { generateSessionToken } from "~/session/session.utils";
-import { sessionRepo } from "~/session/session.repo";
 
 const validateGithubOAuthCode = async (
   code: GithubOAuthCallbackQuery["code"],

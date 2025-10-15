@@ -1,10 +1,10 @@
-import { generateEmailVerificationCode } from "~/email-verification/email-verification.utils";
-import { emailVerificationRepo } from "~/email-verification/email-verification.repo";
-import { userRepo } from "~/user/user.repo";
+import { generateEmailVerificationCode } from "~/domains/email-verification/email-verification.utils";
+import { emailVerificationRepo } from "~/domains/email-verification/email-verification.repo";
+import { userRepo } from "~/domains/user/user.repo";
 import { HTTPException } from "hono/http-exception";
 import { emailVerificationEmailBody } from "./email-verification.emails";
-import { sessionRepo } from "~/session/session.repo";
-import { generateSessionToken } from "~/session/session.utils";
+import { sessionRepo } from "~/domains/session/session.repo";
+import { generateSessionToken } from "~/domains/session/session.utils";
 import { sendEmail } from "~/libs/email";
 import type { Db } from "~/libs/db";
 import type { EmailVerificationCode, User } from "~/db/db.schemas";

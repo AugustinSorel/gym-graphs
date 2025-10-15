@@ -2,14 +2,14 @@ import { Hono } from "hono";
 import {
   generateGithubOAuthUrl,
   generateOAuthState,
-} from "~/oauth/oauth.utils";
+} from "~/domains/oauth/oauth.utils";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { getCookie, setCookie } from "hono/cookie";
 import { oauthCookies } from "./oauth.cookies";
 import { oauthService } from "./oauth.service";
 import { githubOAuthCallbackQuerySchema } from "@gym-graphs/schemas/oauth";
-import { sessionCookie } from "~/session/session.cookies";
+import { sessionCookie } from "~/domains/session/session.cookies";
 import { HTTPException } from "hono/http-exception";
 import type { Ctx } from "~/index";
 

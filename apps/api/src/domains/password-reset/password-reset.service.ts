@@ -1,12 +1,12 @@
-import { passwordResetRepo } from "~/password-reset/password-reset.repo";
-import { generatePasswordResetToken } from "~/password-reset/password-reset.utils";
+import { passwordResetRepo } from "~/domains/password-reset/password-reset.repo";
+import { generatePasswordResetToken } from "~/domains/password-reset/password-reset.utils";
 import { HTTPException } from "hono/http-exception";
 import { generateSalt, hashSecret, hashSHA256Hex } from "~/libs/crypto";
-import { passwordResetEmailBody } from "~/password-reset/password-reset.email";
-import { userRepo } from "~/user/user.repo";
+import { passwordResetEmailBody } from "~/domains/password-reset/password-reset.email";
+import { userRepo } from "~/domains/user/user.repo";
 import { sendEmail } from "~/libs/email";
-import { sessionRepo } from "~/session/session.repo";
-import { generateSessionToken } from "~/session/session.utils";
+import { sessionRepo } from "~/domains/session/session.repo";
+import { generateSessionToken } from "~/domains/session/session.utils";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";

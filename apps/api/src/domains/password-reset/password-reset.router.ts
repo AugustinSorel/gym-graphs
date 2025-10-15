@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { userSchema } from "@gym-graphs/schemas/user";
-import { passwordResetService } from "~/password-reset/password-reset.service";
+import { passwordResetService } from "~/domains/password-reset/password-reset.service";
 import { confirmPasswordResetSchema } from "@gym-graphs/schemas/password-reset";
 import { setCookie } from "hono/cookie";
-import { sessionCookie } from "~/session/session.cookies";
+import { sessionCookie } from "~/domains/session/session.cookies";
 import type { Ctx } from "~/index";
 
 export const passwordResetRouter = new Hono<Ctx>()

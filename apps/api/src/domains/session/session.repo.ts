@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { thirtyDaysInMs } from "~/utils/dates";
 import { hashSHA256Hex } from "~/libs/crypto";
 import type { Session } from "~/db/db.schemas";
-import type { SessionToken } from "~/session/session.utils";
+import type { SessionToken } from "~/domains/session/session.utils";
 import type { Db } from "~/libs/db";
 
 const create = async (
