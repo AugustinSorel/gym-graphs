@@ -1,4 +1,4 @@
-import type { Tag } from "~/db/db.schemas";
+import type { Tag } from "@gym-graphs/api/db";
 
 export const tagsMock: Array<Tag> = [
   {

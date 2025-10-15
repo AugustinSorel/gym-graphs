@@ -6,6 +6,9 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts"
+    },
+    "./db": {
+      "types": "./dist/db/db.schemas.d.ts"
     }
   },
   "scripts": {

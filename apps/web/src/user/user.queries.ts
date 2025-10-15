@@ -1,9 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
-import { selectUserAction } from "~/user/user.actions";
+import { parseResponse } from "hono/client";
+import { api } from "~/libs/api";
 
 const get = queryOptions({
   queryKey: ["user"],
-  queryFn: ({ signal }) => selectUserAction({ signal }),
+  queryFn: async ({ signal }) => {
+    return parseResponse(api.users.me.$get({}, { init: { signal } }));
+  },
 });
 
 export const userQueries = {

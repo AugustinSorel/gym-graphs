@@ -8,9 +8,11 @@ import { emailVerificationRepo } from "~/domains/email-verification/email-verifi
 import { emailVerificationEmailBody } from "~/domains/email-verification/email-verification.emails";
 import { generateSessionToken } from "~/domains/session/session.utils";
 import { sessionRepo } from "~/domains/session/session.repo";
+import { HTTPException } from "hono/http-exception";
 import type { SignUpSchema } from "@gym-graphs/schemas/session";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
+import type { User } from "~/db/db.schemas";
 
 const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
   return db.transaction(async (tx) => {
@@ -55,6 +57,17 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
   });
 };
 
+export const selectClient = async (userId: User["id"], db: Db) => {
+  const user = await userRepo.selectClient(userId, db);
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
+
+  return user;
+};
+
 export const userService = {
   signUp,
+  selectClient,
 };

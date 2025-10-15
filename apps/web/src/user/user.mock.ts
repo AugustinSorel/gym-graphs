@@ -1,9 +1,8 @@
+import { api } from "~/libs/api";
 import { tagsMock } from "~/tag/tag.mock";
-import type { selectUserAction } from "~/user/user.actions";
+import type { InferResponseType } from "hono";
 
-export const userMock: Readonly<
-  NonNullable<Awaited<ReturnType<typeof selectUserAction>>>
-> = {
+export const userMock: Readonly<InferResponseType<typeof api.users.me.$get>> = {
   weightUnit: "kg",
   email: "john@email.com",
   name: "john",

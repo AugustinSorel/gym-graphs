@@ -1,38 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon, SmileIcon } from "~/ui/icons";
-import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
-import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
-import { ExerciseTable } from "~/exercise/components/exercise-table";
-import { homePageExerciseTableColumns } from "~/exercise/components/exercise-table-columns";
-import { TilesToSetsCountGraph } from "~/dashboard/components/tiles-to-sets-count-graph";
-import { exercisesMock } from "~/exercise/exercise.mock";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
 import { userQueries } from "~/user/user.queries";
 import { userMock } from "~/user/user.mock";
-import { TilesFunFacts } from "~/dashboard/components/tiles-fun-facts";
-import { dashboardQueries } from "~/dashboard/dashboard.queries";
-import { setsMock } from "~/set/set.mock";
-import {
-  dashboardFunFactsMock,
-  tilesSetsHeatMapMock,
-  tilesToSetsCountMock,
-  tilesToTagsCount,
-} from "~/dashboard/dashboard.mock";
-import { permissions } from "~/libs/permissions";
-import { TilesToTagsCountGraph } from "~/dashboard/components/tiles-to-tags-count-graph";
-import { TilesSetsHeatMapGraph } from "~/dashboard/components/tiles-sets-heat-map-graph";
-import { GaugeOfWeightLiftedInTeam } from "~/team/components/gauge-of-weight-lifted-in-team";
-import { Badge } from "~/ui/badge";
+import { ArrowRightIcon } from "~/ui/icons";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
-  beforeLoad: async ({ context }) => {
-    permissions.homePage.view(context.user);
-  },
 });
 
 const Home = () => {
@@ -42,12 +19,6 @@ const Home = () => {
     <QueryClientProvider client={mockQueryClient}>
       <Main>
         <HeroSection />
-
-        <FeatureOne />
-
-        <FeatureTwo />
-
-        <FeatureThree />
 
         <HeroSectionTwo />
       </Main>
@@ -88,146 +59,6 @@ const HeroSection = () => {
 
       <Separator />
     </HeroContainer>
-  );
-};
-
-const FeatureOne = () => {
-  return (
-    <FeatureContainer>
-      <HeroTitle>
-        Unleash <GradientText> Your Progress!</GradientText>
-      </HeroTitle>
-
-      <Text>
-        With our innovative modular <StrongText>dashboard</StrongText>, you can
-        easily track your entire workout journey and get a comprehensive
-        breakdown of your achievements each <StrongText>month</StrongText>.
-      </Text>
-
-      <Grid>
-        {exercisesMock.map((exercise) => (
-          <Card key={exercise.id}>
-            <Name>{exercise.tile.name}</Name>
-            <ExerciseOverviewGraph sets={exercise.sets} />
-          </Card>
-        ))}
-        <Card>
-          <Name>exercises frequency</Name>
-          <TilesToSetsCountGraph />
-        </Card>
-        <Card>
-          <Name>tags frequency</Name>
-          <TilesToTagsCountGraph />
-        </Card>
-        <Card>
-          <Name>fun facts</Name>
-          <TilesFunFacts />
-        </Card>
-        <Card>
-          <Name>heat map - January</Name>
-          <TilesSetsHeatMapGraph />
-        </Card>
-      </Grid>
-    </FeatureContainer>
-  );
-};
-
-const FeatureTwo = () => {
-  return (
-    <FeatureContainer>
-      <HeroTitle>
-        Track <GradientText>Every Move!</GradientText>
-      </HeroTitle>
-
-      <Text>
-        Our app allows you to <StrongText>effortlessly</StrongText> track all
-        your custom exercises, so you can stay in control of your fitness
-        journey like never before.
-      </Text>
-
-      <CardTwo className="py-2 sm:p-4">
-        <ExerciseAdvanceOverviewGraph sets={setsMock} />
-      </CardTwo>
-      <CardTwo>
-        <ExerciseTable sets={setsMock} columns={homePageExerciseTableColumns} />
-      </CardTwo>
-    </FeatureContainer>
-  );
-};
-
-const FeatureThree = () => {
-  return (
-    <FeatureContainer>
-      <HeroTitle>
-        Empower your <GradientText>Team!</GradientText>
-      </HeroTitle>
-      <Text>
-        Create exercises and track your friends performance in real-time.
-        Collaborate, compete and conquer your fitness{" "}
-        <StrongText>goals together</StrongText>, making every workout a shared
-        experience.
-      </Text>
-      <TeamFunFactsGrid>
-        <TeamFunFact className="row-span-2 grid-rows-[auto_200px]">
-          <TeamFunFactName>your contribution:</TeamFunFactName>
-          <GaugeOfWeightLiftedInTeam
-            data={{
-              totalWeightInKg: 4922,
-              userTotalWeightInKg: 1290,
-            }}
-          />
-        </TeamFunFact>
-        <TeamFunFact className="grid-cols-1">
-          <TeamFunFactName>the lift lord:</TeamFunFactName>
-          <TeamFunFactStrong>micheal</TeamFunFactStrong>
-        </TeamFunFact>
-        <TeamFunFact className="grid-cols-1">
-          <TeamFunFactName>total weight lifted:</TeamFunFactName>
-          <TeamFunFactStrong>{4922 + 1290} kg</TeamFunFactStrong>
-        </TeamFunFact>
-      </TeamFunFactsGrid>
-
-      <TeamEventsTimeline>
-        <TeamEvent>
-          <TeamEventName>new one-rep max achieved!</TeamEventName>
-          <TeamEventDescription>
-            micheal just crushed a new PR on bench press: 100kg
-          </TeamEventDescription>
-
-          <TeamEventReactionsContainer>
-            <SmileIcon className="stroke-muted-foreground" />
-            <Badge
-              variant="outline"
-              className="text-sm tracking-widest whitespace-nowrap"
-            >
-              🎯 2
-            </Badge>
-            <Badge className="text-sm tracking-widest whitespace-nowrap">
-              😤 1
-            </Badge>
-          </TeamEventReactionsContainer>
-        </TeamEvent>
-        <TeamEvent>
-          <TeamEventName>new one-rep max achieved!</TeamEventName>
-          <TeamEventDescription>
-            john just crushed a new PR on deadlift: 340kg
-          </TeamEventDescription>
-
-          <TeamEventReactionsContainer>
-            <SmileIcon className="stroke-muted-foreground" />
-            <Badge className="text-sm tracking-widest whitespace-nowrap">
-              🔥 3
-            </Badge>
-            <Badge
-              variant="outline"
-              className="text-sm tracking-widest whitespace-nowrap"
-            >
-              💪 1
-            </Badge>
-          </TeamEventReactionsContainer>
-        </TeamEvent>
-      </TeamEventsTimeline>
-    </FeatureContainer>
   );
 };
 
@@ -500,17 +331,17 @@ const useMockQueryClient = () => {
 
   const queries = {
     user: userQueries.get.queryKey,
-    tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
-    setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
-    funFacts: dashboardQueries.funFacts.queryKey,
-    tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
+    // tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
+    // setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
+    // funFacts: dashboardQueries.funFacts.queryKey,
+    // tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
   } as const;
 
   queryClient.setQueryData(queries.user, userMock);
-  queryClient.setQueryData(queries.tilesToSetsCount, tilesToSetsCountMock);
-  queryClient.setQueryData(queries.setsHeatMap, tilesSetsHeatMapMock);
-  queryClient.setQueryData(queries.funFacts, dashboardFunFactsMock);
-  queryClient.setQueryData(queries.tilesToTagsCount, tilesToTagsCount);
+  // queryClient.setQueryData(queries.tilesToSetsCount, tilesToSetsCountMock);
+  // queryClient.setQueryData(queries.setsHeatMap, tilesSetsHeatMapMock);
+  // queryClient.setQueryData(queries.funFacts, dashboardFunFactsMock);
+  // queryClient.setQueryData(queries.tilesToTagsCount, tilesToTagsCount);
 
   queryClient.setDefaultOptions({
     queries: {

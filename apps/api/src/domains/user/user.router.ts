@@ -3,13 +3,12 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { setCookie } from "hono/cookie";
 import { userService } from "~/domains/user/user.service";
-import { sessionCookie } from "~/domains//session/session.cookies";
+import { sessionCookie } from "~/domains/session/session.cookies";
+import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
 import type { Ctx } from "~/index";
 
-export const userRouter = new Hono<Ctx>().post(
-  "/",
-  zValidator("json", signUpSchema),
-  async (c) => {
+export const userRouter = new Hono<Ctx>()
+  .post("/", zValidator("json", signUpSchema), async (c) => {
     const input = c.req.valid("json");
 
     const session = await userService.signUp(input, c.var.db, c.var.email);
@@ -22,5 +21,9 @@ export const userRouter = new Hono<Ctx>().post(
     );
 
     return c.json(undefined, 200);
-  },
-);
+  })
+  .get("/me", requireAuthMiddleware, async (c) => {
+    const user = await userService.selectClient(c.var.user.id, c.var.db);
+
+    return c.json(user, 200);
+  });

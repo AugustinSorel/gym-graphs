@@ -8,237 +8,39 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as teamsTeamsRouteImport } from './routes/(teams)/teams'
-import { Route as settingsSettingsRouteImport } from './routes/(settings)/settings'
-import { Route as dashboardDashboardRouteImport } from './routes/(dashboard)/dashboard'
-import { Route as authLayoutRouteImport } from './routes/(auth)/_layout'
-import { Route as teamsTeamsTeamIdRouteImport } from './routes/(teams)/teams_.$teamId'
-import { Route as exercisesExercisesExerciseIdRouteImport } from './routes/(exercises)/exercises.$exerciseId'
-import { Route as authLayoutVerifyEmailRouteImport } from './routes/(auth)/_layout.verify-email'
-import { Route as authLayoutSignUpRouteImport } from './routes/(auth)/_layout.sign-up'
-import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.sign-in'
-import { Route as authLayoutResetPasswordRouteImport } from './routes/(auth)/_layout.reset-password'
-import { Route as teamsTeamsTeamIdSettingsRouteImport } from './routes/(teams)/teams_.$teamId_.settings'
-import { Route as exercisesExercisesExerciseIdSettingsRouteImport } from './routes/(exercises)/exercises_.$exerciseId.settings'
-import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
-import { Route as invitationsInvitationsTeamsTokenAcceptRouteImport } from './routes/(invitations)/invitations.teams.$token.accept'
 
-const authRouteImport = createFileRoute('/(auth)')()
-
-const authRoute = authRouteImport.update({
-  id: '/(auth)',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const teamsTeamsRoute = teamsTeamsRouteImport.update({
-  id: '/(teams)/teams',
-  path: '/teams',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const settingsSettingsRoute = settingsSettingsRouteImport.update({
-  id: '/(settings)/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const dashboardDashboardRoute = dashboardDashboardRouteImport.update({
-  id: '/(dashboard)/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authLayoutRoute = authLayoutRouteImport.update({
-  id: '/_layout',
-  getParentRoute: () => authRoute,
-} as any)
-const teamsTeamsTeamIdRoute = teamsTeamsTeamIdRouteImport.update({
-  id: '/(teams)/teams_/$teamId',
-  path: '/teams/$teamId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const exercisesExercisesExerciseIdRoute =
-  exercisesExercisesExerciseIdRouteImport.update({
-    id: '/(exercises)/exercises/$exerciseId',
-    path: '/exercises/$exerciseId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const authLayoutVerifyEmailRoute = authLayoutVerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => authLayoutRoute,
-} as any)
-const authLayoutSignUpRoute = authLayoutSignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => authLayoutRoute,
-} as any)
-const authLayoutSignInRoute = authLayoutSignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => authLayoutRoute,
-} as any)
-const authLayoutResetPasswordRoute = authLayoutResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => authLayoutRoute,
-} as any)
-const teamsTeamsTeamIdSettingsRoute =
-  teamsTeamsTeamIdSettingsRouteImport.update({
-    id: '/(teams)/teams_/$teamId_/settings',
-    path: '/teams/$teamId/settings',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const exercisesExercisesExerciseIdSettingsRoute =
-  exercisesExercisesExerciseIdSettingsRouteImport.update({
-    id: '/(exercises)/exercises_/$exerciseId/settings',
-    path: '/exercises/$exerciseId/settings',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const authLayoutResetPasswordTokenRoute =
-  authLayoutResetPasswordTokenRouteImport.update({
-    id: '/reset-password_/$token',
-    path: '/reset-password/$token',
-    getParentRoute: () => authLayoutRoute,
-  } as any)
-const invitationsInvitationsTeamsTokenAcceptRoute =
-  invitationsInvitationsTeamsTokenAcceptRouteImport.update({
-    id: '/(invitations)/invitations/teams/$token/accept',
-    path: '/invitations/teams/$token/accept',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof authLayoutRouteWithChildren
-  '/dashboard': typeof dashboardDashboardRoute
-  '/settings': typeof settingsSettingsRoute
-  '/teams': typeof teamsTeamsRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/teams/$teamId': typeof teamsTeamsTeamIdRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
-  '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
-  '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
-  '/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
+  '/': typeof IndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof authLayoutRouteWithChildren
-  '/dashboard': typeof dashboardDashboardRoute
-  '/settings': typeof settingsSettingsRoute
-  '/teams': typeof teamsTeamsRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/teams/$teamId': typeof teamsTeamsTeamIdRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
-  '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
-  '/teams/$teamId/settings': typeof teamsTeamsTeamIdSettingsRoute
-  '/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
+  '/': typeof IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteWithChildren
-  '/(auth)/_layout': typeof authLayoutRouteWithChildren
-  '/(dashboard)/dashboard': typeof dashboardDashboardRoute
-  '/(settings)/settings': typeof settingsSettingsRoute
-  '/(teams)/teams': typeof teamsTeamsRoute
-  '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
-  '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
-  '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
-  '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
-  '/(exercises)/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/(teams)/teams_/$teamId': typeof teamsTeamsTeamIdRoute
-  '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
-  '/(exercises)/exercises_/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
-  '/(teams)/teams_/$teamId_/settings': typeof teamsTeamsTeamIdSettingsRoute
-  '/(invitations)/invitations/teams/$token/accept': typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/settings'
-    | '/teams'
-    | '/reset-password'
-    | '/sign-in'
-    | '/sign-up'
-    | '/verify-email'
-    | '/exercises/$exerciseId'
-    | '/teams/$teamId'
-    | '/reset-password/$token'
-    | '/exercises/$exerciseId/settings'
-    | '/teams/$teamId/settings'
-    | '/invitations/teams/$token/accept'
+  fullPaths: '/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/dashboard'
-    | '/settings'
-    | '/teams'
-    | '/reset-password'
-    | '/sign-in'
-    | '/sign-up'
-    | '/verify-email'
-    | '/exercises/$exerciseId'
-    | '/teams/$teamId'
-    | '/reset-password/$token'
-    | '/exercises/$exerciseId/settings'
-    | '/teams/$teamId/settings'
-    | '/invitations/teams/$token/accept'
-  id:
-    | '__root__'
-    | '/'
-    | '/(auth)'
-    | '/(auth)/_layout'
-    | '/(dashboard)/dashboard'
-    | '/(settings)/settings'
-    | '/(teams)/teams'
-    | '/(auth)/_layout/reset-password'
-    | '/(auth)/_layout/sign-in'
-    | '/(auth)/_layout/sign-up'
-    | '/(auth)/_layout/verify-email'
-    | '/(exercises)/exercises/$exerciseId'
-    | '/(teams)/teams_/$teamId'
-    | '/(auth)/_layout/reset-password_/$token'
-    | '/(exercises)/exercises_/$exerciseId/settings'
-    | '/(teams)/teams_/$teamId_/settings'
-    | '/(invitations)/invitations/teams/$token/accept'
+  to: '/'
+  id: '__root__' | '/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRoute: typeof authRouteWithChildren
-  dashboardDashboardRoute: typeof dashboardDashboardRoute
-  settingsSettingsRoute: typeof settingsSettingsRoute
-  teamsTeamsRoute: typeof teamsTeamsRoute
-  exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
-  teamsTeamsTeamIdRoute: typeof teamsTeamsTeamIdRoute
-  exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
-  teamsTeamsTeamIdSettingsRoute: typeof teamsTeamsTeamIdSettingsRoute
-  invitationsInvitationsTeamsTokenAcceptRoute: typeof invitationsInvitationsTeamsTokenAcceptRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -246,150 +48,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(teams)/teams': {
-      id: '/(teams)/teams'
-      path: '/teams'
-      fullPath: '/teams'
-      preLoaderRoute: typeof teamsTeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(settings)/settings': {
-      id: '/(settings)/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof settingsSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(dashboard)/dashboard': {
-      id: '/(dashboard)/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof dashboardDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/_layout': {
-      id: '/(auth)/_layout'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authLayoutRouteImport
-      parentRoute: typeof authRoute
-    }
-    '/(teams)/teams_/$teamId': {
-      id: '/(teams)/teams_/$teamId'
-      path: '/teams/$teamId'
-      fullPath: '/teams/$teamId'
-      preLoaderRoute: typeof teamsTeamsTeamIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(exercises)/exercises/$exerciseId': {
-      id: '/(exercises)/exercises/$exerciseId'
-      path: '/exercises/$exerciseId'
-      fullPath: '/exercises/$exerciseId'
-      preLoaderRoute: typeof exercisesExercisesExerciseIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/_layout/verify-email': {
-      id: '/(auth)/_layout/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof authLayoutVerifyEmailRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/_layout/sign-up': {
-      id: '/(auth)/_layout/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof authLayoutSignUpRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/_layout/sign-in': {
-      id: '/(auth)/_layout/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof authLayoutSignInRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/_layout/reset-password': {
-      id: '/(auth)/_layout/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof authLayoutResetPasswordRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(teams)/teams_/$teamId_/settings': {
-      id: '/(teams)/teams_/$teamId_/settings'
-      path: '/teams/$teamId/settings'
-      fullPath: '/teams/$teamId/settings'
-      preLoaderRoute: typeof teamsTeamsTeamIdSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(exercises)/exercises_/$exerciseId/settings': {
-      id: '/(exercises)/exercises_/$exerciseId/settings'
-      path: '/exercises/$exerciseId/settings'
-      fullPath: '/exercises/$exerciseId/settings'
-      preLoaderRoute: typeof exercisesExercisesExerciseIdSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/_layout/reset-password_/$token': {
-      id: '/(auth)/_layout/reset-password_/$token'
-      path: '/reset-password/$token'
-      fullPath: '/reset-password/$token'
-      preLoaderRoute: typeof authLayoutResetPasswordTokenRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(invitations)/invitations/teams/$token/accept': {
-      id: '/(invitations)/invitations/teams/$token/accept'
-      path: '/invitations/teams/$token/accept'
-      fullPath: '/invitations/teams/$token/accept'
-      preLoaderRoute: typeof invitationsInvitationsTeamsTokenAcceptRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
-interface authLayoutRouteChildren {
-  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
-  authLayoutSignInRoute: typeof authLayoutSignInRoute
-  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
-  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
-  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
-}
-
-const authLayoutRouteChildren: authLayoutRouteChildren = {
-  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
-  authLayoutSignInRoute: authLayoutSignInRoute,
-  authLayoutSignUpRoute: authLayoutSignUpRoute,
-  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
-  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
-}
-
-const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
-  authLayoutRouteChildren,
-)
-
-interface authRouteChildren {
-  authLayoutRoute: typeof authLayoutRouteWithChildren
-}
-
-const authRouteChildren: authRouteChildren = {
-  authLayoutRoute: authLayoutRouteWithChildren,
-}
-
-const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRoute: authRouteWithChildren,
-  dashboardDashboardRoute: dashboardDashboardRoute,
-  settingsSettingsRoute: settingsSettingsRoute,
-  teamsTeamsRoute: teamsTeamsRoute,
-  exercisesExercisesExerciseIdRoute: exercisesExercisesExerciseIdRoute,
-  teamsTeamsTeamIdRoute: teamsTeamsTeamIdRoute,
-  exercisesExercisesExerciseIdSettingsRoute:
-    exercisesExercisesExerciseIdSettingsRoute,
-  teamsTeamsTeamIdSettingsRoute: teamsTeamsTeamIdSettingsRoute,
-  invitationsInvitationsTeamsTokenAcceptRoute:
-    invitationsInvitationsTeamsTokenAcceptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
