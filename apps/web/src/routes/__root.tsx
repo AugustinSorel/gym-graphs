@@ -10,6 +10,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { RouterCtx } from "~/router";
+import { ThemeProvider } from "~/theme/theme.context";
 
 export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({
@@ -40,15 +41,17 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <ThemeProvider>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </ThemeProvider>
   );
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
         <AnalyticScript />
