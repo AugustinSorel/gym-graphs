@@ -24,10 +24,7 @@ export const parseJsonResponse = async <T extends ClientResponse<any>>(
     return null;
   }
 
-  return z
-    .string()
-    .transform((text) => JSON.parse(text))
-    .catch(null);
+  return JSON.parse(text) as T extends ClientResponse<infer U> ? U : never;
 };
 
 const jsonMessageStringSchema = z

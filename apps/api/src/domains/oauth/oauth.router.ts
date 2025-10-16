@@ -38,11 +38,11 @@ export const oauthRouter = new Hono<Ctx>()
         oauthCookies.github.options,
       );
 
-      return c.redirect(url);
+      return c.json(url.toString(), 200);
     },
   )
-  .post(
-    "/github/callback",
+  .get(
+    "/callback/github",
     zValidator("query", githubOAuthCallbackQuerySchema),
     async (c) => {
       try {
@@ -67,7 +67,12 @@ export const oauthRouter = new Hono<Ctx>()
           sessionCookie.optionsForExpiry(session.session.expiresAt),
         );
 
-        return c.redirect(query.redirectUri ? query.redirectUri : "/dashboard");
+        return c.redirect(
+          query.redirectUri
+            ? query.redirectUri
+            : //FIX
+              "http://localhost:3000/dashboard",
+        );
       } catch (e) {
         const errorMsg =
           e instanceof Error ? e.message : "something went wrong";

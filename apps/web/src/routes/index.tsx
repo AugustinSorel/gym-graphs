@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { HeroBackground } from "~/ui/hero-background";
@@ -10,6 +10,11 @@ import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
+  beforeLoad: ({ context }) => {
+    if (context.user) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 const Home = () => {
