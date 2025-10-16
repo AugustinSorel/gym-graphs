@@ -5,6 +5,7 @@ import { getCookie } from "@tanstack/react-start/server";
 
 export const fetchSessionActions = createServerFn({ method: "GET" }).handler(
   async () => {
+    //FIX
     const session = getCookie("session");
 
     const req = api.sessions.me.$get(undefined, {

@@ -41,7 +41,7 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
   }),
   component: RootComponent,
   beforeLoad: async ({ context }) => {
-    const session = await fetchSessionActions();
+    const session = await fetchSessionActions().catch(() => null);
 
     if (!session) {
       return {

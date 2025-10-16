@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppIcon } from "~/ui/app-icon";
 import { HeroBackground } from "~/ui/hero-background";
 import { z } from "zod";
@@ -10,6 +10,11 @@ export const Route = createFileRoute("/(auth)/_layout")({
     callbackUrl: z.string().optional(),
   }),
   component: () => RouteComponent(),
+  beforeLoad: ({ context }) => {
+    if (context.user) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 const RouteComponent = () => {

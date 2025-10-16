@@ -9,6 +9,7 @@ import { emailVerificationRouter } from "~/domains/email-verification/email-veri
 import { passwordResetRouter } from "~/domains/password-reset/password-reset.router";
 import { oauthRouter } from "~/domains/oauth/oauth.router";
 import { userRouter } from "~/domains/user/user.router";
+import { cors } from "hono/cors";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
@@ -23,6 +24,14 @@ export type Ctx = Readonly<{
 
 const app = new Hono<Ctx>()
   .basePath("/api")
+  .use(
+    "*",
+    cors({
+      //FIX
+      origin: "http://localhost:3000",
+      credentials: true,
+    }),
+  )
   .use(injectDbMiddleware)
   .use(injectEmailMiddleware)
   .use(injectSessionMiddleware)
