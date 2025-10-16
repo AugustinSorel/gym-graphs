@@ -1,5 +1,5 @@
 import { api } from "~/libs/api";
-import { tagsMock } from "~/tag/tag.mock";
+import { tagsMock } from "~/domains/tag/tag.mock";
 import type { InferResponseType } from "hono";
 
 export const userMock: Readonly<InferResponseType<typeof api.users.me.$get>> = {

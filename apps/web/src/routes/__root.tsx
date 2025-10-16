@@ -8,10 +8,10 @@ import {
 } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "~/theme/theme.context";
+import { ThemeProvider } from "~/domains/theme/theme.context";
+import { userQueries } from "~/domains/user/user.queries";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
-import { userQueries } from "~/user/user.queries";
 
 export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({

@@ -19,7 +19,7 @@ const get = queryOptions({
     .client(async () => {
       const req = api.users.me.$get(undefined);
 
-      return parseResponse(req).catch(() => null);
+      return parseResponse(req);
     }),
 });
 

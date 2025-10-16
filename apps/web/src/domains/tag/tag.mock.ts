@@ -1,6 +1,6 @@
 import type { Tag } from "@gym-graphs/api/db";
 
-export const tagsMock: Array<Tag> = [
+export const tagsMock: ReadonlyArray<Tag> = [
   {
     id: 172,
     userId: 1,
