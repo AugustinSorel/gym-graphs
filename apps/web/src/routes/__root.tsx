@@ -3,14 +3,15 @@ import appCss from "~/styles/styles.css?url";
 import type { ReactNode } from "react";
 import {
   Outlet,
-  createRootRoute,
   HeadContent,
   Scripts,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import type { RouterCtx } from "~/router";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({
     meta: [
       {
