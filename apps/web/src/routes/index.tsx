@@ -7,6 +7,7 @@ import { userQueries } from "~/user/user.queries";
 import { userMock } from "~/user/user.mock";
 import { ArrowRightIcon } from "~/ui/icons";
 import type { ComponentProps } from "react";
+import { useUser } from "~/user/hooks/use-user";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -27,6 +28,10 @@ const Home = () => {
 };
 
 const HeroSection = () => {
+  const user = useUser();
+
+  console.log(user.data);
+
   return (
     <HeroContainer>
       <HeroContent>
