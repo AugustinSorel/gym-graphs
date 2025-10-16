@@ -8,8 +8,10 @@ import {
 } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "~/domains/theme/theme.context";
+import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
+import { fetchSessionActions } from "~/domains/session/session.actions";
+import { HeaderPrivate, HeaderPublic } from "~/header";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
 
@@ -39,10 +41,18 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
   }),
   component: RootComponent,
   beforeLoad: async ({ context }) => {
-    const user = await context.queryClient.ensureQueryData(userQueries.get);
+    const session = await fetchSessionActions();
+
+    if (!session) {
+      return {
+        user: null,
+      };
+    }
+
+    await context.queryClient.ensureQueryData(userQueries.get);
 
     return {
-      user,
+      user: session.user,
     };
   },
   loader: ({ context }) => {
@@ -63,6 +73,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<PropsWithChildren>) {
+  const loaderData = Route.useLoaderData();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -70,7 +82,14 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body>
+        {loaderData.user?.emailVerifiedAt ? (
+          <HeaderPrivate />
+        ) : (
+          <HeaderPublic />
+        )}
+
         {children}
+
         <Scripts />
         <TanStackRouterDevtools position="bottom-right" />
         <ReactQueryDevtools buttonPosition="bottom-left" />

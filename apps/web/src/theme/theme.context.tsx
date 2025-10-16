@@ -1,7 +1,7 @@
 import { ScriptOnce } from "@tanstack/react-router";
 import { createContext, use, useEffect, useState } from "react";
-import { themeSchema } from "~/domains/theme/theme.schemas";
-import type { Theme } from "~/domains/theme/theme.schemas";
+import { themeSchema } from "~/theme/theme.schemas";
+import type { Theme } from "~/theme/theme.schemas";
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
 const themeKey = "theme";

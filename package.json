@@ -5,6 +5,7 @@
   "main": "index.js",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
+    "dev": "pnpm -r --parallel dev",
     "web": "pnpm --filter @gym-graphs/web",
     "api": "pnpm --filter @gym-graphs/api",
     "schemas": "pnpm --filter @gym-graphs/schemas"
