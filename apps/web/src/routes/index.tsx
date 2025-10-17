@@ -340,7 +340,7 @@ const useMockQueryClient = () => {
     // setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
     // funFacts: dashboardQueries.funFacts.queryKey,
     // tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
-  } as const;
+  };
 
   queryClient.setQueryData(queries.user, userMock);
   // queryClient.setQueryData(queries.tilesToSetsCount, tilesToSetsCountMock);
