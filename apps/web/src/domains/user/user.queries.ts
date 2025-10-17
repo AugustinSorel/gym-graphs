@@ -3,13 +3,13 @@ import { createIsomorphicFn } from "@tanstack/react-start";
 import { getCookie } from "@tanstack/react-start/server";
 import { parseResponse } from "hono/client";
 import { api } from "~/libs/api";
+import { constant } from "@gym-graphs/constants";
 
 const get = queryOptions({
   queryKey: ["user"],
   queryFn: createIsomorphicFn()
     .server(async () => {
-      //FIX
-      const session = getCookie("session");
+      const session = getCookie(constant.cookie.session);
 
       const req = api.users.me.$get(undefined, {
         headers: { Cookie: `session=${session}` },

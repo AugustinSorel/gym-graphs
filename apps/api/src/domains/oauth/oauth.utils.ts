@@ -1,3 +1,4 @@
+import { constant } from "@gym-graphs/constants";
 import {
   githubGetUserEmailResponseSchema,
   githubGetUserResponseSchema,
@@ -30,12 +31,9 @@ export const generateGithubOAuthUrl = (
   }
 
   if (redirectUri) {
-    //FIX:
-    const appUrl = "http://localhost:5000";
-
     url.searchParams.set(
       "redirect_uri",
-      `${appUrl}/api/oauth/github/callback?redirect_uri=${redirectUri}`,
+      `${constant.url.api}/api/oauth/github/callback?redirect_uri=${redirectUri}`,
     );
   }
 

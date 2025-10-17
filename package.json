@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "web": "pnpm --filter @gym-graphs/web",
     "api": "pnpm --filter @gym-graphs/api",
-    "schemas": "pnpm --filter @gym-graphs/schemas"
+    "schemas": "pnpm --filter @gym-graphs/schemas",
+    "constants": "pnpm --filter @gym-graphs/constants"
   },
   "keywords": [],
   "author": "",

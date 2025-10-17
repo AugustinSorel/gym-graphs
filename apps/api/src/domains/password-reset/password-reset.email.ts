@@ -1,10 +1,8 @@
+import { constant } from "@gym-graphs/constants";
 import type { PasswordResetToken } from "~/db/db.schemas";
 
 export const passwordResetEmailBody = (token: PasswordResetToken["token"]) => {
-  //FIX
-  const base = "http://localhost:3000";
-
-  const url = `${base}/reset-password/${token}`;
+  const url = `${constant.url.web}/reset-password/${token}`;
 
   return `
       <!doctype html>

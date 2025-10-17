@@ -10,6 +10,7 @@ import { passwordResetRouter } from "~/domains/password-reset/password-reset.rou
 import { oauthRouter } from "~/domains/oauth/oauth.router";
 import { userRouter } from "~/domains/user/user.router";
 import { cors } from "hono/cors";
+import { constant } from "@gym-graphs/constants";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
@@ -27,8 +28,7 @@ const app = new Hono<Ctx>()
   .use(
     "*",
     cors({
-      //FIX
-      origin: "http://localhost:3000",
+      origin: constant.url.web,
       credentials: true,
     }),
   )

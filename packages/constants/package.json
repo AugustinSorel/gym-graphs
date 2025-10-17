@@ -1,0 +1,20 @@
+{
+  "name": "@gym-graphs/constants",
+  "module": "src/index.ts",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
+}

@@ -11,6 +11,7 @@ import { oauthService } from "./oauth.service";
 import { githubOAuthCallbackQuerySchema } from "@gym-graphs/schemas/oauth";
 import { sessionCookie } from "~/domains/session/session.cookies";
 import { HTTPException } from "hono/http-exception";
+import { constant } from "@gym-graphs/constants";
 import type { Ctx } from "~/index";
 
 export const oauthRouter = new Hono<Ctx>()
@@ -70,17 +71,14 @@ export const oauthRouter = new Hono<Ctx>()
         return c.redirect(
           query.redirectUri
             ? query.redirectUri
-            : //FIX
-              "http://localhost:3000/dashboard",
+            : `${constant.url.web}/dashboard`,
         );
       } catch (e) {
         const errorMsg =
           e instanceof Error ? e.message : "something went wrong";
 
-        //FIX:
-        const base = "http://localhost:3000";
         return c.redirect(
-          `${base}/sign-up?error=${encodeURIComponent(errorMsg)}`,
+          `${constant.url.web}/sign-up?error=${encodeURIComponent(errorMsg)}`,
         );
       }
     },

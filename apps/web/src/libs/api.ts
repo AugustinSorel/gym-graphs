@@ -1,9 +1,10 @@
-import { ClientResponse, hc } from "hono/client";
-import type { Api } from "@gym-graphs/api";
+import { hc } from "hono/client";
 import z from "zod";
+import { constant } from "@gym-graphs/constants";
+import type { Api } from "@gym-graphs/api";
+import type { ClientResponse } from "hono/client";
 
-//FIX:this
-export const api = hc<Api>("http://localhost:5000", {
+export const api = hc<Api>(constant.url.api, {
   init: { credentials: "include" },
 }).api;
 
