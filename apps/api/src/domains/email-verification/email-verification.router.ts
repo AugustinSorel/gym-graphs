@@ -11,7 +11,7 @@ export const emailVerificationRouter = new Hono<Ctx>()
   .post("/", requireAuthMiddleware, async (c) => {
     await emailVerificationService.create(c.var.user, c.var.db, c.var.email);
 
-    return c.json(undefined, 200);
+    return c.json(null, 200);
   })
   .post(
     "/verify",
@@ -33,6 +33,6 @@ export const emailVerificationRouter = new Hono<Ctx>()
         sessionCookie.optionsForExpiry(session.session.expiresAt),
       );
 
-      return c.json(undefined, 200);
+      return c.json(null, 200);
     },
   );

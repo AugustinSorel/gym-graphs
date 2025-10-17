@@ -16,7 +16,7 @@ export const passwordResetRouter = new Hono<Ctx>()
 
       await passwordResetService.create(input, c.var.db, c.var.email);
 
-      return c.json(undefined, 200);
+      return c.json(null, 200);
     },
   )
   .post("/reset", zValidator("json", passwordResetResetSchema), async (c) => {
@@ -31,5 +31,5 @@ export const passwordResetRouter = new Hono<Ctx>()
       sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
 
-    c.json(undefined, 200);
+    c.json(null, 200);
   });

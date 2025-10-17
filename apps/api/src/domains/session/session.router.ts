@@ -20,7 +20,7 @@ export const sessionRouter = new Hono<Ctx>()
       sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
 
-    return c.json(undefined, 200);
+    return c.json(null, 200);
   })
   .get("/me", requireAuthMiddleware, (c) => {
     return c.json(c.var.session, 200);
@@ -30,5 +30,5 @@ export const sessionRouter = new Hono<Ctx>()
 
     setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
 
-    return c.json(undefined, 200);
+    return c.json(null, 200);
   });

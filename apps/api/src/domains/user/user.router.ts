@@ -20,7 +20,7 @@ export const userRouter = new Hono<Ctx>()
       sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
 
-    return c.json(undefined, 200);
+    return c.json(null, 200);
   })
   .get("/me", requireAuthMiddleware, async (c) => {
     const user = await userService.selectClient(c.var.user.id, c.var.db);
