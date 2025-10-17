@@ -67,7 +67,22 @@ export const selectClient = async (userId: User["id"], db: Db) => {
   return user;
 };
 
+const updateWeightUnit = async (
+  weightUnit: User["weightUnit"],
+  userId: User["id"],
+  db: Db,
+) => {
+  const user = await userRepo.updateWeightUnit(weightUnit, userId, db);
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
+
+  return user;
+};
+
 export const userService = {
   signUp,
   selectClient,
+  updateWeightUnit,
 };

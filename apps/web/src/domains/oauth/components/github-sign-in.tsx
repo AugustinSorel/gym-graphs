@@ -6,6 +6,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
 import { api, parseJsonResponse } from "~/libs/api";
+import type { InferRequestType } from "hono";
 
 const routeApi = getRouteApi("/(auth)/_layout");
 
@@ -18,7 +19,7 @@ export const GithubSignIn = () => {
       <Button
         className="mt-3 w-full bg-black font-semibold hover:bg-black/80"
         onClick={() => {
-          githubSignIn.mutate(search.callbackUrl);
+          githubSignIn.mutate({ callbackUrl: search.callbackUrl });
         }}
       >
         <GithubIcon />
@@ -41,12 +42,10 @@ const useGithubSignIn = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
   const githubSignIn = useMutation({
-    mutationFn: async (callbackUrl: string | undefined) => {
-      const req = api.oauth.github.$post({
-        query: {
-          callbackUrl,
-        },
-      });
+    mutationFn: async (
+      query: InferRequestType<typeof api.oauth.github.$post>["query"],
+    ) => {
+      const req = api.oauth.github.$post({ query });
 
       return parseJsonResponse(req);
     },

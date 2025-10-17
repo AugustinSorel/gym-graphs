@@ -185,7 +185,7 @@ const UserProfileDropdown = () => {
               const weightUnit =
                 userSchema.shape.weightUnit.parse(unsafeWeightUnit);
 
-              updateWeightUnit.mutate({ data: { weightUnit } });
+              updateWeightUnit.mutate({ weightUnit });
             }}
           >
             {userSchema.shape.weightUnit.options.map((weightUnit) => (

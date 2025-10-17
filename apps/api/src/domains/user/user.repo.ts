@@ -131,6 +131,20 @@ export const selectClient = async (userId: User["id"], db: Db) => {
   });
 };
 
+const updateWeightUnit = async (
+  weightUnit: User["weightUnit"],
+  userId: User["id"],
+  db: Db,
+) => {
+  const [user] = await db
+    .update(userTable)
+    .set({ weightUnit })
+    .where(eq(userTable.id, userId))
+    .returning();
+
+  return user;
+};
+
 export const userRepo = {
   createWithEmailAndPassword,
   createWithEmail,
@@ -138,4 +152,5 @@ export const userRepo = {
   selectClient,
   updateEmailVerifiedAt,
   updatePasswordAndSalt,
+  updateWeightUnit,
 };
