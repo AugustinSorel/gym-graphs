@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { EmailSignUpForm } from "~/domains/user/components/email-sign-up-form";
-// import { DefaultErrorFallback } from "~/domains/components/default-error-fallback";
 import { GithubSignIn } from "~/domains/oauth/components/github-sign-in";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
