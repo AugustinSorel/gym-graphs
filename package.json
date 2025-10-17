@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "tsc --build --noemit",
     "dev": "pnpm -r --parallel dev",
     "web": "pnpm --filter @gym-graphs/web",
     "api": "pnpm --filter @gym-graphs/api",
