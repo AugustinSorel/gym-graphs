@@ -1,12 +1,10 @@
+import { constant } from "@gym-graphs/constants";
 import type { EmailVerificationCode } from "~/db/db.schemas";
 
 export const emailVerificationEmailBody = (
   code: EmailVerificationCode["code"],
 ) => {
-  //TODO: replace this
-  const baseUrl = "http://localhost:3000";
-
-  const url = `${baseUrl}/verify-email`;
+  const url = `${constant.url.web}/verify-email`;
 
   return `
       <!doctype html>
