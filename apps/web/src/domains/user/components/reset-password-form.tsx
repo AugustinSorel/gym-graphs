@@ -1,11 +1,7 @@
-import { Input } from "~/ui/input";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { useMutation } from "@tanstack/react-query";
-import { Spinner } from "~/ui/spinner";
-import { useTransition } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Button } from "~/ui/button";
 import {
   Form,
   FormAlert,
@@ -15,32 +11,41 @@ import {
   FormLabel,
   FormMessage,
 } from "~/ui/form";
-import { Button } from "~/ui/button";
-import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono";
+import { Input } from "~/ui/input";
+import { Spinner } from "~/ui/spinner";
+import { userSchema } from "@gym-graphs/schemas/user";
+import { z } from "zod";
+import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
+import { InferRequestType } from "hono";
+import { api, parseJsonResponse } from "~/libs/api";
 
-export const EmailSignUpForm = () => {
-  const navigate = routeApi.useNavigate();
+export const ResetPasswordForm = () => {
+  const form = useResetPasswordForm();
+  const resetPassword = useResetPassword();
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
-  const form = useEmailSignUpForm();
-  const signUp = useSignUp();
+  const navigate = routeApi.useNavigate();
+  const params = routeApi.useParams();
 
-  const onSubmit = async (values: SignUpFormSchema) => {
-    await signUp.mutateAsync(values, {
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          await navigate({
-            to: "/verify-email",
-            search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+  const onSubmit = async (data: ResetPasswordForm) => {
+    await resetPassword.mutateAsync(
+      {
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        token: params.token,
+      },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({ to: "/dashboard" });
           });
-        });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -51,31 +56,17 @@ export const EmailSignUpForm = () => {
       >
         <FormField
           control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email:</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="john@example.com"
-                  type="email"
-                  autoFocus
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password:</FormLabel>
               <FormControl>
-                <Input placeholder="******" type="password" {...field} />
+                <Input
+                  autoFocus
+                  placeholder="******"
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,7 +94,7 @@ export const EmailSignUpForm = () => {
           disabled={form.formState.isSubmitting || isRedirectPending}
           className="font-semibold"
         >
-          <span>sign up</span>
+          <span>reset password</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
         </Button>
       </form>
@@ -111,11 +102,10 @@ export const EmailSignUpForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-up");
+const routeApi = getRouteApi("/(auth)/_layout/reset-password_/$token");
 
-const signUpFormSchema = z
+const resetPasswordFormSchema = z
   .object({
-    email: userSchema.shape.email,
     password: userSchema.shape.password,
     confirmPassword: userSchema.shape.password,
   })
@@ -123,25 +113,28 @@ const signUpFormSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
-type SignUpFormSchema = Readonly<z.infer<typeof signUpFormSchema>>;
+type ResetPasswordForm = Readonly<z.infer<typeof resetPasswordFormSchema>>;
 
-const useEmailSignUpForm = () => {
-  return useForm<SignUpFormSchema>({
-    resolver: zodResolver(signUpFormSchema),
+const useResetPasswordForm = () => {
+  return useForm<ResetPasswordForm>({
+    resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
-      email: "",
       password: "",
       confirmPassword: "",
     },
   });
 };
 
-const useSignUp = () => {
+const useResetPassword = () => {
   return useMutation({
     mutationFn: async (
-      json: InferRequestType<typeof api.users.$post>["json"],
+      json: InferRequestType<
+        (typeof api)["password-resets"]["reset"]["$post"]
+      >["json"],
     ) => {
-      const req = api.users.$post({ json });
+      const req = api["password-resets"].reset.$post({
+        json,
+      });
 
       return parseJsonResponse(req);
     },

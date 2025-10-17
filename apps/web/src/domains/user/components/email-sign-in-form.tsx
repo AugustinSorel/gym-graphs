@@ -1,11 +1,9 @@
-import { Input } from "~/ui/input";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { useMutation } from "@tanstack/react-query";
-import { Spinner } from "~/ui/spinner";
-import { useTransition } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { getRouteApi, Link } from "@tanstack/react-router";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "~/ui/button";
 import {
   Form,
   FormAlert,
@@ -15,26 +13,30 @@ import {
   FormLabel,
   FormMessage,
 } from "~/ui/form";
-import { Button } from "~/ui/button";
+import { Input } from "~/ui/input";
+import { Spinner } from "~/ui/spinner";
+import { userSchema } from "@gym-graphs/schemas/user";
+import type { z } from "zod";
 import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono";
-import { getRouteApi } from "@tanstack/react-router";
+import { InferRequestType } from "hono";
 
-export const EmailSignUpForm = () => {
+export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
-  const form = useEmailSignUpForm();
-  const signUp = useSignUp();
+  const form = useEmailSignInForm();
+  const signIn = useSignIn();
 
-  const onSubmit = async (values: SignUpFormSchema) => {
-    await signUp.mutateAsync(values, {
+  const onSubmit = async (values: SignInSchema) => {
+    await signIn.mutateAsync(values, {
       onSuccess: () => {
         startRedirectTransition(async () => {
-          await navigate({
-            to: "/verify-email",
-            search: (prev) => ({ callbackUrl: prev.callbackUrl }),
-          });
+          if (search.callbackUrl) {
+            await navigate({ to: search.callbackUrl });
+          } else {
+            await navigate({ to: "/dashboard" });
+          }
         });
       },
       onError: (error) => {
@@ -54,7 +56,7 @@ export const EmailSignUpForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email:</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="john@example.com"
@@ -73,21 +75,16 @@ export const EmailSignUpForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password:</FormLabel>
-              <FormControl>
-                <Input placeholder="******" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password:</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>
+                <Button
+                  asChild
+                  variant="link"
+                  className="text-primary h-auto p-0"
+                >
+                  <Link to="/reset-password">reset password</Link>
+                </Button>
+              </div>
               <FormControl>
                 <Input placeholder="******" type="password" {...field} />
               </FormControl>
@@ -103,7 +100,7 @@ export const EmailSignUpForm = () => {
           disabled={form.formState.isSubmitting || isRedirectPending}
           className="font-semibold"
         >
-          <span>sign up</span>
+          <span>sign in</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
         </Button>
       </form>
@@ -111,37 +108,29 @@ export const EmailSignUpForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-up");
+const routeApi = getRouteApi("/(auth)/_layout/sign-in");
 
-const signUpFormSchema = z
-  .object({
-    email: userSchema.shape.email,
-    password: userSchema.shape.password,
-    confirmPassword: userSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-type SignUpFormSchema = Readonly<z.infer<typeof signUpFormSchema>>;
+const signInSchema = userSchema.pick({ email: true, password: true });
+type SignInSchema = Readonly<z.infer<typeof signInSchema>>;
 
-const useEmailSignUpForm = () => {
-  return useForm<SignUpFormSchema>({
-    resolver: zodResolver(signUpFormSchema),
+const useEmailSignInForm = () => {
+  return useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 };
 
-const useSignUp = () => {
+const useSignIn = () => {
   return useMutation({
     mutationFn: async (
-      json: InferRequestType<typeof api.users.$post>["json"],
+      json: InferRequestType<typeof api.sessions.$post>["json"],
     ) => {
-      const req = api.users.$post({ json });
+      const req = api.sessions.$post({
+        json,
+      });
 
       return parseJsonResponse(req);
     },

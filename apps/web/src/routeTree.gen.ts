@@ -16,8 +16,11 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as authLayoutRouteImport } from './routes/(auth)/_layout'
+import { Route as authLayoutVerifyEmailRouteImport } from './routes/(auth)/_layout.verify-email'
 import { Route as authLayoutSignUpRouteImport } from './routes/(auth)/_layout.sign-up'
 import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.sign-in'
+import { Route as authLayoutResetPasswordRouteImport } from './routes/(auth)/_layout.reset-password'
+import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
 
 const authRouteImport = createFileRoute('/(auth)')()
 
@@ -49,6 +52,11 @@ const authLayoutRoute = authLayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => authRoute,
 } as any)
+const authLayoutVerifyEmailRoute = authLayoutVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => authLayoutRoute,
+} as any)
 const authLayoutSignUpRoute = authLayoutSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -59,22 +67,39 @@ const authLayoutSignInRoute = authLayoutSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => authLayoutRoute,
 } as any)
+const authLayoutResetPasswordRoute = authLayoutResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+const authLayoutResetPasswordTokenRoute =
+  authLayoutResetPasswordTokenRouteImport.update({
+    id: '/reset-password_/$token',
+    path: '/reset-password/$token',
+    getParentRoute: () => authLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
   '/teams': typeof TeamsRoute
+  '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
+  '/verify-email': typeof authLayoutVerifyEmailRoute
+  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
   '/teams': typeof TeamsRoute
+  '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
+  '/verify-email': typeof authLayoutVerifyEmailRoute
+  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,8 +109,11 @@ export interface FileRoutesById {
   '/teams': typeof TeamsRoute
   '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
+  '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
   '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
   '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
+  '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
+  '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,10 +122,22 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/teams'
+    | '/reset-password'
     | '/sign-in'
     | '/sign-up'
+    | '/verify-email'
+    | '/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/settings' | '/teams' | '/sign-in' | '/sign-up'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/settings'
+    | '/teams'
+    | '/reset-password'
+    | '/sign-in'
+    | '/sign-up'
+    | '/verify-email'
+    | '/reset-password/$token'
   id:
     | '__root__'
     | '/'
@@ -106,8 +146,11 @@ export interface FileRouteTypes {
     | '/teams'
     | '/(auth)'
     | '/(auth)/_layout'
+    | '/(auth)/_layout/reset-password'
     | '/(auth)/_layout/sign-in'
     | '/(auth)/_layout/sign-up'
+    | '/(auth)/_layout/verify-email'
+    | '/(auth)/_layout/reset-password_/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -162,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof authRoute
     }
+    '/(auth)/_layout/verify-email': {
+      id: '/(auth)/_layout/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authLayoutVerifyEmailRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
     '/(auth)/_layout/sign-up': {
       id: '/(auth)/_layout/sign-up'
       path: '/sign-up'
@@ -176,17 +226,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLayoutSignInRouteImport
       parentRoute: typeof authLayoutRoute
     }
+    '/(auth)/_layout/reset-password': {
+      id: '/(auth)/_layout/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authLayoutResetPasswordRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/_layout/reset-password_/$token': {
+      id: '/(auth)/_layout/reset-password_/$token'
+      path: '/reset-password/$token'
+      fullPath: '/reset-password/$token'
+      preLoaderRoute: typeof authLayoutResetPasswordTokenRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
   }
 }
 
 interface authLayoutRouteChildren {
+  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
   authLayoutSignInRoute: typeof authLayoutSignInRoute
   authLayoutSignUpRoute: typeof authLayoutSignUpRoute
+  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
+  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
 }
 
 const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
   authLayoutSignInRoute: authLayoutSignInRoute,
   authLayoutSignUpRoute: authLayoutSignUpRoute,
+  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
+  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
 }
 
 const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
