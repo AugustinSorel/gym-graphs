@@ -15,14 +15,14 @@ import {
   FormLabel,
   FormMessage,
 } from "~/ui/form";
-import { useNavigate } from "@tanstack/react-router";
+// import { useNavigate } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
 import { api, parseJsonResponse } from "~/libs/api";
 import type { InferRequestType } from "hono";
 
 export const EmailSignUpForm = () => {
-  const navigate = useNavigate({ from: "/sign-up" });
-  const [isRedirectPending, startRedirectTransition] = useTransition();
+  // const _navigate = useNavigate({ from: "/sign-up" });
+  const [isRedirectPending, _startRedirectTransition] = useTransition();
 
   const form = useEmailSignUpForm();
   const signUp = useSignUp();

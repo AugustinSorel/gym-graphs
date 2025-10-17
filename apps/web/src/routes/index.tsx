@@ -92,32 +92,32 @@ const HeroSectionTwo = () => {
   );
 };
 
-const Grid = (props: ComponentProps<"ol">) => {
-  return (
-    <ol
-      className="grid w-full grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
-      {...props}
-    />
-  );
-};
+// const Grid = (props: ComponentProps<"ol">) => {
+//   return (
+//     <ol
+//       className="grid w-full grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
+//       {...props}
+//     />
+//   );
+// };
 
-const Card = (props: ComponentProps<"li">) => {
-  return (
-    <li
-      className="bg-secondary grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto"
-      {...props}
-    />
-  );
-};
+// const Card = (props: ComponentProps<"li">) => {
+//   return (
+//     <li
+//       className="bg-secondary grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto"
+//       {...props}
+//     />
+//   );
+// };
 
-const Name = (props: ComponentProps<"h2">) => {
-  return (
-    <h2
-      className="truncate border-b p-4 text-sm font-semibold capitalize"
-      {...props}
-    />
-  );
-};
+// const Name = (props: ComponentProps<"h2">) => {
+//   return (
+//     <h2
+//       className="truncate border-b p-4 text-sm font-semibold capitalize"
+//       {...props}
+//     />
+//   );
+// };
 
 const Main = (props: ComponentProps<"main">) => {
   return (
@@ -198,32 +198,32 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-const FeatureContainer = ({
-  className,
-  ...props
-}: ComponentProps<"section">) => {
-  return (
-    <section
-      className={cn(
-        "max-w-app mx-auto flex w-full flex-col items-center gap-14 p-5",
-        className,
-      )}
-      {...props}
-    />
-  );
-};
+// const FeatureContainer = ({
+//   className,
+//   ...props
+// }: ComponentProps<"section">) => {
+//   return (
+//     <section
+//       className={cn(
+//         "max-w-app mx-auto flex w-full flex-col items-center gap-14 p-5",
+//         className,
+//       )}
+//       {...props}
+//     />
+//   );
+// };
 
-const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
-  return (
-    <div
-      className={cn(
-        "bg-secondary relative w-full rounded-md border",
-        className,
-      )}
-      {...props}
-    />
-  );
-};
+// const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
+//   return (
+//     <div
+//       className={cn(
+//         "bg-secondary relative w-full rounded-md border",
+//         className,
+//       )}
+//       {...props}
+//     />
+//   );
+// };
 
 const Separator = () => {
   return (
@@ -259,77 +259,77 @@ const CirclesBluredBg = () => {
   );
 };
 
-const TeamFunFactsGrid = (props: ComponentProps<"ol">) => {
-  return (
-    <ol
-      className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:grid-rows-2"
-      {...props}
-    />
-  );
-};
+// const TeamFunFactsGrid = (props: ComponentProps<"ol">) => {
+//   return (
+//     <ol
+//       className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:grid-rows-2"
+//       {...props}
+//     />
+//   );
+// };
 
-const TeamFunFact = ({ className, ...props }: ComponentProps<"li">) => {
-  return (
-    <li
-      className={cn(
-        "bg-secondary grid items-center gap-3 rounded-lg border p-3 text-center lg:p-6",
-        className,
-      )}
-      {...props}
-    />
-  );
-};
+// const TeamFunFact = ({ className, ...props }: ComponentProps<"li">) => {
+//   return (
+//     <li
+//       className={cn(
+//         "bg-secondary grid items-center gap-3 rounded-lg border p-3 text-center lg:p-6",
+//         className,
+//       )}
+//       {...props}
+//     />
+//   );
+// };
 
-const TeamFunFactName = (props: ComponentProps<"h2">) => {
-  return (
-    <h2
-      {...props}
-      className="text-sm font-semibold whitespace-nowrap capitalize"
-    />
-  );
-};
+// const TeamFunFactName = (props: ComponentProps<"h2">) => {
+//   return (
+//     <h2
+//       {...props}
+//       className="text-sm font-semibold whitespace-nowrap capitalize"
+//     />
+//   );
+// };
 
-const TeamFunFactStrong = (props: ComponentProps<"strong">) => {
-  return (
-    <strong
-      className="bg-brand-gradient truncate bg-clip-text py-1 text-4xl font-bold text-transparent"
-      {...props}
-    />
-  );
-};
+// const TeamFunFactStrong = (props: ComponentProps<"strong">) => {
+//   return (
+//     <strong
+//       className="bg-brand-gradient truncate bg-clip-text py-1 text-4xl font-bold text-transparent"
+//       {...props}
+//     />
+//   );
+// };
 
-const TeamEventsTimeline = (props: ComponentProps<"ol">) => {
-  return <ol className="bg-secondary w-full rounded-md border" {...props} />;
-};
+// const TeamEventsTimeline = (props: ComponentProps<"ol">) => {
+//   return <ol className="bg-secondary w-full rounded-md border" {...props} />;
+// };
 
-const TeamEvent = ({ className, ...props }: ComponentProps<"li">) => {
-  return (
-    <li
-      className={cn(
-        "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
-        className,
-      )}
-      {...props}
-    />
-  );
-};
+// const TeamEvent = ({ className, ...props }: ComponentProps<"li">) => {
+//   return (
+//     <li
+//       className={cn(
+//         "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
+//         className,
+//       )}
+//       {...props}
+//     />
+//   );
+// };
 
-const TeamEventName = (props: ComponentProps<"h2">) => {
-  return (
-    <h2
-      className="truncate text-lg font-semibold first-letter:capitalize"
-      {...props}
-    />
-  );
-};
+// const TeamEventName = (props: ComponentProps<"h2">) => {
+//   return (
+//     <h2
+//       className="truncate text-lg font-semibold first-letter:capitalize"
+//       {...props}
+//     />
+//   );
+// };
 
-const TeamEventDescription = (props: ComponentProps<"p">) => {
-  return <p className="text-muted-foreground" {...props} />;
-};
+// const TeamEventDescription = (props: ComponentProps<"p">) => {
+//   return <p className="text-muted-foreground" {...props} />;
+// };
 
-const TeamEventReactionsContainer = (props: ComponentProps<"div">) => {
-  return <div className="mt-2 flex items-center gap-2" {...props} />;
-};
+// const TeamEventReactionsContainer = (props: ComponentProps<"div">) => {
+//   return <div className="mt-2 flex items-center gap-2" {...props} />;
+// };
 
 const useMockQueryClient = () => {
   const queryClient = new QueryClient();

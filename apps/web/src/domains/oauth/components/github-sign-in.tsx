@@ -19,7 +19,7 @@ export const GithubSignIn = () => {
       <Button
         className="mt-3 w-full bg-black font-semibold hover:bg-black/80"
         onClick={() => {
-          githubSignIn.mutate({ callbackUrl: search.callbackUrl });
+          githubSignIn.mutate({ callbackUrl: search.callbackUrl ?? "" });
         }}
       >
         <GithubIcon />

@@ -38,7 +38,7 @@ const RouteComponent = () => {
   );
 };
 
-const ErrorComponent = (props: ErrorComponentProps) => {
+const ErrorComponent = (_props: ErrorComponentProps) => {
   return (
     <>
       <Title>welcome</Title>

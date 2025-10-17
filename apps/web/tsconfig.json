@@ -1,14 +1,14 @@
 {
+  "extends": "../../tsconfig.json",
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
   "compilerOptions": {
     "jsx": "react-jsx",
-    "moduleResolution": "Bundler",
     "module": "ESNext",
     "target": "ES2022",
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "checkJs": true,
+    "verbatimModuleSyntax": false,
     "lib": [
       "ESNext.Array",
       "DOM",
