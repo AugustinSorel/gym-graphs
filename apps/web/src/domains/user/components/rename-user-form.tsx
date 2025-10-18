@@ -16,9 +16,9 @@ import { useForm } from "react-hook-form";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import type { z } from "zod";
-import { InferRequestType } from "hono";
 import { api, parseJsonResponse } from "~/libs/api";
+import type { InferRequestType } from "hono";
+import type { z } from "zod";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -99,7 +99,9 @@ const useRenameUser = () => {
 
       return parseJsonResponse(req);
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(userQueries.get);
+
       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user || !variables.name) {
           return user;
