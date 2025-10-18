@@ -22,3 +22,12 @@ export const userSchema = z.object({
   oneRepMaxAlgo: z.enum(constant.user.oneRepMaxAlgo),
   dashboardView: z.enum(constant.user.dashboardView),
 });
+
+export const userPatchSchema = userSchema.partial().pick({
+  weightUnit: true,
+  name: true,
+  oneRepMaxAlgo: true,
+  dashboardView: true,
+});
+
+export type UserPatch = z.infer<typeof userPatchSchema>;

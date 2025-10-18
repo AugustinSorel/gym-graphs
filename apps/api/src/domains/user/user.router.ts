@@ -5,7 +5,7 @@ import { setCookie } from "hono/cookie";
 import { userService } from "~/domains/user/user.service";
 import { sessionCookie } from "~/domains/session/session.cookies";
 import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
-import { userSchema } from "@gym-graphs/schemas/user";
+import { userPatchSchema } from "@gym-graphs/schemas/user";
 import type { Ctx } from "~/index";
 
 export const userRouter = new Hono<Ctx>()
@@ -31,10 +31,7 @@ export const userRouter = new Hono<Ctx>()
   .patch(
     "/me",
     requireAuthMiddleware,
-    zValidator(
-      "json",
-      userSchema.partial().pick({ weightUnit: true, name: true }),
-    ),
+    zValidator("json", userPatchSchema),
     async (c) => {
       const input = c.req.valid("json");
 

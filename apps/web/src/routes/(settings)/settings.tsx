@@ -10,8 +10,8 @@ import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";
 import { cn } from "~/styles/styles.utils";
 import {
-  // CheckIcon,
-  // AlertCircleIcon,
+  CheckIcon,
+  AlertCircleIcon,
   LaptopIcon,
   MoonIcon,
   SunIcon,
@@ -21,24 +21,25 @@ import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
 // import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
 // import { DefaultErrorFallback } from "~/components/default-error-fallback";
-// import { userSchema } from "@gym-graphs/schemas/user";
+import { userSchema } from "@gym-graphs/schemas/user";
 // import { useUpdateWeightUnit } from "~/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
 // import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
-// import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 // import {
 //   selectUserDataAction,
 //   updateOneRepMaxAlgoAction,
 // } from "~/user/user.actions";
-// import { userQueries } from "~/domains/user/user.queries";
-// import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-// import { OneRepMaxAlgorithmsGraph } from "~/set/components/one-rep-max-algorithms-graph";
+import { userQueries } from "~/domains/user/user.queries";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
 // import { dashboardQueries } from "~/dashboard/dashboard.queries";
 // import { TagsList } from "~/user/components/tags-list";
-// import type { ComponentProps, PropsWithChildren } from "react";
-import type { ComponentProps } from "react";
+import { api, parseJsonResponse } from "~/libs/api";
+import type { ComponentProps, PropsWithChildren } from "react";
+import type { InferRequestType } from "hono";
 
 export const Route = createFileRoute("/(settings)/settings")({
   component: () => RouteComponent(),
@@ -68,7 +69,7 @@ const RouteComponent = () => {
       <EmailSection />
       <RenameUserSection />
       {/*<TagsSection />*/}
-      {/*<OneRepMaxAlgoSection />*/}
+      <OneRepMaxAlgoSection />
       {/*<ChangeWeightUnitSection />*/}
       <ChangeThemeSection />
       {/*<DownloadUserData />*/}
@@ -144,94 +145,102 @@ const RenameUserSection = () => {
 //   );
 // };
 
-// const useUpdateOneRepMaxAlgo = () => {
-//   return useMutation({
-//     mutationFn: updateOneRepMaxAlgoAction,
-//     onMutate: (variables, ctx) => {
-//       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
-//         if (!user) {
-//           return user;
-//         }
+const useUpdateOneRepMaxAlgo = () => {
+  const req = api().users.me.$patch;
 
-//         return {
-//           ...user,
-//           oneRepMaxAlgo: variables.data.oneRepMaxAlgo,
-//         };
-//       });
-//     },
-//     onSettled: (_data, _error, _variables, _res, ctx) => {
-//       void ctx.client.invalidateQueries(userQueries.get);
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: async (
+      json: Pick<InferRequestType<typeof req>["json"], "oneRepMaxAlgo">,
+    ) => {
+      const req = api().users.me.$patch({ json });
 
-// const OneRepMaxAlgoSection = () => {
-//   const user = useUser();
-//   const updateOneRepMaxAlgo = useUpdateOneRepMaxAlgo();
+      return parseJsonResponse(req);
+    },
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(userQueries.get);
 
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section>
-//         <HGroup>
-//           <SectionTitle>one rep max algorithm</SectionTitle>
-//           <SectionDescription>
-//             Change your one rep max algorithm to something that suits you
-//             better.
-//           </SectionDescription>
-//         </HGroup>
+      ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
+        if (!user || !variables.oneRepMaxAlgo) {
+          return user;
+        }
 
-//         <ToggleGroup
-//           className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
-//           type="single"
-//           value={user.data.oneRepMaxAlgo}
-//           onValueChange={(unsafeOneRepMaxAlgo) => {
-//             const oneRepMaxAlgo =
-//               userSchema.shape.oneRepMaxAlgo.safeParse(unsafeOneRepMaxAlgo);
+        return {
+          ...user,
+          oneRepMaxAlgo: variables.oneRepMaxAlgo,
+        };
+      });
+    },
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(userQueries.get);
+    },
+  });
+};
 
-//             if (!oneRepMaxAlgo.success) {
-//               return;
-//             }
+const OneRepMaxAlgoSection = () => {
+  const user = useUser();
+  const updateOneRepMaxAlgo = useUpdateOneRepMaxAlgo();
 
-//             updateOneRepMaxAlgo.mutate({
-//               data: {
-//                 oneRepMaxAlgo: oneRepMaxAlgo.data,
-//               },
-//             });
-//           }}
-//         >
-//           {userSchema.shape.oneRepMaxAlgo.options.map((algo) => (
-//             <ToggleGroupItem
-//               key={algo}
-//               className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
-//               value={algo}
-//             >
-//               <Badge
-//                 className="group-aria-checked:border-primary/50 group-aria-checked:bg-primary/20 group-aria-checked:text-primary hover:group-aria-checked:bg-primary/30"
-//                 variant="outline"
-//               >
-//                 <CheckIcon className="mr-1 hidden group-aria-checked:block" />
-//                 {algo}
-//               </Badge>
-//             </ToggleGroupItem>
-//           ))}
-//         </ToggleGroup>
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>one rep max algorithm</SectionTitle>
+          <SectionDescription>
+            Change your one rep max algorithm to something that suits you
+            better.
+          </SectionDescription>
+        </HGroup>
 
-//         {updateOneRepMaxAlgo.error && (
-//           <SectionErrorAlert>
-//             {updateOneRepMaxAlgo.error.message}
-//           </SectionErrorAlert>
-//         )}
+        <ToggleGroup
+          className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
+          type="single"
+          value={user.data.oneRepMaxAlgo}
+          onValueChange={(unsafeOneRepMaxAlgo) => {
+            const oneRepMaxAlgo =
+              userSchema.shape.oneRepMaxAlgo.safeParse(unsafeOneRepMaxAlgo);
 
-//         <div className="m-3 rounded-md border lg:m-6">
-//           <OneRepMaxAlgorithmsGraph />
-//         </div>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+            if (!oneRepMaxAlgo.success) {
+              return;
+            }
+
+            updateOneRepMaxAlgo.mutate({
+              oneRepMaxAlgo: oneRepMaxAlgo.data,
+            });
+          }}
+        >
+          {userSchema.shape.oneRepMaxAlgo.options.map((algo) => (
+            <ToggleGroupItem
+              key={algo}
+              className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
+              value={algo}
+            >
+              <Badge
+                className="group-aria-checked:border-primary/50 group-aria-checked:bg-primary/20 group-aria-checked:text-primary hover:group-aria-checked:bg-primary/30"
+                variant="outline"
+              >
+                <CheckIcon className="mr-1 hidden group-aria-checked:block" />
+                {algo}
+              </Badge>
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+
+        {updateOneRepMaxAlgo.error && (
+          <SectionErrorAlert>
+            {updateOneRepMaxAlgo.error.message}
+          </SectionErrorAlert>
+        )}
+
+        <div className="m-3 rounded-md border lg:m-6">
+          <OneRepMaxAlgorithmsGraph />
+        </div>
+      </Section>
+    </CatchBoundary>
+  );
+};
 
 // const ChangeWeightUnitSection = () => {
 //   const updateWeightUnit = useUpdateWeightUnit();
@@ -494,15 +503,15 @@ const Footer = ({ className, ...props }: ComponentProps<"footer">) => {
   );
 };
 
-// const SectionErrorAlert = (props: Readonly<PropsWithChildren>) => {
-//   return (
-//     <Alert variant="destructive" className="mx-3 mb-3 w-auto lg:mx-6 lg:mb-6">
-//       <AlertCircleIcon />
-//       <AlertTitle>Heads up!</AlertTitle>
-//       <AlertDescription>{props.children}</AlertDescription>
-//     </Alert>
-//   );
-// };
+const SectionErrorAlert = (props: Readonly<PropsWithChildren>) => {
+  return (
+    <Alert variant="destructive" className="mx-3 mb-3 w-auto lg:mx-6 lg:mb-6">
+      <AlertCircleIcon />
+      <AlertTitle>Heads up!</AlertTitle>
+      <AlertDescription>{props.children}</AlertDescription>
+    </Alert>
+  );
+};
 
 // const useDownloadUserData = () => {
 //   return useMutation({
