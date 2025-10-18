@@ -38,7 +38,7 @@ const RedirectText = (props: ComponentProps<"p">) => {
 const useSendEmailVerificationCode = () => {
   return useMutation({
     mutationFn: async () => {
-      const req = api["email-verifications"].$post();
+      const req = api()["email-verifications"].$post();
 
       return parseJsonResponse(req);
     },

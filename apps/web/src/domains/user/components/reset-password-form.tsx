@@ -17,8 +17,8 @@ import { userSchema } from "@gym-graphs/schemas/user";
 import { z } from "zod";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { InferRequestType } from "hono";
 import { api, parseJsonResponse } from "~/libs/api";
+import type { InferRequestType } from "hono";
 
 export const ResetPasswordForm = () => {
   const form = useResetPasswordForm();
@@ -126,17 +126,11 @@ const useResetPasswordForm = () => {
 };
 
 const useResetPassword = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<
-        (typeof api)["password-resets"]["reset"]["$post"]
-      >["json"],
-    ) => {
-      const req = api["password-resets"].reset.$post({
-        json,
-      });
+  const req = api()["password-resets"].reset.$post;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
   });
 };

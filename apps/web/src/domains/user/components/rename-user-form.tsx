@@ -91,13 +91,11 @@ const useCreateExerciseForm = () => {
 };
 
 const useRenameUser = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<typeof api.users.me.$patch>["json"],
-    ) => {
-      const req = api.users.me.$patch({ json });
+  const req = api().users.me.$patch;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);

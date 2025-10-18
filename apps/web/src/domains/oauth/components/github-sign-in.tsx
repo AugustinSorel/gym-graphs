@@ -40,14 +40,11 @@ export const GithubSignIn = () => {
 
 const useGithubSignIn = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
+  const req = api().oauth.github.$post;
 
   const githubSignIn = useMutation({
-    mutationFn: async (
-      query: InferRequestType<typeof api.oauth.github.$post>["query"],
-    ) => {
-      const req = api.oauth.github.$post({ query });
-
-      return parseJsonResponse(req);
+    mutationFn: async (query: InferRequestType<typeof req>["query"]) => {
+      return parseJsonResponse(req({ query }));
     },
     onSuccess: (url) => {
       startRedirectTransition(async () => {

@@ -16,9 +16,9 @@ import {
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "@gym-graphs/schemas/user";
-import type { z } from "zod";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
+import type { z } from "zod";
+import type { InferRequestType } from "hono";
 
 export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
@@ -124,15 +124,11 @@ const useEmailSignInForm = () => {
 };
 
 const useSignIn = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<typeof api.sessions.$post>["json"],
-    ) => {
-      const req = api.sessions.$post({
-        json,
-      });
+  const req = api().sessions.$post;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
   });
 };

@@ -10,7 +10,7 @@ export const useSignOut = () => {
 
   const signOut = useMutation({
     mutationFn: async () => {
-      const req = api.sessions.me.$delete();
+      const req = api().sessions.me.$delete();
 
       return parseJsonResponse(req);
     },

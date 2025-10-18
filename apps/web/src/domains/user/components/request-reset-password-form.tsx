@@ -15,7 +15,7 @@ import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "@gym-graphs/schemas/user";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
+import type { InferRequestType } from "hono";
 import type { z } from "zod";
 import type { ComponentProps } from "react";
 
@@ -93,15 +93,11 @@ const useRequestResetPasswordForm = () => {
 };
 
 const useRequestResetPassword = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<(typeof api)["password-resets"]["$post"]>["json"],
-    ) => {
-      const req = api["password-resets"].$post({
-        json,
-      });
+  const req = api()["password-resets"].$post;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
   });
 };

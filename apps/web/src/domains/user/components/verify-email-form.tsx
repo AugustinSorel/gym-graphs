@@ -108,17 +108,11 @@ const useVerifyEmailForm = () => {
 };
 
 const useVerifyEmail = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<
-        (typeof api)["email-verifications"]["verify"]["$post"]
-      >["json"],
-    ) => {
-      const req = api["email-verifications"].verify.$post({
-        json,
-      });
+  const req = api()["email-verifications"].verify.$post;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
   });
 };

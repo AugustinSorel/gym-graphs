@@ -4,13 +4,11 @@ import { api, parseJsonResponse } from "~/libs/api";
 import type { InferRequestType } from "hono/client";
 
 export const useUpdateWeightUnit = () => {
-  const updateWeightUnit = useMutation({
-    mutationFn: async (
-      json: InferRequestType<typeof api.users.me.$patch>["json"],
-    ) => {
-      const req = api.users.me.$patch({ json });
+  const req = api().users.me.$patch;
 
-      return parseJsonResponse(req);
+  const updateWeightUnit = useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
     onMutate: (variables, ctx) => {
       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {

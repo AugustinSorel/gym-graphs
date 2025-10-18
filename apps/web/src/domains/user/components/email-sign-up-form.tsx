@@ -17,8 +17,8 @@ import {
 } from "~/ui/form";
 import { Button } from "~/ui/button";
 import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono";
 import { getRouteApi } from "@tanstack/react-router";
+import type { InferRequestType } from "hono";
 
 export const EmailSignUpForm = () => {
   const navigate = routeApi.useNavigate();
@@ -137,13 +137,11 @@ const useEmailSignUpForm = () => {
 };
 
 const useSignUp = () => {
-  return useMutation({
-    mutationFn: async (
-      json: InferRequestType<typeof api.users.$post>["json"],
-    ) => {
-      const req = api.users.$post({ json });
+  const req = api().users.$post;
 
-      return parseJsonResponse(req);
+  return useMutation({
+    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+      return parseJsonResponse(req({ json }));
     },
   });
 };

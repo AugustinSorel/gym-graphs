@@ -10,10 +10,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
-import { fetchSessionActions } from "~/domains/session/session.actions";
 import { HeaderPrivate, HeaderPublic } from "~/header";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
+import { api, parseJsonResponse } from "~/libs/api";
 
 export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({
@@ -40,8 +40,12 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
     links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
-  beforeLoad: async ({ context }) => {
-    const session = await fetchSessionActions();
+  beforeLoad: async ({ context, abortController }) => {
+    const req = api().sessions.me.$get(undefined, {
+      init: { signal: abortController.signal },
+    });
+
+    const session = await parseJsonResponse(await req).catch(() => null);
 
     if (!session) {
       return {
