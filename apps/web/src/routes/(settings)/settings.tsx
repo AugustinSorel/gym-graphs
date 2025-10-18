@@ -19,7 +19,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
-// import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
+import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
 // import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { userSchema } from "@gym-graphs/schemas/user";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
@@ -74,7 +74,7 @@ const RouteComponent = () => {
       <ChangeThemeSection />
       {/*<DownloadUserData />*/}
       <SignOutSection />
-      {/*<DeleteAccountSection />*/}
+      <DeleteAccountSection />
     </Main>
   );
 };
@@ -425,28 +425,28 @@ const SignOutSection = () => {
   );
 };
 
-// const DeleteAccountSection = () => {
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section className="border-destructive">
-//         <HGroup>
-//           <SectionTitle>delete account</SectionTitle>
-//           <SectionDescription>
-//             Permanently remove your personal account and all of its contents
-//             from our servers. This action is not reversible, so please continue
-//             with caution.
-//           </SectionDescription>
-//         </HGroup>
-//         <Footer className="border-destructive bg-destructive/10">
-//           <DeleteAccountDialog />
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+const DeleteAccountSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section className="border-destructive">
+        <HGroup>
+          <SectionTitle>delete account</SectionTitle>
+          <SectionDescription>
+            Permanently remove your personal account and all of its contents
+            from our servers. This action is not reversible, so please continue
+            with caution.
+          </SectionDescription>
+        </HGroup>
+        <Footer className="border-destructive bg-destructive/10">
+          <DeleteAccountDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
 
 const Main = (props: ComponentProps<"main">) => {
   return (

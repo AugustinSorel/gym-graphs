@@ -39,4 +39,11 @@ export const userRouter = new Hono<Ctx>()
 
       return c.json(null, 200);
     },
-  );
+  )
+  .delete("/me", requireAuthMiddleware, async (c) => {
+    await userService.deleteById(c.var.user.id, c.var.db);
+
+    setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
+
+    return c.json(null, 200);
+  });

@@ -146,6 +146,15 @@ const patchById = async (
   return user;
 };
 
+const deleteById = async (userId: User["id"], db: Db) => {
+  const [user] = await db
+    .delete(userTable)
+    .where(eq(userTable.id, userId))
+    .returning();
+
+  return user;
+};
+
 export const userRepo = {
   createWithEmailAndPassword,
   createWithEmail,
@@ -154,4 +163,5 @@ export const userRepo = {
   updateEmailVerifiedAt,
   updatePasswordAndSalt,
   patchById,
+  deleteById,
 };

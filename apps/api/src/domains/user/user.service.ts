@@ -77,8 +77,19 @@ const patchById: typeof userRepo.patchById = async (input, userId, db) => {
   return user;
 };
 
+const deleteById: typeof userRepo.deleteById = async (userId, db) => {
+  const user = await userRepo.deleteById(userId, db);
+
+  if (!user) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
+
+  return user;
+};
+
 export const userService = {
   signUp,
   selectClient,
   patchById,
+  deleteById,
 };
