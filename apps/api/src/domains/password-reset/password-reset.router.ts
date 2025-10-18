@@ -31,5 +31,5 @@ export const passwordResetRouter = new Hono<Ctx>()
       sessionCookie.optionsForExpiry(session.session.expiresAt),
     );
 
-    c.json(null, 200);
+    return c.json(null, 200);
   });

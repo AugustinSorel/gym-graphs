@@ -25,16 +25,12 @@ const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
     const token = generatePasswordResetToken();
     const tokenHash = hashSHA256Hex(token);
 
-    const passwordReset = await passwordResetRepo.create(
-      tokenHash,
-      user.id,
-      db,
-    );
+    await passwordResetRepo.create(tokenHash, user.id, db);
 
     await sendEmail(
       [user.email],
       "Reset your password",
-      passwordResetEmailBody(passwordReset.token),
+      passwordResetEmailBody(token),
       email,
     );
   });
