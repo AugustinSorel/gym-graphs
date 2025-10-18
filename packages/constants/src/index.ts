@@ -22,4 +22,49 @@ export const constant = {
   cookie: {
     session: "session",
   },
+  user: {
+    oneRepMaxAlgo: [
+      "adams",
+      "baechle",
+      "berger",
+      "brown",
+      "brzycki",
+      "epley",
+      "kemmler",
+      "landers",
+      "lombardi",
+      "mayhew",
+      "naclerio",
+      "oConner",
+      "wathen",
+    ],
+    dashboardView: ["graph", "trending"],
+    weightUnit: ["kg", "lbs"],
+  },
+  dashboard: {
+    tile: {
+      types: [
+        "exercise",
+        "tilesToSetsCount",
+        "tilesToTagsCount",
+        "tilesSetsHeatMap",
+        "tilesFunFacts",
+      ],
+    },
+  },
+  team: {
+    visibilities: ["public", "private"],
+    joinRequest: {
+      statuses: ["pending", "accepted", "rejected"],
+    },
+    invitation: {
+      statuses: ["pending", "accepted", "rejected"],
+    },
+    member: {
+      roles: ["admin", "member"],
+    },
+    event: {
+      reactions: ["🎯", "😤", "🔥", "🎉", "💪"],
+    },
+  },
 } as const;

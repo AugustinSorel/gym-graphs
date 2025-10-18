@@ -1,34 +1,17 @@
 import { relations, sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { tileSchema } from "@gym-graphs/schemas/dashboard";
-import {
-  teamInvitationSchema,
-  teamEventReactionsSchema,
-  teamMemberSchema,
-  teamSchema,
-  teamJoinRequestSchema,
-} from "@gym-graphs/schemas/team";
+import { constant } from "@gym-graphs/constants";
 
-export const weightUnitEnum = pgEnum(
-  "weight_unit",
-  userSchema.shape.weightUnit.options as DistributeWrap<
-    (typeof userSchema.shape.weightUnit.options)[number]
-  >,
-);
+export const weightUnitEnum = pgEnum("weight_unit", constant.user.weightUnit);
 
 export const oneRepMaxAlgoEnum = pgEnum(
   "one_rep_max_algo",
-  userSchema.shape.oneRepMaxAlgo.options as DistributeWrap<
-    (typeof userSchema.shape.oneRepMaxAlgo.options)[number]
-  >,
+  constant.user.oneRepMaxAlgo,
 );
 
 export const dashboardViewEnum = pgEnum(
   "dashboard_view",
-  userSchema.shape.dashboardView.options as DistributeWrap<
-    (typeof userSchema.shape.dashboardView.options)[number]
-  >,
+  constant.user.dashboardView,
 );
 
 export const userTable = pgTable("user", (t) => ({
@@ -99,12 +82,7 @@ export const dashboardRelations = relations(
   }),
 );
 
-export const tileTypeEnum = pgEnum(
-  "tile_type",
-  tileSchema.shape.type.options as DistributeWrap<
-    (typeof tileSchema.shape.type.options)[number]
-  >,
-);
+export const tileTypeEnum = pgEnum("tile_type", constant.dashboard.tile.types);
 
 export const tileTable = pgTable(
   "tile",
@@ -386,9 +364,7 @@ export const tagRelations = relations(tagTable, ({ one, many }) => ({
 
 export const teamVisibilityEnum = pgEnum(
   "team_visibility",
-  teamSchema.shape.visibility.options as DistributeWrap<
-    (typeof teamSchema.shape.visibility.options)[number]
-  >,
+  constant.team.visibilities,
 );
 
 export const teamTable = pgTable("team", (t) => ({
@@ -414,9 +390,7 @@ export const teamRelations = relations(teamTable, ({ many }) => ({
 
 export const teamMemberRoleEnum = pgEnum(
   "team_member_role",
-  teamMemberSchema.shape.role.options as DistributeWrap<
-    (typeof teamMemberSchema.shape.role.options)[number]
-  >,
+  constant.team.member.roles,
 );
 
 export const teamMemberTable = pgTable(
@@ -456,9 +430,7 @@ export const teamMemberRelations = relations(teamMemberTable, ({ one }) => ({
 
 export const teamInvitationStatusEnum = pgEnum(
   "team_invitation_status",
-  teamInvitationSchema.shape.status.options as DistributeWrap<
-    (typeof teamInvitationSchema.shape.status.options)[number]
-  >,
+  constant.team.invitation.statuses,
 );
 
 export const teamInvitationTable = pgTable(
@@ -508,9 +480,7 @@ export const teamInvitationRelations = relations(
 
 export const teamJoinRequestStatusEnum = pgEnum(
   "team_join_request_status",
-  teamJoinRequestSchema.shape.status.options as DistributeWrap<
-    (typeof teamJoinRequestSchema.shape.status.options)[number]
-  >,
+  constant.team.joinRequest.statuses,
 );
 
 export const teamJoinRequestTable = pgTable(
@@ -586,9 +556,7 @@ export const teamEventRelations = relations(
 
 export const teamEventReactionEmojiEnum = pgEnum(
   "team_event_reaction_emoji",
-  teamEventReactionsSchema.shape.emoji.options as DistributeWrap<
-    (typeof teamEventReactionsSchema.shape.emoji.options)[number]
-  >,
+  constant.team.event.reactions,
 );
 
 export const teamEventReactionTable = pgTable(
@@ -674,6 +642,3 @@ export const teamEventNotificationRelations = relations(
     }),
   }),
 );
-
-//TODO: find a better way to extract the tuple in zod
-type DistributeWrap<T> = T extends any ? [T] : never;

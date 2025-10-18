@@ -1,15 +1,10 @@
 import { z } from "zod";
 import { exerciseSchema } from "~/exercise";
+import { constant } from "@gym-graphs/constants";
 
 export const tileSchema = z.object({
   id: z.number().positive("id must be positive"),
-  type: z.enum([
-    "exercise",
-    "tilesToSetsCount",
-    "tilesToTagsCount",
-    "tilesSetsHeatMap",
-    "tilesFunFacts",
-  ]),
+  type: z.enum(constant.dashboard.tile.types),
   exerciseId: exerciseSchema.shape.id.nullable(),
   name: z
     .string()

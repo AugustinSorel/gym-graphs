@@ -244,6 +244,9 @@ importers:
 
   packages/schemas:
     dependencies:
+      '@gym-graphs/constants':
+        specifier: workspace:*
+        version: link:../constants
       typescript:
         specifier: ^5.0.0
         version: 5.9.3

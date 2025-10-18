@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { userSchema } from "~/user";
+import { constant } from "@gym-graphs/constants";
 
 export const teamSchema = z.object({
   id: z.number().positive("id must be positive"),
@@ -8,11 +9,11 @@ export const teamSchema = z.object({
     .trim()
     .min(3, "name must be at least 3 characters")
     .max(255, "name must be at most 255 characters"),
-  visibility: z.enum(["public", "private"]),
+  visibility: z.enum(constant.team.visibilities),
 });
 
 export const teamMemberSchema = z.object({
-  role: z.enum(["admin", "member"]),
+  role: z.enum(constant.team.member.roles),
   userId: userSchema.shape.id,
   teamId: teamSchema.shape.id,
 });
@@ -25,7 +26,7 @@ export const teamInvitationSchema = z.object({
     .trim()
     .min(3, "email must be at least 3 characters")
     .max(255, "email must be at most 255 characters"),
-  status: z.enum(["pending", "accepted", "expired", "revoked"]),
+  status: z.enum(constant.team.invitation.statuses),
   token: z
     .string()
     .trim()
@@ -35,7 +36,7 @@ export const teamInvitationSchema = z.object({
 
 export const teamJoinRequestSchema = z.object({
   id: z.number().positive("id must be positive"),
-  status: z.enum(["pending", "accepted", "rejected"]),
+  status: z.enum(constant.team.joinRequest.statuses),
 });
 
 export const teamEventSchema = z.object({
@@ -44,7 +45,7 @@ export const teamEventSchema = z.object({
 
 export const teamEventReactionsSchema = z.object({
   teamEventId: teamEventSchema.shape.id,
-  emoji: z.enum(["🎯", "😤", "🔥", "🎉", "💪"]),
+  emoji: z.enum(constant.team.event.reactions),
 });
 
 export const teamNotificationSchema = z.object({
