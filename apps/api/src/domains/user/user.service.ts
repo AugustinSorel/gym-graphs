@@ -67,12 +67,8 @@ export const selectClient = async (userId: User["id"], db: Db) => {
   return user;
 };
 
-const updateWeightUnit = async (
-  weightUnit: User["weightUnit"],
-  userId: User["id"],
-  db: Db,
-) => {
-  const user = await userRepo.updateWeightUnit(weightUnit, userId, db);
+const patchById: typeof userRepo.patchById = async (input, userId, db) => {
+  const user = await userRepo.patchById(input, userId, db);
 
   if (!user) {
     throw new HTTPException(404, { message: "user not found" });
@@ -84,5 +80,5 @@ const updateWeightUnit = async (
 export const userService = {
   signUp,
   selectClient,
-  updateWeightUnit,
+  patchById,
 };

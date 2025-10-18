@@ -31,21 +31,14 @@ export const userRouter = new Hono<Ctx>()
   .patch(
     "/me",
     requireAuthMiddleware,
-    zValidator("json", userSchema.partial().pick({ weightUnit: true })),
+    zValidator(
+      "json",
+      userSchema.partial().pick({ weightUnit: true, name: true }),
+    ),
     async (c) => {
       const input = c.req.valid("json");
 
-      await c.var.db.transaction(async (tx) => {
-        const tasks = [];
-
-        if (input.weightUnit) {
-          tasks.push(
-            userService.updateWeightUnit(input.weightUnit, c.var.user.id, tx),
-          );
-        }
-
-        await Promise.all(tasks);
-      });
+      await userService.patchById(input, c.var.user.id, c.var.db);
 
       return c.json(null, 200);
     },

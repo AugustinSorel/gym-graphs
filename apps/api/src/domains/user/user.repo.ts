@@ -4,6 +4,7 @@ import { DatabaseError } from "pg";
 import { asc, eq, sql } from "drizzle-orm";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
+import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 
 const createWithEmailAndPassword = async (
   email: User["email"],
@@ -131,14 +132,14 @@ export const selectClient = async (userId: User["id"], db: Db) => {
   });
 };
 
-const updateWeightUnit = async (
-  weightUnit: User["weightUnit"],
+const patchById = async (
+  input: PgUpdateSetSource<typeof userTable>,
   userId: User["id"],
   db: Db,
 ) => {
   const [user] = await db
     .update(userTable)
-    .set({ weightUnit })
+    .set(input)
     .where(eq(userTable.id, userId))
     .returning();
 
@@ -152,5 +153,5 @@ export const userRepo = {
   selectClient,
   updateEmailVerifiedAt,
   updatePasswordAndSalt,
-  updateWeightUnit,
+  patchById,
 };
