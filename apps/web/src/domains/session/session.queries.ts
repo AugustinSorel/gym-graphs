@@ -4,7 +4,11 @@ import { api } from "~/libs/api";
 
 const get = queryOptions({
   queryKey: ["session"],
-  queryFn: async () => parseResponse(api.sessions.me.$get()),
+  queryFn: async ({ signal }) => {
+    const req = api.sessions.me.$get(undefined, { init: { signal } });
+
+    return parseResponse(req);
+  },
 });
 
 export const userQueries = {
