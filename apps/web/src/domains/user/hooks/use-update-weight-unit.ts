@@ -10,7 +10,9 @@ export const useUpdateWeightUnit = () => {
     mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
       return parseJsonResponse(req({ json }));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(userQueries.get);
+
       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
         if (!user || !variables.weightUnit) {
           return user;
