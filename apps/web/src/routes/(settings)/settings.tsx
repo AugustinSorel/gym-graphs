@@ -22,7 +22,7 @@ import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
 // import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
 // import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { userSchema } from "@gym-graphs/schemas/user";
-// import { useUpdateWeightUnit } from "~/user/hooks/use-update-weight-unit";
+import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
 // import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
@@ -70,7 +70,7 @@ const RouteComponent = () => {
       <RenameUserSection />
       {/*<TagsSection />*/}
       <OneRepMaxAlgoSection />
-      {/*<ChangeWeightUnitSection />*/}
+      <ChangeWeightUnitSection />
       <ChangeThemeSection />
       {/*<DownloadUserData />*/}
       <SignOutSection />
@@ -242,65 +242,63 @@ const OneRepMaxAlgoSection = () => {
   );
 };
 
-// const ChangeWeightUnitSection = () => {
-//   const updateWeightUnit = useUpdateWeightUnit();
-//   const user = useUser();
+const ChangeWeightUnitSection = () => {
+  const updateWeightUnit = useUpdateWeightUnit();
+  const user = useUser();
 
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section>
-//         <HGroup>
-//           <SectionTitle>change weight unit</SectionTitle>
-//           <SectionDescription>
-//             Tailor your experience by selecting your preferred weight unit.
-//           </SectionDescription>
-//         </HGroup>
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>change weight unit</SectionTitle>
+          <SectionDescription>
+            Tailor your experience by selecting your preferred weight unit.
+          </SectionDescription>
+        </HGroup>
 
-//         {updateWeightUnit.error?.message && (
-//           <SectionErrorAlert>
-//             {updateWeightUnit.error.message}
-//           </SectionErrorAlert>
-//         )}
+        {updateWeightUnit.error?.message && (
+          <SectionErrorAlert>
+            {updateWeightUnit.error.message}
+          </SectionErrorAlert>
+        )}
 
-//         <Footer>
-//           <ToggleGroup
-//             type="single"
-//             value={user.data.weightUnit}
-//             variant="outline"
-//             onValueChange={(unsafeWeightUnit) => {
-//               const weightUnitParsed =
-//                 userSchema.shape.weightUnit.safeParse(unsafeWeightUnit);
+        <Footer>
+          <ToggleGroup
+            type="single"
+            value={user.data.weightUnit}
+            variant="outline"
+            onValueChange={(unsafeWeightUnit) => {
+              const weightUnitParsed =
+                userSchema.shape.weightUnit.safeParse(unsafeWeightUnit);
 
-//               if (!weightUnitParsed.success) {
-//                 return;
-//               }
+              if (!weightUnitParsed.success) {
+                return;
+              }
 
-//               updateWeightUnit.mutate({
-//                 data: {
-//                   weightUnit: weightUnitParsed.data,
-//                 },
-//               });
-//             }}
-//           >
-//             {userSchema.shape.weightUnit.options.map((weightUnit) => (
-//               <ToggleGroupItem
-//                 key={weightUnit}
-//                 value={weightUnit}
-//                 aria-label={`Change weight unit to ${weightUnit}`}
-//                 variant="outline"
-//               >
-//                 {weightUnit}
-//               </ToggleGroupItem>
-//             ))}
-//           </ToggleGroup>
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+              updateWeightUnit.mutate({
+                weightUnit: weightUnitParsed.data,
+              });
+            }}
+          >
+            {userSchema.shape.weightUnit.options.map((weightUnit) => (
+              <ToggleGroupItem
+                key={weightUnit}
+                value={weightUnit}
+                aria-label={`Change weight unit to ${weightUnit}`}
+                variant="outline"
+              >
+                {weightUnit}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
 
 const ChangeThemeSection = () => {
   const theme = useTheme();

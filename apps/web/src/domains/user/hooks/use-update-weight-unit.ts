@@ -7,7 +7,9 @@ export const useUpdateWeightUnit = () => {
   const req = api().users.me.$patch;
 
   const updateWeightUnit = useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
+    mutationFn: async (
+      json: Pick<InferRequestType<typeof req>["json"], "weightUnit">,
+    ) => {
       return parseJsonResponse(req({ json }));
     },
     onMutate: async (variables, ctx) => {
