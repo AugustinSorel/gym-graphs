@@ -31,9 +31,11 @@ export const ResetPasswordForm = () => {
   const onSubmit = async (data: ResetPasswordForm) => {
     await resetPassword.mutateAsync(
       {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        token: params.token,
+        json: {
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+          token: params.token,
+        },
       },
       {
         onSuccess: () => {
@@ -129,8 +131,8 @@ const useResetPassword = () => {
   const req = api()["password-resets"].reset.$post;
 
   return useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
-      return parseJsonResponse(req({ json }));
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
     },
   });
 };

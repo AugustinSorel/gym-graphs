@@ -33,20 +33,23 @@ export const VerifyEmailForm = () => {
   const verifyEmail = useVerifyEmail();
 
   const onSubmit = async (data: VerifyEmailForm) => {
-    await verifyEmail.mutateAsync(data, {
-      onError: (error) => {
-        form.setError("root", { message: error.message });
+    await verifyEmail.mutateAsync(
+      { json: data },
+      {
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            if (search.callbackUrl) {
+              await navigate({ to: search.callbackUrl });
+            } else {
+              await navigate({ to: "/dashboard" });
+            }
+          });
+        },
       },
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          if (search.callbackUrl) {
-            await navigate({ to: search.callbackUrl });
-          } else {
-            await navigate({ to: "/dashboard" });
-          }
-        });
-      },
-    });
+    );
   };
 
   return (
@@ -111,8 +114,8 @@ const useVerifyEmail = () => {
   const req = api()["email-verifications"].verify.$post;
 
   return useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
-      return parseJsonResponse(req({ json }));
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
     },
   });
 };

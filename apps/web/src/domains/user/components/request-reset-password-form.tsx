@@ -24,14 +24,17 @@ export const RequestResetPasswordForm = () => {
   const requestResetPassword = useRequestResetPassword();
 
   const onSubmit = async (data: RequestResetPassword) => {
-    await requestResetPassword.mutateAsync(data, {
-      onSuccess: () => {
-        form.reset();
+    await requestResetPassword.mutateAsync(
+      { json: data },
+      {
+        onSuccess: () => {
+          form.reset();
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -96,8 +99,8 @@ const useRequestResetPassword = () => {
   const req = api()["password-resets"].$post;
 
   return useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
-      return parseJsonResponse(req({ json }));
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
     },
   });
 };

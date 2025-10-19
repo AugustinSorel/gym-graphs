@@ -29,16 +29,19 @@ export const RenameUserForm = (props: Props) => {
   const renameUser = useRenameUser();
 
   const onSubmit = async (data: RenameUserSchema) => {
-    await renameUser.mutateAsync(data, {
-      onSuccess: () => {
-        if (props.onSuccess) {
-          props.onSuccess();
-        }
+    await renameUser.mutateAsync(
+      { json: data },
+      {
+        onSuccess: () => {
+          if (props.onSuccess) {
+            props.onSuccess();
+          }
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -94,20 +97,20 @@ const useRenameUser = () => {
   const req = api().users.me.$patch;
 
   return useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
-      return parseJsonResponse(req({ json }));
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
 
       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
-        if (!user || !variables.name) {
+        if (!user || !variables.json.name) {
           return user;
         }
 
         return {
           ...user,
-          name: variables.name,
+          name: variables.json.name,
         };
       });
     },

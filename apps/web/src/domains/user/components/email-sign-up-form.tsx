@@ -28,19 +28,22 @@ export const EmailSignUpForm = () => {
   const signUp = useSignUp();
 
   const onSubmit = async (values: SignUpFormSchema) => {
-    await signUp.mutateAsync(values, {
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          await navigate({
-            to: "/verify-email",
-            search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+    await signUp.mutateAsync(
+      { json: values },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({
+              to: "/verify-email",
+              search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+            });
           });
-        });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -140,8 +143,8 @@ const useSignUp = () => {
   const req = api().users.$post;
 
   return useMutation({
-    mutationFn: async (json: InferRequestType<typeof req>["json"]) => {
-      return parseJsonResponse(req({ json }));
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
     },
   });
 };

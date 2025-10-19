@@ -9,6 +9,7 @@ import { emailVerificationRouter } from "~/domains/email-verification/email-veri
 import { passwordResetRouter } from "~/domains/password-reset/password-reset.router";
 import { oauthRouter } from "~/domains/oauth/oauth.router";
 import { userRouter } from "~/domains/user/user.router";
+import { tagRouter } from "~//domains/tag/tag.router";
 import { cors } from "hono/cors";
 import { constant } from "@gym-graphs/constants";
 import type { Db } from "~/libs/db";
@@ -40,6 +41,7 @@ const app = new Hono<Ctx>()
   .route("/email-verifications", emailVerificationRouter)
   .route("/password-resets", passwordResetRouter)
   .route("/oauth", oauthRouter)
+  .route("/tags", tagRouter)
   .onError(errorHandler);
 
 export type Api = typeof app;

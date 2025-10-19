@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -20,6 +22,12 @@ import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.si
 import { Route as authLayoutResetPasswordRouteImport } from './routes/(auth)/_layout.reset-password'
 import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
 
+const authRouteImport = createFileRoute('/(auth)')()
+
+const authRoute = authRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
@@ -72,7 +80,7 @@ const authLayoutResetPasswordTokenRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/teams': typeof TeamsRoute
   '/settings': typeof settingsSettingsRoute
@@ -83,7 +91,7 @@ export interface FileRoutesByFullPath {
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof authLayoutRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/teams': typeof TeamsRoute
   '/settings': typeof settingsSettingsRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/teams': typeof TeamsRoute
+  '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
   '/(settings)/settings': typeof settingsSettingsRoute
   '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/teams'
+    | '/(auth)'
     | '/(auth)/_layout'
     | '/(settings)/settings'
     | '/(auth)/_layout/reset-password'
@@ -147,11 +157,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   TeamsRoute: typeof TeamsRoute
+  authRoute: typeof authRouteWithChildren
   settingsSettingsRoute: typeof settingsSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(auth)': {
+      id: '/(auth)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams': {
       id: '/teams'
       path: '/teams'
@@ -182,8 +200,8 @@ declare module '@tanstack/react-router' {
     }
     '/(auth)/_layout': {
       id: '/(auth)/_layout'
-      path: ''
-      fullPath: ''
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof authRoute
     }
@@ -225,10 +243,41 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface authLayoutRouteChildren {
+  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
+  authLayoutSignInRoute: typeof authLayoutSignInRoute
+  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
+  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
+  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
+}
+
+const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
+  authLayoutSignInRoute: authLayoutSignInRoute,
+  authLayoutSignUpRoute: authLayoutSignUpRoute,
+  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
+  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
+}
+
+const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
+  authLayoutRouteChildren,
+)
+
+interface authRouteChildren {
+  authLayoutRoute: typeof authLayoutRouteWithChildren
+}
+
+const authRouteChildren: authRouteChildren = {
+  authLayoutRoute: authLayoutRouteWithChildren,
+}
+
+const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   TeamsRoute: TeamsRoute,
+  authRoute: authRouteWithChildren,
   settingsSettingsRoute: settingsSettingsRoute,
 }
 export const routeTree = rootRouteImport

@@ -24,7 +24,7 @@ import { DeleteAccountDialog } from "~/domains/user/components/delete-account-di
 import { userSchema } from "@gym-graphs/schemas/user";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
-// import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
+import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation } from "@tanstack/react-query";
@@ -36,7 +36,7 @@ import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
 // import { dashboardQueries } from "~/dashboard/dashboard.queries";
-// import { TagsList } from "~/user/components/tags-list";
+import { TagsList } from "~/domains/tag/components/tags-list";
 import { api, parseJsonResponse } from "~/libs/api";
 import type { ComponentProps, PropsWithChildren } from "react";
 import type { InferRequestType } from "hono";
@@ -68,7 +68,7 @@ const RouteComponent = () => {
 
       <EmailSection />
       <RenameUserSection />
-      {/*<TagsSection />*/}
+      <TagsSection />
       <OneRepMaxAlgoSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
@@ -124,35 +124,33 @@ const RenameUserSection = () => {
   );
 };
 
-// const TagsSection = () => {
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section>
-//         <HGroup>
-//           <SectionTitle>tags</SectionTitle>
-//           <SectionDescription>Manage your exercise tags</SectionDescription>
+const TagsSection = () => {
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>tags</SectionTitle>
+          <SectionDescription>Manage your exercise tags</SectionDescription>
 
-//           <TagsList />
-//         </HGroup>
-//         <Footer>
-//           <CreateTagDialog />
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+          <TagsList />
+        </HGroup>
+        <Footer>
+          <CreateTagDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
 
 const useUpdateOneRepMaxAlgo = () => {
   const req = api().users.me.$patch;
 
   return useMutation({
-    mutationFn: async (
-      json: Pick<InferRequestType<typeof req>["json"], "oneRepMaxAlgo">,
-    ) => {
-      const req = api().users.me.$patch({ json });
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      const req = api().users.me.$patch(input);
 
       return parseJsonResponse(req);
     },
@@ -160,13 +158,13 @@ const useUpdateOneRepMaxAlgo = () => {
       await ctx.client.cancelQueries(userQueries.get);
 
       ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
-        if (!user || !variables.oneRepMaxAlgo) {
+        if (!user || !variables.json.oneRepMaxAlgo) {
           return user;
         }
 
         return {
           ...user,
-          oneRepMaxAlgo: variables.oneRepMaxAlgo,
+          oneRepMaxAlgo: variables.json.oneRepMaxAlgo,
         };
       });
     },
@@ -207,7 +205,9 @@ const OneRepMaxAlgoSection = () => {
             }
 
             updateOneRepMaxAlgo.mutate({
-              oneRepMaxAlgo: oneRepMaxAlgo.data,
+              json: {
+                oneRepMaxAlgo: oneRepMaxAlgo.data,
+              },
             });
           }}
         >
