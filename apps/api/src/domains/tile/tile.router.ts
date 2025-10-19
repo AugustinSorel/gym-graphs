@@ -29,8 +29,6 @@ export const tileRouter = new Hono<Ctx>()
     async (c) => {
       const query = c.req.valid("query");
 
-      console.log(c.var.user, "<<<");
-
       const tiles = await tileService.selectInfinite(
         query.name,
         query.tags,
