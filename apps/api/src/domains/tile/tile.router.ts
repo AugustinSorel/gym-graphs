@@ -3,9 +3,9 @@ import { tileService } from "~/domains/tile/tile.service";
 import { zValidator } from "@hono/zod-validator";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
-import type { Ctx } from "~/index";
 import z from "zod";
 import { tagSchema } from "@gym-graphs/schemas/tag";
+import type { Ctx } from "~/index";
 
 export const tileRouter = new Hono<Ctx>()
   .get(
