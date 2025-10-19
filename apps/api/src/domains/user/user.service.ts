@@ -29,7 +29,7 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
       tx,
     );
 
-    await seedUserAccount(user.id);
+    await seedUserAccount(user.id, tx);
 
     const emailVerificationCode = generateEmailVerificationCode();
 

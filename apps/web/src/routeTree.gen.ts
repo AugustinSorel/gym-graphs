@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as settingsSettingsRouteImport } from './routes/(settings)/settings'
 import { Route as dashboardDashboardRouteImport } from './routes/(dashboard)/dashboard'
 import { Route as authLayoutRouteImport } from './routes/(auth)/_layout'
+import { Route as exercisesExercisesExerciseIdRouteImport } from './routes/(exercises)/exercises.$exerciseId'
 import { Route as authLayoutVerifyEmailRouteImport } from './routes/(auth)/_layout.verify-email'
 import { Route as authLayoutSignUpRouteImport } from './routes/(auth)/_layout.sign-up'
 import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.sign-in'
@@ -52,6 +53,12 @@ const authLayoutRoute = authLayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => authRoute,
 } as any)
+const exercisesExercisesExerciseIdRoute =
+  exercisesExercisesExerciseIdRouteImport.update({
+    id: '/(exercises)/exercises/$exerciseId',
+    path: '/exercises/$exerciseId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const authLayoutVerifyEmailRoute = authLayoutVerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
   '/verify-email': typeof authLayoutVerifyEmailRoute
+  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
   '/verify-email': typeof authLayoutVerifyEmailRoute
+  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
   '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRoutesById {
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
   '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
   '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
+  '/(exercises)/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
   '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/exercises/$exerciseId'
     | '/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/exercises/$exerciseId'
     | '/reset-password/$token'
   id:
     | '__root__'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
     | '/(auth)/_layout/sign-in'
     | '/(auth)/_layout/sign-up'
     | '/(auth)/_layout/verify-email'
+    | '/(exercises)/exercises/$exerciseId'
     | '/(auth)/_layout/reset-password_/$token'
   fileRoutesById: FileRoutesById
 }
@@ -159,6 +172,7 @@ export interface RootRouteChildren {
   authRoute: typeof authRouteWithChildren
   dashboardDashboardRoute: typeof dashboardDashboardRoute
   settingsSettingsRoute: typeof settingsSettingsRoute
+  exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -204,6 +218,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof authRoute
+    }
+    '/(exercises)/exercises/$exerciseId': {
+      id: '/(exercises)/exercises/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof exercisesExercisesExerciseIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/_layout/verify-email': {
       id: '/(auth)/_layout/verify-email'
@@ -279,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   authRoute: authRouteWithChildren,
   dashboardDashboardRoute: dashboardDashboardRoute,
   settingsSettingsRoute: settingsSettingsRoute,
+  exercisesExercisesExerciseIdRoute: exercisesExercisesExerciseIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

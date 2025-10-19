@@ -11,6 +11,14 @@ const create = async (db: Db) => {
   return exercise;
 };
 
+const createMany = async (
+  data: Array<typeof exerciseTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(exerciseTable).values(data).returning();
+};
+
 export const exerciseRepo = {
   create,
+  createMany,
 };

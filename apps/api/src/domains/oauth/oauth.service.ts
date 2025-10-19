@@ -87,7 +87,7 @@ const githubSignIn = async (
 
     await oauthRepo.create("github", githubUser.id.toString(), user.id, tx);
 
-    await seedUserAccount(user.id);
+    await seedUserAccount(user.id, tx);
 
     const token = generateSessionToken();
     const session = await sessionRepo.create(token, user.id, tx);

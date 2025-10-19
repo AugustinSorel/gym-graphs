@@ -33,6 +33,13 @@ const create = async (name: Tag["name"], userId: Tag["userId"], db: Db) => {
   }
 };
 
+const createMany = async (
+  tags: Array<typeof tagTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(tagTable).values(tags).returning();
+};
+
 const deleteById = async (tagId: Tag["id"], userId: Tag["userId"], db: Db) => {
   const [tag] = await db
     .delete(tagTable)
@@ -73,6 +80,7 @@ const patchById = async (
 
 export const tagRepo = {
   create,
+  createMany,
   deleteById,
   patchById,
 };
