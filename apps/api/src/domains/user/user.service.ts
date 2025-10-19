@@ -87,9 +87,20 @@ const deleteById: typeof userRepo.deleteById = async (userId, db) => {
   return user;
 };
 
+const selectDataById = async (userId: User["id"], db: Db) => {
+  const data = await userRepo.selectDataById(userId, db);
+
+  if (!data) {
+    throw new HTTPException(404, { message: "user not found" });
+  }
+
+  return data;
+};
+
 export const userService = {
   signUp,
   selectClient,
   patchById,
   deleteById,
+  selectDataById,
 };

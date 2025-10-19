@@ -46,4 +46,9 @@ export const userRouter = new Hono<Ctx>()
     setCookie(c, sessionCookie.name, "", sessionCookie.optionsForDeletion);
 
     return c.json(null, 200);
+  })
+  .get("/me/data", requireAuthMiddleware, async (c) => {
+    const userData = await userService.selectDataById(c.var.user.id, c.var.db);
+
+    return c.json(userData, 200);
   });

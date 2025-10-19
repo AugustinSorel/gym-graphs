@@ -20,7 +20,6 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
-// import { DefaultErrorFallback } from "~/components/default-error-fallback";
 import { userSchema } from "@gym-graphs/schemas/user";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
@@ -28,13 +27,10 @@ import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation } from "@tanstack/react-query";
-// import {
-//   selectUserDataAction,
-//   updateOneRepMaxAlgoAction,
-// } from "~/user/user.actions";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
+//TODO:
 // import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { TagsList } from "~/domains/tag/components/tags-list";
 import { api, parseJsonResponse } from "~/libs/api";
@@ -72,7 +68,7 @@ const RouteComponent = () => {
       <OneRepMaxAlgoSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
-      {/*<DownloadUserData />*/}
+      <DownloadUserData />
       <SignOutSection />
       <DeleteAccountSection />
     </Main>
@@ -357,42 +353,42 @@ const ChangeThemeSection = () => {
   );
 };
 
-// const DownloadUserData = () => {
-//   const downloadUserData = useDownloadUserData();
+const DownloadUserData = () => {
+  const downloadUserData = useDownloadUserData();
 
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section>
-//         <HGroup>
-//           <SectionTitle>download data</SectionTitle>
-//           <SectionDescription>
-//             feel free to download your data in json format.
-//           </SectionDescription>
-//         </HGroup>
+  return (
+    <CatchBoundary
+      errorComponent={DefaultErrorFallback}
+      getResetKey={() => "reset"}
+    >
+      <Section>
+        <HGroup>
+          <SectionTitle>download data</SectionTitle>
+          <SectionDescription>
+            feel free to download your data in json format.
+          </SectionDescription>
+        </HGroup>
 
-//         {downloadUserData.error?.message && (
-//           <SectionErrorAlert>
-//             {downloadUserData.error.message}
-//           </SectionErrorAlert>
-//         )}
+        {downloadUserData.error?.message && (
+          <SectionErrorAlert>
+            {downloadUserData.error.message}
+          </SectionErrorAlert>
+        )}
 
-//         <Footer>
-//           <Button
-//             size="sm"
-//             onClick={() => downloadUserData.mutate(undefined)}
-//             disabled={downloadUserData.isPending}
-//           >
-//             <span>download</span>
-//             {downloadUserData.isPending && <Spinner />}
-//           </Button>
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+        <Footer>
+          <Button
+            size="sm"
+            onClick={() => downloadUserData.mutate(undefined)}
+            disabled={downloadUserData.isPending}
+          >
+            <span>download</span>
+            {downloadUserData.isPending && <Spinner />}
+          </Button>
+        </Footer>
+      </Section>
+    </CatchBoundary>
+  );
+};
 
 const SignOutSection = () => {
   const signOut = useSignOut();
@@ -511,27 +507,31 @@ const SectionErrorAlert = (props: Readonly<PropsWithChildren>) => {
   );
 };
 
-// const useDownloadUserData = () => {
-//   return useMutation({
-//     mutationFn: selectUserDataAction,
-//     onSuccess: (userData) => {
-//       const blob = new Blob([JSON.stringify(userData, null, 2)]);
-//       const url = window.URL.createObjectURL(blob);
-//       const a = document.createElement("a");
+const useDownloadUserData = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const req = api().users.me.data.$get();
 
-//       a.href = url;
-//       a.download = "user-data.json";
+      return parseJsonResponse(req);
+    },
+    onSuccess: (userData) => {
+      const blob = new Blob([JSON.stringify(userData, null, 2)]);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
 
-//       document.body.appendChild(a);
+      a.href = url;
+      a.download = "user-data.json";
 
-//       a.click();
+      document.body.appendChild(a);
 
-//       document.body.removeChild(a);
+      a.click();
 
-//       window.URL.revokeObjectURL(url);
-//     },
-//   });
-// };
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+    },
+  });
+};
 
 export const DefaultErrorFallback = (props: ErrorComponentProps) => {
   return (

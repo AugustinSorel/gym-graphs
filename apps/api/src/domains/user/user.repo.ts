@@ -155,11 +155,40 @@ const deleteById = async (userId: User["id"], db: Db) => {
   return user;
 };
 
+const selectDataById = async (userId: User["id"], db: Db) => {
+  return db.query.userTable.findFirst({
+    where: eq(userTable.id, userId),
+    columns: {
+      name: true,
+      email: true,
+      oneRepMaxAlgo: true,
+      weightUnit: true,
+    },
+    with: {
+      tags: true,
+      dashboard: {
+        with: {
+          tiles: {
+            with: {
+              exercise: {
+                with: {
+                  sets: true,
+                },
+              },
+              tileToTags: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};
 export const userRepo = {
   createWithEmailAndPassword,
   createWithEmail,
   selectByEmail,
   selectClient,
+  selectDataById,
   updateEmailVerifiedAt,
   updatePasswordAndSalt,
   patchById,
