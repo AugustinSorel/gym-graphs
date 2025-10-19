@@ -1,14 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { CreateExerciseTileDialog } from "~/domains/tile/components/create-exercise-tile-dialog";
 import { z } from "zod";
-// import { FilterTilesByTags } from "~/dashboard/components/filter-tiles-by-tag";
-// import { FilterTilesByName } from "~/dashboard/components/filter-tiles-by-name";
+import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
+import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
 //TODO:
 // import { dashboardQueries } from "~/dashboard/dashboard.queries";
 // import { Dashboard } from "~/dashboard/components/dashboard";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { tagSchema } from "@gym-graphs/schemas/tag";
-// import { ViewToggle } from "~/dashboard/components/view-toggle";
+import { ViewToggle } from "~/domains/dashboard/components/view-toggle";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(dashboard)/dashboard")({
@@ -50,11 +50,9 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        {/*
         <FilterTilesByName />
         <FilterTilesByTags />
         <ViewToggle />
-        */}
         <CreateExerciseTileDialog />
       </Header>
 
