@@ -1,4 +1,4 @@
-import { CatchBoundary } from "@tanstack/react-router";
+import { CatchBoundary, useSearch } from "@tanstack/react-router";
 import {
   closestCenter,
   DndContext,
@@ -55,7 +55,8 @@ export const Dashboard = () => {
 };
 
 const NoTilesFallback = (props: PropsWithChildren) => {
-  const tiles = useTiles();
+  const search = useSearch({ from: "/(dashboard)/dashboard" });
+  const tiles = useTiles(search.name, search.tags);
 
   if (!tiles.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -88,7 +89,8 @@ const Content = () => {
 };
 
 const TrendingViewContent = () => {
-  const tiles = useTiles();
+  const search = useSearch({ from: "/(dashboard)/dashboard" });
+  const tiles = useTiles(search.name, search.tags);
 
   return (
     <Grid>
@@ -107,7 +109,8 @@ const TrendingViewContent = () => {
 };
 
 const GraphViewContent = () => {
-  const tiles = useTiles();
+  const search = useSearch({ from: "/(dashboard)/dashboard" });
+  const tiles = useTiles(search.name, search.tags);
 
   return (
     <Grid>
@@ -137,7 +140,8 @@ const SortableItem = (
   props: Readonly<PropsWithChildren<{ isLastItem: boolean; id: number }>>,
 ) => {
   const sortable = useSortable({ id: props.id });
-  const tiles = useTiles();
+  const search = useSearch({ from: "/(dashboard)/dashboard" });
+  const tiles = useTiles(search.name, search.tags);
 
   const style: Readonly<CSSProperties> = {
     transform: sortable.transform
@@ -191,7 +195,8 @@ const SortableItem = (
 const SortableGrid = (props: {
   children: (tile: Tile, index: number) => ReactNode;
 }) => {
-  const tiles = useTiles();
+  const search = useSearch({ from: "/(dashboard)/dashboard" });
+  const tiles = useTiles(search.name, search.tags);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
   const reorderTiles = useReorderTiles();

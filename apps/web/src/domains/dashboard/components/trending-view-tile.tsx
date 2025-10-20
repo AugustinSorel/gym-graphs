@@ -1,5 +1,5 @@
 import { Button } from "~/ui/button";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
+import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "~/ui/badge";
 import { Skeleton } from "~/ui/skeleton";

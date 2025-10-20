@@ -22,7 +22,10 @@ export const tagRouter = new Hono<Ctx>()
   .patch(
     "/:tagId",
     requireAuthMiddleware,
-    zValidator("param", z.object({ tagId: tagSchema.shape.id })),
+    zValidator(
+      "param",
+      z.object({ tagId: z.coerce.number().pipe(tagSchema.shape.id) }),
+    ),
     zValidator("json", tagSchema.partial().pick({ name: true })),
     async (c) => {
       const params = c.req.valid("param");
@@ -36,7 +39,10 @@ export const tagRouter = new Hono<Ctx>()
   .delete(
     "/:tagId",
     requireAuthMiddleware,
-    zValidator("param", z.object({ tagId: tagSchema.shape.id })),
+    zValidator(
+      "param",
+      z.object({ tagId: z.coerce.number().pipe(tagSchema.shape.id) }),
+    ),
     async (c) => {
       const params = c.req.valid("param");
 

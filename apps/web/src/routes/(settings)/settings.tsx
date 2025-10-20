@@ -30,8 +30,6 @@ import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
-//TODO:
-// import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { TagsList } from "~/domains/tag/components/tags-list";
 import { api, parseJsonResponse } from "~/libs/api";
 import type { ComponentProps, PropsWithChildren } from "react";
@@ -44,13 +42,6 @@ export const Route = createFileRoute("/(settings)/settings")({
       throw redirect({ to: "/dashboard" });
     }
   },
-  // loader: async ({ context }) => {
-  // const queries = {
-  //   tilesToTagsCount: dashboardQueries.tilesToTagsCount,
-  // };
-
-  // await context.queryClient.ensureQueryData(queries.tilesToTagsCount);
-  // },
 });
 
 const RouteComponent = () => {

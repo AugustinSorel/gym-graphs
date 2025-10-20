@@ -16,8 +16,6 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { tagSchema } from "@gym-graphs/schemas/tag";
 import { userQueries } from "~/domains/user/user.queries";
-//TODO
-// import { dashboardQueries } from "~/domains/dashboard/dashboard.queries";
 import type { z } from "zod";
 import { api, parseJsonResponse } from "~/libs/api";
 import { InferRequestType } from "hono";
@@ -116,7 +114,6 @@ const useCreateTag = () => {
 
   const queries = {
     user: userQueries.get,
-    // tilesToTagsCount: dashboardQueries.tilesToTagsCount,
   };
 
   return useMutation({
@@ -125,7 +122,6 @@ const useCreateTag = () => {
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
-      // await ctx.client.cancelQueries(queries.tilesToTagsCount);
 
       const optimisticTag = {
         id: Math.random(),
@@ -146,21 +142,6 @@ const useCreateTag = () => {
           tags: [...user.tags, optimisticTag],
         };
       });
-
-      // ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
-      //   if (!tilesToTagsCount) {
-      //     return tilesToTagsCount;
-      //   }
-
-      //   return [
-      //     ...tilesToTagsCount,
-      //     {
-      //       count: 0,
-      //       id: optimisticTag.id,
-      //       name: optimisticTag.name,
-      //     },
-      //   ];
-      // });
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.user);

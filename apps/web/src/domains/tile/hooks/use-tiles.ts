@@ -1,9 +1,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useSearch } from "@tanstack/react-router";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import type { Tag, Tile } from "@gym-graphs/api/db";
 
-export const useTiles = () => {
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-
-  return useSuspenseInfiniteQuery(tileQueries.all(search.name, search.tags));
+export const useTiles = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
+  return useSuspenseInfiniteQuery(tileQueries.all(name, tags));
 };

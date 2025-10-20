@@ -16,8 +16,6 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { tagSchema } from "@gym-graphs/schemas/tag";
 import { userQueries } from "~/domains/user/user.queries";
-//TODO:
-// import { dashboardQueries } from "~/domains/dashboard/dashboard.queries";
 import { useTag } from "~/domains/tag/tag.context";
 import { api, parseJsonResponse } from "~/libs/api";
 import type { z } from "zod";
@@ -29,6 +27,7 @@ export const RenameTagForm = (props: Props) => {
   const tag = useTag();
 
   const onSubmit = async (data: RenameTagSchema) => {
+    console.log("HERE");
     await renameTag.mutateAsync(
       {
         param: {
@@ -128,7 +127,6 @@ const useRenameTag = () => {
 
   const queries = {
     user: userQueries.get,
-    // tilesToTagsCount: dashboardQueries.tilesToTagsCount,
   };
 
   return useMutation({
@@ -137,7 +135,6 @@ const useRenameTag = () => {
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
-      // await ctx.client.cancelQueries(queries.tilesToTagsCount)
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
         if (!user) {
@@ -158,27 +155,9 @@ const useRenameTag = () => {
           }),
         };
       });
-
-      // ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
-      //   if (!tilesToTagsCount) {
-      //     return tilesToTagsCount;
-      //   }
-
-      //   return tilesToTagsCount.map((tileToTag) => {
-      //     if (tileToTag.id === variables.data.tagId) {
-      //       return {
-      //         ...tileToTag,
-      //         name: variables.data.name,
-      //       };
-      //     }
-
-      //     return tileToTag;
-      //   });
-      // });
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.user);
-      // void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

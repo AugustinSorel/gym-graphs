@@ -129,9 +129,22 @@ const reorder = async (
       ),
     );
 };
+
+const addTags = async (
+  tileId: Tile["id"],
+  tagsToAdd: Array<Tag["id"]>,
+  db: Db,
+) => {
+  return db
+    .insert(tilesToTagsTableTable)
+    .values(tagsToAdd.map((tagId) => ({ tagId, tileId })))
+    .returning();
+};
+
 export const tileRepo = {
   create,
   reorder,
   createMany,
   selectInfinite,
+  addTags,
 };
