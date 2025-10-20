@@ -85,7 +85,7 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <HeadContent />
         <AnalyticScript />
       </head>
-      <body>
+      <body className="bg-background text-foreground">
         {loaderData.user?.emailVerifiedAt ? (
           <HeaderPrivate />
         ) : (
