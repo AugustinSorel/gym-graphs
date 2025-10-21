@@ -115,3 +115,16 @@ const AnalyticScript = () => {
     />
   );
 };
+/*
+# TANSTACK BUGS
+| Type     | Description                                           |
+| -------- | ------------------------------------------------------|
+| BUG      | tanstack router can't redirect to external url        |
+|          | (Remove `window.location.href` in `github-sign-in`)   |
+
+# APP TAKS
+| Type     | Description                                           |
+| ---------| ------------------------------------------------------|
+| TODO     | save modals state in url                              |
+| TODO     | try turborepo for prod                                |
+*/

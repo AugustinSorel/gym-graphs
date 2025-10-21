@@ -3,14 +3,12 @@ import { CreateExerciseTileDialog } from "~/domains/tile/components/create-exerc
 import { z } from "zod";
 import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
-//TODO:
-// import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { Dashboard } from "~/domains/dashboard/components/dashboard";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { tagSchema } from "@gym-graphs/schemas/tag";
 import { ViewToggle } from "~/domains/dashboard/components/view-toggle";
-import type { ComponentProps } from "react";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(dashboard)/dashboard")({
   validateSearch: z.object({
@@ -32,16 +30,7 @@ export const Route = createFileRoute("/(dashboard)/dashboard")({
   loader: async ({ context, deps }) => {
     const queries = {
       tiles: tileQueries.all(deps.name, deps.tags),
-      // tilesToSetsCount: dashboardQueries.tilesToSetsCount,
-      // setsHeatMap: dashboardQueries.tilesSetsHeatMap,
-      // funFacts: dashboardQueries.funFacts,
-      // tilesToTagsCount: dashboardQueries.tilesToTagsCount,
     };
-
-    // void context.queryClient.prefetchQuery(queries.tilesToSetsCount);
-    // void context.queryClient.prefetchQuery(queries.setsHeatMap);
-    // void context.queryClient.prefetchQuery(queries.funFacts);
-    // void context.queryClient.prefetchQuery(queries.tilesToTagsCount);
 
     await context.queryClient.ensureInfiniteQueryData(queries.tiles);
   },
