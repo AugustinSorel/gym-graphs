@@ -10,6 +10,7 @@ import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
+import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 
 export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
@@ -65,9 +66,12 @@ const ExerciseOverviewTile = (props: { tile: ExerciseOverviewTile }) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      {/*
-      <ExerciseOverviewGraph sets={props.tile.exercise.sets} />
-    */}
+      <ExerciseOverviewGraph
+        sets={props.tile.exerciseOverview.exercise.sets.map((s) => ({
+          ...s,
+          doneAt: new Date(s.doneAt),
+        }))}
+      />
     </Card>
   );
 };
