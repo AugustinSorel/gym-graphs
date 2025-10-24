@@ -14,6 +14,7 @@ import { HeaderPrivate, HeaderPublic } from "~/header";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
 import { api, parseJsonResponse } from "~/libs/api";
+import { useUser } from "~/domains/user/hooks/use-user";
 
 export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({
@@ -40,10 +41,8 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
     links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
-  beforeLoad: async ({ context, abortController }) => {
-    const req = api().sessions.me.$get(undefined, {
-      init: { signal: abortController.signal },
-    });
+  beforeLoad: async ({ context }) => {
+    const req = api().sessions.me.$get();
 
     const session = await parseJsonResponse(await req).catch(() => null);
 
@@ -77,7 +76,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<PropsWithChildren>) {
-  const loaderData = Route.useLoaderData();
+  const data = Route.useLoaderData();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -86,11 +85,7 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {loaderData.user?.emailVerifiedAt ? (
-          <HeaderPrivate />
-        ) : (
-          <HeaderPublic />
-        )}
+        {!!data.user?.emailVerifiedAt ? <HeaderPrivate /> : <HeaderPublic />}
 
         {children}
 

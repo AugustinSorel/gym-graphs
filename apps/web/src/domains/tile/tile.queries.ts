@@ -2,8 +2,8 @@ import { infiniteQueryOptions } from "@tanstack/react-query";
 import type { Tile, Tag } from "@gym-graphs/api/db";
 import { api, parseJsonResponse } from "~/libs/api";
 
-const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
-  infiniteQueryOptions({
+const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
+  return infiniteQueryOptions({
     queryKey: ["dashboard", "tiles", name, tags],
     queryFn: async ({ pageParam, signal }) => {
       const req = api().tiles.$get(
@@ -48,6 +48,7 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
   });
+};
 
 export const tileQueries = {
   all,
