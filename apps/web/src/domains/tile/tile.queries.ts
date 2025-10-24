@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import type { Tile, Tag } from "@gym-graphs/api/db";
+import type { Tile, Tag, Set } from "@gym-graphs/api/db";
 import { api, parseJsonResponse } from "~/libs/api";
 
 const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
@@ -21,9 +21,32 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
+    select: (tiles) =>
+      tiles.pages
+        .flatMap((pages) => pages.tiles)
+        .map((tile) => {
+          if (tile.type === "exerciseOverview") {
+            return {
+              ...tile,
+              exerciseOverview: {
+                ...tile.exerciseOverview,
+                exercise: {
+                  ...tile.exerciseOverview.exercise,
+                  sets: tile.exerciseOverview.exercise.sets.map((set) => {
+                    return {
+                      ...set,
+                      doneAt: new Date(set.doneAt),
+                    };
+                  }),
+                },
+              },
+            };
+          }
+
+          return tile;
+        }),
   });
 
 export const tileQueries = {
   all,
-} as const;
+};
