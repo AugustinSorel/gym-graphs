@@ -285,7 +285,7 @@ const SortableGrid = (props: {
 
     const queries = {
       tiles: tileQueries.all().queryKey,
-    } as const;
+    };
 
     queryClient.setQueryData(queries.tiles, (tiles) => {
       if (!tiles) {

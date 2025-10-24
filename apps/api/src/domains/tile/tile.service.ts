@@ -38,41 +38,51 @@ const selectInfinite = async (
   const tiles2 = tiles.map((tile) => {
     if (tile.exerciseOverview) {
       return {
-        ...tile,
         type: "exerciseOverview" as const,
         exerciseOverview: tile.exerciseOverview,
+        tileToTags: tile.tileToTags,
+        id: tile.id,
+        name: tile.name,
       };
     }
 
     if (tile.exerciseSetCount) {
       return {
-        ...tile,
         type: "exerciseSetCount" as const,
         exerciseSetCount: tile.exerciseSetCount,
+        tileToTags: tile.tileToTags,
+        id: tile.id,
+        name: tile.name,
       };
     }
 
     if (tile.exerciseTagCount) {
       return {
-        ...tile,
         type: "exerciseTagCount" as const,
         exerciseTagCount: tile.exerciseTagCount,
+        tileToTags: tile.tileToTags,
+        id: tile.id,
+        name: tile.name,
       };
     }
 
     if (tile.dashboardHeatMap) {
       return {
-        ...tile,
         type: "dashboardHeatMap" as const,
         dashboardHeatMap: tile.dashboardHeatMap,
+        tileToTags: tile.tileToTags,
+        id: tile.id,
+        name: tile.name,
       };
     }
 
     if (tile.dashboardFunFacts) {
       return {
-        ...tile,
         type: "dashboardFunFacts" as const,
         dashboardFunFacts: tile.dashboardFunFacts,
+        tileToTags: tile.tileToTags,
+        id: tile.id,
+        name: tile.name,
       };
     }
 
