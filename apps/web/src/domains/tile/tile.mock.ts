@@ -296,4 +296,52 @@ export const tilesMock: Array<Tile> = [
         updatedAt: new Date().toString(),
       })),
   },
+  {
+    id: 7,
+    name: "exercises frequency",
+    type: "exerciseSetCount",
+    tileToTags: [],
+    exerciseSetCount: {
+      tileId: 7,
+      id: 7,
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
+    },
+  },
+  {
+    id: 8,
+    name: "tags frequency",
+    type: "exerciseTagCount",
+    tileToTags: [],
+    exerciseTagCount: {
+      tileId: 8,
+      id: 8,
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
+    },
+  },
+  {
+    id: 5,
+    name: "fun facts",
+    type: "dashboardFunFacts",
+    tileToTags: [],
+    dashboardFunFacts: {
+      tileId: 5,
+      id: 5,
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
+    },
+  },
+  {
+    id: 6,
+    name: "heat map",
+    type: "dashboardHeatMap",
+    tileToTags: [],
+    dashboardHeatMap: {
+      tileId: 6,
+      id: 6,
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
+    },
+  },
 ];

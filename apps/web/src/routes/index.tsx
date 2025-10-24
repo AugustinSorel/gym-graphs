@@ -11,9 +11,10 @@ import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-cou
 import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
 import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
 import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
-import type { ComponentProps } from "react";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { tilesMock } from "~/domains/tile/tile.mock";
+import { useTiles } from "~/domains/tile/hooks/use-tiles";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -78,6 +79,8 @@ const HeroSection = () => {
 };
 
 const FeatureOne = () => {
+  const tiles = useTiles();
+
   return (
     <FeatureContainer>
       <HeroTitle>
@@ -91,32 +94,52 @@ const FeatureOne = () => {
       </Text>
 
       <Grid>
-        {tilesMock
-          .filter((tile) => tile.type === "exerciseOverview")
-          .map((tile) => (
-            <Card key={tile.id}>
-              <Name>{tile.name}</Name>
-              <ExerciseOverviewGraph
-                sets={tile.exerciseOverview.exercise.sets}
-              />
-            </Card>
-          ))}
-        <Card>
-          <Name>exercises frequency</Name>
-          <ExerciseSetCountGraph />
-        </Card>
-        <Card>
-          <Name>tags frequency</Name>
-          <ExerciseTagCountGraph />
-        </Card>
-        <Card>
-          <Name>fun facts</Name>
-          <DashboardFunFacts />
-        </Card>
-        <Card>
-          <Name>heat map - January</Name>
-          <DashboardHeatMap />
-        </Card>
+        {tiles.data.map((tile) => {
+          switch (tile.type) {
+            case "exerciseOverview": {
+              return (
+                <Card key={tile.id}>
+                  <Name>{tile.name}</Name>
+                  <ExerciseOverviewGraph
+                    sets={tile.exerciseOverview.exercise.sets}
+                  />
+                </Card>
+              );
+            }
+            case "exerciseSetCount": {
+              return (
+                <Card key={tile.id}>
+                  <Name>exercises frequency</Name>
+                  <ExerciseSetCountGraph />
+                </Card>
+              );
+            }
+            case "exerciseTagCount": {
+              return (
+                <Card key={tile.id}>
+                  <Name>tags frequency</Name>
+                  <ExerciseTagCountGraph />
+                </Card>
+              );
+            }
+            case "dashboardHeatMap": {
+              return (
+                <Card key={tile.id}>
+                  <Name>heat map - January</Name>
+                  <DashboardHeatMap />
+                </Card>
+              );
+            }
+            case "dashboardFunFacts": {
+              return (
+                <Card key={tile.id}>
+                  <Name>fun facts</Name>
+                  <DashboardFunFacts />
+                </Card>
+              );
+            }
+          }
+        })}
       </Grid>
     </FeatureContainer>
   );
