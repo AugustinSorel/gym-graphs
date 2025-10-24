@@ -2,26 +2,36 @@ import { and, asc, desc, eq, ilike, inArray, sql, SQL } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import {
+  dashboardFunFactsTileTable,
   dashboardTable,
+  exerciseSetCountTileTable,
+  exerciseTagCountTileTable,
   setTable,
   tagTable,
   tilesToTagsTableTable,
   tileTable,
 } from "~/db/db.schemas";
-import type { Tag, Tile } from "~/db/db.schemas";
+import {
+  exerciseOverviewTileTable,
+  dashboardHeatMapTileTable,
+} from "~/db/db.schemas";
+import type {
+  Tag,
+  Tile,
+  ExerciseSetCountTile,
+  ExerciseOverviewTile,
+} from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 const create = async (
   name: Tile["name"],
-  type: Tile["type"],
-  exerciseId: Tile["exerciseId"],
   dashboardId: Tile["dashboardId"],
   db: Db,
 ) => {
   try {
     const [tile] = await db
       .insert(tileTable)
-      .values({ name, type, dashboardId, exerciseId })
+      .values({ name, dashboardId })
       .returning();
 
     if (!tile) {
@@ -83,17 +93,25 @@ const selectInfinite = async (
     limit: pageSize,
     offset: (page - 1) * pageSize,
     with: {
+      exerciseOverview: {
+        with: {
+          exercise: {
+            with: {
+              sets: {
+                orderBy: desc(setTable.createdAt),
+              },
+            },
+          },
+        },
+      },
+      exerciseSetCount: true,
+      exerciseTagCount: true,
+      dashboardHeatMap: true,
+      dashboardFunFacts: true,
       tileToTags: {
         orderBy: asc(tagTable.createdAt),
         with: {
           tag: true,
-        },
-      },
-      exercise: {
-        with: {
-          sets: {
-            orderBy: desc(setTable.createdAt),
-          },
         },
       },
     },
@@ -141,10 +159,104 @@ const addTags = async (
     .returning();
 };
 
+const addExercises = async (
+  values: Array<typeof exerciseOverviewTileTable.$inferInsert>,
+  db: Db,
+) => {
+  return db.insert(exerciseOverviewTileTable).values(values).returning();
+};
+
+const createExercise = async (
+  exerciseId: ExerciseOverviewTile["exerciseId"],
+  tileId: ExerciseOverviewTile["tileId"],
+  db: Db,
+) => {
+  const exerciseTile = await db
+    .insert(exerciseOverviewTileTable)
+    .values({ tileId, exerciseId })
+    .returning();
+
+  if (!exerciseTile) {
+    throw new Error("db did not return exercise tile");
+  }
+
+  return exerciseTile;
+};
+
+const addExerciseSetCount = async (
+  tileId: ExerciseSetCountTile["tileId"],
+  db: Db,
+) => {
+  const [exerciseSetCount] = await db
+    .insert(exerciseSetCountTileTable)
+    .values({ tileId })
+    .returning();
+
+  if (!exerciseSetCount) {
+    throw new Error("db did not returned exerciseToSetCounts");
+  }
+
+  return exerciseSetCount;
+};
+
+const addExerciseTagCount = async (
+  tileId: ExerciseSetCountTile["tileId"],
+  db: Db,
+) => {
+  const [exerciseTagCount] = await db
+    .insert(exerciseTagCountTileTable)
+    .values({ tileId })
+    .returning();
+
+  if (!exerciseTagCount) {
+    throw new Error("db did not returned exerciTagoTagCounts");
+  }
+
+  return exerciseTagCount;
+};
+
+const addDashboardHeatMap = async (
+  tileId: ExerciseSetCountTile["tileId"],
+  db: Db,
+) => {
+  const [dashboardHeatMap] = await db
+    .insert(dashboardHeatMapTileTable)
+    .values({ tileId })
+    .returning();
+
+  if (!dashboardHeatMap) {
+    throw new Error("db did not returned dashboardHeatMap");
+  }
+
+  return dashboardHeatMap;
+};
+
+const addDashboardFunFacts = async (
+  tileId: ExerciseSetCountTile["tileId"],
+  db: Db,
+) => {
+  const [dashboardFunFacts] = await db
+    .insert(dashboardFunFactsTileTable)
+    .values({ tileId })
+    .returning();
+
+  if (!dashboardFunFacts) {
+    throw new Error("db did not returned dashboardFunFacts");
+  }
+
+  return dashboardFunFacts;
+};
+
 export const tileRepo = {
   create,
   reorder,
   createMany,
+  createExercise,
   selectInfinite,
   addTags,
+  addExercises,
+  addExerciseSetCount,
+  addExerciseTagCount,
+  addDashboardHeatMap,
+  addDashboardFunFacts,
 };

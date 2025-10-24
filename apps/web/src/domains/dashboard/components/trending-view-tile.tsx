@@ -1,5 +1,4 @@
 import { Button } from "~/ui/button";
-import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "~/ui/badge";
 import { Skeleton } from "~/ui/skeleton";
@@ -12,18 +11,33 @@ import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
 import type { Set } from "@gym-graphs/api/db";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 
-export const TrendingViewTile = (props: { tile: Tile }) => {
-  switch (props.tile.type) {
-    case "exercise":
-      return <ExerciseTile tile={props.tile} />;
-    case "tilesToSetsCount":
-    case "tilesToTagsCount":
-    case "tilesSetsHeatMap":
-    case "tilesFunFacts":
-      return null;
-  }
+export const TrendingViewTile = (props: { tile: ExerciseOverviewTile }) => {
+  return (
+    <Card className="hover:bg-accent group transition-colors">
+      <Button variant="link" asChild className="absolute inset-0 h-auto">
+        <Link
+          to="/exercises/$exerciseId"
+          params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
+          aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
+        />
+      </Button>
+
+      <Name className="group-hover:underline">{props.tile.name}</Name>
+      <LastTwoSetsProgress
+        sets={props.tile.exerciseOverview.exercise.sets.map((set) => ({
+          ...set,
+          doneAt: new Date(set.doneAt),
+        }))}
+      />
+    </Card>
+  );
 };
+
+type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+
+type ExerciseOverviewTile = Extract<Tile, { type: "exerciseOverview" }>;
 
 export const TrendingViewTileFallback = (props: ErrorComponentProps) => {
   return (
@@ -39,34 +53,6 @@ export const TrendingViewTileSkeleton = () => {
     <Skeleton>
       <Card className="h-14" />
     </Skeleton>
-  );
-};
-
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
-
-const ExerciseTile = (props: { tile: Tile }) => {
-  if (!props.tile.exercise) {
-    throw new Error("no exercise");
-  }
-
-  return (
-    <Card className="hover:bg-accent group transition-colors">
-      <Button variant="link" asChild className="absolute inset-0 h-auto">
-        <Link
-          to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exercise.id }}
-          aria-label={`go to exercise ${props.tile.exercise.id}`}
-        />
-      </Button>
-
-      <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress
-        sets={props.tile.exercise.sets.map((set) => ({
-          ...set,
-          doneAt: new Date(set.doneAt),
-        }))}
-      />
-    </Card>
   );
 };
 

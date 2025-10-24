@@ -170,9 +170,13 @@ const selectDataById = async (userId: User["id"], db: Db) => {
         with: {
           tiles: {
             with: {
-              exercise: {
+              exerciseOverview: {
                 with: {
-                  sets: true,
+                  exercise: {
+                    with: {
+                      sets: true,
+                    },
+                  },
                 },
               },
               tileToTags: true,

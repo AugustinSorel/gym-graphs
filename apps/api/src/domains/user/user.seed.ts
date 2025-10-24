@@ -2,7 +2,6 @@ import { tagRepo } from "../tag/tag.repo";
 import { dashboardRepo } from "~/domains/dashboard/dashboard.repo";
 import { exerciseRepo } from "~/domains/exercise/exercise.repo";
 import { tileRepo } from "~/domains/tile/tile.repo";
-import { tileSchema } from "@gym-graphs/schemas/tile";
 import { setRepo } from "~/domains/set/set.repo";
 import { addDate } from "~/utils/dates";
 import type { User } from "~/db/db.schemas";
@@ -46,10 +45,10 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
   }
 
   const [
-    _tilesToTagsCountTile,
-    _tilesToSetsCountTile,
-    _tilesFunFactsTile,
-    _tilesSetsHeatMapTile,
+    exerciseTagCountTile,
+    exerciseSetCountTile,
+    dashboardHeatMapTile,
+    dashboardFunFactsTile,
     benchPressTile,
     squatTile,
     deadliftTile,
@@ -57,47 +56,45 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     [
       {
         name: "tags frequency",
-        type: tileSchema.shape.type.enum.tilesToTagsCount,
         dashboardId: dashboard.id,
       },
       {
         name: "exercises frequency",
-        type: tileSchema.shape.type.enum.tilesToSetsCount,
         dashboardId: dashboard.id,
       },
       {
         name: "tiles fun facts",
-        type: tileSchema.shape.type.enum.tilesFunFacts,
         dashboardId: dashboard.id,
       },
       {
         name: "sets heat map",
-        type: tileSchema.shape.type.enum.tilesSetsHeatMap,
         dashboardId: dashboard.id,
       },
       {
         name: data.exercisesName[0],
-        type: tileSchema.shape.type.enum.exercise,
-        exerciseId: benchPress.id,
         dashboardId: dashboard.id,
       },
       {
         name: data.exercisesName[1],
-        type: tileSchema.shape.type.enum.exercise,
-        exerciseId: squat.id,
         dashboardId: dashboard.id,
       },
       {
         name: data.exercisesName[2],
-        type: tileSchema.shape.type.enum.exercise,
-        exerciseId: deadlift.id,
         dashboardId: dashboard.id,
       },
     ],
     db,
   );
 
-  if (!benchPressTile || !squatTile || !deadliftTile) {
+  if (
+    !benchPressTile ||
+    !squatTile ||
+    !deadliftTile ||
+    !exerciseSetCountTile ||
+    !exerciseTagCountTile ||
+    !dashboardHeatMapTile ||
+    !dashboardFunFactsTile
+  ) {
     throw new Error(
       "benchPressTile, squatTile and deadliftTile not returned by db",
     );
@@ -145,6 +142,18 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       ],
       db,
     ),
+    tileRepo.addExercises(
+      [
+        { exerciseId: benchPress.id, tileId: benchPressTile.id },
+        { exerciseId: squat.id, tileId: squatTile.id },
+        { exerciseId: deadlift.id, tileId: deadliftTile.id },
+      ],
+      db,
+    ),
+    tileRepo.addExerciseSetCount(exerciseSetCountTile.id, db),
+    tileRepo.addExerciseTagCount(exerciseTagCountTile.id, db),
+    tileRepo.addDashboardHeatMap(dashboardHeatMapTile.id, db),
+    tileRepo.addDashboardFunFacts(dashboardFunFactsTile.id, db),
     tileRepo.addTags(
       benchPressTile.id,
       tags.filter((tag) => ["chest"].includes(tag.name)).map((tag) => tag.id),

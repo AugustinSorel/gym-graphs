@@ -98,9 +98,11 @@ const TrendingViewContent = () => {
         errorComponent={TrendingViewTileFallback}
         getResetKey={() => "reset"}
       >
-        {tiles.data.map((tile) => (
-          <TrendingViewTile key={tile.id} tile={tile} />
-        ))}
+        {tiles.data
+          .filter((tile) => tile.type === "exerciseOverview")
+          .map((tile) => {
+            return <TrendingViewTile key={tile.id} tile={tile} />;
+          })}
       </CatchBoundary>
 
       {tiles.isFetchingNextPage && <TrendingViewTilesSkeleton />}

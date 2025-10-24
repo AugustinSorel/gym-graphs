@@ -88,16 +88,12 @@ export const tileTable = pgTable(
   "tile",
   (t) => ({
     id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    type: tileTypeEnum().notNull(),
     index: t.serial("index"),
     name: t.text("name").notNull(),
     dashboardId: t
       .integer("dashboard_id")
       .references(() => dashboardTable.id, { onDelete: "cascade" })
       .notNull(),
-    exerciseId: t.integer("exercise_id").references(() => exerciseTable.id, {
-      onDelete: "cascade",
-    }),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
     updatedAt: t
       .timestamp("updated_at")
@@ -115,9 +111,176 @@ export const tileRelations = relations(tileTable, ({ one, many }) => ({
     fields: [tileTable.dashboardId],
     references: [dashboardTable.id],
   }),
-  exercise: one(exerciseTable),
+  exerciseOverview: one(exerciseOverviewTileTable),
+  exerciseSetCount: one(exerciseSetCountTileTable),
+  exerciseTagCount: one(exerciseTagCountTileTable),
+  dashboardHeatMap: one(dashboardHeatMapTileTable),
+  dashboardFunFacts: one(dashboardFunFactsTileTable),
   tileToTags: many(tilesToTagsTableTable),
 }));
+
+export const exerciseOverviewTileTable = pgTable(
+  "exercise_overview_tile",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    tileId: t
+      .integer("tile_id")
+      .references(() => tileTable.id, { onDelete: "cascade" })
+      .notNull(),
+    exerciseId: t
+      .integer("exercise_id")
+      .references(() => exerciseTable.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+);
+
+export type ExerciseOverviewTile = Readonly<
+  typeof exerciseOverviewTileTable.$inferSelect
+>;
+
+export const exerciseOverviewTileRelations = relations(
+  exerciseOverviewTileTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [exerciseOverviewTileTable.tileId],
+      references: [tileTable.id],
+    }),
+    exercise: one(exerciseTable, {
+      fields: [exerciseOverviewTileTable.exerciseId],
+      references: [exerciseTable.id],
+    }),
+  }),
+);
+
+export const exerciseSetCountTileTable = pgTable(
+  "exercise_set_count_tile",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    tileId: t
+      .integer("tile_id")
+      .references(() => tileTable.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+);
+
+export type ExerciseSetCountTile = Readonly<
+  typeof exerciseSetCountTileTable.$inferSelect
+>;
+
+export const exerciseSetCountTileRelations = relations(
+  exerciseSetCountTileTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [exerciseSetCountTileTable.tileId],
+      references: [tileTable.id],
+    }),
+  }),
+);
+
+export const exerciseTagCountTileTable = pgTable(
+  "exercise_tag_count_tile",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    tileId: t
+      .integer("tile_id")
+      .references(() => tileTable.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+);
+
+export type ExerciseTagCountTile = Readonly<
+  typeof exerciseTagCountTileTable.$inferSelect
+>;
+
+export const exerciseTagCountTileRelations = relations(
+  exerciseTagCountTileTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [exerciseTagCountTileTable.tileId],
+      references: [tileTable.id],
+    }),
+  }),
+);
+
+export const dashboardHeatMapTileTable = pgTable(
+  "dashboard_heat_map_tile",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    tileId: t
+      .integer("tile_id")
+      .references(() => tileTable.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+);
+
+export type DashboardHeatMapTile = Readonly<
+  typeof dashboardHeatMapTileTable.$inferSelect
+>;
+
+export const dashboardHeatMapTileRelations = relations(
+  dashboardHeatMapTileTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [dashboardHeatMapTileTable.tileId],
+      references: [tileTable.id],
+    }),
+  }),
+);
+
+export const dashboardFunFactsTileTable = pgTable(
+  "dashboard_fun_facts_tile",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    tileId: t
+      .integer("tile_id")
+      .references(() => tileTable.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+);
+
+export type DashboardFunFactsTile = Readonly<
+  typeof dashboardHeatMapTileTable.$inferSelect
+>;
+
+export const dashboardFunFactsTileRelations = relations(
+  dashboardFunFactsTileTable,
+  ({ one }) => ({
+    tile: one(tileTable, {
+      fields: [dashboardFunFactsTileTable.tileId],
+      references: [tileTable.id],
+    }),
+  }),
+);
 
 export const emailVerificationCodeTable = pgTable(
   "email_verification_code",
@@ -264,9 +427,9 @@ export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
 export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   sets: many(setTable),
-  tile: one(tileTable, {
+  setsTile: one(exerciseOverviewTileTable, {
     fields: [exerciseTable.id],
-    references: [tileTable.exerciseId],
+    references: [exerciseOverviewTileTable.exerciseId],
   }),
 }));
 

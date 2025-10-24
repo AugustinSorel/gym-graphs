@@ -19,6 +19,7 @@ import { tileSchema } from "@gym-graphs/schemas/tile";
 import { api, parseJsonResponse } from "~/libs/api";
 import type { z } from "zod";
 import type { InferRequestType } from "hono";
+import { tileQueries } from "../tile.queries";
 
 export const CreateExerciseTileForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -82,6 +83,7 @@ type Props = Readonly<{
 const useFormSchema = () => {
   return tileSchema.pick({ name: true });
 
+  //TODO:
   // const queryClient = useQueryClient();
 
   // return tileSchema.pick({ name: true }).refine(
@@ -124,10 +126,10 @@ const useCreateExerciseTile = () => {
   // const user = useUser();
   const req = api().tiles.$post;
 
-  // const queries = {
-  // tiles: dashboardQueries.tiles(),
-  // tilesToSetsCount: dashboardQueries.tilesToSetsCount,
-  // } ;
+  //TODO:
+  const queries = {
+    tiles: tileQueries.all(),
+  };
 
   return useMutation({
     mutationFn: async (input: InferRequestType<typeof req>) => {
@@ -187,9 +189,8 @@ const useCreateExerciseTile = () => {
     //   return [{ name: variables.data.name, count: 0 }, ...tilesToSetsCount];
     // });
     // },
-    // onSettled: (_data, _error, _variables, _res, ctx) => {
-    // void ctx.client.invalidateQueries(queries.tiles);
-    // void ctx.client.invalidateQueries(queries.tilesToSetsCount);
-    // },
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(queries.tiles);
+    },
   });
 };

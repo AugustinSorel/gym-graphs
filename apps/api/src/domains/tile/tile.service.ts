@@ -11,7 +11,9 @@ const createExerciseTile = async (
   await db.transaction(async (tx) => {
     const exercise = await exerciseRepo.create(tx);
 
-    await tileRepo.create(name, "exercise", exercise.id, dashboardId, tx);
+    const tile = await tileRepo.create(name, dashboardId, tx);
+
+    await tileRepo.createExercise(exercise.id, tile.id, tx);
   });
 };
 
@@ -33,11 +35,56 @@ const selectInfinite = async (
     db,
   );
 
-  const showNextPage = tiles.length > pageSize - 1;
+  const tiles2 = tiles.map((tile) => {
+    if (tile.exerciseOverview) {
+      return {
+        ...tile,
+        type: "exerciseOverview" as const,
+        exerciseOverview: tile.exerciseOverview,
+      };
+    }
+
+    if (tile.exerciseSetCount) {
+      return {
+        ...tile,
+        type: "exerciseSetCount" as const,
+        exerciseSetCount: tile.exerciseSetCount,
+      };
+    }
+
+    if (tile.exerciseTagCount) {
+      return {
+        ...tile,
+        type: "exerciseTagCount" as const,
+        exerciseTagCount: tile.exerciseTagCount,
+      };
+    }
+
+    if (tile.dashboardHeatMap) {
+      return {
+        ...tile,
+        type: "dashboardHeatMap" as const,
+        dashboardHeatMap: tile.dashboardHeatMap,
+      };
+    }
+
+    if (tile.dashboardFunFacts) {
+      return {
+        ...tile,
+        type: "dashboardFunFacts" as const,
+        dashboardFunFacts: tile.dashboardFunFacts,
+      };
+    }
+
+    console.log(tile);
+    throw new Error("??");
+  });
+
+  const showNextPage = tiles2.length > pageSize - 1;
   const nextCursor = showNextPage ? page + 1 : null;
 
   return {
-    tiles,
+    tiles: tiles2,
     nextCursor,
   };
 };

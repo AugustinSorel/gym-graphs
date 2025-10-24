@@ -6,7 +6,7 @@ export const useTagCounts = () => {
   const tags = useUser().data.tags;
 
   const map = tiles.data
-    .flatMap((x) => x.tileToTags)
+    .flatMap((tile) => tile.tileToTags)
     .reduce((map, tile) => {
       map.set(tile.tagId, (map.get(tile.tagId) ?? 0) + 1);
 

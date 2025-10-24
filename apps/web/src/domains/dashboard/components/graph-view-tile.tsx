@@ -1,23 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { GripVerticalIcon } from "~/ui/icons";
-// import {
-//   TilesSetsHeatMapGraph,
-//   TilesSetsHeatMapGraphSkeleton,
-// } from "~/dashboard/components/tiles-sets-heat-map-graph";
 import { Button } from "~/ui/button";
-// import {
-//   TilesFunFacts,
-//   TilesFunFactsSkeleton,
-// } from "~/dashboard/components/tiles-fun-facts";
-// import {
-//   TilesToSetsCountGraphSkeleton,
-//   TilesToSetsCountGraph,
-// } from "~/dashboard/components/tiles-to-sets-count-graph";
-// import { ExerciseOverviewGraph } from "~/exercise/components/exercise-overview-graph";
-// import {
-//   TilesToTagsCountGraph,
-//   TilesToTagsGraphSkeleton,
-// } from "~/dashboard/components/tiles-to-tags-count-graph";
+import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
@@ -28,16 +13,16 @@ import type { ButtonProps } from "~/ui/button";
 
 export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
-    case "exercise":
-      return <ExerciseTile tile={props.tile} />;
-    case "tilesToSetsCount":
-      return <TilesToSetsCountTile tile={props.tile} />;
-    case "tilesToTagsCount":
-      return <TilesToTagsCount tile={props.tile} />;
-    case "tilesSetsHeatMap":
-      return <TilesSetsHeatMapTile tile={props.tile} />;
-    case "tilesFunFacts":
-      return <TilesFunFactsTile tile={props.tile} />;
+    case "exerciseOverview":
+      return <ExerciseOverviewTile tile={props.tile} />;
+    case "exerciseSetCount":
+      return <ExerciseSetCountTile tile={props.tile} />;
+    case "exerciseTagCount":
+      return <ExerciseTagCountTile tile={props.tile} />;
+    case "dashboardHeatMap":
+      return <DashboardHeatMapTile tile={props.tile} />;
+    case "dashboardFunFacts":
+      return <DashboardFunFactsTile tile={props.tile} />;
   }
 };
 
@@ -62,20 +47,16 @@ export const GraphViewTileSkeleton = () => {
   );
 };
 
-const ExerciseTile = (props: TileProps) => {
+const ExerciseOverviewTile = (props: { tile: ExerciseOverviewTile }) => {
   const sortable = useSortable({ id: props.tile.id });
-
-  if (!props.tile.exercise) {
-    throw new Error("no exercise");
-  }
 
   return (
     <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exercise.id }}
-          aria-label={`go to exercise ${props.tile.exercise.id}`}
+          params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
+          aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
         />
       </Button>
 
@@ -91,7 +72,7 @@ const ExerciseTile = (props: TileProps) => {
   );
 };
 
-const TilesToTagsCount = (props: TileProps) => {
+const ExerciseTagCountTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
@@ -101,16 +82,12 @@ const TilesToTagsCount = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      {/*
-      <Suspense fallback={<TilesToTagsGraphSkeleton />}>
-        <TilesToTagsCountGraph />
-      </Suspense>
-    */}
+      <ExerciseTagCountGraph />
     </Card>
   );
 };
 
-const TilesToSetsCountTile = (props: TileProps) => {
+const ExerciseSetCountTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
@@ -120,16 +97,12 @@ const TilesToSetsCountTile = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      {/*
-      <Suspense fallback={<TilesToSetsCountGraphSkeleton />}>
-        <TilesToSetsCountGraph />
-      </Suspense>
-    */}
+      <ExerciseSetCountGraph />
     </Card>
   );
 };
 
-const TilesFunFactsTile = (props: TileProps) => {
+const DashboardFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
@@ -148,7 +121,7 @@ const TilesFunFactsTile = (props: TileProps) => {
   );
 };
 
-const TilesSetsHeatMapTile = (props: TileProps) => {
+const DashboardHeatMapTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
@@ -232,6 +205,8 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
 };
 
 type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+
 type TileProps = Readonly<{ tile: Tile }>;
+type ExerciseOverviewTile = Extract<Tile, { type: "exerciseOverview" }>;
 
 const routeApi = getRouteApi("/(dashboard)/dashboard");
