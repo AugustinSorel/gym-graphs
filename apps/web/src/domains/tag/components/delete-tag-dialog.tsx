@@ -14,11 +14,9 @@ import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useState } from "react";
 import { userQueries } from "~/domains/user/user.queries";
-//TODO:
-// import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { useTag } from "~/domains/tag/tag.context";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
+import type { InferRequestType } from "hono";
 
 export const DeleteTagDialog = () => {
   const deleteTag = useDeleteTag();
@@ -81,7 +79,6 @@ const useDeleteTag = () => {
 
   const queries = {
     user: userQueries.get,
-    // tilesToTagsCount: dashboardQueries.tilesToTagsCount,
   };
 
   return useMutation({
@@ -90,7 +87,6 @@ const useDeleteTag = () => {
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
-      // await ctx.client.cancelQueries(queries.tilesToTagsCount)
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
         if (!user) {
@@ -102,20 +98,9 @@ const useDeleteTag = () => {
           tags: user.tags.filter((tag) => tag.id !== +variables.param.tagId),
         };
       });
-
-      // ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
-      //   if (!tilesToTagsCount) {
-      //     return tilesToTagsCount;
-      //   }
-
-      //   return tilesToTagsCount.filter((tileToTagsCount) => {
-      //     return tileToTagsCount.id !== variables.data.tagId;
-      //   });
-      // });
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.user);
-      // void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

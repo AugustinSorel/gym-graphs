@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -13,13 +13,12 @@ import {
 import { Spinner } from "~/ui/spinner";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-//TODO:
-// import { dashboardQueries } from "~/dashboard/dashboard.queries";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { api, parseJsonResponse } from "~/libs/api";
+import { tileQueries } from "~/domains/tile/tile.queries";
+import { useUser } from "~/domains/user/hooks/use-user";
 import type { z } from "zod";
 import type { InferRequestType } from "hono";
-import { tileQueries } from "../tile.queries";
 
 export const CreateExerciseTileForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -81,32 +80,29 @@ type Props = Readonly<{
 }>;
 
 const useFormSchema = () => {
-  return tileSchema.pick({ name: true });
+  const queryClient = useQueryClient();
 
-  //TODO:
-  // const queryClient = useQueryClient();
+  return tileSchema.pick({ name: true }).refine(
+    (data) => {
+      const queries = {
+        tiles: tileQueries.all().queryKey,
+      };
 
-  // return tileSchema.pick({ name: true }).refine(
-  // (data) => {
-  // const queries = {
-  //   tiles: dashboardQueries.tiles().queryKey,
-  // };
+      const cachedTiles = queryClient.getQueryData(queries.tiles);
 
-  // const cachedTiles = queryClient.getQueryData(queries.tiles);
+      const nameTaken = cachedTiles?.pages
+        .flatMap((page) => page.tiles)
+        .find((tile) => {
+          return tile.name === data.name;
+        });
 
-  // const nameTaken = cachedTiles?.pages
-  //   .flatMap((page) => page.tiles)
-  //   .find((tile) => {
-  //     return tile.name === data.name;
-  //   });
-
-  // return !nameTaken;
-  // },
-  // {
-  // message: "exercise already created",
-  // path: ["name"],
-  // },
-  // );
+      return !nameTaken;
+    },
+    {
+      message: "exercise already created",
+      path: ["name"],
+    },
+  );
 };
 
 type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
@@ -123,10 +119,9 @@ const useCreateExerciseForm = () => {
 };
 
 const useCreateExerciseTile = () => {
-  // const user = useUser();
+  const user = useUser();
   const req = api().tiles.$post;
 
-  //TODO:
   const queries = {
     tiles: tileQueries.all(),
   };
@@ -135,60 +130,62 @@ const useCreateExerciseTile = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    // onMutate: async (variables, ctx) => {
-    // await ctx.client.cancelQueries(queries.tiles)
-    // await ctx.client.cancelQueries(queries.tilesToSetsCount)
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.tiles);
 
-    // const exerciseId = Math.random();
-    // const tileId = Math.random();
+      const exerciseId = Math.random();
+      const tileId = Math.random();
 
-    // const optimisticTile = {
-    //   id: tileId,
-    //   index: 1_0000,
-    //   type: "exercise" as const,
-    //   dashboardId: user.data.dashboard.id,
-    //   name: variables.json.name,
-    //   exerciseId,
-    //   tileToTags: [],
-    //   exercise: {
-    //     id: exerciseId,
-    //     userId: user.data.id,
-    //     sets: [],
-    //     createdAt: new Date().toString(),
-    //     updatedAt: new Date().toString(),
-    //   },
-    //   createdAt: new Date().toString(),
-    //   updatedAt: new Date().toString(),
-    // };
+      const optimisticTile = {
+        id: tileId,
+        index: 1_0000,
+        type: "exerciseOverview" as const,
+        dashboardId: user.data.dashboard.id,
+        name: variables.json.name,
+        tileToTags: [],
+        dashboardFunFacts: null,
+        dashboardHeatMap: null,
+        exerciseSetCount: null,
+        exerciseTagCount: null,
+        exerciseOverview: {
+          exercise: {
+            id: exerciseId,
+            userId: user.data.id,
+            sets: [],
+            createdAt: new Date().toString(),
+            updatedAt: new Date().toString(),
+          },
+          id: Math.random(),
+          exerciseId,
+          tileId,
+          createdAt: new Date().toString(),
+          updatedAt: new Date().toString(),
+        },
 
-    // ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-    //   if (!tiles) {
-    //     return tiles;
-    //   }
+        createdAt: new Date().toString(),
+        updatedAt: new Date().toString(),
+      };
 
-    //   return {
-    //     ...tiles,
-    //     pages: tiles.pages.map((page, i) => {
-    //       if (i === 0) {
-    //         return {
-    //           ...page,
-    //           tiles: [optimisticTile, ...page.tiles],
-    //         };
-    //       }
+      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
+        if (!tiles) {
+          return tiles;
+        }
 
-    //       return page;
-    //     }),
-    //   };
-    // });
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page, i) => {
+            if (i === 0) {
+              return {
+                ...page,
+                tiles: [optimisticTile, ...page.tiles],
+              };
+            }
 
-    // ctx.client.setQueryData(queries.tilesToSetsCount.queryKey, (tilesToSetsCount) => {
-    //   if (!tilesToSetsCount) {
-    //     return tilesToSetsCount;
-    //   }
-
-    //   return [{ name: variables.data.name, count: 0 }, ...tilesToSetsCount];
-    // });
-    // },
+            return page;
+          }),
+        };
+      });
+    },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
     },
