@@ -8,6 +8,7 @@ import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
+import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
 import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -112,11 +113,7 @@ const DashboardFunFactsTile = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      {/*
-      <Suspense fallback={<TilesFunFactsSkeleton />}>
-        <TilesFunFacts />
-      </Suspense>
-    */}
+      <DashboardFunFacts />
     </Card>
   );
 };
