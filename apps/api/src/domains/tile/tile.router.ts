@@ -3,7 +3,7 @@ import { tileService } from "~/domains/tile/tile.service";
 import { zValidator } from "@hono/zod-validator";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
-import z from "zod";
+import { z } from "zod";
 import { tagSchema } from "@gym-graphs/schemas/tag";
 import type { Ctx } from "~/index";
 
@@ -17,12 +17,12 @@ export const tileRouter = new Hono<Ctx>()
         name: tileSchema.shape.name
           .catch((e) => z.string().catch("").parse(e.value))
           .optional()
-          .transform((name) => name ?? ""),
-        tags: tagSchema.shape.name
-          .array()
-          .max(200)
-          .optional()
-          .transform((tags) => tags ?? []),
+          .default(""),
+        tags: z
+          .string()
+          .default("[]")
+          .transform((raw) => JSON.parse(raw))
+          .pipe(tagSchema.shape.name.array().max(200).optional().default([])),
         page: z.number().positive().catch(1),
       }),
     ),

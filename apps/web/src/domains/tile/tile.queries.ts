@@ -11,7 +11,7 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) =>
           query: {
             page: pageParam.toString(),
             name: name ?? "",
-            tags: tags ?? [],
+            tags: JSON.stringify(tags),
           },
         },
         { init: { signal } },
