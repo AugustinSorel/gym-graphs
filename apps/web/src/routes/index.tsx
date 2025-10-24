@@ -6,7 +6,14 @@ import { HeroBackground } from "~/ui/hero-background";
 import { userQueries } from "~/domains/user/user.queries";
 import { userMock } from "~/domains/user/user.mock";
 import { ArrowRightIcon } from "~/ui/icons";
+import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
+import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
+import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
+import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import type { ComponentProps } from "react";
+import { tileQueries } from "~/domains/tile/tile.queries";
+import { tilesMock } from "~/domains/tile/tile.mock";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -17,6 +24,7 @@ export const Route = createFileRoute("/")({
   },
 });
 
+//TODO: feature 2,3
 const Home = () => {
   const mockQueryClient = useMockQueryClient();
 
@@ -24,6 +32,8 @@ const Home = () => {
     <QueryClientProvider client={mockQueryClient}>
       <Main>
         <HeroSection />
+
+        <FeatureOne />
 
         <HeroSectionTwo />
       </Main>
@@ -67,6 +77,51 @@ const HeroSection = () => {
   );
 };
 
+const FeatureOne = () => {
+  return (
+    <FeatureContainer>
+      <HeroTitle>
+        Unleash <GradientText> Your Progress!</GradientText>
+      </HeroTitle>
+
+      <Text>
+        With our innovative modular <StrongText>dashboard</StrongText>, you can
+        easily track your entire workout journey and get a comprehensive
+        breakdown of your achievements each <StrongText>month</StrongText>.
+      </Text>
+
+      <Grid>
+        {tilesMock
+          .filter((tile) => tile.type === "exerciseOverview")
+          .map((tile) => (
+            <Card key={tile.id}>
+              <Name>{tile.name}</Name>
+              <ExerciseOverviewGraph
+                sets={tile.exerciseOverview.exercise.sets}
+              />
+            </Card>
+          ))}
+        <Card>
+          <Name>exercises frequency</Name>
+          <ExerciseSetCountGraph />
+        </Card>
+        <Card>
+          <Name>tags frequency</Name>
+          <ExerciseTagCountGraph />
+        </Card>
+        <Card>
+          <Name>fun facts</Name>
+          <DashboardFunFacts />
+        </Card>
+        <Card>
+          <Name>heat map - January</Name>
+          <DashboardHeatMap />
+        </Card>
+      </Grid>
+    </FeatureContainer>
+  );
+};
+
 const HeroSectionTwo = () => {
   return (
     <HeroContainerTwo>
@@ -92,32 +147,32 @@ const HeroSectionTwo = () => {
   );
 };
 
-// const Grid = (props: ComponentProps<"ol">) => {
-//   return (
-//     <ol
-//       className="grid w-full grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
-//       {...props}
-//     />
-//   );
-// };
+const Grid = (props: ComponentProps<"ol">) => {
+  return (
+    <ol
+      className="grid w-full grid-cols-[repeat(auto-fill,minmax(min(100%,var(--dashboard-card-width)),1fr))] gap-5"
+      {...props}
+    />
+  );
+};
 
-// const Card = (props: ComponentProps<"li">) => {
-//   return (
-//     <li
-//       className="bg-secondary grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto"
-//       {...props}
-//     />
-//   );
-// };
+const Card = (props: ComponentProps<"li">) => {
+  return (
+    <li
+      className="bg-secondary grid h-[300px] grid-rows-[auto_1fr] items-stretch justify-stretch rounded-md border p-0 [&_svg]:size-auto"
+      {...props}
+    />
+  );
+};
 
-// const Name = (props: ComponentProps<"h2">) => {
-//   return (
-//     <h2
-//       className="truncate border-b p-4 text-sm font-semibold capitalize"
-//       {...props}
-//     />
-//   );
-// };
+const Name = (props: ComponentProps<"h2">) => {
+  return (
+    <h2
+      className="truncate border-b p-4 text-sm font-semibold capitalize"
+      {...props}
+    />
+  );
+};
 
 const Main = (props: ComponentProps<"main">) => {
   return (
@@ -198,20 +253,20 @@ const HeroBackgroundContainer = (props: ComponentProps<"div">) => {
   );
 };
 
-// const FeatureContainer = ({
-//   className,
-//   ...props
-// }: ComponentProps<"section">) => {
-//   return (
-//     <section
-//       className={cn(
-//         "max-w-app mx-auto flex w-full flex-col items-center gap-14 p-5",
-//         className,
-//       )}
-//       {...props}
-//     />
-//   );
-// };
+const FeatureContainer = ({
+  className,
+  ...props
+}: ComponentProps<"section">) => {
+  return (
+    <section
+      className={cn(
+        "max-w-app mx-auto flex w-full flex-col items-center gap-14 p-5",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
 // const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
 //   return (
@@ -335,18 +390,15 @@ const useMockQueryClient = () => {
   const queryClient = new QueryClient();
 
   const queries = {
-    user: userQueries.get.queryKey,
-    // tilesToSetsCount: dashboardQueries.tilesToSetsCount.queryKey,
-    // setsHeatMap: dashboardQueries.tilesSetsHeatMap.queryKey,
-    // funFacts: dashboardQueries.funFacts.queryKey,
-    // tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
+    user: userQueries.get,
+    tiles: tileQueries.all(),
   };
 
-  queryClient.setQueryData(queries.user, userMock);
-  // queryClient.setQueryData(queries.tilesToSetsCount, tilesToSetsCountMock);
-  // queryClient.setQueryData(queries.setsHeatMap, tilesSetsHeatMapMock);
-  // queryClient.setQueryData(queries.funFacts, dashboardFunFactsMock);
-  // queryClient.setQueryData(queries.tilesToTagsCount, tilesToTagsCount);
+  queryClient.setQueryData(queries.user.queryKey, userMock);
+  queryClient.setQueryData(queries.tiles.queryKey, {
+    pageParams: [],
+    pages: [{ nextCursor: 0, tiles: tilesMock }],
+  });
 
   queryClient.setDefaultOptions({
     queries: {
