@@ -50,6 +50,17 @@ export const create = async (
   // }
 };
 
+const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {
+  const set = setRepo.deleteById(setId, userId, db);
+
+  if (!set) {
+    throw new HTTPException(404, { message: "set not found" });
+  }
+
+  return set;
+};
+
 export const setService = {
   create,
+  deleteById,
 };

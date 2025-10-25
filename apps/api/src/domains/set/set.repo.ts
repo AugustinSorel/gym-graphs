@@ -1,5 +1,15 @@
-import { setTable } from "~/db/db.schemas";
-import type { Set } from "~/db/db.schemas";
+import { and, eq, exists } from "drizzle-orm";
+import {
+  dashboardTable,
+  exerciseTable,
+  setTable,
+  tileTable,
+} from "~/db/db.schemas";
+import {
+  exerciseOverviewTileTable,
+  type Set,
+  type User,
+} from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
 const create = async (
@@ -24,7 +34,32 @@ const createMany = async (set: Array<typeof setTable.$inferInsert>, db: Db) => {
   return db.insert(setTable).values(set);
 };
 
+const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {
+  const exercise = db
+    .select()
+    .from(dashboardTable)
+    .innerJoin(tileTable, eq(tileTable.dashboardId, dashboardTable.id))
+    .innerJoin(
+      exerciseOverviewTileTable,
+      eq(exerciseOverviewTileTable.tileId, tileTable.id),
+    )
+    .innerJoin(
+      exerciseTable,
+      eq(exerciseTable.id, exerciseOverviewTileTable.exerciseId),
+    )
+    .innerJoin(setTable, eq(setTable.id, setId))
+    .where(eq(dashboardTable.userId, userId));
+
+  const [set] = await db
+    .delete(setTable)
+    .where(and(eq(setTable.id, setId), exists(exercise)))
+    .returning();
+
+  return set;
+};
+
 export const setRepo = {
   create,
   createMany,
+  deleteById,
 };

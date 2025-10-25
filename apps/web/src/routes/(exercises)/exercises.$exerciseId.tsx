@@ -12,6 +12,8 @@ import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exer
 import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import type { ComponentProps } from "react";
 import { TagsList } from "~/domains/exercise/components/tags-list";
+import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
+import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
   params: z.object({
@@ -96,12 +98,10 @@ const RouteComponent = () => {
         <SectionTitle>sets</SectionTitle>
 
         <SectionPanel>
-          {/*
-<ExerciseTable
+          <ExerciseTable
             sets={exercise.data.sets}
             columns={exerciseTableColumns}
           />
-          */}
         </SectionPanel>
       </Section>
     </Main>
