@@ -14,6 +14,7 @@ import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
 // import { ExerciseSetsFrequencyGraph } from "~/exercise/components/exercise-sets-frequency-graph";
 import type { ComponentProps } from "react";
+import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
   params: z.object({
@@ -74,9 +75,7 @@ const RouteComponent = () => {
         </SectionTitle>
 
         <SectionPanel className="py-2 sm:p-4">
-          {/*
           <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
-          */}
         </SectionPanel>
       </Section>
 
