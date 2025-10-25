@@ -11,10 +11,9 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
 import { HeaderPrivate, HeaderPublic } from "~/header";
+import { api, parseJsonResponse } from "~/libs/api";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
-import { api, parseJsonResponse } from "~/libs/api";
-import { useUser } from "~/domains/user/hooks/use-user";
 
 export const Route = createRootRouteWithContext<RouterCtx>()({
   head: () => ({

@@ -53,7 +53,15 @@ export const CounterInputField = (props: InputProps) => {
   const controller = useController(formField);
 
   return (
-    <Input type="number" placeholder="10" {...controller.field} {...props} />
+    <Input
+      type="number"
+      placeholder="10"
+      {...controller.field}
+      onChange={(e) => {
+        controller.field.onChange(e.target.valueAsNumber || "");
+      }}
+      {...props}
+    />
   );
 };
 

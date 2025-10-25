@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { z } from "zod";
-// import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
+import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 // import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
 // import { ExerciseTable } from "~/exercise/components/exercise-table";
 // import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
@@ -52,7 +52,7 @@ const RouteComponent = () => {
             <SettingsIcon className="lg:hidden" />
           </Link>
         </Button>
-        {/* <CreateSetDialog /> */}
+        <CreateSetDialog />
         <Button
           asChild
           variant="link"

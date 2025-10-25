@@ -12,6 +12,7 @@ import { userRouter } from "~/domains/user/user.router";
 import { tagRouter } from "~//domains/tag/tag.router";
 import { tileRouter } from "~/domains/tile/tile.router";
 import { exerciseRouter } from "~/domains/exercise/exercise.router";
+import { setRouter } from "~/domains/set/set.router";
 import { cors } from "hono/cors";
 import { constant } from "@gym-graphs/constants";
 import type { Db } from "~/libs/db";
@@ -45,7 +46,7 @@ const app = new Hono<Ctx>()
   .route("/oauth", oauthRouter)
   .route("/tags", tagRouter)
   .route("/tiles", tileRouter)
-  .route("/exercises", exerciseRouter)
+  .route("/exercises", exerciseRouter.route("/:exerciseId/sets", setRouter))
   .onError(errorHandler);
 
 export type Api = typeof app;
