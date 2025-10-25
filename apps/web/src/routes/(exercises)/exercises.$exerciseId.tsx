@@ -11,6 +11,7 @@ import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import type { ComponentProps } from "react";
+import { TagsList } from "~/domains/exercise/components/tags-list";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
   params: z.object({
@@ -87,9 +88,7 @@ const RouteComponent = () => {
         <SectionTitle>tags</SectionTitle>
 
         <SectionPanel>
-          {/*
-          <ExerciseTagsList />
-          */}
+          <TagsList />
         </SectionPanel>
       </Section>
 
