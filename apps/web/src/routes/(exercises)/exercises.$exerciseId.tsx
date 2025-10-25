@@ -1,9 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
-// import { ExerciseAdvanceOverviewGraph } from "~/exercise/components/exercise-advanced-overview-graph";
-// import { ExerciseTable } from "~/exercise/components/exercise-table";
-// import { exerciseTableColumns } from "~/exercise/components/exercise-table-columns";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseSchema } from "@gym-graphs/schemas/exercise";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
@@ -11,10 +8,9 @@ import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
-// import { ExerciseTagsList } from "~/exercise/components/exercise-tags-list";
-// import { ExerciseSetsFrequencyGraph } from "~/exercise/components/exercise-sets-frequency-graph";
-import type { ComponentProps } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
+import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
   params: z.object({
@@ -83,9 +79,7 @@ const RouteComponent = () => {
         <SectionTitle>sets frequency</SectionTitle>
 
         <SectionPanel className="py-2 sm:p-4">
-          {/*
-          <ExerciseSetsFrequencyGraph sets={exercise.data.sets} />
-          */}
+          <SetFrequencyGraph sets={exercise.data.sets} />
         </SectionPanel>
       </Section>
 
