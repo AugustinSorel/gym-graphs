@@ -1,5 +1,3 @@
-// TODO:
-// import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
 import { SetProvider } from "~/domains/set/set.context";
 // import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
 import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
@@ -22,6 +20,7 @@ import {
 import { Button } from "~/ui/button";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
+import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Set } from "@gym-graphs/api/db";
 import type { Serialize } from "~/utils/json";
@@ -159,8 +158,8 @@ export const exerciseTableColumns: Array<ColumnDef<Serialize<Set>>> = [
           <DropdownMenuContent align="end">
             <SetProvider value={set}>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {/*
               <UpdateSetWeightDialog />
+              {/*
               <UpdateSetRepetitionsDialog />
               <UpdateSetDoneAtDialog />
               */}

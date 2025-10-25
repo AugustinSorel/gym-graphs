@@ -37,6 +37,35 @@ export const setRouter = new Hono<Ctx>()
       return c.json(null, 200);
     },
   )
+  .patch(
+    "/:setId",
+    requireAuthMiddleware,
+    zValidator(
+      "param",
+      z.object({
+        exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
+        setId: z.coerce.number().pipe(setSchema.shape.id),
+      }),
+    ),
+    zValidator(
+      "json",
+      setSchema
+        .pick({
+          doneAt: true,
+          repetitions: true,
+          weightInKg: true,
+        })
+        .partial(),
+    ),
+    async (c) => {
+      const param = c.req.valid("param");
+      const input = c.req.valid("json");
+
+      await setService.patchById(input, param.setId, c.var.user.id, c.var.db);
+
+      return c.json(null, 200);
+    },
+  )
   .delete(
     "/:setId",
     requireAuthMiddleware,
