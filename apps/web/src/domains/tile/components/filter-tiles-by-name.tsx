@@ -11,17 +11,21 @@ export const FilterTilesByName = () => {
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
 
-  const [tileName, setTileName] = useState(search.name ?? "");
+  const [tileName, setTileName] = useState(search.name);
   const debouncedTileName = useDebouncedValue(tileName, 300);
 
   useEffect(() => {
+    if (search.name === undefined) {
+      return;
+    }
+
     void navigate({
       search: (search) => ({
         ...search,
         name: debouncedTileName || undefined,
       }),
     });
-  }, [debouncedTileName, navigate]);
+  }, [debouncedTileName, navigate, search.name]);
 
   const clearSearch = () => {
     setTileName("");
@@ -34,7 +38,7 @@ export const FilterTilesByName = () => {
           type="search"
           placeholder="Search tiles..."
           className="bg-secondary pl-10"
-          value={tileName}
+          value={tileName ?? ""}
           onChange={(e) => setTileName(e.target.value)}
         />
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
