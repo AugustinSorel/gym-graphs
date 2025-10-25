@@ -121,5 +121,6 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | save modals state in url                              |
+| TODO     | try never throw to clean up api code                  |
 | TODO     | try turborepo for prod                                |
 */

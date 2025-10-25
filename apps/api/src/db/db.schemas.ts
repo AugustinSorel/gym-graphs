@@ -427,7 +427,7 @@ export type Exercise = Readonly<typeof exerciseTable.$inferSelect>;
 
 export const exerciseRelations = relations(exerciseTable, ({ one, many }) => ({
   sets: many(setTable),
-  setsTile: one(exerciseOverviewTileTable, {
+  exerciseOverviewTile: one(exerciseOverviewTileTable, {
     fields: [exerciseTable.id],
     references: [exerciseOverviewTileTable.exerciseId],
   }),
