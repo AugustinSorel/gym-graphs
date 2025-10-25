@@ -2,33 +2,36 @@ import { CatchBoundary, getRouteApi } from "@tanstack/react-router";
 import { AlertCircleIcon, SearchIcon, XIcon } from "~/ui/icons";
 import { Alert, AlertDescription } from "~/ui/alert";
 import { Input } from "~/ui/input";
-import { useEffect, useState } from "react";
-import { useDebouncedValue } from "~/hooks/use-debounced-value";
+import { useState } from "react";
 import { Button } from "~/ui/button";
+import { useDebouncedCallback } from "~/hooks/use-debounced-callback";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { ChangeEvent } from "react";
 
 export const FilterTilesByName = () => {
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
 
   const [tileName, setTileName] = useState(search.name);
-  const debouncedTileName = useDebouncedValue(tileName, 300);
 
-  useEffect(() => {
-    if (search.name === undefined) {
-      return;
-    }
-
+  const updateSearch = useDebouncedCallback((value: string) => {
     void navigate({
-      search: (search) => ({
-        ...search,
-        name: debouncedTileName || undefined,
+      search: (current) => ({
+        ...current,
+        name: value || undefined,
       }),
     });
-  }, [debouncedTileName, navigate, search.name]);
+  }, 300);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTileName(value);
+    updateSearch(value);
+  };
 
   const clearSearch = () => {
     setTileName("");
+    updateSearch("");
   };
 
   return (
@@ -39,7 +42,7 @@ export const FilterTilesByName = () => {
           placeholder="Search tiles..."
           className="bg-secondary pl-10"
           value={tileName ?? ""}
-          onChange={(e) => setTileName(e.target.value)}
+          onChange={handleChange}
         />
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
         {tileName && (
