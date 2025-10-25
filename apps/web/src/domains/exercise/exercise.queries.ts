@@ -8,20 +8,12 @@ const get = (exerciseId: Exercise["id"]) => {
     queryFn: async ({ signal }) => {
       const req = api().exercises[":exerciseId"].$get;
 
-      const exercise = await parseJsonResponse(
+      return parseJsonResponse(
         req(
           { param: { exerciseId: exerciseId.toString() } },
           { init: { signal } },
         ),
       );
-
-      return {
-        ...exercise,
-        sets: exercise.sets.map((s) => ({
-          ...s,
-          doneAt: new Date(s.doneAt),
-        })),
-      };
     },
   });
 };

@@ -17,10 +17,11 @@ import { Button } from "~/ui/button";
 import { useState } from "react";
 import type { Set } from "@gym-graphs/api/db";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
+import type { Serialize } from "~/utils/json";
 
 type Props = Readonly<{
-  sets: Array<Pick<Set, "doneAt" | "weightInKg" | "repetitions">>;
-  columns: Array<ColumnDef<Pick<Set, "weightInKg" | "doneAt" | "repetitions">>>;
+  sets: Array<Serialize<Set>>;
+  columns: Array<ColumnDef<Serialize<Set>>>;
 }>;
 
 export const ExerciseTable = ({ sets, columns }: Props) => {

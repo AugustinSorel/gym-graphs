@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import type { Set } from "@gym-graphs/api/db";
+import type { Serialize } from "~/utils/json";
 
-export const useSetsByDoneAt = <TSet extends Pick<Set, "doneAt">>(
+export const useSetsByDoneAt = <TSet extends Pick<Serialize<Set>, "doneAt">>(
   sets: Array<TSet>,
 ) => {
   return useMemo(() => {
     return sets.reduce((map, set) => {
-      const key = dateAsYYYYMMDD(set.doneAt);
+      const key = dateAsYYYYMMDD(new Date(set.doneAt));
       const sets = map.get(key);
 
       if (sets) {

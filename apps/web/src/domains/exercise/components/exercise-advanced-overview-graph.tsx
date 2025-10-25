@@ -23,6 +23,7 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
+import { Serialize } from "~/utils/json";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useBestSortedSets(props.sets);
@@ -69,7 +70,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       const index = bisectDate(sets, x0, 1);
 
       const d0: Point = sets.at(index - 1) ?? {
-        doneAt: new Date(),
+        doneAt: new Date().toString(),
         repetitions: 0,
         weightInKg: 0,
       };
@@ -212,7 +213,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             dateTime={tooltip.tooltipData.doneAt.toString()}
             className="text-xs font-bold"
           >
-            {tooltip.tooltipData.doneAt.toLocaleDateString("en-US", {
+            {new Date(tooltip.tooltipData.doneAt).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
             })}
@@ -244,7 +245,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
   );
 };
 
-const getDoneAt = (d: Point) => d.doneAt;
+const getDoneAt = (d: Point) => new Date(d.doneAt);
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],
@@ -277,7 +278,9 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
+type Point = Readonly<
+  Pick<Serialize<Set>, "weightInKg" | "repetitions" | "doneAt">
+>;
 
 type Props = Readonly<{
   sets: Array<Point>;

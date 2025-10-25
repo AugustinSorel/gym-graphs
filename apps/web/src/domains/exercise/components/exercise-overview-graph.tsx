@@ -8,6 +8,7 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import type { Set } from "@gym-graphs/api/db";
 import type { ComponentProps } from "react";
+import type { Serialize } from "~/utils/json";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -48,7 +49,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
   );
 };
 
-const getDoneAt = (d: Point) => d.doneAt;
+const getDoneAt = (d: Point) => new Date(d.doneAt);
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],
@@ -61,7 +62,9 @@ const margin = {
   right: 0,
 } as const;
 
-type Point = Readonly<Pick<Set, "weightInKg" | "repetitions" | "doneAt">>;
+type Point = Readonly<
+  Pick<Serialize<Set>, "weightInKg" | "repetitions" | "doneAt">
+>;
 
 type Props = Readonly<{
   sets: Array<Point>;

@@ -1,12 +1,15 @@
 import { useMemo } from "react";
 import type { Set } from "@gym-graphs/api/db";
+import { Serialize } from "~/utils/json";
 
-export const useSortSetsByDoneAt = <TSet extends Pick<Set, "doneAt">>(
+export const useSortSetsByDoneAt = <
+  TSet extends Pick<Serialize<Set>, "doneAt">,
+>(
   sets: ReadonlyArray<TSet>,
 ) => {
   return useMemo(() => {
     return sets.toSorted((a, b) => {
-      return a.doneAt.getTime() - b.doneAt.getTime();
+      return new Date(a.doneAt).getTime() - new Date(b.doneAt).getTime();
     });
   }, [sets]);
 };

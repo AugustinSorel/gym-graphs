@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import type { Tile, Tag } from "@gym-graphs/api/db";
 import { api, parseJsonResponse } from "~/libs/api";
+import type { Tile, Tag } from "@gym-graphs/api/db";
 
 const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
   return infiniteQueryOptions({
@@ -17,32 +17,7 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
         { init: { signal } },
       );
 
-      const res = await parseJsonResponse(req);
-
-      return {
-        ...res,
-        tiles: res.tiles.map((tile) => {
-          if (tile.type === "exerciseOverview") {
-            return {
-              ...tile,
-              exerciseOverview: {
-                ...tile.exerciseOverview,
-                exercise: {
-                  ...tile.exerciseOverview.exercise,
-                  sets: tile.exerciseOverview.exercise.sets.map((set) => {
-                    return {
-                      ...set,
-                      doneAt: new Date(set.doneAt),
-                    };
-                  }),
-                },
-              },
-            };
-          }
-
-          return tile;
-        }),
-      };
+      return parseJsonResponse(req);
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextCursor,

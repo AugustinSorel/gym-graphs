@@ -23,6 +23,7 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
+import type { Serialize } from "~/utils/json";
 
 export const SetFrequencyGraph = (props: Props) => {
   const sets = useSets(props.sets);
@@ -71,7 +72,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
       const d0: Point = sets.at(index - 1) ?? {
         id: -1,
-        doneAt: new Date(),
+        doneAt: new Date().toString(),
         repetitions: 0,
         weightInKg: 0,
       };
@@ -88,11 +89,11 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             : d0;
       }
 
-      const key = dateAsYYYYMMDD(d.doneAt);
+      const key = dateAsYYYYMMDD(new Date(d.doneAt));
 
       const z = setsByDoneAt.get(key)?.at(0) ?? {
         id: -1,
-        doneAt: new Date(),
+        doneAt: new Date().toString(),
         repetitions: 0,
         weightInKg: 0,
       };
@@ -269,7 +270,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
   );
 };
 
-const getDoneAt = (d: Point) => new Date(d.doneAt.toDateString());
+const getDoneAt = (d: Point) => new Date(new Date(d.doneAt).toDateString());
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],
@@ -303,7 +304,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
 };
 
 type Point = Readonly<
-  Pick<Set, "weightInKg" | "repetitions" | "doneAt" | "id">
+  Pick<Serialize<Set>, "weightInKg" | "repetitions" | "doneAt" | "id">
 >;
 
 type Props = Readonly<{

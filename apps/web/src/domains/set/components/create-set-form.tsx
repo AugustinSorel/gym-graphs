@@ -160,7 +160,7 @@ const useCreateSet = () => {
         weightInKg: variables.json.weightInKg,
         repetitions: variables.json.repetitions,
         createdAt: new Date().toString(),
-        doneAt: new Date(),
+        doneAt: new Date().toString(),
         updatedAt: new Date().toString(),
       };
 

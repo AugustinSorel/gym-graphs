@@ -24,10 +24,9 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Set } from "@gym-graphs/api/db";
+import type { Serialize } from "~/utils/json";
 
-export const exerciseTableColumns: Array<
-  ColumnDef<Pick<Set, "doneAt" | "weightInKg" | "repetitions">>
-> = [
+export const exerciseTableColumns: Array<ColumnDef<Serialize<Set>>> = [
   {
     accessorKey: "oneRepMax",
     header: ({ column }) => {
@@ -139,7 +138,7 @@ export const exerciseTableColumns: Array<
     cell: ({ row }) => {
       return (
         <span suppressHydrationWarning>
-          {row.original.doneAt.toLocaleDateString()}
+          {new Date(row.original.doneAt).toLocaleDateString()}
         </span>
       );
     },

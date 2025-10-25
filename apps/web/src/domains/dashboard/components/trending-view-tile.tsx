@@ -12,6 +12,7 @@ import type { ComponentProps } from "react";
 import type { Set } from "@gym-graphs/api/db";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { useTiles } from "~/domains/tile/hooks/use-tiles";
+import type { Serialize } from "~/utils/json";
 
 export const TrendingViewTile = (props: { tile: ExerciseOverviewTile }) => {
   return (
@@ -25,12 +26,7 @@ export const TrendingViewTile = (props: { tile: ExerciseOverviewTile }) => {
       </Button>
 
       <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress
-        sets={props.tile.exerciseOverview.exercise.sets.map((set) => ({
-          ...set,
-          doneAt: new Date(set.doneAt),
-        }))}
-      />
+      <LastTwoSetsProgress sets={props.tile.exerciseOverview.exercise.sets} />
     </Card>
   );
 };
@@ -56,9 +52,7 @@ export const TrendingViewTileSkeleton = () => {
   );
 };
 
-const LastTwoSetsProgress = (props: {
-  sets: Array<Pick<Set, "doneAt" | "weightInKg" | "repetitions">>;
-}) => {
+const LastTwoSetsProgress = (props: { sets: Array<Serialize<Set>> }) => {
   const user = useUser();
   const sets = useBestSortedSets(props.sets);
 

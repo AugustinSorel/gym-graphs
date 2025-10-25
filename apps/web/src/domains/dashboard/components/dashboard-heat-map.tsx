@@ -17,6 +17,7 @@ import type {
   TouchEvent,
 } from "react";
 import type { Set } from "@gym-graphs/api/db";
+import { Serialize } from "~/utils/json";
 
 export const DashboardHeatMap = () => {
   const data = useDashboardHeatMap();
@@ -282,7 +283,9 @@ const useDashboardHeatMap = () => {
     .filter((tile) => tile.type === "exerciseOverview")
     .flatMap((tile) => tile.exerciseOverview.exercise.sets)
     .filter((set) => {
-      return set.doneAt <= new Date() && new Date() >= getFirstDayOfMonth();
+      return (
+        new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth()
+      );
     });
   const setsHeatMap = transformSetsToHeatMap(setsForThisMonth);
 
@@ -290,7 +293,7 @@ const useDashboardHeatMap = () => {
 };
 
 export const transformSetsToHeatMap = (
-  sets: ReadonlyArray<Pick<Set, "doneAt">>,
+  sets: ReadonlyArray<Pick<Serialize<Set>, "doneAt">>,
 ) => {
   const setsHeatMapTemplate = generateSetsHeatMapTemplate();
 
@@ -318,9 +321,9 @@ const generateSetsHeatMapTemplate = () => {
 
 const setsToHeatMap = (
   setsHeatMap: ReturnType<typeof generateSetsHeatMapTemplate>,
-  set: Pick<Set, "doneAt">,
+  set: Pick<Serialize<Set>, "doneAt">,
 ) => {
-  const calendarPositions = getCalendarPositions(set.doneAt);
+  const calendarPositions = getCalendarPositions(new Date(set.doneAt));
 
   return setsHeatMap.map((row) => {
     if (row.dayIndex === calendarPositions.day) {
