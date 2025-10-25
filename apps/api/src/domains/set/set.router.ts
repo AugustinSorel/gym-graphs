@@ -49,11 +49,11 @@ export const setRouter = new Hono<Ctx>()
     ),
     zValidator(
       "json",
-      setSchema
-        .pick({
-          doneAt: true,
-          repetitions: true,
-          weightInKg: true,
+      z
+        .object({
+          doneAt: z.coerce.date().pipe(setSchema.shape.doneAt),
+          repetitions: setSchema.shape.repetitions,
+          weightInKg: setSchema.shape.weightInKg,
         })
         .partial(),
     ),

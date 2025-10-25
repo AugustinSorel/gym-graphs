@@ -120,6 +120,8 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | save modals state in url                              |
+| TODO     | refactor update setQueryData                          |
+| TODO     | update with new form patterns                         |
 | TODO     | try never throw to clean up api code                  |
 | TODO     | try turborepo for prod                                |
 */
