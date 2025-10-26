@@ -281,6 +281,21 @@ const patchById = async (
   }
 };
 
+const deleteById = async (
+  dashboardId: Dashboard["id"],
+  tileId: Tile["id"],
+  db: Db,
+) => {
+  const [tile] = await db
+    .delete(tileTable)
+    .where(
+      and(eq(tileTable.dashboardId, dashboardId), eq(tileTable.id, tileId)),
+    )
+    .returning();
+
+  return tile;
+};
+
 export const tileRepo = {
   create,
   reorder,
@@ -294,4 +309,5 @@ export const tileRepo = {
   addDashboardHeatMap,
   addDashboardFunFacts,
   patchById,
+  deleteById,
 };

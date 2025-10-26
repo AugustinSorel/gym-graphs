@@ -126,9 +126,24 @@ const patchById = async (
   return tile;
 };
 
+const deleteById = async (
+  dashboardId: Dashboard["id"],
+  tileId: Tile["id"],
+  db: Db,
+) => {
+  const tile = await tileRepo.deleteById(dashboardId, tileId, db);
+
+  if (!tile) {
+    throw new HTTPException(404, { message: "tile not found" });
+  }
+
+  return tile;
+};
+
 export const tileService = {
   createExerciseTile,
   selectInfinite,
   reorder,
   patchById,
+  deleteById,
 };

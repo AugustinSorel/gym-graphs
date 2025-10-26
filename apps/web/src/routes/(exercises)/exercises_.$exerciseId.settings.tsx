@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
-// import { DeleteExerciseTileDialog } from "~/dashboard/components/delete-exercise-tile-dialog";
+import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseSchema } from "@gym-graphs/schemas/exercise";
@@ -70,8 +70,8 @@ const RouteComponent = () => {
       {/*
       TODO
       <ExerciseTagsSection />
-      <DeleteTileSection />
       */}
+      <DeleteTileSection />
     </Main>
   );
 };
@@ -199,28 +199,23 @@ const RenameTileSection = () => {
 //   );
 // };
 
-// const DeleteTileSection = () => {
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section className="border-destructive">
-//         <HGroup>
-//           <SectionTitle>delete exercise</SectionTitle>
-//           <SectionDescription>
-//             Permanently remove this exercise and all of its contents from our
-//             servers. This action is not reversible, so please continue with
-//             caution.
-//           </SectionDescription>
-//         </HGroup>
-//         <Footer className="border-destructive bg-destructive/10">
-//           <DeleteExerciseTileDialog />
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+const DeleteTileSection = () => {
+  return (
+    <Section className="border-destructive">
+      <HGroup>
+        <SectionTitle>delete exercise</SectionTitle>
+        <SectionDescription>
+          Permanently remove this exercise and all of its contents from our
+          servers. This action is not reversible, so please continue with
+          caution.
+        </SectionDescription>
+      </HGroup>
+      <Footer className="border-destructive bg-destructive/10">
+        <DeleteExerciseOverviewTileDialog />
+      </Footer>
+    </Section>
+  );
+};
 
 const Main = (props: ComponentProps<"main">) => {
   return (
