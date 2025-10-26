@@ -20,7 +20,7 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import type { z } from "zod";
 import type { InferRequestType } from "hono";
 
-export const CreateExerciseTileForm = (props: Props) => {
+export const CreateExerciseOverviewTileForm = (props: Props) => {
   const form = useCreateExerciseForm();
   const createExerciseTile = useCreateExerciseTile();
 

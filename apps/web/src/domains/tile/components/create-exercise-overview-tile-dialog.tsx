@@ -6,13 +6,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { CreateExerciseTileForm } from "~/domains/tile/components/create-exercise-tile-form";
+import { CreateExerciseOverviewTileForm } from "~/domains/tile/components/create-exercise-overview-tile-form";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { PlusIcon } from "~/ui/icons";
 import { useRouteHash } from "~/hooks/use-route-hash";
 
-export const CreateExerciseTileDialog = () => {
+export const CreateExerciseOverviewTileDialog = () => {
   const routeHash = useRouteHash("create-exercise-overview-tile");
   const search = routeApi.useSearch();
 
@@ -50,7 +50,7 @@ export const CreateExerciseTileDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <CreateExerciseTileForm onSuccess={() => routeHash.remove()} />
+        <CreateExerciseOverviewTileForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );

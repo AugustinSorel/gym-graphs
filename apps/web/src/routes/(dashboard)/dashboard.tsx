@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { CreateExerciseTileDialog } from "~/domains/tile/components/create-exercise-tile-dialog";
+import { CreateExerciseOverviewTileDialog } from "~/domains/tile/components/create-exercise-overview-tile-dialog";
 import { z } from "zod";
 import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
@@ -43,7 +43,7 @@ const RouteComponent = () => {
         <FilterTilesByName />
         <FilterTilesByTags />
         <ViewToggle />
-        <CreateExerciseTileDialog />
+        <CreateExerciseOverviewTileDialog />
       </Header>
 
       <Dashboard />
