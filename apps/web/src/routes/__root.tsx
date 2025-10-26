@@ -119,6 +119,7 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| BUG      | loader not showing in delete dialogs                  |
 | TODO     | save modals state in url                              |
 | TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |
