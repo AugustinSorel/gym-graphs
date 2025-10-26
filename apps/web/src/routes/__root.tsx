@@ -121,6 +121,7 @@ const AnalyticScript = () => {
 | ---------| ------------------------------------------------------|
 | BUG      | loader not showing in delete dialogs                  |
 | TODO     | save modals state in url                              |
+| TODO     | replace all links with apiRoute.Link                  |
 | TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
