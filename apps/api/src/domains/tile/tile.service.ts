@@ -22,7 +22,7 @@ const createExerciseTile = async (
 
     const tile = await tileRepo.create(name, dashboardId, tx);
 
-    await tileRepo.createExercise(exercise.id, tile.id, tx);
+    await tileRepo.addExerciseOverviewTile(exercise.id, tile.id, tx);
   });
 };
 

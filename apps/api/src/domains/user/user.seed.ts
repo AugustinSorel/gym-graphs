@@ -142,7 +142,7 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
       ],
       db,
     ),
-    tileRepo.addExercises(
+    tileRepo.addExerciseOverviewTiles(
       [
         { exerciseId: benchPress.id, tileId: benchPressTile.id },
         { exerciseId: squat.id, tileId: squatTile.id },
@@ -154,17 +154,17 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     tileRepo.addExerciseTagCount(exerciseTagCountTile.id, db),
     tileRepo.addDashboardHeatMap(dashboardHeatMapTile.id, db),
     tileRepo.addDashboardFunFacts(dashboardFunFactsTile.id, db),
-    tileRepo.addTags(
+    tagRepo.addManyToTile(
       benchPressTile.id,
       tags.filter((tag) => ["chest"].includes(tag.name)).map((tag) => tag.id),
       db,
     ),
-    tileRepo.addTags(
+    tagRepo.addManyToTile(
       squatTile.id,
       tags.filter((tag) => ["legs"].includes(tag.name)).map((tag) => tag.id),
       db,
     ),
-    tileRepo.addTags(
+    tagRepo.addManyToTile(
       deadliftTile.id,
       tags
         .filter((tag) => ["legs", "calfs"].includes(tag.name))

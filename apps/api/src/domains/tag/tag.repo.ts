@@ -8,7 +8,7 @@ import {
   tileTable,
   userTable,
 } from "~/db/db.schemas";
-import type { Tag, TilesToTags } from "~/db/db.schemas";
+import type { Tag, Tile, TilesToTags } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 
@@ -64,6 +64,17 @@ const createMany = async (
   db: Db,
 ) => {
   return db.insert(tagTable).values(tags).returning();
+};
+
+const addManyToTile = async (
+  tileId: Tile["id"],
+  tagsToAdd: Array<Tag["id"]>,
+  db: Db,
+) => {
+  return db
+    .insert(tilesToTagsTableTable)
+    .values(tagsToAdd.map((tagId) => ({ tagId, tileId })))
+    .returning();
 };
 
 const deleteById = async (tagId: Tag["id"], userId: Tag["userId"], db: Db) => {
@@ -144,4 +155,5 @@ export const tagRepo = {
   deleteById,
   patchById,
   deleteTileTagTags,
+  addManyToTile,
 };

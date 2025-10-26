@@ -152,26 +152,14 @@ const reorder = async (
     );
 };
 
-//TODO: move this to the tag repo
-const addTags = async (
-  tileId: Tile["id"],
-  tagsToAdd: Array<Tag["id"]>,
-  db: Db,
-) => {
-  return db
-    .insert(tilesToTagsTableTable)
-    .values(tagsToAdd.map((tagId) => ({ tagId, tileId })))
-    .returning();
-};
-
-const addExercises = async (
+const addExerciseOverviewTiles = async (
   values: Array<typeof exerciseOverviewTileTable.$inferInsert>,
   db: Db,
 ) => {
   return db.insert(exerciseOverviewTileTable).values(values).returning();
 };
 
-const createExercise = async (
+const addExerciseOverviewTile = async (
   exerciseId: ExerciseOverviewTile["exerciseId"],
   tileId: ExerciseOverviewTile["tileId"],
   db: Db,
@@ -323,10 +311,9 @@ export const tileRepo = {
   create,
   reorder,
   createMany,
-  createExercise,
+  addExerciseOverviewTiles,
+  addExerciseOverviewTile,
   selectInfinite,
-  addTags,
-  addExercises,
   addExerciseSetCount,
   addExerciseTagCount,
   addDashboardHeatMap,
