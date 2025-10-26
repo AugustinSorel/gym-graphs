@@ -7,16 +7,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { RenameUserForm } from "~/domains/user/components/rename-user-form";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const RenameUserDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("rename-user");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <Button size="sm">rename</Button>
+        <Button size="sm" asChild>
+          <routeApi.Link hash={routeHash.hash}>rename</routeApi.Link>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -26,12 +36,10 @@ export const RenameUserDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <RenameUserForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <RenameUserForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(settings)/settings");

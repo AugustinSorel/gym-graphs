@@ -7,22 +7,28 @@ import {
   DialogTrigger,
 } from "~/ui/dialog";
 import { CreateExerciseTileForm } from "~/domains/tile/components/create-exercise-tile-form";
-import { useState } from "react";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { PlusIcon } from "~/ui/icons";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const CreateExerciseTileDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const search = apiRoute.useSearch();
+  const routeHash = useRouteHash("create-exercise-overview-tile");
+  const search = routeApi.useSearch();
 
   const isFiltering = Boolean(search.name ?? search.tags?.length);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <Button asChild className="hidden lg:inline-flex" disabled={isFiltering}>
-        <DialogTrigger>create exercise</DialogTrigger>
+        <routeApi.Link hash={routeHash.hash}>create exercise</routeApi.Link>
       </Button>
 
       <Button
@@ -44,14 +50,10 @@ export const CreateExerciseTileDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <CreateExerciseTileForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <CreateExerciseTileForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
 
-const apiRoute = getRouteApi("/(dashboard)/dashboard");
+const routeApi = getRouteApi("/(dashboard)/dashboard");

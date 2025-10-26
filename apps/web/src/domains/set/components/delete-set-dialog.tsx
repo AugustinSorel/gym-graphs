@@ -14,19 +14,19 @@ import { Spinner } from "~/ui/spinner";
 import { useSet } from "~/domains/set/set.context";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { useState } from "react";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { getRouteApi } from "@tanstack/react-router";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import type { InferRequestType } from "hono";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
   const deleteSet = useDeleteSet();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("delete-set");
 
   const deleteSetHandler = () => {
     deleteSet.mutate(
@@ -38,20 +38,28 @@ export const DeleteSetDialog = () => {
       },
       {
         onSuccess: () => {
-          setIsOpen(false);
+          routeHash.remove();
         },
       },
     );
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <AlertDialogTrigger asChild>
         <DropdownMenuItem
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
           onSelect={(e) => e.preventDefault()}
+          asChild
         >
-          delete set
+          <routeApi.Link hash={routeHash.hash}>delete set</routeApi.Link>
         </DropdownMenuItem>
       </AlertDialogTrigger>
       <AlertDialogContent>

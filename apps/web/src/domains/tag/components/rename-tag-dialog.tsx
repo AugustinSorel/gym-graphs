@@ -6,18 +6,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { RenameTagForm } from "~/domains/tag/components/rename-tag-form";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const RenameTagDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("rename-tag");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          rename
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
+          <routeApi.Link hash={routeHash.hash}>rename</routeApi.Link>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -26,12 +34,10 @@ export const RenameTagDialog = () => {
           <DialogDescription>Feel free to rename your tag.</DialogDescription>
         </DialogHeader>
 
-        <RenameTagForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <RenameTagForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(settings)/settings");

@@ -120,7 +120,7 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | BUG      | loader not showing in delete dialogs                  |
-| TODO     | save modals state in url                              |
+| TODO     | remove all useTransistion with router state           |
 | TODO     | replace all links with apiRoute.Link                  |
 | TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |

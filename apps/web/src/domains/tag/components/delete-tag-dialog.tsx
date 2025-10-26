@@ -12,16 +12,17 @@ import {
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { useState } from "react";
 import { userQueries } from "~/domains/user/user.queries";
 import { useTag } from "~/domains/tag/tag.context";
 import { api, parseJsonResponse } from "~/libs/api";
+import { getRouteApi } from "@tanstack/react-router";
 import type { InferRequestType } from "hono";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const DeleteTagDialog = () => {
   const deleteTag = useDeleteTag();
-  const [isOpen, setIsOpen] = useState(false);
   const tag = useTag();
+  const routeHash = useRouteHash("delete-tag");
 
   const deleteTagHandler = () => {
     deleteTag.mutate(
@@ -32,20 +33,28 @@ export const DeleteTagDialog = () => {
       },
       {
         onSuccess: () => {
-          setIsOpen(false);
+          routeHash.remove();
         },
       },
     );
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <AlertDialogTrigger asChild>
         <DropdownMenuItem
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
           onSelect={(e) => e.preventDefault()}
+          asChild
         >
-          delete
+          <routeApi.Link hash={routeHash.hash}>delete</routeApi.Link>
         </DropdownMenuItem>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -104,3 +113,5 @@ const useDeleteTag = () => {
     },
   });
 };
+
+const routeApi = getRouteApi("/(settings)/settings");

@@ -6,18 +6,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { CreateSetForm } from "~/domains/set/components/create-set-form";
 import { Button } from "~/ui/button";
 import { PlusIcon } from "~/ui/icons";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const CreateSetDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("create-set");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <Button asChild className="hidden lg:inline-flex" size="sm">
-        <DialogTrigger>create set</DialogTrigger>
+        <routeApi.Link hash={routeHash.hash}>create set</routeApi.Link>
       </Button>
 
       <Button
@@ -39,12 +47,10 @@ export const CreateSetDialog = () => {
           <DialogDescription>Add a new set to the exercise</DialogDescription>
         </DialogHeader>
 
-        <CreateSetForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <CreateSetForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

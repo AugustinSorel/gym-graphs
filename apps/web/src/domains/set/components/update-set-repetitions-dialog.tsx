@@ -6,18 +6,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetRepetitionsForm } from "~/domains/set/components/update-set-repetitions-form";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const UpdateSetRepetitionsDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("update-repetitions");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          update repetitions
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
+          <routeApi.Link hash={routeHash.hash}>
+            update repetitions
+          </routeApi.Link>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent
@@ -31,12 +41,10 @@ export const UpdateSetRepetitionsDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <UpdateSetRepetitionsForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <UpdateSetRepetitionsForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

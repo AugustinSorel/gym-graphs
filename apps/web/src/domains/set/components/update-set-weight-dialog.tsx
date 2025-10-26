@@ -6,18 +6,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetWeightForm } from "~/domains/set/components/update-set-weight-form";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const UpdateSetWeightDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("update-weight");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          update weight
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
+          <routeApi.Link hash={routeHash.hash}>update weight</routeApi.Link>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent
@@ -31,12 +39,10 @@ export const UpdateSetWeightDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <UpdateSetWeightForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <UpdateSetWeightForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

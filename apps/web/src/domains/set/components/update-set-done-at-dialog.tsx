@@ -6,18 +6,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetDoneAtForm } from "~/domains/set/components/update-set-done-at-form";
+import { getRouteApi } from "@tanstack/react-router";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const UpdateSetDoneAtDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("update-done-at");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          update done at
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
+          <routeApi.Link hash={routeHash.hash}>update done at</routeApi.Link>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -28,12 +36,10 @@ export const UpdateSetDoneAtDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <UpdateSetDoneAtForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <UpdateSetDoneAtForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

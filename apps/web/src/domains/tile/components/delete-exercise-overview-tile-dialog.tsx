@@ -12,20 +12,22 @@ import {
 } from "~/ui/alert-dialog";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
-import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { api, parseJsonResponse } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { useRouteHash } from "~/hooks/use-route-hash";
 import type { InferRequestType } from "hono";
 
 export const DeleteExerciseOverviewTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  const navigate = useNavigate();
+  const navigate = routeApi.useNavigate();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
   const deleteExerciseTile = useDeleteExerciseTile();
+  const routeHash = useRouteHash("delete-exercise-overview-tile");
 
   const deleteExerciseTileHandler = () => {
     deleteExerciseTile.mutate(
@@ -45,10 +47,17 @@ export const DeleteExerciseOverviewTileDialog = () => {
   };
 
   return (
-    <AlertDialog>
+    <AlertDialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          delete
+        <Button variant="destructive" size="sm" asChild>
+          <routeApi.Link hash={routeHash.hash}>delete</routeApi.Link>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

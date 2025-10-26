@@ -12,16 +12,18 @@ import {
 } from "~/ui/alert-dialog";
 import { Button } from "~/ui/button";
 import { Spinner } from "~/ui/spinner";
-import { useNavigate } from "@tanstack/react-router";
+import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { api, parseJsonResponse } from "~/libs/api";
+import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const DeleteAccountDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  const navigate = useNavigate();
+  const navigate = routeApi.useNavigate();
   const queryClient = useQueryClient();
+  const routeHash = useRouteHash("delete-account");
 
   const deleteAccount = useDeleteAccount();
 
@@ -37,10 +39,17 @@ export const DeleteAccountDialog = () => {
   };
 
   return (
-    <AlertDialog>
+    <AlertDialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          delete acount
+        <Button variant="destructive" size="sm" asChild>
+          <routeApi.Link hash={routeHash.hash}>delete acount</routeApi.Link>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -86,3 +95,5 @@ const useDeleteAccount = () => {
     },
   });
 };
+
+const routeApi = getRouteApi("/(settings)/settings");

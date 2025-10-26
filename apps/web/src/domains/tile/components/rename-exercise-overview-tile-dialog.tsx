@@ -7,16 +7,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { useState } from "react";
 import { RenameExerciseOverviewTileForm } from "~/domains/tile/components/rename-exercise-overview-tile-form";
+import { useRouteHash } from "~/hooks/use-route-hash";
+import { getRouteApi } from "@tanstack/react-router";
 
 export const RenameExerciseOverviewTileDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const routeHash = useRouteHash("rename-exercise-overview-tile");
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={routeHash.isActive}
+      onOpenChange={(prev) => {
+        if (!prev) {
+          routeHash.remove();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <Button size="sm">rename</Button>
+        <Button size="sm" asChild>
+          <routeApi.Link hash={routeHash.hash}>rename</routeApi.Link>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -26,12 +36,10 @@ export const RenameExerciseOverviewTileDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <RenameExerciseOverviewTileForm
-          onSuccess={() => {
-            setIsOpen(false);
-          }}
-        />
+        <RenameExerciseOverviewTileForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
