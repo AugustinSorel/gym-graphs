@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, ilike, inArray, sql, SQL } from "drizzle-orm";
+import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import {
@@ -20,6 +21,7 @@ import type {
   Tile,
   ExerciseSetCountTile,
   ExerciseOverviewTile,
+  Dashboard,
 } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -247,6 +249,38 @@ const addDashboardFunFacts = async (
   return dashboardFunFacts;
 };
 
+const patchById = async (
+  input: PgUpdateSetSource<typeof tileTable>,
+  dashboardId: Dashboard["id"],
+  tileId: Tile["id"],
+  db: Db,
+) => {
+  try {
+    const [tile] = await db
+      .update(tileTable)
+      .set(input)
+      .where(
+        and(eq(tileTable.id, tileId), eq(tileTable.dashboardId, dashboardId)),
+      )
+      .returning();
+
+    return tile;
+  } catch (e) {
+    const duplicateTile =
+      e instanceof DatabaseError &&
+      e.constraint === "tile_name_dashboard_id_unique";
+
+    if (duplicateTile) {
+      throw new HTTPException(422, {
+        message: "tile name already exists",
+        cause: e,
+      });
+    }
+
+    throw e;
+  }
+};
+
 export const tileRepo = {
   create,
   reorder,
@@ -259,4 +293,5 @@ export const tileRepo = {
   addExerciseTagCount,
   addDashboardHeatMap,
   addDashboardFunFacts,
+  patchById,
 };

@@ -56,6 +56,28 @@ export const tileRouter = new Hono<Ctx>()
       return c.json(null, 200);
     },
   )
+  .patch(
+    "/:tileId",
+    requireAuthMiddleware,
+    zValidator("json", tileSchema.partial().pick({ name: true })),
+    zValidator(
+      "param",
+      z.object({ tileId: z.coerce.number().pipe(tileSchema.shape.id) }),
+    ),
+    async (c) => {
+      const input = c.req.valid("json");
+      const param = c.req.valid("param");
+
+      await tileService.patchById(
+        input,
+        c.var.user.dashboard.id,
+        param.tileId,
+        c.var.db,
+      );
+
+      return c.json(null, 200);
+    },
+  )
   .put(
     "/reorder",
     requireAuthMiddleware,
