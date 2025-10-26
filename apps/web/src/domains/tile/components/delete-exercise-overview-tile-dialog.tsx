@@ -17,8 +17,8 @@ import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
-import { tileQueries } from "../tile.queries";
+import { tileQueries } from "~/domains/tile/tile.queries";
+import type { InferRequestType } from "hono";
 
 export const DeleteExerciseOverviewTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();

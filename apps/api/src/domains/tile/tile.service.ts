@@ -9,8 +9,8 @@ import type {
   TilesToTags,
   tileTable,
 } from "~/db/db.schemas";
+import { tagRepo } from "~/domains/tag/tag.repo";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
-import { tagRepo } from "../tag/tag.repo";
 
 const createExerciseTile = async (
   name: Tile["name"],

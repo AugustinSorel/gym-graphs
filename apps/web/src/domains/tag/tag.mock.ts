@@ -1,4 +1,4 @@
-import { userMock } from "../user/user.mock";
+import type { userMock } from "~/domains/user/user.mock";
 
 export const tagsMock: (typeof userMock)["tags"] = [
   {

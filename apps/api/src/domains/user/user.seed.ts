@@ -1,4 +1,4 @@
-import { tagRepo } from "../tag/tag.repo";
+import { tagRepo } from "~/domains/tag/tag.repo";
 import { dashboardRepo } from "~/domains/dashboard/dashboard.repo";
 import { exerciseRepo } from "~/domains/exercise/exercise.repo";
 import { tileRepo } from "~/domains/tile/tile.repo";
