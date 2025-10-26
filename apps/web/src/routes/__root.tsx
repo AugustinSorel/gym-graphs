@@ -119,8 +119,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | remove all useTransistion with router state           |
-| TODO     | replace all links with apiRoute.Link                  |
 | TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
