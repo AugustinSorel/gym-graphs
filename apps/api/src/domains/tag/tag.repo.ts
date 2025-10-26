@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
-import { tagTable } from "~/db/db.schemas";
-import type { Tag } from "~/db/db.schemas";
+import { tagTable, tilesToTagsTableTable } from "~/db/db.schemas";
+import type { Tag, TilesToTags } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 
@@ -31,6 +31,26 @@ const create = async (name: Tag["name"], userId: Tag["userId"], db: Db) => {
 
     throw e;
   }
+};
+
+const createTileToTags = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  db: Db,
+) => {
+  const [tileToTags] = await db
+    .insert(tilesToTagsTableTable)
+    .values({
+      tileId,
+      tagId,
+    })
+    .returning();
+
+  if (!tileToTags) {
+    throw new HTTPException(500, { message: "tileToTags not returned by db" });
+  }
+
+  return tileToTags;
 };
 
 const createMany = async (
@@ -80,6 +100,7 @@ const patchById = async (
 
 export const tagRepo = {
   create,
+  createTileToTags,
   createMany,
   deleteById,
   patchById,

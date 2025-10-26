@@ -2,8 +2,15 @@ import { exerciseRepo } from "~/domains/exercise/exercise.repo";
 import { tileRepo } from "./tile.repo";
 import { HTTPException } from "hono/http-exception";
 import type { Db } from "~/libs/db";
-import type { Dashboard, Tag, Tile, tileTable } from "~/db/db.schemas";
+import type {
+  Dashboard,
+  Tag,
+  Tile,
+  TilesToTags,
+  tileTable,
+} from "~/db/db.schemas";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
+import { tagRepo } from "../tag/tag.repo";
 
 const createExerciseTile = async (
   name: Tile["name"],
@@ -140,10 +147,28 @@ const deleteById = async (
   return tile;
 };
 
+const addTag = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  const tile = await tileRepo.selectByIdWithTag(tileId, tagId, userId, db);
+
+  if (!tile) {
+    throw new HTTPException(404, { message: "tile not found" });
+  }
+
+  await tagRepo.createTileToTags(tileId, tagId, db);
+
+  return tile;
+};
+
 export const tileService = {
   createExerciseTile,
   selectInfinite,
   reorder,
   patchById,
   deleteById,
+  addTag,
 };

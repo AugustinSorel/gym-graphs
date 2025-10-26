@@ -11,6 +11,7 @@ import {
   tagTable,
   tilesToTagsTableTable,
   tileTable,
+  userTable,
 } from "~/db/db.schemas";
 import {
   exerciseOverviewTileTable,
@@ -22,6 +23,7 @@ import type {
   ExerciseSetCountTile,
   ExerciseOverviewTile,
   Dashboard,
+  TilesToTags,
 } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 
@@ -150,6 +152,7 @@ const reorder = async (
     );
 };
 
+//TODO: move this to the tag repo
 const addTags = async (
   tileId: Tile["id"],
   tagsToAdd: Array<Tag["id"]>,
@@ -296,6 +299,26 @@ const deleteById = async (
   return tile;
 };
 
+const selectByIdWithTag = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  const [tile] = await db
+    .select()
+    .from(tileTable)
+    .innerJoin(dashboardTable, eq(dashboardTable.id, tileTable.dashboardId))
+    .innerJoin(userTable, eq(dashboardTable.userId, userId))
+    .innerJoin(
+      tagTable,
+      and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)),
+    )
+    .where(eq(tileTable.id, tileId));
+
+  return tile;
+};
+
 export const tileRepo = {
   create,
   reorder,
@@ -310,4 +333,5 @@ export const tileRepo = {
   addDashboardFunFacts,
   patchById,
   deleteById,
+  selectByIdWithTag,
 };

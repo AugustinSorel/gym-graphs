@@ -1,10 +1,5 @@
-// import { useMutation } from "@tanstack/react-query";
-import {
-  // CatchBoundary,
-  createFileRoute,
-  Link,
-  redirect,
-} from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
 import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
@@ -13,15 +8,17 @@ import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseSchema } from "@gym-graphs/schemas/exercise";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
-// import { CreateTagDialog } from "~/tag/components/create-tag-dialog";
-// import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-// import { Badge } from "~/ui/badge";
+import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-// import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-// import { useUser } from "~/domains/user/hooks/use-user";
-// import { dashboardQueries } from "~/dashboard/dashboard.queries";
+import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
+import { useUser } from "~/domains/user/hooks/use-user";
+import { tileQueries } from "~/domains/tile/tile.queries";
+import { api, parseJsonResponse } from "~/libs/api";
 import type { ComponentProps } from "react";
+import type { InferRequestType } from "hono";
 
 export const Route = createFileRoute(
   "/(exercises)/exercises_/$exerciseId/settings",
@@ -67,10 +64,7 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
-      {/*
-      TODO
       <ExerciseTagsSection />
-      */}
       <DeleteTileSection />
     </Main>
   );
@@ -93,111 +87,114 @@ const RenameTileSection = () => {
   );
 };
 
-// const ExerciseTagsSection = () => {
-//   const user = useUser();
-//   const params = Route.useParams();
-//   const exercise = useExercise(params.exerciseId);
+const ExerciseTagsSection = () => {
+  const user = useUser();
+  const params = Route.useParams();
+  const exercise = useExercise(params.exerciseId);
 
-//   const addTagToTile = useAddTagToTile();
-//   const removeTagToTile = useRemoveTagToTile();
+  const addTagToTile = useAddTagToTile();
+  // const removeTagToTile = useRemoveTagToTile();
 
-//   return (
-//     <CatchBoundary
-//       errorComponent={DefaultErrorFallback}
-//       getResetKey={() => "reset"}
-//     >
-//       <Section>
-//         <HGroup>
-//           <SectionTitle>exercise tags</SectionTitle>
-//           <SectionDescription>
-//             Feel free to rename this exercise to somehting more comfortable.
-//             Your exercises name are not public.
-//           </SectionDescription>
-//         </HGroup>
+  return (
+    <Section>
+      <HGroup>
+        <SectionTitle>exercise tags</SectionTitle>
+        <SectionDescription>
+          Feel free to rename this exercise to somehting more comfortable. Your
+          exercises name are not public.
+        </SectionDescription>
+      </HGroup>
 
-//         <ToggleGroup
-//           className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
-//           type="multiple"
-//           value={exercise.data.tile.tileToTags.map((tileToTag) => {
-//             return tileToTag.tag.id.toString();
-//           })}
-//           onValueChange={(newTagsIdsStr) => {
-//             const currentTagsIds = exercise.data.tile.tileToTags.map(
-//               (tileToTag) => tileToTag.tag.id,
-//             );
-//             const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
+      <ToggleGroup
+        className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
+        type="multiple"
+        value={exercise.data.exerciseOverviewTile.tile.tileToTags.map(
+          (tileToTag) => {
+            return tileToTag.tag.id.toString();
+          },
+        )}
+        onValueChange={(newTagsIdsStr) => {
+          const currentTagsIds =
+            exercise.data.exerciseOverviewTile.tile.tileToTags.map(
+              (tileToTag) => tileToTag.tag.id,
+            );
+          const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
 
-//             const currentTagsIdsSet = new Set(currentTagsIds);
-//             const newTagsIdsSet = new Set(newTagsIds);
+          const currentTagsIdsSet = new Set(currentTagsIds);
+          const newTagsIdsSet = new Set(newTagsIds);
 
-//             const tagIdToRemove = Array.from(
-//               currentTagsIdsSet.difference(newTagsIdsSet),
-//             ).at(0);
+          const tagIdToRemove = Array.from(
+            currentTagsIdsSet.difference(newTagsIdsSet),
+          ).at(0);
 
-//             const tagIdToAdd = Array.from(
-//               newTagsIdsSet.difference(currentTagsIdsSet),
-//             ).at(0);
+          const tagIdToAdd = Array.from(
+            newTagsIdsSet.difference(currentTagsIdsSet),
+          ).at(0);
 
-//             if (tagIdToAdd) {
-//               addTagToTile.mutate({
-//                 data: {
-//                   tagId: tagIdToAdd,
-//                   tileId: exercise.data.tile.id,
-//                 },
-//               });
-//             }
+          if (tagIdToAdd) {
+            addTagToTile.mutate({
+              param: {
+                tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
+              },
+              json: {
+                tagId: tagIdToAdd,
+              },
+            });
+          }
 
-//             if (tagIdToRemove) {
-//               removeTagToTile.mutate({
-//                 data: {
-//                   tagId: tagIdToRemove,
-//                   tileId: exercise.data.tile.id,
-//                 },
-//               });
-//             }
-//           }}
-//         >
-//           {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
-//           {user.data.tags.map((tag) => (
-//             <ToggleGroupItem
-//               key={tag.id}
-//               className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
-//               value={tag.id.toString()}
-//             >
-//               <Badge
-//                 className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
-//                 variant="outline"
-//               >
-//                 <CheckIcon className="mr-1 hidden group-aria-pressed:block" />
-//                 {tag.name}
-//               </Badge>
-//             </ToggleGroupItem>
-//           ))}
-//         </ToggleGroup>
+          if (tagIdToRemove) {
+            // removeTagToTile.mutate({
+            //   data: {
+            //     tagId: tagIdToRemove,
+            //     tileId: exercise.data.exerciseOverviewTile.tile.id,
+            //   },
+            // });
+          }
+        }}
+      >
+        {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
+        {user.data.tags.map((tag) => (
+          <ToggleGroupItem
+            key={tag.id}
+            className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
+            value={tag.id.toString()}
+          >
+            <Badge
+              className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
+              variant="outline"
+            >
+              <CheckIcon className="mr-1 hidden group-aria-pressed:block" />
+              {tag.name}
+            </Badge>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
-//         {addTagToTile.error && (
-//           <Alert variant="destructive" className="m-3 w-auto lg:m-6">
-//             <AlertCircleIcon />
-//             <AlertTitle>Heads up!</AlertTitle>
-//             <AlertDescription>{addTagToTile.error.message}</AlertDescription>
-//           </Alert>
-//         )}
+      {addTagToTile.error && (
+        <Alert variant="destructive" className="m-3 w-auto lg:m-6">
+          <AlertCircleIcon />
+          <AlertTitle>Heads up!</AlertTitle>
+          <AlertDescription>{addTagToTile.error.message}</AlertDescription>
+        </Alert>
+      )}
 
-//         {removeTagToTile.error && (
-//           <Alert variant="destructive" className="m-3 w-auto lg:m-6">
-//             <AlertCircleIcon />
-//             <AlertTitle>Heads up!</AlertTitle>
-//             <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
-//           </Alert>
-//         )}
+      {/*
+      {removeTagToTile.error && (
+        <Alert variant="destructive" className="m-3 w-auto lg:m-6">
+          <AlertCircleIcon />
+          <AlertTitle>Heads up!</AlertTitle>
+          <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
+        </Alert>
+      )}
 
-//         <Footer>
-//           <CreateTagDialog />
-//         </Footer>
-//       </Section>
-//     </CatchBoundary>
-//   );
-// };
+    */}
+
+      <Footer>
+        <CreateTagDialog />
+      </Footer>
+    </Section>
+  );
+};
 
 const DeleteTileSection = () => {
   return (
@@ -272,124 +269,105 @@ const SectionDescription = (props: ComponentProps<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
-// const NoTagsText = (props: ComponentProps<"p">) => {
-//   return (
-//     <p
-//       className="text-muted-foreground w-full p-6 text-center text-sm"
-//       {...props}
-//     />
-//   );
-// };
+const NoTagsText = (props: ComponentProps<"p">) => {
+  return (
+    <p
+      className="text-muted-foreground w-full p-6 text-center text-sm"
+      {...props}
+    />
+  );
+};
 
-// const useAddTagToTile = () => {
-//   const user = useUser();
-//   const params = Route.useParams();
-//   const exercise = useExercise(params.exerciseId);
+const useAddTagToTile = () => {
+  const user = useUser();
+  const params = Route.useParams();
+  const exercise = useExercise(params.exerciseId);
+  const req = api().tiles[":tileId"].tags.$post;
 
-//   return useMutation({
-//     mutationFn: addTagToTileAction,
-//     onMutate: (variables, ctx) => {
-//       const queries = {
-//         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-//         tiles: dashboardQueries.tiles().queryKey,
-//         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
-//       };
+  const queries = {
+    exercise: exerciseQueries.get(exercise.data.id),
+    tiles: tileQueries.all(),
+  };
 
-//       const tag = user.data.tags.find((tag) => {
-//         return tag.id === variables.data.tagId;
-//       });
+  return useMutation({
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
+    },
+    onMutate: (variables, ctx) => {
+      const tag = user.data.tags.find((tag) => {
+        return tag.id === variables.json.tagId;
+      });
 
-//       if (!tag) {
-//         return;
-//       }
+      if (!tag) {
+        return;
+      }
 
-//       ctx.client.setQueryData(queries.tiles, (tiles) => {
-//         if (!tiles) {
-//           return tiles;
-//         }
+      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
+        if (!tiles) {
+          return tiles;
+        }
 
-//         return {
-//           ...tiles,
-//           pages: tiles.pages.map((page) => {
-//             return {
-//               ...page,
-//               tiles: page.tiles.map((tile) => {
-//                 if (tile.id === variables.data.tileId) {
-//                   return {
-//                     ...tile,
-//                     tileToTags: [
-//                       ...tile.tileToTags,
-//                       {
-//                         tileId: variables.data.tileId,
-//                         tagId: tag.id,
-//                         tag,
-//                         createdAt: new Date(),
-//                         updatedAt: new Date(),
-//                       },
-//                     ],
-//                   };
-//                 }
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.id.toString() === variables.param.tileId) {
+                  return {
+                    ...tile,
+                    tileToTags: [
+                      ...tile.tileToTags,
+                      {
+                        tileId: +variables.param.tileId,
+                        tagId: tag.id,
+                        tag,
+                        createdAt: new Date().toString(),
+                        updatedAt: new Date().toString(),
+                      },
+                    ],
+                  };
+                }
 
-//                 return tile;
-//               }),
-//             };
-//           }),
-//         };
-//       });
+                return tile;
+              }),
+            };
+          }),
+        };
+      });
 
-//       ctx.client.setQueryData(queries.exercise, (exercise) => {
-//         if (!exercise) {
-//           return exercise;
-//         }
+      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
+        if (!exercise) {
+          return exercise;
+        }
 
-//         return {
-//           ...exercise,
-//           tile: {
-//             ...exercise.tile,
-//             tileToTags: [
-//               ...exercise.tile.tileToTags,
-//               {
-//                 tileId: variables.data.tileId,
-//                 tagId: tag.id,
-//                 tag,
-//                 createdAt: new Date(),
-//                 updatedAt: new Date(),
-//               },
-//             ],
-//           },
-//         };
-//       });
-
-//       ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
-//         if (!tilesToTagsCount) {
-//           return tilesToTagsCount;
-//         }
-
-//         return tilesToTagsCount.map((tilesToTagsCount) => {
-//           if (tilesToTagsCount.id === variables.data.tagId) {
-//             return {
-//               ...tilesToTagsCount,
-//               count: tilesToTagsCount.count + 1,
-//             };
-//           }
-
-//           return tilesToTagsCount;
-//         });
-//       });
-//     },
-//     onSettled: (_data, _error, _variables, _res, ctx) => {
-//       const queries = {
-//         exercise: exerciseQueries.get(exercise.data.id),
-//         tiles: dashboardQueries.tiles(),
-//         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
-//       } as const;
-
-//       void ctx.client.invalidateQueries(queries.tiles);
-//       void ctx.client.invalidateQueries(queries.exercise);
-//       void ctx.client.invalidateQueries(queries.tilesToTagsCount);
-//     },
-//   });
-// };
+        return {
+          ...exercise,
+          exerciseOverviewTile: {
+            ...exercise.exerciseOverviewTile,
+            tile: {
+              ...exercise.exerciseOverviewTile.tile,
+              tileToTags: [
+                ...exercise.exerciseOverviewTile.tile.tileToTags,
+                {
+                  tileId: +variables.param.tileId,
+                  tagId: tag.id,
+                  tag,
+                  createdAt: new Date().toString(),
+                  updatedAt: new Date().toString(),
+                },
+              ],
+            },
+          },
+        };
+      });
+    },
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+    },
+  });
+};
 
 // const useRemoveTagToTile = () => {
 //   const user = useUser();
