@@ -102,27 +102,6 @@ const useDeleteExerciseTile = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
-          return tiles;
-        }
-
-        return {
-          ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.filter((tile) => {
-                return tile.id.toString() !== variables.param.tileId;
-              }),
-            };
-          }),
-        };
-      });
-
-      ctx.client.removeQueries(queries.exercise);
-    },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.exercise);
       void ctx.client.invalidateQueries(queries.tiles);

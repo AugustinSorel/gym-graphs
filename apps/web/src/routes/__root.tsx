@@ -119,7 +119,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| BUG      | loader not showing in delete dialogs                  |
 | TODO     | remove all useTransistion with router state           |
 | TODO     | replace all links with apiRoute.Link                  |
 | TODO     | refactor update setQueryData                          |
