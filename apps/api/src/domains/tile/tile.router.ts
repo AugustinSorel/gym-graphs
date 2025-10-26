@@ -119,6 +119,28 @@ export const tileRouter = new Hono<Ctx>()
       return c.json(null, 200);
     },
   )
+  .delete(
+    "/:tileId/tags",
+    requireAuthMiddleware,
+    zValidator(
+      "param",
+      z.object({ tileId: z.coerce.number().pipe(tileSchema.shape.id) }),
+    ),
+    zValidator("json", z.object({ tagId: tagSchema.shape.id })),
+    async (c) => {
+      const input = c.req.valid("json");
+      const param = c.req.valid("param");
+
+      await tileService.deleteTag(
+        param.tileId,
+        input.tagId,
+        c.var.user.id,
+        c.var.db,
+      );
+
+      return c.json(null, 200);
+    },
+  )
   .put(
     "/reorder",
     requireAuthMiddleware,

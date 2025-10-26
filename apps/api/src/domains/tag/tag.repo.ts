@@ -1,7 +1,13 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, exists } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
-import { tagTable, tilesToTagsTableTable } from "~/db/db.schemas";
+import {
+  dashboardTable,
+  tagTable,
+  tilesToTagsTableTable,
+  tileTable,
+  userTable,
+} from "~/db/db.schemas";
 import type { Tag, TilesToTags } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
@@ -98,10 +104,44 @@ const patchById = async (
   }
 };
 
+const deleteTileTagTags = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  const tag = db
+    .select()
+    .from(tagTable)
+    .where(and(eq(tagTable.userId, userId), eq(tagTable.id, tagId)));
+
+  const tile = db
+    .select()
+    .from(tileTable)
+    .innerJoin(dashboardTable, eq(dashboardTable.id, tileTable.dashboardId))
+    .innerJoin(userTable, eq(dashboardTable.userId, userId))
+    .where(eq(tileTable.id, tileId));
+
+  const [tileTagTags] = await db
+    .delete(tilesToTagsTableTable)
+    .where(
+      and(
+        eq(tilesToTagsTableTable.tagId, tagId),
+        eq(tilesToTagsTableTable.tileId, tileId),
+        exists(tag),
+        exists(tile),
+      ),
+    )
+    .returning();
+
+  return tileTagTags;
+};
+
 export const tagRepo = {
   create,
   createTileToTags,
   createMany,
   deleteById,
   patchById,
+  deleteTileTagTags,
 };

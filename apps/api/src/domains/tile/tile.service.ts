@@ -164,6 +164,21 @@ const addTag = async (
   return tile;
 };
 
+const deleteTag = async (
+  tileId: TilesToTags["tileId"],
+  tagId: TilesToTags["tagId"],
+  userId: Tag["userId"],
+  db: Db,
+) => {
+  const tag = await tagRepo.deleteTileTagTags(tileId, tagId, userId, db);
+
+  if (!tag) {
+    throw new HTTPException(404, { message: "tag not found" });
+  }
+
+  return tag;
+};
+
 export const tileService = {
   createExerciseTile,
   selectInfinite,
@@ -171,4 +186,5 @@ export const tileService = {
   patchById,
   deleteById,
   addTag,
+  deleteTag,
 };

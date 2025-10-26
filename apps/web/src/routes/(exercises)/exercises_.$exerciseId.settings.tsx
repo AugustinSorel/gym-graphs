@@ -93,7 +93,7 @@ const ExerciseTagsSection = () => {
   const exercise = useExercise(params.exerciseId);
 
   const addTagToTile = useAddTagToTile();
-  // const removeTagToTile = useRemoveTagToTile();
+  const removeTagToTile = useRemoveTagToTile();
 
   return (
     <Section>
@@ -143,12 +143,14 @@ const ExerciseTagsSection = () => {
           }
 
           if (tagIdToRemove) {
-            // removeTagToTile.mutate({
-            //   data: {
-            //     tagId: tagIdToRemove,
-            //     tileId: exercise.data.exerciseOverviewTile.tile.id,
-            //   },
-            // });
+            removeTagToTile.mutate({
+              param: {
+                tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
+              },
+              json: {
+                tagId: tagIdToRemove,
+              },
+            });
           }
         }}
       >
@@ -178,7 +180,6 @@ const ExerciseTagsSection = () => {
         </Alert>
       )}
 
-      {/*
       {removeTagToTile.error && (
         <Alert variant="destructive" className="m-3 w-auto lg:m-6">
           <AlertCircleIcon />
@@ -186,8 +187,6 @@ const ExerciseTagsSection = () => {
           <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
         </Alert>
       )}
-
-    */}
 
       <Footer>
         <CreateTagDialog />
@@ -369,98 +368,81 @@ const useAddTagToTile = () => {
   });
 };
 
-// const useRemoveTagToTile = () => {
-//   const user = useUser();
-//   const params = Route.useParams();
-//   const exercise = useExercise(params.exerciseId);
+const useRemoveTagToTile = () => {
+  const user = useUser();
+  const params = Route.useParams();
+  const exercise = useExercise(params.exerciseId);
+  const req = api().tiles[":tileId"].tags.$delete;
 
-//   return useMutation({
-//     mutationFn: removeTagToTileAction,
-//     onMutate: (variables, ctx) => {
-//       const queries = {
-//         exercise: exerciseQueries.get(exercise.data.id).queryKey,
-//         tiles: dashboardQueries.tiles().queryKey,
-//         tilesToTagsCount: dashboardQueries.tilesToTagsCount.queryKey,
-//       };
+  const queries = {
+    exercise: exerciseQueries.get(exercise.data.id),
+    tiles: tileQueries.all(),
+  };
 
-//       const tag = user.data.tags.find((tag) => {
-//         return tag.id === variables.data.tagId;
-//       });
+  return useMutation({
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
+    },
+    onMutate: (variables, ctx) => {
+      const tag = user.data.tags.find((tag) => {
+        return tag.id === variables.json.tagId;
+      });
 
-//       if (!tag) {
-//         return;
-//       }
+      if (!tag) {
+        return;
+      }
 
-//       ctx.client.setQueryData(queries.tiles, (tiles) => {
-//         if (!tiles) {
-//           return tiles;
-//         }
+      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
+        if (!tiles) {
+          return tiles;
+        }
 
-//         return {
-//           ...tiles,
-//           pages: tiles.pages.map((page) => {
-//             return {
-//               ...page,
-//               tiles: page.tiles.map((tile) => {
-//                 if (tile.id === variables.data.tileId) {
-//                   return {
-//                     ...tile,
-//                     tileToTags: tile.tileToTags.filter((tileToTags) => {
-//                       return tileToTags.tagId !== variables.data.tagId;
-//                     }),
-//                   };
-//                 }
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => {
+            return {
+              ...page,
+              tiles: page.tiles.map((tile) => {
+                if (tile.id.toString() === variables.param.tileId) {
+                  return {
+                    ...tile,
+                    tileToTags: tile.tileToTags.filter((tileToTags) => {
+                      return tileToTags.tagId !== variables.json.tagId;
+                    }),
+                  };
+                }
 
-//                 return tile;
-//               }),
-//             };
-//           }),
-//         };
-//       });
+                return tile;
+              }),
+            };
+          }),
+        };
+      });
 
-//       ctx.client.setQueryData(queries.exercise, (exercise) => {
-//         if (!exercise) {
-//           return exercise;
-//         }
+      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
+        if (!exercise) {
+          return exercise;
+        }
 
-//         return {
-//           ...exercise,
-//           tile: {
-//             ...exercise.tile,
-//             tileToTags: exercise.tile.tileToTags.filter((tileToTags) => {
-//               return tileToTags.tagId !== variables.data.tagId;
-//             }),
-//           },
-//         };
-//       });
-
-//       ctx.client.setQueryData(queries.tilesToTagsCount, (tilesToTagsCount) => {
-//         if (!tilesToTagsCount) {
-//           return tilesToTagsCount;
-//         }
-
-//         return tilesToTagsCount.map((tilesToTagsCount) => {
-//           if (tilesToTagsCount.id === variables.data.tagId) {
-//             return {
-//               ...tilesToTagsCount,
-//               count: tilesToTagsCount.count - 1,
-//             };
-//           }
-
-//           return tilesToTagsCount;
-//         });
-//       });
-//     },
-//     onSettled: (_data, _error, _variables, _res, ctx) => {
-//       const queries = {
-//         exercise: exerciseQueries.get(exercise.data.id),
-//         tiles: dashboardQueries.tiles(),
-//         tilesToTagsCount: dashboardQueries.tilesToTagsCount,
-//       } as const;
-
-//       void ctx.client.invalidateQueries(queries.tiles);
-//       void ctx.client.invalidateQueries(queries.exercise);
-//       void ctx.client.invalidateQueries(queries.tilesToTagsCount);
-//     },
-//   });
-// };
+        return {
+          ...exercise,
+          exerciseOverviewTile: {
+            ...exercise.exerciseOverviewTile,
+            tile: {
+              ...exercise.exerciseOverviewTile.tile,
+              tileToTags: exercise.exerciseOverviewTile.tile.tileToTags.filter(
+                (tileToTags) => {
+                  return tileToTags.tagId !== variables.json.tagId;
+                },
+              ),
+            },
+          },
+        };
+      });
+    },
+    onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
+    },
+  });
+};
