@@ -2,6 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
 
+syncInjectedDepsAfterScripts:
+  - build
+injectWorkspacePackages: true
+
 onlyBuiltDependencies:
   - "@tailwindcss/oxide"
   - esbuild

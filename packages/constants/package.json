@@ -1,10 +1,17 @@
 {
   "name": "@gym-graphs/constants",
-  "module": "src/index.ts",
+  "version": "1.0.0",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
-
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsup"
   },
@@ -12,10 +19,8 @@
     "@types/bun": "latest",
     "tsup": "^8.5.0"
   },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "dependencies": {
+    "@gym-graphs/constants": "workspace:*",
     "zod": "^4.1.12"
   }
 }

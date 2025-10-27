@@ -3,15 +3,17 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "noEmit": false,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "baseUrl": ".",
     "paths": {
       "~/*": [
         "./src/*"
       ]
     }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
   },
   "include": [
     "src"

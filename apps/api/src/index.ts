@@ -1,3 +1,5 @@
+import "dotenv/config";
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { env } from "~/env";
 import { sessionRouter } from "~/domains/session/session.router";
@@ -18,6 +20,8 @@ import { constant } from "@gym-graphs/constants";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
+
+console.log(env);
 
 export type Ctx = Readonly<{
   Variables: Readonly<{
@@ -51,7 +55,7 @@ const app = new Hono<Ctx>()
 
 export type Api = typeof app;
 
-export default {
-  port: env.PORT,
+serve({
   fetch: app.fetch,
-};
+  port: env.PORT,
+});

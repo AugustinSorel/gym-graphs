@@ -8,9 +8,3 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
-
-  # cache:
-  #   image: redis:latest
-  #   container_name: gym_graphs_cache
-  #   ports:
-  #     - ${CACHE_PORT}:6379
