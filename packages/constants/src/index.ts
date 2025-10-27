@@ -1,45 +1,16 @@
-//FIX: remove those ugly fn
-const getWebUrl = () => {
-  // TODO:REMOVE THIS
-  // const prod = "https://gym-graphs.com";
-  const prod = "https://h4co0c84sos8owgssc4g8k40.augustin-sorel.com";
-  const dev = "http://localhost:3000";
-
-  if (typeof process !== "undefined" && process.env["NODE_ENV"]) {
-    return process.env["NODE_ENV"] === "development" ? dev : prod;
-  }
-
-  //@ts-ignore
-  if (import.meta.env && import.meta.env["PROD"]) {
-    return prod;
-  }
-
-  return dev;
-};
-
-const getApiUrl = () => {
-  const prod = "https://api.gym-graphs.com";
-  const dev = "http://localhost:5000";
-
-  if (typeof process !== "undefined" && process.env["NODE_ENV"]) {
-    return process.env["NODE_ENV"] === "development" ? dev : prod;
-  }
-
-  //@ts-ignore
-  console.log(import.meta.env.VITE_WEB_URL);
-
-  //@ts-ignore
-  if (import.meta.env && import.meta.env["PROD"]) {
-    return prod;
-  }
-
-  return dev;
-};
-
 export const constant = {
   url: {
-    api: getApiUrl(),
-    web: getWebUrl(),
+    api:
+      process.env["NODE_ENV"] === "production" ||
+      (import.meta as any)?.env?.PROD
+        ? "https://api.gym-graphs.com"
+        : "http://localhost:5000",
+    web:
+      process.env["NODE_ENV"] === "production" ||
+      (import.meta as any)?.env?.PROD
+        ? "https://h4co0c84sos8owgssc4g8k40.augustin-sorel.com"
+        : // ? "https://gym-graphs.com"
+          "http://localhost:3000",
   },
   cookie: {
     session: "session",
