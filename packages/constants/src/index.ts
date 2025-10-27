@@ -26,6 +26,9 @@ const getApiUrl = () => {
   }
 
   //@ts-ignore
+  console.log(import.meta.env.VITE_WEB_URL);
+
+  //@ts-ignore
   if (import.meta.env && import.meta.env["PROD"]) {
     return prod;
   }
