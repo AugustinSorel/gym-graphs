@@ -16,7 +16,6 @@
           default = pkgs.mkShell
             {
               buildInputs = with pkgs;[
-                bun
                 nodejs
                 pnpm
                 typescript

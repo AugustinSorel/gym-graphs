@@ -35,7 +35,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/node": "^24.9.1",
     "@types/pg": "^8.11.10",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.20.6"

@@ -22,5 +22,4 @@ FROM base AS web
 COPY --from=build /prod/web /prod/web
 WORKDIR /prod/web
 EXPOSE 3000
-ENV NODE_ENV production
 CMD [ "pnpm", "start" ]

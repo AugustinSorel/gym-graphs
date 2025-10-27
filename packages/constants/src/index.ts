@@ -1,13 +1,15 @@
+//FIX: remove those ugly fn
 const getWebUrl = () => {
   // TODO:REMOVE THIS
   // const prod = "https://gym-graphs.com";
   const prod = "https://h4co0c84sos8owgssc4g8k40.augustin-sorel.com";
   const dev = "http://localhost:3000";
 
-  if (typeof process !== "undefined" && process.env.NODE_ENV) {
-    return process.env.NODE_ENV === "development" ? dev : prod;
+  if (typeof process !== "undefined" && process.env["NODE_ENV"]) {
+    return process.env["NODE_ENV"] === "development" ? dev : prod;
   }
 
+  //@ts-ignore
   if (import.meta.env && import.meta.env["PROD"]) {
     return prod;
   }
@@ -19,10 +21,11 @@ const getApiUrl = () => {
   const prod = "https://api.gym-graphs.com";
   const dev = "http://localhost:5000";
 
-  if (typeof process !== "undefined" && process.env.NODE_ENV) {
-    return process.env.NODE_ENV === "development" ? dev : prod;
+  if (typeof process !== "undefined" && process.env["NODE_ENV"]) {
+    return process.env["NODE_ENV"] === "development" ? dev : prod;
   }
 
+  //@ts-ignore
   if (import.meta.env && import.meta.env["PROD"]) {
     return prod;
   }

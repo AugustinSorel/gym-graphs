@@ -16,11 +16,10 @@
     "build": "tsup"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/node": "^24.9.1",
     "tsup": "^8.5.0"
   },
   "dependencies": {
-    "@gym-graphs/constants": "workspace:*",
-    "zod": "^4.1.12"
+    "@gym-graphs/constants": "workspace:*"
   }
 }

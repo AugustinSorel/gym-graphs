@@ -40,7 +40,10 @@ export const generateGithubOAuthUrl = (
   return url;
 };
 
-export const createOAuthRequest = (endpoint: string, body: URLSearchParams) => {
+export const createOAuthRequest = (
+  endpoint: string,
+  body: URLSearchParams,
+): Request => {
   const bodyBytes = new TextEncoder().encode(body.toString());
 
   const request = new Request(endpoint, {
