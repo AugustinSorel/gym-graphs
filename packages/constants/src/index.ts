@@ -1,23 +1,37 @@
-import { z } from "zod";
+const getWebUrl = () => {
+  const prod = "https://gym-graphs.com";
+  const dev = "http://localhost:3000";
 
-const envSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "test", "production"])
-    .default("development"),
-});
+  if (typeof process !== "undefined" && process.env.NODE_ENV) {
+    return process.env.NODE_ENV === "development" ? dev : prod;
+  }
 
-const env = envSchema.parse(process.env);
+  if (import.meta.env && import.meta.env["PROD"]) {
+    return prod;
+  }
+
+  return dev;
+};
+
+const getApiUrl = () => {
+  const prod = "https://api.gym-graphs.com";
+  const dev = "http://localhost:5000";
+
+  if (typeof process !== "undefined" && process.env.NODE_ENV) {
+    return process.env.NODE_ENV === "development" ? dev : prod;
+  }
+
+  if (import.meta.env && import.meta.env["PROD"]) {
+    return prod;
+  }
+
+  return dev;
+};
 
 export const constant = {
   url: {
-    api:
-      env.NODE_ENV === "development"
-        ? "http://localhost:5000"
-        : "https://api.gym-graphs.com",
-    web:
-      env.NODE_ENV === "development"
-        ? "http://localhost:3000"
-        : "https://gym-graphs.com",
+    api: getApiUrl(),
+    web: getWebUrl(),
   },
   cookie: {
     session: "session",
