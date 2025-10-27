@@ -32,6 +32,7 @@ export const parseJsonResponse = async <T extends ClientResponse<any>>(
   try {
     return await parseResponse(req);
   } catch (e) {
+    console.error(e, "<<<<");
     if (e instanceof DetailedError) {
       const msg = detailsErrorSchema.catch(e.message).parse(e.detail);
 

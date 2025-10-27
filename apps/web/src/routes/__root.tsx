@@ -40,10 +40,16 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
     links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
+  onCatch(error) {
+    console.log(error);
+  },
   beforeLoad: async ({ context }) => {
-    const req = api().sessions.me.$get();
+    console.log("START");
+    const req = api().sessions.me.$get;
 
-    const session = await parseJsonResponse(await req).catch(() => null);
+    const session = await parseJsonResponse(req()).catch(() => null);
+
+    console.log("session: ", session);
 
     if (!session) {
       return {

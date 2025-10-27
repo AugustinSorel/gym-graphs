@@ -23,6 +23,13 @@ export const getRouter = () => {
     context,
     scrollRestoration: true,
     defaultNotFoundComponent: RouterNotFound,
+    defaultOnCatch(error, errorInfo) {
+      console.log(error, errorInfo);
+    },
+    defaultErrorComponent(e) {
+      console.error(e);
+      return <>{JSON.stringify(e)}</>;
+    },
   });
 
   setupRouterSsrQueryIntegration({
