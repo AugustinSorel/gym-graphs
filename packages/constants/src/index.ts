@@ -1,5 +1,7 @@
 const getWebUrl = () => {
-  const prod = "https://gym-graphs.com";
+  // TODO:REMOVE THIS
+  // const prod = "https://gym-graphs.com";
+  const prod = "https://h4co0c84sos8owgssc4g8k40.augustin-sorel.com";
   const dev = "http://localhost:3000";
 
   if (typeof process !== "undefined" && process.env.NODE_ENV) {
