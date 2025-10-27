@@ -15,10 +15,12 @@ FROM base AS api
 COPY --from=build /prod/api /prod/api
 WORKDIR /prod/api
 EXPOSE 5000
+ENV NODE_ENV production
 CMD ["pnpm", "start"]
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web
 WORKDIR /prod/web
 EXPOSE 3000
+ENV NODE_ENV production
 CMD [ "pnpm", "start" ]
