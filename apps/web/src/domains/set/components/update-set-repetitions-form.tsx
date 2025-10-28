@@ -18,13 +18,11 @@ import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { setSchema } from "@gym-graphs/schemas/set";
 import { useSet } from "~/domains/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
-//TODO
-// import { teamQueries } from "~/domains/team/team.queries";
 import { userQueries } from "~/domains/user/user.queries";
 import { CounterInput } from "~/ui/counter-input";
 import { api, parseJsonResponse } from "~/libs/api";
-import { InferRequestType } from "hono";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import type { InferRequestType } from "hono";
 
 export const UpdateSetRepetitionsForm = (props: Props) => {
   const form = useCreateExerciseForm();

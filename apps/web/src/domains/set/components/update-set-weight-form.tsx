@@ -22,8 +22,6 @@ import { CounterInput } from "~/ui/counter-input";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { api, parseJsonResponse } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
-//TODO
-// import { teamQueries } from "~/team/team.queries";
 import type { InferRequestType } from "hono";
 
 export const UpdateSetWeightForm = (props: Props) => {

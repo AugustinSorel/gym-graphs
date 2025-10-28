@@ -1,7 +1,7 @@
 import { tagTable, userTable } from "~/db/db.schemas";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import type { User } from "~/db/db.schemas";
 import type { Db } from "~/libs/db";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
@@ -101,23 +101,6 @@ export const selectClient = async (userId: User["id"], db: Db) => {
       name: true,
       oneRepMaxAlgo: true,
       dashboardView: true,
-    },
-    extras: {
-      teamNotificationCount: sql`
-        (
-          select count(*) from team_member
-            inner join team_event_notification
-              on
-                team_event_notification.team_id=team_member.team_id
-                  and
-                team_event_notification.user_id=${userId}
-          where
-            team_member.user_id=${userId}
-              and
-            team_event_notification.read_at is null
-        )`
-        .mapWith(Number)
-        .as("team_notification_count"),
     },
     with: {
       dashboard: {

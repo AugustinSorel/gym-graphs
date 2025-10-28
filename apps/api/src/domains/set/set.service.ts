@@ -21,34 +21,6 @@ export const create = async (
   const set = await setRepo.create(weightInKg, repetitions, exerciseId, db);
 
   return set;
-
-  //TODO:
-  // const currentBestSet = getBestSetFromSets(exercise.sets);
-
-  // if (currentBestSet) {
-  //   const currentOneRepMaxInKg = calculateOneRepMax(
-  //     currentBestSet.repetitions,
-  //     currentBestSet.weightInKg,
-  //     context.user.oneRepMaxAlgo,
-  //   );
-
-  //   const candidateBestOneRepMaxInKg = calculateOneRepMax(
-  //     newSet.repetitions,
-  //     newSet.weightInKg,
-  //     context.user.oneRepMaxAlgo,
-  //   );
-
-  //   const newOneRepMax = candidateBestOneRepMaxInKg > currentOneRepMaxInKg;
-
-  //   if (newOneRepMax) {
-  //     await notifyTeamsFromNewOneRepMax(
-  //       context.user,
-  //       exercise.tile.name,
-  //       candidateBestOneRepMaxInKg,
-  //       context.db,
-  //     );
-  //   }
-  // }
 };
 
 const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {

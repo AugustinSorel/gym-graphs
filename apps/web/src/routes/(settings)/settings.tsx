@@ -99,8 +99,7 @@ const RenameUserSection = () => {
         <HGroup>
           <SectionTitle>rename yourself</SectionTitle>
           <SectionDescription>
-            Feel free to rename yourself to a more confortable name. Your name
-            is not public but it will be visible to the members of your teams.
+            Feel free to rename yourself to a more confortable name.
           </SectionDescription>
         </HGroup>
         <Footer>

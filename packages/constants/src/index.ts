@@ -43,19 +43,4 @@ export const constant = {
       ],
     },
   },
-  team: {
-    visibilities: ["public", "private"],
-    joinRequest: {
-      statuses: ["pending", "accepted", "rejected"],
-    },
-    invitation: {
-      statuses: ["pending", "accepted", "rejected"],
-    },
-    member: {
-      roles: ["admin", "member"],
-    },
-    event: {
-      reactions: ["🎯", "😤", "🔥", "🎉", "💪"],
-    },
-  },
 } as const;

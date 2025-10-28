@@ -14,13 +14,13 @@ import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { tilesMock } from "~/domains/tile/tile.mock";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
-import type { ComponentProps } from "react";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseMock } from "~/domains/exercise/exercise.mock";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -31,7 +31,6 @@ export const Route = createFileRoute("/")({
   },
 });
 
-//TODO: feature 3
 const Home = () => {
   const mockQueryClient = useMockQueryClient();
 
@@ -372,78 +371,6 @@ const CirclesBluredBg = () => {
     </>
   );
 };
-
-// const TeamFunFactsGrid = (props: ComponentProps<"ol">) => {
-//   return (
-//     <ol
-//       className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2 lg:grid-rows-2"
-//       {...props}
-//     />
-//   );
-// };
-
-// const TeamFunFact = ({ className, ...props }: ComponentProps<"li">) => {
-//   return (
-//     <li
-//       className={cn(
-//         "bg-secondary grid items-center gap-3 rounded-lg border p-3 text-center lg:p-6",
-//         className,
-//       )}
-//       {...props}
-//     />
-//   );
-// };
-
-// const TeamFunFactName = (props: ComponentProps<"h2">) => {
-//   return (
-//     <h2
-//       {...props}
-//       className="text-sm font-semibold whitespace-nowrap capitalize"
-//     />
-//   );
-// };
-
-// const TeamFunFactStrong = (props: ComponentProps<"strong">) => {
-//   return (
-//     <strong
-//       className="bg-brand-gradient truncate bg-clip-text py-1 text-4xl font-bold text-transparent"
-//       {...props}
-//     />
-//   );
-// };
-
-// const TeamEventsTimeline = (props: ComponentProps<"ol">) => {
-//   return <ol className="bg-secondary w-full rounded-md border" {...props} />;
-// };
-
-// const TeamEvent = ({ className, ...props }: ComponentProps<"li">) => {
-//   return (
-//     <li
-//       className={cn(
-//         "before:border-input before:bg-background hover:bg-accent after:bg-input hover:before:border-muted-foreground relative rounded-lg border border-transparent py-5 pr-16 pl-12 not-last:pb-10 before:absolute before:left-3.5 before:z-10 before:mt-2.5 before:size-3 before:rounded-full before:border-2 before:transition-colors after:absolute after:top-0 after:bottom-0 after:left-4.75 after:w-0.5",
-//         className,
-//       )}
-//       {...props}
-//     />
-//   );
-// };
-
-// const TeamEventName = (props: ComponentProps<"h2">) => {
-//   return (
-//     <h2
-//       className="truncate text-lg font-semibold first-letter:capitalize"
-//       {...props}
-//     />
-//   );
-// };
-
-// const TeamEventDescription = (props: ComponentProps<"p">) => {
-//   return <p className="text-muted-foreground" {...props} />;
-// };
-
-// const TeamEventReactionsContainer = (props: ComponentProps<"div">) => {
-//   return <div className="mt-2 flex items-center gap-2" {...props} />;
-// };
 
 const useMockQueryClient = () => {
   const queryClient = new QueryClient();

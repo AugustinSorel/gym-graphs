@@ -14,7 +14,6 @@ import { userRouter } from "~/domains/user/user.router";
 import { tagRouter } from "~//domains/tag/tag.router";
 import { tileRouter } from "~/domains/tile/tile.router";
 import { exerciseRouter } from "~/domains/exercise/exercise.router";
-import { teamRouter } from "~/domains/team/team.router";
 import { setRouter } from "~/domains/set/set.router";
 import { cors } from "hono/cors";
 import { constant } from "@gym-graphs/constants";
@@ -52,7 +51,6 @@ const app = new Hono<Ctx>()
   .route("/tags", tagRouter)
   .route("/tiles", tileRouter)
   .route("/exercises", exerciseRouter.route("/:exerciseId/sets", setRouter))
-  .route("/teams", teamRouter)
   .onError(errorHandler);
 
 export type Api = typeof app;
