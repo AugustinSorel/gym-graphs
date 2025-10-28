@@ -44,12 +44,9 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
     console.log(error);
   },
   beforeLoad: async ({ context }) => {
-    console.log("START");
     const req = api().sessions.me.$get;
 
     const session = await parseJsonResponse(req()).catch(() => null);
-
-    console.log("session: ", session);
 
     if (!session) {
       return {

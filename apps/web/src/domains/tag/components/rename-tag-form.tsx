@@ -27,7 +27,6 @@ export const RenameTagForm = (props: Props) => {
   const tag = useTag();
 
   const onSubmit = async (data: RenameTagSchema) => {
-    console.log("HERE");
     await renameTag.mutateAsync(
       {
         param: {
