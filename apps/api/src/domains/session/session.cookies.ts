@@ -10,6 +10,7 @@ export const sessionCookie = {
       secure: env.NODE_ENV === "production",
       expires: expiresAt,
       path: "/",
+      domain: ".gym-graphs.com",
     };
   },
   optionsForDeletion: {
@@ -18,5 +19,6 @@ export const sessionCookie = {
     secure: env.NODE_ENV === "production",
     maxAge: 0,
     path: "/",
+    domain: ".gym-graphs.com",
   } satisfies CookieOptions,
 };
