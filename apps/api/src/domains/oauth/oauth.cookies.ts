@@ -6,7 +6,7 @@ export const oauthCookies = {
     name: "github_oauth_state",
     options: {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       secure: env.NODE_ENV === "production",
       maxAge: 60 * 10,
       path: "/",
