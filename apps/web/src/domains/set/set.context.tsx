@@ -1,6 +1,6 @@
 import { createContext, use } from "react";
 import type { ComponentProps } from "react";
-import type { Set } from "@gym-graphs/api/db";
+import type { Set } from "@gym-graphs/api";
 import type { Serialize } from "~/utils/json";
 
 const SetCtx = createContext<Serialize<Set> | undefined>(undefined);

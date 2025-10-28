@@ -16,7 +16,7 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
-import type { Set } from "@gym-graphs/api/db";
+import type { Set } from "@gym-graphs/api";
 import type {
   ComponentProps,
   CSSProperties,

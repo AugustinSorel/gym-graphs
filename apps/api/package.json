@@ -3,14 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts"
-    },
-    "./db": {
-      "types": "./dist/db/db.schemas.d.ts"
-    }
-  },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
     "build": "tsup",

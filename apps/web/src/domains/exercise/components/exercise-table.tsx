@@ -15,7 +15,7 @@ import {
 } from "~/ui/table";
 import { Button } from "~/ui/button";
 import { useState } from "react";
-import type { Set } from "@gym-graphs/api/db";
+import type { Set } from "@gym-graphs/api";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import type { Serialize } from "~/utils/json";
 

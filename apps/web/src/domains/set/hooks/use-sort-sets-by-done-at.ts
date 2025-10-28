@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Set } from "@gym-graphs/api/db";
+import type { Set } from "@gym-graphs/api";
 import { Serialize } from "~/utils/json";
 
 export const useSortSetsByDoneAt = <

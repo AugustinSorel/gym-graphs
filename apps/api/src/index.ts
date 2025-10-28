@@ -21,7 +21,7 @@ import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
 
-console.log(env, constant);
+export type * from "~/db/db.schemas";
 
 export type Ctx = Readonly<{
   Variables: Readonly<{

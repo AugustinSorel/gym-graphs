@@ -1,4 +1,4 @@
-import type { Set, User } from "@gym-graphs/api/db";
+import type { Set, User } from "@gym-graphs/api";
 
 export const calculateOneRepMax = (
   weight: Set["weightInKg"],

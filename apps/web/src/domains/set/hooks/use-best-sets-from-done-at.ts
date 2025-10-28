@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import type { Set } from "@gym-graphs/api/db";
+import type { Set } from "@gym-graphs/api";
 import type { Serialize } from "~/utils/json";
 
 export const useBestSetsFromDoneAt = <

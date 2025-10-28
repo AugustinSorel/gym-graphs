@@ -1,6 +1,6 @@
 import { createContext, use } from "react";
 import type { ComponentProps } from "react";
-import type { Tag } from "@gym-graphs/api/db";
+import type { Tag } from "@gym-graphs/api";
 
 const Ctx = createContext<Pick<Tag, "name" | "id"> | undefined>(undefined);
 
