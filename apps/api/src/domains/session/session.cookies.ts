@@ -6,7 +6,7 @@ export const sessionCookie = {
   optionsForExpiry: (expiresAt: Date): CookieOptions => {
     return {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: "lax",
       secure: env.NODE_ENV === "production",
       expires: expiresAt,
       path: "/",
@@ -14,7 +14,7 @@ export const sessionCookie = {
   },
   optionsForDeletion: {
     httpOnly: true,
-    sameSite: "none",
+    sameSite: "lax",
     secure: env.NODE_ENV === "production",
     maxAge: 0,
     path: "/",
