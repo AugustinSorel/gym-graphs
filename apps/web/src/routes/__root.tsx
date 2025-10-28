@@ -130,6 +130,5 @@ const AnalyticScript = () => {
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
 
-do I need typescript as dev deps ?
 do I need tsc-alias
 */

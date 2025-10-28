@@ -15,7 +15,7 @@ FROM base AS api
 COPY --from=build /prod/api /prod/api
 WORKDIR /prod/api
 EXPOSE 5000
-ENV NODE_ENV production
+ENV NODE_ENV=production
 CMD ["pnpm", "start"]
 
 FROM base AS web
