@@ -6,7 +6,7 @@ export const constant = {
         : "http://localhost:5000",
     web:
       process.env["NODE_ENV"] === "production" || (import.meta as any).env?.PROD
-        ? "https://h4co0c84sos8owgssc4g8k40.augustin-sorel.com"
+        ? "https://web.gym-graphs.com"
         : // ? "https://gym-graphs.com"
           "http://localhost:3000",
   },
