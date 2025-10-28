@@ -14,12 +14,12 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ```txt
 ├── apps
-│   ├── api       #Hono backend API
-│   └── web       #Tanstack start frontend
+│   ├── api          #Hono backend API
+│   └── web          #Tanstack start frontend
 ├── package.json
 ├── packages
-│   ├── constants #Global constants
-│   └── schemas   #Global zod schemas
+│   ├── constants    #Global constants
+│   └── schemas      #Global zod schemas
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
 ├── README.md
@@ -41,7 +41,7 @@ pnpm i
 pnpm dev
 ```
 
-### Dev
+### Prod
 
 ```bash
 docker build --target api gym_graphs_api .
