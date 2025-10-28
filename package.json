@@ -10,7 +10,11 @@
     "web": "pnpm --filter @gym-graphs/web",
     "api": "pnpm --filter @gym-graphs/api",
     "schemas": "pnpm --filter @gym-graphs/schemas",
-    "constants": "pnpm --filter @gym-graphs/constants"
+    "constants": "pnpm --filter @gym-graphs/constants",
+    "docker:api:build": "docker build --target api --tag gym_graphs_api .",
+    "docker:api:run": "docker run -p 5000:5000 --env-file=./apps/api/.env --name gym_graphs_api --rm gym_graphs_api",
+    "docker:migration:build": "docker build --target migration --tag gym_graphs_migration .",
+    "docker:migration:run": "docker run --env-file=./apps/api/.env --name gym_graphs_migration --rm gym_graphs_migration"
   },
   "keywords": [],
   "author": "",

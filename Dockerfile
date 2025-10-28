@@ -18,6 +18,12 @@ EXPOSE 5000
 ENV NODE_ENV=production
 CMD ["pnpm", "start"]
 
+FROM base AS migration
+COPY --from=build /prod/api /prod/api
+WORKDIR /prod/api
+RUN pnpm db:generate
+CMD ["pnpm", "db:migrate"]
+
 FROM base AS web
 COPY --from=build /prod/web /prod/web
 WORKDIR /prod/web
