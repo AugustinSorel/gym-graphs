@@ -6,17 +6,19 @@ export const sessionCookie = {
   optionsForExpiry: (expiresAt: Date): CookieOptions => {
     return {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       secure: env.NODE_ENV === "production",
       expires: expiresAt,
       path: "/",
+      domain: ".gym-graphs.com",
     };
   },
   optionsForDeletion: {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "none",
     secure: env.NODE_ENV === "production",
     maxAge: 0,
     path: "/",
+    domain: ".gym-graphs.com",
   } satisfies CookieOptions,
 };
