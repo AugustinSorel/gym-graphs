@@ -129,6 +129,4 @@ const AnalyticScript = () => {
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
-
-do I need tsc-alias
 */
