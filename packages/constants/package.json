@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
@@ -18,8 +16,5 @@
   "devDependencies": {
     "@types/node": "^24.9.1",
     "tsup": "^8.5.0"
-  },
-  "dependencies": {
-    "@gym-graphs/constants": "workspace:*"
   }
 }

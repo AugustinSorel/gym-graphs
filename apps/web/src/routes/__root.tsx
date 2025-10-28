@@ -132,5 +132,4 @@ const AnalyticScript = () => {
 
 do I need typescript as dev deps ?
 do I need tsc-alias
-constants build got errors in logs
 */
