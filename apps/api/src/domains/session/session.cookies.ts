@@ -6,19 +6,19 @@ export const sessionCookie = {
   optionsForExpiry: (expiresAt: Date): CookieOptions => {
     return {
       httpOnly: true,
-      sameSite: "none",
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
       secure: env.NODE_ENV === "production",
       expires: expiresAt,
       path: "/",
-      domain: ".gym-graphs.com",
+      domain: env.NODE_ENV === "production" ? ".gym-graphs.com" : "localhost",
     };
   },
   optionsForDeletion: {
     httpOnly: true,
-    sameSite: "none",
+    sameSite: env.NODE_ENV === "production" ? "none" : "lax",
     secure: env.NODE_ENV === "production",
     maxAge: 0,
     path: "/",
-    domain: ".gym-graphs.com",
+    domain: env.NODE_ENV === "production" ? ".gym-graphs.com" : "localhost",
   } satisfies CookieOptions,
 };
