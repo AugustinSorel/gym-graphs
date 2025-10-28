@@ -13,12 +13,6 @@ const envSchema = z.object({
   DB_HOST: z.string().trim().nonempty(),
   DB_PORT: z.coerce.number(),
 
-  // CACHE_PASSWORD: z.string().trim().nonempty(),
-  // CACHE_USER: z.string().trim().nonempty(),
-  // CACHE_HOST: z.string().trim().nonempty(),
-  // CACHE_NAME: z.coerce.number(),
-  // CACHE_PORT: z.coerce.number(),
-
   SMTP_HOST: z.string().trim().nonempty(),
   SMTP_USER: z.string().trim().nonempty(),
   SMTP_PASSWORD: z.string().trim().nonempty(),
