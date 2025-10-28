@@ -129,5 +129,8 @@ const AnalyticScript = () => {
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
-| TODO     | try turborepo for prod                                |
+
+do I need typescript as dev deps ?
+do I need tsc-alias
+constants build got errors in logs
 */
