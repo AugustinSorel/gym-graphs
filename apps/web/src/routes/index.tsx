@@ -15,6 +15,12 @@ import { tileQueries } from "~/domains/tile/tile.queries";
 import { tilesMock } from "~/domains/tile/tile.mock";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type { ComponentProps } from "react";
+import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
+import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
+import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
+import { exerciseMock } from "~/domains/exercise/exercise.mock";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -25,7 +31,7 @@ export const Route = createFileRoute("/")({
   },
 });
 
-//TODO: feature 2,3
+//TODO: feature 3
 const Home = () => {
   const mockQueryClient = useMockQueryClient();
 
@@ -35,6 +41,8 @@ const Home = () => {
         <HeroSection />
 
         <FeatureOne />
+
+        <FeatureTwo />
 
         <HeroSectionTwo />
       </Main>
@@ -141,6 +149,34 @@ const FeatureOne = () => {
           }
         })}
       </Grid>
+    </FeatureContainer>
+  );
+};
+
+const FeatureTwo = () => {
+  const exercise = useExercise(exerciseMock.id);
+
+  return (
+    <FeatureContainer>
+      <HeroTitle>
+        Track <GradientText>Every Move!</GradientText>
+      </HeroTitle>
+
+      <Text>
+        Our app allows you to <StrongText>effortlessly</StrongText> track all
+        your custom exercises, so you can stay in control of your fitness
+        journey like never before.
+      </Text>
+
+      <CardTwo className="py-2 sm:p-4">
+        <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+      </CardTwo>
+      <CardTwo>
+        <ExerciseTable
+          sets={exercise.data.sets}
+          columns={homePageExerciseTableColumns}
+        />
+      </CardTwo>
     </FeatureContainer>
   );
 };
@@ -291,17 +327,17 @@ const FeatureContainer = ({
   );
 };
 
-// const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
-//   return (
-//     <div
-//       className={cn(
-//         "bg-secondary relative w-full rounded-md border",
-//         className,
-//       )}
-//       {...props}
-//     />
-//   );
-// };
+const CardTwo = ({ className, ...props }: ComponentProps<"div">) => {
+  return (
+    <div
+      className={cn(
+        "bg-secondary relative w-full rounded-md border",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
 const Separator = () => {
   return (
@@ -415,9 +451,11 @@ const useMockQueryClient = () => {
   const queries = {
     user: userQueries.get,
     tiles: tileQueries.all(),
+    exercise: exerciseQueries.get(exerciseMock.id),
   };
 
   queryClient.setQueryData(queries.user.queryKey, userMock);
+  queryClient.setQueryData(queries.exercise.queryKey, exerciseMock);
   queryClient.setQueryData(queries.tiles.queryKey, {
     pageParams: [],
     pages: [{ nextCursor: 0, tiles: tilesMock }],
