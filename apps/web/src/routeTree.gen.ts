@@ -11,8 +11,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as teamsTeamsRouteImport } from './routes/(teams)/teams'
 import { Route as settingsSettingsRouteImport } from './routes/(settings)/settings'
 import { Route as dashboardDashboardRouteImport } from './routes/(dashboard)/dashboard'
 import { Route as authLayoutRouteImport } from './routes/(auth)/_layout'
@@ -30,14 +30,14 @@ const authRoute = authRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeamsRoute = TeamsRouteImport.update({
-  id: '/teams',
-  path: '/teams',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const teamsTeamsRoute = teamsTeamsRouteImport.update({
+  id: '/(teams)/teams',
+  path: '/teams',
   getParentRoute: () => rootRouteImport,
 } as any)
 const settingsSettingsRoute = settingsSettingsRouteImport.update({
@@ -95,9 +95,9 @@ const authLayoutResetPasswordTokenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof authLayoutRouteWithChildren
-  '/teams': typeof TeamsRoute
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
+  '/teams': typeof teamsTeamsRoute
   '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
@@ -108,9 +108,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof authLayoutRouteWithChildren
-  '/teams': typeof TeamsRoute
   '/dashboard': typeof dashboardDashboardRoute
   '/settings': typeof settingsSettingsRoute
+  '/teams': typeof teamsTeamsRoute
   '/reset-password': typeof authLayoutResetPasswordRoute
   '/sign-in': typeof authLayoutSignInRoute
   '/sign-up': typeof authLayoutSignUpRoute
@@ -122,11 +122,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/teams': typeof TeamsRoute
   '/(auth)': typeof authRouteWithChildren
   '/(auth)/_layout': typeof authLayoutRouteWithChildren
   '/(dashboard)/dashboard': typeof dashboardDashboardRoute
   '/(settings)/settings': typeof settingsSettingsRoute
+  '/(teams)/teams': typeof teamsTeamsRoute
   '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
   '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
   '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
@@ -139,9 +139,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/teams'
     | '/dashboard'
     | '/settings'
+    | '/teams'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -152,9 +152,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/teams'
     | '/dashboard'
     | '/settings'
+    | '/teams'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -165,11 +165,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/teams'
     | '/(auth)'
     | '/(auth)/_layout'
     | '/(dashboard)/dashboard'
     | '/(settings)/settings'
+    | '/(teams)/teams'
     | '/(auth)/_layout/reset-password'
     | '/(auth)/_layout/sign-in'
     | '/(auth)/_layout/sign-up'
@@ -181,10 +181,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TeamsRoute: typeof TeamsRoute
   authRoute: typeof authRouteWithChildren
   dashboardDashboardRoute: typeof dashboardDashboardRoute
   settingsSettingsRoute: typeof settingsSettingsRoute
+  teamsTeamsRoute: typeof teamsTeamsRoute
   exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
   exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
 }
@@ -198,18 +198,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teams': {
-      id: '/teams'
-      path: '/teams'
-      fullPath: '/teams'
-      preLoaderRoute: typeof TeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(teams)/teams': {
+      id: '/(teams)/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof teamsTeamsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(settings)/settings': {
@@ -317,10 +317,10 @@ const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TeamsRoute: TeamsRoute,
   authRoute: authRouteWithChildren,
   dashboardDashboardRoute: dashboardDashboardRoute,
   settingsSettingsRoute: settingsSettingsRoute,
+  teamsTeamsRoute: teamsTeamsRoute,
   exercisesExercisesExerciseIdRoute: exercisesExercisesExerciseIdRoute,
   exercisesExercisesExerciseIdSettingsRoute:
     exercisesExercisesExerciseIdSettingsRoute,

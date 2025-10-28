@@ -122,6 +122,7 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| TODO     | team page                                             |
 | TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
