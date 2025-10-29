@@ -45,10 +45,10 @@ export const authRateLimiterMiddleware = rateLimiter({
 /**
  * Request ID middleware
  * Adds a unique request ID for tracing
+ * Note: Request ID is added to headers but not stored in context variables
  */
 export const requestIdMiddleware = createMiddleware<Ctx>(async (c, next) => {
   const requestId = crypto.randomUUID();
-  c.set("requestId" as any, requestId);
   c.header("X-Request-Id", requestId);
   await next();
 });
