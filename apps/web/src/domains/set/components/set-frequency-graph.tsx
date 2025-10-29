@@ -136,12 +136,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
                 day: "numeric",
               });
             }}
-            tickLabelProps={(_value, index) => ({
-              className:
-                "fill-muted-foreground text-xs data-[first=true]:translate-x-2 data-[last=true]:-translate-x-10",
-              "data-first": index === 0,
-              "data-last": index === sets.length - 1 && width > 500,
-            })}
+            tickLabelProps={{ className: "fill-muted-foreground text-xs" }}
             hideTicks
             axisLineClassName="stroke-muted"
           />
