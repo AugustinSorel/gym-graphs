@@ -33,8 +33,10 @@ export const CreateSetDialog = () => {
         className="bg-primary/20 hover:bg-primary/30 text-primary fixed right-4 bottom-20 z-20 size-14 rounded-full border-2 border-current text-xl backdrop-blur-md lg:hidden"
         aria-label="create set"
       >
-        <DialogTrigger>
-          <PlusIcon />
+        <DialogTrigger asChild>
+          <routeApi.Link hash={routeHash.hash}>
+            <PlusIcon />
+          </routeApi.Link>
         </DialogTrigger>
       </Button>
 
