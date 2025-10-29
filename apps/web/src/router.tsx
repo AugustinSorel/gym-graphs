@@ -51,7 +51,7 @@ const RouterNotFound = (_props: Readonly<NotFoundRouteProps>) => {
       <h1 className="text-accent-foreground text-5xl font-semibold opacity-30">
         not found
       </h1>
-      <h1>this ressource does not exists!</h1>
+      <h1>This resource does not exist!</h1>
       <Button className="font-semibold capitalize" asChild>
         <Link to="/dashboard">go to dashboard</Link>
       </Button>
