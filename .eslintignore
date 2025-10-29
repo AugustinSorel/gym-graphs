@@ -1,0 +1,10 @@
+node_modules
+dist
+.output
+.tanstack
+.nitro
+drizzle
+build
+*.gen.ts
+*.config.js
+*.config.ts

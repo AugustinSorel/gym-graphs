@@ -5,6 +5,10 @@
   "main": "index.js",
   "scripts": {
     "lint": "tsc --build --noemit",
+    "lint:eslint": "eslint .",
+    "lint:all": "pnpm lint && pnpm lint:eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "web": "pnpm --filter @gym-graphs/web",
@@ -21,6 +25,11 @@
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@eslint/js": "^9.38.0",
+    "eslint": "^9.38.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
   }
 }

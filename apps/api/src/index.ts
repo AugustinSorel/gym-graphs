@@ -15,8 +15,15 @@ import { tagRouter } from "~//domains/tag/tag.router";
 import { tileRouter } from "~/domains/tile/tile.router";
 import { exerciseRouter } from "~/domains/exercise/exercise.router";
 import { setRouter } from "~/domains/set/set.router";
+import { healthRouter } from "~/domains/health/health.router";
 import { cors } from "hono/cors";
 import { constant } from "@gym-graphs/constants";
+import {
+  securityHeadersMiddleware,
+  rateLimiterMiddleware,
+  authRateLimiterMiddleware,
+  requestIdMiddleware,
+} from "~/middlewares/security.middlewares";
 import type { Db } from "~/libs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
@@ -33,6 +40,11 @@ export type Ctx = Readonly<{
 
 const app = new Hono<Ctx>()
   .basePath("/api")
+  // Security middlewares
+  .use("*", requestIdMiddleware)
+  .use("*", securityHeadersMiddleware)
+  .use("*", rateLimiterMiddleware)
+  // CORS
   .use(
     "*",
     cors({
@@ -40,14 +52,19 @@ const app = new Hono<Ctx>()
       credentials: true,
     }),
   )
+  // App middlewares
   .use(injectDbMiddleware)
   .use(injectEmailMiddleware)
   .use(injectSessionMiddleware)
-  .route("/sessions", sessionRouter)
-  .route("/users", userRouter)
+  // Health check endpoints (no auth required)
+  .route("/health", healthRouter)
+  // Auth routes with stricter rate limiting
+  .route("/sessions", sessionRouter.use("*", authRateLimiterMiddleware))
+  .route("/users", userRouter.use("*", authRateLimiterMiddleware))
   .route("/email-verifications", emailVerificationRouter)
-  .route("/password-resets", passwordResetRouter)
-  .route("/oauth", oauthRouter)
+  .route("/password-resets", passwordResetRouter.use("*", authRateLimiterMiddleware))
+  .route("/oauth", oauthRouter.use("*", authRateLimiterMiddleware))
+  // Protected routes
   .route("/tags", tagRouter)
   .route("/tiles", tileRouter)
   .route("/exercises", exerciseRouter.route("/:exerciseId/sets", setRouter))
