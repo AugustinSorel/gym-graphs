@@ -23,7 +23,7 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
-import { Serialize } from "~/utils/json";
+import type { Serialize } from "~/utils/json";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useBestSortedSets(props.sets);

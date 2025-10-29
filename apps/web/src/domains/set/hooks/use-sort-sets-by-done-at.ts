@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { Set } from "@gym-graphs/api";
-import { Serialize } from "~/utils/json";
+import type { Serialize } from "~/utils/json";
 
 export const useSortSetsByDoneAt = <
   TSet extends Pick<Serialize<Set>, "doneAt">,
