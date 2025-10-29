@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1741296625365,
+      "tag": "0000_mixed_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741543439968,
+      "tag": "0001_milky_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1742850212287,
+      "tag": "0002_jittery_star_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1757075257266,
+      "tag": "0003_panoramic_rictor",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1761647030365,
+      "tag": "0004_good_spectrum",
+      "breakpoints": true
+    }
+  ]
+}

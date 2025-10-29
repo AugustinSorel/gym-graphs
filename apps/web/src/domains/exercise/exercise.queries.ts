@@ -1,0 +1,23 @@
+import { queryOptions } from "@tanstack/react-query";
+import type { Exercise } from "@gym-graphs/api";
+import { api, parseJsonResponse } from "~/libs/api";
+
+const get = (exerciseId: Exercise["id"]) => {
+  return queryOptions({
+    queryKey: ["exercises", exerciseId],
+    queryFn: async ({ signal }) => {
+      const req = api().exercises[":exerciseId"].$get;
+
+      return parseJsonResponse(
+        req(
+          { param: { exerciseId: exerciseId.toString() } },
+          { init: { signal } },
+        ),
+      );
+    },
+  });
+};
+
+export const exerciseQueries = {
+  get,
+};

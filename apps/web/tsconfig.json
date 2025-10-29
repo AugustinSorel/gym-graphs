@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2022",
+    "verbatimModuleSyntax": false,
+    "lib": [
+      "ESNext.Array",
+      "DOM",
+      "ESNext"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    }
+  }
+}

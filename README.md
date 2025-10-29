@@ -6,53 +6,50 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 - live website: https://gym-graphs.com
 
-## Images
-
-### Home Page
+## Image
 
 ![home page of Gym Graphs](https://github.com/user-attachments/assets/3f590cbd-d95b-4983-a02e-ca0a9b97618f)
 
-### Sign in page
+## Structure
 
-![sign in page of Gym Graphs](https://github.com/user-attachments/assets/1898ffa4-4239-48fa-bb4f-b1587a883816)
+```txt
+├── apps
+│   ├── api          #Hono backend API
+│   └── web          #Tanstack start frontend
+├── package.json
+├── packages
+│   ├── constants    #Global constants
+│   └── schemas      #Global zod schemas
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── README.md
+└── tsconfig.json
+```
 
-### Sign up page
+## Setup
 
-![sign up page of Gym Graphs](https://github.com/user-attachments/assets/d178b5d8-fe99-4a0e-beab-a4bca43a5fbf)
+```bash
+git clone https://github.com/augustinsorel/gym-graphs.git
+cd gym-graphs
+cp ./apps/api/.env.example .env
+```
 
-### Dashboard Page
+### Dev
 
-![dashboard page of Gym Graphs](https://github.com/user-attachments/assets/7a61b29a-7209-4d23-bdde-b624c11316f5)
+```bash
+pnpm i
+pnpm dev
+```
 
-### Team Page
+### Prod
 
-![team page of Gym Graphs](https://github.com/user-attachments/assets/0d942af4-23e4-49fb-88dc-d110e7045a4a)
+```bash
+docker build --target api gym_graphs_api .
+docker build --target web gym_graphs_web .
+docker build --target migration gym_graphs_migration .
 
-### Settings Page
+docker run  --name gym_graphs_migration --rm --env-file=./apps/api/.env gym_graphs_migration
 
-![settings page of Gym Graphs](https://github.com/user-attachments/assets/7240ae54-5df3-49fe-a97a-31059b184d30)
-
-### Exercise Page
-
-![exercise page of Gym Graphs](https://github.com/user-attachments/assets/65cc7d61-376f-4dfb-a708-f564ba734ce2)
-
-### Exercise Settings Page
-
-![exercise settings page of Gym Graphs](https://github.com/user-attachments/assets/e0a08b7a-0f2a-4a29-9018-6d6afc093f27)
-
-## Tech Stack
-
-- [Tanstack Start](https://tanstack.com/start/latest)
-- [Tanstack Query](https://tanstack.com/query/latest)
-- [Tanstack Table](https://tanstack.com/table/latest)
-- [AWS SES](https://aws.amazon.com/ses/)
-- [Prometheus](https://prometheus.io/)
-- [Typescript](https://www.typescriptlang.org/docs/)
-- [Radix-UI](https://www.radix-ui.com/)
-- [Drizzle](https://orm.drizzle.team/)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Postgres](https://www.postgresql.org/docs/)
-- [Redis](https://redis.io/)
-- [Zod](https://zod.dev/)
-- [visx](https://airbnb.io/visx)
-- [dnd-kit](https://dndkit.com/)
+docker run -p 5000:5000 --name gym_graphs_api --rm --env-file=./apps/api/.env gym_graphs_api
+docker run -p 3000:3000 --name gym_graphs_web --rm  gym_graphs_web
+```

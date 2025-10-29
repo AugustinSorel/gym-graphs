@@ -1,19 +1,31 @@
-FROM node:22-alpine
+FROM node:22-slim AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-WORKDIR /app
+FROM base AS build
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run -r build
+RUN pnpm deploy --filter=api --prod /prod/api
+RUN pnpm deploy --filter=web --prod /prod/web
 
-COPY package.json pnpm-lock.yaml* ./
-
-RUN corepack enable pnpm && pnpm i --frozen-lockfile
-
-COPY . .
-
-RUN pnpm run build
-
+FROM base AS api
+COPY --from=build /prod/api /prod/api
+WORKDIR /prod/api
+EXPOSE 5000
 ENV NODE_ENV=production
+CMD ["pnpm", "start"]
 
+FROM base AS migration
+COPY --from=build /prod/api /prod/api
+WORKDIR /prod/api
+RUN pnpm db:generate
+CMD ["pnpm", "db:migrate"]
+
+FROM base AS web
+COPY --from=build /prod/web /prod/web
+WORKDIR /prod/web
 EXPOSE 3000
-
-ENV PORT=3000
-
-CMD ["node", ".output/server/index.mjs"]
+CMD [ "pnpm", "start" ]

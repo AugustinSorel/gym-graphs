@@ -1,0 +1,110 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Button } from "~/ui/button";
+import {
+  Form,
+  FormAlert,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/ui/form";
+import { Input } from "~/ui/input";
+import { Spinner } from "~/ui/spinner";
+import { userSchema } from "@gym-graphs/schemas/user";
+import { api, parseJsonResponse } from "~/libs/api";
+import type { InferRequestType } from "hono";
+import type { z } from "zod";
+import type { ComponentProps } from "react";
+
+export const RequestResetPasswordForm = () => {
+  const form = useRequestResetPasswordForm();
+  const requestResetPassword = useRequestResetPassword();
+
+  const onSubmit = async (data: RequestResetPassword) => {
+    await requestResetPassword.mutateAsync(
+      { json: data },
+      {
+        onSuccess: () => {
+          form.reset();
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+      },
+    );
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid w-full gap-3"
+      >
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  autoFocus
+                  placeholder="john@example.com"
+                  type="email"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormAlert />
+
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="font-semibold"
+        >
+          <span>reset password</span>
+          {form.formState.isSubmitting && <Spinner />}
+        </Button>
+
+        {requestResetPassword.isSuccess && (
+          <SuccessMsg>email was sent successfully 🎉</SuccessMsg>
+        )}
+      </form>
+    </Form>
+  );
+};
+
+const requestResetPasswordSchema = userSchema.pick({ email: true });
+type RequestResetPassword = Readonly<
+  z.infer<typeof requestResetPasswordSchema>
+>;
+
+const useRequestResetPasswordForm = () => {
+  return useForm<RequestResetPassword>({
+    resolver: zodResolver(requestResetPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+};
+
+const useRequestResetPassword = () => {
+  const req = api()["password-resets"].$post;
+
+  return useMutation({
+    mutationFn: async (input: InferRequestType<typeof req>) => {
+      return parseJsonResponse(req(input));
+    },
+  });
+};
+
+const SuccessMsg = (props: ComponentProps<"p">) => {
+  return <p className="text-muted-foreground text-center text-sm" {...props} />;
+};

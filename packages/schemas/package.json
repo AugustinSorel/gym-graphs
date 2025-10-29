@@ -1,0 +1,21 @@
+{
+  "name": "@gym-graphs/schemas",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./*": {
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0"
+  },
+  "dependencies": {
+    "@gym-graphs/constants": "workspace:*",
+    "zod": "^4.1.12"
+  }
+}
