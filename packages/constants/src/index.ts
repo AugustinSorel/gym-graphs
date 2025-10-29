@@ -6,9 +6,8 @@ export const constant = {
         : "http://localhost:5000",
     web:
       process.env["NODE_ENV"] === "production" || (import.meta as any).env?.PROD
-        ? "https://web.gym-graphs.com"
-        : // ? "https://gym-graphs.com"
-          "http://localhost:3000",
+        ? "https://gym-graphs.com"
+        : "http://localhost:3000",
   },
   cookie: {
     session: "session",
