@@ -37,8 +37,10 @@ export const CreateExerciseOverviewTileDialog = () => {
         disabled={isFiltering}
         aria-label="create exercise"
       >
-        <DialogTrigger>
-          <PlusIcon />
+        <DialogTrigger asChild>
+          <routeApi.Link hash={routeHash.hash}>
+            <PlusIcon />
+          </routeApi.Link>
         </DialogTrigger>
       </Button>
 
