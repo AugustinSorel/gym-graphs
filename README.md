@@ -31,7 +31,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ```bash
 git clone https://github.com/augustinsorel/gym-graphs.git
 cd gym-graphs
-cp ./apps/api/.env.example .env
+cp ./apps/api/.env.example ./apps/api/.env
 ```
 
 ### Dev
