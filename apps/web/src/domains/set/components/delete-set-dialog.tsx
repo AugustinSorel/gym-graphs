@@ -103,7 +103,10 @@ const useDeleteSet = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercise);
+
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
         if (!tiles) {
           return tiles;

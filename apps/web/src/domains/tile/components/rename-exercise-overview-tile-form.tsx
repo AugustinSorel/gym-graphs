@@ -152,7 +152,10 @@ const useRenameExericseTile = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.exercise);
+      await ctx.client.cancelQueries(queries.tiles);
+
       const name = variables.json.name;
 
       if (!name) {

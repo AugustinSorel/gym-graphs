@@ -130,7 +130,11 @@ const useUpdateSetRepetitions = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.exercise);
+      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.user);
+
       const repetitions = variables.json.repetitions;
 
       if (!repetitions) {

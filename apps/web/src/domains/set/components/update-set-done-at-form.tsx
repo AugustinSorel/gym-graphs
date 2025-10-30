@@ -133,7 +133,10 @@ const useUpdateSetDoneAt = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercise);
+
       const doneAt = variables.json.doneAt?.toString();
 
       if (!doneAt) {

@@ -292,7 +292,10 @@ const useAddTagToTile = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercise);
+
       const tag = user.data.tags.find((tag) => {
         return tag.id === variables.json.tagId;
       });
@@ -383,7 +386,10 @@ const useRemoveTagToTile = () => {
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
     },
-    onMutate: (variables, ctx) => {
+    onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.exercise);
+      await ctx.client.cancelQueries(queries.tiles);
+
       const tag = user.data.tags.find((tag) => {
         return tag.id === variables.json.tagId;
       });
