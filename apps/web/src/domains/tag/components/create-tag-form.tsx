@@ -123,6 +123,8 @@ const useCreateTag = () => {
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
 
+      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+
       const optimisticTag = {
         id: Math.random(),
         userId: user.data.id,
@@ -142,10 +144,16 @@ const useCreateTag = () => {
           tags: [...user.tags, optimisticTag],
         };
       });
+
+      return {
+        oldUser,
+      };
+    },
+    onError: (_e, _variables, onMutateResult, ctx) => {
+      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.user);
-      // void ctx.client.invalidateQueries(queries.tilesToTagsCount);
     },
   });
 };

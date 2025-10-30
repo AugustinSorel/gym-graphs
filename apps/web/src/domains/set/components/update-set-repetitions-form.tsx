@@ -135,14 +135,13 @@ const useUpdateSetRepetitions = () => {
       await ctx.client.cancelQueries(queries.tiles);
       await ctx.client.cancelQueries(queries.user);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
       const repetitions = variables.json.repetitions;
 
-      if (!repetitions) {
-        return;
-      }
-
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
+        if (!tiles || !repetitions) {
           return tiles;
         }
 
@@ -189,7 +188,7 @@ const useUpdateSetRepetitions = () => {
       });
 
       ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
+        if (!exercise || !repetitions) {
           return exercise;
         }
 
@@ -207,6 +206,18 @@ const useUpdateSetRepetitions = () => {
           }),
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

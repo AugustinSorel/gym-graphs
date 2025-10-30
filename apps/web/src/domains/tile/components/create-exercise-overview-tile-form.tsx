@@ -133,6 +133,8 @@ const useCreateExerciseTile = () => {
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.tiles);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+
       const exerciseId = Math.random();
       const tileId = Math.random();
 
@@ -185,6 +187,13 @@ const useCreateExerciseTile = () => {
           }),
         };
       });
+
+      return {
+        oldTiles,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

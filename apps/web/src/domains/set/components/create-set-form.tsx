@@ -157,6 +157,9 @@ const useCreateSet = () => {
       await ctx.client.cancelQueries(queries.exercise);
       await ctx.client.cancelQueries(queries.tiles);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
       const optimisticExerciseSet = {
         id: Math.random(),
         exerciseId: +variables.param.exerciseId,
@@ -218,6 +221,18 @@ const useCreateSet = () => {
           sets: [optimisticExerciseSet, ...exercise.sets],
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

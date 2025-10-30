@@ -156,14 +156,13 @@ const useRenameExericseTile = () => {
       await ctx.client.cancelQueries(queries.exercise);
       await ctx.client.cancelQueries(queries.tiles);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
       const name = variables.json.name;
 
-      if (!name) {
-        return;
-      }
-
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
+        if (!tiles || !name) {
           return tiles;
         }
 
@@ -188,7 +187,7 @@ const useRenameExericseTile = () => {
       });
 
       ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
+        if (!exercise || !name) {
           return exercise;
         }
 
@@ -203,6 +202,18 @@ const useRenameExericseTile = () => {
           },
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

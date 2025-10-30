@@ -137,14 +137,13 @@ const useUpdateSetDoneAt = () => {
       await ctx.client.cancelQueries(queries.tiles);
       await ctx.client.cancelQueries(queries.exercise);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
       const doneAt = variables.json.doneAt?.toString();
 
-      if (!doneAt) {
-        return;
-      }
-
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
+        if (!tiles || !doneAt) {
           return tiles;
         }
 
@@ -191,7 +190,7 @@ const useUpdateSetDoneAt = () => {
       });
 
       ctx.client.setQueryData(queries.exercise.queryKey, (exexercise) => {
-        if (!exexercise) {
+        if (!exexercise || !doneAt) {
           return exexercise;
         }
 
@@ -209,6 +208,18 @@ const useUpdateSetDoneAt = () => {
           }),
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

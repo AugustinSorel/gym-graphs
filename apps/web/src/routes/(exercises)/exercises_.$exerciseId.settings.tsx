@@ -296,16 +296,15 @@ const useAddTagToTile = () => {
       await ctx.client.cancelQueries(queries.tiles);
       await ctx.client.cancelQueries(queries.exercise);
 
-      const tag = user.data.tags.find((tag) => {
-        return tag.id === variables.json.tagId;
-      });
-
-      if (!tag) {
-        return;
-      }
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
+        const tag = user.data.tags.find((tag) => {
+          return tag.id === variables.json.tagId;
+        });
+
+        if (!tiles || !tag) {
           return tiles;
         }
 
@@ -339,7 +338,11 @@ const useAddTagToTile = () => {
       });
 
       ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
+        const tag = user.data.tags.find((tag) => {
+          return tag.id === variables.json.tagId;
+        });
+
+        if (!exercise || !tag) {
           return exercise;
         }
 
@@ -363,6 +366,18 @@ const useAddTagToTile = () => {
           },
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
@@ -390,16 +405,15 @@ const useRemoveTagToTile = () => {
       await ctx.client.cancelQueries(queries.exercise);
       await ctx.client.cancelQueries(queries.tiles);
 
-      const tag = user.data.tags.find((tag) => {
-        return tag.id === variables.json.tagId;
-      });
-
-      if (!tag) {
-        return;
-      }
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
+        const tag = user.data.tags.find((tag) => {
+          return tag.id === variables.json.tagId;
+        });
+
+        if (!tiles || !tag) {
           return tiles;
         }
 
@@ -445,6 +459,18 @@ const useRemoveTagToTile = () => {
           },
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);

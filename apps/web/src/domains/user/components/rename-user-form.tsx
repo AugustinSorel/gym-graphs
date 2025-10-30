@@ -96,6 +96,10 @@ const useCreateExerciseForm = () => {
 const useRenameUser = () => {
   const req = api().users.me.$patch;
 
+  const queries = {
+    user: userQueries.get,
+  };
+
   return useMutation({
     mutationFn: async (input: InferRequestType<typeof req>) => {
       return parseJsonResponse(req(input));
@@ -103,7 +107,9 @@ const useRenameUser = () => {
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
 
-      ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
+      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+
+      ctx.client.setQueryData(queries.user.queryKey, (user) => {
         if (!user || !variables.json.name) {
           return user;
         }
@@ -113,9 +119,16 @@ const useRenameUser = () => {
           name: variables.json.name,
         };
       });
+
+      return {
+        oldUser,
+      };
+    },
+    onError: (_e, _variables, onMutateResult, ctx) => {
+      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(userQueries.get);
+      void ctx.client.invalidateQueries(queries.user);
     },
   });
 };

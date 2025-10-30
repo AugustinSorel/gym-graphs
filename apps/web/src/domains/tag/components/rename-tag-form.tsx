@@ -135,6 +135,8 @@ const useRenameTag = () => {
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
 
+      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
         if (!user) {
           return user;
@@ -154,6 +156,11 @@ const useRenameTag = () => {
           }),
         };
       });
+
+      return { oldUser };
+    },
+    onError: (_e, _variables, onMutateResult, ctx) => {
+      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.user);

@@ -134,6 +134,10 @@ const TagsSection = () => {
 const useUpdateOneRepMaxAlgo = () => {
   const req = api().users.me.$patch;
 
+  const queries = {
+    user: userQueries.get,
+  };
+
   return useMutation({
     mutationFn: async (input: InferRequestType<typeof req>) => {
       const req = api().users.me.$patch(input);
@@ -141,9 +145,11 @@ const useUpdateOneRepMaxAlgo = () => {
       return parseJsonResponse(req);
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(userQueries.get);
+      await ctx.client.cancelQueries(queries.user);
 
-      ctx.client.setQueryData(userQueries.get.queryKey, (user) => {
+      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+
+      ctx.client.setQueryData(queries.user.queryKey, (user) => {
         if (!user || !variables.json.oneRepMaxAlgo) {
           return user;
         }
@@ -153,9 +159,16 @@ const useUpdateOneRepMaxAlgo = () => {
           oneRepMaxAlgo: variables.json.oneRepMaxAlgo,
         };
       });
+
+      return {
+        oldUser,
+      };
+    },
+    onError: (_e, _variables, onMutateResult, ctx) => {
+      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(userQueries.get);
+      void ctx.client.invalidateQueries(queries.user);
     },
   });
 };

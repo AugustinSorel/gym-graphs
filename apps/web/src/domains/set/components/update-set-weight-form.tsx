@@ -136,6 +136,9 @@ const useUpdateWeight = () => {
       await ctx.client.cancelQueries(queries.tiles);
       await ctx.client.cancelQueries(queries.exercise);
 
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
         const weightInKg = variables.json.weightInKg;
 
@@ -206,6 +209,18 @@ const useUpdateWeight = () => {
           }),
         };
       });
+
+      return {
+        oldTiles,
+        oldExercise,
+      };
+    },
+    onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercise.queryKey,
+        onMutateRes?.oldExercise,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
