@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  getRouteApi,
+  Link,
+  redirect,
+} from "@tanstack/react-router";
 import { z } from "zod";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
@@ -10,10 +15,10 @@ import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
-import type { ComponentProps } from "react";
 import { TagsList } from "~/domains/exercise/components/tags-list";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
+import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
   params: z.object({
@@ -43,14 +48,13 @@ const RouteComponent = () => {
       <Header>
         <Title>{exercise.data.exerciseOverviewTile.tile.name}</Title>
         <Button variant="secondary" size="sm" asChild>
-          <Link
+          <routeApi.Link
             to="/exercises/$exerciseId/settings"
-            from={Route.fullPath}
             aria-label="exercise settings"
           >
             <span className="hidden lg:inline-flex">settings</span>
             <SettingsIcon className="lg:hidden" />
-          </Link>
+          </routeApi.Link>
         </Button>
         <CreateSetDialog />
         <Button
@@ -152,3 +156,5 @@ const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
     />
   );
 };
+
+const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");

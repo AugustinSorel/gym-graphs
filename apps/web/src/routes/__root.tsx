@@ -123,7 +123,6 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | use can navigate to go back                           |
-| TODO     | refactor update setQueryData                          |
 | TODO     | update with new form patterns                         |
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
