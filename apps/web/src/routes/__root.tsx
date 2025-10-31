@@ -122,6 +122,8 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| TODO     | create a db package                                   |
+| TODO     | uninstall hono from web                               |
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
 */
