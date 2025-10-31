@@ -1,20 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/ui/form";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "@gym-graphs/schemas/user";
 import { api, parseJsonResponse } from "~/libs/api";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 import type { z } from "zod";
 import type { ComponentProps } from "react";
@@ -38,31 +32,37 @@ export const RequestResetPasswordForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid w-full gap-3"
-      >
-        <FormField
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid w-full gap-3">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  autoFocus
-                  placeholder="john@example.com"
-                  type="email"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field data-invalid={props.fieldState.invalid}>
+              <FieldLabel>Email</FieldLabel>
+              <Input
+                {...props.field}
+                autoFocus
+                placeholder="john@example.com"
+                type="email"
+                aria-invalid={props.fieldState.invalid}
+              />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Button
           type="submit"
@@ -76,8 +76,8 @@ export const RequestResetPasswordForm = () => {
         {requestResetPassword.isSuccess && (
           <SuccessMsg>email was sent successfully 🎉</SuccessMsg>
         )}
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 

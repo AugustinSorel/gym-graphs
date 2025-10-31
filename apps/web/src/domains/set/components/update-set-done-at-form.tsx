@@ -1,15 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/ui/form";
+import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { Input } from "~/ui/input";
@@ -21,6 +12,9 @@ import { dateAsYYYYMMDD } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
 import { api, parseJsonResponse } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 import type { z } from "zod";
 
@@ -55,29 +49,40 @@ export const UpdateSetDoneAtForm = (props: Props) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="doneAt"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>done at:</FormLabel>
-              <FormControl>
-                <Input
-                  type="date"
-                  autoFocus
-                  {...field}
-                  value={field.value ? dateAsYYYYMMDD(field.value) : ""}
-                  onChange={(e) => field.onChange(e.target.valueAsDate)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field data-invalid={props.fieldState.invalid}>
+              <FieldLabel>done at:</FieldLabel>
+              <Input
+                {...props.field}
+                type="date"
+                autoFocus
+                aria-invalid={props.fieldState.invalid}
+                value={
+                  props.field.value ? dateAsYYYYMMDD(props.field.value) : ""
+                }
+                onChange={(e) => props.field.onChange(e.target.valueAsDate)}
+              />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <footer className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button
@@ -90,8 +95,8 @@ export const UpdateSetDoneAtForm = (props: Props) => {
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 

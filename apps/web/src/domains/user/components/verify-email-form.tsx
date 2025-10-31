@@ -1,16 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { emailVerificationCodeSchema } from "@gym-graphs/schemas/email-verification";
 import { Button } from "~/ui/button";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "~/ui/form";
 import {
   InputOTP,
   InputOTPGroup,
@@ -21,6 +13,9 @@ import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Spinner } from "~/ui/spinner";
 import { api, parseJsonResponse } from "~/libs/api";
+import { Field, FieldError, FieldGroup } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 import type { z } from "zod";
 
@@ -53,38 +48,50 @@ export const VerifyEmailForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="code"
-          render={({ field }) => (
-            <FormItem className="flex flex-col gap-2">
-              <FormControl>
-                <InputOTP
-                  maxLength={6}
-                  containerClassName="justify-center"
-                  {...field}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                  </InputOTPGroup>
-                  <InputOTPSeparator />
-                  <InputOTPGroup>
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field
+              className="flex flex-col gap-2"
+              data-invalid={props.fieldState.invalid}
+            >
+              <InputOTP
+                {...props.field}
+                maxLength={6}
+                containerClassName="justify-center"
+                aria-invalid={props.fieldState.invalid}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}{" "}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Button
           type="submit"
@@ -94,8 +101,8 @@ export const VerifyEmailForm = () => {
           <span>verify</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
         </Button>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 

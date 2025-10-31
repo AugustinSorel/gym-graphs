@@ -1,15 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/ui/form";
+import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { z } from "zod";
 import { Button } from "~/ui/button";
@@ -22,6 +13,9 @@ import { useLastSet } from "~/domains/set/hooks/use-last-set";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { api, parseJsonResponse } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 
 export const CreateSetForm = (props: Props) => {
@@ -55,40 +49,54 @@ export const CreateSetForm = (props: Props) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FieldGroup>
+        <Controller
           name="weightInKg"
-          render={() => (
-            <FormItem className="flex flex-col gap-1">
-              <FormLabel>
+          control={form.control}
+          render={(props) => (
+            <Field
+              className="flex flex-col gap-1"
+              data-invalid={props.fieldState.invalid}
+            >
+              <FieldLabel>
                 weight (<WeightUnit />
                 ):
-              </FormLabel>
-              <FormControl>
-                <CounterInput />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+              </FieldLabel>
+              <CounterInput {...props} />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormField
+        <Controller
           control={form.control}
           name="repetitions"
-          render={() => (
-            <FormItem className="flex flex-col gap-1">
-              <FormLabel>repetitions:</FormLabel>
-              <FormControl>
-                <CounterInput />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field
+              className="flex flex-col gap-1"
+              data-invalid={props.fieldState.invalid}
+            >
+              <FieldLabel>repetitions:</FieldLabel>
+              <CounterInput {...props} />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <footer className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button
@@ -101,8 +109,8 @@ export const CreateSetForm = (props: Props) => {
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 

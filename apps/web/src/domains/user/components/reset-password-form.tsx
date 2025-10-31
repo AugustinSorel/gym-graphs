@@ -1,16 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/ui/form";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "@gym-graphs/schemas/user";
@@ -18,6 +9,9 @@ import { z } from "zod";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { api, parseJsonResponse } from "~/libs/api";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 
 export const ResetPasswordForm = () => {
@@ -51,45 +45,56 @@ export const ResetPasswordForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid w-full gap-3"
-      >
-        <FormField
+    <form onSubmit={form.handleSubmit(onSubmit)} className="grid w-full gap-3">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password:</FormLabel>
-              <FormControl>
-                <Input
-                  autoFocus
-                  placeholder="******"
-                  type="password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field data-invalid={props.fieldState.invalid}>
+              <FieldLabel>Password:</FieldLabel>
+              <Input
+                {...props.field}
+                autoFocus
+                placeholder="******"
+                type="password"
+                aria-invalid={props.fieldState.invalid}
+              />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormField
+        <Controller
           control={form.control}
           name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password:</FormLabel>
-              <FormControl>
-                <Input placeholder="******" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field data-invalid={props.fieldState.invalid}>
+              <FieldLabel>Confirm Password:</FieldLabel>
+              <Input
+                {...props.field}
+                placeholder="******"
+                type="password"
+                aria-invalid={props.fieldState.invalid}
+              />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Button
           type="submit"
@@ -99,8 +104,8 @@ export const ResetPasswordForm = () => {
           <span>reset password</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}
         </Button>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 

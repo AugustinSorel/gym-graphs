@@ -1,15 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormAlert,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/ui/form";
+import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { Input } from "~/ui/input";
@@ -19,6 +10,9 @@ import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { tileSchema } from "@gym-graphs/schemas/tile";
 import { api, parseJsonResponse } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { AlertCircleIcon } from "~/ui/icons";
 import type { InferRequestType } from "hono";
 import type { z } from "zod";
 
@@ -52,23 +46,36 @@ export const RenameExerciseOverviewTileForm = (props: Props) => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name:</FormLabel>
-              <FormControl>
-                <Input placeholder="Bench press..." autoFocus {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={(props) => (
+            <Field data-invalid={props.fieldState.invalid}>
+              <FieldLabel>Name:</FieldLabel>
+              <Input
+                {...props.field}
+                placeholder="Bench press..."
+                autoFocus
+                aria-invalid={props.fieldState.invalid}
+              />
+              {props.fieldState.invalid && (
+                <FieldError errors={[props.fieldState.error]} />
+              )}
+            </Field>
           )}
         />
 
-        <FormAlert />
+        {form.formState.errors.root?.message && (
+          <Alert variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {form.formState.errors.root.message}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <footer className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button
@@ -81,8 +88,8 @@ export const RenameExerciseOverviewTileForm = (props: Props) => {
             {form.formState.isSubmitting && <Spinner />}
           </Button>
         </footer>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 
