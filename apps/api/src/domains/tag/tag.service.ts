@@ -1,36 +1,27 @@
-import { tagRepo } from "~/domains/tag/tag.repo";
-import { HTTPException } from "hono/http-exception";
-import type { Tag, tagTable } from "~/db/db.schemas";
-import type { Db } from "~/libs/db";
-import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
+import { tagRepo } from "@gym-graphs/db/repo/tag";
+import { dbErrorToHttp } from "~/libs/db";
+import type { Tag } from "@gym-graphs/db/schemas";
+import type { Db } from "@gym-graphs/db";
 
 const create = async (name: Tag["name"], userId: Tag["userId"], db: Db) => {
-  return tagRepo.create(name, userId, db);
+  return tagRepo.create(name, userId, db).match((tag) => tag, dbErrorToHttp);
 };
 
 const deleteById = async (tagId: Tag["id"], userId: Tag["userId"], db: Db) => {
-  const tag = await tagRepo.deleteById(tagId, userId, db);
-
-  if (!tag) {
-    throw new HTTPException(404, { message: "tag not found" });
-  }
-
-  return tag;
+  return tagRepo
+    .deleteById(tagId, userId, db)
+    .match((tag) => tag, dbErrorToHttp);
 };
 
 const patchById = async (
-  input: PgUpdateSetSource<typeof tagTable>,
+  input: Parameters<typeof tagRepo.patchById>[0],
   userId: Tag["userId"],
   tagId: Tag["id"],
   db: Db,
 ) => {
-  const tag = await tagRepo.patchById(input, userId, tagId, db);
-
-  if (!tag) {
-    throw new HTTPException(404, { message: "tag not found" });
-  }
-
-  return tag;
+  return tagRepo
+    .patchById(input, userId, tagId, db)
+    .match((tag) => tag, dbErrorToHttp);
 };
 
 export const tagService = {

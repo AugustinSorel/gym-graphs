@@ -22,7 +22,7 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 import type { Serialize } from "~/utils/json";
 
 export const exerciseTableColumns: Array<ColumnDef<Serialize<Set>>> = [

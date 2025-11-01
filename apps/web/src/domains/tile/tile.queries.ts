@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { api, parseJsonResponse } from "~/libs/api";
-import type { Tile, Tag } from "@gym-graphs/api";
+import type { Tile, Tag } from "@gym-graphs/db/schemas";
 import { InferRequestType } from "hono";
 
 const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {

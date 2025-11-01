@@ -1,9 +1,8 @@
-import { setRepo } from "~/domains/set/set.repo";
-import { exerciseRepo } from "~/domains/exercise/exercise.repo";
-import { HTTPException } from "hono/http-exception";
-import type { Set, setTable, User } from "~/db/db.schemas";
-import type { Db } from "~/libs/db";
-import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
+import { setRepo } from "@gym-graphs/db/repo/set";
+import { exerciseRepo } from "@gym-graphs/db/repo/exercise";
+import { dbErrorToHttp } from "~/libs/db";
+import type { Set, User } from "@gym-graphs/db/schemas";
+import type { Db } from "@gym-graphs/db";
 
 export const create = async (
   userId: User["id"],
@@ -12,40 +11,32 @@ export const create = async (
   exerciseId: Set["exerciseId"],
   db: Db,
 ) => {
-  const exercise = await exerciseRepo.selectById(userId, exerciseId, db);
+  await exerciseRepo
+    .selectById(userId, exerciseId, db)
+    .match((exercise) => exercise, dbErrorToHttp);
 
-  if (!exercise) {
-    throw new HTTPException(401, { message: "idk" });
-  }
-
-  const set = await setRepo.create(weightInKg, repetitions, exerciseId, db);
+  const set = await setRepo
+    .create(weightInKg, repetitions, exerciseId, db)
+    .match((set) => set, dbErrorToHttp);
 
   return set;
 };
 
 const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {
-  const set = setRepo.deleteById(setId, userId, db);
-
-  if (!set) {
-    throw new HTTPException(404, { message: "set not found" });
-  }
-
-  return set;
+  return setRepo
+    .deleteById(setId, userId, db)
+    .match((set) => set, dbErrorToHttp);
 };
 
 const patchById = async (
-  input: PgUpdateSetSource<typeof setTable>,
+  input: Parameters<typeof setRepo.patchById>[0],
   setId: Set["id"],
   userId: User["id"],
   db: Db,
 ) => {
-  const set = setRepo.patchById(input, setId, userId, db);
-
-  if (!set) {
-    throw new HTTPException(404, { message: "set not found" });
-  }
-
-  return set;
+  return setRepo
+    .patchById(input, setId, userId, db)
+    .match((set) => set, dbErrorToHttp);
 };
 
 export const setService = {

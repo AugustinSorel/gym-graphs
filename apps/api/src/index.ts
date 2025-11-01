@@ -17,11 +17,9 @@ import { exerciseRouter } from "~/domains/exercise/exercise.router";
 import { setRouter } from "~/domains/set/set.router";
 import { cors } from "hono/cors";
 import { constant } from "@gym-graphs/constants";
-import type { Db } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
 import type { Email } from "~/libs/email";
 import type { SessionCtx } from "~/domains/session/session.service";
-
-export type * from "~/db/db.schemas";
 
 export type Ctx = Readonly<{
   Variables: Readonly<{

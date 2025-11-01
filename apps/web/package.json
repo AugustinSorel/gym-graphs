@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@gym-graphs/api": "workspace:*",
+    "@gym-graphs/db": "workspace:*",
     "@tanstack/react-query-devtools": "^5.62.11",
     "@tanstack/react-router-devtools": "^1.133.3",
     "@types/react": "^19.0.2",

@@ -16,7 +16,7 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 import type { Serialize } from "~/utils/json";
 
 export const DashboardHeatMap = () => {

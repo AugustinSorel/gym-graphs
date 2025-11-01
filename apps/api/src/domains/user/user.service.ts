@@ -1,18 +1,18 @@
 import { generateSalt, hashSecret } from "~/libs/crypto";
 import { sendEmail } from "~/libs/email";
 import { inferNameFromEmail } from "~/domains/user/user.utils";
-import { userRepo } from "~/domains/user/user.repo";
+import { userRepo } from "@gym-graphs/db/repo/user";
 import { seedUserAccount } from "~/domains/user/user.seed";
 import { generateEmailVerificationCode } from "~/domains/email-verification/email-verification.utils";
-import { emailVerificationRepo } from "~/domains/email-verification/email-verification.repo";
+import { emailVerificationRepo } from "@gym-graphs/db/repo/email-verification";
 import { emailVerificationEmailBody } from "~/domains/email-verification/email-verification.emails";
 import { generateSessionToken } from "~/domains/session/session.utils";
-import { sessionRepo } from "~/domains/session/session.repo";
-import { HTTPException } from "hono/http-exception";
+import { sessionRepo } from "@gym-graphs/db/repo/session";
+import { dbErrorToHttp } from "~/libs/db";
 import type { SignUpSchema } from "@gym-graphs/schemas/session";
-import type { Db } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
 import type { Email } from "~/libs/email";
-import type { User } from "~/db/db.schemas";
+import type { User } from "@gym-graphs/db/schemas";
 
 const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
   return db.transaction(async (tx) => {
@@ -21,23 +21,17 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
 
     const name = inferNameFromEmail(input.email);
 
-    const user = await userRepo.createWithEmailAndPassword(
-      input.email,
-      hashedPassword,
-      salt,
-      name,
-      tx,
-    );
+    const user = await userRepo
+      .createWithEmailAndPassword(input.email, hashedPassword, salt, name, tx)
+      .match((user) => user, dbErrorToHttp);
 
     await seedUserAccount(user.id, tx);
 
     const emailVerificationCode = generateEmailVerificationCode();
 
-    const emailVerification = await emailVerificationRepo.create(
-      emailVerificationCode,
-      user.id,
-      tx,
-    );
+    const emailVerification = await emailVerificationRepo
+      .create(emailVerificationCode, user.id, tx)
+      .match((verificationCode) => verificationCode, dbErrorToHttp);
 
     await sendEmail(
       [user.email],
@@ -48,7 +42,9 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
 
     const token = generateSessionToken();
 
-    const session = await sessionRepo.create(token, user.id, tx);
+    const session = await sessionRepo
+      .create(token, user.id, tx)
+      .match((session) => session, dbErrorToHttp);
 
     return {
       session,
@@ -58,43 +54,27 @@ const signUp = async (input: SignUpSchema, db: Db, email: Email) => {
 };
 
 export const selectClient = async (userId: User["id"], db: Db) => {
-  const user = await userRepo.selectClient(userId, db);
-
-  if (!user) {
-    throw new HTTPException(404, { message: "user not found" });
-  }
-
-  return user;
+  return userRepo.selectClient(userId, db).match((user) => user, dbErrorToHttp);
 };
 
-const patchById: typeof userRepo.patchById = async (input, userId, db) => {
-  const user = await userRepo.patchById(input, userId, db);
-
-  if (!user) {
-    throw new HTTPException(404, { message: "user not found" });
-  }
-
-  return user;
+const patchById = async (
+  input: Parameters<typeof userRepo.patchById>[0],
+  userId: User["id"],
+  db: Db,
+) => {
+  return userRepo
+    .patchById(input, userId, db)
+    .match((user) => user, dbErrorToHttp);
 };
 
-const deleteById: typeof userRepo.deleteById = async (userId, db) => {
-  const user = await userRepo.deleteById(userId, db);
-
-  if (!user) {
-    throw new HTTPException(404, { message: "user not found" });
-  }
-
-  return user;
+const deleteById = async (userId: User["id"], db: Db) => {
+  return userRepo.deleteById(userId, db).match((user) => user, dbErrorToHttp);
 };
 
 const selectDataById = async (userId: User["id"], db: Db) => {
-  const data = await userRepo.selectDataById(userId, db);
-
-  if (!data) {
-    throw new HTTPException(404, { message: "user not found" });
-  }
-
-  return data;
+  return userRepo
+    .selectDataById(userId, db)
+    .match((user) => user, dbErrorToHttp);
 };
 
 export const userService = {

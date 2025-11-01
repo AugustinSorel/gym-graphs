@@ -1,5 +1,5 @@
 import { constant } from "@gym-graphs/constants";
-import type { EmailVerificationCode } from "~/db/db.schemas";
+import type { EmailVerificationCode } from "@gym-graphs/db/schemas";
 
 export const emailVerificationEmailBody = (
   code: EmailVerificationCode["code"],

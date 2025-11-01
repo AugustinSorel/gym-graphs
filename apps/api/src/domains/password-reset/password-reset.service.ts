@@ -1,31 +1,34 @@
-import { passwordResetRepo } from "~/domains/password-reset/password-reset.repo";
+import { passwordResetRepo } from "@gym-graphs/db/repo/password-reset";
 import { generatePasswordResetToken } from "~/domains/password-reset/password-reset.utils";
 import { HTTPException } from "hono/http-exception";
 import { generateSalt, hashSecret, hashSHA256Hex } from "~/libs/crypto";
 import { passwordResetEmailBody } from "~/domains/password-reset/password-reset.email";
-import { userRepo } from "~/domains/user/user.repo";
+import { userRepo } from "@gym-graphs/db/repo/user";
 import { sendEmail } from "~/libs/email";
-import { sessionRepo } from "~/domains/session/session.repo";
+import { sessionRepo } from "@gym-graphs/db/repo/session";
 import { generateSessionToken } from "~/domains/session/session.utils";
-import type { User } from "~/db/db.schemas";
-import type { Db } from "~/libs/db";
+import { dbErrorToHttp } from "~/libs/db";
+import type { User } from "@gym-graphs/db/schemas";
+import type { Db } from "@gym-graphs/db";
 import type { Email } from "~/libs/email";
 import type { PasswordResetResetSchema } from "@gym-graphs/schemas/password-reset";
 
 const create = async (input: Pick<User, "email">, db: Db, email: Email) => {
   await db.transaction(async (tx) => {
-    const user = await userRepo.selectByEmail(input.email, tx);
+    const user = await userRepo
+      .selectByEmail(input.email, tx)
+      .match((user) => user, dbErrorToHttp);
 
-    if (!user) {
-      throw new HTTPException(404, { message: "user not found" });
-    }
-
-    await passwordResetRepo.deleteByUserId(user.id, tx);
+    await passwordResetRepo
+      .deleteByUserId(user.id, tx)
+      .match((passwordReset) => passwordReset, dbErrorToHttp);
 
     const token = generatePasswordResetToken();
     const tokenHash = hashSHA256Hex(token);
 
-    await passwordResetRepo.create(tokenHash, user.id, db);
+    await passwordResetRepo
+      .create(tokenHash, user.id, db)
+      .match((passwordReset) => passwordReset, dbErrorToHttp);
 
     await sendEmail(
       [user.email],
@@ -40,13 +43,13 @@ const confirm = async (input: PasswordResetResetSchema, db: Db) => {
   return db.transaction(async (tx) => {
     const tokenHash = hashSHA256Hex(input.token);
 
-    const passwordReset = await passwordResetRepo.selectByToken(tokenHash, tx);
+    const passwordReset = await passwordResetRepo
+      .selectByToken(tokenHash, tx)
+      .match((passwordReset) => passwordReset, dbErrorToHttp);
 
-    if (!passwordReset) {
-      throw new HTTPException(404, { message: "token not found" });
-    }
-
-    await passwordResetRepo.deleteByToken(passwordReset.token, tx);
+    await passwordResetRepo
+      .deleteByToken(passwordReset.token, tx)
+      .match((passwordReset) => passwordReset, dbErrorToHttp);
 
     const codeExpired = Date.now() >= passwordReset.expiresAt.getTime();
 
@@ -54,20 +57,22 @@ const confirm = async (input: PasswordResetResetSchema, db: Db) => {
       throw new HTTPException(401, { message: "token expired" });
     }
 
-    await sessionRepo.deleteByUserId(passwordReset.userId, tx);
+    await sessionRepo
+      .deleteByUserId(passwordReset.userId, tx)
+      .match((passwordReset) => passwordReset, dbErrorToHttp);
 
     const salt = generateSalt();
     const passwordHash = await hashSecret(input.password, salt);
 
-    await userRepo.updatePasswordAndSalt(
-      passwordHash,
-      salt,
-      passwordReset.userId,
-      tx,
-    );
+    await userRepo
+      .updatePasswordAndSalt(passwordHash, salt, passwordReset.userId, tx)
+      .match((user) => user, dbErrorToHttp);
 
     const token = generateSessionToken();
-    const session = await sessionRepo.create(token, passwordReset.userId, tx);
+
+    const session = await sessionRepo
+      .create(token, passwordReset.userId, tx)
+      .match((session) => session, dbErrorToHttp);
 
     return {
       session,

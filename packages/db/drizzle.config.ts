@@ -1,9 +1,9 @@
 import { defineConfig } from "drizzle-kit";
-import { getDbUrl } from "~/db/db.utils";
+import { getDbUrl } from "~/utils";
 
 const config = defineConfig({
   out: "./drizzle",
-  schema: "./src/db/db.schemas.ts",
+  schema: "./src/schemas.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: getDbUrl(),

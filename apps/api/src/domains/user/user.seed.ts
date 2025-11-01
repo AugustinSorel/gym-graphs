@@ -1,11 +1,12 @@
-import { tagRepo } from "~/domains/tag/tag.repo";
-import { dashboardRepo } from "~/domains/dashboard/dashboard.repo";
-import { exerciseRepo } from "~/domains/exercise/exercise.repo";
-import { tileRepo } from "~/domains/tile/tile.repo";
-import { setRepo } from "~/domains/set/set.repo";
+import { tagRepo } from "@gym-graphs/db/repo/tag";
+import { dashboardRepo } from "@gym-graphs/db/repo/dashboard";
+import { exerciseRepo } from "@gym-graphs/db/repo/exercise";
+import { tileRepo } from "@gym-graphs/db/repo/tile";
+import { setRepo } from "@gym-graphs/db/repo/set";
 import { addDate } from "~/utils/dates";
-import type { User } from "~/db/db.schemas";
-import type { Db } from "~/libs/db";
+import { dbErrorToHttp } from "~/libs/db";
+import type { User } from "@gym-graphs/db/schemas";
+import type { Db } from "@gym-graphs/db";
 
 const data = {
   exercisesName: ["bench press", "squat", "deadlift"],
@@ -29,15 +30,21 @@ const data = {
 
 export const seedUserAccount = async (userId: User["id"], db: Db) => {
   const [tags, dashboard, [benchPress, squat, deadlift]] = await Promise.all([
-    tagRepo.createMany(
-      data.tags.map((name) => ({ name, userId })),
-      db,
-    ),
-    dashboardRepo.create(userId, db),
-    exerciseRepo.createMany(
-      data.exercisesName.map(() => ({})),
-      db,
-    ),
+    tagRepo
+      .createMany(
+        data.tags.map((name) => ({ name, userId })),
+        db,
+      )
+      .match((tags) => tags, dbErrorToHttp),
+    dashboardRepo
+      .create(userId, db)
+      .match((dashboard) => dashboard, dbErrorToHttp),
+    exerciseRepo
+      .createMany(
+        data.exercisesName.map(() => ({})),
+        db,
+      )
+      .match((exercise) => exercise, dbErrorToHttp),
   ]);
 
   if (!benchPress || !squat || !deadlift) {
@@ -52,39 +59,41 @@ export const seedUserAccount = async (userId: User["id"], db: Db) => {
     benchPressTile,
     squatTile,
     deadliftTile,
-  ] = await tileRepo.createMany(
-    [
-      {
-        name: "tags frequency",
-        dashboardId: dashboard.id,
-      },
-      {
-        name: "exercises frequency",
-        dashboardId: dashboard.id,
-      },
-      {
-        name: "tiles fun facts",
-        dashboardId: dashboard.id,
-      },
-      {
-        name: "sets heat map",
-        dashboardId: dashboard.id,
-      },
-      {
-        name: data.exercisesName[0],
-        dashboardId: dashboard.id,
-      },
-      {
-        name: data.exercisesName[1],
-        dashboardId: dashboard.id,
-      },
-      {
-        name: data.exercisesName[2],
-        dashboardId: dashboard.id,
-      },
-    ],
-    db,
-  );
+  ] = await tileRepo
+    .createMany(
+      [
+        {
+          name: "tags frequency",
+          dashboardId: dashboard.id,
+        },
+        {
+          name: "exercises frequency",
+          dashboardId: dashboard.id,
+        },
+        {
+          name: "tiles fun facts",
+          dashboardId: dashboard.id,
+        },
+        {
+          name: "sets heat map",
+          dashboardId: dashboard.id,
+        },
+        {
+          name: data.exercisesName[0],
+          dashboardId: dashboard.id,
+        },
+        {
+          name: data.exercisesName[1],
+          dashboardId: dashboard.id,
+        },
+        {
+          name: data.exercisesName[2],
+          dashboardId: dashboard.id,
+        },
+      ],
+      db,
+    )
+    .match((tile) => tile, dbErrorToHttp);
 
   if (
     !benchPressTile ||

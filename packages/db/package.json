@@ -1,0 +1,49 @@
+{
+  "name": "@gym-graphs/db",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    "./repo/*": {
+      "types": "./dist/repo/*.d.ts",
+      "require": "./dist/repo/*.js",
+      "import": "./dist/repo/*.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas.d.ts",
+      "require": "./dist/schemas.js",
+      "import": "./dist/schemas.js"
+    },
+    "./error": {
+      "types": "./dist/error.d.ts"
+    },
+    ".": {
+      "types": "./dist/db.d.ts",
+      "require": "./dist/db.js",
+      "import": "./dist/db.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "bash": "docker exec -it gym_graphs_db bash -c 'psql -U postgres -d gym_graphs'",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "push": "drizzle-kit push"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "@gym-graphs/constants": "workspace:*",
+    "drizzle-kit": "^0.31.6",
+    "drizzle-orm": "^0.44.7",
+    "neverthrow": "^8.2.0",
+    "pg": "^8.16.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6",
+    "tsup": "^8.5.0"
+  }
+}

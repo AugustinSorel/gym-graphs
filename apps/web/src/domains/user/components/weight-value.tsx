@@ -1,6 +1,6 @@
 import { useUser } from "~/domains/user/hooks/use-user";
 import { convertWeight } from "~/domains/user/user.utils";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 
 export const WeightValue = (props: Pick<Set, "weightInKg">) => {
   const user = useUser();

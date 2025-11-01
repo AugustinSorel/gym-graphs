@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Exercise } from "@gym-graphs/api";
+import type { Exercise } from "@gym-graphs/db/schemas";
 import { api, parseJsonResponse } from "~/libs/api";
 
 const get = (exerciseId: Exercise["id"]) => {

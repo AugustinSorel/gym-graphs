@@ -36,6 +36,13 @@
       "when": 1761647030365,
       "tag": "0004_good_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1761908711182,
+      "tag": "0005_narrow_slipstream",
+      "breakpoints": true
     }
   ]
 }

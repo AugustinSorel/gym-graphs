@@ -6,7 +6,7 @@ import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 import type { ComponentProps } from "react";
 import type { Serialize } from "~/utils/json";
 

@@ -1,14 +1,16 @@
 import { generateEmailVerificationCode } from "~/domains/email-verification/email-verification.utils";
-import { emailVerificationRepo } from "~/domains/email-verification/email-verification.repo";
-import { userRepo } from "~/domains/user/user.repo";
+import { emailVerificationRepo } from "@gym-graphs/db/repo/email-verification";
+import { userRepo } from "@gym-graphs/db/repo/user";
 import { HTTPException } from "hono/http-exception";
 import { emailVerificationEmailBody } from "./email-verification.emails";
-import { sessionRepo } from "~/domains/session/session.repo";
+import { sessionRepo } from "@gym-graphs/db/repo/session";
 import { generateSessionToken } from "~/domains/session/session.utils";
 import { sendEmail } from "~/libs/email";
-import type { Db } from "~/libs/db";
-import type { EmailVerificationCode, User } from "~/db/db.schemas";
+import { dbErrorToHttp } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
+import type { EmailVerificationCode, User } from "@gym-graphs/db/schemas";
 import type { Email } from "~/libs/email";
+import { err, ok } from "neverthrow";
 
 const create = async (
   user: Pick<User, "id" | "email">,
@@ -20,11 +22,9 @@ const create = async (
 
     const emailVerificationCode = generateEmailVerificationCode();
 
-    const emailVerification = await emailVerificationRepo.create(
-      emailVerificationCode,
-      user.id,
-      tx,
-    );
+    const emailVerification = await emailVerificationRepo
+      .create(emailVerificationCode, user.id, tx)
+      .match((verificationCode) => verificationCode, dbErrorToHttp);
 
     await sendEmail(
       [user.email],
@@ -41,16 +41,23 @@ const confirm = async (
   db: Db,
 ) => {
   return db.transaction(async (tx) => {
-    const emailVerificatonCode = await emailVerificationRepo.selectByUserId(
-      userId,
-      db,
-    );
+    const emailVerificatonCode = await emailVerificationRepo
+      .selectByUserId(userId, db)
+      .orElse((e) => {
+        if (e.type === "email verification code not found") {
+          return ok(null);
+        }
+        return err(e);
+      })
+      .match((verificationCode) => verificationCode, dbErrorToHttp);
 
     if (emailVerificatonCode?.code !== code) {
       throw new HTTPException(401, { message: "invalid code" });
     }
 
-    await emailVerificationRepo.deleteById(emailVerificatonCode.id, db);
+    await emailVerificationRepo
+      .deleteById(emailVerificatonCode.id, db)
+      .match((code) => code, dbErrorToHttp);
 
     const codeExpired = Date.now() >= emailVerificatonCode.expiresAt.getTime();
 
@@ -58,13 +65,19 @@ const confirm = async (
       throw new HTTPException(401, { message: "code expired" });
     }
 
-    await userRepo.updateEmailVerifiedAt(userId, db);
+    await userRepo
+      .updateEmailVerifiedAt(userId, db)
+      .match((user) => user, dbErrorToHttp);
 
-    await sessionRepo.deleteByUserId(userId, tx);
+    await sessionRepo
+      .deleteByUserId(userId, tx)
+      .match((session) => session, dbErrorToHttp);
 
     const token = generateSessionToken();
 
-    const session = await sessionRepo.create(token, userId, tx);
+    const session = await sessionRepo
+      .create(token, userId, tx)
+      .match((session) => session, dbErrorToHttp);
 
     return {
       session,

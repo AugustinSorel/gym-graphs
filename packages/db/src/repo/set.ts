@@ -5,34 +5,36 @@ import {
   setTable,
   tileTable,
   exerciseOverviewTileTable,
-} from "~/db/db.schemas";
+} from "~/schemas";
+import { ResultAsync } from "neverthrow";
+import { buildError } from "~/error";
+import { extractEntityFromRows } from "~/utils";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
-import type { Set, User } from "~/db/db.schemas";
-import type { Db } from "~/libs/db";
+import type { Set, User } from "~/schemas";
+import type { Db } from "~/db";
 
-const create = async (
+const create = (
   weightInKg: Set["weightInKg"],
   repetitions: Set["repetitions"],
   exerciseId: Set["exerciseId"],
   db: Db,
 ) => {
-  const [set] = await db
-    .insert(setTable)
-    .values({ weightInKg, repetitions, exerciseId })
-    .returning();
-
-  if (!set) {
-    throw new Error("set not returned by db");
-  }
-
-  return set;
+  return ResultAsync.fromPromise(
+    db
+      .insert(setTable)
+      .values({ weightInKg, repetitions, exerciseId })
+      .returning(),
+    (e) => buildError("internal", e),
+  ).andThen(extractEntityFromRows);
 };
 
-const createMany = async (set: Array<typeof setTable.$inferInsert>, db: Db) => {
-  return db.insert(setTable).values(set);
+const createMany = (set: Array<typeof setTable.$inferInsert>, db: Db) => {
+  return ResultAsync.fromPromise(db.insert(setTable).values(set), (e) =>
+    buildError("internal", e),
+  );
 };
 
-const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {
+const deleteById = (setId: Set["id"], userId: User["id"], db: Db) => {
   const exercise = db
     .select()
     .from(dashboardTable)
@@ -48,15 +50,16 @@ const deleteById = async (setId: Set["id"], userId: User["id"], db: Db) => {
     .innerJoin(setTable, eq(setTable.id, setId))
     .where(eq(dashboardTable.userId, userId));
 
-  const [set] = await db
-    .delete(setTable)
-    .where(and(eq(setTable.id, setId), exists(exercise)))
-    .returning();
-
-  return set;
+  return ResultAsync.fromPromise(
+    db
+      .delete(setTable)
+      .where(and(eq(setTable.id, setId), exists(exercise)))
+      .returning(),
+    (e) => buildError("internal", e),
+  ).andThen(extractEntityFromRows);
 };
 
-const patchById = async (
+const patchById = (
   input: PgUpdateSetSource<typeof setTable>,
   setId: Set["id"],
   userId: User["id"],
@@ -77,13 +80,14 @@ const patchById = async (
     .innerJoin(setTable, eq(setTable.id, setId))
     .where(eq(dashboardTable.userId, userId));
 
-  const [set] = await db
-    .update(setTable)
-    .set(input)
-    .where(and(eq(setTable.id, setId), exists(exercise)))
-    .returning();
-
-  return set;
+  return ResultAsync.fromPromise(
+    db
+      .update(setTable)
+      .set(input)
+      .where(and(eq(setTable.id, setId), exists(exercise)))
+      .returning(),
+    (e) => buildError("internal", e),
+  ).andThen(extractEntityFromRows);
 };
 
 export const setRepo = {

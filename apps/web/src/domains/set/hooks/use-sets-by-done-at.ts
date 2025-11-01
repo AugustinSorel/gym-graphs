@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { dateAsYYYYMMDD } from "~/utils/date";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 import type { Serialize } from "~/utils/json";
 
 export const useSetsByDoneAt = <TSet extends Pick<Serialize<Set>, "doneAt">>(

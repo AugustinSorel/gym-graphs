@@ -6,14 +6,14 @@ import {
   fetchGithubUserEmail,
   sendTokenRequest,
 } from "~/domains/oauth/oauth.utils";
-import { userRepo } from "~/domains/user/user.repo";
+import { userRepo } from "@gym-graphs/db/repo/user";
 import { seedUserAccount } from "~/domains/user/user.seed";
 import { inferNameFromEmail } from "~/domains/user/user.utils";
-import { oauthRepo } from "./oauth.repo";
-import { HTTPException } from "hono/http-exception";
+import { oauthRepo } from "@gym-graphs/db/repo/oauth";
 import { generateSessionToken } from "~/domains/session/session.utils";
-import { sessionRepo } from "~/domains/session/session.repo";
-import type { Db } from "~/libs/db";
+import { sessionRepo } from "@gym-graphs/db/repo/session";
+import { dbErrorToHttp } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
 import type {
   GithubOAuthCallbackQuery,
   GithubOAuthTokenResponse,
@@ -58,20 +58,19 @@ const githubSignIn = async (
   }
 
   return db.transaction(async (tx) => {
-    const existingUser = await userRepo.selectByEmail(
-      githubUserEmail.email,
-      tx,
-    );
+    const existingUser = await userRepo
+      .selectByEmail(githubUserEmail.email, tx)
+      .match((user) => user, dbErrorToHttp);
 
     if (existingUser) {
-      const user = await userRepo.updateEmailVerifiedAt(existingUser.id, tx);
-
-      if (!user) {
-        throw new HTTPException(404, { message: "user not found" });
-      }
+      const user = await userRepo
+        .updateEmailVerifiedAt(existingUser.id, tx)
+        .match((user) => user, dbErrorToHttp);
 
       const token = generateSessionToken();
-      const session = await sessionRepo.create(token, user.id, tx);
+      const session = await sessionRepo
+        .create(token, user.id, tx)
+        .match((session) => session, dbErrorToHttp);
 
       return {
         session,
@@ -79,18 +78,24 @@ const githubSignIn = async (
       };
     }
 
-    const user = await userRepo.createWithEmail(
-      githubUserEmail.email,
-      githubUser.name ?? inferNameFromEmail(githubUserEmail.email),
-      db,
-    );
+    const user = await userRepo
+      .createWithEmail(
+        githubUserEmail.email,
+        githubUser.name ?? inferNameFromEmail(githubUserEmail.email),
+        db,
+      )
+      .match((user) => user, dbErrorToHttp);
 
-    await oauthRepo.create("github", githubUser.id.toString(), user.id, tx);
+    await oauthRepo
+      .create("github", githubUser.id.toString(), user.id, tx)
+      .match((oauth) => oauth, dbErrorToHttp);
 
     await seedUserAccount(user.id, tx);
 
     const token = generateSessionToken();
-    const session = await sessionRepo.create(token, user.id, tx);
+    const session = await sessionRepo
+      .create(token, user.id, tx)
+      .match((session) => session, dbErrorToHttp);
 
     return {
       session,

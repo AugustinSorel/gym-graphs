@@ -5,7 +5,7 @@ import type {
   ControllerFieldState,
   ControllerRenderProps,
 } from "react-hook-form";
-import type { Set } from "@gym-graphs/api";
+import type { Set } from "@gym-graphs/db/schemas";
 
 export const CounterInput = <
   T extends Partial<Pick<Set, "weightInKg" | "repetitions">>,

@@ -1,4 +1,4 @@
-import type { Set, User } from "@gym-graphs/api";
+import type { Set, User } from "@gym-graphs/db/schemas";
 
 export const convertWeight = (
   weightInKg: Set["weightInKg"],

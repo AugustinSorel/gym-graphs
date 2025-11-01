@@ -1,16 +1,9 @@
-import { exerciseRepo } from "~/domains/exercise/exercise.repo";
-import { tileRepo } from "./tile.repo";
-import { HTTPException } from "hono/http-exception";
-import type { Db } from "~/libs/db";
-import type {
-  Dashboard,
-  Tag,
-  Tile,
-  TilesToTags,
-  tileTable,
-} from "~/db/db.schemas";
-import { tagRepo } from "~/domains/tag/tag.repo";
-import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
+import { exerciseRepo } from "@gym-graphs/db/repo/exercise";
+import { tagRepo } from "@gym-graphs/db/repo/tag";
+import { tileRepo } from "@gym-graphs/db/repo/tile";
+import { dbErrorToHttp } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
+import type { Dashboard, Tag, Tile, TilesToTags } from "@gym-graphs/db/schemas";
 
 const createExerciseTile = async (
   name: Tile["name"],
@@ -18,11 +11,17 @@ const createExerciseTile = async (
   db: Db,
 ) => {
   await db.transaction(async (tx) => {
-    const exercise = await exerciseRepo.create(tx);
+    const exercise = await exerciseRepo
+      .create(tx)
+      .match((exercise) => exercise, dbErrorToHttp);
 
-    const tile = await tileRepo.create(name, dashboardId, tx);
+    const tile = await tileRepo
+      .create(name, dashboardId, tx)
+      .match((tile) => tile, dbErrorToHttp);
 
-    await tileRepo.addExerciseOverviewTile(exercise.id, tile.id, tx);
+    await tileRepo
+      .addExerciseOverviewTile(exercise.id, tile.id, tx)
+      .match((tile) => tile, dbErrorToHttp);
   });
 };
 
@@ -35,14 +34,9 @@ const selectInfinite = async (
 ) => {
   const pageSize = 100;
 
-  const tiles = await tileRepo.selectInfinite(
-    name,
-    tags,
-    dashboardId,
-    page,
-    pageSize,
-    db,
-  );
+  const tiles = await tileRepo
+    .selectInfinite(name, tags, dashboardId, page, pageSize, db)
+    .match((tile) => tile, dbErrorToHttp);
 
   const tiles2 = tiles.map((tile) => {
     if (tile.exerciseOverview) {
@@ -115,22 +109,20 @@ const reorder = async (
 ) => {
   const reversedTileIds = tileIds.toReversed();
 
-  return tileRepo.reorder(reversedTileIds, dashboardId, db);
+  return tileRepo
+    .reorder(reversedTileIds, dashboardId, db)
+    .match((tile) => tile, dbErrorToHttp);
 };
 
 const patchById = async (
-  input: PgUpdateSetSource<typeof tileTable>,
+  input: Parameters<typeof tileRepo.patchById>[0],
   dashboardId: Dashboard["id"],
   tileId: Tile["id"],
   db: Db,
 ) => {
-  const tile = await tileRepo.patchById(input, dashboardId, tileId, db);
-
-  if (!tile) {
-    throw new HTTPException(404, { message: "tile not found" });
-  }
-
-  return tile;
+  return tileRepo
+    .patchById(input, dashboardId, tileId, db)
+    .match((tile) => tile, dbErrorToHttp);
 };
 
 const deleteById = async (
@@ -138,13 +130,9 @@ const deleteById = async (
   tileId: Tile["id"],
   db: Db,
 ) => {
-  const tile = await tileRepo.deleteById(dashboardId, tileId, db);
-
-  if (!tile) {
-    throw new HTTPException(404, { message: "tile not found" });
-  }
-
-  return tile;
+  return tileRepo
+    .deleteById(dashboardId, tileId, db)
+    .match((tile) => tile, dbErrorToHttp);
 };
 
 const addTag = async (
@@ -153,13 +141,13 @@ const addTag = async (
   userId: Tag["userId"],
   db: Db,
 ) => {
-  const tile = await tileRepo.selectByIdWithTag(tileId, tagId, userId, db);
+  const tile = await tileRepo
+    .selectByIdWithTag(tileId, tagId, userId, db)
+    .match((tile) => tile, dbErrorToHttp);
 
-  if (!tile) {
-    throw new HTTPException(404, { message: "tile not found" });
-  }
-
-  await tagRepo.createTileToTags(tileId, tagId, db);
+  await tagRepo
+    .createTileToTags(tileId, tagId, db)
+    .match((tileToTags) => tileToTags, dbErrorToHttp);
 
   return tile;
 };
@@ -170,13 +158,9 @@ const deleteTag = async (
   userId: Tag["userId"],
   db: Db,
 ) => {
-  const tag = await tagRepo.deleteTileTagTags(tileId, tagId, userId, db);
-
-  if (!tag) {
-    throw new HTTPException(404, { message: "tag not found" });
-  }
-
-  return tag;
+  return tagRepo
+    .deleteTileTagTags(tileId, tagId, userId, db)
+    .match((tag) => tag, dbErrorToHttp);
 };
 
 export const tileService = {

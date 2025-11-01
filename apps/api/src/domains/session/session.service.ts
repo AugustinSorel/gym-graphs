@@ -1,28 +1,29 @@
 import { generateSessionToken } from "~/domains/session/session.utils";
 import { fifteenDaysInMs } from "~/utils/dates";
-import { sessionRepo } from "~/domains/session/session.repo";
+import { sessionRepo } from "@gym-graphs/db/repo/session";
 import { HTTPException } from "hono/http-exception";
 import { hashSHA256Hex, verifySecret } from "~/libs/crypto";
-import { userRepo } from "~/domains/user/user.repo";
+import { dbErrorToHttp } from "~/libs/db";
+import { userRepo } from "@gym-graphs/db/repo/user";
+import { err, ok } from "neverthrow";
 import type { SignInSchema } from "@gym-graphs/schemas/session";
-import type { Session } from "~/db/db.schemas";
+import type { Session } from "@gym-graphs/db/schemas";
 import type { SessionToken } from "~/domains/session/session.utils";
-import type { Db } from "~/libs/db";
+import type { Db } from "@gym-graphs/db";
 
 const signOut = async (sessionId: Session["id"], db: Db) => {
-  const session = await sessionRepo.deleteById(sessionId, db);
-
-  if (!session) {
-    throw new HTTPException(404, { message: "session not found" });
-  }
-
-  return session;
+  return sessionRepo
+    .deleteById(sessionId, db)
+    .match((session) => session, dbErrorToHttp);
 };
 
 const validate = async (candidateSessionToken: SessionToken, db: Db) => {
   const sessionId = hashSHA256Hex(candidateSessionToken);
 
-  const session = await sessionRepo.selectById(sessionId, db);
+  const session = await sessionRepo
+    .selectById(sessionId, db)
+    .orElse((e) => (e.type === "session not found" ? ok(null) : err(e)))
+    .match((session) => session, dbErrorToHttp);
 
   if (!session) {
     return null;
@@ -31,7 +32,9 @@ const validate = async (candidateSessionToken: SessionToken, db: Db) => {
   const sessionExpired = Date.now() >= session.expiresAt.getTime();
 
   if (sessionExpired) {
-    await sessionRepo.deleteById(session.id, db);
+    await sessionRepo
+      .deleteById(session.id, db)
+      .match((session) => session, dbErrorToHttp);
 
     return null;
   }
@@ -40,7 +43,9 @@ const validate = async (candidateSessionToken: SessionToken, db: Db) => {
     Date.now() >= session.expiresAt.getTime() - fifteenDaysInMs;
 
   if (sessionNearExpiry) {
-    await sessionRepo.refreshExpiryDate(session.id, db);
+    await sessionRepo
+      .refreshExpiryDate(session.id, db)
+      .match((session) => session, dbErrorToHttp);
   }
 
   return session;
@@ -50,7 +55,10 @@ export type SessionCtx = Awaited<ReturnType<typeof validate>>;
 
 const signIn = async (input: SignInSchema, db: Db) => {
   return db.transaction(async (tx) => {
-    const user = await userRepo.selectByEmail(input.email, tx);
+    const user = await userRepo
+      .selectByEmail(input.email, tx)
+      .orElse((e) => (e.type === "user not found" ? ok(null) : err(e)))
+      .match((user) => user, dbErrorToHttp);
 
     if (!user) {
       throw new HTTPException(409, {
@@ -84,7 +92,9 @@ const signIn = async (input: SignInSchema, db: Db) => {
 
     const token = generateSessionToken();
 
-    const session = await sessionRepo.create(token, user.id, tx);
+    const session = await sessionRepo
+      .create(token, user.id, tx)
+      .match((session) => session, dbErrorToHttp);
 
     return {
       session,
