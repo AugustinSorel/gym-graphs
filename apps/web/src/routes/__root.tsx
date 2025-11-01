@@ -126,5 +126,5 @@ const AnalyticScript = () => {
 | TODO     | better api error handling                             |
 | TODO     | better web error handling                             |
 | TODO     | make tile reordering less laggy                       |
-| TODO     | try never throw to clean up api code                  |
+| TODO     | tanstack form                                         |
 */
