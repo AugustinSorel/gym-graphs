@@ -5,8 +5,9 @@ import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
-import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 const routeApi = getRouteApi("/(auth)/_layout");
 
@@ -43,7 +44,7 @@ const useGithubSignIn = () => {
   const req = api().oauth.github.$post;
 
   const githubSignIn = useMutation({
-    mutationFn: async (query: InferRequestType<typeof req>["query"]) => {
+    mutationFn: async (query: InferApiReqInput<typeof req>["query"]) => {
       return parseJsonResponse(req({ query }));
     },
     onSuccess: (url) => {

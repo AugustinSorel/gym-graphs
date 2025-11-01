@@ -15,6 +15,7 @@
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@gym-graphs/api": "workspace:*",
     "@gym-graphs/constants": "workspace:*",
     "@gym-graphs/schemas": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
@@ -50,7 +51,6 @@
     "@visx/vendor": "^3.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "hono": "^4.9.11",
     "input-otp": "^1.4.2",
     "nitro": "3.0.1-alpha.0",
     "react": "^19.0.0",
@@ -62,7 +62,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@gym-graphs/api": "workspace:*",
     "@gym-graphs/db": "workspace:*",
     "@tanstack/react-query-devtools": "^5.62.11",
     "@tanstack/react-router-devtools": "^1.133.3",

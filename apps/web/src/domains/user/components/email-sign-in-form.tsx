@@ -7,12 +7,13 @@ import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { userSchema } from "@gym-graphs/schemas/user";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import type { z } from "zod";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
@@ -135,7 +136,7 @@ const useSignIn = () => {
   const req = api().sessions.$post;
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
   });

@@ -16,9 +16,10 @@ import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import type { ComponentProps } from "react";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const Route = createFileRoute(
   "/(exercises)/exercises_/$exerciseId/settings",
@@ -289,7 +290,7 @@ const useAddTagToTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {
@@ -398,7 +399,7 @@ const useRemoveTagToTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

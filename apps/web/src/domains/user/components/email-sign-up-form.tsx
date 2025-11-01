@@ -7,12 +7,13 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/ui/button";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { getRouteApi } from "@tanstack/react-router";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const EmailSignUpForm = () => {
   const navigate = routeApi.useNavigate();
@@ -153,7 +154,7 @@ const useSignUp = () => {
   const req = api().users.$post;
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
   });

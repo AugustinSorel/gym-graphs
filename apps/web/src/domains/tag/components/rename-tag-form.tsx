@@ -8,12 +8,13 @@ import { Button } from "~/ui/button";
 import { tagSchema } from "@gym-graphs/schemas/tag";
 import { userQueries } from "~/domains/user/user.queries";
 import { useTag } from "~/domains/tag/tag.context";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import type { z } from "zod";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const RenameTagForm = (props: Props) => {
   const form = useRenameTagForm();
@@ -136,7 +137,7 @@ const useRenameTag = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(api().tags[":tagId"].$patch(input));
     },
     onMutate: async (variables, ctx) => {

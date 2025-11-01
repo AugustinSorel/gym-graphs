@@ -10,12 +10,13 @@ import { setSchema } from "@gym-graphs/schemas/set";
 import { useSet } from "~/domains/set/set.context";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 import type { z } from "zod";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
@@ -135,7 +136,7 @@ const useUpdateSetDoneAt = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

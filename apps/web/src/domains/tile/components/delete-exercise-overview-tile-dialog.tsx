@@ -16,10 +16,11 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useRouteHash } from "~/hooks/use-route-hash";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const DeleteExerciseOverviewTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -99,7 +100,7 @@ const useDeleteExerciseTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {

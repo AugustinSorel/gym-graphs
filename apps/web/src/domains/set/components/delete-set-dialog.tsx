@@ -16,10 +16,11 @@ import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { getRouteApi } from "@tanstack/react-router";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import type { InferRequestType } from "hono";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
@@ -100,7 +101,7 @@ const useDeleteSet = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

@@ -16,7 +16,8 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const DeleteAccountDialog = () => {

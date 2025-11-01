@@ -2,7 +2,8 @@ import { Button } from "~/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "~/ui/spinner";
 import { CheckIcon } from "~/ui/icons";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import type { ComponentProps } from "react";
 
 export const ResendEmailVerificationCode = () => {

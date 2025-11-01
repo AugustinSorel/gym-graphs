@@ -1,7 +1,8 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import type { Tile, Tag } from "@gym-graphs/db/schemas";
-import { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
   return infiniteQueryOptions({
@@ -9,7 +10,7 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
     queryFn: async ({ pageParam, signal }) => {
       const req = api().tiles.$get;
 
-      const query: InferRequestType<typeof req>["query"] = {
+      const query: InferApiReqInput<typeof req>["query"] = {
         page: pageParam.toString(),
       };
 

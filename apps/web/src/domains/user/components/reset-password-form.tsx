@@ -8,11 +8,12 @@ import { userSchema } from "@gym-graphs/schemas/user";
 import { z } from "zod";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const ResetPasswordForm = () => {
   const form = useResetPasswordForm();
@@ -136,7 +137,7 @@ const useResetPassword = () => {
   const req = api()["password-resets"].reset.$post;
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
   });

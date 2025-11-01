@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 
 const get = queryOptions({
   queryKey: ["user"],

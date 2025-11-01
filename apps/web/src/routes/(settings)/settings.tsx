@@ -31,9 +31,10 @@ import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
 import { TagsList } from "~/domains/tag/components/tags-list";
-import { api, parseJsonResponse } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
+import { api } from "~/libs/api";
 import type { ComponentProps, PropsWithChildren } from "react";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const Route = createFileRoute("/(settings)/settings")({
   component: () => RouteComponent(),
@@ -139,7 +140,7 @@ const useUpdateOneRepMaxAlgo = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       const req = api().users.me.$patch(input);
 
       return parseJsonResponse(req);

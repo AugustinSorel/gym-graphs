@@ -30,7 +30,8 @@ import {
 } from "~/domains/dashboard/components/trending-view-tile";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import type {
   ComponentProps,
   CSSProperties,
@@ -44,7 +45,7 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const Dashboard = () => {
   return (
@@ -377,7 +378,7 @@ const useReorderTiles = () => {
   const req = api().tiles.reorder.$put;
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
   });

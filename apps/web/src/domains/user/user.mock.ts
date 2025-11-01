@@ -1,10 +1,7 @@
-import { api } from "~/libs/api";
 import { tagsMock } from "~/domains/tag/tag.mock";
-import type { InferResponseType } from "hono";
+import { useUser } from "./hooks/use-user";
 
-export const userMock: Readonly<
-  InferResponseType<ReturnType<typeof api>["users"]["me"]["$get"]>
-> = {
+export const userMock: ReturnType<typeof useUser>["data"] = {
   weightUnit: "kg",
   email: "john@email.com",
   name: "john",

@@ -11,7 +11,8 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
 import { HeaderPrivate, HeaderPublic } from "~/header";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
 
@@ -124,7 +125,6 @@ const AnalyticScript = () => {
 | ---------| ------------------------------------------------------|
 | TODO     | better api error handling                             |
 | TODO     | better web error handling                             |
-| TODO     | uninstall hono from web                               |
 | TODO     | make tile reordering less laggy                       |
 | TODO     | try never throw to clean up api code                  |
 */

@@ -11,12 +11,13 @@ import { useSet } from "~/domains/set/set.context";
 import { getRouteApi } from "@tanstack/react-router";
 import { CounterInput } from "~/ui/counter-input";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const UpdateSetWeightForm = (props: Props) => {
   const form = useCreateExerciseForm();
@@ -134,7 +135,7 @@ const useUpdateWeight = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

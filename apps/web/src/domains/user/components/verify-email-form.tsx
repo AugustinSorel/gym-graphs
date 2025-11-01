@@ -12,11 +12,12 @@ import {
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Spinner } from "~/ui/spinner";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 import type { z } from "zod";
 
 export const VerifyEmailForm = () => {
@@ -121,7 +122,7 @@ const useVerifyEmail = () => {
   const req = api()["email-verifications"].verify.$post;
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
   });

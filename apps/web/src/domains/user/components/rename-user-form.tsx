@@ -7,11 +7,12 @@ import { Controller, useForm } from "react-hook-form";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferRequestType } from "hono";
+import type { InferApiReqInput } from "@gym-graphs/api";
 import type { z } from "zod";
 
 type Props = Readonly<{
@@ -108,7 +109,7 @@ const useRenameUser = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

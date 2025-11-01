@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono/client";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const useUpdateWeightUnit = () => {
   const req = api().users.me.$patch;
@@ -12,7 +13,7 @@ export const useUpdateWeightUnit = () => {
 
   const updateWeightUnit = useMutation({
     mutationFn: async (
-      json: Pick<InferRequestType<typeof req>["json"], "weightUnit">,
+      json: Pick<InferApiReqInput<typeof req>["json"], "weightUnit">,
     ) => {
       return parseJsonResponse(req({ json }));
     },

@@ -4,8 +4,9 @@ import { userSchema } from "@gym-graphs/schemas/user";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api, parseJsonResponse } from "~/libs/api";
-import type { InferRequestType } from "hono";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 const useUpdateDashboadView = () => {
   const req = api().users.me.$patch;
@@ -15,7 +16,7 @@ const useUpdateDashboadView = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(req(input));
     },
     onMutate: async (variables, ctx) => {

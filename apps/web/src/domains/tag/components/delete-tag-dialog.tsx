@@ -14,10 +14,11 @@ import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { userQueries } from "~/domains/user/user.queries";
 import { useTag } from "~/domains/tag/tag.context";
-import { api, parseJsonResponse } from "~/libs/api";
+import { api } from "~/libs/api";
+import { parseJsonResponse } from "@gym-graphs/api";
 import { getRouteApi } from "@tanstack/react-router";
-import type { InferRequestType } from "hono";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const DeleteTagDialog = () => {
   const deleteTag = useDeleteTag();
@@ -91,7 +92,7 @@ const useDeleteTag = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferRequestType<typeof req>) => {
+    mutationFn: async (input: InferApiReqInput<typeof req>) => {
       return parseJsonResponse(api().tags[":tagId"].$delete(input));
     },
     onMutate: async (variables, ctx) => {
