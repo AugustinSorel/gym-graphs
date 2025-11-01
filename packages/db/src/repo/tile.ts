@@ -23,7 +23,7 @@ import type {
   Dashboard,
   TilesToTags,
 } from "~/schemas";
-import { ResultAsync } from "neverthrow";
+import { ok, ResultAsync } from "neverthrow";
 import { buildError } from "~/error";
 import { extractEntityFromRows } from "~/utils";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
@@ -258,7 +258,7 @@ const deleteById = (
       )
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const selectByIdWithTag = (

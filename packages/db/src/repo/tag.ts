@@ -7,7 +7,7 @@ import {
   tileTable,
   userTable,
 } from "~/schemas";
-import { ResultAsync } from "neverthrow";
+import { ok, ResultAsync } from "neverthrow";
 import { buildError } from "~/error";
 import { extractEntityFromRows } from "~/utils";
 import type { Tag, Tile, TilesToTags } from "~/schemas";
@@ -70,7 +70,7 @@ const deleteById = (tagId: Tag["id"], userId: Tag["userId"], db: Db) => {
       .where(and(eq(tagTable.id, tagId), eq(tagTable.userId, userId)))
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const patchById = (
@@ -130,7 +130,7 @@ const deleteTileTagTags = (
       )
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 export const tagRepo = {

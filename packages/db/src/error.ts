@@ -13,7 +13,7 @@ type Msg =
 export const buildError = <TMsg extends Msg>(type: TMsg, err?: unknown) => {
   return {
     type,
-    cause: err instanceof Error ? err : new Error("unexpected database error"),
+    cause: err instanceof Error ? err : new Error("database error"),
   };
 };
 

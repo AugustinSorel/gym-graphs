@@ -6,7 +6,7 @@ import {
   tileTable,
   exerciseOverviewTileTable,
 } from "~/schemas";
-import { ResultAsync } from "neverthrow";
+import { ok, ResultAsync } from "neverthrow";
 import { buildError } from "~/error";
 import { extractEntityFromRows } from "~/utils";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
@@ -56,7 +56,7 @@ const deleteById = (setId: Set["id"], userId: User["id"], db: Db) => {
       .where(and(eq(setTable.id, setId), exists(exercise)))
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const patchById = (

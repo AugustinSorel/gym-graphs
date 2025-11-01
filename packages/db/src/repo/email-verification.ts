@@ -47,7 +47,7 @@ const deleteById = (id: EmailVerificationCode["id"], db: Db) => {
       .returning(),
 
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const deleteByUserId = (userId: EmailVerificationCode["userId"], db: Db) => {
@@ -58,7 +58,7 @@ const deleteByUserId = (userId: EmailVerificationCode["userId"], db: Db) => {
       .returning(),
 
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 export const emailVerificationRepo = {

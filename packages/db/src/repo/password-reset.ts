@@ -13,7 +13,7 @@ const deleteByUserId = (userId: PasswordResetToken["userId"], db: Db) => {
       .where(eq(passwordResetTokenTable.userId, userId))
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const deleteByToken = (token: PasswordResetToken["token"], db: Db) => {
@@ -23,7 +23,7 @@ const deleteByToken = (token: PasswordResetToken["token"], db: Db) => {
       .where(eq(passwordResetTokenTable.token, token))
       .returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const create = (

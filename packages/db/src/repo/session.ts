@@ -19,14 +19,14 @@ const deleteById = (sessionId: Session["id"], db: Db) => {
   return ResultAsync.fromPromise(
     db.delete(sessionTable).where(eq(sessionTable.id, sessionId)).returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const deleteByUserId = (userId: Session["userId"], db: Db) => {
   return ResultAsync.fromPromise(
     db.delete(sessionTable).where(eq(sessionTable.userId, userId)).returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const selectById = (sessionId: Session["id"], db: Db) => {

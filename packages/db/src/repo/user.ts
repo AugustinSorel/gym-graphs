@@ -130,7 +130,7 @@ const deleteById = (userId: User["id"], db: Db) => {
   return ResultAsync.fromPromise(
     db.delete(userTable).where(eq(userTable.id, userId)).returning(),
     (e) => buildError("internal", e),
-  ).andThen(extractEntityFromRows);
+  ).andThen(() => ok(null));
 };
 
 const selectDataById = (userId: User["id"], db: Db) => {

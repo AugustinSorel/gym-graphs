@@ -6,7 +6,7 @@ import type { Ctx } from "~/index";
 
 export const errorHandler: ErrorHandler<Ctx> = (err, c) => {
   if (err instanceof HTTPException) {
-    console.error("API HTTPException", err.message);
+    console.error("API HTTPException", err);
     return c.json({ message: err.message }, err.status);
   }
 
