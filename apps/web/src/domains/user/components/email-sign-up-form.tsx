@@ -49,7 +49,7 @@ export const EmailSignUpForm = () => {
           name="email"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Email:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>Email:</FieldLabel>
               <Input
                 {...props.field}
                 placeholder="john@example.com"
@@ -69,7 +69,7 @@ export const EmailSignUpForm = () => {
           name="password"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Password:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>Password:</FieldLabel>
               <Input
                 {...props.field}
                 placeholder="******"
@@ -88,7 +88,9 @@ export const EmailSignUpForm = () => {
           name="confirmPassword"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Confirm Password:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>
+                Confirm Password:
+              </FieldLabel>
               <Input
                 {...props.field}
                 placeholder="******"

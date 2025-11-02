@@ -52,7 +52,7 @@ export const RenameTagForm = (props: Props) => {
           name="name"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Name:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>Name:</FieldLabel>
               <Input
                 {...props.field}
                 placeholder="Legs..."

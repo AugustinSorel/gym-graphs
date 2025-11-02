@@ -57,7 +57,7 @@ export const UpdateSetDoneAtForm = (props: Props) => {
           name="doneAt"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>done at:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>done at:</FieldLabel>
               <Input
                 {...props.field}
                 type="date"

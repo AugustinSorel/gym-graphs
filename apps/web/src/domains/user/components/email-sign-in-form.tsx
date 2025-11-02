@@ -51,7 +51,7 @@ export const EmailSignInForm = () => {
           name="email"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Email</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>Email</FieldLabel>
               <Input
                 {...props.field}
                 placeholder="john@example.com"
@@ -72,7 +72,7 @@ export const EmailSignInForm = () => {
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
               <div className="flex items-center justify-between">
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel htmlFor={props.field.name}>Password</FieldLabel>
                 <Button
                   asChild
                   variant="link"

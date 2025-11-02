@@ -60,7 +60,7 @@ export const CreateSetForm = (props: Props) => {
               className="flex flex-col gap-1"
               data-invalid={props.fieldState.invalid}
             >
-              <FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>
                 weight (<WeightUnit />
                 ):
               </FieldLabel>
@@ -80,7 +80,7 @@ export const CreateSetForm = (props: Props) => {
               className="flex flex-col gap-1"
               data-invalid={props.fieldState.invalid}
             >
-              <FieldLabel>repetitions:</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>repetitions:</FieldLabel>
               <CounterInput {...props} />
               {props.fieldState.invalid && (
                 <FieldError errors={[props.fieldState.error]} />

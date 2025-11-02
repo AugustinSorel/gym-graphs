@@ -40,7 +40,7 @@ export const RequestResetPasswordForm = () => {
           name="email"
           render={(props) => (
             <Field data-invalid={props.fieldState.invalid}>
-              <FieldLabel>Email</FieldLabel>
+              <FieldLabel htmlFor={props.field.name}>Email</FieldLabel>
               <Input
                 {...props.field}
                 autoFocus
