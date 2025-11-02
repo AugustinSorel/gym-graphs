@@ -56,6 +56,7 @@ export const RenameExerciseOverviewTileForm = (props: Props) => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Name:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="Bench press..."
                 autoFocus

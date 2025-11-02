@@ -55,6 +55,7 @@ export const ResetPasswordForm = () => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Password:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 autoFocus
                 placeholder="******"
@@ -77,6 +78,7 @@ export const ResetPasswordForm = () => {
                 Confirm Password:
               </FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="******"
                 type="password"

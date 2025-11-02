@@ -59,6 +59,7 @@ export const UpdateSetDoneAtForm = (props: Props) => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>done at:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 type="date"
                 autoFocus

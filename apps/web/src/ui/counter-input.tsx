@@ -19,6 +19,7 @@ export const CounterInput = <
         type="number"
         placeholder="10"
         aria-invalid={props.fieldState.invalid}
+        id={props.field.name}
         {...props.field}
         onChange={(e) => {
           props.field.onChange(e.target.valueAsNumber || "");

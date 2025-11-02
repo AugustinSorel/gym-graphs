@@ -53,6 +53,7 @@ export const EmailSignInForm = () => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Email</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="john@example.com"
                 type="email"
@@ -82,6 +83,7 @@ export const EmailSignInForm = () => {
                 </Button>
               </div>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="******"
                 type="password"

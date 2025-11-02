@@ -45,6 +45,7 @@ export const CreateExerciseOverviewTileForm = (props: Props) => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Name:</FieldLabel>
               <Input
+                id={props.field.name}
                 placeholder="Bench press..."
                 aria-invalid={props.fieldState.invalid}
                 autoFocus

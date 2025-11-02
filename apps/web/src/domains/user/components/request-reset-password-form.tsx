@@ -42,6 +42,7 @@ export const RequestResetPasswordForm = () => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Email</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 autoFocus
                 placeholder="john@example.com"

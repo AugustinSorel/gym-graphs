@@ -45,6 +45,7 @@ export const CreateTagForm = (props: Props) => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Name:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="Legs..."
                 autoFocus

@@ -51,6 +51,7 @@ export const EmailSignUpForm = () => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Email:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="john@example.com"
                 aria-invalid={props.fieldState.invalid}
@@ -71,6 +72,7 @@ export const EmailSignUpForm = () => {
             <Field data-invalid={props.fieldState.invalid}>
               <FieldLabel htmlFor={props.field.name}>Password:</FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="******"
                 type="password"
@@ -92,6 +94,7 @@ export const EmailSignUpForm = () => {
                 Confirm Password:
               </FieldLabel>
               <Input
+                id={props.field.name}
                 {...props.field}
                 placeholder="******"
                 type="password"
