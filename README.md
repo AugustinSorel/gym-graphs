@@ -19,6 +19,7 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 ├── package.json
 ├── packages
 │   ├── constants    #Global constants
+│   ├── db           #Global drizzle db
 │   └── schemas      #Global zod schemas
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
