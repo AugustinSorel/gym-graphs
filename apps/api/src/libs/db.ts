@@ -1,6 +1,14 @@
 import { HTTPException } from "hono/http-exception";
+import { createMiddleware } from "hono/factory";
+import { db } from "@gym-graphs/db";
 import type { DbError } from "@gym-graphs/db/error";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import type { Ctx } from "~/index";
+
+export const injectDbMiddleware = createMiddleware<Ctx>(async (c, n) => {
+  c.set("db", db);
+  await n();
+});
 
 export const dbErrorToHttp = (e: DbError) => {
   const httpErr = transformDbErrorToHttp(e);

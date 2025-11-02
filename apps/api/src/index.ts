@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { env } from "~/env";
 import { sessionRouter } from "~/domains/session/session.router";
 import { errorHandler } from "~/libs/error";
-import { injectDbMiddleware } from "~/db/db.middlewares";
+import { injectDbMiddleware } from "~/libs/db";
 import { injectEmailMiddleware } from "~/libs/email";
 import { injectSessionMiddleware } from "~/domains/session/session.middlewares";
 import { emailVerificationRouter } from "~/domains/email-verification/email-verification.router";
