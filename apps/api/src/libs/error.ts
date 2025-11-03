@@ -1,12 +1,12 @@
 import { HTTPException } from "hono/http-exception";
+import { ZodError } from "zod";
 import type { ErrorHandler } from "hono";
 import type { Ctx } from "~/index";
 
-//TODO: build better error msg
-
 export const errorHandler: ErrorHandler<Ctx> = (err, c) => {
+  console.log("HERE", err instanceof ZodError, err.constructor.name);
+
   if (err instanceof HTTPException) {
-    console.error("API HTTPException", err);
     return c.json({ message: err.message }, err.status);
   }
 
