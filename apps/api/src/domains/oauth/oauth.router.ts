@@ -6,8 +6,8 @@ import {
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { getCookie, setCookie } from "hono/cookie";
-import { oauthCookies } from "./oauth.cookies";
-import { oauthService } from "./oauth.service";
+import { oauthCookies } from "~/domains/oauth/oauth.cookies";
+import { oauthService } from "~/domains/oauth/oauth.service";
 import { githubOAuthCallbackQuerySchema } from "@gym-graphs/schemas/oauth";
 import { sessionCookie } from "~/domains/session/session.cookies";
 import { HTTPException } from "hono/http-exception";

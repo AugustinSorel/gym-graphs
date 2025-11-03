@@ -2,7 +2,7 @@ import { generateEmailVerificationCode } from "~/domains/email-verification/emai
 import { emailVerificationRepo } from "@gym-graphs/db/repo/email-verification";
 import { userRepo } from "@gym-graphs/db/repo/user";
 import { HTTPException } from "hono/http-exception";
-import { emailVerificationEmailBody } from "./email-verification.emails";
+import { emailVerificationEmailBody } from "~/domains/email-verification/email-verification.emails";
 import { sessionRepo } from "@gym-graphs/db/repo/session";
 import { generateSessionToken } from "~/domains/session/session.utils";
 import { sendEmail } from "~/libs/email";

@@ -1,5 +1,5 @@
 import { tagsMock } from "~/domains/tag/tag.mock";
-import { useExercise } from "./hooks/use-exercise";
+import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 
 export const exerciseMock: ReturnType<typeof useExercise>["data"] = {
   id: 30,

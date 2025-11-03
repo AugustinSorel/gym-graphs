@@ -1,5 +1,5 @@
 import { tagsMock } from "~/domains/tag/tag.mock";
-import { useUser } from "./hooks/use-user";
+import { useUser } from "~/domains/user/hooks/use-user";
 
 export const userMock: ReturnType<typeof useUser>["data"] = {
   weightUnit: "kg",
