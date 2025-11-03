@@ -19,8 +19,9 @@ const create = (name: Tag["name"], userId: Tag["userId"], db: Db) => {
     db.insert(tagTable).values({ name, userId }).returning(),
     (e) => {
       const duplicateTag =
-        e instanceof DatabaseError &&
-        e.constraint === "tag_name_user_id_unique";
+        e instanceof Error &&
+        e.cause instanceof DatabaseError &&
+        e.cause.constraint === "tag_name_user_id_unique";
 
       if (duplicateTag) {
         return buildError("duplicate tag name");
@@ -87,8 +88,9 @@ const patchById = (
       .returning(),
     (e) => {
       const duplicateTag =
-        e instanceof DatabaseError &&
-        e.constraint === "tag_name_user_id_unique";
+        e instanceof Error &&
+        e.cause instanceof DatabaseError &&
+        e.cause.constraint === "tag_name_user_id_unique";
 
       if (duplicateTag) {
         return buildError("duplicate tag name");

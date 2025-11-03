@@ -19,7 +19,9 @@ const createWithEmailAndPassword = (
     db.insert(userTable).values({ email, password, name, salt }).returning(),
     (e) => {
       const duplicateEmail =
-        e instanceof DatabaseError && e.constraint === "user_email_unique";
+        e instanceof Error &&
+        e.cause instanceof DatabaseError &&
+        e.cause.constraint === "user_email_unique";
 
       if (duplicateEmail) {
         return buildError("duplicate email");

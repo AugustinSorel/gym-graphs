@@ -38,8 +38,9 @@ const create = (
     db.insert(tileTable).values({ name, dashboardId }).returning(),
     (e) => {
       const duplicateTile =
-        e instanceof DatabaseError &&
-        e.constraint === "tile_name_dashboard_id_unique";
+        e instanceof Error &&
+        e.cause instanceof DatabaseError &&
+        e.cause.constraint === "tile_name_dashboard_id_unique";
 
       if (duplicateTile) {
         return buildError("duplicate tile", e);
@@ -233,8 +234,9 @@ const patchById = (
       .returning(),
     (e) => {
       const duplicateTile =
-        e instanceof DatabaseError &&
-        e.constraint === "tile_name_dashboard_id_unique";
+        e instanceof Error &&
+        e.cause instanceof DatabaseError &&
+        e.cause.constraint === "tile_name_dashboard_id_unique";
 
       if (duplicateTile) {
         return buildError("duplicate tile", e);
