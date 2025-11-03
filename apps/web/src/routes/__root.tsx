@@ -123,7 +123,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | better api error handling                             |
 | TODO     | better web error handling                             |
 | TODO     | make tile reordering less laggy                       |
 */
