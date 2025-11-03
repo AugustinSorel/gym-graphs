@@ -23,6 +23,7 @@ export const getRouter = () => {
     context,
     scrollRestoration: true,
     defaultNotFoundComponent: RouterNotFound,
+    defaultPreload: "intent",
     defaultOnCatch(error, errorInfo) {
       console.log(error, errorInfo);
     },
