@@ -32,9 +32,9 @@ import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-a
 import { TagsList } from "~/domains/tag/components/tags-list";
 import { parseJsonResponse } from "@gym-graphs/api";
 import { api } from "~/libs/api";
+import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps, PropsWithChildren } from "react";
 import type { InferApiReqInput } from "@gym-graphs/api";
-import { DefaultFallback } from "~/ui/fallback";
 
 export const Route = createFileRoute("/(settings)/settings")({
   component: () => RouteComponent(),
@@ -508,18 +508,4 @@ const useDownloadUserData = () => {
       window.URL.revokeObjectURL(url);
     },
   });
-};
-
-const Container = (props: ComponentProps<"div">) => {
-  return (
-    <div
-      role="alert"
-      className="border-destructive bg-destructive/10 rounded-md border"
-      {...props}
-    />
-  );
-};
-
-const ErrorMsg = (props: ComponentProps<"code">) => {
-  return <code className="flex text-sm" {...props} />;
 };

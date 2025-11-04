@@ -1,8 +1,4 @@
-import {
-  CatchBoundary,
-  ErrorComponentProps,
-  useSearch,
-} from "@tanstack/react-router";
+import { CatchBoundary, useSearch } from "@tanstack/react-router";
 import {
   closestCenter,
   DndContext,
@@ -36,6 +32,7 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { api } from "~/libs/api";
 import { parseJsonResponse } from "@gym-graphs/api";
+import { DefaultFallback } from "~/ui/fallback";
 import type {
   ComponentProps,
   CSSProperties,
@@ -50,7 +47,6 @@ import type {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 import type { InferApiReqInput } from "@gym-graphs/api";
-import { DefaultFallback } from "~/ui/fallback";
 
 export const Dashboard = () => {
   return (
