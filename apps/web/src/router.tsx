@@ -24,13 +24,6 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultNotFoundComponent: RouterNotFound,
     defaultPreload: "intent",
-    defaultOnCatch(error, errorInfo) {
-      console.log(error, errorInfo);
-    },
-    defaultErrorComponent(e) {
-      console.error(e);
-      return <>{JSON.stringify(e)}</>;
-    },
   });
 
   setupRouterSsrQueryIntegration({

@@ -41,9 +41,6 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
     links: [{ rel: "stylesheet", href: appCss }],
   }),
   component: RootComponent,
-  onCatch(error) {
-    console.log(error);
-  },
   beforeLoad: async ({ context }) => {
     const req = api().sessions.me.$get;
 

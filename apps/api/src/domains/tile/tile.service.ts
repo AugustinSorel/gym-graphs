@@ -89,8 +89,7 @@ const selectInfinite = async (
       };
     }
 
-    console.log(tile);
-    throw new Error("??");
+    throw new Error("cannot infer type of tile");
   });
 
   const showNextPage = tiles2.length > pageSize - 1;
