@@ -2,6 +2,7 @@ import { exerciseRepo } from "@gym-graphs/db/repo/exercise";
 import { tagRepo } from "@gym-graphs/db/repo/tag";
 import { tileRepo } from "@gym-graphs/db/repo/tile";
 import { dbErrorToHttp } from "~/libs/db";
+import { ok } from "neverthrow";
 import type { Db } from "@gym-graphs/db";
 import type { Dashboard, Tag, Tile, TilesToTags } from "@gym-graphs/db/schemas";
 
@@ -36,67 +37,70 @@ const selectInfinite = async (
 
   const tiles = await tileRepo
     .selectInfinite(name, tags, dashboardId, page, pageSize, db)
+    .andThen((tiles) => {
+      return ok(
+        tiles.map((tile) => {
+          if (tile.exerciseOverview) {
+            return {
+              type: "exerciseOverview" as const,
+              exerciseOverview: tile.exerciseOverview,
+              tileToTags: tile.tileToTags,
+              id: tile.id,
+              name: tile.name,
+            };
+          }
+
+          if (tile.exerciseSetCount) {
+            return {
+              type: "exerciseSetCount" as const,
+              exerciseSetCount: tile.exerciseSetCount,
+              tileToTags: tile.tileToTags,
+              id: tile.id,
+              name: tile.name,
+            };
+          }
+
+          if (tile.exerciseTagCount) {
+            return {
+              type: "exerciseTagCount" as const,
+              exerciseTagCount: tile.exerciseTagCount,
+              tileToTags: tile.tileToTags,
+              id: tile.id,
+              name: tile.name,
+            };
+          }
+
+          if (tile.dashboardHeatMap) {
+            return {
+              type: "dashboardHeatMap" as const,
+              dashboardHeatMap: tile.dashboardHeatMap,
+              tileToTags: tile.tileToTags,
+              id: tile.id,
+              name: tile.name,
+            };
+          }
+
+          if (tile.dashboardFunFacts) {
+            return {
+              type: "dashboardFunFacts" as const,
+              dashboardFunFacts: tile.dashboardFunFacts,
+              tileToTags: tile.tileToTags,
+              id: tile.id,
+              name: tile.name,
+            };
+          }
+
+          throw new Error("cannot infer type of tile");
+        }),
+      );
+    })
     .match((tile) => tile, dbErrorToHttp);
 
-  const tiles2 = tiles.map((tile) => {
-    if (tile.exerciseOverview) {
-      return {
-        type: "exerciseOverview" as const,
-        exerciseOverview: tile.exerciseOverview,
-        tileToTags: tile.tileToTags,
-        id: tile.id,
-        name: tile.name,
-      };
-    }
-
-    if (tile.exerciseSetCount) {
-      return {
-        type: "exerciseSetCount" as const,
-        exerciseSetCount: tile.exerciseSetCount,
-        tileToTags: tile.tileToTags,
-        id: tile.id,
-        name: tile.name,
-      };
-    }
-
-    if (tile.exerciseTagCount) {
-      return {
-        type: "exerciseTagCount" as const,
-        exerciseTagCount: tile.exerciseTagCount,
-        tileToTags: tile.tileToTags,
-        id: tile.id,
-        name: tile.name,
-      };
-    }
-
-    if (tile.dashboardHeatMap) {
-      return {
-        type: "dashboardHeatMap" as const,
-        dashboardHeatMap: tile.dashboardHeatMap,
-        tileToTags: tile.tileToTags,
-        id: tile.id,
-        name: tile.name,
-      };
-    }
-
-    if (tile.dashboardFunFacts) {
-      return {
-        type: "dashboardFunFacts" as const,
-        dashboardFunFacts: tile.dashboardFunFacts,
-        tileToTags: tile.tileToTags,
-        id: tile.id,
-        name: tile.name,
-      };
-    }
-
-    throw new Error("cannot infer type of tile");
-  });
-
-  const showNextPage = tiles2.length > pageSize - 1;
+  const showNextPage = tiles.length > pageSize - 1;
   const nextCursor = showNextPage ? page + 1 : null;
 
   return {
-    tiles: tiles2,
+    tiles,
     nextCursor,
   };
 };
