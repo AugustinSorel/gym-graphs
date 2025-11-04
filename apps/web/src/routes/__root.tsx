@@ -10,7 +10,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
-import { HeaderPrivate, HeaderPublic } from "~/header";
+import { HeaderPrivate, HeaderPublic } from "~/components/header";
 import { api } from "~/libs/api";
 import { parseJsonResponse } from "@gym-graphs/api";
 import type { RouterCtx } from "~/router";
@@ -123,6 +123,4 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | better web error handling                             |
-| TODO     | make tile reordering less laggy                       |
 */

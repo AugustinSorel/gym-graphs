@@ -1,7 +1,6 @@
 import {
   CatchBoundary,
   createFileRoute,
-  ErrorComponentProps,
   redirect,
 } from "@tanstack/react-router";
 import { useUser } from "~/domains/user/hooks/use-user";
@@ -35,6 +34,7 @@ import { parseJsonResponse } from "@gym-graphs/api";
 import { api } from "~/libs/api";
 import type { ComponentProps, PropsWithChildren } from "react";
 import type { InferApiReqInput } from "@gym-graphs/api";
+import { DefaultFallback } from "~/ui/fallback";
 
 export const Route = createFileRoute("/(settings)/settings")({
   component: () => RouteComponent(),
@@ -71,10 +71,7 @@ const EmailSection = () => {
   const user = useUser();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>email address</SectionTitle>
@@ -92,10 +89,7 @@ const EmailSection = () => {
 
 const RenameUserSection = () => {
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>rename yourself</SectionTitle>
@@ -113,10 +107,7 @@ const RenameUserSection = () => {
 
 const TagsSection = () => {
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>tags</SectionTitle>
@@ -179,10 +170,7 @@ const OneRepMaxAlgoSection = () => {
   const updateOneRepMaxAlgo = useUpdateOneRepMaxAlgo();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>one rep max algorithm</SectionTitle>
@@ -247,10 +235,7 @@ const ChangeWeightUnitSection = () => {
   const user = useUser();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>change weight unit</SectionTitle>
@@ -304,10 +289,7 @@ const ChangeThemeSection = () => {
   const theme = useTheme();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>change theme</SectionTitle>
@@ -361,10 +343,7 @@ const DownloadUserData = () => {
   const downloadUserData = useDownloadUserData();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>download data</SectionTitle>
@@ -398,10 +377,7 @@ const SignOutSection = () => {
   const signOut = useSignOut();
 
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
         <HGroup>
           <SectionTitle>sign out</SectionTitle>
@@ -427,10 +403,7 @@ const SignOutSection = () => {
 
 const DeleteAccountSection = () => {
   return (
-    <CatchBoundary
-      errorComponent={DefaultErrorFallback}
-      getResetKey={() => "reset"}
-    >
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section className="border-destructive">
         <HGroup>
           <SectionTitle>delete account</SectionTitle>
@@ -535,22 +508,6 @@ const useDownloadUserData = () => {
       window.URL.revokeObjectURL(url);
     },
   });
-};
-
-export const DefaultErrorFallback = (props: ErrorComponentProps) => {
-  return (
-    <Container>
-      <HGroup>
-        <Title>something went wrong</Title>
-        <ErrorMsg>{props.error.message}</ErrorMsg>
-      </HGroup>
-      <Footer className="border-destructive bg-destructive/10 flex items-center justify-end border-t px-6 py-4">
-        <Button size="sm" onClick={props.reset} variant="destructive">
-          try again
-        </Button>
-      </Footer>
-    </Container>
-  );
 };
 
 const Container = (props: ComponentProps<"div">) => {

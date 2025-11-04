@@ -1,4 +1,5 @@
 import {
+  CatchBoundary,
   createFileRoute,
   getRouteApi,
   Link,
@@ -18,6 +19,7 @@ import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph"
 import { TagsList } from "~/domains/exercise/components/tags-list";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
+import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 
 export const Route = createFileRoute("/(exercises)/exercises/$exerciseId")({
@@ -71,43 +73,63 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <Section>
-        <SectionTitle>
-          1 <Abbr title="repetitions">rep</Abbr>{" "}
-          <Abbr title="maximum">max</Abbr> graph
-        </SectionTitle>
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <Section>
+          <SectionTitle>
+            1 <Abbr title="repetitions">rep</Abbr>{" "}
+            <Abbr title="maximum">max</Abbr> graph
+          </SectionTitle>
 
-        <SectionPanel className="py-2 sm:p-4">
-          <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
-        </SectionPanel>
-      </Section>
+          <SectionPanel className="py-2 sm:p-4">
+            <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+          </SectionPanel>
+        </Section>
+      </CatchBoundary>
 
-      <Section>
-        <SectionTitle>sets frequency</SectionTitle>
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <Section>
+          <SectionTitle>sets frequency</SectionTitle>
 
-        <SectionPanel className="py-2 sm:p-4">
-          <SetFrequencyGraph sets={exercise.data.sets} />
-        </SectionPanel>
-      </Section>
+          <SectionPanel className="py-2 sm:p-4">
+            <SetFrequencyGraph sets={exercise.data.sets} />
+          </SectionPanel>
+        </Section>
+      </CatchBoundary>
 
-      <Section>
-        <SectionTitle>tags</SectionTitle>
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <Section>
+          <SectionTitle>tags</SectionTitle>
 
-        <SectionPanel>
-          <TagsList />
-        </SectionPanel>
-      </Section>
+          <SectionPanel>
+            <TagsList />
+          </SectionPanel>
+        </Section>
+      </CatchBoundary>
 
-      <Section>
-        <SectionTitle>sets</SectionTitle>
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <Section>
+          <SectionTitle>sets</SectionTitle>
 
-        <SectionPanel>
-          <ExerciseTable
-            sets={exercise.data.sets}
-            columns={exerciseTableColumns}
-          />
-        </SectionPanel>
-      </Section>
+          <SectionPanel>
+            <ExerciseTable
+              sets={exercise.data.sets}
+              columns={exerciseTableColumns}
+            />
+          </SectionPanel>
+        </Section>
+      </CatchBoundary>
     </Main>
   );
 };

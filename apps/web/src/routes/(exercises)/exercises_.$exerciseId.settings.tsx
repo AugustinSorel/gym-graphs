@@ -1,5 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  CatchBoundary,
+  createFileRoute,
+  Link,
+  redirect,
+} from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
 import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
@@ -20,6 +25,7 @@ import { api } from "~/libs/api";
 import { parseJsonResponse } from "@gym-graphs/api";
 import type { ComponentProps } from "react";
 import type { InferApiReqInput } from "@gym-graphs/api";
+import { DefaultFallback } from "~/ui/fallback";
 
 export const Route = createFileRoute(
   "/(exercises)/exercises_/$exerciseId/settings",
@@ -73,18 +79,20 @@ const RouteComponent = () => {
 
 const RenameTileSection = () => {
   return (
-    <Section>
-      <HGroup>
-        <SectionTitle>rename exercise</SectionTitle>
-        <SectionDescription>
-          Feel free to rename this exercise to somehting more comfortable. Your
-          exercises name are not public.
-        </SectionDescription>
-      </HGroup>
-      <Footer>
-        <RenameExerciseOverviewTileDialog />
-      </Footer>
-    </Section>
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
+      <Section>
+        <HGroup>
+          <SectionTitle>rename exercise</SectionTitle>
+          <SectionDescription>
+            Feel free to rename this exercise to somehting more comfortable.
+            Your exercises name are not public.
+          </SectionDescription>
+        </HGroup>
+        <Footer>
+          <RenameExerciseOverviewTileDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
   );
 };
 
@@ -97,120 +105,124 @@ const ExerciseTagsSection = () => {
   const removeTagToTile = useRemoveTagToTile();
 
   return (
-    <Section>
-      <HGroup>
-        <SectionTitle>exercise tags</SectionTitle>
-        <SectionDescription>
-          Feel free to rename this exercise to somehting more comfortable. Your
-          exercises name are not public.
-        </SectionDescription>
-      </HGroup>
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
+      <Section>
+        <HGroup>
+          <SectionTitle>exercise tags</SectionTitle>
+          <SectionDescription>
+            Feel free to rename this exercise to somehting more comfortable.
+            Your exercises name are not public.
+          </SectionDescription>
+        </HGroup>
 
-      <ToggleGroup
-        className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
-        type="multiple"
-        value={exercise.data.exerciseOverviewTile.tile.tileToTags.map(
-          (tileToTag) => {
-            return tileToTag.tag.id.toString();
-          },
-        )}
-        onValueChange={(newTagsIdsStr) => {
-          const currentTagsIds =
-            exercise.data.exerciseOverviewTile.tile.tileToTags.map(
-              (tileToTag) => tileToTag.tag.id,
-            );
-          const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
+        <ToggleGroup
+          className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
+          type="multiple"
+          value={exercise.data.exerciseOverviewTile.tile.tileToTags.map(
+            (tileToTag) => {
+              return tileToTag.tag.id.toString();
+            },
+          )}
+          onValueChange={(newTagsIdsStr) => {
+            const currentTagsIds =
+              exercise.data.exerciseOverviewTile.tile.tileToTags.map(
+                (tileToTag) => tileToTag.tag.id,
+              );
+            const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
 
-          const currentTagsIdsSet = new Set(currentTagsIds);
-          const newTagsIdsSet = new Set(newTagsIds);
+            const currentTagsIdsSet = new Set(currentTagsIds);
+            const newTagsIdsSet = new Set(newTagsIds);
 
-          const tagIdToRemove = Array.from(
-            currentTagsIdsSet.difference(newTagsIdsSet),
-          ).at(0);
+            const tagIdToRemove = Array.from(
+              currentTagsIdsSet.difference(newTagsIdsSet),
+            ).at(0);
 
-          const tagIdToAdd = Array.from(
-            newTagsIdsSet.difference(currentTagsIdsSet),
-          ).at(0);
+            const tagIdToAdd = Array.from(
+              newTagsIdsSet.difference(currentTagsIdsSet),
+            ).at(0);
 
-          if (tagIdToAdd) {
-            addTagToTile.mutate({
-              param: {
-                tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
-              },
-              json: {
-                tagId: tagIdToAdd,
-              },
-            });
-          }
+            if (tagIdToAdd) {
+              addTagToTile.mutate({
+                param: {
+                  tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
+                },
+                json: {
+                  tagId: tagIdToAdd,
+                },
+              });
+            }
 
-          if (tagIdToRemove) {
-            removeTagToTile.mutate({
-              param: {
-                tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
-              },
-              json: {
-                tagId: tagIdToRemove,
-              },
-            });
-          }
-        }}
-      >
-        {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
-        {user.data.tags.map((tag) => (
-          <ToggleGroupItem
-            key={tag.id}
-            className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
-            value={tag.id.toString()}
-          >
-            <Badge
-              className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
-              variant="outline"
+            if (tagIdToRemove) {
+              removeTagToTile.mutate({
+                param: {
+                  tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
+                },
+                json: {
+                  tagId: tagIdToRemove,
+                },
+              });
+            }
+          }}
+        >
+          {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
+          {user.data.tags.map((tag) => (
+            <ToggleGroupItem
+              key={tag.id}
+              className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
+              value={tag.id.toString()}
             >
-              <CheckIcon className="mr-1 hidden group-aria-pressed:block" />
-              {tag.name}
-            </Badge>
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+              <Badge
+                className="group-aria-pressed:border-primary/50 group-aria-pressed:bg-primary/20 group-aria-pressed:text-primary hover:group-aria-pressed:bg-primary/30"
+                variant="outline"
+              >
+                <CheckIcon className="mr-1 hidden group-aria-pressed:block" />
+                {tag.name}
+              </Badge>
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
 
-      {addTagToTile.error && (
-        <Alert variant="destructive" className="m-3 w-auto lg:m-6">
-          <AlertCircleIcon />
-          <AlertTitle>Heads up!</AlertTitle>
-          <AlertDescription>{addTagToTile.error.message}</AlertDescription>
-        </Alert>
-      )}
+        {addTagToTile.error && (
+          <Alert variant="destructive" className="m-3 w-auto lg:m-6">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>{addTagToTile.error.message}</AlertDescription>
+          </Alert>
+        )}
 
-      {removeTagToTile.error && (
-        <Alert variant="destructive" className="m-3 w-auto lg:m-6">
-          <AlertCircleIcon />
-          <AlertTitle>Heads up!</AlertTitle>
-          <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
-        </Alert>
-      )}
+        {removeTagToTile.error && (
+          <Alert variant="destructive" className="m-3 w-auto lg:m-6">
+            <AlertCircleIcon />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
+          </Alert>
+        )}
 
-      <Footer>
-        <CreateTagDialog />
-      </Footer>
-    </Section>
+        <Footer>
+          <CreateTagDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
   );
 };
 
 const DeleteTileSection = () => {
   return (
-    <Section className="border-destructive">
-      <HGroup>
-        <SectionTitle>delete exercise</SectionTitle>
-        <SectionDescription>
-          Permanently remove this exercise and all of its contents from our
-          servers. This action is not reversible, so please continue with
-          caution.
-        </SectionDescription>
-      </HGroup>
-      <Footer className="border-destructive bg-destructive/10">
-        <DeleteExerciseOverviewTileDialog />
-      </Footer>
-    </Section>
+    <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
+      <Section className="border-destructive">
+        <HGroup>
+          <SectionTitle>delete exercise</SectionTitle>
+          <SectionDescription>
+            Permanently remove this exercise and all of its contents from our
+            servers. This action is not reversible, so please continue with
+            caution.
+          </SectionDescription>
+        </HGroup>
+        <Footer className="border-destructive bg-destructive/10">
+          <DeleteExerciseOverviewTileDialog />
+        </Footer>
+      </Section>
+    </CatchBoundary>
   );
 };
 

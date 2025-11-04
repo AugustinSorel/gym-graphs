@@ -1,4 +1,8 @@
-import { CatchBoundary, useSearch } from "@tanstack/react-router";
+import {
+  CatchBoundary,
+  ErrorComponentProps,
+  useSearch,
+} from "@tanstack/react-router";
 import {
   closestCenter,
   DndContext,
@@ -46,11 +50,17 @@ import type {
   UniqueIdentifier,
 } from "@dnd-kit/core";
 import type { InferApiReqInput } from "@gym-graphs/api";
+import { DefaultFallback } from "~/ui/fallback";
 
 export const Dashboard = () => {
   return (
     <NoTilesFallback>
-      <Content />
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <Content />
+      </CatchBoundary>
     </NoTilesFallback>
   );
 };
