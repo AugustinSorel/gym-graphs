@@ -49,7 +49,7 @@ docker build --target api --tag gym_graphs_api .
 docker build --target web --tag gym_graphs_web .
 docker build --target migration --tag gym_graphs_migration .
 
-docker run  --name gym_graphs_migration --rm --env-file=./apps/api/.env gym_graphs_migration
+docker run  --name gym_graphs_migration --rm --env-file=./packages/db/.env --network gym-graphs_backend gym_graphs_migration
 
 docker run -p 5000:5000 --name gym_graphs_api --rm --env-file=./apps/api/.env gym_graphs_api
 docker run -p 3000:3000 --name gym_graphs_web --rm  gym_graphs_web
