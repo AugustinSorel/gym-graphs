@@ -45,9 +45,9 @@ pnpm dev
 ### Prod
 
 ```bash
-docker build --target api gym_graphs_api .
-docker build --target web gym_graphs_web .
-docker build --target migration gym_graphs_migration .
+docker build --target api --tag gym_graphs_api .
+docker build --target web --tag gym_graphs_web .
+docker build --target migration --tag gym_graphs_migration .
 
 docker run  --name gym_graphs_migration --rm --env-file=./apps/api/.env gym_graphs_migration
 
