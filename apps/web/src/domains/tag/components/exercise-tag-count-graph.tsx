@@ -89,9 +89,9 @@ const Graph = ({ width, height, data }: GraphProps) => {
       const angleDegrees = (angle * 180) / Math.PI;
       const z = Math.abs(((angleDegrees + 180) % 360) - 360);
 
-      const sum = data.reduce((acc, curr) => acc + curr.count, 0);
-      const angles = data.map((arc) => {
-        return (360 * arc.count) / sum;
+      const sum = data.reduce((acc, set) => acc + set.count, 0);
+      const angles = data.map((set) => {
+        return (360 * set.count) / sum;
       });
 
       let index = 0;
@@ -323,5 +323,6 @@ const useExerciseTagCount = () => {
         name: tag.name,
         count: map.get(tag.id) ?? 0,
       };
-    });
+    })
+    .sort((a, b) => b.count - a.count);
 };
