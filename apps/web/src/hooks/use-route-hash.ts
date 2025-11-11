@@ -1,12 +1,12 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useLocation, useRouter } from "@tanstack/react-router";
 
 export const useRouteHash = (hash: string) => {
-  const navigate = useNavigate();
-
   const candidateHash = useLocation().hash;
 
+  const router = useRouter();
+
   const remove = () => {
-    void navigate({ hash: "", resetScroll: false });
+    router.history.back();
   };
 
   return {
