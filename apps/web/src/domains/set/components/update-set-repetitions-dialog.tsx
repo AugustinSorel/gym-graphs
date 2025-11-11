@@ -10,9 +10,11 @@ import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetRepetitionsForm } from "~/domains/set/components/update-set-repetitions-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import { useSet } from "~/domains/set/set.context";
 
 export const UpdateSetRepetitionsDialog = () => {
-  const routeHash = useRouteHash("update-repetitions");
+  const set = useSet();
+  const routeHash = useRouteHash(`update-repetitions-${set.id}`);
 
   return (
     <Dialog

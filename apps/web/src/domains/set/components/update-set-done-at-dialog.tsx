@@ -10,9 +10,11 @@ import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetDoneAtForm } from "~/domains/set/components/update-set-done-at-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import { useSet } from "~/domains/set/set.context";
 
 export const UpdateSetDoneAtDialog = () => {
-  const routeHash = useRouteHash("update-done-at");
+  const set = useSet();
+  const routeHash = useRouteHash(`update-done-at-${set.id}`);
 
   return (
     <Dialog

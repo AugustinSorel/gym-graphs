@@ -121,7 +121,6 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | BUG      | tags frequency hover                                  |
-| BUG      | delete modals reopen itself                           |
 | TODO     | add tags in create new exercise                       |
 | TODO     | upgrading vix                                         |
 */

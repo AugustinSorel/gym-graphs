@@ -27,7 +27,7 @@ export const DeleteSetDialog = () => {
   const deleteSet = useDeleteSet();
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
-  const routeHash = useRouteHash("delete-set");
+  const routeHash = useRouteHash(`delete-set-${set.id}`);
 
   const deleteSetHandler = () => {
     deleteSet.mutate(
@@ -142,19 +142,6 @@ const useDeleteSet = () => {
                 };
               }),
             };
-          }),
-        };
-      });
-
-      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
-          return exercise;
-        }
-
-        return {
-          ...exercise,
-          sets: exercise.sets.filter((set) => {
-            return set.id.toString() !== variables.param.setId;
           }),
         };
       });

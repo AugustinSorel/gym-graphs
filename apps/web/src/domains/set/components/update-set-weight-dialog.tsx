@@ -10,9 +10,11 @@ import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { UpdateSetWeightForm } from "~/domains/set/components/update-set-weight-form";
 import { getRouteApi } from "@tanstack/react-router";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import { useSet } from "~/domains/set/set.context";
 
 export const UpdateSetWeightDialog = () => {
-  const routeHash = useRouteHash("update-weight");
+  const set = useSet();
+  const routeHash = useRouteHash(`update-weight-${set.id}`);
 
   return (
     <Dialog
