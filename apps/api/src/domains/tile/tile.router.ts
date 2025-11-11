@@ -5,6 +5,7 @@ import { tileSchema } from "@gym-graphs/schemas/tile";
 import { requireAuthMiddleware } from "~/domains/session/session.middlewares";
 import { z } from "zod";
 import { tagSchema } from "@gym-graphs/schemas/tag";
+import { createExerciseTileSchema } from "@gym-graphs/schemas/tile";
 import type { Ctx } from "~/index";
 
 export const tileRouter = new Hono<Ctx>()
@@ -41,14 +42,15 @@ export const tileRouter = new Hono<Ctx>()
     },
   )
   .post(
-    "/",
+    "/exercise-tile",
     requireAuthMiddleware,
-    zValidator("json", tileSchema.pick({ name: true })),
+    zValidator("json", createExerciseTileSchema),
     async (c) => {
       const input = c.req.valid("json");
 
       await tileService.createExerciseTile(
         input.name,
+        input.tagIds,
         c.var.user.dashboard.id,
         c.var.db,
       );

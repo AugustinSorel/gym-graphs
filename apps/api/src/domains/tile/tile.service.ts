@@ -5,9 +5,11 @@ import { dbErrorToHttp } from "~/libs/db";
 import { ok } from "neverthrow";
 import type { Db } from "@gym-graphs/db";
 import type { Dashboard, Tag, Tile, TilesToTags } from "@gym-graphs/db/schemas";
+import type { CreateExerciseTile } from "@gym-graphs/schemas/tile";
 
 const createExerciseTile = async (
-  name: Tile["name"],
+  name: CreateExerciseTile["name"],
+  tagIds: CreateExerciseTile["tagIds"],
   dashboardId: Tile["dashboardId"],
   db: Db,
 ) => {
@@ -19,6 +21,12 @@ const createExerciseTile = async (
     const tile = await tileRepo
       .create(name, dashboardId, tx)
       .match((tile) => tile, dbErrorToHttp);
+
+    if (tagIds?.length) {
+      await tagRepo
+        .addManyToTile(tile.id, tagIds, tx)
+        .match((tags) => tags, dbErrorToHttp);
+    }
 
     await tileRepo
       .addExerciseOverviewTile(exercise.id, tile.id, tx)

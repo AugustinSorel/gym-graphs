@@ -120,6 +120,5 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | add tags in create new exercise                       |
 | TODO     | upgrading vix                                         |
 */
