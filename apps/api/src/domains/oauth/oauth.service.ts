@@ -18,6 +18,7 @@ import type {
   GithubOAuthCallbackQuery,
   GithubOAuthTokenResponse,
 } from "@gym-graphs/schemas/oauth";
+import { err, ok } from "neverthrow";
 
 const validateGithubOAuthCode = async (
   code: GithubOAuthCallbackQuery["code"],
@@ -60,6 +61,7 @@ const githubSignIn = async (
   return db.transaction(async (tx) => {
     const existingUser = await userRepo
       .selectByEmail(githubUserEmail.email, tx)
+      .orElse((e) => (e.type === "user not found" ? ok(null) : err(e)))
       .match((user) => user, dbErrorToHttp);
 
     if (existingUser) {
