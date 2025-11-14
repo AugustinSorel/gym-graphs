@@ -6,13 +6,7 @@ import { Button } from "~/ui/button";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1_000,
-      },
-    },
-  });
+  const queryClient = new QueryClient();
 
   const context: RouterCtx = {
     queryClient,
