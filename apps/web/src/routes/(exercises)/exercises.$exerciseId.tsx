@@ -1,9 +1,12 @@
 import {
   CatchBoundary,
+  ClientOnly,
   createFileRoute,
   getRouteApi,
   Link,
   redirect,
+  useCanGoBack,
+  useRouter,
 } from "@tanstack/react-router";
 import { z } from "zod";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
@@ -59,16 +62,9 @@ const RouteComponent = () => {
           </routeApi.Link>
         </Button>
         <CreateSetDialog />
-        <Button
-          asChild
-          variant="link"
-          className="text-muted-foreground mr-auto p-0"
-        >
-          <Link to="/dashboard">
-            <ArrowLeftIcon />
-            <span>back</span>
-          </Link>
-        </Button>
+        <ClientOnly>
+          <BackBtn />
+        </ClientOnly>
       </Header>
 
       <Separator />
@@ -156,12 +152,7 @@ const Abbr = (props: ComponentProps<"abbr">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return (
-    <header
-      className="grid grid-cols-[1fr_auto_auto] gap-2 [&>a[href='/dashboard']]:row-start-2"
-      {...props}
-    />
-  );
+  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
 };
 
 const Title = (props: ComponentProps<"h1">) => {
@@ -180,3 +171,34 @@ const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
 };
 
 const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
+
+const BackBtn = () => {
+  const canGoBack = useCanGoBack();
+  const router = useRouter();
+
+  if (canGoBack) {
+    return (
+      <Button
+        variant="link"
+        className="text-muted-foreground row-start-2 mr-auto p-0"
+        onClick={() => router.history.back()}
+      >
+        <ArrowLeftIcon />
+        <span>back</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      asChild
+      variant="link"
+      className="text-muted-foreground row-start-2 mr-auto p-0"
+    >
+      <Link to="/dashboard">
+        <ArrowLeftIcon />
+        <span>back</span>
+      </Link>
+    </Button>
+  );
+};

@@ -1,9 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   CatchBoundary,
+  ClientOnly,
   createFileRoute,
   Link,
   redirect,
+  useCanGoBack,
+  useRouter,
 } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { z } from "zod";
@@ -56,16 +59,9 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <Title>{exercise.data.exerciseOverviewTile.tile.name} settings</Title>
-        <Button
-          asChild
-          variant="link"
-          className="text-muted-foreground w-max p-0"
-        >
-          <Link to="..">
-            <ArrowLeftIcon />
-            <span>back</span>
-          </Link>
-        </Button>
+        <ClientOnly>
+          <BackBtn />
+        </ClientOnly>
       </Header>
 
       <Separator />
@@ -490,4 +486,35 @@ const useRemoveTagToTile = () => {
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });
+};
+
+const BackBtn = () => {
+  const canGoBack = useCanGoBack();
+  const router = useRouter();
+
+  if (canGoBack) {
+    return (
+      <Button
+        variant="link"
+        className="text-muted-foreground mr-auto p-0"
+        onClick={() => router.history.back()}
+      >
+        <ArrowLeftIcon />
+        <span>back</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      asChild
+      variant="link"
+      className="text-muted-foreground mr-auto p-0"
+    >
+      <Link to="/dashboard">
+        <ArrowLeftIcon />
+        <span>back</span>
+      </Link>
+    </Button>
+  );
 };
