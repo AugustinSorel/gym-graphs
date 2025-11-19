@@ -95,6 +95,7 @@ export const selectClient = (userId: User["id"], db: Db) => {
         name: true,
         oneRepMaxAlgo: true,
         dashboardView: true,
+        emailVerifiedAt: true,
       },
       with: {
         dashboard: {

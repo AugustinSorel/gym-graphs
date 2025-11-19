@@ -17,8 +17,8 @@ export const useSignOut = () => {
     },
     onSuccess: () => {
       startRedirectTransition(async () => {
-        await navigate({ to: "/" });
         queryClient.clear();
+        await navigate({ to: "/" });
       });
     },
   });

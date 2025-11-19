@@ -42,8 +42,19 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
   }),
   component: RootComponent,
   beforeLoad: async ({ context }) => {
-    const req = api().sessions.me.$get;
+    const queries = {
+      user: userQueries.get,
+    };
 
+    const cachedUser = context.queryClient.getQueryData(queries.user.queryKey);
+
+    if (cachedUser) {
+      return {
+        user: cachedUser,
+      };
+    }
+
+    const req = api().sessions.me.$get;
     const session = await parseJsonResponse(req()).catch(() => null);
 
     if (!session) {
@@ -52,7 +63,7 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       };
     }
 
-    await context.queryClient.ensureQueryData(userQueries.get);
+    await context.queryClient.ensureQueryData(queries.user);
 
     return {
       user: session.user,
