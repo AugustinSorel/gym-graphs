@@ -12,4 +12,5 @@ export const userMock: ReturnType<typeof useUser>["data"] = {
   tags: tagsMock,
   oneRepMaxAlgo: "epley",
   dashboardView: "graph",
+  emailVerifiedAt: new Date().toString(),
 };
