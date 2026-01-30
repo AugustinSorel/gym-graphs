@@ -38,8 +38,15 @@ cp ./apps/api/.env.example ./apps/api/.env
 ### Dev
 
 ```bash
-pnpm i
-pnpm dev
+pnpm cp ./apps/api/.env.example ./apps/api/.env
+pnpm cp ./packages/db/.env.example ./packages/db/.env
+
+pnpm install
+pnpm build
+
+pnpm db push
+
+pnpm lint && pnpm dev
 ```
 
 ### Prod
