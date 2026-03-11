@@ -1,59 +1,28 @@
-import "dotenv/config";
-import { serve } from "@hono/node-server";
-import { Hono } from "hono";
-import { env } from "~/env";
-import { sessionRouter } from "~/domains/session/session.router";
-import { errorHandler } from "~/libs/error";
-import { injectDbMiddleware } from "~/libs/db";
-import { injectEmailMiddleware } from "~/libs/email";
-import { injectSessionMiddleware } from "~/domains/session/session.middlewares";
-import { emailVerificationRouter } from "~/domains/email-verification/email-verification.router";
-import { passwordResetRouter } from "~/domains/password-reset/password-reset.router";
-import { oauthRouter } from "~/domains/oauth/oauth.router";
-import { userRouter } from "~/domains/user/user.router";
-import { tagRouter } from "~//domains/tag/tag.router";
-import { tileRouter } from "~/domains/tile/tile.router";
-import { exerciseRouter } from "~/domains/exercise/exercise.router";
-import { setRouter } from "~/domains/set/set.router";
-import { cors } from "hono/cors";
-import { constant } from "@gym-graphs/constants";
-import type { Db } from "@gym-graphs/db";
-import type { Email } from "~/libs/email";
-import type { SessionCtx } from "~/domains/session/session.service";
+import {
+  HttpApi,
+  HttpApiBuilder,
+  HttpApiEndpoint,
+  HttpApiGroup,
+} from "@effect/platform";
+import { NodeHttpServer, NodeRuntime } from "@effect/platform-node";
+import { Effect, Layer, Schema } from "effect";
+import { createServer } from "node:http";
 
-export type Ctx = Readonly<{
-  Variables: Readonly<{
-    db: Db;
-    email: Email;
-    session: SessionCtx;
-  }>;
-}>;
+const MyApi = HttpApi.make("MyApi").add(
+  HttpApiGroup.make("Greetings").add(
+    HttpApiEndpoint.get("hello-world")`/`.addSuccess(Schema.String),
+  ),
+);
 
-const app = new Hono<Ctx>()
-  .basePath("/api")
-  .use(
-    "*",
-    cors({
-      origin: constant.url.web,
-      credentials: true,
-    }),
-  )
-  .use(injectDbMiddleware)
-  .use(injectEmailMiddleware)
-  .use(injectSessionMiddleware)
-  .route("/sessions", sessionRouter)
-  .route("/users", userRouter)
-  .route("/email-verifications", emailVerificationRouter)
-  .route("/password-resets", passwordResetRouter)
-  .route("/oauth", oauthRouter)
-  .route("/tags", tagRouter)
-  .route("/tiles", tileRouter)
-  .route("/exercises", exerciseRouter.route("/:exerciseId/sets", setRouter))
-  .onError(errorHandler);
+const GreetingsLive = HttpApiBuilder.group(MyApi, "Greetings", (handlers) =>
+  handlers.handle("hello-world", () => Effect.succeed("Hello, World!")),
+);
 
-export type Api = typeof app;
+const MyApiLive = HttpApiBuilder.api(MyApi).pipe(Layer.provide(GreetingsLive));
 
-serve({
-  fetch: app.fetch,
-  port: env.PORT,
-});
+const ServerLive = HttpApiBuilder.serve().pipe(
+  Layer.provide(MyApiLive),
+  Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
+);
+
+Layer.launch(ServerLive).pipe(NodeRuntime.runMain);

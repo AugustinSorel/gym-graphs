@@ -3,32 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/client.d.ts",
-      "import": "./dist/client.js"
-    }
-  },
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js"
   },
-  "dependencies": {
-    "@aws-sdk/client-ses": "^3.726.1",
-    "@gym-graphs/constants": "workspace:*",
-    "@gym-graphs/db": "workspace:*",
-    "@gym-graphs/schemas": "workspace:*",
-    "@hono/node-server": "^1.19.5",
-    "@hono/zod-validator": "^0.7.4",
-    "dotenv": "^17.2.3",
-    "hono": "^4.9.11",
-    "neverthrow": "^8.2.0",
-    "zod": "^4.1.12"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
   "devDependencies": {
-    "@types/node": "^24.9.1",
-    "tsup": "^8.5.0",
-    "tsx": "^4.20.6"
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.94.5",
+    "@effect/platform-node": "^0.104.1",
+    "effect": "^3.19.19"
   }
 }

@@ -6,7 +6,7 @@
     "declaration": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
+      "#/*": [
         "./src/*"
       ]
     }
