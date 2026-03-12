@@ -1,4 +1,4 @@
-import { pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { pgTable } from "drizzle-orm/pg-core";
 
 // export const weightUnitEnum = pgEnum("weight_unit", constant.user.weightUnit);
 
@@ -12,7 +12,7 @@ import { pgEnum, pgTable } from "drizzle-orm/pg-core";
 //   constant.user.dashboardView,
 // );
 
-export const userTable = pgTable("user", (t) => ({
+export const users = pgTable("users", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   email: t.text("email").notNull().unique(),
   name: t.text("name").notNull(),
@@ -30,4 +30,4 @@ export const userTable = pgTable("user", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type User = Readonly<typeof userTable.$inferSelect>;
+export type User = Readonly<typeof users.$inferSelect>;

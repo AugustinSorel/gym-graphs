@@ -1,14 +1,14 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "91e0ad66-a608-4926-b2bc-591ccf32663e",
+  "id": "dd4628bd-818f-4997-a8bc-2f2401476445",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
       "isRlsEnabled": false,
-      "name": "user",
+      "name": "users",
       "entityType": "tables",
       "schema": "public"
     },
@@ -21,7 +21,7 @@
       "generated": null,
       "identity": {
         "type": "always",
-        "name": "user_id_seq",
+        "name": "users_id_seq",
         "increment": "1",
         "startWith": "1",
         "minValue": "1",
@@ -32,7 +32,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "text",
@@ -45,7 +45,7 @@
       "name": "email",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "text",
@@ -58,7 +58,7 @@
       "name": "name",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "text",
@@ -71,7 +71,7 @@
       "name": "password",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "text",
@@ -84,7 +84,7 @@
       "name": "salt",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "timestamp",
@@ -97,7 +97,7 @@
       "name": "email_verified_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "timestamp",
@@ -110,7 +110,7 @@
       "name": "created_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "type": "timestamp",
@@ -123,16 +123,16 @@
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "user"
+      "table": "users"
     },
     {
       "columns": [
         "id"
       ],
       "nameExplicit": false,
-      "name": "user_pkey",
+      "name": "users_pkey",
       "schema": "public",
-      "table": "user",
+      "table": "users",
       "entityType": "pks"
     },
     {
@@ -141,9 +141,9 @@
         "email"
       ],
       "nullsNotDistinct": false,
-      "name": "user_email_key",
+      "name": "users_email_key",
       "schema": "public",
-      "table": "user",
+      "table": "users",
       "entityType": "uniques"
     }
   ],
