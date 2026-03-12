@@ -1,4 +1,4 @@
 import { HttpApi } from "@effect/platform";
-import { sessionApi } from "#/features/sessions/api";
+import { authApi } from "#/features/auth/api";
 
-export const Api = HttpApi.make("GymGraphsApi").add(sessionApi).prefix("/api");
+export const Api = HttpApi.make("GymGraphsApi").add(authApi).prefix("/api");

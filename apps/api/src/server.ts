@@ -3,10 +3,10 @@ import { serverConfig } from "./env";
 import { HttpApiBuilder, HttpApiSwagger, HttpServer } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { createServer } from "node:http";
-import { SessionLive } from "#/features/sessions/handlers";
+import { AuthLive } from "#/features/auth/handlers";
 import { Api } from "#/api";
 
-const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(SessionLive));
+const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
 
 export const ServerLive = Layer.unwrapEffect(
   pipe(
