@@ -1,4 +1,4 @@
-import { Config } from "effect";
+import { Config, pipe, Redacted } from "effect";
 
 const smtpConfig = Config.all({
   host: Config.string("HOST"),
@@ -12,13 +12,25 @@ const githubClientConfig = Config.all({
   secret: Config.redacted("SECRET"),
 });
 
-const dbConfig = Config.all({
-  user: Config.string("USER").pipe(Config.withDefault("postgres")),
-  password: Config.redacted("PASSWORD").pipe(Config.withDefault("postgres")),
-  host: Config.string("HOST").pipe(Config.withDefault("localhost")),
-  name: Config.string("NAME").pipe(Config.withDefault("gym_graphs")),
-  port: Config.number("PORT").pipe(Config.withDefault(5432)),
-});
+const dbConfig = pipe(
+  Config.all({
+    user: Config.string("USER").pipe(Config.withDefault("postgres")),
+    password: Config.redacted("PASSWORD").pipe(
+      Config.withDefault(Redacted.make("postgres")),
+    ),
+    host: Config.string("HOST").pipe(Config.withDefault("localhost")),
+    name: Config.string("NAME").pipe(Config.withDefault("gym_graphs")),
+    port: Config.number("PORT").pipe(Config.withDefault(5432)),
+  }),
+  Config.map((db) => {
+    const url = `postgresql://${db.user}:${Redacted.value(db.password)}@${db.host}:${db.port}/${db.name}`;
+
+    return {
+      ...db,
+      url: Redacted.make(url),
+    };
+  }),
+);
 
 export const serverConfig = Config.all({
   nodeEnv: Config.literal(

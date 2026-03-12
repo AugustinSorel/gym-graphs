@@ -1,0 +1,33 @@
+import { pgEnum, pgTable } from "drizzle-orm/pg-core";
+
+// export const weightUnitEnum = pgEnum("weight_unit", constant.user.weightUnit);
+
+// export const oneRepMaxAlgoEnum = pgEnum(
+//   "one_rep_max_algo",
+//   constant.user.oneRepMaxAlgo,
+// );
+
+// export const dashboardViewEnum = pgEnum(
+//   "dashboard_view",
+//   constant.user.dashboardView,
+// );
+
+export const userTable = pgTable("user", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  email: t.text("email").notNull().unique(),
+  name: t.text("name").notNull(),
+  password: t.text("password"),
+  salt: t.text("salt"),
+  // weightUnit: weightUnitEnum().notNull().default("kg"),
+  // oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
+  // dashboardView: dashboardViewEnum().notNull().default("graph"),
+  emailVerifiedAt: t.timestamp("email_verified_at"),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type User = Readonly<typeof userTable.$inferSelect>;

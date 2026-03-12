@@ -63,7 +63,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@gym-graphs/db": "workspace:*",
     "@tanstack/react-query-devtools": "^5.62.11",
     "@tanstack/react-router-devtools": "^1.133.3",
     "@types/react": "^19.2.7",
