@@ -1,4 +1,4 @@
-import { Config, pipe, Redacted } from "effect";
+import { Config, Effect, pipe, Redacted } from "effect";
 
 const smtpConfig = Config.all({
   host: Config.string("HOST"),
@@ -43,3 +43,13 @@ export const serverConfig = Config.all({
   smtp: Config.nested(smtpConfig, "SMTP"),
   githubClient: Config.nested(githubClientConfig, "GITHUB_CLIENT"),
 });
+
+export class ServerConfig extends Effect.Service<ServerConfig>()(
+  "ServerConfig",
+  {
+    effect: Effect.gen(function* () {
+      return yield* serverConfig;
+    }),
+    accessors: true,
+  },
+) {}
