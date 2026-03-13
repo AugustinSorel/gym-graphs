@@ -14,12 +14,12 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
       const userRepo = yield* UserRepo;
       const sessionRepo = yield* SessionRepo;
 
-      const salt = yield* crypto.generateSalt;
+      const salt = yield* crypto.generateSalt();
       const hashedPassword = yield* crypto.hashSecret(payload.password, salt);
 
       const name = inferNameFromEmail(payload.email);
 
-      const token = yield* crypto.generateId;
+      const token = yield* crypto.generateId();
       const sessionId = yield* crypto.hashSHA256Hex(token);
 
       yield* withTransaction(
