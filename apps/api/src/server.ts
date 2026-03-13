@@ -8,6 +8,7 @@ import { Api } from "#/api";
 import { CurrentDbLive, Database, PgClientLive } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
 import { UserRepo } from "./features/user/repo";
+import { SessionRepo } from "./features/session/repo";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
 
@@ -16,6 +17,7 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
   Layer.provide(UserRepo.Default),
+  Layer.provide(SessionRepo.Default),
   Layer.provide(
     Layer.provideMerge(
       CurrentDbLive,
