@@ -29,6 +29,7 @@ export const PgClientLive = Layer.unwrapEffect(
 );
 
 export class Database extends Effect.Service<Database>()("Database", {
+  dependencies: [PgClientLive],
   effect: PgDrizzle.make({ relations }).pipe(
     Effect.provide(PgDrizzle.DefaultServices),
   ),

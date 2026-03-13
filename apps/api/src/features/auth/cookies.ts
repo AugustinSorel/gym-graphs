@@ -9,6 +9,7 @@ const sessionSecurity = HttpApiSecurity.apiKey({
 
 export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
   accessors: true,
+  dependencies: [ServerConfig.Default],
   effect: Effect.gen(function* () {
     const env = yield* ServerConfig;
 
