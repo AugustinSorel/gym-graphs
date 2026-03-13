@@ -1,51 +1,65 @@
 import { Api } from "#/api";
-import { withTransaction } from "#/integrations/db/db";
+import { Database, CurrentDb, withTransaction } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
-import { Effect, pipe } from "effect";
+import { Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers.handle("signUp", ({ payload }) => {
-    return pipe(
-      Effect.gen(function* () {
-        const crypto = yield* Crypto;
-        const userRepo = yield* UserRepo;
+    return Effect.gen(function* () {
+      const crypto = yield* Crypto;
+      const userRepo = yield* UserRepo;
 
-        const salt = crypto.generateSalt();
-        const hashedPassword = yield* crypto.hashSecret(payload.password, salt);
+      const salt = crypto.generateSalt();
+      const hashedPassword = yield* crypto.hashSecret(payload.password, salt);
 
-        const name = inferNameFromEmail(payload.email);
+      const name = inferNameFromEmail(payload.email);
 
-        const res = yield* withTransaction(
-          pipe(
-            userRepo.createWithEmailAndPassword({
-              email: payload.email,
-              password: hashedPassword,
-              name,
-              salt,
-            }),
-            Effect.catchTag(
-              "EffectDrizzleQueryError",
-              () => new HttpApiError.InternalServerError(),
-            ),
-            Effect.catchTag(
-              "NoSuchElementException",
-              () => new HttpApiError.InternalServerError(),
-            ),
-          ),
-        );
+      yield* withTransaction(
+        Effect.gen(function* () {
+          const user = yield* userRepo.createWithEmailAndPassword({
+            email: payload.email,
+            password: hashedPassword,
+            name,
+            salt,
+          });
 
-        console.log(res);
+          // await seedUserAccount(user.id, tx);
 
-        return yield* Effect.succeed("hello world");
+          // const emailVerificationCode = generateEmailVerificationCode();
+
+          // const emailVerification = await emailVerificationRepo
+          //   .create(emailVerificationCode, user.id, tx)
+          //   .match((verificationCode) => verificationCode, dbErrorToHttp);
+
+          // await sendEmail(
+          //   [user.email],
+          //   "Verification code",
+          //   emailVerificationEmailBody(emailVerification.code),
+          //   email,
+          // );
+
+          // const token = generateSessionToken();
+
+          // const session = await sessionRepo
+          //   .create(token, user.id, tx)
+          //   .match((session) => session, dbErrorToHttp);
+
+          return user;
+        }),
+      );
+
+      return "hello world";
+    }).pipe(
+      Effect.mapError((e) => {
+        if (e._tag === "DuplicateUser") {
+          return e;
+        }
+
+        return new HttpApiError.InternalServerError();
       }),
-      Effect.catchTag(
-        "CryptoHashError",
-        () => new HttpApiError.InternalServerError(),
-      ),
-      Effect.catchTag("SqlError", () => new HttpApiError.InternalServerError()),
     );
   });
 });
