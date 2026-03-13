@@ -54,6 +54,6 @@ export const authApi = HttpApiGroup.make("Auth")
       .setPayload(SignInPayload)
       .addError(HttpApiError.InternalServerError)
       .addError(DuplicateUser)
-      .addSuccess(Schema.String),
+      .addSuccess(Schema.Void),
   )
   .prefix("/auth");

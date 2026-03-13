@@ -6,6 +6,7 @@ import { Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
+import { AuthCookies } from "./cookies";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers.handle("signUp", ({ payload }) => {
@@ -22,7 +23,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
       const token = yield* crypto.generateId();
       const sessionId = yield* crypto.hashSHA256Hex(token);
 
-      yield* withTransaction(
+      const res = yield* withTransaction(
         Effect.gen(function* () {
           const user = yield* userRepo.createWithEmailAndPassword({
             email: payload.email,
@@ -55,7 +56,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
         }),
       );
 
-      return "hello world";
+      yield* AuthCookies.setSessionCookie(token, res.session.expiresAt);
     }).pipe(
       Effect.mapError((e) => {
         if (e._tag === "DuplicateUser") {
