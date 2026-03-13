@@ -1,8 +1,9 @@
-import { Effect, Layer } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { PgClient } from "@effect/sql-pg";
 import { types } from "pg";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
 import { ServerConfig } from "#/env";
+import { relations } from "./relations";
 
 export const PgClientLive = Layer.unwrapEffect(
   Effect.gen(function* () {
@@ -28,6 +29,40 @@ export const PgClientLive = Layer.unwrapEffect(
 );
 
 export class Database extends Effect.Service<Database>()("Database", {
-  effect: PgDrizzle.make().pipe(Effect.provide(PgDrizzle.DefaultServices)),
+  effect: PgDrizzle.make({ relations }).pipe(
+    Effect.provide(PgDrizzle.DefaultServices),
+  ),
   accessors: true,
 }) {}
+
+type DatabaseInstance = Effect.Effect.Success<
+  ReturnType<typeof PgDrizzle.make<Record<string, unknown>, typeof relations>>
+>;
+
+type TransactionInstance = Parameters<
+  DatabaseInstance["transaction"]
+>[0] extends (tx: infer T) => any
+  ? T
+  : never;
+
+type DbOrTransaction = DatabaseInstance | TransactionInstance;
+
+export class CurrentDb extends Context.Tag("CurrentDb")<
+  CurrentDb,
+  DbOrTransaction
+>() {}
+
+export const CurrentDbLive = Layer.effect(
+  CurrentDb,
+  Effect.map(Database, (db) => db),
+);
+
+export const withTransaction = <A, E, R>(effect: Effect.Effect<A, E, R>) => {
+  return Effect.gen(function* () {
+    const db = yield* Database;
+
+    return yield* db.transaction((tx) => {
+      return effect.pipe(Effect.provideService(CurrentDb, tx));
+    });
+  });
+};

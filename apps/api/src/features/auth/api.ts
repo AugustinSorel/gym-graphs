@@ -1,4 +1,4 @@
-import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
+import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 
 const UserSchema = Schema.Struct({
@@ -51,6 +51,7 @@ export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signUp", "/sign-up")
       .setPayload(SignInPayload)
+      .addError(HttpApiError.InternalServerError)
       .addSuccess(Schema.String),
   )
   .prefix("/auth");
