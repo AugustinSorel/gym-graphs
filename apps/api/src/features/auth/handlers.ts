@@ -1,21 +1,26 @@
 import { Api } from "#/api";
-import { Database, CurrentDb, withTransaction } from "#/integrations/db/db";
+import { withTransaction } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
+import { SessionRepo } from "../session/repo";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers.handle("signUp", ({ payload }) => {
     return Effect.gen(function* () {
       const crypto = yield* Crypto;
       const userRepo = yield* UserRepo;
+      const sessionRepo = yield* SessionRepo;
 
-      const salt = crypto.generateSalt();
+      const salt = yield* crypto.generateSalt;
       const hashedPassword = yield* crypto.hashSecret(payload.password, salt);
 
       const name = inferNameFromEmail(payload.email);
+
+      const token = yield* crypto.generateId;
+      const sessionId = yield* crypto.hashSHA256Hex(token);
 
       yield* withTransaction(
         Effect.gen(function* () {
@@ -41,13 +46,12 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           //   email,
           // );
 
-          // const token = generateSessionToken();
+          const session = yield* sessionRepo.create({
+            id: sessionId,
+            userId: user.id,
+          });
 
-          // const session = await sessionRepo
-          //   .create(token, user.id, tx)
-          //   .match((session) => session, dbErrorToHttp);
-
-          return user;
+          return { user, session };
         }),
       );
 

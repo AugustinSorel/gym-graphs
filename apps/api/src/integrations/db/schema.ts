@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 
 // export const weightUnitEnum = pgEnum("weight_unit", constant.user.weightUnit);
@@ -31,3 +32,26 @@ export const users = pgTable("users", (t) => ({
 }));
 
 export type User = Readonly<typeof users.$inferSelect>;
+
+export const sessions = pgTable("sessions", (t) => ({
+  id: t.text("id").notNull().primaryKey(),
+  userId: t
+    .integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: t
+    .timestamp("expires_at", {
+      mode: "date",
+      withTimezone: true,
+    })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + (30 * interval '1 day')`),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type Session = Readonly<typeof sessions.$inferSelect>;

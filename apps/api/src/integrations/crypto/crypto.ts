@@ -1,5 +1,5 @@
 import { Data, Effect } from "effect";
-import { randomBytes, scrypt } from "node:crypto";
+import { createHash, randomBytes, scrypt } from "node:crypto";
 
 class CryptoHashError extends Data.TaggedError("CryptoHashError")<{
   cause: unknown;
@@ -8,7 +8,13 @@ class CryptoHashError extends Data.TaggedError("CryptoHashError")<{
 export class Crypto extends Effect.Service<Crypto>()("Crypto", {
   effect: Effect.gen(function* () {
     return {
-      generateSalt: () => randomBytes(16).toString("hex").normalize(),
+      generateSalt: Effect.sync(() => {
+        return randomBytes(16).toString("hex").normalize();
+      }),
+
+      generateId: Effect.sync(() => {
+        return randomBytes(20).toString("base64");
+      }),
 
       hashSecret: (input: string, salt: string) => {
         return Effect.async<string, CryptoHashError>((resume) => {
@@ -20,6 +26,12 @@ export class Crypto extends Effect.Service<Crypto>()("Crypto", {
 
             resume(Effect.succeed(hash.toString("hex").normalize()));
           });
+        });
+      },
+
+      hashSHA256Hex: (input: string) => {
+        return Effect.sync(() => {
+          return createHash("sha256").update(input, "utf-8").digest("hex");
         });
       },
     };
