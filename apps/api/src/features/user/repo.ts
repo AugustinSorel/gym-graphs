@@ -26,11 +26,11 @@ const isUniqueViolation = (e: unknown, constraint: string): boolean => {
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
   accessors: true,
   effect: Effect.gen(function* () {
+    const db = yield* Database;
+
     return {
       createWithEmailAndPassword: (input: PgInsertValue<typeof users>) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
-
           const rows = yield* db
             .insert(users)
             .values(input)
@@ -46,6 +46,12 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
 
           return user;
         });
+      },
+
+      findByEmail: (email: string) => {
+        return db.query.users
+          .findFirst({ where: { email } })
+          .pipe(Effect.andThen(Effect.fromNullable));
       },
     };
   }),
