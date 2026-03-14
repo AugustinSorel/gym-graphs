@@ -39,7 +39,7 @@ const UserSchema = Schema.Struct({
   ).annotations({ missingMessage: () => "password is required" }),
 });
 
-const SignUpPayload = Schema.Struct({
+export const SignUpPayload = Schema.Struct({
   email: UserSchema.fields.email,
   password: UserSchema.fields.password,
   confirmPassword: UserSchema.fields.password,
@@ -49,7 +49,7 @@ const SignUpPayload = Schema.Struct({
   }),
 );
 
-const SignInPayload = Schema.Struct({
+export const SignInPayload = Schema.Struct({
   email: UserSchema.fields.email,
   password: UserSchema.fields.password,
 });

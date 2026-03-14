@@ -1,64 +1,21 @@
 import { Api } from "#/api";
-import { withTransaction } from "#/integrations/db/db";
-import { Crypto } from "#/integrations/crypto/crypto";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
-import { Duration, Effect } from "effect";
-import { inferNameFromEmail } from "../user/utils";
-import { UserRepo } from "../user/repo";
-import { SessionRepo } from "../session/repo";
+import { Effect } from "effect";
 import { AuthCookies } from "./cookies";
+import { AuthService } from "./service";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers
     .handle("signUp", ({ payload }) => {
       return Effect.gen(function* () {
-        const crypto = yield* Crypto;
-        const userRepo = yield* UserRepo;
-        const sessionRepo = yield* SessionRepo;
+        const authService = yield* AuthService;
 
-        const salt = yield* crypto.generateSalt();
-        const hashedPassword = yield* crypto.hashSecret(payload.password, salt);
+        const signUp = yield* authService.signUp(payload);
 
-        const name = inferNameFromEmail(payload.email);
-
-        const token = yield* crypto.generateId();
-        const sessionId = yield* crypto.hashSHA256Hex(token);
-
-        const res = yield* withTransaction(
-          Effect.gen(function* () {
-            const user = yield* userRepo
-              .createWithEmailAndPassword({
-                email: payload.email,
-                password: hashedPassword,
-                name,
-                salt,
-              })
-              .pipe(Effect.timeout(Duration.millis(500)));
-
-            // await seedUserAccount(user.id, tx);
-
-            // const emailVerificationCode = generateEmailVerificationCode();
-
-            // const emailVerification = await emailVerificationRepo
-            //   .create(emailVerificationCode, user.id, tx)
-            //   .match((verificationCode) => verificationCode, dbErrorToHttp);
-
-            // await sendEmail(
-            //   [user.email],
-            //   "Verification code",
-            //   emailVerificationEmailBody(emailVerification.code),
-            //   email,
-            // );
-
-            const session = yield* sessionRepo
-              .create({ id: sessionId, userId: user.id })
-              .pipe(Effect.timeout(Duration.millis(500)));
-
-            return { user, session };
-          }),
+        yield* AuthCookies.setSessionCookie(
+          signUp.token,
+          signUp.session.expiresAt,
         );
-
-        yield* AuthCookies.setSessionCookie(token, res.session.expiresAt);
       }).pipe(
         Effect.mapError((e) => {
           if (e._tag === "DuplicateUser") {
@@ -73,7 +30,28 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
         }),
       );
     })
-    .handle("signIn", () => {
-      return Effect.gen(function* () {});
+    .handle("signIn", ({ payload }) => {
+      return Effect.gen(function* () {
+        const authService = yield* AuthService;
+
+        const signIn = yield* authService.signIn(payload);
+
+        yield* AuthCookies.setSessionCookie(
+          signIn.token,
+          signIn.session.expiresAt,
+        );
+      }).pipe(
+        Effect.mapError((e) => {
+          if (e._tag === "InvalidCredentials") {
+            return e;
+          }
+
+          if (e._tag === "TimeoutException") {
+            return new HttpApiError.RequestTimeout();
+          }
+
+          return new HttpApiError.InternalServerError();
+        }),
+      );
     });
 });

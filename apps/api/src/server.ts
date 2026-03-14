@@ -6,10 +6,8 @@ import { createServer } from "node:http";
 import { AuthLive } from "#/features/auth/handlers";
 import { Api } from "#/api";
 import { Database } from "#/integrations/db/db";
-import { Crypto } from "#/integrations/crypto/crypto";
-import { UserRepo } from "./features/user/repo";
-import { SessionRepo } from "./features/session/repo";
 import { AuthCookies } from "./features/auth/cookies";
+import { AuthService } from "./features/auth/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
 
@@ -24,11 +22,9 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   HttpServer.withLogAddress,
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
+  Layer.provide(AuthService.Default),
   Layer.provide(AuthCookies.Default),
-  Layer.provide(UserRepo.Default),
-  Layer.provide(SessionRepo.Default),
   Layer.provide(Database.Default),
-  Layer.provide(Crypto.Default),
   Layer.provide(HttpServerLive),
   Layer.provide(ServerConfig.Default),
 );
