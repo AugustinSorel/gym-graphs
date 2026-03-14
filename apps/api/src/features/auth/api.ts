@@ -1,4 +1,4 @@
-import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from "@effect/platform";
+import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
 
@@ -38,7 +38,7 @@ const UserSchema = Schema.Struct({
   ).annotations({ missingMessage: () => "password is required" }),
 });
 
-const SignInPayload = Schema.Struct({
+const SignUpPayload = Schema.Struct({
   email: UserSchema.fields.email,
   password: UserSchema.fields.password,
   confirmPassword: UserSchema.fields.password,
@@ -48,12 +48,21 @@ const SignInPayload = Schema.Struct({
   }),
 );
 
+const SignInPayload = Schema.Struct({
+  email: UserSchema.fields.email,
+  password: UserSchema.fields.password,
+});
+
 export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signUp", "/sign-up")
-      .setPayload(SignInPayload)
-      .addError(HttpApiError.InternalServerError)
+      .setPayload(SignUpPayload)
       .addError(DuplicateUser)
+      .addSuccess(Schema.Void),
+  )
+  .add(
+    HttpApiEndpoint.post("signIn", "/sign-in")
+      .setPayload(SignInPayload)
       .addSuccess(Schema.Void),
   )
   .prefix("/auth");

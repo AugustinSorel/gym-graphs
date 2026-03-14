@@ -1,4 +1,8 @@
-import { HttpApi } from "@effect/platform";
+import { HttpApi, HttpApiError } from "@effect/platform";
 import { authApi } from "#/features/auth/api";
 
-export const Api = HttpApi.make("GymGraphsApi").add(authApi).prefix("/api");
+export const Api = HttpApi.make("GymGraphsApi")
+  .add(authApi)
+  .addError(HttpApiError.InternalServerError)
+  .addError(HttpApiError.RequestTimeout)
+  .prefix("/api");
