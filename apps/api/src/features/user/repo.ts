@@ -1,4 +1,4 @@
-import { DatabaseOrTransaction } from "#/integrations/db/db";
+import { Database } from "#/integrations/db/db";
 import { users } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Schema } from "effect";
@@ -29,7 +29,7 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
     return {
       createWithEmailAndPassword: (input: PgInsertValue<typeof users>) => {
         return Effect.gen(function* () {
-          const db = yield* DatabaseOrTransaction;
+          const db = yield* Database;
 
           const rows = yield* db
             .insert(users)

@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect, Layer } from "effect";
 import { PgClient } from "@effect/sql-pg";
 import { types } from "pg";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
@@ -36,29 +36,14 @@ export class Database extends Effect.Service<Database>()("Database", {
   accessors: true,
 }) {}
 
-type DatabaseInstance = Effect.Effect.Success<
-  ReturnType<typeof PgDrizzle.make<Record<string, unknown>, typeof relations>>
->;
-
-type TransactionInstance = Parameters<
-  DatabaseInstance["transaction"]
->[0] extends (tx: infer T) => any
-  ? T
-  : never;
-
-type DbOrTransaction = DatabaseInstance | TransactionInstance;
-
-export class DatabaseOrTransaction extends Context.Tag("DbClient")<
-  DatabaseOrTransaction,
-  DbOrTransaction
->() {}
-
 export const withTransaction = <A, E, R>(effect: Effect.Effect<A, E, R>) => {
   return Effect.gen(function* () {
     const db = yield* Database;
 
     return yield* db.transaction((tx) => {
-      return effect.pipe(Effect.provideService(DatabaseOrTransaction, tx));
+      return effect.pipe(
+        Effect.provideService(Database, tx as unknown as Database),
+      );
     });
   });
 };
