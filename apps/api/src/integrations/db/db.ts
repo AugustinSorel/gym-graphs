@@ -48,22 +48,17 @@ type TransactionInstance = Parameters<
 
 type DbOrTransaction = DatabaseInstance | TransactionInstance;
 
-export class DbClient extends Context.Tag("DbClient")<
-  DbClient,
+export class DatabaseOrTransaction extends Context.Tag("DbClient")<
+  DatabaseOrTransaction,
   DbOrTransaction
 >() {}
-
-export const CurrentDbLive = Layer.effect(
-  DbClient,
-  Effect.map(Database, (db) => db),
-);
 
 export const withTransaction = <A, E, R>(effect: Effect.Effect<A, E, R>) => {
   return Effect.gen(function* () {
     const db = yield* Database;
 
     return yield* db.transaction((tx) => {
-      return effect.pipe(Effect.provideService(DbClient, tx));
+      return effect.pipe(Effect.provideService(DatabaseOrTransaction, tx));
     });
   });
 };

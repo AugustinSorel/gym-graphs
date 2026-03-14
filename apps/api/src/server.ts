@@ -5,7 +5,7 @@ import { NodeHttpServer } from "@effect/platform-node";
 import { createServer } from "node:http";
 import { AuthLive } from "#/features/auth/handlers";
 import { Api } from "#/api";
-import { CurrentDbLive, Database } from "#/integrations/db/db";
+import { Database } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
 import { UserRepo } from "./features/user/repo";
 import { SessionRepo } from "./features/session/repo";
@@ -20,8 +20,6 @@ const HttpServerLive = Layer.unwrapEffect(
   }),
 );
 
-const DbLive = Layer.provideMerge(CurrentDbLive, Database.Default);
-
 export const ServerLive = HttpApiBuilder.serve().pipe(
   HttpServer.withLogAddress,
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
@@ -29,7 +27,7 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   Layer.provide(AuthCookies.Default),
   Layer.provide(UserRepo.Default),
   Layer.provide(SessionRepo.Default),
-  Layer.provide(DbLive),
+  Layer.provide(Database.Default),
   Layer.provide(Crypto.Default),
   Layer.provide(HttpServerLive),
   Layer.provide(ServerConfig.Default),
