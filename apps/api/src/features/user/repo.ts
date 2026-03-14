@@ -1,27 +1,8 @@
-import { Database } from "#/integrations/db/db";
+import { Database, isUniqueViolation } from "#/integrations/db/db";
 import { users } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
-import { Effect, Array, pipe, Schema } from "effect";
+import { Effect, Array, pipe } from "effect";
 import { DuplicateUser } from "./errors";
-import { DatabaseError } from "pg";
-
-const DatabaseErrorSchema = Schema.Struct({
-  cause: Schema.Struct({
-    error: Schema.Struct({
-      cause: Schema.instanceOf(DatabaseError),
-    }),
-  }),
-});
-
-const isUniqueViolation = (e: unknown, constraint: string): boolean => {
-  if (!Schema.is(DatabaseErrorSchema)(e)) {
-    return false;
-  }
-
-  const dbError = e.cause.error.cause;
-
-  return dbError.code === "23505" && dbError.constraint === constraint;
-};
 
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
   accessors: true,

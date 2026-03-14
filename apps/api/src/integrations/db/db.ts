@@ -1,6 +1,6 @@
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Schema } from "effect";
 import { PgClient } from "@effect/sql-pg";
-import { types } from "pg";
+import { DatabaseError, types } from "pg";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
 import { ServerConfig } from "#/env";
 import { relations } from "./relations";
@@ -46,4 +46,22 @@ export const withTransaction = <A, E, R>(effect: Effect.Effect<A, E, R>) => {
       );
     });
   });
+};
+
+const DatabaseErrorSchema = Schema.Struct({
+  cause: Schema.Struct({
+    error: Schema.Struct({
+      cause: Schema.instanceOf(DatabaseError),
+    }),
+  }),
+});
+
+export const isUniqueViolation = (e: unknown, constraint: string): boolean => {
+  if (!Schema.is(DatabaseErrorSchema)(e)) {
+    return false;
+  }
+
+  const dbError = e.cause.error.cause;
+
+  return dbError.code === "23505" && dbError.constraint === constraint;
 };
