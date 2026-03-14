@@ -1,6 +1,7 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
+import { InvalidCredentials } from "./errors";
 
 const UserSchema = Schema.Struct({
   email: Schema.propertySignature(
@@ -63,6 +64,7 @@ export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signIn", "/sign-in")
       .setPayload(SignInPayload)
+      .addError(InvalidCredentials)
       .addSuccess(Schema.Void),
   )
   .prefix("/auth");
