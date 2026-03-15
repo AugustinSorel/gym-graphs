@@ -19,6 +19,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
       signUp: (input: typeof SignUpPayload.Type) =>
         Effect.gen(function* () {
           const salt = yield* crypto.generateSalt();
+
           const hashedPassword = yield* crypto.hashSecret(input.password, salt);
 
           const name = inferNameFromEmail(input.email);
@@ -60,10 +61,14 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
             return yield* Effect.fail(new InvalidCredentials());
           }
 
-          const validPassword = yield* crypto.verifySecret(
+          const candidateHashed = yield* crypto.hashSecret(
             input.password,
-            user.password,
             user.salt,
+          );
+
+          const validPassword = yield* crypto.verifySecret(
+            candidateHashed,
+            user.password,
           );
 
           if (!validPassword) {

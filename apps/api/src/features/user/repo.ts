@@ -1,5 +1,5 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import { users } from "#/integrations/db/schema";
+import { users, type User } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe } from "effect";
 import { DuplicateUser } from "./errors";
@@ -29,7 +29,7 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
         });
       },
 
-      findByEmail: (email: string) => {
+      findByEmail: (email: User["email"]) => {
         return db.query.users
           .findFirst({ where: { email } })
           .pipe(Effect.andThen(Effect.fromNullable));
