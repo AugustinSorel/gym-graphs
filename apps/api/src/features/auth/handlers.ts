@@ -51,13 +51,22 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
         }),
       );
     })
+    .handle("me", () => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        return yield* Effect.succeed(session);
+      }).pipe(
+        Effect.mapError(() => {
+          return new HttpApiError.InternalServerError();
+        }),
+      );
+    })
     .handle("signOut", () => {
       return Effect.gen(function* () {
         const session = yield* CurrentSession;
 
         yield* AuthService.signOut(session.id);
-
-        console.log(session);
       }).pipe(
         Effect.mapError((e) => {
           if (e._tag === "TimeoutException") {

@@ -55,6 +55,11 @@ export const SignInPayload = Schema.Struct({
   password: UserSchema.fields.password,
 });
 
+const PublicSession = Schema.Struct({
+  id: Schema.Trim,
+  user: UserSchema.pick("email"),
+});
+
 export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signUp", "/sign-up")
@@ -67,6 +72,12 @@ export const authApi = HttpApiGroup.make("Auth")
       .setPayload(SignInPayload)
       .addError(InvalidCredentials)
       .addSuccess(Schema.Void),
+  )
+  .add(
+    HttpApiEndpoint.get("me", "/me")
+      .middleware(RequireSession)
+      .addSuccess(PublicSession)
+      .addError(Unauthorized),
   )
   .add(
     HttpApiEndpoint.post("signOut", "/sign-out")
