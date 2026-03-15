@@ -2,7 +2,7 @@ import { ServerConfig } from "#/env";
 import { HttpApiBuilder, HttpApiSecurity } from "@effect/platform";
 import { Effect, Redacted } from "effect";
 
-const sessionSecurity = HttpApiSecurity.apiKey({
+export const sessionSecurity = HttpApiSecurity.apiKey({
   in: "cookie",
   key: "session",
 });

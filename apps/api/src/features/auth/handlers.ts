@@ -3,6 +3,7 @@ import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";
 import { AuthService } from "./service";
+import { CurrentUser } from "./middlwares";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers
@@ -53,5 +54,14 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           return new HttpApiError.InternalServerError();
         }),
       );
+    })
+    .handle("signOut", () => {
+      return Effect.gen(function* () {
+        const user = yield* CurrentUser;
+
+        // yield* AuthService.signOut();
+
+        console.log(user);
+      });
     });
 });

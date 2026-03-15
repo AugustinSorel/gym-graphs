@@ -8,6 +8,7 @@ import { Api } from "#/api";
 import { Database } from "#/integrations/db/db";
 import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
+import { AuthorizationLive } from "./features/auth/middlwares";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
 
@@ -22,6 +23,7 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   HttpServer.withLogAddress,
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
+  Layer.provide(AuthorizationLive),
   Layer.provide(AuthService.Default),
   Layer.provide(AuthCookies.Default),
   Layer.provide(Database.Default),

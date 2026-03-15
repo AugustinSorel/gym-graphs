@@ -1,7 +1,7 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
 import { users, type User } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
-import { Effect, Array, pipe } from "effect";
+import { Effect, Array, pipe, Option } from "effect";
 import { DuplicateUser } from "./errors";
 
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
@@ -30,9 +30,11 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
       },
 
       findByEmail: (email: User["email"]) => {
-        return db.query.users
-          .findFirst({ where: { email } })
-          .pipe(Effect.andThen(Effect.fromNullable));
+        return Effect.gen(function* () {
+          const user = yield* db.query.users.findFirst({ where: { email } });
+
+          return Option.fromNullable(user);
+        });
       },
     };
   }),

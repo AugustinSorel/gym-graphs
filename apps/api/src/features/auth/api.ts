@@ -1,7 +1,8 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
-import { InvalidCredentials } from "./errors";
+import { InvalidCredentials, Unauthorized } from "./errors";
+import { Authorization } from "./middlwares";
 
 const UserSchema = Schema.Struct({
   email: Schema.propertySignature(
@@ -66,5 +67,11 @@ export const authApi = HttpApiGroup.make("Auth")
       .setPayload(SignInPayload)
       .addError(InvalidCredentials)
       .addSuccess(Schema.Void),
+  )
+  .add(
+    HttpApiEndpoint.post("signOut", "/sign-out")
+      .middleware(Authorization)
+      .addSuccess(Schema.Void)
+      .addError(Unauthorized),
   )
   .prefix("/auth");
