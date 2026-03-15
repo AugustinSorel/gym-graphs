@@ -30,31 +30,27 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
 
           const session = yield* withTransaction(
             Effect.gen(function* () {
-              const user = yield* userRepo
-                .createWithEmailAndPassword({
-                  email: input.email,
-                  password: hashedPassword,
-                  name,
-                  salt,
-                })
-                .pipe(Effect.timeout(500));
+              const user = yield* userRepo.createWithEmailAndPassword({
+                email: input.email,
+                password: hashedPassword,
+                name,
+                salt,
+              });
 
-              const session = yield* sessionRepo
-                .create({ id: sessionId, userId: user.id })
-                .pipe(Effect.timeout(500));
-
+              const session = yield* sessionRepo.create({
+                id: sessionId,
+                userId: user.id,
+              });
               return session;
             }),
           );
 
           return { session, token };
-        }),
+        }).pipe(Effect.timeout(500)),
 
       signIn: (input: typeof SignInPayload.Type) => {
         return Effect.gen(function* () {
-          const userOption = yield* userRepo
-            .findByEmail(input.email)
-            .pipe(Effect.timeout(500));
+          const userOption = yield* userRepo.findByEmail(input.email);
 
           const user = yield* Effect.mapError(
             userOption,
@@ -82,18 +78,18 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
           const token = yield* crypto.generateId();
           const sessionId = yield* crypto.hashSHA256Hex(token);
 
-          const session = yield* sessionRepo
-            .create({ id: sessionId, userId: user.id })
-            .pipe(Effect.timeout(500));
-
+          const session = yield* sessionRepo.create({
+            id: sessionId,
+            userId: user.id,
+          });
           return { user, session, token };
-        });
+        }).pipe(Effect.timeout(500));
       },
 
       signOut: (sessionId: Session["id"]) => {
         return Effect.gen(function* () {
-          yield* sessionRepo.deleteById(sessionId).pipe(Effect.timeout(500));
-        });
+          yield* sessionRepo.deleteById(sessionId);
+        }).pipe(Effect.timeout(500));
       },
     };
   }),
