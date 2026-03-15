@@ -1,6 +1,10 @@
-import { HttpApiMiddleware, HttpApiSecurity } from "@effect/platform";
+import {
+  HttpApiError,
+  HttpApiMiddleware,
+  HttpApiSecurity,
+} from "@effect/platform";
 import { Unauthorized } from "./errors";
-import { Context, Effect, Layer, Redacted } from "effect";
+import { Context, Effect, Layer, Redacted, Schema } from "effect";
 import { Database } from "#/integrations/db/db";
 import { SessionService } from "../session/service";
 
@@ -17,7 +21,11 @@ export class CurrentSession extends Context.Tag("CurrentSession")<
 export class RequireSession extends HttpApiMiddleware.Tag<RequireSession>()(
   "Authorization",
   {
-    failure: Unauthorized,
+    failure: Schema.Union(
+      Unauthorized,
+      HttpApiError.RequestTimeout,
+      HttpApiError.InternalServerError,
+    ),
     provides: CurrentSession,
     security: {
       session: sessionSecurity,
@@ -40,7 +48,11 @@ export const RequireSessionLive = Layer.effect(
             .validateToken(candidateToken)
             .pipe(
               Effect.provideService(Database, db),
-              Effect.mapError(() => new Unauthorized()),
+              Effect.catchTags({
+                EffectDrizzleQueryError: () =>
+                  new HttpApiError.InternalServerError(),
+                TimeoutException: () => new HttpApiError.RequestTimeout(),
+              }),
             );
 
           return session;

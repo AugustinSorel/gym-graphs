@@ -16,16 +16,11 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           signUp.session.expiresAt,
         );
       }).pipe(
-        Effect.mapError((e) => {
-          if (e._tag === "DuplicateUser") {
-            return e;
-          }
-
-          if (e._tag === "TimeoutException") {
-            return new HttpApiError.RequestTimeout();
-          }
-
-          return new HttpApiError.InternalServerError();
+        Effect.catchTags({
+          CryptoHashError: () => new HttpApiError.InternalServerError(),
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          SqlError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
     })
@@ -38,16 +33,10 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           signIn.session.expiresAt,
         );
       }).pipe(
-        Effect.mapError((e) => {
-          if (e._tag === "InvalidCredentials") {
-            return e;
-          }
-
-          if (e._tag === "TimeoutException") {
-            return new HttpApiError.RequestTimeout();
-          }
-
-          return new HttpApiError.InternalServerError();
+        Effect.catchTags({
+          CryptoHashError: () => new HttpApiError.InternalServerError(),
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
     })
@@ -56,11 +45,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
         const session = yield* CurrentSession;
 
         return yield* Effect.succeed(session);
-      }).pipe(
-        Effect.mapError(() => {
-          return new HttpApiError.InternalServerError();
-        }),
-      );
+      });
     })
     .handle("signOut", () => {
       return Effect.gen(function* () {
@@ -68,12 +53,9 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
 
         yield* AuthService.signOut(session.id);
       }).pipe(
-        Effect.mapError((e) => {
-          if (e._tag === "TimeoutException") {
-            return new HttpApiError.RequestTimeout();
-          }
-
-          return new HttpApiError.InternalServerError();
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
     });
