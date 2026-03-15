@@ -1,11 +1,7 @@
 import { ServerConfig } from "#/env";
-import { HttpApiBuilder, HttpApiSecurity } from "@effect/platform";
+import { HttpApiBuilder } from "@effect/platform";
 import { Effect, Redacted } from "effect";
-
-export const sessionSecurity = HttpApiSecurity.apiKey({
-  in: "cookie",
-  key: "session",
-});
+import { sessionSecurity } from "./security";
 
 export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
   accessors: true,

@@ -3,7 +3,7 @@ import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";
 import { AuthService } from "./service";
-import { CurrentSession } from "./middlwares";
+import { CurrentSession } from "./security";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers

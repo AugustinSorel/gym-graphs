@@ -8,7 +8,7 @@ import { Api } from "#/api";
 import { Database } from "#/integrations/db/db";
 import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
-import { RequireSessionLive } from "./features/auth/middlwares";
+import { RequireSessionLive } from "./features/auth/security";
 import { SessionService } from "./features/session/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));

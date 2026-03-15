@@ -2,7 +2,7 @@ import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
 import { InvalidCredentials, Unauthorized } from "./errors";
-import { RequireSession } from "./middlwares";
+import { RequireSession } from "./security";
 
 const UserSchema = Schema.Struct({
   email: Schema.propertySignature(

@@ -1,9 +1,13 @@
-import { HttpApiMiddleware } from "@effect/platform";
+import { HttpApiMiddleware, HttpApiSecurity } from "@effect/platform";
 import { Unauthorized } from "./errors";
-import { sessionSecurity } from "./cookies";
 import { Context, Effect, Layer, Redacted } from "effect";
 import { Database } from "#/integrations/db/db";
 import { SessionService } from "../session/service";
+
+export const sessionSecurity = HttpApiSecurity.apiKey({
+  in: "cookie",
+  key: "session",
+});
 
 export class CurrentSession extends Context.Tag("CurrentSession")<
   CurrentSession,
