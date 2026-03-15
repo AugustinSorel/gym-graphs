@@ -2,7 +2,7 @@ import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
 import { InvalidCredentials, Unauthorized } from "./errors";
-import { Authorization } from "./middlwares";
+import { RequireSession } from "./middlwares";
 
 const UserSchema = Schema.Struct({
   email: Schema.propertySignature(
@@ -70,7 +70,7 @@ export const authApi = HttpApiGroup.make("Auth")
   )
   .add(
     HttpApiEndpoint.post("signOut", "/sign-out")
-      .middleware(Authorization)
+      .middleware(RequireSession)
       .addSuccess(Schema.Void)
       .addError(Unauthorized),
   )

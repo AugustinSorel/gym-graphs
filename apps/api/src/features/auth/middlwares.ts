@@ -2,31 +2,29 @@ import { HttpApiMiddleware } from "@effect/platform";
 import { Unauthorized } from "./errors";
 import { sessionSecurity } from "./cookies";
 import { Context, Effect, Layer, Redacted } from "effect";
-import { AuthService } from "./service";
 import { Database } from "#/integrations/db/db";
+import { SessionService } from "../session/service";
 
-export class CurrentUser extends Context.Tag("CurrentUser")<
-  CurrentUser,
-  Effect.Effect.Success<
-    ReturnType<(typeof AuthService)["validateSessionToken"]>
-  >
+export class CurrentSession extends Context.Tag("CurrentSession")<
+  CurrentSession,
+  Effect.Effect.Success<ReturnType<(typeof SessionService)["validateToken"]>>
 >() {}
 
-export class Authorization extends HttpApiMiddleware.Tag<Authorization>()(
+export class RequireSession extends HttpApiMiddleware.Tag<RequireSession>()(
   "Authorization",
   {
     failure: Unauthorized,
-    provides: CurrentUser,
+    provides: CurrentSession,
     security: {
       session: sessionSecurity,
     },
   },
 ) {}
 
-export const AuthorizationLive = Layer.effect(
-  Authorization,
+export const RequireSessionLive = Layer.effect(
+  RequireSession,
   Effect.gen(function* () {
-    const auth = yield* AuthService;
+    const sessionService = yield* SessionService;
     const db = yield* Database;
 
     return {
@@ -34,10 +32,12 @@ export const AuthorizationLive = Layer.effect(
         return Effect.gen(function* () {
           const candidateToken = Redacted.value(token);
 
-          const session = yield* auth.validateSessionToken(candidateToken).pipe(
-            Effect.provideService(Database, db),
-            Effect.mapError(() => new Unauthorized()),
-          );
+          const session = yield* sessionService
+            .validateToken(candidateToken)
+            .pipe(
+              Effect.provideService(Database, db),
+              Effect.mapError(() => new Unauthorized()),
+            );
 
           return session;
         });

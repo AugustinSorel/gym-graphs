@@ -3,15 +3,13 @@ import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";
 import { AuthService } from "./service";
-import { CurrentUser } from "./middlwares";
+import { CurrentSession } from "./middlwares";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers
     .handle("signUp", ({ payload }) => {
       return Effect.gen(function* () {
-        const authService = yield* AuthService;
-
-        const signUp = yield* authService.signUp(payload);
+        const signUp = yield* AuthService.signUp(payload);
 
         yield* AuthCookies.setSessionCookie(
           signUp.token,
@@ -33,9 +31,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
     })
     .handle("signIn", ({ payload }) => {
       return Effect.gen(function* () {
-        const authService = yield* AuthService;
-
-        const signIn = yield* authService.signIn(payload);
+        const signIn = yield* AuthService.signIn(payload);
 
         yield* AuthCookies.setSessionCookie(
           signIn.token,
@@ -57,11 +53,19 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
     })
     .handle("signOut", () => {
       return Effect.gen(function* () {
-        const user = yield* CurrentUser;
+        const session = yield* CurrentSession;
 
-        // yield* AuthService.signOut();
+        yield* AuthService.signOut(session.id);
 
-        console.log(user);
-      });
+        console.log(session);
+      }).pipe(
+        Effect.mapError((e) => {
+          if (e._tag === "TimeoutException") {
+            return new HttpApiError.RequestTimeout();
+          }
+
+          return new HttpApiError.InternalServerError();
+        }),
+      );
     });
 });
