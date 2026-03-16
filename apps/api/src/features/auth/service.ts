@@ -7,14 +7,24 @@ import { SessionRepo } from "../session/repo";
 import { InvalidCredentials } from "./errors";
 import type { SignUpPayload, SignInPayload } from "./api";
 import type { Session } from "#/integrations/db/schema";
+import { Email } from "#/integrations/email/client";
+import { emailVerificationEmailBody } from "./email";
+import { VerificationCodeRepo } from "../verification-code/repo";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
-  dependencies: [Crypto.Default, UserRepo.Default, SessionRepo.Default],
+  dependencies: [
+    Crypto.Default,
+    UserRepo.Default,
+    SessionRepo.Default,
+    VerificationCodeRepo.Default,
+    Email.Default,
+  ],
   effect: Effect.gen(function* () {
     const crypto = yield* Crypto;
     const userRepo = yield* UserRepo;
     const sessionRepo = yield* SessionRepo;
+    const verificationRepo = yield* VerificationCodeRepo;
 
     return {
       signUp: (input: typeof SignUpPayload.Type) =>
@@ -37,10 +47,24 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 salt,
               });
 
+              // await seedUserAccount(user.id, tx);
+
+              const verificationCode = yield* verificationRepo.create({
+                userId: user.id,
+                code: yield* crypto.generateCode(),
+              });
+
+              yield* Email.send(
+                [user.email],
+                "Verification code",
+                emailVerificationEmailBody(verificationCode.code),
+              );
+
               const session = yield* sessionRepo.create({
                 id: sessionId,
                 userId: user.id,
               });
+
               return session;
             }),
           );

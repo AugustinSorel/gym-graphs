@@ -10,6 +10,8 @@ import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
 import { RequireSessionLive } from "./features/auth/security";
 import { SessionService } from "./features/session/service";
+import { Email } from "./integrations/email/client";
+import { VerificationCodeService } from "./features/verification-code/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
 
@@ -28,6 +30,8 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   Layer.provide(SessionService.Default),
   Layer.provide(AuthService.Default),
   Layer.provide(AuthCookies.Default),
+  Layer.provide(VerificationCodeService.Default),
+  Layer.provide(Email.Default),
   Layer.provide(Database.Default),
   Layer.provide(HttpServerLive),
   Layer.provide(ServerConfig.Default),

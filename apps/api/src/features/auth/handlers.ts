@@ -20,6 +20,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           CryptoHashError: () => new HttpApiError.InternalServerError(),
           EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
           SqlError: () => new HttpApiError.InternalServerError(),
+          EmailDeliveryError: () => new HttpApiError.InternalServerError(),
           TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );

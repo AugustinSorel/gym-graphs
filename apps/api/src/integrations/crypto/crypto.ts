@@ -1,5 +1,11 @@
 import { Data, Effect } from "effect";
-import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
+import {
+  createHash,
+  randomBytes,
+  scrypt,
+  timingSafeEqual,
+  randomInt,
+} from "node:crypto";
 
 class CryptoHashError extends Data.TaggedError("CryptoHashError")<{
   cause: unknown;
@@ -16,6 +22,12 @@ export class Crypto extends Effect.Service<Crypto>()("Crypto", {
     generateId: () => {
       return Effect.sync(() => {
         return randomBytes(20).toString("base64");
+      });
+    },
+
+    generateCode: () => {
+      return Effect.sync(() => {
+        return Array.from({ length: 6 }, () => randomInt(0, 10)).join("");
       });
     },
 
