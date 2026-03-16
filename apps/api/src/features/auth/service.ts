@@ -4,12 +4,17 @@ import { Duration, Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
-import { InvalidCredentials, Unauthorized } from "./errors";
+import { InvalidCredentials } from "./errors";
 import type { SignUpPayload, SignInPayload } from "./api";
 import type { Session, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
 import { emailVerificationEmailBody } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
+import {
+  InvalidVerificationCode,
+  VerificationCodeExpired,
+  VerificationCodeNotFound,
+} from "#/features/verification-code/errors";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
@@ -132,13 +137,11 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
 
               const verificationCode = yield* Effect.mapError(
                 verificationCodeOption,
-                //FIXME
-                () => new Unauthorized(),
+                () => new VerificationCodeNotFound(),
               );
 
               if (verificationCode.code !== candidateCode) {
-                //FIXME
-                return yield* Effect.fail(new Unauthorized());
+                return yield* Effect.fail(new InvalidVerificationCode());
               }
 
               yield* verificationCodeRepo.deleteById(userId);
@@ -149,8 +152,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               );
 
               if (codeExpired) {
-                //FIXME
-                return yield* Effect.fail(new Unauthorized());
+                return yield* Effect.fail(new VerificationCodeExpired());
               }
 
               yield* userRepo.updateVerifiedAtById(userId);

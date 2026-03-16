@@ -2,6 +2,11 @@ import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
 import { InvalidCredentials, Unauthorized } from "./errors";
+import {
+  InvalidVerificationCode,
+  VerificationCodeExpired,
+  VerificationCodeNotFound,
+} from "#/features/verification-code/errors";
 import { RequireSession } from "./security";
 
 const UserSchema = Schema.Struct({
@@ -90,7 +95,10 @@ export const authApi = HttpApiGroup.make("Auth")
       .setPayload(VerificationCode.pick("code"))
       .middleware(RequireSession)
       .addSuccess(Schema.Void)
-      .addError(Unauthorized),
+      .addError(Unauthorized)
+      .addError(VerificationCodeNotFound)
+      .addError(InvalidVerificationCode)
+      .addError(VerificationCodeExpired),
   )
   .add(
     HttpApiEndpoint.post("signOut", "/sign-out")

@@ -78,8 +78,6 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
           TimeoutException: () => new HttpApiError.RequestTimeout(),
           SqlError: () => new HttpApiError.InternalServerError(),
-          //FIXME
-          Unauthorized: () => new HttpApiError.InternalServerError(),
         }),
       );
     });
