@@ -3,7 +3,7 @@ import {
   HttpApiMiddleware,
   HttpApiSecurity,
 } from "@effect/platform";
-import { Unauthorized } from "./errors";
+import { AccountNotVerified, Unauthorized } from "./errors";
 import { Context, Effect, Layer, Redacted, Schema } from "effect";
 import { Database } from "#/integrations/db/db";
 import { SessionService } from "../session/service";
@@ -23,6 +23,22 @@ export class RequireSession extends HttpApiMiddleware.Tag<RequireSession>()(
   {
     failure: Schema.Union(
       Unauthorized,
+      HttpApiError.RequestTimeout,
+      HttpApiError.InternalServerError,
+    ),
+    provides: CurrentSession,
+    security: {
+      session: sessionSecurity,
+    },
+  },
+) {}
+
+export class RequireVerifiedSession extends HttpApiMiddleware.Tag<RequireVerifiedSession>()(
+  "VerifiedAuthorization",
+  {
+    failure: Schema.Union(
+      Unauthorized,
+      AccountNotVerified,
       HttpApiError.RequestTimeout,
       HttpApiError.InternalServerError,
     ),
@@ -54,6 +70,39 @@ export const RequireSessionLive = Layer.effect(
                 TimeoutException: () => new HttpApiError.RequestTimeout(),
               }),
             );
+
+          return session;
+        });
+      },
+    };
+  }),
+);
+
+export const RequireVerifiedSessionLive = Layer.effect(
+  RequireVerifiedSession,
+  Effect.gen(function* () {
+    const sessionService = yield* SessionService;
+    const db = yield* Database;
+
+    return {
+      session: (token) => {
+        return Effect.gen(function* () {
+          const candidateToken = Redacted.value(token);
+
+          const session = yield* sessionService
+            .validateToken(candidateToken)
+            .pipe(
+              Effect.provideService(Database, db),
+              Effect.catchTags({
+                EffectDrizzleQueryError: () =>
+                  new HttpApiError.InternalServerError(),
+                TimeoutException: () => new HttpApiError.RequestTimeout(),
+              }),
+            );
+
+          if (!session.user.verifiedAt) {
+            return yield* Effect.fail(new AccountNotVerified());
+          }
 
           return session;
         });

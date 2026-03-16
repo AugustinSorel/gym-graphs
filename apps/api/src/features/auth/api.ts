@@ -1,7 +1,7 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
 import { DuplicateUser } from "../user/errors";
-import { InvalidCredentials, Unauthorized } from "./errors";
+import { InvalidCredentials, Unauthorized, AccountNotVerified } from "./errors";
 import {
   InvalidVerificationCode,
   VerificationCodeExpired,
@@ -82,6 +82,7 @@ export const authApi = HttpApiGroup.make("Auth")
     HttpApiEndpoint.post("signIn", "/sign-in")
       .setPayload(SignInPayload)
       .addError(InvalidCredentials)
+      .addError(AccountNotVerified)
       .addSuccess(Schema.Void),
   )
   .add(

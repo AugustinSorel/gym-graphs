@@ -4,7 +4,7 @@ import { Duration, Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
-import { InvalidCredentials } from "./errors";
+import { InvalidCredentials, AccountNotVerified } from "./errors";
 import type { SignUpPayload, SignInPayload } from "./api";
 import type { Session, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
@@ -87,7 +87,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
           );
 
           if (!user.verifiedAt) {
-            return yield* Effect.fail(new InvalidCredentials());
+            return yield* Effect.fail(new AccountNotVerified());
           }
 
           if (!user.password || !user.salt) {
@@ -140,20 +140,22 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 () => new VerificationCodeNotFound(),
               );
 
-              if (verificationCode.code !== candidateCode) {
-                return yield* Effect.fail(new InvalidVerificationCode());
-              }
-
-              yield* verificationCodeRepo.deleteById(userId);
-
               const codeExpired = Duration.greaterThanOrEqualTo(
                 Date.now(),
                 verificationCode.expiresAt.getTime(),
               );
 
               if (codeExpired) {
+                // Delete expired code so user can request a new one
+                yield* verificationCodeRepo.deleteById(userId);
                 return yield* Effect.fail(new VerificationCodeExpired());
               }
+
+              if (verificationCode.code !== candidateCode) {
+                return yield* Effect.fail(new InvalidVerificationCode());
+              }
+
+              yield* verificationCodeRepo.deleteById(userId);
 
               yield* userRepo.updateVerifiedAtById(userId);
 

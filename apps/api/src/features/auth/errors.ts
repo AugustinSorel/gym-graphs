@@ -20,3 +20,13 @@ export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
   },
   HttpApiSchema.annotations({ status: 401 }),
 ) {}
+
+export class AccountNotVerified extends Schema.TaggedError<AccountNotVerified>()(
+  "AccountNotVerified",
+  {
+    message: Schema.optionalWith(Schema.String, {
+      default: () => "Please verify your email before signing in",
+    }),
+  },
+  HttpApiSchema.annotations({ status: 403 }),
+) {}

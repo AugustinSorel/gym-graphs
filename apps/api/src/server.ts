@@ -8,7 +8,10 @@ import { Api } from "#/api";
 import { Database } from "#/integrations/db/db";
 import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
-import { RequireSessionLive } from "./features/auth/security";
+import {
+  RequireSessionLive,
+  RequireVerifiedSessionLive,
+} from "./features/auth/security";
 import { SessionService } from "./features/session/service";
 import { Email } from "./integrations/email/client";
 import { VerificationCodeService } from "./features/verification-code/service";
@@ -27,6 +30,7 @@ export const ServerLive = HttpApiBuilder.serve().pipe(
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
   Layer.provide(RequireSessionLive),
+  Layer.provide(RequireVerifiedSessionLive),
   Layer.provide(SessionService.Default),
   Layer.provide(AuthService.Default),
   Layer.provide(AuthCookies.Default),
