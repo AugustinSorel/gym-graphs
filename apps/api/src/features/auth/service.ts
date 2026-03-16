@@ -81,6 +81,10 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
             () => new InvalidCredentials(),
           );
 
+          if (!user.emailVerifiedAt) {
+            return yield* Effect.fail(new InvalidCredentials());
+          }
+
           if (!user.password || !user.salt) {
             return yield* Effect.fail(new InvalidCredentials());
           }
