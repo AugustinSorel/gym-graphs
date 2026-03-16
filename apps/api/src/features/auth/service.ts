@@ -77,7 +77,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
           );
 
           return { session, token };
-        }).pipe(Effect.timeout(500)),
+        }).pipe(Effect.timeout(5000)),
 
       signIn: (input: typeof SignInPayload.Type) => {
         return Effect.gen(function* () {
@@ -199,7 +199,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               );
             }),
           );
-        }).pipe(Effect.timeout(500));
+        }).pipe(Effect.timeout(5000));
       },
     };
   }),
