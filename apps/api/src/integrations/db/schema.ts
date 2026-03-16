@@ -55,3 +55,24 @@ export const sessions = pgTable("sessions", (t) => ({
 }));
 
 export type Session = Readonly<typeof sessions.$inferSelect>;
+
+export const verificationCodes = pgTable("verification_codes", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  code: t.text("code").notNull(),
+  userId: t
+    .integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: t
+    .timestamp("expires_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + (15 * interval '1 min')`),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type VerificationCode = Readonly<typeof verificationCodes.$inferSelect>;
