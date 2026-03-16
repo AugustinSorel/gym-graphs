@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "11c46fdb-58e5-4ba8-97e0-8b6eb728188c",
+  "id": "e10af1c1-7b67-422d-9ee1-2bbab9f01328",
   "prevIds": [
-    "dd4628bd-818f-4997-a8bc-2f2401476445"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -15,6 +15,12 @@
     {
       "isRlsEnabled": false,
       "name": "users",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "verification_codes",
       "entityType": "tables",
       "schema": "public"
     },
@@ -165,7 +171,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "email_verified_at",
+      "name": "verified_at",
       "entityType": "columns",
       "schema": "public",
       "table": "users"
@@ -197,6 +203,93 @@
       "table": "users"
     },
     {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "verification_codes_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "code",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "CURRENT_TIMESTAMP + (15 * interval '1 min')",
+      "generated": null,
+      "identity": null,
+      "name": "expires_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification_codes"
+    },
+    {
       "nameExplicit": false,
       "columns": [
         "user_id"
@@ -212,6 +305,23 @@
       "entityType": "fks",
       "schema": "public",
       "table": "sessions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "verification_codes_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "verification_codes"
     },
     {
       "columns": [
@@ -231,6 +341,16 @@
       "name": "users_pkey",
       "schema": "public",
       "table": "users",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "verification_codes_pkey",
+      "schema": "public",
+      "table": "verification_codes",
       "entityType": "pks"
     },
     {
