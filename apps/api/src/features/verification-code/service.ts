@@ -7,8 +7,6 @@ export class VerificationCodeService extends Effect.Service<VerificationCodeServ
     dependencies: [VerificationCodeRepo.Default],
     accessors: true,
     effect: Effect.gen(function* () {
-      yield* VerificationCodeRepo;
-
       return {};
     }),
   },

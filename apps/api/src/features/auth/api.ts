@@ -92,7 +92,7 @@ export const authApi = HttpApiGroup.make("Auth")
       .addError(Unauthorized),
   )
   .add(
-    HttpApiEndpoint.post("verifyAccount", "/verify-account")
+    HttpApiEndpoint.post("verifyAccount", "/verification-code/verify")
       .setPayload(VerificationCode.pick("code"))
       .middleware(RequireSession)
       .addSuccess(Schema.Void)
@@ -100,6 +100,12 @@ export const authApi = HttpApiGroup.make("Auth")
       .addError(VerificationCodeNotFound)
       .addError(InvalidVerificationCode)
       .addError(VerificationCodeExpired),
+  )
+  .add(
+    HttpApiEndpoint.post("resendVerificationCode", "/verification-code")
+      .middleware(RequireSession)
+      .addSuccess(Schema.Void)
+      .addError(Unauthorized),
   )
   .add(
     HttpApiEndpoint.post("signOut", "/sign-out")

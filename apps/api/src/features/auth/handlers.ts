@@ -80,5 +80,19 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           SqlError: () => new HttpApiError.InternalServerError(),
         }),
       );
+    })
+    .handle("resendVerificationCode", () => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        yield* AuthService.sendVerificationCode(session.user);
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+          SqlError: () => new HttpApiError.InternalServerError(),
+          EmailDeliveryError: () => new HttpApiError.InternalServerError(),
+        }),
+      );
     });
 });

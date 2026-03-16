@@ -15,6 +15,7 @@ import {
   VerificationCodeExpired,
   VerificationCodeNotFound,
 } from "#/features/verification-code/errors";
+import type { CurrentSession } from "./security";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
@@ -30,6 +31,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     const userRepo = yield* UserRepo;
     const sessionRepo = yield* SessionRepo;
     const verificationCodeRepo = yield* VerificationCodeRepo;
+    const email = yield* Email;
 
     return {
       signUp: (input: typeof SignUpPayload.Type) =>
@@ -59,7 +61,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 code: yield* crypto.generateCode(),
               });
 
-              yield* Email.send(
+              yield* email.send(
                 [user.email],
                 "Verification code",
                 emailVerificationEmailBody(verificationCode.code),
@@ -146,7 +148,6 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               );
 
               if (codeExpired) {
-                // Delete expired code so user can request a new one
                 yield* verificationCodeRepo.deleteById(userId);
                 return yield* Effect.fail(new VerificationCodeExpired());
               }
@@ -155,7 +156,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 return yield* Effect.fail(new InvalidVerificationCode());
               }
 
-              yield* verificationCodeRepo.deleteById(userId);
+              yield* verificationCodeRepo.deleteById(verificationCode.id);
 
               yield* userRepo.updateVerifiedAtById(userId);
 
@@ -173,6 +174,29 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 session,
                 token,
               });
+            }),
+          );
+        }).pipe(Effect.timeout(500));
+      },
+
+      sendVerificationCode: (
+        user: Pick<CurrentSession["Type"]["user"], "email" | "id">,
+      ) => {
+        return Effect.gen(function* () {
+          return yield* withTransaction(
+            Effect.gen(function* () {
+              yield* verificationCodeRepo.deleteByUserId(user.id);
+
+              const verificationCode = yield* verificationCodeRepo.create({
+                userId: user.id,
+                code: yield* crypto.generateCode(),
+              });
+
+              yield* email.send(
+                [user.email],
+                "Verification code",
+                emailVerificationEmailBody(verificationCode.code),
+              );
             }),
           );
         }).pipe(Effect.timeout(500));

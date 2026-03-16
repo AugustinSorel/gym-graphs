@@ -55,6 +55,15 @@ export class VerificationCodeRepo extends Effect.Service<VerificationCodeRepo>()
               .returning();
           });
         },
+
+        deleteByUserId: (userId: VerificationCode["userId"]) => {
+          return Effect.gen(function* () {
+            return yield* db
+              .delete(verificationCodes)
+              .where(eq(verificationCodes.userId, userId))
+              .returning();
+          });
+        },
       };
     }),
   },
