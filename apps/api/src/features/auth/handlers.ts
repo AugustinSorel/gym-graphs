@@ -59,5 +59,28 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
+    })
+    .handle("verifyAccount", ({ payload }) => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        const verifyAccount = yield* AuthService.verifyAccount(
+          payload.code,
+          session.userId,
+        );
+
+        yield* AuthCookies.setSessionCookie(
+          verifyAccount.token,
+          verifyAccount.session.expiresAt,
+        );
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+          SqlError: () => new HttpApiError.InternalServerError(),
+          //FIXME
+          Unauthorized: () => new HttpApiError.InternalServerError(),
+        }),
+      );
     });
 });

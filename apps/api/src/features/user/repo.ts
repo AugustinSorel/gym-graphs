@@ -3,6 +3,7 @@ import { users, type User } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Option } from "effect";
 import { DuplicateUser } from "./errors";
+import { eq } from "drizzle-orm";
 
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
   accessors: true,
@@ -34,6 +35,16 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
           const user = yield* db.query.users.findFirst({ where: { email } });
 
           return Option.fromNullable(user);
+        });
+      },
+
+      updateVerifiedAtById: (id: User["id"]) => {
+        return Effect.gen(function* () {
+          return yield* db
+            .update(users)
+            .set({ verifiedAt: new Date() })
+            .where(eq(users.id, id))
+            .returning();
         });
       },
     };

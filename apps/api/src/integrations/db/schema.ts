@@ -22,7 +22,7 @@ export const users = pgTable("users", (t) => ({
   // weightUnit: weightUnitEnum().notNull().default("kg"),
   // oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
   // dashboardView: dashboardViewEnum().notNull().default("graph"),
-  emailVerifiedAt: t.timestamp("email_verified_at"),
+  verifiedAt: t.timestamp("verified_at"),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
   updatedAt: t
     .timestamp("updated_at")

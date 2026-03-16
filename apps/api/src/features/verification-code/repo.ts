@@ -1,7 +1,11 @@
 import { Database } from "#/integrations/db/db";
-import { verificationCodes } from "#/integrations/db/schema";
+import {
+  verificationCodes,
+  type VerificationCode,
+} from "#/integrations/db/schema";
+import { eq } from "drizzle-orm";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
-import { Effect, Array, pipe } from "effect";
+import { Effect, Array, pipe, Option } from "effect";
 
 export class VerificationCodeRepo extends Effect.Service<VerificationCodeRepo>()(
   "VerificationCodeRepo",
@@ -21,6 +25,34 @@ export class VerificationCodeRepo extends Effect.Service<VerificationCodeRepo>()
             const user = yield* pipe(Array.head(rows), Effect.orDie);
 
             return user;
+          });
+        },
+
+        selectByUserId: (userId: VerificationCode["userId"]) => {
+          return Effect.gen(function* () {
+            const session = yield* db.query.verificationCodes.findFirst({
+              where: {
+                userId,
+              },
+              with: {
+                user: {
+                  columns: {
+                    email: true,
+                  },
+                },
+              },
+            });
+
+            return Option.fromNullable(session);
+          });
+        },
+
+        deleteById: (id: VerificationCode["id"]) => {
+          return Effect.gen(function* () {
+            return yield* db
+              .delete(verificationCodes)
+              .where(eq(verificationCodes.id, id))
+              .returning();
           });
         },
       };

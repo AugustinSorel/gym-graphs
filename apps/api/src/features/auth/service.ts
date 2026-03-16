@@ -1,12 +1,12 @@
 import { withTransaction } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
-import { Effect } from "effect";
+import { Duration, Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
-import { InvalidCredentials } from "./errors";
+import { InvalidCredentials, Unauthorized } from "./errors";
 import type { SignUpPayload, SignInPayload } from "./api";
-import type { Session } from "#/integrations/db/schema";
+import type { Session, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
 import { emailVerificationEmailBody } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
@@ -24,7 +24,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     const crypto = yield* Crypto;
     const userRepo = yield* UserRepo;
     const sessionRepo = yield* SessionRepo;
-    const verificationRepo = yield* VerificationCodeRepo;
+    const verificationCodeRepo = yield* VerificationCodeRepo;
 
     return {
       signUp: (input: typeof SignUpPayload.Type) =>
@@ -49,7 +49,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
 
               // await seedUserAccount(user.id, tx);
 
-              const verificationCode = yield* verificationRepo.create({
+              const verificationCode = yield* verificationCodeRepo.create({
                 userId: user.id,
                 code: yield* crypto.generateCode(),
               });
@@ -81,7 +81,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
             () => new InvalidCredentials(),
           );
 
-          if (!user.emailVerifiedAt) {
+          if (!user.verifiedAt) {
             return yield* Effect.fail(new InvalidCredentials());
           }
 
@@ -117,6 +117,60 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
       signOut: (sessionId: Session["id"]) => {
         return Effect.gen(function* () {
           yield* sessionRepo.deleteById(sessionId);
+        }).pipe(Effect.timeout(500));
+      },
+
+      verifyAccount: (
+        candidateCode: VerificationCode["code"],
+        userId: VerificationCode["userId"],
+      ) => {
+        return Effect.gen(function* () {
+          return yield* withTransaction(
+            Effect.gen(function* () {
+              const verificationCodeOption =
+                yield* verificationCodeRepo.selectByUserId(userId);
+
+              const verificationCode = yield* Effect.mapError(
+                verificationCodeOption,
+                //FIXME
+                () => new Unauthorized(),
+              );
+
+              if (verificationCode.code !== candidateCode) {
+                //FIXME
+                return yield* Effect.fail(new Unauthorized());
+              }
+
+              yield* verificationCodeRepo.deleteById(userId);
+
+              const codeExpired = Duration.greaterThanOrEqualTo(
+                Date.now(),
+                verificationCode.expiresAt.getTime(),
+              );
+
+              if (codeExpired) {
+                //FIXME
+                return yield* Effect.fail(new Unauthorized());
+              }
+
+              yield* userRepo.updateVerifiedAtById(userId);
+
+              yield* sessionRepo.deleteByUserId(userId);
+
+              const token = yield* crypto.generateId();
+              const sessionId = yield* crypto.hashSHA256Hex(token);
+
+              const session = yield* sessionRepo.create({
+                id: sessionId,
+                userId,
+              });
+
+              return yield* Effect.succeed({
+                session,
+                token,
+              });
+            }),
+          );
         }).pipe(Effect.timeout(500));
       },
     };

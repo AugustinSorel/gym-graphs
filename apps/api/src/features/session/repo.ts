@@ -32,7 +32,7 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
               user: {
                 columns: {
                   id: true,
-                  emailVerifiedAt: true,
+                  verifiedAt: true,
                   email: true,
                   name: true,
                 },
@@ -66,6 +66,14 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
           const db = yield* Database;
 
           yield* db.delete(sessions).where(eq(sessions.id, sessionId));
+        });
+      },
+
+      deleteByUserId: (userId: Session["userId"]) => {
+        return Effect.gen(function* () {
+          const db = yield* Database;
+
+          yield* db.delete(sessions).where(eq(sessions.userId, userId));
         });
       },
     };

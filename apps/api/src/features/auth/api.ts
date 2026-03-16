@@ -60,6 +60,12 @@ const PublicSession = Schema.Struct({
   user: UserSchema.pick("email"),
 });
 
+const VerificationCode = Schema.Struct({
+  code: Schema.propertySignature(Schema.String).annotations({
+    missingMessage: () => "code is required",
+  }),
+});
+
 export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signUp", "/sign-up")
@@ -77,6 +83,13 @@ export const authApi = HttpApiGroup.make("Auth")
     HttpApiEndpoint.get("me", "/me")
       .middleware(RequireSession)
       .addSuccess(PublicSession)
+      .addError(Unauthorized),
+  )
+  .add(
+    HttpApiEndpoint.post("verifyAccount", "/verify-account")
+      .setPayload(VerificationCode.pick("code"))
+      .middleware(RequireSession)
+      .addSuccess(Schema.Void)
       .addError(Unauthorized),
   )
   .add(
