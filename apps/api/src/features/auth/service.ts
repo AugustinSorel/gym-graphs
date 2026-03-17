@@ -1,14 +1,14 @@
 import { withTransaction } from "#/integrations/db/db";
 import { Crypto } from "#/integrations/crypto/crypto";
-import { Duration, Effect } from "effect";
+import { Clock, Duration, Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
 import { InvalidCredentials, AccountNotVerified } from "./errors";
-import type { SignUpPayload, SignInPayload } from "./api";
-import type { Session, VerificationCode } from "#/integrations/db/schema";
+import type { SignUpPayload, SignInPayload, ResetPassword } from "./api";
+import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
-import { emailVerificationEmailBody } from "./email";
+import { emailVerificationEmailBody, passwordResetEmailBody } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
 import {
   InvalidVerificationCode,
@@ -16,6 +16,12 @@ import {
   VerificationCodeNotFound,
 } from "#/features/verification-code/errors";
 import type { CurrentSession } from "./security";
+import { PasswordResetTokenRepo } from "../password-reset-token/repo";
+import { UserNotFound } from "../user/errors";
+import {
+  PasswordResetTokenExpired,
+  PasswordResetTokenNotFound,
+} from "../password-reset-token/errors";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
@@ -24,6 +30,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     UserRepo.Default,
     SessionRepo.Default,
     VerificationCodeRepo.Default,
+    PasswordResetTokenRepo.Default,
     Email.Default,
   ],
   effect: Effect.gen(function* () {
@@ -31,6 +38,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     const userRepo = yield* UserRepo;
     const sessionRepo = yield* SessionRepo;
     const verificationCodeRepo = yield* VerificationCodeRepo;
+    const passwordResetTokenRepo = yield* PasswordResetTokenRepo;
     const email = yield* Email;
 
     return {
@@ -143,7 +151,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               );
 
               const codeExpired = Duration.greaterThanOrEqualTo(
-                Date.now(),
+                yield* Clock.currentTimeMillis,
                 verificationCode.expiresAt.getTime(),
               );
 
@@ -197,6 +205,94 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 "Verification code",
                 emailVerificationEmailBody(verificationCode.code),
               );
+            }),
+          );
+        }).pipe(Effect.timeout(5000));
+      },
+
+      forgotPassword: (userEmail: User["email"]) => {
+        return Effect.gen(function* () {
+          return yield* withTransaction(
+            Effect.gen(function* () {
+              const userOption = yield* userRepo.findByEmail(userEmail);
+
+              const user = yield* Effect.mapError(
+                userOption,
+                () => new UserNotFound(),
+              );
+
+              yield* passwordResetTokenRepo.deleteByUserId(user.id);
+
+              const token = yield* crypto.generateId();
+              const tokenHash = yield* crypto.hashSHA256Hex(token);
+
+              yield* passwordResetTokenRepo.create({
+                token: tokenHash,
+                userId: user.id,
+              });
+
+              yield* email.send(
+                [user.email],
+                "Reset your password",
+                passwordResetEmailBody(token),
+              );
+            }),
+          );
+        }).pipe(Effect.timeout(5000));
+      },
+
+      resetPassword: (input: typeof ResetPassword.Type) => {
+        return Effect.gen(function* () {
+          return yield* withTransaction(
+            Effect.gen(function* () {
+              const tokenHash = yield* crypto.hashSHA256Hex(input.token);
+
+              const passwordResetTokenOption =
+                yield* passwordResetTokenRepo.selectByToken(tokenHash);
+
+              const passwordResetToken = yield* Effect.mapError(
+                passwordResetTokenOption,
+                () => new PasswordResetTokenNotFound(),
+              );
+
+              yield* passwordResetTokenRepo.deleteByToken(
+                passwordResetToken.token,
+              );
+
+              const codeExpired = Duration.greaterThanOrEqualTo(
+                yield* Clock.currentTimeMillis,
+                passwordResetToken.expiresAt.getTime(),
+              );
+
+              if (codeExpired) {
+                return yield* Effect.fail(new PasswordResetTokenExpired());
+              }
+
+              yield* sessionRepo.deleteByUserId(passwordResetToken.userId);
+
+              const salt = yield* crypto.generateSalt();
+              const passwordHash = yield* crypto.hashSecret(
+                input.password,
+                salt,
+              );
+
+              yield* userRepo.updatePasswordAndSalt(
+                passwordHash,
+                salt,
+                passwordResetToken.userId,
+              );
+
+              const token = yield* crypto.generateId();
+
+              const session = yield* sessionRepo.create({
+                id: yield* crypto.hashSHA256Hex(token),
+                userId: passwordResetToken.userId,
+              });
+
+              return {
+                token,
+                session,
+              };
             }),
           );
         }).pipe(Effect.timeout(5000));

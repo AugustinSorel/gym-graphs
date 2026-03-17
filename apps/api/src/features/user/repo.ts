@@ -47,6 +47,19 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
             .returning();
         });
       },
+
+      updatePasswordAndSalt: (
+        password: NonNullable<User["password"]>,
+        salt: NonNullable<User["salt"]>,
+        userId: User["id"],
+      ) => {
+        return Effect.gen(function* () {
+          return yield* db
+            .update(users)
+            .set({ password, salt })
+            .where(eq(users.id, userId));
+        });
+      },
     };
   }),
 }) {}

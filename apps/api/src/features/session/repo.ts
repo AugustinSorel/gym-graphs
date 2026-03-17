@@ -7,11 +7,11 @@ import { eq } from "drizzle-orm";
 export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
   accessors: true,
   effect: Effect.gen(function* () {
+    const db = yield* Database;
+
     return {
       create: (input: PgInsertValue<typeof sessions>) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
-
           const rows = yield* db.insert(sessions).values(input).returning();
 
           const session = yield* pipe(Array.head(rows), Effect.orDie);
@@ -22,8 +22,6 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
 
       selectById: (sessionId: Session["id"]) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
-
           const session = yield* db.query.sessions.findFirst({
             where: {
               id: sessionId,
@@ -46,7 +44,6 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
 
       refreshExpiryDateBySessionId: (sessionId: Session["id"]) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
           const now = yield* Clock.currentTimeMillis;
 
           const rows = yield* db
@@ -63,16 +60,12 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
 
       deleteById: (sessionId: Session["id"]) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
-
           yield* db.delete(sessions).where(eq(sessions.id, sessionId));
         });
       },
 
       deleteByUserId: (userId: Session["userId"]) => {
         return Effect.gen(function* () {
-          const db = yield* Database;
-
           yield* db.delete(sessions).where(eq(sessions.userId, userId));
         });
       },

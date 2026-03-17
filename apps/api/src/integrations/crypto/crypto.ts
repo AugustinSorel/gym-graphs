@@ -21,7 +21,7 @@ export class Crypto extends Effect.Service<Crypto>()("Crypto", {
 
     generateId: () => {
       return Effect.sync(() => {
-        return randomBytes(20).toString("base64");
+        return randomBytes(20).toString("base64url");
       });
     },
 

@@ -1,6 +1,6 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { pipe, Schema } from "effect";
-import { DuplicateUser } from "../user/errors";
+import { DuplicateUser, UserNotFound } from "../user/errors";
 import { InvalidCredentials, Unauthorized, AccountNotVerified } from "./errors";
 import {
   InvalidVerificationCode,
@@ -8,6 +8,10 @@ import {
   VerificationCodeNotFound,
 } from "#/features/verification-code/errors";
 import { RequireSession } from "./security";
+import {
+  PasswordResetTokenExpired,
+  PasswordResetTokenNotFound,
+} from "../password-reset-token/errors";
 
 const UserSchema = Schema.Struct({
   email: Schema.propertySignature(
@@ -45,6 +49,23 @@ const UserSchema = Schema.Struct({
   ).annotations({ missingMessage: () => "password is required" }),
 });
 
+const ResetPasswordToken = Schema.Struct({
+  token: Schema.propertySignature(
+    pipe(
+      Schema.String.annotations({
+        message: () => "token must be a valid string",
+      }),
+      Schema.nonEmptyString({ message: () => "token is required" }),
+      Schema.minLength(3, {
+        message: () => "token must be at least 3 characters",
+      }),
+      Schema.maxLength(255, {
+        message: () => "token must be at most 255 characters",
+      }),
+    ),
+  ).annotations({ missingMessage: () => "token is required" }),
+});
+
 export const SignUpPayload = Schema.Struct({
   email: UserSchema.fields.email,
   password: UserSchema.fields.password,
@@ -70,6 +91,11 @@ const VerificationCode = Schema.Struct({
     missingMessage: () => "code is required",
   }),
 });
+
+export const ResetPassword = Schema.extend(
+  ResetPasswordToken.pick("token"),
+  UserSchema.pick("password"),
+);
 
 export const authApi = HttpApiGroup.make("Auth")
   .add(
@@ -112,5 +138,18 @@ export const authApi = HttpApiGroup.make("Auth")
       .middleware(RequireSession)
       .addSuccess(Schema.Void)
       .addError(Unauthorized),
+  )
+  .add(
+    HttpApiEndpoint.post("forgotPassword", "/forgot-password")
+      .setPayload(UserSchema.pick("email"))
+      .addSuccess(Schema.Void)
+      .addError(UserNotFound),
+  )
+  .add(
+    HttpApiEndpoint.post("resetPassword", "/reset-password")
+      .setPayload(ResetPassword)
+      .addError(PasswordResetTokenExpired)
+      .addError(PasswordResetTokenNotFound)
+      .addSuccess(Schema.Void),
   )
   .prefix("/auth");

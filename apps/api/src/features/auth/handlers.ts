@@ -94,5 +94,34 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
           EmailDeliveryError: () => new HttpApiError.InternalServerError(),
         }),
       );
+    })
+    .handle("forgotPassword", ({ payload }) => {
+      return Effect.gen(function* () {
+        yield* AuthService.forgotPassword(payload.email);
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+          SqlError: () => new HttpApiError.InternalServerError(),
+          EmailDeliveryError: () => new HttpApiError.InternalServerError(),
+        }),
+      );
+    })
+    .handle("resetPassword", ({ payload }) => {
+      return Effect.gen(function* () {
+        const resetPassword = yield* AuthService.resetPassword(payload);
+
+        yield* AuthCookies.setSessionCookie(
+          resetPassword.token,
+          resetPassword.session.expiresAt,
+        );
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+          SqlError: () => new HttpApiError.InternalServerError(),
+          CryptoHashError: () => new HttpApiError.InternalServerError(),
+        }),
+      );
     });
 });

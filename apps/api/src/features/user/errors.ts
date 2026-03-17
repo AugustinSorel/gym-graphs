@@ -12,3 +12,13 @@ export class DuplicateUser extends Schema.TaggedError<DuplicateUser>()(
     });
   }
 }
+
+export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
+  "UserNotFound",
+  {
+    message: Schema.optionalWith(Schema.String, {
+      default: () => "User not found.",
+    }),
+  },
+  HttpApiSchema.annotations({ status: 404 }),
+) {}
