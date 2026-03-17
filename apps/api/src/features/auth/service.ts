@@ -5,7 +5,11 @@ import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
 import { InvalidCredentials, AccountNotVerified } from "./errors";
-import type { SignUpPayload, SignInPayload, ResetPassword } from "./api";
+import type {
+  SignUpPayload,
+  SignInPayload,
+  ResetPasswordPayload,
+} from "@gym-graphs/schemas/auth";
 import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
 import { emailVerificationEmailBody, passwordResetEmailBody } from "./email";
@@ -241,7 +245,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
         }).pipe(Effect.timeout(5000));
       },
 
-      resetPassword: (input: typeof ResetPassword.Type) => {
+      resetPassword: (input: typeof ResetPasswordPayload.Type) => {
         return Effect.gen(function* () {
           return yield* withTransaction(
             Effect.gen(function* () {

@@ -1,17 +1,21 @@
 import { sql } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { UserSchema } from "@gym-graphs/schemas/user";
 
-// export const weightUnitEnum = pgEnum("weight_unit", constant.user.weightUnit);
+export const weightUnitEnum = pgEnum(
+  "weight_unit",
+  UserSchema.fields.weightUnit.literals,
+);
 
-// export const oneRepMaxAlgoEnum = pgEnum(
-//   "one_rep_max_algo",
-//   constant.user.oneRepMaxAlgo,
-// );
+export const oneRepMaxAlgoEnum = pgEnum(
+  "one_rep_max_algo",
+  UserSchema.fields.oneRepMaxAlgo.literals,
+);
 
-// export const dashboardViewEnum = pgEnum(
-//   "dashboard_view",
-//   constant.user.dashboardView,
-// );
+export const dashboardViewEnum = pgEnum(
+  "dashboard_view",
+  UserSchema.fields.dashboardView.literals,
+);
 
 export const users = pgTable("users", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -19,9 +23,9 @@ export const users = pgTable("users", (t) => ({
   name: t.text("name").notNull(),
   password: t.text("password"),
   salt: t.text("salt"),
-  // weightUnit: weightUnitEnum().notNull().default("kg"),
-  // oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
-  // dashboardView: dashboardViewEnum().notNull().default("graph"),
+  weightUnit: weightUnitEnum().notNull().default("kg"),
+  oneRepMaxAlgo: oneRepMaxAlgoEnum().notNull().default("epley"),
+  dashboardView: dashboardViewEnum().notNull().default("graph"),
   verifiedAt: t.timestamp("verified_at"),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
   updatedAt: t

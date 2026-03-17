@@ -1,33 +1,70 @@
-import { z } from "zod";
-import { constant } from "@gym-graphs/constants";
+import { pipe, Schema } from "effect";
 
-export const userSchema = z.object({
-  id: z.number().positive("id must be positive"),
-  email: z
-    .email("email must be valid")
-    .trim()
-    .min(3, "email must be at least 3 characters")
-    .max(255, "email must be at most 255 characters"),
-  name: z
-    .string()
-    .trim()
-    .min(3, "name must be at least 3 characters")
-    .max(255, "name must be at most 255 characters"),
-  weightUnit: z.enum(constant.user.weightUnit),
-  password: z
-    .string()
-    .trim()
-    .min(3, "password must be at least 3 characters")
-    .max(255, "password must be at most 255 characters"),
-  oneRepMaxAlgo: z.enum(constant.user.oneRepMaxAlgo),
-  dashboardView: z.enum(constant.user.dashboardView),
+export const UserSchema = Schema.Struct({
+  id: Schema.Positive,
+
+  email: pipe(
+    Schema.Trim.annotations({
+      message: () => "email must be a valid string",
+    }),
+    Schema.nonEmptyString({ message: () => "email is required" }),
+    Schema.minLength(3, {
+      message: () => "email must be at least 3 characters",
+    }),
+    Schema.maxLength(255, {
+      message: () => "email must be at most 255 characters",
+    }),
+    Schema.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+      description: "a valid email address",
+      message: () => "email must be valid",
+    }),
+  ),
+
+  password: pipe(
+    Schema.Trim.annotations({
+      message: () => "password must be a valid string",
+    }),
+    Schema.nonEmptyString({ message: () => "password is required" }),
+    Schema.minLength(3, {
+      message: () => "password must be at least 3 characters",
+    }),
+    Schema.maxLength(255, {
+      message: () => "password must be at most 255 characters",
+    }),
+  ),
+
+  name: pipe(
+    Schema.Trim.annotations({
+      message: () => "name must be a valid string",
+    }),
+    Schema.nonEmptyString({ message: () => "name is required" }),
+    Schema.minLength(3, {
+      message: () => "name must be at least 3 characters",
+    }),
+    Schema.maxLength(255, {
+      message: () => "name must be at most 255 characters",
+    }),
+  ),
+
+  verifiedAt: Schema.NullOr(Schema.Date),
+
+  weightUnit: Schema.Literal("kg", "lbs"),
+
+  oneRepMaxAlgo: Schema.Literal(
+    "adams",
+    "baechle",
+    "berger",
+    "brown",
+    "brzycki",
+    "epley",
+    "kemmler",
+    "landers",
+    "lombardi",
+    "mayhew",
+    "naclerio",
+    "oConner",
+    "wathen",
+  ),
+
+  dashboardView: Schema.Literal("graph", "trending"),
 });
-
-export const userPatchSchema = userSchema.partial().pick({
-  weightUnit: true,
-  name: true,
-  oneRepMaxAlgo: true,
-  dashboardView: true,
-});
-
-export type UserPatch = z.infer<typeof userPatchSchema>;

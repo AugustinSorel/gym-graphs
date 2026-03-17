@@ -1,19 +1,7 @@
-import z from "zod";
-import { userSchema } from "~/user";
+import { Schema } from "effect";
+import { UserSchema } from "./user";
 
-export const signUpSchema = z
-  .object({
-    email: userSchema.shape.email,
-    password: userSchema.shape.password,
-    confirmPassword: userSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-export type SignUpSchema = z.infer<typeof signUpSchema>;
-
-export const signInSchema = userSchema.pick({ email: true, password: true });
-
-export type SignInSchema = z.infer<typeof signInSchema>;
+export const SessionSchema = Schema.Struct({
+  id: Schema.Trim,
+  userId: UserSchema.fields.id,
+});

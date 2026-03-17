@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@gym-graphs/constants": "workspace:*",
+    "effect": "^3.19.19",
     "zod": "^4.1.12"
   }
 }

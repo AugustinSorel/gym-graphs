@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.1009.0",
+    "@gym-graphs/schemas": "workspace:*",
     "@effect/platform": "^0.94.5",
     "@effect/platform-node": "^0.104.1",
     "@effect/sql": "^0.49.0",
