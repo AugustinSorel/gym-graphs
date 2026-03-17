@@ -12,6 +12,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.verificationCodes.userId,
     }),
+    passwordResetToken: r.one.passwordResetTokens({
+      from: r.users.id,
+      to: r.passwordResetTokens.userId,
+    }),
   },
 
   sessions: {
@@ -26,7 +30,13 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.users({
       from: r.verificationCodes.userId,
       to: r.users.id,
-      optional: false,
+    }),
+  },
+
+  passwordResetTokens: {
+    user: r.one.users({
+      from: r.passwordResetTokens.userId,
+      to: r.users.id,
     }),
   },
 }));

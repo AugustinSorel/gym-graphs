@@ -76,3 +76,25 @@ export const verificationCodes = pgTable("verification_codes", (t) => ({
 }));
 
 export type VerificationCode = Readonly<typeof verificationCodes.$inferSelect>;
+
+export const passwordResetTokens = pgTable("password_reset_tokens", (t) => ({
+  token: t.text("token").notNull().primaryKey(),
+  userId: t
+    .integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: t
+    .timestamp("expires_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + (15 * interval '2 hour')`),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type PasswordResetToken = Readonly<
+  typeof passwordResetTokens.$inferSelect
+>;
