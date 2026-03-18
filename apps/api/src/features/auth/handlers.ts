@@ -1,4 +1,5 @@
-import { Api, CurrentSession } from "@gym-graphs/contracts/api";
+import { Api } from "@gym-graphs/contracts/api";
+import { CurrentSession } from "@gym-graphs/middleware/auth";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";

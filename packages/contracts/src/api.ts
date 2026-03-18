@@ -1,10 +1,5 @@
-import {
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpApiMiddleware,
-  HttpApiSecurity,
-} from "@effect/platform";
-import { Context, Schema } from "effect";
+import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
+import { Schema } from "effect";
 import {
   DuplicateUser,
   UserNotFound,
@@ -25,48 +20,8 @@ import {
 } from "@gym-graphs/schemas/auth";
 import { UserSchema } from "@gym-graphs/schemas/user";
 import { VerificationCodeSchema } from "@gym-graphs/schemas/verification-code";
+import { RequireSession } from "@gym-graphs/middleware/auth";
 import { HttpApi, HttpApiError } from "@effect/platform";
-
-export const sessionSecurity = HttpApiSecurity.apiKey({
-  in: "cookie",
-  key: "session",
-});
-
-export class CurrentSession extends Context.Tag("CurrentSession")<
-  CurrentSession,
-  typeof CurrentSessionSchema.Type
->() {}
-
-export class RequireSession extends HttpApiMiddleware.Tag<RequireSession>()(
-  "Authorization",
-  {
-    failure: Schema.Union(
-      Unauthorized,
-      HttpApiError.RequestTimeout,
-      HttpApiError.InternalServerError,
-    ),
-    provides: CurrentSession,
-    security: {
-      session: sessionSecurity,
-    },
-  },
-) {}
-
-export class RequireVerifiedSession extends HttpApiMiddleware.Tag<RequireVerifiedSession>()(
-  "VerifiedAuthorization",
-  {
-    failure: Schema.Union(
-      Unauthorized,
-      AccountNotVerified,
-      HttpApiError.RequestTimeout,
-      HttpApiError.InternalServerError,
-    ),
-    provides: CurrentSession,
-    security: {
-      session: sessionSecurity,
-    },
-  },
-) {}
 
 const authApi = HttpApiGroup.make("Auth")
   .add(

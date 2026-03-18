@@ -1,5 +1,5 @@
 {
-  "name": "@gym-graphs/contracts",
+  "name": "@gym-graphs/middleware",
   "version": "1.0.0",
   "type": "module",
   "exports": {
@@ -17,7 +17,6 @@
   "dependencies": {
     "@gym-graphs/schemas": "workspace:*",
     "@gym-graphs/errors": "workspace:*",
-    "@gym-graphs/middleware": "workspace:*",
     "@effect/platform": "^0.94.5",
     "effect": "^3.19.19"
   }

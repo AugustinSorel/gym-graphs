@@ -27,6 +27,7 @@
     "@gym-graphs/schemas": "workspace:*",
     "@gym-graphs/contracts": "workspace:*",
     "@gym-graphs/errors": "workspace:*",
+    "@gym-graphs/middleware": "workspace:*",
     "@effect/platform": "^0.94.5",
     "@effect/platform-node": "^0.104.1",
     "@effect/sql": "^0.49.0",

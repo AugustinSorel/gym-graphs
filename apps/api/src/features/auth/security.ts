@@ -6,7 +6,7 @@ import { SessionService } from "../session/service";
 import {
   RequireSession,
   RequireVerifiedSession,
-} from "@gym-graphs/contracts/api";
+} from "@gym-graphs/middleware/auth";
 
 export const RequireSessionLive = Layer.effect(
   RequireSession,
