@@ -2,7 +2,7 @@ import { Database, isUniqueViolation } from "#/integrations/db/db";
 import { users, type User } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Option } from "effect";
-import { DuplicateUser } from "./errors";
+import { DuplicateUser } from "@gym-graphs/errors/api";
 import { eq } from "drizzle-orm";
 
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {

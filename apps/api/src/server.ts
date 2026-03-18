@@ -1,10 +1,15 @@
 import { Effect, Layer } from "effect";
 import { ServerConfig } from "./server-config";
-import { HttpApiBuilder, HttpApiSwagger, HttpServer } from "@effect/platform";
+import {
+  HttpApiBuilder,
+  HttpApiSwagger,
+  HttpServer,
+  HttpMiddleware,
+} from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { createServer } from "node:http";
 import { AuthLive } from "#/features/auth/handlers";
-import { Api } from "#/api";
+import { Api } from "@gym-graphs/contracts/api";
 import { Database } from "#/integrations/db/db";
 import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
@@ -25,8 +30,19 @@ const HttpServerLive = Layer.unwrapEffect(
   }),
 );
 
-export const ServerLive = HttpApiBuilder.serve().pipe(
+const CorsLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const config = yield* ServerConfig;
+    return HttpApiBuilder.middlewareCors({
+      credentials: true,
+      allowedOrigins: [config.url.web],
+    });
+  }),
+);
+
+export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   HttpServer.withLogAddress,
+  Layer.provide(CorsLive),
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
   Layer.provide(RequireSessionLive),

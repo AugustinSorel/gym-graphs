@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTransition } from "react";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 
 export const useSignOut = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
@@ -11,9 +10,7 @@ export const useSignOut = () => {
 
   const signOut = useMutation({
     mutationFn: async () => {
-      const req = api().sessions.me.$delete();
-
-      return parseJsonResponse(req);
+      return callApi((api) => api.Auth.signOut());
     },
     onSuccess: () => {
       startRedirectTransition(async () => {

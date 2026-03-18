@@ -1,23 +1,20 @@
-import { constant } from "@gym-graphs/constants";
-import { createIsomorphicFn } from "@tanstack/react-start";
-import { getCookie } from "@tanstack/react-start/server";
-import { api as gymGraphsApi } from "@gym-graphs/api";
-import type { ApiReqOption } from "@gym-graphs/api";
+import { Effect } from "effect";
+import { FetchHttpClient, HttpApiClient } from "@effect/platform";
+import { Api } from "@gym-graphs/contracts/api";
 
-export const api = () => {
-  return gymGraphsApi(getOptions());
+const makeClient = HttpApiClient.make(Api, {
+  baseUrl: "http://localhost:5000",
+});
+
+type Client = Effect.Effect.Success<typeof makeClient>;
+
+export const callApi = <A, E>(
+  call: (client: Client) => Effect.Effect<A, E, never>,
+) => {
+  const program = Effect.gen(function* () {
+    const client = yield* makeClient;
+    return yield* call(client);
+  }).pipe(Effect.provide(FetchHttpClient.layer));
+
+  return Effect.runPromise(program);
 };
-
-const getOptions = createIsomorphicFn()
-  .client((): ApiReqOption => {
-    return {
-      init: { credentials: "include" },
-    };
-  })
-  .server((): ApiReqOption => {
-    const session = getCookie(constant.cookie.session);
-
-    return {
-      headers: { Cookie: `session=${session}` },
-    };
-  });

@@ -1,9 +1,8 @@
-import { Api } from "#/api";
+import { Api, CurrentSession } from "@gym-graphs/contracts/api";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";
 import { AuthService } from "./service";
-import { CurrentSession } from "./security";
 
 export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
   return handlers

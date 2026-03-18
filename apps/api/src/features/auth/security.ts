@@ -1,53 +1,12 @@
-import {
-  HttpApiError,
-  HttpApiMiddleware,
-  HttpApiSecurity,
-} from "@effect/platform";
-import { AccountNotVerified, Unauthorized } from "./errors";
-import { Context, Effect, Layer, Redacted, Schema } from "effect";
+import { HttpApiError } from "@effect/platform";
+import { AccountNotVerified } from "@gym-graphs/errors/api";
+import { Effect, Layer, Redacted } from "effect";
 import { Database } from "#/integrations/db/db";
 import { SessionService } from "../session/service";
-
-export const sessionSecurity = HttpApiSecurity.apiKey({
-  in: "cookie",
-  key: "session",
-});
-
-export class CurrentSession extends Context.Tag("CurrentSession")<
-  CurrentSession,
-  Effect.Effect.Success<ReturnType<(typeof SessionService)["validateToken"]>>
->() {}
-
-export class RequireSession extends HttpApiMiddleware.Tag<RequireSession>()(
-  "Authorization",
-  {
-    failure: Schema.Union(
-      Unauthorized,
-      HttpApiError.RequestTimeout,
-      HttpApiError.InternalServerError,
-    ),
-    provides: CurrentSession,
-    security: {
-      session: sessionSecurity,
-    },
-  },
-) {}
-
-export class RequireVerifiedSession extends HttpApiMiddleware.Tag<RequireVerifiedSession>()(
-  "VerifiedAuthorization",
-  {
-    failure: Schema.Union(
-      Unauthorized,
-      AccountNotVerified,
-      HttpApiError.RequestTimeout,
-      HttpApiError.InternalServerError,
-    ),
-    provides: CurrentSession,
-    security: {
-      session: sessionSecurity,
-    },
-  },
-) {}
+import {
+  RequireSession,
+  RequireVerifiedSession,
+} from "@gym-graphs/contracts/api";
 
 export const RequireSessionLive = Layer.effect(
   RequireSession,

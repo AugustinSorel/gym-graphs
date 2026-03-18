@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { useTransition } from "react";
@@ -6,14 +6,11 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { z } from "zod";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { SignInPayload } from "@gym-graphs/schemas/auth";
+import { callApi } from "~/libs/api";
 
 export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
@@ -23,24 +20,21 @@ export const EmailSignInForm = () => {
   const form = useEmailSignInForm();
   const signIn = useSignIn();
 
-  const onSubmit = async (values: SignInSchema) => {
-    await signIn.mutateAsync(
-      { json: values },
-      {
-        onSuccess: () => {
-          startRedirectTransition(async () => {
-            if (search.callbackUrl) {
-              await navigate({ to: search.callbackUrl });
-            } else {
-              await navigate({ to: "/dashboard" });
-            }
-          });
-        },
-        onError: (error) => {
-          form.setError("root", { message: error.message });
-        },
+  const onSubmit = async (payload: typeof SignInPayload.Type) => {
+    await signIn.mutateAsync(payload, {
+      onSuccess: () => {
+        startRedirectTransition(async () => {
+          if (search.callbackUrl) {
+            await navigate({ to: search.callbackUrl });
+          } else {
+            await navigate({ to: "/dashboard" });
+          }
+        });
       },
-    );
+      onError: (error) => {
+        form.setError("root", { message: error.message });
+      },
+    });
   };
 
   return (
@@ -121,12 +115,9 @@ export const EmailSignInForm = () => {
 
 const routeApi = getRouteApi("/(auth)/_layout/sign-in");
 
-const signInSchema = userSchema.pick({ email: true, password: true });
-type SignInSchema = Readonly<z.infer<typeof signInSchema>>;
-
 const useEmailSignInForm = () => {
-  return useForm<SignInSchema>({
-    resolver: zodResolver(signInSchema),
+  return useForm<typeof SignInPayload.Type>({
+    resolver: effectTsResolver(SignInPayload),
     defaultValues: {
       email: "",
       password: "",
@@ -135,11 +126,9 @@ const useEmailSignInForm = () => {
 };
 
 const useSignIn = () => {
-  const req = api().sessions.$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (payload: typeof SignInPayload.Type) => {
+      return callApi((api) => api.Auth.signIn({ payload }));
     },
   });
 };

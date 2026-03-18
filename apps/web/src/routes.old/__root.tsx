@@ -53,7 +53,11 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       };
     }
 
-    const session = await callApi((api) => api.Auth.me()).catch(() => null);
+    // const req = api().sessions.me.$get;
+    // const session = await parseJsonResponse(req()).catch(() => null);
+
+    
+    const session = await callApi((api) => api.Auth.me());
 
     if (!session) {
       return {
@@ -94,7 +98,7 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {/*{!!data.user?.emailVerifiedAt ? <HeaderPrivate /> : <HeaderPublic />}*/}
+        {!!data.user?.emailVerifiedAt ? <HeaderPrivate /> : <HeaderPublic />}
 
         {children}
 

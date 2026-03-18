@@ -30,6 +30,12 @@ importers:
       '@effect/sql-pg':
         specifier: ^0.50.3
         version: 0.50.3(@effect/experimental@0.58.0(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(@effect/sql@0.49.0(@effect/experimental@0.58.0(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(effect@3.19.19)
+      '@gym-graphs/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@gym-graphs/errors':
+        specifier: workspace:*
+        version: link:../../packages/errors
       '@gym-graphs/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -64,12 +70,12 @@ importers:
       '@dnd-kit/sortable':
         specifier: ^10.0.0
         version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
-      '@gym-graphs/api':
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      '@gym-graphs/contracts':
         specifier: workspace:*
-        version: link:../api
-      '@gym-graphs/constants':
-        specifier: workspace:*
-        version: link:../../packages/constants
+        version: link:../../packages/contracts
       '@gym-graphs/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -175,6 +181,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -234,20 +243,43 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.1)(tsx@4.21.0))
 
-  packages/constants:
+  packages/contracts:
+    dependencies:
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      '@gym-graphs/errors':
+        specifier: workspace:*
+        version: link:../errors
+      '@gym-graphs/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
     devDependencies:
-      '@types/node':
-        specifier: ^24.9.1
-        version: 24.9.1
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
+
+  packages/errors:
+    dependencies:
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
 
   packages/schemas:
     dependencies:
-      '@gym-graphs/constants':
-        specifier: workspace:*
-        version: link:../constants
       effect:
         specifier: ^3.19.19
         version: 3.19.19

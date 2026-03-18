@@ -1,7 +1,7 @@
 import { ServerConfig } from "#/server-config";
 import { HttpApiBuilder } from "@effect/platform";
 import { Effect, Redacted } from "effect";
-import { sessionSecurity } from "./security";
+import { sessionSecurity } from "@gym-graphs/contracts/api";
 
 export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
   accessors: true,

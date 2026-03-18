@@ -9,6 +9,7 @@ export const SignUpPayload = Schema.Struct({
 }).pipe(
   Schema.filter((schema) => schema.confirmPassword === schema.password, {
     message: () => "password don't match",
+    path: ["confirmPassword"],
   }),
 );
 
@@ -22,8 +23,8 @@ export const ResetPasswordPayload = Schema.extend(
   UserSchema.pick("password"),
 );
 
-export const CurrentSession = Schema.Struct({
+export const CurrentSessionSchema = Schema.Struct({
   id: Schema.Trim,
   userId: UserSchema.fields.id,
-  user: UserSchema.pick("email", "name", "verifiedAt"),
+  user: UserSchema.pick("email", "name", "verifiedAt", "id"),
 });

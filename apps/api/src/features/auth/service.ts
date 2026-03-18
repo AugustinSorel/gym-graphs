@@ -4,7 +4,16 @@ import { Clock, Duration, Effect } from "effect";
 import { inferNameFromEmail } from "../user/utils";
 import { UserRepo } from "../user/repo";
 import { SessionRepo } from "../session/repo";
-import { InvalidCredentials, AccountNotVerified } from "./errors";
+import {
+  InvalidCredentials,
+  AccountNotVerified,
+  InvalidVerificationCode,
+  VerificationCodeExpired,
+  VerificationCodeNotFound,
+  PasswordResetTokenExpired,
+  PasswordResetTokenNotFound,
+  UserNotFound,
+} from "@gym-graphs/errors/api";
 import type {
   SignUpPayload,
   SignInPayload,
@@ -14,18 +23,7 @@ import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
 import { verifyAccountEmailContent, resetPasswordEmailContent } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
-import {
-  InvalidVerificationCode,
-  VerificationCodeExpired,
-  VerificationCodeNotFound,
-} from "#/features/verification-code/errors";
-import type { CurrentSession } from "./security";
 import { PasswordResetTokenRepo } from "../password-reset-token/repo";
-import { UserNotFound } from "../user/errors";
-import {
-  PasswordResetTokenExpired,
-  PasswordResetTokenNotFound,
-} from "../password-reset-token/errors";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
@@ -191,9 +189,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
         }).pipe(Effect.timeout(500));
       },
 
-      sendVerificationCode: (
-        user: Pick<CurrentSession["Type"]["user"], "email" | "id">,
-      ) => {
+      sendVerificationCode: (user: Pick<User, "email" | "id">) => {
         return Effect.gen(function* () {
           return yield* withTransaction(
             Effect.gen(function* () {

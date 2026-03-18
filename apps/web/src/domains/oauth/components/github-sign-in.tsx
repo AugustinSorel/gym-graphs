@@ -5,9 +5,9 @@ import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
-import type { InferApiReqInput } from "@gym-graphs/api";
+// import { api } from "~/libs/api";
+// import { parseJsonResponse } from "@gym-graphs/api";
+// import type { InferApiReqInput } from "@gym-graphs/api";
 
 const routeApi = getRouteApi("/(auth)/_layout");
 
@@ -41,17 +41,17 @@ export const GithubSignIn = () => {
 
 const useGithubSignIn = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  const req = api().oauth.github.$post;
+  // const req = api().oauth.github.$post;
 
   const githubSignIn = useMutation({
     mutationFn: async (query: InferApiReqInput<typeof req>["query"]) => {
-      return parseJsonResponse(req({ query }));
+      // return parseJsonResponse(req({ query }));
     },
-    onSuccess: (url) => {
-      startRedirectTransition(async () => {
-        window.location.href = url;
-      });
-    },
+    // onSuccess: (url) => {
+    // startRedirectTransition(async () => {
+    // window.location.href = url;
+    // });
+    // },
   });
 
   return {
