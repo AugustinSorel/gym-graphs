@@ -12,7 +12,7 @@ import type {
 } from "@gym-graphs/schemas/auth";
 import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
-import { emailVerificationEmailBody, passwordResetEmailBody } from "./email";
+import { verifyAccountEmailContent, resetPasswordEmailContent } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
 import {
   InvalidVerificationCode,
@@ -76,7 +76,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               yield* email.send(
                 [user.email],
                 "Verification code",
-                emailVerificationEmailBody(verificationCode.code),
+                yield* verifyAccountEmailContent(verificationCode.code),
               );
 
               const session = yield* sessionRepo.create({
@@ -207,7 +207,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               yield* email.send(
                 [user.email],
                 "Verification code",
-                emailVerificationEmailBody(verificationCode.code),
+                yield* verifyAccountEmailContent(verificationCode.code),
               );
             }),
           );
@@ -238,7 +238,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
               yield* email.send(
                 [user.email],
                 "Reset your password",
-                passwordResetEmailBody(token),
+                yield* resetPasswordEmailContent(token),
               );
             }),
           );

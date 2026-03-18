@@ -1,13 +1,17 @@
+import { ServerConfig } from "#/env";
 import type {
   PasswordResetToken,
   VerificationCode,
 } from "#/integrations/db/schema";
+import { Effect } from "effect";
 
-export const emailVerificationEmailBody = (code: VerificationCode["code"]) => {
-  //FIXME
-  const url = `${""}/verify-email`;
+export const verifyAccountEmailContent = (code: VerificationCode["code"]) => {
+  return Effect.gen(function* () {
+    const config = yield* ServerConfig;
 
-  return `
+    const url = `${config.url.web}/verify-email`;
+
+    return `
       <!doctype html>
       <html lang="en">
         <head>
@@ -145,12 +149,18 @@ export const emailVerificationEmailBody = (code: VerificationCode["code"]) => {
         </body>
       </html>
         `;
+  });
 };
 
-export const passwordResetEmailBody = (token: PasswordResetToken["token"]) => {
-  const url = `${""}/reset-password/${token}`;
+export const resetPasswordEmailContent = (
+  token: PasswordResetToken["token"],
+) => {
+  return Effect.gen(function* () {
+    const config = yield* ServerConfig;
 
-  return `
+    const url = `${config.url.web}/reset-password/${token}`;
+
+    return `
       <!doctype html>
       <html lang="en">
         <head>
@@ -296,4 +306,5 @@ export const passwordResetEmailBody = (token: PasswordResetToken["token"]) => {
         </body>
       </html>
         `;
+  });
 };

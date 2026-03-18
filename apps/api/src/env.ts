@@ -42,7 +42,17 @@ export const serverConfig = Config.all({
   db: Config.nested(dbConfig, "DB"),
   smtp: Config.nested(smtpConfig, "SMTP"),
   githubClient: Config.nested(githubClientConfig, "GITHUB_CLIENT"),
-});
+}).pipe(
+  Config.map((env) => ({
+    ...env,
+    url: {
+      web:
+        env.nodeEnv === "production"
+          ? "https://api.gym-graphs.com"
+          : `http://localhost:${env.port}`,
+    },
+  })),
+);
 
 export class ServerConfig extends Effect.Service<ServerConfig>()(
   "ServerConfig",
