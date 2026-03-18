@@ -2,15 +2,15 @@ import { Effect, Layer, Schema } from "effect";
 import { PgClient } from "@effect/sql-pg";
 import { DatabaseError, types } from "pg";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
-import { ServerConfig } from "#/env";
+import { ServerConfig } from "#/server-config";
 import { relations } from "./relations";
 
 export const PgClientLive = Layer.unwrapEffect(
   Effect.gen(function* () {
-    const env = yield* ServerConfig;
+    const config = yield* ServerConfig;
 
     return PgClient.layer({
-      url: env.db.url,
+      url: config.db.url,
       types: {
         getTypeParser: (typeId, format) => {
           if (

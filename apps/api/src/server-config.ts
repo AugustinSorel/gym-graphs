@@ -32,7 +32,7 @@ const dbConfig = pipe(
   }),
 );
 
-export const serverConfig = Config.all({
+const config = Config.all({
   nodeEnv: Config.literal(
     "development",
     "production",
@@ -43,13 +43,13 @@ export const serverConfig = Config.all({
   smtp: Config.nested(smtpConfig, "SMTP"),
   githubClient: Config.nested(githubClientConfig, "GITHUB_CLIENT"),
 }).pipe(
-  Config.map((env) => ({
-    ...env,
+  Config.map((config) => ({
+    ...config,
     url: {
       web:
-        env.nodeEnv === "production"
+        config.nodeEnv === "production"
           ? "https://api.gym-graphs.com"
-          : `http://localhost:${env.port}`,
+          : `http://localhost:${config.port}`,
     },
   })),
 );
@@ -58,7 +58,7 @@ export class ServerConfig extends Effect.Service<ServerConfig>()(
   "ServerConfig",
   {
     effect: Effect.gen(function* () {
-      return yield* serverConfig;
+      return yield* config;
     }),
     accessors: true,
   },

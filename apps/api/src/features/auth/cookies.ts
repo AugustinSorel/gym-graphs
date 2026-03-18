@@ -1,4 +1,4 @@
-import { ServerConfig } from "#/env";
+import { ServerConfig } from "#/server-config";
 import { HttpApiBuilder } from "@effect/platform";
 import { Effect, Redacted } from "effect";
 import { sessionSecurity } from "./security";
@@ -7,7 +7,7 @@ export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
   accessors: true,
   dependencies: [ServerConfig.Default],
   effect: Effect.gen(function* () {
-    const env = yield* ServerConfig;
+    const config = yield* ServerConfig;
 
     return {
       setSessionCookie: (token: string, expiresAt: Date) =>
@@ -16,12 +16,12 @@ export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
           Redacted.make(token),
           {
             httpOnly: true,
-            sameSite: env.nodeEnv === "production" ? "none" : "lax",
-            secure: env.nodeEnv === "production",
+            sameSite: config.nodeEnv === "production" ? "none" : "lax",
+            secure: config.nodeEnv === "production",
             expires: expiresAt,
             path: "/",
             domain:
-              env.nodeEnv === "production" ? ".gym-graphs.com" : "localhost",
+              config.nodeEnv === "production" ? ".gym-graphs.com" : "localhost",
           },
         ),
 
@@ -29,12 +29,12 @@ export class AuthCookies extends Effect.Service<AuthCookies>()("AuthCookies", {
         HttpApiBuilder.securitySetCookie(sessionSecurity, Redacted.make(""), {
           httpOnly: true,
           expires: new Date(0),
-          sameSite: env.nodeEnv === "production" ? "none" : "lax",
-          secure: env.nodeEnv === "production",
+          sameSite: config.nodeEnv === "production" ? "none" : "lax",
+          secure: config.nodeEnv === "production",
           maxAge: 0,
           path: "/",
           domain:
-            env.nodeEnv === "production" ? ".gym-graphs.com" : "localhost",
+            config.nodeEnv === "production" ? ".gym-graphs.com" : "localhost",
         }),
     };
   }),

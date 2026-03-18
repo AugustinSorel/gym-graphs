@@ -1,4 +1,4 @@
-import { ServerConfig } from "#/env";
+import { ServerConfig } from "#/server-config";
 import type {
   PasswordResetToken,
   VerificationCode,

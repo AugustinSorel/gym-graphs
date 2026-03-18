@@ -1,5 +1,5 @@
 import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
-import { ServerConfig } from "#/env";
+import { ServerConfig } from "#/server-config";
 import { Data, Effect, Redacted } from "effect";
 
 class EmailDeliveryError extends Data.TaggedError("EmailDeliveryError")<{
@@ -9,30 +9,30 @@ class EmailDeliveryError extends Data.TaggedError("EmailDeliveryError")<{
 export class Email extends Effect.Service<Email>()("Email", {
   accessors: true,
   effect: Effect.gen(function* () {
-    const env = yield* ServerConfig;
+    const config = yield* ServerConfig;
 
     const email = new SESClient({
-      region: env.smtp.host,
+      region: config.smtp.host,
       credentials: {
-        accessKeyId: env.smtp.user,
-        secretAccessKey: Redacted.value(env.smtp.password),
+        accessKeyId: config.smtp.user,
+        secretAccessKey: Redacted.value(config.smtp.password),
       },
     });
 
     return {
       send: (to: Array<string>, subject: string, html: string) => {
         return Effect.gen(function* () {
-          const config = new SendEmailCommand({
+          const sendCmd = new SendEmailCommand({
             Destination: { ToAddresses: to },
             Message: {
               Subject: { Data: subject },
               Body: { Html: { Data: html } },
             },
-            Source: env.smtp.from,
+            Source: config.smtp.from,
           });
 
           const res = yield* Effect.tryPromise({
-            try: () => email.send(config),
+            try: () => email.send(sendCmd),
             catch: (e) => new EmailDeliveryError({ cause: e }),
           });
 
