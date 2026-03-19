@@ -13,12 +13,12 @@ import {
   PasswordResetTokenExpired,
   PasswordResetTokenNotFound,
   UserNotFound,
-} from "@gym-graphs/errors/api";
+} from "@gym-graphs/shared/errors/api";
 import type {
   SignUpPayload,
   SignInPayload,
   ResetPasswordPayload,
-} from "@gym-graphs/schemas/auth";
+} from "@gym-graphs/shared/schemas/auth";
 import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";
 import { verifyAccountEmailContent, resetPasswordEmailContent } from "./email";

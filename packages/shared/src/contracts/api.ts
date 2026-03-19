@@ -11,16 +11,16 @@ import {
   VerificationCodeNotFound,
   PasswordResetTokenExpired,
   PasswordResetTokenNotFound,
-} from "@gym-graphs/errors/api";
+} from "#/errors/api";
 import {
   SignUpPayload,
   SignInPayload,
   ResetPasswordPayload,
   CurrentSessionSchema,
-} from "@gym-graphs/schemas/auth";
-import { UserSchema } from "@gym-graphs/schemas/user";
-import { VerificationCodeSchema } from "@gym-graphs/schemas/verification-code";
-import { RequireSession } from "@gym-graphs/middleware/auth";
+} from "#/schemas/auth";
+import { UserSchema } from "#/schemas/user";
+import { VerificationCodeSchema } from "#/schemas/verification-code";
+import { RequireSession } from "#/middlewares/auth";
 import { HttpApi, HttpApiError } from "@effect/platform";
 
 const authApi = HttpApiGroup.make("Auth")

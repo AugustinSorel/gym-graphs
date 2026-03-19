@@ -1,5 +1,5 @@
 {
-  "name": "@gym-graphs/middleware",
+  "name": "@gym-graphs/shared",
   "version": "1.0.0",
   "type": "module",
   "exports": {
@@ -15,8 +15,6 @@
     "tsup": "^8.5.0"
   },
   "dependencies": {
-    "@gym-graphs/schemas": "workspace:*",
-    "@gym-graphs/errors": "workspace:*",
     "@effect/platform": "^0.94.5",
     "effect": "^3.19.19"
   }

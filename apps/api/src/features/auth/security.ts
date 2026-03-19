@@ -1,12 +1,12 @@
 import { HttpApiError } from "@effect/platform";
-import { AccountNotVerified } from "@gym-graphs/errors/api";
+import { AccountNotVerified } from "@gym-graphs/shared/errors/api";
 import { Effect, Layer, Redacted } from "effect";
 import { Database } from "#/integrations/db/db";
 import { SessionService } from "../session/service";
 import {
   RequireSession,
   RequireVerifiedSession,
-} from "@gym-graphs/middleware/auth";
+} from "@gym-graphs/shared/middlewares/auth";
 
 export const RequireSessionLive = Layer.effect(
   RequireSession,

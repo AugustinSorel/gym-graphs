@@ -1,7 +1,7 @@
 import { Duration, Effect } from "effect";
 import { SessionRepo } from "./repo";
 import { Crypto } from "#/integrations/crypto/crypto";
-import { Unauthorized } from "@gym-graphs/errors/api";
+import { Unauthorized } from "@gym-graphs/shared/errors/api";
 
 export class SessionService extends Effect.Service<SessionService>()(
   "SessionService",

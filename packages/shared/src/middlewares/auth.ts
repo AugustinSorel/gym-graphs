@@ -4,11 +4,8 @@ import {
   HttpApiError,
 } from "@effect/platform";
 import { Context, Schema } from "effect";
-import {
-  Unauthorized,
-  AccountNotVerified,
-} from "@gym-graphs/errors/api";
-import { CurrentSessionSchema } from "@gym-graphs/schemas/auth";
+import { Unauthorized, AccountNotVerified } from "#/errors/api";
+import { CurrentSessionSchema } from "#/schemas/auth";
 
 export const sessionSecurity = HttpApiSecurity.apiKey({
   in: "cookie",
