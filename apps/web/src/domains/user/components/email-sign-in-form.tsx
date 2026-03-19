@@ -9,7 +9,7 @@ import { Spinner } from "~/ui/spinner";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import { SignInPayload } from "@gym-graphs/schemas/auth";
+import { SignInPayload } from "@gym-graphs/shared/schemas/auth";
 import { callApi } from "~/libs/api";
 
 export const EmailSignInForm = () => {

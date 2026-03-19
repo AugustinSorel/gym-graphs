@@ -1,5 +1,5 @@
 import { Input } from "~/ui/input";
-import { SignUpPayload } from "@gym-graphs/schemas/auth";
+import { SignUpPayload } from "@gym-graphs/shared/schemas/auth";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "~/ui/spinner";
 import { useTransition } from "react";

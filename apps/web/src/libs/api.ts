@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { FetchHttpClient, HttpApiClient } from "@effect/platform";
-import { Api } from "@gym-graphs/contracts/api";
+import { Api } from "@gym-graphs/shared/contracts/api";
 
 const makeClient = HttpApiClient.make(Api, {
   baseUrl: "http://localhost:5000",

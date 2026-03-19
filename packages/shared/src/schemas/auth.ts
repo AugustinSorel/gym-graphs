@@ -23,6 +23,8 @@ export const ResetPasswordPayload = Schema.extend(
   UserSchema.pick("password"),
 );
 
+export const ForgotPassworPayload = UserSchema.pick("email");
+
 export const CurrentSessionSchema = Schema.Struct({
   id: Schema.Trim,
   userId: UserSchema.fields.id,

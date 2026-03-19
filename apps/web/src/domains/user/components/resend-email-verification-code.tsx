@@ -2,8 +2,7 @@ import { Button } from "~/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "~/ui/spinner";
 import { CheckIcon } from "~/ui/icons";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 import type { ComponentProps } from "react";
 
 export const ResendEmailVerificationCode = () => {
@@ -39,9 +38,7 @@ const RedirectText = (props: ComponentProps<"p">) => {
 const useSendEmailVerificationCode = () => {
   return useMutation({
     mutationFn: async () => {
-      const req = api()["email-verifications"].$post();
-
-      return parseJsonResponse(req);
+      return callApi((api) => api.Auth.resendVerificationCode());
     },
   });
 };

@@ -17,8 +17,8 @@ import {
   SignInPayload,
   ResetPasswordPayload,
   CurrentSessionSchema,
+  ForgotPassworPayload,
 } from "#/schemas/auth";
-import { UserSchema } from "#/schemas/user";
 import { VerificationCodeSchema } from "#/schemas/verification-code";
 import { RequireSession } from "#/middlewares/auth";
 import { HttpApi, HttpApiError } from "@effect/platform";
@@ -67,7 +67,7 @@ const authApi = HttpApiGroup.make("Auth")
   )
   .add(
     HttpApiEndpoint.post("forgotPassword", "/forgot-password")
-      .setPayload(UserSchema.pick("email"))
+      .setPayload(ForgotPassworPayload)
       .addSuccess(Schema.Void)
       .addError(UserNotFound),
   )
