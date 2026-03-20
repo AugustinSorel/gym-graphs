@@ -7,9 +7,15 @@ export const SignUpPayload = Schema.Struct({
   password: UserSchema.fields.password,
   confirmPassword: UserSchema.fields.password,
 }).pipe(
-  Schema.filter((schema) => schema.confirmPassword === schema.password, {
-    message: () => "password don't match",
-    path: ["confirmPassword"],
+  Schema.filter((schema) => {
+    if (schema.confirmPassword !== schema.password) {
+      return {
+        path: ["confirmPassword"],
+        message: "password don't match",
+      };
+    }
+
+    return undefined;
   }),
 );
 
