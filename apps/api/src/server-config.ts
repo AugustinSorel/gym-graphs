@@ -32,7 +32,7 @@ const dbConfig = pipe(
   }),
 );
 
-const config = Config.all({
+export const serverConfig = Config.all({
   nodeEnv: Config.literal(
     "development",
     "production",
@@ -58,7 +58,7 @@ export class ServerConfig extends Effect.Service<ServerConfig>()(
   "ServerConfig",
   {
     effect: Effect.gen(function* () {
-      return yield* config;
+      return yield* serverConfig;
     }),
     accessors: true,
   },

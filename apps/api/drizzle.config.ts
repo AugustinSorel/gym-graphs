@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 import { Effect, Redacted } from "effect";
-import { serverConfig } from "./src/env";
+import { serverConfig } from "./src/server-config";
 
 const env = Effect.runSync(serverConfig);
 
