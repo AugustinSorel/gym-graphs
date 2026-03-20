@@ -1,7 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
-import { emailVerificationCodeSchema } from "@gym-graphs/schemas/email-verification";
+import { VerificationCodeSchema } from "@gym-graphs/shared/verification-code/schemas";
 import { Button } from "~/ui/button";
 import {
   InputOTP,
@@ -12,13 +12,10 @@ import {
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Spinner } from "~/ui/spinner";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 import { Field, FieldError, FieldGroup } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
 
 export const VerifyEmailForm = () => {
   const navigate = routeApi.useNavigate();
@@ -28,24 +25,21 @@ export const VerifyEmailForm = () => {
   const form = useVerifyEmailForm();
   const verifyEmail = useVerifyEmail();
 
-  const onSubmit = async (data: VerifyEmailForm) => {
-    await verifyEmail.mutateAsync(
-      { json: data },
-      {
-        onError: (error) => {
-          form.setError("root", { message: error.message });
-        },
-        onSuccess: () => {
-          startRedirectTransition(async () => {
-            if (search.callbackUrl) {
-              await navigate({ to: search.callbackUrl });
-            } else {
-              await navigate({ to: "/dashboard" });
-            }
-          });
-        },
+  const onSubmit = async (data: typeof VerificationCodeSchema.Type) => {
+    await verifyEmail.mutateAsync(data, {
+      onError: (error) => {
+        form.setError("root", { message: error.message });
       },
-    );
+      onSuccess: () => {
+        startRedirectTransition(async () => {
+          if (search.callbackUrl) {
+            await navigate({ to: search.callbackUrl });
+          } else {
+            await navigate({ to: "/dashboard" });
+          }
+        });
+      },
+    });
   };
 
   return (
@@ -108,8 +102,8 @@ export const VerifyEmailForm = () => {
 };
 
 const useVerifyEmailForm = () => {
-  const form = useForm<VerifyEmailForm>({
-    resolver: zodResolver(verifyEmailFormSchema),
+  const form = useForm<typeof VerificationCodeSchema.Type>({
+    resolver: effectTsResolver(VerificationCodeSchema),
     defaultValues: {
       code: "",
     },
@@ -119,17 +113,11 @@ const useVerifyEmailForm = () => {
 };
 
 const useVerifyEmail = () => {
-  const req = api()["email-verifications"].verify.$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (payload: typeof VerificationCodeSchema.Type) => {
+      return callApi((api) => api.Auth.verifyAccount({ payload }));
     },
   });
 };
 
 const routeApi = getRouteApi("/(auth)/_layout/verify-email");
-
-const verifyEmailFormSchema = emailVerificationCodeSchema.pick({ code: true });
-
-type VerifyEmailForm = Readonly<z.infer<typeof verifyEmailFormSchema>>;
