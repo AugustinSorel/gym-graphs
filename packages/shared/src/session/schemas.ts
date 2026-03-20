@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { UserSchema } from "./user";
+import { UserSchema } from "#/user/schemas";
 
 export const SessionSchema = Schema.Struct({
   id: Schema.Trim,

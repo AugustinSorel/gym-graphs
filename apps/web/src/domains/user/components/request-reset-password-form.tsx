@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { ForgotPassworPayload } from "@gym-graphs/shared/schemas/auth";
+import { ForgotPassworPayload } from "@gym-graphs/shared/auth/schemas";
 import { callApi } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";

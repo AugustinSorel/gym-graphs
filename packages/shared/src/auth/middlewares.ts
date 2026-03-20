@@ -4,8 +4,8 @@ import {
   HttpApiError,
 } from "@effect/platform";
 import { Context, Schema } from "effect";
-import { Unauthorized, AccountNotVerified } from "#/errors/api";
-import { CurrentSessionSchema } from "#/schemas/auth";
+import { Unauthorized, AccountNotVerified } from "#/auth/errors";
+import { CurrentSessionSchema } from "#/auth/schemas";
 
 export const sessionSecurity = HttpApiSecurity.apiKey({
   in: "cookie",

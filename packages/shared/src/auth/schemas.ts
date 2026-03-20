@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { UserSchema } from "./user";
-import { PasswordResetTokenSchema } from "./password-reset-token";
+import { UserSchema } from "#/user/schemas";
+import { PasswordResetTokenSchema } from "#/password-reset-token/schemas";
 
 export const SignUpPayload = Schema.Struct({
   email: UserSchema.fields.email,

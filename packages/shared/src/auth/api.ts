@@ -1,26 +1,29 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { Schema } from "effect";
 import {
-  DuplicateUser,
-  UserNotFound,
   InvalidCredentials,
   Unauthorized,
   AccountNotVerified,
+} from "#/auth/errors";
+import { DuplicateUser, UserNotFound } from "#/user/errors";
+import {
+  PasswordResetTokenExpired,
+  PasswordResetTokenNotFound,
+} from "#/password-reset-token/errors";
+import {
   InvalidVerificationCode,
   VerificationCodeExpired,
   VerificationCodeNotFound,
-  PasswordResetTokenExpired,
-  PasswordResetTokenNotFound,
-} from "#/errors/api";
+} from "#/verification-code/errors";
 import {
   SignUpPayload,
   SignInPayload,
   ResetPasswordPayload,
   CurrentSessionSchema,
   ForgotPassworPayload,
-} from "#/schemas/auth";
-import { VerificationCodeSchema } from "#/schemas/verification-code";
-import { RequireSession } from "#/middlewares/auth";
+} from "#/auth/schemas";
+import { VerificationCodeSchema } from "#/verification-code/schemas";
+import { RequireSession } from "#/auth/middlewares";
 import { HttpApi, HttpApiError } from "@effect/platform";
 
 const authApi = HttpApiGroup.make("Auth")

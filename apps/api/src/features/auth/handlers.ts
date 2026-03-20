@@ -1,5 +1,5 @@
-import { Api } from "@gym-graphs/shared/contracts/api";
-import { CurrentSession } from "@gym-graphs/shared/middlewares/auth";
+import { Api } from "@gym-graphs/shared/auth/api";
+import { CurrentSession } from "@gym-graphs/shared/auth/middlewares";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
 import { AuthCookies } from "./cookies";

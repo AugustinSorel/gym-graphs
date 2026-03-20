@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { pgEnum, pgTable } from "drizzle-orm/pg-core";
-import { UserSchema } from "@gym-graphs/shared/schemas/user";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",
