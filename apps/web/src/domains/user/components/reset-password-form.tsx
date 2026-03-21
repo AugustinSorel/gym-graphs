@@ -18,26 +18,18 @@ export const ResetPasswordForm = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
   const navigate = routeApi.useNavigate();
-  const params = routeApi.useParams();
 
   const onSubmit = async (data: typeof ResetPasswordPayload.Type) => {
-    await resetPassword.mutateAsync(
-      {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        token: params.token,
+    await resetPassword.mutateAsync(data, {
+      onSuccess: () => {
+        startRedirectTransition(async () => {
+          await navigate({ to: "/dashboard" });
+        });
       },
-      {
-        onSuccess: () => {
-          startRedirectTransition(async () => {
-            await navigate({ to: "/dashboard" });
-          });
-        },
-        onError: (error) => {
-          form.setError("root", { message: error.message });
-        },
+      onError: (error) => {
+        form.setError("root", { message: error.message });
       },
-    );
+    });
   };
 
   return (
@@ -112,11 +104,14 @@ export const ResetPasswordForm = () => {
 const routeApi = getRouteApi("/(auth)/_layout/reset-password_/$token");
 
 const useResetPasswordForm = () => {
+  const params = routeApi.useParams();
+
   return useForm<typeof ResetPasswordPayload.Type>({
     resolver: effectTsResolver(ResetPasswordPayload),
     defaultValues: {
       password: "",
       confirmPassword: "",
+      token: params.token,
     },
   });
 };

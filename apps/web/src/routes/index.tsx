@@ -25,7 +25,7 @@ import type { ComponentProps } from "react";
 export const Route = createFileRoute("/")({
   component: () => Home(),
   beforeLoad: ({ context }) => {
-    if (context.user?.emailVerifiedAt) {
+    if (context.user?.verifiedAt) {
       throw redirect({ to: "/dashboard" });
     }
   },
