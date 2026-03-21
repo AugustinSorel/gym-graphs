@@ -24,12 +24,13 @@ import {
 import { useUser } from "~/domains/user/hooks/use-user";
 import { cn } from "~/styles/styles.utils";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
-import { userSchema } from "@gym-graphs/schemas/user";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { AppIcon } from "~/ui/app-icon";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import type { ComponentProps } from "react";
+import { Schema } from "effect";
 
 export const HeaderPublic = () => {
   return (
@@ -161,13 +162,14 @@ const UserProfileDropdown = () => {
             className="flex gap-2"
             value={user.data.weightUnit}
             onValueChange={(unsafeWeightUnit) => {
-              const weightUnit =
-                userSchema.shape.weightUnit.parse(unsafeWeightUnit);
+              const weightUnit = Schema.decodeUnknownSync(
+                UserSchema.fields.weightUnit,
+              )(unsafeWeightUnit);
 
               updateWeightUnit.mutate({ weightUnit });
             }}
           >
-            {userSchema.shape.weightUnit.options.map((weightUnit) => (
+            {UserSchema.fields.weightUnit.literals.map((weightUnit) => (
               <DropdownMenuRadioItem
                 key={weightUnit}
                 value={weightUnit}

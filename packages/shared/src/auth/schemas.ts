@@ -38,5 +38,13 @@ export const ForgotPassworPayload = UserSchema.pick("email");
 export const CurrentSessionSchema = Schema.Struct({
   id: Schema.Trim,
   userId: UserSchema.fields.id,
-  user: UserSchema.pick("email", "name", "verifiedAt", "id"),
+  user: UserSchema.pick(
+    "email",
+    "name",
+    "verifiedAt",
+    "id",
+    "weightUnit",
+    "oneRepMaxAlgo",
+    "dashboardView",
+  ),
 });

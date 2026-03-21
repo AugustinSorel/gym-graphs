@@ -45,14 +45,6 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       user: userQueries.get,
     };
 
-    const cachedUser = context.queryClient.getQueryData(queries.user.queryKey);
-
-    if (cachedUser) {
-      return {
-        user: cachedUser,
-      };
-    }
-
     const session = await callApi((api) => api.Auth.me()).catch(() => null);
 
     if (!session) {
@@ -61,7 +53,7 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       };
     }
 
-    await context.queryClient.ensureQueryData(queries.user);
+    context.queryClient.setQueryData(queries.user.queryKey, session.user);
 
     return {
       user: session.user,
@@ -94,7 +86,7 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {/*{!!data.user?.emailVerifiedAt ? <HeaderPrivate /> : <HeaderPublic />}*/}
+        {!!data.user?.verifiedAt ? <HeaderPrivate /> : <HeaderPublic />}
 
         {children}
 
