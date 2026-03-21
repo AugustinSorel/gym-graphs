@@ -9,7 +9,7 @@ import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
 // import { parseJsonResponse } from "@gym-graphs/api";
 // import type { InferApiReqInput } from "@gym-graphs/api";
 
-const routeApi = getRouteApi("/(auth)/_layout");
+const routeApi = getRouteApi("/(auth)");
 
 export const GithubSignIn = () => {
   const githubSignIn = useGithubSignIn();

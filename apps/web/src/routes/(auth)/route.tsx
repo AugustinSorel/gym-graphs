@@ -4,16 +4,16 @@ import { HeroBackground } from "~/ui/hero-background";
 import { z } from "zod";
 import type { ComponentProps } from "react";
 
-export const Route = createFileRoute("/(auth)/_layout")({
+export const Route = createFileRoute("/(auth)")({
   validateSearch: z.object({
     error: z.string().optional(),
     callbackUrl: z.string().optional(),
   }),
   component: () => RouteComponent(),
   beforeLoad: ({ context }) => {
-    // if (context.user?.emailVerifiedAt) {
-    //   throw redirect({ to: "/dashboard" });
-    // }
+    if (context.user?.verifiedAt) {
+      throw redirect({ to: "/dashboard" });
+    }
   },
 });
 

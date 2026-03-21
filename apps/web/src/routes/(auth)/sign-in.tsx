@@ -1,58 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
-import { EmailSignUpForm } from "~/domains/user/components/email-sign-up-form";
+import { EmailSignInForm } from "~/domains/user/components/email-sign-in-form";
 import { GithubSignIn } from "~/domains/oauth/components/github-sign-in";
-import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 
-export const Route = createFileRoute("/(auth)/_layout/sign-up")({
+export const Route = createFileRoute("/(auth)/sign-in")({
   component: () => RouteComponent(),
-  errorComponent: (props) => ErrorComponent(props),
 });
 
 const RouteComponent = () => {
   return (
     <>
-      <Title>welcome</Title>
+      <Title>welcome back</Title>
 
-      <EmailSignUpForm />
+      <EmailSignInForm />
 
       <GithubSignIn />
 
       <RedirectText>
-        already have an account?{" "}
+        don&apos;t have an account?{" "}
         <Button
           variant="link"
           asChild
           className="text-primary h-auto w-auto p-0"
         >
           <Link
-            to="/sign-in"
+            to="/sign-up"
             search={(prev) => ({ callbackUrl: prev.callbackUrl })}
           >
-            sign in
+            sign up
           </Link>
-        </Button>
-      </RedirectText>
-    </>
-  );
-};
-
-const ErrorComponent = (_props: ErrorComponentProps) => {
-  return (
-    <>
-      <Title>welcome</Title>
-
-      {/*<DefaultErrorFallback {...props} />*/}
-
-      <RedirectText>
-        already have an account?{" "}
-        <Button
-          variant="link"
-          asChild
-          className="text-primary h-auto w-auto p-0"
-        >
-          <Link to="/sign-in">sign in</Link>
         </Button>
       </RedirectText>
     </>

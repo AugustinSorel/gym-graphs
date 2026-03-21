@@ -120,4 +120,4 @@ const useVerifyEmail = () => {
   });
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/verify-email");
+const routeApi = getRouteApi("/(auth)/verify-email");

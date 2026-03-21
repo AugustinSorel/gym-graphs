@@ -101,7 +101,7 @@ export const ResetPasswordForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/reset-password_/$token");
+const routeApi = getRouteApi("/(auth)/reset-password_/$token");
 
 const useResetPasswordForm = () => {
   const params = routeApi.useParams();

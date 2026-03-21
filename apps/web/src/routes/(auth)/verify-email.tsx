@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RequestResetPasswordForm } from "~/domains/user/components/request-reset-password-form";
+import { VerifyEmailForm } from "~/domains/user/components/verify-email-form";
+import { ResendEmailVerificationCode } from "~/domains/user/components/resend-email-verification-code";
 import type { ComponentProps } from "react";
 
-export const Route = createFileRoute("/(auth)/_layout/reset-password")({
+export const Route = createFileRoute("/(auth)/verify-email")({
   component: () => RouteComponent(),
 });
 
 const RouteComponent = () => {
   return (
     <>
-      <Title>reset your password</Title>
-
-      <RequestResetPasswordForm />
+      <Title>verify email</Title>
+      <VerifyEmailForm />
+      <ResendEmailVerificationCode />
     </>
   );
 };

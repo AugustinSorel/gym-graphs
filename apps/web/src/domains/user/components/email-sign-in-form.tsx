@@ -113,7 +113,7 @@ export const EmailSignInForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-in");
+const routeApi = getRouteApi("/(auth)/sign-in");
 
 const useEmailSignInForm = () => {
   return useForm<typeof SignInPayload.Type>({

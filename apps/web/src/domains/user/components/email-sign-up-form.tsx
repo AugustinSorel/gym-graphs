@@ -124,7 +124,7 @@ export const EmailSignUpForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-up");
+const routeApi = getRouteApi("/(auth)/sign-up");
 
 const useEmailSignUpForm = () => {
   return useForm<typeof SignUpPayload.Type>({

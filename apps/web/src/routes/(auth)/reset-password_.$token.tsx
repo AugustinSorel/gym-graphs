@@ -1,35 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "~/ui/button";
-import { EmailSignInForm } from "~/domains/user/components/email-sign-in-form";
-import { GithubSignIn } from "~/domains/oauth/components/github-sign-in";
+import { ResetPasswordForm } from "~/domains/user/components/reset-password-form";
 import type { ComponentProps } from "react";
 
-export const Route = createFileRoute("/(auth)/_layout/sign-in")({
+export const Route = createFileRoute("/(auth)/reset-password_/$token")({
   component: () => RouteComponent(),
 });
 
 const RouteComponent = () => {
   return (
     <>
-      <Title>welcome back</Title>
+      <Title>reset your password</Title>
 
-      <EmailSignInForm />
-
-      <GithubSignIn />
+      <ResetPasswordForm />
 
       <RedirectText>
-        don&apos;t have an account?{" "}
+        something went wrong?{" "}
         <Button
           variant="link"
           asChild
           className="text-primary h-auto w-auto p-0"
         >
-          <Link
-            to="/sign-up"
-            search={(prev) => ({ callbackUrl: prev.callbackUrl })}
-          >
-            sign up
-          </Link>
+          <Link to="/reset-password">Request another email</Link>
         </Button>
       </RedirectText>
     </>
