@@ -50,6 +50,10 @@ export const serverConfig = Config.all({
         config.nodeEnv === "production"
           ? "https://gym-graphs.com"
           : `http://localhost:3000`,
+      api:
+        config.nodeEnv === "production"
+          ? "https://api.gym-graphs.com"
+          : `http://localhost:${config.port}`,
     },
   })),
 );
