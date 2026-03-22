@@ -5,9 +5,8 @@ import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
-// import { api } from "~/libs/api";
-// import { parseJsonResponse } from "@gym-graphs/api";
-// import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
+import { GithubSignInUrlParams } from "@gym-graphs/shared/oauth/schemas";
 
 const routeApi = getRouteApi("/(auth)");
 
@@ -41,17 +40,20 @@ export const GithubSignIn = () => {
 
 const useGithubSignIn = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  // const req = api().oauth.github.$post;
 
   const githubSignIn = useMutation({
-    mutationFn: async (query: InferApiReqInput<typeof req>["query"]) => {
-      // return parseJsonResponse(req({ query }));
+    mutationFn: async (urlParams: typeof GithubSignInUrlParams.Type) => {
+      return callApi((api) => {
+        return api.OAuth.githubSignIn({
+          urlParams,
+        });
+      });
     },
-    // onSuccess: (url) => {
-    // startRedirectTransition(async () => {
-    // window.location.href = url;
-    // });
-    // },
+    onSuccess: (url) => {
+      startRedirectTransition(async () => {
+        window.location.href = url;
+      });
+    },
   });
 
   return {

@@ -7,7 +7,7 @@ import {
   HttpClientRequest,
   HttpApiClient,
 } from "@effect/platform";
-import { Api } from "@gym-graphs/shared/auth/api";
+import { Api } from "@gym-graphs/shared/api";
 import { sessionSecurity } from "@gym-graphs/shared/auth/middlewares";
 
 const ClientLayer = FetchHttpClient.layer.pipe(

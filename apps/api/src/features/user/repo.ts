@@ -30,6 +30,25 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
         });
       },
 
+      createWithEmail: (
+        input: Pick<PgInsertValue<typeof users>, "email" | "name">,
+      ) => {
+        return Effect.gen(function* () {
+          const rows = yield* db
+            .insert(users)
+            .values({
+              ...input,
+              verifiedAt: new Date(),
+            })
+            .returning();
+
+          const user = yield* pipe(Array.head(rows), Effect.orDie);
+
+          return user;
+        });
+      },
+
+      //FIX: rename this to select
       findByEmail: (email: User["email"]) => {
         return Effect.gen(function* () {
           const user = yield* db.query.users.findFirst({ where: { email } });
@@ -40,11 +59,15 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
 
       updateVerifiedAtById: (id: User["id"]) => {
         return Effect.gen(function* () {
-          return yield* db
+          const rows = yield* db
             .update(users)
             .set({ verifiedAt: new Date() })
             .where(eq(users.id, id))
             .returning();
+
+          const user = yield* pipe(Array.head(rows), Effect.orDie);
+
+          return user;
         });
       },
 

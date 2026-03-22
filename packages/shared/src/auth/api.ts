@@ -24,9 +24,8 @@ import {
 } from "#/auth/schemas";
 import { VerificationCodeSchema } from "#/verification-code/schemas";
 import { RequireSession } from "#/auth/middlewares";
-import { HttpApi, HttpApiError } from "@effect/platform";
 
-const authApi = HttpApiGroup.make("Auth")
+export const authApi = HttpApiGroup.make("Auth")
   .add(
     HttpApiEndpoint.post("signUp", "/sign-up")
       .setPayload(SignUpPayload)
@@ -82,9 +81,3 @@ const authApi = HttpApiGroup.make("Auth")
       .addSuccess(Schema.Void),
   )
   .prefix("/auth");
-
-export const Api = HttpApi.make("GymGraphsApi")
-  .add(authApi)
-  .addError(HttpApiError.InternalServerError)
-  .addError(HttpApiError.RequestTimeout)
-  .prefix("/api");

@@ -21,6 +21,16 @@ export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
   HttpApiSchema.annotations({ status: 401 }),
 ) {}
 
+export class Forbidden extends Schema.TaggedError<Forbidden>()(
+  "Forbidden",
+  {
+    message: Schema.optionalWith(Schema.String, {
+      default: () => "Forbidden",
+    }),
+  },
+  HttpApiSchema.annotations({ status: 403 }),
+) {}
+
 export class AccountNotVerified extends Schema.TaggedError<AccountNotVerified>()(
   "AccountNotVerified",
   {

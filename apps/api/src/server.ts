@@ -5,11 +5,12 @@ import {
   HttpApiSwagger,
   HttpServer,
   HttpMiddleware,
+  FetchHttpClient,
 } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { createServer } from "node:http";
 import { AuthLive } from "#/features/auth/handlers";
-import { Api } from "@gym-graphs/shared/auth/api";
+import { Api } from "@gym-graphs/shared/api";
 import { Database } from "#/integrations/db/db";
 import { AuthCookies } from "./features/auth/cookies";
 import { AuthService } from "./features/auth/service";
@@ -20,8 +21,13 @@ import {
 import { SessionService } from "./features/session/service";
 import { Email } from "./integrations/email/client";
 import { VerificationCodeService } from "./features/verification-code/service";
+import { OAuthService } from "./features/oauth/service";
+import { OAuthLive } from "./features/oauth/handlers";
 
-const ApiLive = HttpApiBuilder.api(Api).pipe(Layer.provide(AuthLive));
+const ApiLive = HttpApiBuilder.api(Api).pipe(
+  Layer.provide(AuthLive),
+  Layer.provide(OAuthLive),
+);
 
 const HttpServerLive = Layer.unwrapEffect(
   Effect.gen(function* () {
@@ -49,10 +55,12 @@ export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(RequireVerifiedSessionLive),
   Layer.provide(SessionService.Default),
   Layer.provide(AuthService.Default),
+  Layer.provide(OAuthService.Default),
   Layer.provide(AuthCookies.Default),
   Layer.provide(VerificationCodeService.Default),
   Layer.provide(Email.Default),
   Layer.provide(Database.Default),
   Layer.provide(HttpServerLive),
+  Layer.provide(FetchHttpClient.layer),
   Layer.provide(ServerConfig.Default),
 );

@@ -18,10 +18,10 @@ import {
   InvalidCredentials,
   AccountNotVerified,
 } from "@gym-graphs/shared/auth/errors";
-import type {
-  SignUpPayload,
-  SignInPayload,
-  ResetPasswordPayload,
+import {
+  type SignUpPayload,
+  type SignInPayload,
+  type ResetPasswordPayload,
 } from "@gym-graphs/shared/auth/schemas";
 import type { Session, User, VerificationCode } from "#/integrations/db/schema";
 import { Email } from "#/integrations/email/client";

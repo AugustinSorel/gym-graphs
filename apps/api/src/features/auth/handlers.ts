@@ -1,4 +1,4 @@
-import { Api } from "@gym-graphs/shared/auth/api";
+import { Api } from "@gym-graphs/shared/api";
 import { CurrentSession } from "@gym-graphs/shared/auth/middlewares";
 import { HttpApiBuilder, HttpApiError } from "@effect/platform";
 import { Effect } from "effect";
