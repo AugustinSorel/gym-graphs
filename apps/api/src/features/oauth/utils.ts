@@ -15,6 +15,7 @@ import {
 import { GithubOauthTokenResponseSchema } from "@gym-graphs/shared/oauth/schemas";
 import { Array, Effect, Redacted, Schema } from "effect";
 
+//FIX: this should be agnostic to providers
 export const createOAuthRequest = (
   clientId: string,
   clientSecret: Redacted.Redacted<string>,
@@ -47,6 +48,7 @@ export const encodeBasicOAuthCredentials = (
   });
 };
 
+//FIX: this should be agnostic to providers
 export const sendTokenRequest = (
   request: HttpClientRequest.HttpClientRequest,
 ) => {
