@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, primaryKey } from "drizzle-orm/pg-core";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
 
 export const weightUnitEnum = pgEnum(
@@ -102,3 +102,26 @@ export const passwordResetTokens = pgTable("password_reset_tokens", (t) => ({
 export type PasswordResetToken = Readonly<
   typeof passwordResetTokens.$inferSelect
 >;
+
+export const oauthProviders = pgEnum("oauth_provider", ["github"]);
+
+export const oauthAccounts = pgTable(
+  "oauth_accounts",
+  (t) => ({
+    providerId: oauthProviders("provider_id").notNull(),
+    providerUserId: t.text("provider_user_id").notNull(),
+    userId: t
+      .integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp("created_at").defaultNow().notNull(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [primaryKey({ columns: [t.providerId, t.providerUserId] })],
+);
+
+export type OAuthAccount = Readonly<typeof oauthAccounts.$inferSelect>;

@@ -16,6 +16,7 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.users.id,
       to: r.passwordResetTokens.userId,
     }),
+    oauthAccounts: r.many.oauthAccounts(),
   },
 
   sessions: {
@@ -36,6 +37,13 @@ export const relations = defineRelations(schema, (r) => ({
   passwordResetTokens: {
     user: r.one.users({
       from: r.passwordResetTokens.userId,
+      to: r.users.id,
+    }),
+  },
+
+  oauthAccounts: {
+    user: r.one.users({
+      from: r.oauthAccounts.userId,
       to: r.users.id,
     }),
   },
