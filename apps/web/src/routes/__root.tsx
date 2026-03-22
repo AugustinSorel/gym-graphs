@@ -122,4 +122,6 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | upgrading vix                                         |
+| TODO     | remove zod                                            |
+| TODO     | try effect atoms                                      |
 */
