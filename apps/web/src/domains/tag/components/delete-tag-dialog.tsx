@@ -27,7 +27,7 @@ export const DeleteTagDialog = () => {
     deleteTag.mutate(
       {
         path: {
-          tagId: tag.id.toString(),
+          tagId: tag.id,
         },
       },
       {

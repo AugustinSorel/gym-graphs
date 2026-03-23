@@ -1,20 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/domains/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { tagSchema } from "@gym-graphs/schemas/tag";
-import { userQueries } from "~/domains/user/user.queries";
 import { useTag } from "~/domains/tag/tag.context";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { z } from "zod";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { PatchTagPayload } from "@gym-graphs/shared/tag/schemas";
+import { Schema } from "effect";
+import { tagQueries } from "../tag.queries";
 
 export const RenameTagForm = (props: Props) => {
   const form = useRenameTagForm();
@@ -24,10 +21,10 @@ export const RenameTagForm = (props: Props) => {
   const onSubmit = async (data: RenameTagSchema) => {
     await renameTag.mutateAsync(
       {
-        param: {
-          tagId: tag.id.toString(),
+        path: {
+          tagId: tag.id,
         },
-        json: {
+        payload: {
           name: data.name,
         },
       },
@@ -98,32 +95,32 @@ type Props = Readonly<{
 }>;
 
 const useFormSchema = () => {
-  const user = useUser();
-  const tag = useTag();
+  const tags = useSuspenseQuery(tagQueries.all);
 
-  return tagSchema.pick({ name: true }).refine(
-    (data) => {
-      const nameTaken = user.data.tags.find((t) => {
-        return t.name === data.name && t.id !== tag.id;
-      });
+  return PatchTagPayload.pick("name").pipe(
+    Schema.filter((data) => {
+      const nameTaken = tags.data.find((tag) => tag.name === data.name);
 
-      return !nameTaken;
-    },
-    {
-      message: "tag name already created",
-      path: ["name"],
-    },
+      if (nameTaken) {
+        return {
+          path: ["name"],
+          message: "tag name is already taken",
+        };
+      }
+
+      return undefined;
+    }),
   );
 };
 
-type RenameTagSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
+type RenameTagSchema = ReturnType<typeof useFormSchema>["Type"];
 
 const useRenameTagForm = () => {
   const formSchema = useFormSchema();
   const tag = useTag();
 
   return useForm<RenameTagSchema>({
-    resolver: zodResolver(formSchema),
+    resolver: effectTsResolver(formSchema),
     defaultValues: {
       name: tag.name,
     },
@@ -131,48 +128,43 @@ const useRenameTagForm = () => {
 };
 
 const useRenameTag = () => {
-  const req = api().tags[":tagId"].$patch;
-
   const queries = {
-    user: userQueries.get,
+    tags: tagQueries.all,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(api().tags[":tagId"].$patch(input));
+    mutationFn: async (props: InferApiProps<"Tag", "patch">) => {
+      return callApi((api) => api.Tag.patch(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.user);
+      await ctx.client.cancelQueries(queries.tags);
 
-      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+      const oldTags = ctx.client.getQueryData(queries.tags.queryKey);
 
-      ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user) {
-          return user;
+      ctx.client.setQueryData(queries.tags.queryKey, (tags) => {
+        if (!tags) {
+          return tags;
         }
 
-        return {
-          ...user,
-          tags: user.tags.map((tag) => {
-            if (tag.id === +variables.param.tagId && variables.json.name) {
-              return {
-                ...tag,
-                name: variables.json.name,
-              };
-            }
+        return tags.map((tag) => {
+          if (tag.id === variables.path.tagId && variables.payload.name) {
+            return {
+              ...tag,
+              name: variables.payload.name,
+            };
+          }
 
-            return tag;
-          }),
-        };
+          return tag;
+        });
       });
 
-      return { oldUser };
+      return { oldTags };
     },
     onError: (_e, _variables, onMutateResult, ctx) => {
-      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
+      ctx.client.setQueryData(queries.tags.queryKey, onMutateResult?.oldTags);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.tags);
     },
   });
 };

@@ -45,5 +45,17 @@ export const TagLive = HttpApiBuilder.group(Api, "Tag", (handlers) => {
           TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
+    })
+    .handle("patch", ({ path, payload }) => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        yield* TagService.patchByTagId(payload, path.tagId, session.userId);
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+        }),
+      );
     });
 });

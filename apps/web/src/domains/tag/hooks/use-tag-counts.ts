@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import { tagQueries } from "../tag.queries";
 
+//FIXME
 export const useTagCounts = () => {
   const tiles = useTiles();
   const tags = useSuspenseQuery(tagQueries.all);

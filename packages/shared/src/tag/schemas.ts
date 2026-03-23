@@ -17,3 +17,5 @@ export const TagSchema = Schema.Struct({
 });
 
 export const CreateTagPayload = TagSchema.pick("name");
+
+export const PatchTagPayload = TagSchema.pick("name");

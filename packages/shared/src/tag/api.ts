@@ -1,5 +1,5 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
-import { CreateTagPayload, TagSchema } from "./schemas";
+import { CreateTagPayload, PatchTagPayload, TagSchema } from "./schemas";
 import { RequireVerifiedSession } from "#/auth/middlewares";
 import { DuplicateTag, TagNotFound } from "./errors";
 import { Schema } from "effect";
@@ -21,6 +21,18 @@ export const tagApi = HttpApiGroup.make("Tag")
           ),
         }),
       )
+      .addError(TagNotFound),
+  )
+  .add(
+    HttpApiEndpoint.patch("patch", "/:tagId")
+      .setPath(
+        Schema.Struct({
+          tagId: Schema.NumberFromString.pipe(
+            Schema.compose(TagSchema.fields.id),
+          ),
+        }),
+      )
+      .setPayload(PatchTagPayload)
       .addError(TagNotFound),
   )
   .middleware(RequireVerifiedSession)

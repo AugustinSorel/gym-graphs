@@ -24,7 +24,8 @@ const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
     initialPageParam: 1,
     // getNextPageParam: (lastPage) => lastPage.nextCursor,
     getNextPageParam: () => 0,
-    select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
+    // select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
+    select: (tiles) => tiles.pages.flatMap((pages) => pages),
   });
 };
 

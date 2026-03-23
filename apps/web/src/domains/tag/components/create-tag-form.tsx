@@ -93,7 +93,14 @@ const useFormSchema = () => {
     Schema.filter((data) => {
       const nameTaken = tags.data.find((tag) => tag.name === data.name);
 
-      return !nameTaken;
+      if (nameTaken) {
+        return {
+          path: ["name"],
+          message: "tag name is already taken",
+        };
+      }
+
+      return undefined;
     }),
   );
 };

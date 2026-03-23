@@ -12,9 +12,13 @@ import { RenameTagDialog } from "~/domains/tag/components/rename-tag-dialog";
 import { TagProvider } from "~/domains/tag/tag.context";
 import { useTagCounts } from "~/domains/tag/hooks/use-tag-counts";
 import type { ComponentProps } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { tagQueries } from "../tag.queries";
 
 export const TagsList = () => {
-  const tagCounts = useTagCounts();
+  //FIXME:
+  // const tagCounts = useTagCounts();
+  const tagCounts = useSuspenseQuery(tagQueries.all).data;
 
   if (!tagCounts.length) {
     return <NoTagsMsg>no tags</NoTagsMsg>;
@@ -27,7 +31,8 @@ export const TagsList = () => {
           <TagName>{tag.name}</TagName>
 
           <TagExercisesLinked>
-            {pluralize(tag.count, "exercise")} linked
+            {/*{pluralize(tag.count, "exercise")} linked*/}
+            {pluralize(0, "exercise")} linked
           </TagExercisesLinked>
 
           <DropdownMenu>
