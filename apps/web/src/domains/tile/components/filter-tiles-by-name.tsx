@@ -61,7 +61,7 @@ export const FilterTilesByName = () => {
   );
 };
 
-const routeApi = getRouteApi("/(dashboard)/dashboard");
+const routeApi = getRouteApi("/(authed)/dashboard");
 
 const SearchFallback = (props: ErrorComponentProps) => {
   return (

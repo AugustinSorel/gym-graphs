@@ -73,4 +73,5 @@ export const PatchUserByIdPayload = UserSchema.pick(
   "weightUnit",
   "oneRepMaxAlgo",
   "name",
+  "dashboardView",
 ).pipe(Schema.partial);

@@ -5,7 +5,7 @@ import type { ComponentProps } from "react";
 import { Schema } from "effect";
 
 export const Route = createFileRoute("/(auth)")({
-  validateSearch: Schema.decodeUnknown(
+  validateSearch: Schema.decodeUnknownSync(
     Schema.Struct({
       error: Schema.String.pipe(Schema.optional),
       callbackUrl: Schema.String.pipe(Schema.optional),

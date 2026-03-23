@@ -1,11 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
@@ -19,9 +22,9 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ComponentProps } from "react";
 import { Badge } from "~/ui/badge";
-import { createExerciseTileSchema } from "@gym-graphs/schemas/tile";
-import type { CreateExerciseTile } from "@gym-graphs/schemas/tile";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { tagQueries } from "~/domains/tag/tag.queries";
+// import { createExerciseTileSchema } from "@gym-graphs/schemas/tile";
+// import type { CreateExerciseTile } from "@gym-graphs/schemas/tile";
 
 export const CreateExerciseOverviewTileForm = (props: Props) => {
   const form = useCreateExerciseTileForm();
@@ -243,11 +246,10 @@ const ExerciseTags = (
     ComponentProps<typeof Controller<CreateExerciseTile, "tagIds">>["render"]
   >[0],
 ) => {
-  const user = useUser();
-  const tags = user.data.tags;
+  const tags = useSuspenseQuery(tagQueries.all);
 
-  if (!tags.length) {
-    return <></>;
+  if (!tags.data.length) {
+    return null;
   }
 
   return (
@@ -266,7 +268,7 @@ const ExerciseTags = (
               props.field.onChange(ids.map((id) => +id));
             }}
           >
-            {user.data.tags.map((tag) => (
+            {tags.data.map((tag) => (
               <ToggleGroupItem
                 key={tag.id}
                 className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
