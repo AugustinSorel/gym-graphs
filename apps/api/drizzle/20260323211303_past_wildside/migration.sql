@@ -1,0 +1,1 @@
+ALTER TABLE "dashboard_tiles" ALTER COLUMN "type" SET NOT NULL;

@@ -1,11 +1,77 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "b0985cef-cd0a-4f73-86ff-9b1f9df5f1f4",
+  "id": "035e1197-466a-43bf-9c36-1139008826fa",
   "prevIds": [
-    "e10af1c1-7b67-422d-9ee1-2bbab9f01328"
+    "12276803-e627-4b73-a447-a8132a5fcfca"
   ],
   "ddl": [
+    {
+      "values": [
+        "exercise"
+      ],
+      "name": "dashboard_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "graph",
+        "trending"
+      ],
+      "name": "dashboard_view",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "github"
+      ],
+      "name": "oauth_provider",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "adams",
+        "baechle",
+        "berger",
+        "brown",
+        "brzycki",
+        "epley",
+        "kemmler",
+        "landers",
+        "lombardi",
+        "mayhew",
+        "naclerio",
+        "oConner",
+        "wathen"
+      ],
+      "name": "one_rep_max_algo",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "kg",
+        "lbs"
+      ],
+      "name": "weight_unit",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "dashboard_tiles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "oauth_accounts",
+      "entityType": "tables",
+      "schema": "public"
+    },
     {
       "isRlsEnabled": false,
       "name": "password_reset_tokens",
@@ -20,6 +86,12 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "tag",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "users",
       "entityType": "tables",
       "schema": "public"
@@ -29,6 +101,171 @@
       "name": "verification_codes",
       "entityType": "tables",
       "schema": "public"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "dashboard_tiles_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "dashboard_type",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "index",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "oauth_provider",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "provider_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "provider_user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "oauth_accounts"
     },
     {
       "type": "text",
@@ -169,6 +406,80 @@
       "generated": null,
       "identity": {
         "type": "always",
+        "name": "tag_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
         "name": "users_id_seq",
         "increment": "1",
         "startWith": "1",
@@ -230,6 +541,45 @@
       "generated": null,
       "identity": null,
       "name": "salt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "weight_unit",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'kg'",
+      "generated": null,
+      "identity": null,
+      "name": "weightUnit",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "one_rep_max_algo",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'epley'",
+      "generated": null,
+      "identity": null,
+      "name": "oneRepMaxAlgo",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "dashboard_view",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'graph'",
+      "generated": null,
+      "identity": null,
+      "name": "dashboardView",
       "entityType": "columns",
       "schema": "public",
       "table": "users"
@@ -372,6 +722,40 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
+      "name": "dashboard_tiles_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "oauth_accounts_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "password_reset_tokens_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -406,10 +790,48 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
+      "name": "tag_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "tag"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "verification_codes_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "verification_codes"
+    },
+    {
+      "columns": [
+        "provider_id",
+        "provider_user_id"
+      ],
+      "nameExplicit": false,
+      "name": "oauth_accounts_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "oauth_accounts"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "dashboard_tiles_pkey",
+      "schema": "public",
+      "table": "dashboard_tiles",
+      "entityType": "pks"
     },
     {
       "columns": [
@@ -436,6 +858,16 @@
         "id"
       ],
       "nameExplicit": false,
+      "name": "tag_pkey",
+      "schema": "public",
+      "table": "tag",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
       "name": "users_pkey",
       "schema": "public",
       "table": "users",
@@ -450,6 +882,30 @@
       "schema": "public",
       "table": "verification_codes",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name",
+        "user_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "dashboard_tiles_name_user_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name",
+        "user_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "tag_name_user_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "tag"
     },
     {
       "nameExplicit": false,

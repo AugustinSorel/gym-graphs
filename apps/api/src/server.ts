@@ -25,14 +25,17 @@ import { OAuthService } from "./features/oauth/service";
 import { OAuthLive } from "./features/oauth/handlers";
 import { UserLive } from "./features/user/handler";
 import { TagLive } from "./features/tag/handler";
+import { DashboardTileLive } from "./features/dashboard-tile/handler";
 import { UserService } from "./features/user/service";
 import { TagService } from "./features/tag/service";
+import { DashboardTileService } from "./features/dashboard-tile/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide(AuthLive),
   Layer.provide(OAuthLive),
   Layer.provide(UserLive),
   Layer.provide(TagLive),
+  Layer.provide(DashboardTileLive),
 );
 
 const HttpServerLive = Layer.unwrapEffect(
@@ -64,6 +67,7 @@ export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(OAuthService.Default),
   Layer.provide(UserService.Default),
   Layer.provide(TagService.Default),
+  Layer.provide(DashboardTileService.Default),
   Layer.provide(AuthCookies.Default),
   Layer.provide(VerificationCodeService.Default),
   Layer.provide(Email.Default),

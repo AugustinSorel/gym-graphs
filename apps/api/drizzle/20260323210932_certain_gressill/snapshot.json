@@ -1,11 +1,19 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "995c8993-c52d-40e8-9461-203851d8f358",
+  "id": "12276803-e627-4b73-a447-a8132a5fcfca",
   "prevIds": [
-    "a1ab0b93-b021-4040-81e5-a154398245e6"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
+    {
+      "values": [
+        "exercise"
+      ],
+      "name": "dashboard_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
     {
       "values": [
         "graph",
@@ -54,6 +62,12 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "dashboard_tiles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "oauth_accounts",
       "entityType": "tables",
       "schema": "public"
@@ -87,6 +101,106 @@
       "name": "verification_codes",
       "entityType": "tables",
       "schema": "public"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "dashboard_tiles_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "dashboard_type",
+      "typeSchema": "public",
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "index",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "dashboard_tiles"
     },
     {
       "type": "oauth_provider",
@@ -608,6 +722,23 @@
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
+      "name": "dashboard_tiles_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "dashboard_tiles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "oauth_accounts_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -694,6 +825,16 @@
     },
     {
       "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "dashboard_tiles_pkey",
+      "schema": "public",
+      "table": "dashboard_tiles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
         "token"
       ],
       "nameExplicit": false,
@@ -741,6 +882,18 @@
       "schema": "public",
       "table": "verification_codes",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name",
+        "user_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "dashboard_tiles_name_user_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "dashboard_tiles"
     },
     {
       "nameExplicit": false,

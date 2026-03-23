@@ -162,7 +162,7 @@ export const dashboardTiles = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     name: t.text("name").notNull(),
-    weightUnit: weightUnitEnum(),
+    type: dashboardTypeEnum().notNull(),
     //FIXME
     // exerciseId:
     index: t.serial("index"),
