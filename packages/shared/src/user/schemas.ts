@@ -68,3 +68,8 @@ export const UserSchema = Schema.Struct({
 
   dashboardView: Schema.Literal("graph", "trending"),
 });
+
+export const PatchUserByIdPayload = UserSchema.pick(
+  "weightUnit",
+  "oneRepMaxAlgo",
+).pipe(Schema.partial);

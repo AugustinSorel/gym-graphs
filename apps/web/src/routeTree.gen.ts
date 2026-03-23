@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as authedRouteRouteImport } from './routes/(authed)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as authedSettingsRouteImport } from './routes/(authed)/settings'
 import { Route as authedDashboardRouteImport } from './routes/(authed)/dashboard'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authedSettingsRoute = authedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => authedRouteRoute,
 } as any)
 const authedDashboardRoute = authedDashboardRouteImport.update({
   id: '/dashboard',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/dashboard': typeof authedDashboardRoute
+  '/settings': typeof authedSettingsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
 }
 export interface FileRoutesByTo {
@@ -79,6 +86,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/dashboard': typeof authedDashboardRoute
+  '/settings': typeof authedSettingsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
 }
 export interface FileRoutesById {
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/(auth)/sign-up': typeof authSignUpRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(authed)/dashboard': typeof authedDashboardRoute
+  '/(authed)/settings': typeof authedSettingsRoute
   '/(auth)/reset-password_/$token': typeof authResetPasswordTokenRoute
 }
 export interface FileRouteTypes {
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/verify-email'
     | '/dashboard'
+    | '/settings'
     | '/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/verify-email'
     | '/dashboard'
+    | '/settings'
     | '/reset-password/$token'
   id:
     | '__root__'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/(auth)/sign-up'
     | '/(auth)/verify-email'
     | '/(authed)/dashboard'
+    | '/(authed)/settings'
     | '/(auth)/reset-password_/$token'
   fileRoutesById: FileRoutesById
 }
@@ -153,6 +165,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(authed)/settings': {
+      id: '/(authed)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof authedSettingsRouteImport
+      parentRoute: typeof authedRouteRoute
     }
     '/(authed)/dashboard': {
       id: '/(authed)/dashboard'
@@ -221,10 +240,12 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 
 interface authedRouteRouteChildren {
   authedDashboardRoute: typeof authedDashboardRoute
+  authedSettingsRoute: typeof authedSettingsRoute
 }
 
 const authedRouteRouteChildren: authedRouteRouteChildren = {
   authedDashboardRoute: authedDashboardRoute,
+  authedSettingsRoute: authedSettingsRoute,
 }
 
 const authedRouteRouteWithChildren = authedRouteRoute._addFileChildren(
