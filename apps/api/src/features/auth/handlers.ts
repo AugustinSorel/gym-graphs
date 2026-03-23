@@ -45,7 +45,7 @@ export const AuthLive = HttpApiBuilder.group(Api, "Auth", (handlers) => {
       return Effect.gen(function* () {
         const session = yield* CurrentSession;
 
-        return yield* Effect.succeed(session);
+        return session;
       });
     })
     .handle("signOut", () => {

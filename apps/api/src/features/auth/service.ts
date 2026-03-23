@@ -184,10 +184,10 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 userId,
               });
 
-              return yield* Effect.succeed({
+              return {
                 session,
                 token,
-              });
+              };
             }),
           );
         }).pipe(Effect.timeout(500));
