@@ -1,6 +1,6 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
 import { tags, type Tag } from "#/integrations/db/schema";
-import { DuplicateTag } from "@gym-graphs/shared/tag/errors";
+import { DuplicateTag, TagNotFound } from "@gym-graphs/shared/tag/errors";
 import { and, eq } from "drizzle-orm";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
@@ -37,7 +37,12 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
         return db
           .delete(tags)
           .where(and(eq(tags.id, tagId), eq(tags.userId, userId)))
-          .returning();
+          .returning()
+          .pipe(
+            Effect.andThen((rows) =>
+              Array.head(rows).pipe(Effect.mapError(() => new TagNotFound())),
+            ),
+          );
       },
     };
   }),
