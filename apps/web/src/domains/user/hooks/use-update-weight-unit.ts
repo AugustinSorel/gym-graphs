@@ -1,7 +1,6 @@
-import { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 
 export const useUpdateWeightUnit = () => {
   const queries = {
@@ -10,7 +9,7 @@ export const useUpdateWeightUnit = () => {
 
   const updateWeightUnit = useMutation({
     mutationFn: async (
-      payload: Pick<typeof PatchUserByIdPayload.Type, "weightUnit">,
+      payload: Pick<InferApiProps<"User", "patch">["payload"], "weightUnit">,
     ) => {
       return callApi((api) => api.User.patch({ payload }));
     },

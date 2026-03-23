@@ -5,7 +5,7 @@ import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { ForgotPassworPayload } from "@gym-graphs/shared/auth/schemas";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
@@ -15,15 +15,18 @@ export const RequestResetPasswordForm = () => {
   const form = useRequestResetPasswordForm();
   const requestResetPassword = useRequestResetPassword();
 
-  const onSubmit = async (data: typeof ForgotPassworPayload.Type) => {
-    await requestResetPassword.mutateAsync(data, {
-      onSuccess: () => {
-        form.reset();
+  const onSubmit = async (payload: typeof ForgotPassworPayload.Type) => {
+    await requestResetPassword.mutateAsync(
+      { payload },
+      {
+        onSuccess: () => {
+          form.reset();
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -88,8 +91,8 @@ const useRequestResetPasswordForm = () => {
 
 const useRequestResetPassword = () => {
   return useMutation({
-    mutationFn: async (payload: typeof ForgotPassworPayload.Type) => {
-      return callApi((api) => api.Auth.forgotPassword({ payload }));
+    mutationFn: async (props: InferApiProps<"Auth", "forgotPassword">) => {
+      return callApi((api) => api.Auth.forgotPassword(props));
     },
   });
 };

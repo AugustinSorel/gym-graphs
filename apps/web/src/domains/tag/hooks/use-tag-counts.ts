@@ -1,9 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { tagQueries } from "../tag.queries";
 
 export const useTagCounts = () => {
   const tiles = useTiles();
-  const tags = useUser().data.tags;
+  const tags = useSuspenseQuery(tagQueries.all);
 
   const map = tiles.data
     .flatMap((tile) => tile.tileToTags)
@@ -13,7 +14,7 @@ export const useTagCounts = () => {
       return map;
     }, new Map<number, number>());
 
-  return tags.map((tag) => ({
+  return tags.data.map((tag) => ({
     ...tag,
     count: map.get(tag.id) ?? 0,
   }));

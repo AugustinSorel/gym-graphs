@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
@@ -21,17 +21,20 @@ export const RenameUserForm = (props: Props) => {
   const form = useCreateExerciseForm();
   const renameUser = useRenameUser();
 
-  const onSubmit = async (data: RenameUserSchema) => {
-    await renameUser.mutateAsync(data, {
-      onSuccess: () => {
-        if (props.onSuccess) {
-          props.onSuccess();
-        }
+  const onSubmit = async (payload: RenameUserSchema) => {
+    await renameUser.mutateAsync(
+      { payload },
+      {
+        onSuccess: () => {
+          if (props.onSuccess) {
+            props.onSuccess();
+          }
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -103,8 +106,8 @@ const useRenameUser = () => {
   };
 
   return useMutation({
-    mutationFn: async (payload: RenameUserSchema) => {
-      return callApi((api) => api.User.patchByUserId({ payload }));
+    mutationFn: async (props: InferApiProps<"User", "patch">) => {
+      return callApi((api) => api.User.patch(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
@@ -112,13 +115,13 @@ const useRenameUser = () => {
       const oldUser = ctx.client.getQueryData(queries.user.queryKey);
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user || !variables.name) {
+        if (!user || !variables.payload.name) {
           return user;
         }
 
         return {
           ...user,
-          name: variables.name,
+          name: variables.payload.name,
         };
       });
 

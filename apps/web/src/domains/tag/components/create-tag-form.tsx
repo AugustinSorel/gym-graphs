@@ -1,27 +1,25 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
-import { useUser } from "~/domains/user/hooks/use-user";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { tagSchema } from "@gym-graphs/schemas/tag";
+import { CreateTagPayload } from "@gym-graphs/shared/tag/schemas";
 import { userQueries } from "~/domains/user/user.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
+import { Schema } from "effect";
+import { tagQueries } from "../tag.queries";
 
 export const CreateTagForm = (props: Props) => {
   const form = useCreateTagForm();
   const createTag = useCreateTag();
 
-  const onSubmit = async (data: CreateTagSchema) => {
+  const onSubmit = async (payload: typeof CreateTagPayload.Type) => {
     await createTag.mutateAsync(
-      { json: data },
+      { payload },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -89,28 +87,22 @@ type Props = Readonly<{
 }>;
 
 const useFormSchema = () => {
-  const user = useUser();
+  const tags = useSuspenseQuery(tagQueries.all);
 
-  return tagSchema.pick({ name: true }).refine(
-    (data) => {
-      const nameTaken = user.data.tags.find((tag) => tag.name === data.name);
+  return CreateTagPayload.pipe(
+    Schema.filter((data) => {
+      const nameTaken = tags.data.find((tag) => tag.name === data.name);
 
       return !nameTaken;
-    },
-    {
-      message: "tag name already created",
-      path: ["name"],
-    },
+    }),
   );
 };
-
-type CreateTagSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
 
 const useCreateTagForm = () => {
   const formSchema = useFormSchema();
 
-  return useForm<CreateTagSchema>({
-    resolver: zodResolver(formSchema),
+  return useForm<typeof CreateTagPayload.Type>({
+    resolver: effectTsResolver(formSchema),
     defaultValues: {
       name: "",
     },
@@ -118,51 +110,41 @@ const useCreateTagForm = () => {
 };
 
 const useCreateTag = () => {
-  const user = useUser();
-  const req = api().tags.$post;
-
   const queries = {
-    user: userQueries.get,
+    tags: tagQueries.all,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Tag", "create">) => {
+      return callApi((api) => api.Tag.create(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
 
-      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+      const oldTags = ctx.client.getQueryData(queries.tags.queryKey);
 
       const optimisticTag = {
         id: Math.random(),
-        userId: user.data.id,
-        name: variables.json.name,
-        createdAt: new Date().toString(),
-        updatedAt: new Date().toString(),
-        exercises: [],
+        name: variables.payload.name,
       };
 
-      ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user) {
-          return user;
+      ctx.client.setQueryData(queries.tags.queryKey, (tags) => {
+        if (!tags) {
+          return tags;
         }
 
-        return {
-          ...user,
-          tags: [...user.tags, optimisticTag],
-        };
+        return [...tags, optimisticTag];
       });
 
       return {
-        oldUser,
+        oldTags,
       };
     },
     onError: (_e, _variables, onMutateResult, ctx) => {
-      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
+      ctx.client.setQueryData(queries.tags.queryKey, onMutateResult?.oldTags);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.tags);
     },
   });
 };

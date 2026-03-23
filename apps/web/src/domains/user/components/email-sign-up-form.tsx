@@ -6,7 +6,7 @@ import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { Button } from "~/ui/button";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { getRouteApi } from "@tanstack/react-router";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
@@ -20,19 +20,22 @@ export const EmailSignUpForm = () => {
   const signUp = useSignUp();
 
   const onSubmit = async (payload: typeof SignUpPayload.Type) => {
-    await signUp.mutateAsync(payload, {
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          await navigate({
-            to: "/verify-email",
-            search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+    await signUp.mutateAsync(
+      { payload },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({
+              to: "/verify-email",
+              search: (prev) => ({ callbackUrl: prev.callbackUrl }),
+            });
           });
-        });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -139,8 +142,8 @@ const useEmailSignUpForm = () => {
 
 const useSignUp = () => {
   return useMutation({
-    mutationFn: async (payload: typeof SignUpPayload.Type) => {
-      return callApi((api) => api.Auth.signUp({ payload }));
+    mutationFn: async (props: InferApiProps<"Auth", "signUp">) => {
+      return callApi((api) => api.Auth.signUp(props));
     },
   });
 };

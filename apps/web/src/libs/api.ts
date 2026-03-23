@@ -51,6 +51,13 @@ const makeClient = HttpApiClient.make(Api, {
 
 type Client = Effect.Effect.Success<typeof makeClient>;
 
+export type InferApiProps<
+  A extends keyof Client,
+  B extends keyof Client[A],
+> = Client[A][B] extends (...args: any) => any
+  ? Omit<Parameters<Client[A][B]>[0], "withResponse">
+  : never;
+
 export const callApi = <A, E>(
   call: (client: Client) => Effect.Effect<A, E, never>,
 ) => {

@@ -10,7 +10,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { SignInPayload } from "@gym-graphs/shared/auth/schemas";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 
 export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
@@ -21,20 +21,23 @@ export const EmailSignInForm = () => {
   const signIn = useSignIn();
 
   const onSubmit = async (payload: typeof SignInPayload.Type) => {
-    await signIn.mutateAsync(payload, {
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          if (search.callbackUrl) {
-            await navigate({ to: search.callbackUrl });
-          } else {
-            await navigate({ to: "/dashboard" });
-          }
-        });
+    await signIn.mutateAsync(
+      { payload },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            if (search.callbackUrl) {
+              await navigate({ to: search.callbackUrl });
+            } else {
+              await navigate({ to: "/dashboard" });
+            }
+          });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -127,8 +130,8 @@ const useEmailSignInForm = () => {
 
 const useSignIn = () => {
   return useMutation({
-    mutationFn: async (payload: typeof SignInPayload.Type) => {
-      return callApi((api) => api.Auth.signIn({ payload }));
+    mutationFn: async (props: InferApiProps<"Auth", "signIn">) => {
+      return callApi((api) => api.Auth.signIn(props));
     },
   });
 };

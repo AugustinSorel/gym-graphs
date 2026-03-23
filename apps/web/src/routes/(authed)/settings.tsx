@@ -15,28 +15,33 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { Spinner } from "~/ui/spinner";
 import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
-import {
-  PatchUserByIdPayload,
-  UserSchema,
-} from "@gym-graphs/shared/user/schemas";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
-// import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
+import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
-// import { TagsList } from "~/domains/tag/components/tags-list";
-import { callApi } from "~/libs/api";
+import { TagsList } from "~/domains/tag/components/tags-list";
+import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps, PropsWithChildren } from "react";
 import { decodeUnknownOption } from "effect/ParseResult";
 import { Option } from "effect";
+import { tagQueries } from "~/domains/tag/tag.queries";
 
 export const Route = createFileRoute("/(authed)/settings")({
   component: () => RouteComponent(),
+  loader: async ({ context }) => {
+    const queries = {
+      tags: tagQueries.all,
+    };
+
+    await context.queryClient.ensureQueryData(queries.tags);
+  },
 });
 
 const RouteComponent = () => {
@@ -50,7 +55,7 @@ const RouteComponent = () => {
 
       <EmailSection />
       <RenameUserSection />
-      {/* <TagsSection /> */}
+      <TagsSection />
       <OneRepMaxAlgoSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
@@ -99,7 +104,6 @@ const RenameUserSection = () => {
   );
 };
 
-/*
 const TagsSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
@@ -117,7 +121,6 @@ const TagsSection = () => {
     </CatchBoundary>
   );
 };
-*/
 
 const useUpdateOneRepMaxAlgo = () => {
   const queries = {
@@ -125,8 +128,8 @@ const useUpdateOneRepMaxAlgo = () => {
   };
 
   return useMutation({
-    mutationFn: async (payload: typeof PatchUserByIdPayload.Type) => {
-      return callApi((api) => api.User.patch({ payload }));
+    mutationFn: async (props: InferApiProps<"User", "patch">) => {
+      return callApi((api) => api.User.patch(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
@@ -134,13 +137,13 @@ const useUpdateOneRepMaxAlgo = () => {
       const oldUser = ctx.client.getQueryData(queries.user.queryKey);
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user || !variables.oneRepMaxAlgo) {
+        if (!user || !variables.payload.oneRepMaxAlgo) {
           return user;
         }
 
         return {
           ...user,
-          oneRepMaxAlgo: variables.oneRepMaxAlgo,
+          oneRepMaxAlgo: variables.payload.oneRepMaxAlgo,
         };
       });
 
@@ -186,7 +189,9 @@ const OneRepMaxAlgoSection = () => {
             }
 
             updateOneRepMaxAlgo.mutate({
-              oneRepMaxAlgo: oneRepMaxAlgo.value,
+              payload: {
+                oneRepMaxAlgo: oneRepMaxAlgo.value,
+              },
             });
           }}
         >

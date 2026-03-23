@@ -12,7 +12,7 @@ import {
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Spinner } from "~/ui/spinner";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
@@ -25,21 +25,24 @@ export const VerifyEmailForm = () => {
   const form = useVerifyEmailForm();
   const verifyEmail = useVerifyEmail();
 
-  const onSubmit = async (data: typeof VerificationCodeSchema.Type) => {
-    await verifyEmail.mutateAsync(data, {
-      onError: (error) => {
-        form.setError("root", { message: error.message });
+  const onSubmit = async (payload: typeof VerificationCodeSchema.Type) => {
+    await verifyEmail.mutateAsync(
+      { payload },
+      {
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            if (search.callbackUrl) {
+              await navigate({ to: search.callbackUrl });
+            } else {
+              await navigate({ to: "/dashboard" });
+            }
+          });
+        },
       },
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          if (search.callbackUrl) {
-            await navigate({ to: search.callbackUrl });
-          } else {
-            await navigate({ to: "/dashboard" });
-          }
-        });
-      },
-    });
+    );
   };
 
   return (
@@ -114,8 +117,8 @@ const useVerifyEmailForm = () => {
 
 const useVerifyEmail = () => {
   return useMutation({
-    mutationFn: async (payload: typeof VerificationCodeSchema.Type) => {
-      return callApi((api) => api.Auth.verifyAccount({ payload }));
+    mutationFn: async (props: InferApiProps<"Auth", "verifyAccount">) => {
+      return callApi((api) => api.Auth.verifyAccount(props));
     },
   });
 };

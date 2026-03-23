@@ -7,7 +7,7 @@ import { Spinner } from "~/ui/spinner";
 import { ResetPasswordPayload } from "@gym-graphs/shared/auth/schemas";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { callApi } from "~/libs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
@@ -19,17 +19,20 @@ export const ResetPasswordForm = () => {
 
   const navigate = routeApi.useNavigate();
 
-  const onSubmit = async (data: typeof ResetPasswordPayload.Type) => {
-    await resetPassword.mutateAsync(data, {
-      onSuccess: () => {
-        startRedirectTransition(async () => {
-          await navigate({ to: "/dashboard" });
-        });
+  const onSubmit = async (payload: typeof ResetPasswordPayload.Type) => {
+    await resetPassword.mutateAsync(
+      { payload },
+      {
+        onSuccess: () => {
+          startRedirectTransition(async () => {
+            await navigate({ to: "/dashboard" });
+          });
+        },
+        onError: (error) => {
+          form.setError("root", { message: error.message });
+        },
       },
-      onError: (error) => {
-        form.setError("root", { message: error.message });
-      },
-    });
+    );
   };
 
   return (
@@ -118,8 +121,8 @@ const useResetPasswordForm = () => {
 
 const useResetPassword = () => {
   return useMutation({
-    mutationFn: async (payload: typeof ResetPasswordPayload.Type) => {
-      return callApi((api) => api.Auth.resetPassword({ payload }));
+    mutationFn: async (props: InferApiProps<"Auth", "resetPassword">) => {
+      return callApi((api) => api.Auth.resetPassword(props));
     },
   });
 };
