@@ -18,6 +18,7 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     oauthAccounts: r.many.oauthAccounts(),
     tags: r.many.tags(),
+    dashboardTiles: r.many.tags(),
   },
 
   sessions: {
@@ -55,5 +56,14 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.users.id,
       optional: false,
     }),
+  },
+  dashboardTiles: {
+    user: r.one.users({
+      from: r.dashboardTiles.userId,
+      to: r.users.id,
+      optional: false,
+    }),
+    //FIXME
+    // exercise
   },
 }));

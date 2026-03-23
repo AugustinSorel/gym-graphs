@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
+import { DashboardTileSchema } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",
@@ -146,3 +147,33 @@ export const tags = pgTable(
 );
 
 export type Tag = Readonly<typeof tags.$inferSelect>;
+
+export const dashboardTypeEnum = pgEnum(
+  "dashboard_type",
+  DashboardTileSchema.fields.type.literals,
+);
+
+export const dashboardTiles = pgTable(
+  "dashboard_tiles",
+  (t) => ({
+    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: t
+      .integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: t.text("name").notNull(),
+    weightUnit: weightUnitEnum(),
+    //FIXME
+    // exerciseId:
+    index: t.serial("index"),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [unique().on(t.name, t.userId)],
+);
+
+export type DashboardTile = Readonly<typeof dashboardTiles.$inferSelect>;
