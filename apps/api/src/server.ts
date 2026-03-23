@@ -23,10 +23,13 @@ import { Email } from "./integrations/email/client";
 import { VerificationCodeService } from "./features/verification-code/service";
 import { OAuthService } from "./features/oauth/service";
 import { OAuthLive } from "./features/oauth/handlers";
+import { UserLive } from "./features/user/handler";
+import { UserService } from "./features/user/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide(AuthLive),
   Layer.provide(OAuthLive),
+  Layer.provide(UserLive),
 );
 
 const HttpServerLive = Layer.unwrapEffect(
@@ -56,6 +59,7 @@ export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(SessionService.Default),
   Layer.provide(AuthService.Default),
   Layer.provide(OAuthService.Default),
+  Layer.provide(UserService.Default),
   Layer.provide(AuthCookies.Default),
   Layer.provide(VerificationCodeService.Default),
   Layer.provide(Email.Default),
