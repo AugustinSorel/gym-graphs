@@ -1,14 +1,16 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppIcon } from "~/ui/app-icon";
 import { HeroBackground } from "~/ui/hero-background";
-import { z } from "zod";
 import type { ComponentProps } from "react";
+import { Schema } from "effect";
 
 export const Route = createFileRoute("/(auth)")({
-  validateSearch: z.object({
-    error: z.string().optional(),
-    callbackUrl: z.string().optional(),
-  }),
+  validateSearch: Schema.decodeUnknown(
+    Schema.Struct({
+      error: Schema.String.pipe(Schema.optional),
+      callbackUrl: Schema.String.pipe(Schema.optional),
+    }),
+  ),
   component: () => RouteComponent(),
   beforeLoad: ({ context }) => {
     if (context.user?.verifiedAt) {
