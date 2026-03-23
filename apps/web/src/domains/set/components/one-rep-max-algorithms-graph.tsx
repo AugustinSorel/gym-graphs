@@ -9,8 +9,8 @@ import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { useUser } from "~/domains/user/hooks/use-user";
-import { constant } from "@gym-graphs/constants";
 import type { CSSProperties, MouseEvent, TouchEvent } from "react";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
 
 export const OneRepMaxAlgorithmsGraph = () => {
   return (
@@ -200,7 +200,7 @@ const mockPoints = [
 const getX = (point: Point) => point.x;
 const getY = (point: Point) => point.y;
 
-const algoLines = constant.user.oneRepMaxAlgo.map((algo) => ({
+const algoLines = UserSchema.fields.oneRepMaxAlgo.literals.map((algo) => ({
   name: algo,
   data: mockPoints.map((point, i) => ({
     x: i,

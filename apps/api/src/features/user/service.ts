@@ -20,6 +20,12 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
           return user;
         }).pipe(Effect.timeout(5000));
       },
+
+      deleteByUserId: (userId: User["id"]) => {
+        return Effect.gen(function* () {
+          yield* userRepo.deleteByUserId(userId);
+        }).pipe(Effect.timeout(5000));
+      },
     };
   }),
 }) {}

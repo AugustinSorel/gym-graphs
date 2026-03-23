@@ -21,14 +21,14 @@ import {
 } from "@gym-graphs/shared/user/schemas";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { useSignOut } from "~/domains/session/hooks/use-sign-out";
-import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
+// import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
-import { TagsList } from "~/domains/tag/components/tags-list";
+// import { TagsList } from "~/domains/tag/components/tags-list";
 import { callApi } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps, PropsWithChildren } from "react";
@@ -50,7 +50,7 @@ const RouteComponent = () => {
 
       <EmailSection />
       <RenameUserSection />
-      <TagsSection />
+      {/* <TagsSection /> */}
       <OneRepMaxAlgoSection />
       <ChangeWeightUnitSection />
       <ChangeThemeSection />
@@ -99,6 +99,7 @@ const RenameUserSection = () => {
   );
 };
 
+/*
 const TagsSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
@@ -116,6 +117,7 @@ const TagsSection = () => {
     </CatchBoundary>
   );
 };
+*/
 
 const useUpdateOneRepMaxAlgo = () => {
   const queries = {
@@ -124,7 +126,7 @@ const useUpdateOneRepMaxAlgo = () => {
 
   return useMutation({
     mutationFn: async (payload: typeof PatchUserByIdPayload.Type) => {
-      return callApi((api) => api.User.patchByUserId({ payload }));
+      return callApi((api) => api.User.patch({ payload }));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);

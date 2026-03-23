@@ -100,6 +100,19 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
           return user;
         });
       },
+
+      deleteByUserId: (userId: User["id"]) => {
+        return Effect.gen(function* () {
+          const rows = yield* db
+            .delete(users)
+            .where(eq(users.id, userId))
+            .returning();
+
+          const user = yield* pipe(Array.head(rows), Effect.orDie);
+
+          return user;
+        });
+      },
     };
   }),
 }) {}

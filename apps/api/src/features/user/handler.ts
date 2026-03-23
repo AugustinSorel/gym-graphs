@@ -5,18 +5,31 @@ import { Effect } from "effect";
 import { CurrentSession } from "@gym-graphs/shared/auth/middlewares";
 
 export const UserLive = HttpApiBuilder.group(Api, "User", (handlers) => {
-  return handlers.handle("patchByUserId", ({ payload }) => {
-    return Effect.gen(function* () {
-      const session = yield* CurrentSession;
+  return handlers
+    .handle("patch", ({ payload }) => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
 
-      const user = yield* UserService.patchByUserId(payload, session.userId);
+        const user = yield* UserService.patchByUserId(payload, session.userId);
 
-      return user;
-    }).pipe(
-      Effect.catchTags({
-        EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
-        TimeoutException: () => new HttpApiError.RequestTimeout(),
-      }),
-    );
-  });
+        return user;
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+        }),
+      );
+    })
+    .handle("delete", () => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        yield* UserService.deleteByUserId(session.userId);
+      }).pipe(
+        Effect.catchTags({
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+        }),
+      );
+    });
 });

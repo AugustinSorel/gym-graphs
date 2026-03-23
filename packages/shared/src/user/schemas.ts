@@ -72,4 +72,5 @@ export const UserSchema = Schema.Struct({
 export const PatchUserByIdPayload = UserSchema.pick(
   "weightUnit",
   "oneRepMaxAlgo",
+  "name",
 ).pipe(Schema.partial);

@@ -5,9 +5,10 @@ import { RequireVerifiedSession } from "#/auth/middlewares";
 
 export const userApi = HttpApiGroup.make("User")
   .add(
-    HttpApiEndpoint.patch("patchByUserId", "/me")
+    HttpApiEndpoint.patch("patch", "/me")
       .setPayload(PatchUserByIdPayload)
       .addSuccess(CurrentSessionSchema.fields.user),
   )
+  .add(HttpApiEndpoint.del("delete", "/me"))
   .middleware(RequireVerifiedSession)
   .prefix("/users");

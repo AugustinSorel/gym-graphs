@@ -42,4 +42,4 @@ export const RenameUserDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(settings)/settings");
+const routeApi = getRouteApi("/(authed)/settings");

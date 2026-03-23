@@ -12,7 +12,7 @@ export const useUpdateWeightUnit = () => {
     mutationFn: async (
       payload: Pick<typeof PatchUserByIdPayload.Type, "weightUnit">,
     ) => {
-      return callApi((api) => api.User.patchByUserId({ payload }));
+      return callApi((api) => api.User.patch({ payload }));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
