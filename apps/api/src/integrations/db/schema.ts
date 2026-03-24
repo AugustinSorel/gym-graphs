@@ -177,3 +177,28 @@ export const dashboardTiles = pgTable(
 );
 
 export type DashboardTile = Readonly<typeof dashboardTiles.$inferSelect>;
+
+export const dashboardtilesToTags = pgTable(
+  "dashboard_tiles_to_tags",
+  (t) => ({
+    dashboardTileId: t
+      .integer("dashboard_tile_id")
+      .notNull()
+      .references(() => dashboardTiles.id, { onDelete: "cascade" }),
+    tagId: t
+      .integer("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+    createdAt: t.timestamp("created_at").notNull().defaultNow(),
+    updatedAt: t
+      .timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [primaryKey({ columns: [t.dashboardTileId, t.tagId] })],
+);
+
+export type DashboardTilesToTags = Readonly<
+  typeof dashboardtilesToTags.$inferSelect
+>;

@@ -12,16 +12,16 @@ export const DashboardTileLive = HttpApiBuilder.group(
       return Effect.gen(function* () {
         const session = yield* CurrentSession;
 
-        const tile = yield* DashboardTileService.create({
-          name: payload.name,
-          type: payload.type,
-          userId: session.userId,
-        });
+        const tile = yield* DashboardTileService.create(
+          payload,
+          session.userId,
+        );
 
         return tile;
       }).pipe(
         Effect.catchTags({
           EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          SqlError: () => new HttpApiError.InternalServerError(),
           TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );

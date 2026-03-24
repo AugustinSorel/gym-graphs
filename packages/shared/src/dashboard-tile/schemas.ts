@@ -1,3 +1,4 @@
+import { TagSchema } from "#/tag/schemas";
 import { pipe, Schema } from "effect";
 
 export const DashboardTileSchema = Schema.Struct({
@@ -17,7 +18,9 @@ export const DashboardTileSchema = Schema.Struct({
   ),
 });
 
-export const CreateDashboardTilePayload = DashboardTileSchema.pick(
-  "type",
-  "name",
+export const CreateDashboardTilePayload = Schema.extend(
+  Schema.Struct({
+    tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+  }),
+  DashboardTileSchema.pick("type", "name"),
 );

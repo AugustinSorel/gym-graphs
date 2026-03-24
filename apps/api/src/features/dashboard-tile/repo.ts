@@ -1,5 +1,9 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import { dashboardTiles } from "#/integrations/db/schema";
+import {
+  dashboardTiles,
+  dashboardtilesToTags,
+  type DashboardTilesToTags,
+} from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
 import { DuplicateDashboardTile } from "@gym-graphs/shared/dashboard-tile/errors";
@@ -24,6 +28,21 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
               ),
               Effect.andThen((rows) => Array.head(rows).pipe(Effect.orDie)),
             );
+        },
+
+        addTags: (
+          dashboardTileId: DashboardTilesToTags["dashboardTileId"],
+          tagIds: ReadonlyArray<DashboardTilesToTags["tagId"]>,
+        ) => {
+          return db
+            .insert(dashboardtilesToTags)
+            .values(
+              tagIds.map((tagId) => ({
+                tagId,
+                dashboardTileId,
+              })),
+            )
+            .returning();
         },
       };
     }),

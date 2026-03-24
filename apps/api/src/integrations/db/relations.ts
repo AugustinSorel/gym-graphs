@@ -56,6 +56,7 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.users.id,
       optional: false,
     }),
+    dashboardTiles: r.many.dashboardtilesToTags(),
   },
   dashboardTiles: {
     user: r.one.users({
@@ -63,7 +64,20 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.users.id,
       optional: false,
     }),
+    tags: r.many.dashboardtilesToTags(),
     //FIXME
     // exercise
+  },
+  dashboardtilesToTags: {
+    dashboardTile: r.one.dashboardTiles({
+      from: r.dashboardtilesToTags.dashboardTileId,
+      to: r.dashboardTiles.id,
+      optional: false,
+    }),
+    tag: r.one.tags({
+      from: r.dashboardtilesToTags.tagId,
+      to: r.tags.id,
+      optional: false,
+    }),
   },
 }));
