@@ -1,31 +1,33 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { GripVerticalIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
-import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
-import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-import { getRouteApi, Link } from "@tanstack/react-router";
+// import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+// import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
+import { getRouteApi } from "@tanstack/react-router";
+// import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
-import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
-import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
-import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
-import type { useTiles } from "~/domains/tile/hooks/use-tiles";
+// import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
+// import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
+// import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
+// import type { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
+import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
-    case "exerciseOverview":
+    case "exercise":
       return <ExerciseOverviewTile tile={props.tile} />;
-    case "exerciseSetCount":
-      return <ExerciseSetCountTile tile={props.tile} />;
-    case "exerciseTagCount":
-      return <ExerciseTagCountTile tile={props.tile} />;
-    case "dashboardHeatMap":
-      return <DashboardHeatMapTile tile={props.tile} />;
-    case "dashboardFunFacts":
-      return <DashboardFunFactsTile tile={props.tile} />;
+    // case "exerciseSetCount":
+    //   return <ExerciseSetCountTile tile={props.tile} />;
+    // case "exerciseTagCount":
+    //   return <ExerciseTagCountTile tile={props.tile} />;
+    // case "dashboardHeatMap":
+    //   return <DashboardHeatMapTile tile={props.tile} />;
+    // case "dashboardFunFacts":
+    //   return <DashboardFunFactsTile tile={props.tile} />;
   }
 };
 
@@ -50,17 +52,19 @@ export const GraphViewTileSkeleton = () => {
   );
 };
 
-const ExerciseOverviewTile = (props: { tile: ExerciseOverviewTile }) => {
+const ExerciseOverviewTile = (props: { tile: Tile }) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
     <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
+        {/*
         <Link
           to="/exercises/$exerciseId"
           params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
           aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
         />
+        */}
       </Button>
 
       <CardHeader>
@@ -68,11 +72,12 @@ const ExerciseOverviewTile = (props: { tile: ExerciseOverviewTile }) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <ExerciseOverviewGraph sets={props.tile.exerciseOverview.exercise.sets} />
+      {/*<ExerciseOverviewGraph sets={props.tile.exerciseOverview.exercise.sets} />*/}
     </Card>
   );
 };
 
+/*
 const ExerciseTagCountTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
 
@@ -136,6 +141,7 @@ const DashboardHeatMapTile = (props: TileProps) => {
     </Card>
   );
 };
+*/
 
 const DragButton = (props: ButtonProps) => {
   const search = routeApi.useSearch();
@@ -197,9 +203,9 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="overflow-auto p-4" {...props} />;
 };
 
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+type Tile =
+  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
 
-type TileProps = Readonly<{ tile: Tile }>;
-type ExerciseOverviewTile = Extract<Tile, { type: "exerciseOverview" }>;
+type TileProps = { tile: Tile };
 
-const routeApi = getRouteApi("/(dashboard)/dashboard");
+const routeApi = getRouteApi("/(authed)/dashboard");

@@ -1,6 +1,11 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { RequireVerifiedSession } from "#/auth/middlewares";
-import { CreateDashboardTilePayload, DashboardTileSchema } from "./schemas";
+import {
+  CreateDashboardTilePayload,
+  DashboardTileSuccess,
+  SelectAllDashboardTilesSuccess,
+  SelectAllDashboardTilesUrlParams,
+} from "./schemas";
 import { DuplicateDashboardTile } from "./errors";
 
 export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
@@ -8,7 +13,12 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
     HttpApiEndpoint.post("create", "/")
       .setPayload(CreateDashboardTilePayload)
       .addError(DuplicateDashboardTile)
-      .addSuccess(DashboardTileSchema),
+      .addSuccess(DashboardTileSuccess),
+  )
+  .add(
+    HttpApiEndpoint.get("all", "/")
+      .setUrlParams(SelectAllDashboardTilesUrlParams)
+      .addSuccess(SelectAllDashboardTilesSuccess),
   )
   .middleware(RequireVerifiedSession)
   .prefix("/dashboard-tiles");

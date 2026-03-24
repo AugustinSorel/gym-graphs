@@ -33,6 +33,11 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             }),
           ).pipe(Effect.timeout(5000));
         },
+
+        //FIXME: add pagination
+        selectAll: (userId: DashboardTile["userId"]) => {
+          return dashboardTileRepo.selectAll(userId).pipe(Effect.timeout(5000));
+        },
       };
     }),
   },

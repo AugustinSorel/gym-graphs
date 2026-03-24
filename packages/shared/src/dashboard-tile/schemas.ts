@@ -24,3 +24,28 @@ export const CreateDashboardTilePayload = Schema.extend(
   }),
   DashboardTileSchema.pick("type", "name"),
 );
+
+export const DashboardTileSuccess = DashboardTileSchema.pick(
+  "id",
+  "type",
+  "name",
+);
+
+export const SelectAllDashboardTilesUrlParams = Schema.Struct({
+  name: Schema.optionalWith(Schema.String, {
+    exact: true,
+  }),
+  tags: Schema.optionalWith(
+    Schema.Array(TagSchema.fields.name).pipe(Schema.maxItems(200)),
+    { exact: true },
+  ),
+  page: Schema.optionalWith(Schema.NumberFromString, {
+    default: () => 1,
+    exact: true,
+  }),
+});
+
+export const SelectAllDashboardTilesSuccess = Schema.Struct({
+  nextCursor: Schema.Positive,
+  dashboardTiles: DashboardTileSuccess.pipe(Schema.Array),
+});

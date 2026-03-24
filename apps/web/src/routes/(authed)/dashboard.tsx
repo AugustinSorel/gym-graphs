@@ -2,35 +2,34 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CreateExerciseOverviewTileDialog } from "~/domains/tile/components/create-exercise-overview-tile-dialog";
 import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
-// import { Dashboard } from "~/domains/dashboard/components/dashboard";
-// import { tileSchema } from "@gym-graphs/schemas/tile";
-// import { tagSchema } from "@gym-graphs/schemas/tag";
+import { Dashboard } from "~/domains/dashboard/components/dashboard";
 import { ViewToggle } from "~/domains/dashboard/components/view-toggle";
-// import { tileQueries } from "~/domains/tile/tile.queries";
+import { tileQueries } from "~/domains/tile/tile.queries";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
 import { tagQueries } from "~/domains/tag/tag.queries";
 
 export const Route = createFileRoute("/(authed)/dashboard")({
-  validateSearch: Schema.decodeUnknownSync(
-    Schema.Struct({
-      name: Schema.String.pipe(Schema.optional),
-      tags: Schema.String.pipe(Schema.Array, Schema.optional),
-    }),
-  ),
+  validateSearch: (e) => {
+    return Schema.decodeUnknownSync(
+      Schema.Struct({
+        name: Schema.optionalWith(Schema.String, { exact: true }),
+        tags: Schema.optionalWith(Schema.String.pipe(Schema.Array), {
+          exact: true,
+        }),
+      }),
+    )(e);
+  },
 
   component: () => RouteComponent(),
-  // loaderDeps: ({ search }) => ({
-  //   name: search.name,
-  //   tags: search.tags,
-  // }),
+  loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     const queries = {
-      // tiles: tileQueries.all(deps.name, deps.tags),
+      tiles: tileQueries.all(deps),
       tags: tagQueries.all,
     };
 
-    // await context.queryClient.ensureInfiniteQueryData(queries.tiles);
+    await context.queryClient.ensureInfiniteQueryData(queries.tiles);
     await context.queryClient.ensureQueryData(queries.tags);
   },
 });
@@ -45,7 +44,7 @@ const RouteComponent = () => {
         <CreateExerciseOverviewTileDialog />
       </Header>
 
-      {/*<Dashboard />*/}
+      <Dashboard />
     </Main>
   );
 };

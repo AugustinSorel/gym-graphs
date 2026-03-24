@@ -2,6 +2,7 @@ import { Database, isUniqueViolation } from "#/integrations/db/db";
 import {
   dashboardTiles,
   dashboardtilesToTags,
+  type DashboardTile,
   type DashboardTilesToTags,
 } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
@@ -43,6 +44,17 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
               })),
             )
             .returning();
+        },
+
+        selectAll: (userId: DashboardTile["userId"]) => {
+          return db.query.dashboardTiles.findMany({
+            where: {
+              userId,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
         },
       };
     }),

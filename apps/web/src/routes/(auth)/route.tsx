@@ -5,12 +5,14 @@ import type { ComponentProps } from "react";
 import { Schema } from "effect";
 
 export const Route = createFileRoute("/(auth)")({
-  validateSearch: Schema.decodeUnknownSync(
-    Schema.Struct({
-      error: Schema.String.pipe(Schema.optional),
-      callbackUrl: Schema.String.pipe(Schema.optional),
-    }),
-  ),
+  validateSearch: (e) => {
+    return Schema.decodeUnknownSync(
+      Schema.Struct({
+        error: Schema.String.pipe(Schema.optional),
+        callbackUrl: Schema.String.pipe(Schema.optional),
+      }),
+    )(e);
+  },
   component: () => RouteComponent(),
   beforeLoad: ({ context }) => {
     if (context.user?.verifiedAt) {

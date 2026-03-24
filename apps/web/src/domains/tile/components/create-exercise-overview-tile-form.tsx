@@ -116,7 +116,7 @@ const useFormSchema = () => {
       const cachedTiles = queryClient.getQueryData(queries.tiles);
 
       const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.tiles)
+        .flatMap((page) => page.dashboardTiles)
         .find((tile) => {
           return tile.name === data.name;
         });
@@ -157,14 +157,10 @@ const useCreateExerciseTile = () => {
     mutationFn: async (props: InferApiProps<"DashboardTile", "create">) => {
       return callApi((api) => api.DashboardTile.create(props));
     },
-    //FIXME
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.tiles);
 
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
-
-      // const exerciseId = Math.random();
-      // const tileId = Math.random();
 
       // const optimisticTile = {
       //   id: tileId,
@@ -210,25 +206,32 @@ const useCreateExerciseTile = () => {
       //   updatedAt: new Date().toString(),
       // };
 
-      // ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-      //   if (!tiles) {
-      //     return tiles;
-      //   }
+      const optimisticTile = {
+        id: Math.random(),
+        index: 1_0000,
+        type: "exercise" as const,
+        name: variables.payload.name,
+      };
 
-      //   return {
-      //     ...tiles,
-      //     pages: tiles.pages.map((page, i) => {
-      //       if (i === 0) {
-      //         return {
-      //           ...page,
-      //           tiles: [optimisticTile, ...page.tiles],
-      //         };
-      //       }
+      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
+        if (!tiles) {
+          return tiles;
+        }
 
-      //       return page;
-      //     }),
-      //   };
-      // });
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page, i) => {
+            if (i === 0) {
+              return {
+                ...page,
+                dashboardTiles: [optimisticTile, ...page.dashboardTiles],
+              };
+            }
+
+            return page;
+          }),
+        };
+      });
 
       return {
         oldTiles,

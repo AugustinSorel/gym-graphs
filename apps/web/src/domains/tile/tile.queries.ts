@@ -1,31 +1,25 @@
+import { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
 import { infiniteQueryOptions } from "@tanstack/react-query";
-// import { api } from "~/libs/api";
-// import { parseJsonResponse } from "@gym-graphs/api";
-// import type { Tile, Tag } from "@gym-graphs/db/schemas";
-// import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 
-const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
+const all = (
+  urlParams?: Omit<typeof SelectAllDashboardTilesUrlParams.Encoded, "page">,
+) => {
   return infiniteQueryOptions({
-    queryKey: ["dashboard", "tiles", name, tags],
-    queryFn: async ({ pageParam, signal }) => {
-      return [[]];
-      // const req = api().tiles.$get;
-      // const query: InferApiReqInput<typeof req>["query"] = {
-      //   page: pageParam.toString(),
-      // };
-      // if (name) {
-      //   query.name = name;
-      // }
-      // if (tags?.length) {
-      //   query.tags = JSON.stringify(tags);
-      // }
-      // return parseJsonResponse(req({ query }, { init: { signal } }));
+    queryKey: ["dashboard-tiles", urlParams?.name, urlParams?.tags],
+    queryFn: async ({ pageParam }) => {
+      return callApi((api) =>
+        api.DashboardTile.all({
+          urlParams: {
+            ...urlParams,
+            page: pageParam,
+          },
+        }),
+      );
     },
     initialPageParam: 1,
-    // getNextPageParam: (lastPage) => lastPage.nextCursor,
-    getNextPageParam: () => 0,
-    // select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
-    select: (tiles) => tiles.pages.flatMap((pages) => pages),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    select: (tiles) => tiles.pages.flatMap((pages) => pages.dashboardTiles),
   });
 };
 

@@ -16,7 +16,11 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { Fragment, Suspense, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import {
   GraphViewTile,
@@ -30,8 +34,7 @@ import {
 } from "~/domains/dashboard/components/trending-view-tile";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type {
   ComponentProps,
@@ -46,7 +49,6 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const Dashboard = () => {
   return (
@@ -62,8 +64,8 @@ export const Dashboard = () => {
 };
 
 const NoTilesFallback = (props: PropsWithChildren) => {
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-  const tiles = useTiles(search.name, search.tags);
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
   if (!tiles.data.length) {
     return <NoDataText>no data</NoDataText>;
@@ -88,7 +90,7 @@ const Content = () => {
     case "trending": {
       return (
         <Suspense fallback={<TrendingViewContentSkeleton />}>
-          <TrendingViewContent />
+          {/*<TrendingViewContent />*/}
         </Suspense>
       );
     }
@@ -96,8 +98,8 @@ const Content = () => {
 };
 
 const TrendingViewContent = () => {
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-  const tiles = useTiles(search.name, search.tags);
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
   return (
     <Grid>
@@ -106,7 +108,7 @@ const TrendingViewContent = () => {
         getResetKey={() => "reset"}
       >
         {tiles.data
-          .filter((tile) => tile.type === "exerciseOverview")
+          .filter((tile) => tile.type === "exercise")
           .map((tile) => {
             return <TrendingViewTile key={tile.id} tile={tile} />;
           })}
@@ -118,8 +120,8 @@ const TrendingViewContent = () => {
 };
 
 const GraphViewContent = () => {
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-  const tiles = useTiles(search.name, search.tags);
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
   return (
     <Grid>
@@ -149,8 +151,8 @@ const SortableItem = (
   props: Readonly<PropsWithChildren<{ isLastItem: boolean; id: number }>>,
 ) => {
   const sortable = useSortable({ id: props.id });
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-  const tiles = useTiles(search.name, search.tags);
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  // const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
   const style: Readonly<CSSProperties> = {
     transform: sortable.transform
@@ -160,23 +162,23 @@ const SortableItem = (
     zIndex: sortable.isDragging ? "100" : "auto",
   };
 
-  const fetchNextPageHandler = (e: HTMLElement) => {
-    if (!props.isLastItem) {
-      return () => null;
-    }
+  // const fetchNextPageHandler = (e: HTMLElement) => {
+  //   if (!props.isLastItem) {
+  //     return () => null;
+  //   }
 
-    const observer = new IntersectionObserver(([tile]) => {
-      if (!tile?.isIntersecting || !tiles.hasNextPage) {
-        return;
-      }
+  //   const observer = new IntersectionObserver(([tile]) => {
+  //     if (!tile?.isIntersecting || !tiles.hasNextPage) {
+  //       return;
+  //     }
 
-      void tiles.fetchNextPage();
-    });
+  //     void tiles.fetchNextPage();
+  //   });
 
-    observer.observe(e);
+  //   observer.observe(e);
 
-    return () => observer.unobserve(e);
-  };
+  //   return () => observer.unobserve(e);
+  // };
 
   return (
     <div
@@ -188,11 +190,12 @@ const SortableItem = (
           return;
         }
 
-        const tearDownHandler = fetchNextPageHandler(e);
+        //FIXME
+        // const tearDownHandler = fetchNextPageHandler(e);
 
-        return () => {
-          tearDownHandler();
-        };
+        // return () => {
+        //   tearDownHandler();
+        // };
       }}
       style={style}
     >
@@ -204,11 +207,11 @@ const SortableItem = (
 const SortableGrid = (props: {
   children: (tile: Tile, index: number) => ReactNode;
 }) => {
-  const search = useSearch({ from: "/(dashboard)/dashboard" });
-  const tiles = useTiles(search.name, search.tags);
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
-  const reorderTiles = useReorderTiles();
+  // const reorderTiles = useReorderTiles();
   const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
@@ -304,8 +307,8 @@ const SortableGrid = (props: {
         pages: tiles.pages.map((page, i) => {
           return {
             ...page,
-            tiles: page.tiles.map((_tile, j) => {
-              const tile = tilesOrdered.at(i * page.tiles.length + j);
+            dashboardTiles: page.dashboardTiles.map((_tile, j) => {
+              const tile = tilesOrdered.at(i * page.dashboardTiles.length + j);
 
               if (!tile) {
                 throw new Error("tile not found when reordering");
@@ -318,11 +321,11 @@ const SortableGrid = (props: {
       };
     });
 
-    reorderTiles.mutate({
-      json: {
-        tileIds: tilesOrdered.map((tile) => tile.id),
-      },
-    });
+    // reorderTiles.mutate({
+    //   json: {
+    //     tileIds: tilesOrdered.map((tile) => tile.id),
+    //   },
+    // });
   };
 
   const dragCancelHandler = () => {
@@ -380,15 +383,14 @@ const TrendingViewContentSkeleton = () => {
 
 type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
 
-const useReorderTiles = () => {
-  const req = api().tiles.reorder.$put;
-
-  return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
-    },
-  });
-};
+//FIXME
+// const useReorderTiles = () => {
+//   return useMutation({
+//     mutationFn: async (props: InferApiProps<"DashboardTile", "reorder">) => {
+//       return callApi((api) => api.DashboardTile.reorder(props));
+//     },
+//   });
+// };
 
 const Grid = (props: ComponentProps<"div">) => {
   return (
