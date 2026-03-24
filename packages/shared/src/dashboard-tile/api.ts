@@ -3,6 +3,8 @@ import { RequireVerifiedSession } from "#/auth/middlewares";
 import {
   CreateDashboardTilePayload,
   DashboardTileSuccess,
+  ReorderDashboardTilesPayload,
+  ReorderDashboardTilesSuccess,
   SelectAllDashboardTilesSuccess,
   SelectAllDashboardTilesUrlParams,
 } from "./schemas";
@@ -19,6 +21,11 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
     HttpApiEndpoint.get("all", "/")
       .setUrlParams(SelectAllDashboardTilesUrlParams)
       .addSuccess(SelectAllDashboardTilesSuccess),
+  )
+  .add(
+    HttpApiEndpoint.put("reorder", "/reorder")
+      .setPayload(ReorderDashboardTilesPayload)
+      .addSuccess(ReorderDashboardTilesSuccess),
   )
   .middleware(RequireVerifiedSession)
   .prefix("/dashboard-tiles");

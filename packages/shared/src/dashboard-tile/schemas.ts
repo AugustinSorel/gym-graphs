@@ -48,3 +48,14 @@ export const SelectAllDashboardTilesSuccess = Schema.Struct({
   nextCursor: Schema.NullOr(Schema.Positive),
   dashboardTiles: DashboardTileSuccess.pipe(Schema.Array),
 });
+
+export const ReorderDashboardTilesPayload = Schema.Struct({
+  tileIds: DashboardTileSchema.fields.id.pipe(
+    Schema.Array,
+    Schema.maxItems(100),
+  ),
+});
+
+export const ReorderDashboardTilesSuccess = DashboardTileSuccess.pipe(
+  Schema.Array,
+);

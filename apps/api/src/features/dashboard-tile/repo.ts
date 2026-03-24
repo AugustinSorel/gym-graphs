@@ -9,6 +9,7 @@ import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
 import { DuplicateDashboardTile } from "@gym-graphs/shared/dashboard-tile/errors";
 import type { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
   "DashboardTileRepo",
@@ -79,11 +80,40 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             },
 
             orderBy: {
-              id: "desc",
+              index: "desc",
             },
 
             limit: pageSize + 1,
           });
+        },
+
+        reorder: (
+          tileIds: Array<DashboardTile["id"]>,
+          userId: DashboardTile["userId"],
+        ) => {
+          const sqlChunks: Array<SQL> = [];
+
+          sqlChunks.push(sql`(case`);
+
+          tileIds.forEach((tileId, i) => {
+            sqlChunks.push(
+              sql`when ${dashboardTiles.id} = ${tileId} then cast(${i} as integer)`,
+            );
+          });
+
+          sqlChunks.push(sql`end)`);
+
+          const finalSql = sql.join(sqlChunks, sql.raw(" "));
+          return db
+            .update(dashboardTiles)
+            .set({ index: finalSql })
+            .where(
+              and(
+                inArray(dashboardTiles.id, tileIds),
+                eq(dashboardTiles.userId, userId),
+              ),
+            )
+            .returning();
         },
       };
     }),

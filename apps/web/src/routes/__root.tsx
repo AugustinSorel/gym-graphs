@@ -121,6 +121,7 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
 | TODO     | remove zod                                            |
 | TODO     | try effect atoms                                      |
