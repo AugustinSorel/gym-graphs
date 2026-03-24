@@ -30,7 +30,7 @@ import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps, PropsWithChildren } from "react";
 import { decodeUnknownOption } from "effect/ParseResult";
-import { Effect } from "effect";
+import { Option } from "effect";
 import { tagQueries } from "~/domains/tag/tag.queries";
 
 export const Route = createFileRoute("/(authed)/settings")({
@@ -180,13 +180,19 @@ const OneRepMaxAlgoSection = () => {
           type="single"
           value={user.data.oneRepMaxAlgo}
           onValueChange={(unsafeOneRepMaxAlgo) => {
-            decodeUnknownOption(UserSchema.fields.oneRepMaxAlgo)(
-              unsafeOneRepMaxAlgo,
-            ).pipe(
-              Effect.andThen((oneRepMaxAlgo) => {
-                updateOneRepMaxAlgo.mutate({ payload: { oneRepMaxAlgo } });
-              }),
-            );
+            const algoOption = decodeUnknownOption(
+              UserSchema.fields.oneRepMaxAlgo,
+            )(unsafeOneRepMaxAlgo);
+
+            if (Option.isNone(algoOption)) {
+              return;
+            }
+
+            updateOneRepMaxAlgo.mutate({
+              payload: {
+                oneRepMaxAlgo: algoOption.value,
+              },
+            });
           }}
         >
           {UserSchema.fields.oneRepMaxAlgo.literals.map((algo) => (
@@ -246,15 +252,17 @@ const ChangeWeightUnitSection = () => {
             value={user.data.weightUnit}
             variant="outline"
             onValueChange={(unsafeWeightUnit) => {
-              decodeUnknownOption(UserSchema.fields.weightUnit)(
-                unsafeWeightUnit,
-              ).pipe(
-                Effect.andThen((weightUnit) => {
-                  updateWeightUnit.mutate({
-                    weightUnit,
-                  });
-                }),
-              );
+              const weightUnitOption = decodeUnknownOption(
+                UserSchema.fields.weightUnit,
+              )(unsafeWeightUnit).pipe();
+
+              if (Option.isNone(weightUnitOption)) {
+                return;
+              }
+
+              updateWeightUnit.mutate({
+                weightUnit: weightUnitOption.value,
+              });
             }}
           >
             {UserSchema.fields.weightUnit.literals.map((weightUnit) => (
