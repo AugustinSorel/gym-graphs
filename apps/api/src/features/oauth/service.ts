@@ -121,6 +121,7 @@ export class OAuthService extends Effect.Service<OAuthService>()(
                         userId: user.id,
                       });
 
+                      //FIXME
                       // await seedUserAccount(user.id, tx);
 
                       return user;

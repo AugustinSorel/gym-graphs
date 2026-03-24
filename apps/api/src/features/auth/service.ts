@@ -68,6 +68,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 salt,
               });
 
+              //FIXME
               // await seedUserAccount(user.id, tx);
 
               const verificationCode = yield* verificationCodeRepo.create({
