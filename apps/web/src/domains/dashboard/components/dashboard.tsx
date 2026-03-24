@@ -28,8 +28,8 @@ import {
   GraphViewTileSkeleton,
 } from "~/domains/dashboard/components/graph-view-tile";
 import {
-  // TrendingViewTile,
-  // TrendingViewTileFallback,
+  TrendingViewTile,
+  TrendingViewTileFallback,
   TrendingViewTileSkeleton,
 } from "~/domains/dashboard/components/trending-view-tile";
 import { useUser } from "~/domains/user/hooks/use-user";
@@ -90,34 +90,34 @@ const Content = () => {
     case "trending": {
       return (
         <Suspense fallback={<TrendingViewContentSkeleton />}>
-          {/*<TrendingViewContent />*/}
+          <TrendingViewContent />
         </Suspense>
       );
     }
   }
 };
 
-// const TrendingViewContent = () => {
-//   const search = useSearch({ from: "/(authed)/dashboard" });
-//   const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+const TrendingViewContent = () => {
+  const search = useSearch({ from: "/(authed)/dashboard" });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
-//   return (
-//     <Grid>
-//       <CatchBoundary
-//         errorComponent={TrendingViewTileFallback}
-//         getResetKey={() => "reset"}
-//       >
-//         {tiles.data
-//           .filter((tile) => tile.type === "exercise")
-//           .map((tile) => {
-//             return <TrendingViewTile key={tile.id} tile={tile} />;
-//           })}
-//       </CatchBoundary>
+  return (
+    <Grid>
+      <CatchBoundary
+        errorComponent={TrendingViewTileFallback}
+        getResetKey={() => "reset"}
+      >
+        {tiles.data
+          .filter((tile) => tile.type === "exercise")
+          .map((tile) => {
+            return <TrendingViewTile key={tile.id} tile={tile} />;
+          })}
+      </CatchBoundary>
 
-//       {tiles.isFetchingNextPage && <TrendingViewTilesSkeleton />}
-//     </Grid>
-//   );
-// };
+      {tiles.isFetchingNextPage && <TrendingViewTilesSkeleton />}
+    </Grid>
+  );
+};
 
 const GraphViewContent = () => {
   const search = useSearch({ from: "/(authed)/dashboard" });

@@ -6,7 +6,7 @@ import { userQueries } from "~/domains/user/user.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { decodeUnknownOption } from "effect/ParseResult";
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 
 const useUpdateDashboadView = () => {
   const queries = {
@@ -58,11 +58,15 @@ export const ViewToggle = () => {
       className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md border p-0.5 shadow-xs"
       value={user.data.dashboardView}
       onValueChange={(unsafeView) => {
-        decodeUnknownOption(UserSchema.fields.dashboardView)(unsafeView).pipe(
-          Effect.andThen((dashboardView) => {
-            updateDashboardView.mutate({ dashboardView });
-          }),
+        const viewOption = decodeUnknownOption(UserSchema.fields.dashboardView)(
+          unsafeView,
         );
+
+        if (Option.isNone(viewOption)) {
+          return;
+        }
+
+        updateDashboardView.mutate({ dashboardView: viewOption.value });
       }}
     >
       <ToggleGroupItem

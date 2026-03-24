@@ -1,39 +1,40 @@
-import { Button } from "~/ui/button";
-import { Link } from "@tanstack/react-router";
-import { Badge } from "~/ui/badge";
+// import { Button } from "~/ui/button";
+// import { Link } from "@tanstack/react-router";
+// import { Badge } from "~/ui/badge";
 import { Skeleton } from "~/ui/skeleton";
 import { cn } from "~/styles/styles.utils";
-import { ArrowDownIcon, ArrowUpIcon, EqualIcon } from "~/ui/icons";
-import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
-import { percentageChange } from "~/utils/math";
+// import { ArrowDownIcon, ArrowUpIcon, EqualIcon } from "~/ui/icons";
+// import { calculateOneRepMax } from "~/domains/set/set.utils";
+// import { useUser } from "~/domains/user/hooks/use-user";
+// import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
+// import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
-import type { Set } from "@gym-graphs/db/schemas";
+// import type { Set } from "@gym-graphs/db/schemas";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import type { useTiles } from "~/domains/tile/hooks/use-tiles";
-import type { Serialize } from "~/utils/json";
+// import type { Serialize } from "~/utils/json";
+import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
-export const TrendingViewTile = (props: { tile: ExerciseOverviewTile }) => {
+export const TrendingViewTile = (props: Props) => {
   return (
     <Card className="hover:bg-accent group transition-colors">
-      <Button variant="link" asChild className="absolute inset-0 h-auto">
+      {/* <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
           params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
           aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
         />
-      </Button>
+      </Button> */}
 
       <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress sets={props.tile.exerciseOverview.exercise.sets} />
+      {/*<LastTwoSetsProgress sets={props.tile.exerciseOverview.exercise.sets} />*/}
     </Card>
   );
 };
 
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+type Tile =
+  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
 
-type ExerciseOverviewTile = Extract<Tile, { type: "exerciseOverview" }>;
+type Props = { tile: Tile };
 
 export const TrendingViewTileFallback = (props: ErrorComponentProps) => {
   return (
@@ -52,59 +53,60 @@ export const TrendingViewTileSkeleton = () => {
   );
 };
 
-const LastTwoSetsProgress = (props: { sets: Array<Serialize<Set>> }) => {
-  const user = useUser();
-  const sets = useBestSortedSets(props.sets);
+//FIXME
+// const LastTwoSetsProgress = (props: { sets: Array<Serialize<Set>> }) => {
+//   const user = useUser();
+//   const sets = useBestSortedSets(props.sets);
 
-  const set = {
-    a: sets.at(-1),
-    b: sets.at(-2),
-  };
+//   const set = {
+//     a: sets.at(-1),
+//     b: sets.at(-2),
+//   };
 
-  if (!set.a || !set.b) {
-    return <p className="text-muted-foreground text-xs">no data</p>;
-  }
+//   if (!set.a || !set.b) {
+//     return <p className="text-muted-foreground text-xs">no data</p>;
+//   }
 
-  const oneRepMax = {
-    a: calculateOneRepMax(
-      set.a.weightInKg,
-      set.a.repetitions,
-      user.data.oneRepMaxAlgo,
-    ),
-    b: calculateOneRepMax(
-      set.b.weightInKg,
-      set.b.repetitions,
-      user.data.oneRepMaxAlgo,
-    ),
-  };
+//   const oneRepMax = {
+//     a: calculateOneRepMax(
+//       set.a.weightInKg,
+//       set.a.repetitions,
+//       user.data.oneRepMaxAlgo,
+//     ),
+//     b: calculateOneRepMax(
+//       set.b.weightInKg,
+//       set.b.repetitions,
+//       user.data.oneRepMaxAlgo,
+//     ),
+//   };
 
-  const ratio = percentageChange(oneRepMax.a, oneRepMax.b);
+//   const ratio = percentageChange(oneRepMax.a, oneRepMax.b);
 
-  if (ratio === 0) {
-    return (
-      <Badge variant="outline" className="gap-0.5">
-        <EqualIcon />
-        {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
-      </Badge>
-    );
-  }
+//   if (ratio === 0) {
+//     return (
+//       <Badge variant="outline" className="gap-0.5">
+//         <EqualIcon />
+//         {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
+//       </Badge>
+//     );
+//   }
 
-  if (ratio > 0) {
-    return (
-      <Badge variant="success" className="gap-0.5">
-        <ArrowUpIcon />
-        {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
-      </Badge>
-    );
-  }
+//   if (ratio > 0) {
+//     return (
+//       <Badge variant="success" className="gap-0.5">
+//         <ArrowUpIcon />
+//         {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
+//       </Badge>
+//     );
+//   }
 
-  return (
-    <Badge variant="destructive" className="gap-0.5">
-      <ArrowDownIcon />
-      {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
-    </Badge>
-  );
-};
+//   return (
+//     <Badge variant="destructive" className="gap-0.5">
+//       <ArrowDownIcon />
+//       {ratio.toLocaleString(undefined, { maximumFractionDigits: 0 })}%
+//     </Badge>
+//   );
+// };
 
 const Card = ({ className, ...rest }: ComponentProps<"li">) => {
   return (
