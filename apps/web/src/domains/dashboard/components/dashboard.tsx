@@ -152,7 +152,7 @@ const SortableItem = (
 ) => {
   const sortable = useSortable({ id: props.id });
   const search = useSearch({ from: "/(authed)/dashboard" });
-  // const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
   const style: Readonly<CSSProperties> = {
     transform: sortable.transform
@@ -162,23 +162,23 @@ const SortableItem = (
     zIndex: sortable.isDragging ? "100" : "auto",
   };
 
-  // const fetchNextPageHandler = (e: HTMLElement) => {
-  //   if (!props.isLastItem) {
-  //     return () => null;
-  //   }
+  const fetchNextPageHandler = (e: HTMLElement) => {
+    if (!props.isLastItem) {
+      return () => null;
+    }
 
-  //   const observer = new IntersectionObserver(([tile]) => {
-  //     if (!tile?.isIntersecting || !tiles.hasNextPage) {
-  //       return;
-  //     }
+    const observer = new IntersectionObserver(([tile]) => {
+      if (!tile?.isIntersecting || !tiles.hasNextPage) {
+        return;
+      }
 
-  //     void tiles.fetchNextPage();
-  //   });
+      void tiles.fetchNextPage();
+    });
 
-  //   observer.observe(e);
+    observer.observe(e);
 
-  //   return () => observer.unobserve(e);
-  // };
+    return () => observer.unobserve(e);
+  };
 
   return (
     <div
@@ -190,12 +190,11 @@ const SortableItem = (
           return;
         }
 
-        //FIXME
-        // const tearDownHandler = fetchNextPageHandler(e);
+        const tearDownHandler = fetchNextPageHandler(e);
 
-        // return () => {
-        //   tearDownHandler();
-        // };
+        return () => {
+          tearDownHandler();
+        };
       }}
       style={style}
     >

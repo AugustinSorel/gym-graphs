@@ -39,13 +39,12 @@ export const SelectAllDashboardTilesUrlParams = Schema.Struct({
     Schema.Array(TagSchema.fields.name).pipe(Schema.maxItems(200)),
     { exact: true },
   ),
-  page: Schema.optionalWith(Schema.NumberFromString, {
-    default: () => 1,
+  cursor: Schema.optionalWith(Schema.NumberFromString, {
     exact: true,
   }),
 });
 
 export const SelectAllDashboardTilesSuccess = Schema.Struct({
-  nextCursor: Schema.Positive,
+  nextCursor: Schema.NullOr(Schema.Positive),
   dashboardTiles: DashboardTileSuccess.pipe(Schema.Array),
 });

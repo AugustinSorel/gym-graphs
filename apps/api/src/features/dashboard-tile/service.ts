@@ -37,14 +37,27 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
           ).pipe(Effect.timeout(5000));
         },
 
-        //FIXME: add pagination
         selectAll: (
           urlParams: typeof SelectAllDashboardTilesUrlParams.Type,
           userId: DashboardTile["userId"],
         ) => {
-          return dashboardTileRepo
-            .selectAll(userId, urlParams)
-            .pipe(Effect.timeout(5000));
+          const pageSize = 2;
+
+          return dashboardTileRepo.selectAll(userId, pageSize, urlParams).pipe(
+            Effect.map((rows) => {
+              const hasMore = rows.length > pageSize;
+
+              const dashboardTiles = hasMore ? rows.slice(0, pageSize) : rows;
+
+              const lastItem = dashboardTiles.at(-1);
+
+              return {
+                dashboardTiles,
+                nextCursor: hasMore && lastItem ? lastItem.id : null,
+              };
+            }),
+            Effect.timeout(5000),
+          );
         },
       };
     }),

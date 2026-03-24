@@ -3,7 +3,7 @@ import { infiniteQueryOptions } from "@tanstack/react-query";
 import { callApi } from "~/libs/api";
 
 const all = (
-  urlParams?: Omit<typeof SelectAllDashboardTilesUrlParams.Encoded, "page">,
+  urlParams?: Omit<typeof SelectAllDashboardTilesUrlParams.Encoded, "cursor">,
 ) => {
   return infiniteQueryOptions({
     queryKey: ["dashboard-tiles", urlParams?.name, urlParams?.tags],
@@ -12,12 +12,12 @@ const all = (
         api.DashboardTile.all({
           urlParams: {
             ...urlParams,
-            page: pageParam,
+            cursor: pageParam,
           },
         }),
       );
     },
-    initialPageParam: 1,
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     select: (tiles) => tiles.pages.flatMap((pages) => pages.dashboardTiles),
   });

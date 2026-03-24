@@ -32,15 +32,10 @@ export const DashboardTileLive = HttpApiBuilder.group(
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
-          const dashboardTiles = yield* DashboardTileService.selectAll(
+          return yield* DashboardTileService.selectAll(
             urlParams,
             session.userId,
           );
-
-          return {
-            dashboardTiles,
-            nextCursor: 1,
-          };
         }).pipe(
           Effect.catchTags({
             EffectDrizzleQueryError: () =>

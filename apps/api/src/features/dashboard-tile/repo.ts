@@ -49,9 +49,10 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
 
         selectAll: (
           userId: DashboardTile["userId"],
+          pageSize: number,
           params: Pick<
             typeof SelectAllDashboardTilesUrlParams.Type,
-            "name" | "tags"
+            "name" | "tags" | "cursor"
           >,
         ) => {
           const filterBy = {
@@ -62,6 +63,7 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
           return db.query.dashboardTiles.findMany({
             where: {
               userId,
+              id: params.cursor ? { lt: params.cursor } : undefined,
               name: {
                 ilike: filterBy.name ? `%${filterBy.name}%` : undefined,
               },
@@ -75,9 +77,12 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
                   }
                 : undefined,
             },
+
             orderBy: {
-              createdAt: "desc",
+              id: "desc",
             },
+
+            limit: pageSize + 1,
           });
         },
       };
