@@ -18,6 +18,7 @@ import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-emai
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authedExercisesExerciseIdRouteImport } from './routes/(authed)/exercises.$exerciseId'
 import { Route as authResetPasswordTokenRouteImport } from './routes/(auth)/reset-password_.$token'
 
 const authedRouteRoute = authedRouteRouteImport.update({
@@ -63,6 +64,12 @@ const authResetPasswordRoute = authResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => authRouteRoute,
 } as any)
+const authedExercisesExerciseIdRoute =
+  authedExercisesExerciseIdRouteImport.update({
+    id: '/exercises/$exerciseId',
+    path: '/exercises/$exerciseId',
+    getParentRoute: () => authedRouteRoute,
+  } as any)
 const authResetPasswordTokenRoute = authResetPasswordTokenRouteImport.update({
   id: '/reset-password_/$token',
   path: '/reset-password/$token',
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof authedDashboardRoute
   '/settings': typeof authedSettingsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authedRouteRouteWithChildren
@@ -88,6 +96,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof authedDashboardRoute
   '/settings': typeof authedSettingsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,6 +110,7 @@ export interface FileRoutesById {
   '/(authed)/dashboard': typeof authedDashboardRoute
   '/(authed)/settings': typeof authedSettingsRoute
   '/(auth)/reset-password_/$token': typeof authResetPasswordTokenRoute
+  '/(authed)/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/reset-password/$token'
+    | '/exercises/$exerciseId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/reset-password/$token'
+    | '/exercises/$exerciseId'
   id:
     | '__root__'
     | '/'
@@ -135,6 +147,7 @@ export interface FileRouteTypes {
     | '/(authed)/dashboard'
     | '/(authed)/settings'
     | '/(auth)/reset-password_/$token'
+    | '/(authed)/exercises/$exerciseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/(authed)/exercises/$exerciseId': {
+      id: '/(authed)/exercises/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof authedExercisesExerciseIdRouteImport
+      parentRoute: typeof authedRouteRoute
+    }
     '/(auth)/reset-password_/$token': {
       id: '/(auth)/reset-password_/$token'
       path: '/reset-password/$token'
@@ -241,11 +261,13 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 interface authedRouteRouteChildren {
   authedDashboardRoute: typeof authedDashboardRoute
   authedSettingsRoute: typeof authedSettingsRoute
+  authedExercisesExerciseIdRoute: typeof authedExercisesExerciseIdRoute
 }
 
 const authedRouteRouteChildren: authedRouteRouteChildren = {
   authedDashboardRoute: authedDashboardRoute,
   authedSettingsRoute: authedSettingsRoute,
+  authedExercisesExerciseIdRoute: authedExercisesExerciseIdRoute,
 }
 
 const authedRouteRouteWithChildren = authedRouteRoute._addFileChildren(

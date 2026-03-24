@@ -3,8 +3,7 @@ import { GripVerticalIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
 // import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
 // import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-import { getRouteApi } from "@tanstack/react-router";
-// import { getRouteApi, Link } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 // import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
@@ -52,19 +51,19 @@ export const GraphViewTileSkeleton = () => {
   );
 };
 
-const ExerciseOverviewTile = (props: { tile: Tile }) => {
+const ExerciseOverviewTile = (props: {
+  tile: Extract<Tile, { type: "exercise" }>;
+}) => {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
     <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
-        {/*
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
-          aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
+          params={{ exerciseId: props.tile.exerciseId.toString() }}
+          aria-label={`go to exercise ${props.tile.exerciseId}`}
         />
-        */}
       </Button>
 
       <CardHeader>
