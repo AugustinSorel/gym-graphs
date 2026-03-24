@@ -28,11 +28,12 @@ export const DashboardTileLive = HttpApiBuilder.group(
           }),
         );
       })
-      .handle("all", () => {
+      .handle("all", ({ urlParams }) => {
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
           const dashboardTiles = yield* DashboardTileService.selectAll(
+            urlParams,
             session.userId,
           );
 

@@ -1,6 +1,9 @@
 import { Effect } from "effect";
 import { DashboardTileRepo } from "./repo";
-import type { CreateDashboardTilePayload } from "@gym-graphs/shared/dashboard-tile/schemas";
+import type {
+  CreateDashboardTilePayload,
+  SelectAllDashboardTilesUrlParams,
+} from "@gym-graphs/shared/dashboard-tile/schemas";
 import type { DashboardTile } from "#/integrations/db/schema";
 import { withTransaction } from "#/integrations/db/db";
 
@@ -35,8 +38,13 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
         },
 
         //FIXME: add pagination
-        selectAll: (userId: DashboardTile["userId"]) => {
-          return dashboardTileRepo.selectAll(userId).pipe(Effect.timeout(5000));
+        selectAll: (
+          urlParams: typeof SelectAllDashboardTilesUrlParams.Type,
+          userId: DashboardTile["userId"],
+        ) => {
+          return dashboardTileRepo
+            .selectAll(userId, urlParams)
+            .pipe(Effect.timeout(5000));
         },
       };
     }),

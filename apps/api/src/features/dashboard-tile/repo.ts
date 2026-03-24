@@ -8,6 +8,7 @@ import {
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
 import { DuplicateDashboardTile } from "@gym-graphs/shared/dashboard-tile/errors";
+import type { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
   "DashboardTileRepo",
@@ -46,10 +47,33 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             .returning();
         },
 
-        selectAll: (userId: DashboardTile["userId"]) => {
+        selectAll: (
+          userId: DashboardTile["userId"],
+          params: Pick<
+            typeof SelectAllDashboardTilesUrlParams.Type,
+            "name" | "tags"
+          >,
+        ) => {
+          const filterBy = {
+            name: params.name?.length ? params.name : undefined,
+            tags: params.tags?.length ? params.tags : undefined,
+          };
+
           return db.query.dashboardTiles.findMany({
             where: {
               userId,
+              name: {
+                ilike: filterBy.name ? `%${filterBy.name}%` : undefined,
+              },
+              tags: filterBy.tags
+                ? {
+                    tag: {
+                      name: {
+                        in: [...filterBy.tags],
+                      },
+                    },
+                  }
+                : undefined,
             },
             orderBy: {
               createdAt: "desc",

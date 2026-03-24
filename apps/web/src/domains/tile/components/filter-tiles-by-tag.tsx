@@ -50,10 +50,18 @@ const TagsItem = () => {
 
   const updateSearchTags = () => {
     void navigate({
-      search: (search) => ({
-        ...search,
-        tags: tagsInUrl.size ? [...tagsInUrl] : undefined,
-      }),
+      search: (search) => {
+        const { tags, ...rest } = search;
+
+        if (!tagsInUrl.size) {
+          return rest;
+        }
+
+        return {
+          ...rest,
+          tags: [...tagsInUrl],
+        };
+      },
     });
   };
 
@@ -94,10 +102,11 @@ const ClearTagsItem = () => {
 
   const clearTags = () => {
     void navigate({
-      search: (search) => ({
-        ...search,
-        tags: undefined,
-      }),
+      search: (search) => {
+        const { tags, ...rest } = search;
+
+        return rest;
+      },
     });
   };
 
