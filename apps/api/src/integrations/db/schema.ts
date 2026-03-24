@@ -163,8 +163,9 @@ export const dashboardTiles = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: t.text("name").notNull(),
     type: dashboardTypeEnum().notNull(),
-    //FIXME
-    // exerciseId:
+    exerciseId: t
+      .integer("exercise_id")
+      .references(() => tags.id, { onDelete: "cascade" }),
     index: t.serial("index"),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
     updatedAt: t
@@ -202,3 +203,15 @@ export const dashboardtilesToTags = pgTable(
 export type DashboardTilesToTags = Readonly<
   typeof dashboardtilesToTags.$inferSelect
 >;
+
+export const exercises = pgTable("exercises", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type Exercise = Readonly<typeof exercises.$inferSelect>;

@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Array, Effect, Option } from "effect";
 import { DashboardTileRepo } from "./repo";
 import type {
   CreateDashboardTilePayload,
@@ -7,14 +7,16 @@ import type {
 } from "@gym-graphs/shared/dashboard-tile/schemas";
 import type { DashboardTile } from "#/integrations/db/schema";
 import { withTransaction } from "#/integrations/db/db";
+import { ExerciseRepo } from "../exercise/repo";
 
 export class DashboardTileService extends Effect.Service<DashboardTileService>()(
   "DashboardTileService",
   {
     accessors: true,
-    dependencies: [DashboardTileRepo.Default],
+    dependencies: [DashboardTileRepo.Default, ExerciseRepo.Default],
     effect: Effect.gen(function* () {
       const dashboardTileRepo = yield* DashboardTileRepo;
+      const exerciseRepo = yield* ExerciseRepo;
 
       return {
         create: (
@@ -23,15 +25,22 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
         ) => {
           return withTransaction(
             Effect.gen(function* () {
+              const exercise = yield* exerciseRepo
+                .create()
+                .pipe(Effect.when(() => payload.type === "exercise"));
+
               const tile = yield* dashboardTileRepo.create({
                 name: payload.name,
                 type: payload.type,
+                exerciseId: Option.getOrNull(exercise)?.id,
                 userId,
               });
 
-              if (payload.tagIds.length) {
-                yield* dashboardTileRepo.addTags(tile.id, payload.tagIds);
-              }
+              yield* dashboardTileRepo.addTags(tile.id, payload.tagIds).pipe(
+                Effect.when(() => {
+                  return Array.isNonEmptyReadonlyArray(payload.tagIds);
+                }),
+              );
 
               return tile;
             }),
