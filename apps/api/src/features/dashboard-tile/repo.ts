@@ -33,6 +33,10 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             );
         },
 
+        createMany: (input: Array<PgInsertValue<typeof dashboardTiles>>) => {
+          return db.insert(dashboardTiles).values(input).returning();
+        },
+
         addTags: (
           dashboardTileId: DashboardTilesToTags["dashboardTileId"],
           tagIds: ReadonlyArray<DashboardTilesToTags["tagId"]>,

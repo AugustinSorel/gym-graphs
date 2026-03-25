@@ -19,6 +19,7 @@ import {
   sendTokenRequest,
 } from "./utils";
 import { Url } from "@effect/platform";
+import { SeedUserService } from "../user/service";
 
 export class OAuthService extends Effect.Service<OAuthService>()(
   "OAuthService",
@@ -29,6 +30,7 @@ export class OAuthService extends Effect.Service<OAuthService>()(
       UserRepo.Default,
       SessionRepo.Default,
       Crypto.Default,
+      SeedUserService.Default,
     ],
     effect: Effect.gen(function* () {
       const crypto = yield* Crypto;
@@ -36,6 +38,8 @@ export class OAuthService extends Effect.Service<OAuthService>()(
       const userRepo = yield* UserRepo;
       const sessionRepo = yield* SessionRepo;
       const serverConfig = yield* ServerConfig;
+
+      const seedUserService = yield* SeedUserService;
 
       return {
         generateGithubOAuthUrl: (
@@ -121,8 +125,7 @@ export class OAuthService extends Effect.Service<OAuthService>()(
                         userId: user.id,
                       });
 
-                      //FIXME
-                      // await seedUserAccount(user.id, tx);
+                      yield* seedUserService.seed(user.id);
 
                       return user;
                     });

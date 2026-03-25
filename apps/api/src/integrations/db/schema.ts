@@ -165,7 +165,7 @@ export const dashboardTiles = pgTable(
     type: dashboardTypeEnum().notNull(),
     exerciseId: t
       .integer("exercise_id")
-      .references(() => tags.id, { onDelete: "cascade" }),
+      .references(() => exercises.id, { onDelete: "cascade" }),
     index: t.serial("index"),
     createdAt: t.timestamp("created_at").notNull().defaultNow(),
     updatedAt: t

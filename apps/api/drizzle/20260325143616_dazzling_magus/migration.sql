@@ -1,0 +1,2 @@
+ALTER TABLE "dashboard_tiles" DROP CONSTRAINT "dashboard_tiles_exercise_id_tag_id_fkey";--> statement-breakpoint
+ALTER TABLE "dashboard_tiles" ADD CONSTRAINT "dashboard_tiles_exercise_id_exercises_id_fkey" FOREIGN KEY ("exercise_id") REFERENCES "exercises"("id") ON DELETE CASCADE;

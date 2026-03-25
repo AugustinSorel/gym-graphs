@@ -19,6 +19,10 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
               Effect.andThen((rows) => Array.head(rows).pipe(Effect.orDie)),
             );
         },
+
+        createMany: (input: Array<typeof exercises.$inferInsert>) => {
+          return db.insert(exercises).values(input).returning();
+        },
       };
     }),
   },

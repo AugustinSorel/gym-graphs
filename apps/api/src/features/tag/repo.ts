@@ -25,6 +25,10 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
           );
       },
 
+      createMany: (input: Array<PgInsertValue<typeof tags>>) => {
+        return db.insert(tags).values(input).returning();
+      },
+
       selectAll: (userId: Tag["userId"]) => {
         return db.query.tags.findMany({
           where: {

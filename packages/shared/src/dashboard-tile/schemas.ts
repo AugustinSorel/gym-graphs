@@ -5,7 +5,7 @@ import { pipe, Schema } from "effect";
 export const DashboardTileSchema = Schema.Struct({
   id: Schema.Positive,
   type: Schema.Literal("exercise"),
-  exerciseId: ExerciseSchema.fields.id,
+  exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
   name: pipe(
     Schema.Trim.annotations({
       message: () => "name must be a valid string",

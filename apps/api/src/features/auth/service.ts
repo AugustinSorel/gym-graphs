@@ -28,6 +28,7 @@ import { Email } from "#/integrations/email/client";
 import { verifyAccountEmailContent, resetPasswordEmailContent } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";
 import { PasswordResetTokenRepo } from "../password-reset-token/repo";
+import { SeedUserService } from "../user/service";
 
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
@@ -38,6 +39,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     VerificationCodeRepo.Default,
     PasswordResetTokenRepo.Default,
     Email.Default,
+    SeedUserService.Default,
   ],
   effect: Effect.gen(function* () {
     const crypto = yield* Crypto;
@@ -46,6 +48,8 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
     const verificationCodeRepo = yield* VerificationCodeRepo;
     const passwordResetTokenRepo = yield* PasswordResetTokenRepo;
     const email = yield* Email;
+
+    const seedUserService = yield* SeedUserService;
 
     return {
       signUp: (input: typeof SignUpPayload.Type) =>
@@ -68,8 +72,7 @@ export class AuthService extends Effect.Service<AuthService>()("AuthService", {
                 salt,
               });
 
-              //FIXME
-              // await seedUserAccount(user.id, tx);
+              yield* seedUserService.seed(user.id);
 
               const verificationCode = yield* verificationCodeRepo.create({
                 userId: user.id,
