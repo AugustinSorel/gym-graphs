@@ -56,12 +56,16 @@ const ExerciseOverviewTile = (props: {
 }) => {
   const sortable = useSortable({ id: props.tile.id });
 
+  if (!props.tile.exerciseId) {
+    throw new Error("exercise is not present in tile with type of exercise");
+  }
+
   return (
     <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exerciseId.toString() }}
+          params={{ exerciseId: props.tile.exerciseId }}
           aria-label={`go to exercise ${props.tile.exerciseId}`}
         />
       </Button>

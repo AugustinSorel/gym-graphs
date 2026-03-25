@@ -11,7 +11,6 @@ import {
 // import { z } from "zod";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 // import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-// import { exerciseSchema } from "@gym-graphs/schemas/exercise";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -24,11 +23,25 @@ import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 // import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
+import { Schema } from "effect";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
   // params: z.object({
   //   exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
   // }),
+  params: {
+    parse: (e) =>
+      Schema.decodeUnknownSync(
+        Schema.Struct({
+          exerciseId: Schema.NumberFromString,
+        }),
+      )(e),
+    stringify: (e) => {
+      return {
+        exerciseId: String(e.exerciseId),
+      };
+    },
+  },
   component: () => RouteComponent(),
   // loader: async ({ context, params }) => {
   //   const queries = {

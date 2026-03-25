@@ -16,6 +16,11 @@ export const TagSchema = Schema.Struct({
   ),
 });
 
+export const TagWithCountSchema = Schema.Struct({
+  ...TagSchema.fields,
+  exerciseCount: Schema.NonNegativeInt,
+});
+
 export const CreateTagPayload = TagSchema.pick("name");
 
 export const PatchTagPayload = TagSchema.pick("name");

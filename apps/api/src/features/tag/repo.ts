@@ -1,7 +1,12 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import { tags, type Tag } from "#/integrations/db/schema";
+import {
+  dashboardtilesToTags,
+  exercises,
+  tags,
+  type Tag,
+} from "#/integrations/db/schema";
 import { DuplicateTag, TagNotFound } from "@gym-graphs/shared/tag/errors";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
 
@@ -31,6 +36,14 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
 
       selectAll: (userId: Tag["userId"]) => {
         return db.query.tags.findMany({
+          extras: {
+            exerciseCount: (table) => {
+              return db.$count(
+                dashboardtilesToTags,
+                eq(table.id, dashboardtilesToTags.tagId),
+              );
+            },
+          },
           where: {
             userId,
           },
