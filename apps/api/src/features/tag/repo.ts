@@ -1,12 +1,7 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import {
-  dashboardtilesToTags,
-  exercises,
-  tags,
-  type Tag,
-} from "#/integrations/db/schema";
+import { dashboardtilesToTags, tags, type Tag } from "#/integrations/db/schema";
 import { DuplicateTag, TagNotFound } from "@gym-graphs/shared/tag/errors";
-import { and, count, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
 

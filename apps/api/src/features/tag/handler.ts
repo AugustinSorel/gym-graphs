@@ -24,12 +24,7 @@ export const TagLive = HttpApiBuilder.group(Api, "Tag", (handlers) => {
       return Effect.gen(function* () {
         const session = yield* CurrentSession;
 
-        const tags = yield* TagService.selectAll(session.userId).pipe(
-          Effect.catchAll((e) => {
-            console.log(e);
-            return Effect.fail(new Error(""));
-          }),
-        );
+        const tags = yield* TagService.selectAll(session.userId);
 
         return tags;
       }).pipe(

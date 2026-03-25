@@ -1,16 +1,14 @@
 import {
-  // CatchBoundary,
+  CatchBoundary,
   ClientOnly,
   createFileRoute,
   getRouteApi,
   Link,
-  // redirect,
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-// import { z } from "zod";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
-// import { exerciseQueries } from "~/domains/exercise/exercise.queries";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -18,17 +16,15 @@ import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
-// import { TagsList } from "~/domains/exercise/components/tags-list";
+import { TagsList } from "~/domains/exercise/components/tags-list";
 // import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 // import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
-// import { DefaultFallback } from "~/ui/fallback";
+import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
-  // params: z.object({
-  //   exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
-  // }),
   params: {
     parse: (e) =>
       Schema.decodeUnknownSync(
@@ -43,23 +39,23 @@ export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
     },
   },
   component: () => RouteComponent(),
-  // loader: async ({ context, params }) => {
-  //   const queries = {
-  //     exercise: exerciseQueries.get(params.exerciseId),
-  //   };
+  loader: async ({ context, params }) => {
+    const queries = {
+      exercise: exerciseQueries.get(params.exerciseId),
+    };
 
-  //   await context.queryClient.ensureQueryData(queries.exercise);
-  // },
+    await context.queryClient.ensureQueryData(queries.exercise);
+  },
 });
 
 const RouteComponent = () => {
-  // const params = Route.useParams();
-  // const exercise = useExercise(params.exerciseId);
+  const params = Route.useParams();
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   return (
     <Main>
       <Header>
-        {/* <Title>{exercise.data.exerciseOverviewTile.tile.name}</Title> */}
+        <Title>{exercise.data.dashboardTile.name}</Title>
         <Button variant="secondary" size="sm" asChild>
           {/* <routeApi.Link
             to="/exercises/$exerciseId/settings"
