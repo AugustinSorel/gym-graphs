@@ -1,8 +1,9 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
-import { ExerciseSuccessSchema } from "./schemas";
 import { RequireVerifiedSession } from "#/auth/middlewares";
 import { Schema } from "effect";
 import { ExerciseNotFound } from "./errors";
+import { ExerciseSchema } from "./schemas";
+import { DashboardTileSuccess } from "#/dashboard-tile/schemas";
 
 export const exerciseApi = HttpApiGroup.make("Exercise")
   .add(
@@ -13,7 +14,12 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
         }),
       )
       .addError(ExerciseNotFound)
-      .addSuccess(ExerciseSuccessSchema),
+      .addSuccess(
+        Schema.Struct({
+          id: ExerciseSchema.fields.id,
+          dashboardTile: DashboardTileSuccess,
+        }),
+      ),
   )
   .middleware(RequireVerifiedSession)
   .prefix("/exercises");

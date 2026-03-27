@@ -1,5 +1,5 @@
 import {
-  CatchBoundary,
+  // CatchBoundary,
   ClientOnly,
   createFileRoute,
   getRouteApi,
@@ -16,10 +16,10 @@ import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
-import { TagsList } from "~/domains/exercise/components/tags-list";
+// import { TagsList } from "~/domains/exercise/components/tags-list";
 // import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 // import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
-import { DefaultFallback } from "~/ui/fallback";
+// import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
 import { useSuspenseQuery } from "@tanstack/react-query";
