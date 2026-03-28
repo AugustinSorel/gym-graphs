@@ -18,7 +18,7 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     oauthAccounts: r.many.oauthAccounts(),
     tags: r.many.tags(),
-    dashboardTiles: r.many.tags(),
+    dashboardTiles: r.many.dashboardTiles(),
   },
 
   sessions: {

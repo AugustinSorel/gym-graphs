@@ -1,8 +1,10 @@
 import { Effect } from "effect";
 import type { Tag } from "#/integrations/db/schema";
-import type { CreateTagPayload } from "@gym-graphs/shared/tag/schemas";
+import type {
+  CreateTagPayload,
+  PatchTagPayload,
+} from "@gym-graphs/shared/tag/schemas";
 import { TagRepo } from "./repo";
-import type { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
 
 export class TagService extends Effect.Service<TagService>()("TagService", {
   accessors: true,
@@ -29,7 +31,7 @@ export class TagService extends Effect.Service<TagService>()("TagService", {
       },
 
       patchByTagId: (
-        payload: typeof PatchUserByIdPayload.Type,
+        payload: typeof PatchTagPayload.Type,
         tagId: Tag["id"],
         userId: Tag["userId"],
       ) => {

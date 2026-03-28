@@ -53,25 +53,6 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
         });
       },
 
-      selectExerciseTags: (
-        exerciseId: NonNullable<DashboardTile["exerciseId"]>,
-        userId: DashboardTile["userId"],
-      ) => {
-        return db.query.tags.findMany({
-          where: {
-            dashboardTiles: {
-              dashboardTile: {
-                exerciseId,
-                userId,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        });
-      },
-
       selectTileTags: (
         tileId: DashboardTile["id"],
         userId: DashboardTile["userId"],
