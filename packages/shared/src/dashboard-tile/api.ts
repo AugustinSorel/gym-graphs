@@ -1,7 +1,6 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { RequireVerifiedSession } from "#/auth/middlewares";
 import {
-  AddTagToTilePayload,
   CreateDashboardTilePayload,
   DashboardTileSuccess,
   PatchDashboardTilePayload,
@@ -9,6 +8,7 @@ import {
   ReorderDashboardTilesSuccess,
   SelectAllDashboardTilesSuccess,
   SelectAllDashboardTilesUrlParams,
+  SetTileTagsPayload,
 } from "./schemas";
 import { DuplicateDashboardTile, DashboardTileNotFound } from "./errors";
 import { TagSuccessSchema } from "#/tag/schemas";
@@ -54,24 +54,13 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
       .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )
   .add(
-    HttpApiEndpoint.post("addTag", "/:tileId/tags")
+    HttpApiEndpoint.put("putTags", "/:tileId/tags")
       .setPath(
         Schema.Struct({
           tileId: Schema.NumberFromString,
         }),
       )
-      .setPayload(AddTagToTilePayload)
-      .addError(DashboardTileNotFound)
-      .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
-  )
-  .add(
-    HttpApiEndpoint.del("removeTag", "/:tileId/tags/:tagId")
-      .setPath(
-        Schema.Struct({
-          tileId: Schema.NumberFromString,
-          tagId: Schema.NumberFromString,
-        }),
-      )
+      .setPayload(SetTileTagsPayload)
       .addError(DashboardTileNotFound)
       .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )

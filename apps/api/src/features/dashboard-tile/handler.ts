@@ -90,32 +90,14 @@ export const DashboardTileLive = HttpApiBuilder.group(
           }),
         );
       })
-      .handle("addTag", ({ path, payload }) => {
+      .handle("putTags", ({ path, payload }) => {
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
-          return yield* DashboardTileService.addTag(
+          return yield* DashboardTileService.setTags(
             path.tileId,
             session.userId,
-            payload.tagId,
-          );
-        }).pipe(
-          Effect.catchTags({
-            EffectDrizzleQueryError: () =>
-              new HttpApiError.InternalServerError(),
-            SqlError: () => new HttpApiError.InternalServerError(),
-            TimeoutException: () => new HttpApiError.RequestTimeout(),
-          }),
-        );
-      })
-      .handle("removeTag", ({ path }) => {
-        return Effect.gen(function* () {
-          const session = yield* CurrentSession;
-
-          return yield* DashboardTileService.removeTag(
-            path.tileId,
-            session.userId,
-            path.tagId,
+            payload.tagIds,
           );
         }).pipe(
           Effect.catchTags({

@@ -65,10 +65,6 @@ export const ReorderDashboardTilesSuccess = DashboardTileSuccess.pipe(
 
 export const PatchDashboardTilePayload = DashboardTileSchema.pick("name");
 
-export const AddTagToTilePayload = Schema.Struct({
-  tagId: TagSchema.fields.id,
-});
-
-export const RemoveTagFromTilePayload = Schema.Struct({
-  tagId: TagSchema.fields.id,
+export const SetTileTagsPayload = Schema.Struct({
+  tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
 });

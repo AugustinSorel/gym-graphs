@@ -104,29 +104,21 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             .returning();
         },
 
-        addTag: (
+        setTags: (
           dashboardTileId: DashboardTilesToTags["dashboardTileId"],
-          tagId: DashboardTilesToTags["tagId"],
+          tagIds: ReadonlyArray<DashboardTilesToTags["tagId"]>,
         ) => {
-          return db
-            .insert(dashboardtilesToTags)
-            .values({ tagId, dashboardTileId })
-            .returning();
-        },
+          return Effect.gen(function* () {
+            yield* db
+              .delete(dashboardtilesToTags)
+              .where(eq(dashboardtilesToTags.dashboardTileId, dashboardTileId));
 
-        removeTag: (
-          dashboardTileId: DashboardTilesToTags["dashboardTileId"],
-          tagId: DashboardTilesToTags["tagId"],
-        ) => {
-          return db
-            .delete(dashboardtilesToTags)
-            .where(
-              and(
-                eq(dashboardtilesToTags.dashboardTileId, dashboardTileId),
-                eq(dashboardtilesToTags.tagId, tagId),
-              ),
-            )
-            .returning();
+            if (tagIds.length > 0) {
+              yield* db
+                .insert(dashboardtilesToTags)
+                .values(tagIds.map((tagId) => ({ tagId, dashboardTileId })));
+            }
+          });
         },
 
         selectAll: (

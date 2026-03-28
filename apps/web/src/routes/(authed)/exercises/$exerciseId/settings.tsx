@@ -90,8 +90,7 @@ const ExerciseTagsSection = () => {
   const tags = useSuspenseQuery(tagQueries.all);
   const tileTags = useSuspenseQuery(tileQueries.tags(exercise.data.tileId));
 
-  const addTagToTile = useAddTagToTile();
-  const removeTagToTile = useRemoveTagToTile();
+  const setTileTags = useSetTileTags();
 
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
@@ -109,39 +108,10 @@ const ExerciseTagsSection = () => {
           type="multiple"
           value={tileTags.data.map((tag) => tag.id.toString())}
           onValueChange={(newTagsIdsStr) => {
-            const currentTagsIds = tileTags.data.map((tag) => tag.id);
-            const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
-
-            const currentTagsIdsSet = new Set(currentTagsIds);
-            const newTagsIdsSet = new Set(newTagsIds);
-
-            const tagIdToRemove = Array.from(
-              currentTagsIdsSet.difference(newTagsIdsSet),
-            ).at(0);
-
-            const tagIdToAdd = Array.from(
-              newTagsIdsSet.difference(currentTagsIdsSet),
-            ).at(0);
-
-            if (tagIdToAdd) {
-              addTagToTile.mutate({
-                path: {
-                  tileId: exercise.data.tileId,
-                },
-                payload: {
-                  tagId: tagIdToAdd,
-                },
-              });
-            }
-
-            if (tagIdToRemove) {
-              removeTagToTile.mutate({
-                path: {
-                  tileId: exercise.data.tileId,
-                  tagId: tagIdToRemove,
-                },
-              });
-            }
+            setTileTags.mutate({
+              path: { tileId: exercise.data.tileId },
+              payload: { tagIds: newTagsIdsStr.map(Number) },
+            });
           }}
         >
           {!tags.data.length && <NoTagsText>no tags</NoTagsText>}
@@ -162,19 +132,11 @@ const ExerciseTagsSection = () => {
           ))}
         </ToggleGroup>
 
-        {addTagToTile.error && (
+        {setTileTags.error && (
           <Alert variant="destructive" className="m-3 w-auto lg:m-6">
             <AlertCircleIcon />
             <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>{addTagToTile.error.message}</AlertDescription>
-          </Alert>
-        )}
-
-        {removeTagToTile.error && (
-          <Alert variant="destructive" className="m-3 w-auto lg:m-6">
-            <AlertCircleIcon />
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>{removeTagToTile.error.message}</AlertDescription>
+            <AlertDescription>{setTileTags.error.message}</AlertDescription>
           </Alert>
         )}
 
@@ -271,7 +233,7 @@ const NoTagsText = (props: ComponentProps<"p">) => {
   );
 };
 
-const useAddTagToTile = () => {
+const useSetTileTags = () => {
   const params = Route.useParams();
   const exercise = useExercise(Number(params.exerciseId));
 
@@ -282,8 +244,8 @@ const useAddTagToTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "addTag">) => {
-      return callApi((api) => api.DashboardTile.addTag(props));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "putTags">) => {
+      return callApi((api) => api.DashboardTile.putTags(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.tileTags);
@@ -291,51 +253,12 @@ const useAddTagToTile = () => {
       const oldTileTags = ctx.client.getQueryData(queries.tileTags.queryKey);
 
       const allTags = ctx.client.getQueryData(queries.allTags.queryKey);
-      const tag = allTags?.find((t) => t.id === variables.payload.tagId);
 
-      if (tag) {
-        ctx.client.setQueryData(queries.tileTags.queryKey, (tileTags) => {
-          if (!tileTags) return tileTags;
-          return [...tileTags, { id: tag.id, name: tag.name }];
-        });
-      }
-
-      return { oldTileTags };
-    },
-    onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(
-        queries.tileTags.queryKey,
-        onMutateRes?.oldTileTags,
-      );
-    },
-    onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tileTags);
-      void ctx.client.invalidateQueries(queries.exercise);
-    },
-  });
-};
-
-const useRemoveTagToTile = () => {
-  const params = Route.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
-
-  const queries = {
-    exercise: exerciseQueries.get(exercise.data.id),
-    tileTags: tileQueries.tags(exercise.data.tileId),
-  };
-
-  return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "removeTag">) => {
-      return callApi((api) => api.DashboardTile.removeTag(props));
-    },
-    onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.tileTags);
-
-      const oldTileTags = ctx.client.getQueryData(queries.tileTags.queryKey);
-
-      ctx.client.setQueryData(queries.tileTags.queryKey, (tileTags) => {
-        if (!tileTags) return tileTags;
-        return tileTags.filter((t) => t.id !== variables.path.tagId);
+      ctx.client.setQueryData(queries.tileTags.queryKey, () => {
+        if (!allTags) return oldTileTags;
+        return allTags
+          .filter((t) => variables.payload.tagIds.includes(t.id))
+          .map((t) => ({ id: t.id, name: t.name }));
       });
 
       return { oldTileTags };
