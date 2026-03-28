@@ -1,47 +1,41 @@
-import { useMutation } from "@tanstack/react-query";
+// import { useMutation } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   CatchBoundary,
   ClientOnly,
   createFileRoute,
   Link,
-  redirect,
+  // redirect,
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
-import { z } from "zod";
-import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
+// import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
+import { ArrowLeftIcon } from "~/ui/icons";
+// import { z } from "zod";
+// import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { exerciseSchema } from "@gym-graphs/schemas/exercise";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+// import { exerciseSchema } from "@gym-graphs/schemas/exercise";
+// import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
-import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
-import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-import { Badge } from "~/ui/badge";
+// import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
+// import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+// import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { tileQueries } from "~/domains/tile/tile.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+// import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
+// import { useUser } from "~/domains/user/hooks/use-user";
+// import { tileQueries } from "~/domains/tile/tile.queries";
+// import { api } from "~/libs/api";
+// import { parseJsonResponse } from "@gym-graphs/api";
 import type { ComponentProps } from "react";
-import type { InferApiReqInput } from "@gym-graphs/api";
+// import type { InferApiReqInput } from "@gym-graphs/api";
 import { DefaultFallback } from "~/ui/fallback";
 
 export const Route = createFileRoute(
-  "/(exercises)/exercises_/$exerciseId/settings",
+  "/(authed)/exercises/$exerciseId/settings",
 )({
-  params: z.object({
-    exerciseId: z.coerce.number().pipe(exerciseSchema.shape.id),
-  }),
   component: () => RouteComponent(),
-  beforeLoad: async ({ context }) => {
-    if (!context.user?.emailVerifiedAt) {
-      throw redirect({ to: "/sign-in" });
-    }
-  },
   loader: async ({ context, params }) => {
     const queries = {
       exercise: exerciseQueries.get(params.exerciseId),
@@ -53,12 +47,12 @@ export const Route = createFileRoute(
 
 const RouteComponent = () => {
   const params = Route.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   return (
     <Main>
       <Header>
-        <Title>{exercise.data.exerciseOverviewTile.tile.name} settings</Title>
+        <Title>{exercise.data.name} settings</Title>
         <ClientOnly>
           <BackBtn />
         </ClientOnly>
@@ -67,8 +61,8 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
-      <ExerciseTagsSection />
-      <DeleteTileSection />
+      {/*<ExerciseTagsSection />
+      <DeleteTileSection /> */}
     </Main>
   );
 };
@@ -92,7 +86,7 @@ const RenameTileSection = () => {
   );
 };
 
-const ExerciseTagsSection = () => {
+/*const ExerciseTagsSection = () => {
   const user = useUser();
   const params = Route.useParams();
   const exercise = useExercise(params.exerciseId);
@@ -221,6 +215,7 @@ const DeleteTileSection = () => {
     </CatchBoundary>
   );
 };
+*/
 
 const Main = (props: ComponentProps<"main">) => {
   return (
@@ -277,6 +272,7 @@ const SectionDescription = (props: ComponentProps<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
+/*
 const NoTagsText = (props: ComponentProps<"p">) => {
   return (
     <p
@@ -487,6 +483,7 @@ const useRemoveTagToTile = () => {
     },
   });
 };
+*/
 
 const BackBtn = () => {
   const canGoBack = useCanGoBack();

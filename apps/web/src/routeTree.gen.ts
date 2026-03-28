@@ -18,8 +18,10 @@ import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-emai
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
-import { Route as authedExercisesExerciseIdRouteImport } from './routes/(authed)/exercises.$exerciseId'
 import { Route as authResetPasswordTokenRouteImport } from './routes/(auth)/reset-password_.$token'
+import { Route as authedExercisesExerciseIdRouteRouteImport } from './routes/(authed)/exercises/$exerciseId/route'
+import { Route as authedExercisesExerciseIdIndexRouteImport } from './routes/(authed)/exercises/$exerciseId/index'
+import { Route as authedExercisesExerciseIdSettingsRouteImport } from './routes/(authed)/exercises/$exerciseId/settings'
 
 const authedRouteRoute = authedRouteRouteImport.update({
   id: '/(authed)',
@@ -64,17 +66,29 @@ const authResetPasswordRoute = authResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => authRouteRoute,
 } as any)
-const authedExercisesExerciseIdRoute =
-  authedExercisesExerciseIdRouteImport.update({
-    id: '/exercises/$exerciseId',
-    path: '/exercises/$exerciseId',
-    getParentRoute: () => authedRouteRoute,
-  } as any)
 const authResetPasswordTokenRoute = authResetPasswordTokenRouteImport.update({
   id: '/reset-password_/$token',
   path: '/reset-password/$token',
   getParentRoute: () => authRouteRoute,
 } as any)
+const authedExercisesExerciseIdRouteRoute =
+  authedExercisesExerciseIdRouteRouteImport.update({
+    id: '/exercises/$exerciseId',
+    path: '/exercises/$exerciseId',
+    getParentRoute: () => authedRouteRoute,
+  } as any)
+const authedExercisesExerciseIdIndexRoute =
+  authedExercisesExerciseIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => authedExercisesExerciseIdRouteRoute,
+  } as any)
+const authedExercisesExerciseIdSettingsRoute =
+  authedExercisesExerciseIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => authedExercisesExerciseIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof authedRouteRouteWithChildren
@@ -84,8 +98,10 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof authVerifyEmailRoute
   '/dashboard': typeof authedDashboardRoute
   '/settings': typeof authedSettingsRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
   '/reset-password/$token': typeof authResetPasswordTokenRoute
-  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
+  '/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/exercises/$exerciseId/': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authedRouteRouteWithChildren
@@ -96,7 +112,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof authedDashboardRoute
   '/settings': typeof authedSettingsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
-  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
+  '/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,8 +126,10 @@ export interface FileRoutesById {
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(authed)/dashboard': typeof authedDashboardRoute
   '/(authed)/settings': typeof authedSettingsRoute
+  '/(authed)/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
   '/(auth)/reset-password_/$token': typeof authResetPasswordTokenRoute
-  '/(authed)/exercises/$exerciseId': typeof authedExercisesExerciseIdRoute
+  '/(authed)/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/(authed)/exercises/$exerciseId/': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -122,8 +141,10 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/dashboard'
     | '/settings'
-    | '/reset-password/$token'
     | '/exercises/$exerciseId'
+    | '/reset-password/$token'
+    | '/exercises/$exerciseId/settings'
+    | '/exercises/$exerciseId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -134,6 +155,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/reset-password/$token'
+    | '/exercises/$exerciseId/settings'
     | '/exercises/$exerciseId'
   id:
     | '__root__'
@@ -146,8 +168,10 @@ export interface FileRouteTypes {
     | '/(auth)/verify-email'
     | '/(authed)/dashboard'
     | '/(authed)/settings'
-    | '/(auth)/reset-password_/$token'
     | '/(authed)/exercises/$exerciseId'
+    | '/(auth)/reset-password_/$token'
+    | '/(authed)/exercises/$exerciseId/settings'
+    | '/(authed)/exercises/$exerciseId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,19 +245,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof authRouteRoute
     }
-    '/(authed)/exercises/$exerciseId': {
-      id: '/(authed)/exercises/$exerciseId'
-      path: '/exercises/$exerciseId'
-      fullPath: '/exercises/$exerciseId'
-      preLoaderRoute: typeof authedExercisesExerciseIdRouteImport
-      parentRoute: typeof authedRouteRoute
-    }
     '/(auth)/reset-password_/$token': {
       id: '/(auth)/reset-password_/$token'
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token'
       preLoaderRoute: typeof authResetPasswordTokenRouteImport
       parentRoute: typeof authRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId': {
+      id: '/(authed)/exercises/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof authedExercisesExerciseIdRouteRouteImport
+      parentRoute: typeof authedRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId/': {
+      id: '/(authed)/exercises/$exerciseId/'
+      path: '/'
+      fullPath: '/exercises/$exerciseId/'
+      preLoaderRoute: typeof authedExercisesExerciseIdIndexRouteImport
+      parentRoute: typeof authedExercisesExerciseIdRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId/settings': {
+      id: '/(authed)/exercises/$exerciseId/settings'
+      path: '/settings'
+      fullPath: '/exercises/$exerciseId/settings'
+      preLoaderRoute: typeof authedExercisesExerciseIdSettingsRouteImport
+      parentRoute: typeof authedExercisesExerciseIdRouteRoute
     }
   }
 }
@@ -258,16 +296,34 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
+interface authedExercisesExerciseIdRouteRouteChildren {
+  authedExercisesExerciseIdSettingsRoute: typeof authedExercisesExerciseIdSettingsRoute
+  authedExercisesExerciseIdIndexRoute: typeof authedExercisesExerciseIdIndexRoute
+}
+
+const authedExercisesExerciseIdRouteRouteChildren: authedExercisesExerciseIdRouteRouteChildren =
+  {
+    authedExercisesExerciseIdSettingsRoute:
+      authedExercisesExerciseIdSettingsRoute,
+    authedExercisesExerciseIdIndexRoute: authedExercisesExerciseIdIndexRoute,
+  }
+
+const authedExercisesExerciseIdRouteRouteWithChildren =
+  authedExercisesExerciseIdRouteRoute._addFileChildren(
+    authedExercisesExerciseIdRouteRouteChildren,
+  )
+
 interface authedRouteRouteChildren {
   authedDashboardRoute: typeof authedDashboardRoute
   authedSettingsRoute: typeof authedSettingsRoute
-  authedExercisesExerciseIdRoute: typeof authedExercisesExerciseIdRoute
+  authedExercisesExerciseIdRouteRoute: typeof authedExercisesExerciseIdRouteRouteWithChildren
 }
 
 const authedRouteRouteChildren: authedRouteRouteChildren = {
   authedDashboardRoute: authedDashboardRoute,
   authedSettingsRoute: authedSettingsRoute,
-  authedExercisesExerciseIdRoute: authedExercisesExerciseIdRoute,
+  authedExercisesExerciseIdRouteRoute:
+    authedExercisesExerciseIdRouteRouteWithChildren,
 }
 
 const authedRouteRouteWithChildren = authedRouteRoute._addFileChildren(

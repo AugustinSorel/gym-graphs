@@ -2,7 +2,7 @@ import {
   CatchBoundary,
   ClientOnly,
   createFileRoute,
-  // getRouteApi,
+  getRouteApi,
   Link,
   useCanGoBack,
   useRouter,
@@ -14,8 +14,7 @@ import { tileQueries } from "~/domains/tile/tile.queries";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-// import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
-import { ArrowLeftIcon } from "~/ui/icons";
+import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import { TagsList } from "~/domains/exercise/components/tags-list";
@@ -23,23 +22,9 @@ import { TagsList } from "~/domains/exercise/components/tags-list";
 // import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
-import { Schema } from "effect";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
-  params: {
-    parse: (e) =>
-      Schema.decodeUnknownSync(
-        Schema.Struct({
-          exerciseId: Schema.NumberFromString,
-        }),
-      )(e),
-    stringify: (e) => {
-      return {
-        exerciseId: String(e.exerciseId),
-      };
-    },
-  },
+export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
   loader: async ({ context, params }) => {
     const exercise = await context.queryClient.ensureQueryData(
@@ -60,16 +45,16 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <Title>{exercise.data.name}</Title>
-        {/*
         <Button variant="secondary" size="sm" asChild>
-           <routeApi.Link
+          <routeApi.Link
             to="/exercises/$exerciseId/settings"
             aria-label="exercise settings"
           >
             <span className="hidden lg:inline-flex">settings</span>
             <SettingsIcon className="lg:hidden" />
-          </routeApi.Link> 
+          </routeApi.Link>
         </Button>
+        {/*
         <CreateSetDialog />
 */}
         <ClientOnly>
@@ -180,7 +165,7 @@ const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
   );
 };
 
-// const routeApi = getRouteApi("/(authed)/exercises/$exerciseId");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId");
 
 const BackBtn = () => {
   const canGoBack = useCanGoBack();
