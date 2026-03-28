@@ -2,7 +2,7 @@ import {
   CatchBoundary,
   ClientOnly,
   createFileRoute,
-  getRouteApi,
+  // getRouteApi,
   Link,
   useCanGoBack,
   useRouter,
@@ -13,13 +13,14 @@ import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
+// import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
+import { ArrowLeftIcon } from "~/ui/icons";
 // import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
-// import { TagsList } from "~/domains/exercise/components/tags-list";
+import { TagsList } from "~/domains/exercise/components/tags-list";
 // import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 // import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
-// import { DefaultFallback } from "~/ui/fallback";
+import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -42,9 +43,13 @@ export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
   loader: async ({ context, params }) => {
     const queries = {
       exercise: exerciseQueries.get(params.exerciseId),
+      tags: exerciseQueries.tags(params.exerciseId),
     };
 
-    await context.queryClient.ensureQueryData(queries.exercise);
+    await Promise.all([
+      context.queryClient.ensureQueryData(queries.exercise),
+      context.queryClient.ensureQueryData(queries.tags),
+    ]);
   },
 });
 
@@ -104,7 +109,7 @@ const RouteComponent = () => {
         </Section>
       </CatchBoundary> */}
 
-      {/* <CatchBoundary
+      <CatchBoundary
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
@@ -115,7 +120,7 @@ const RouteComponent = () => {
             <TagsList />
           </SectionPanel>
         </Section>
-      </CatchBoundary> */}
+      </CatchBoundary>
 
       {/* <CatchBoundary
         errorComponent={DefaultFallback}
@@ -153,9 +158,9 @@ const SectionTitle = (props: ComponentProps<"h2">) => {
   return <h2 className="font-semibold" {...props} />;
 };
 
-const Abbr = (props: ComponentProps<"abbr">) => {
-  return <abbr className="no-underline" {...props} />;
-};
+// const Abbr = (props: ComponentProps<"abbr">) => {
+//   return <abbr className="no-underline" {...props} />;
+// };
 
 const Header = (props: ComponentProps<"header">) => {
   return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
@@ -176,7 +181,7 @@ const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
   );
 };
 
-const routeApi = getRouteApi("/(authed)/exercises/$exerciseId");
+// const routeApi = getRouteApi("/(authed)/exercises/$exerciseId");
 
 const BackBtn = () => {
   const canGoBack = useCanGoBack();

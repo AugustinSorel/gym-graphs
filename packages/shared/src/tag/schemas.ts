@@ -16,8 +16,10 @@ export const TagSchema = Schema.Struct({
   ),
 });
 
+export const TagSuccessSchema = TagSchema.pick("id", "name");
+
 export const TagWithCountSchema = Schema.Struct({
-  ...TagSchema.fields,
+  ...TagSuccessSchema.fields,
   exerciseCount: Schema.NonNegativeInt,
 });
 

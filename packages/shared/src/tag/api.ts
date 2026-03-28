@@ -3,6 +3,7 @@ import {
   CreateTagPayload,
   PatchTagPayload,
   TagSchema,
+  TagSuccessSchema,
   TagWithCountSchema,
 } from "./schemas";
 import { RequireVerifiedSession } from "#/auth/middlewares";
@@ -14,9 +15,13 @@ export const tagApi = HttpApiGroup.make("Tag")
     HttpApiEndpoint.post("create", "/")
       .setPayload(CreateTagPayload)
       .addError(DuplicateTag)
-      .addSuccess(TagSchema),
+      .addSuccess(TagSuccessSchema),
   )
-  .add(HttpApiEndpoint.get("all", "/").addSuccess(TagWithCountSchema.pipe(Schema.Array)))
+  .add(
+    HttpApiEndpoint.get("all", "/").addSuccess(
+      TagWithCountSchema.pipe(Schema.Array),
+    ),
+  )
   .add(
     HttpApiEndpoint.del("delete", "/:tagId")
       .setPath(

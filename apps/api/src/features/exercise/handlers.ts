@@ -8,22 +8,42 @@ export const ExerciseLive = HttpApiBuilder.group(
   Api,
   "Exercise",
   (handlers) => {
-    return handlers.handle("get", ({ path }) => {
-      return Effect.gen(function* () {
-        const session = yield* CurrentSession;
+    return handlers
+      .handle("get", ({ path }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
 
-        const exercise = yield* ExerciseService.selectByExerciseId(
-          path.exerciseId,
-          session.userId,
+          const exercise = yield* ExerciseService.selectByExerciseId(
+            path.exerciseId,
+            session.userId,
+          );
+
+          return yield* Effect.succeed(exercise);
+        }).pipe(
+          Effect.catchTags({
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+          }),
         );
+      })
+      .handle("getTags", ({ path }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
 
-        return yield* Effect.succeed(exercise);
-      }).pipe(
-        Effect.catchTags({
-          TimeoutException: () => new HttpApiError.RequestTimeout(),
-          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
-        }),
-      );
-    });
+          const tags = yield* ExerciseService.selectTags(
+            path.exerciseId,
+            session.userId,
+          );
+
+          return yield* Effect.succeed(tags);
+        }).pipe(
+          Effect.catchTags({
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+          }),
+        );
+      });
   },
 );

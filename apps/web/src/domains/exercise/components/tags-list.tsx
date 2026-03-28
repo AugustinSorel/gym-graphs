@@ -1,22 +1,22 @@
 import { Badge } from "~/ui/badge";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { getRouteApi } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { exerciseQueries } from "../exercise.queries";
 
 export const TagsList = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const tileToTags = exercise.data.exerciseOverviewTile.tile.tileToTags;
+  const tags = useSuspenseQuery(exerciseQueries.tags(params.exerciseId));
 
-  if (!tileToTags.length) {
+  if (!tags.data.length) {
     return <NoTagsText>no tags</NoTagsText>;
   }
 
   return (
     <List>
-      {tileToTags.map((tileToTag) => (
-        <ListItem key={tileToTag.tag.id}>
-          <Badge variant="outline">{tileToTag.tag.name}</Badge>
+      {tags.data.map((tag) => (
+        <ListItem key={tag.id}>
+          <Badge variant="outline">{tag.name}</Badge>
         </ListItem>
       ))}
     </List>
@@ -40,4 +40,4 @@ const NoTagsText = (props: ComponentProps<"p">) => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId");
