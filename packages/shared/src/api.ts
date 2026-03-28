@@ -5,6 +5,7 @@ import { userApi } from "./user/api";
 import { tagApi } from "./tag/api";
 import { dashboardTileApi } from "./dashboard-tile/api";
 import { exerciseApi } from "./exercise/api";
+import { setApi } from "./set/api";
 
 export const Api = HttpApi.make("GymGraphsApi")
   .add(authApi)
@@ -13,6 +14,7 @@ export const Api = HttpApi.make("GymGraphsApi")
   .add(tagApi)
   .add(dashboardTileApi)
   .add(exerciseApi)
+  .add(setApi)
   .addError(HttpApiError.InternalServerError)
   .addError(HttpApiError.RequestTimeout)
   .prefix("/api");

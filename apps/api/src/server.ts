@@ -27,10 +27,12 @@ import { UserLive } from "./features/user/handler";
 import { TagLive } from "./features/tag/handler";
 import { DashboardTileLive } from "./features/dashboard-tile/handler";
 import { ExerciseLive } from "./features/exercise/handlers";
+import { SetLive } from "./features/set/handlers";
 import { UserService } from "./features/user/service";
 import { TagService } from "./features/tag/service";
 import { DashboardTileService } from "./features/dashboard-tile/service";
 import { ExerciseService } from "./features/exercise/service";
+import { SetService } from "./features/set/service";
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide(AuthLive),
@@ -39,6 +41,7 @@ const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide(TagLive),
   Layer.provide(DashboardTileLive),
   Layer.provide(ExerciseLive),
+  Layer.provide(SetLive),
 );
 
 const HttpServerLive = Layer.unwrapEffect(
@@ -58,25 +61,30 @@ const CorsLive = Layer.unwrapEffect(
   }),
 );
 
+const ServicesLive = Layer.mergeAll(
+  RequireSessionLive,
+  RequireVerifiedSessionLive,
+  SessionService.Default,
+  AuthService.Default,
+  OAuthService.Default,
+  UserService.Default,
+  TagService.Default,
+  DashboardTileService.Default,
+  ExerciseService.Default,
+  SetService.Default,
+  AuthCookies.Default,
+  VerificationCodeService.Default,
+  Email.Default,
+  Database.Default,
+  HttpServerLive,
+  FetchHttpClient.layer,
+  ServerConfig.Default,
+);
+
 export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   HttpServer.withLogAddress,
   Layer.provide(CorsLive),
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
-  Layer.provide(RequireSessionLive),
-  Layer.provide(RequireVerifiedSessionLive),
-  Layer.provide(SessionService.Default),
-  Layer.provide(AuthService.Default),
-  Layer.provide(OAuthService.Default),
-  Layer.provide(UserService.Default),
-  Layer.provide(TagService.Default),
-  Layer.provide(DashboardTileService.Default),
-  Layer.provide(ExerciseService.Default),
-  Layer.provide(AuthCookies.Default),
-  Layer.provide(VerificationCodeService.Default),
-  Layer.provide(Email.Default),
-  Layer.provide(Database.Default),
-  Layer.provide(HttpServerLive),
-  Layer.provide(FetchHttpClient.layer),
-  Layer.provide(ServerConfig.Default),
+  Layer.provide(ServicesLive),
 );
