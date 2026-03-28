@@ -25,6 +25,17 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
           );
       },
 
+      createMany: (
+        input: Array<{
+          exerciseId: Set["exerciseId"];
+          weightInKg: Set["weightInKg"];
+          repetitions: Set["repetitions"];
+          doneAt: Set["doneAt"];
+        }>,
+      ) => {
+        return db.insert(sets).values(input).returning();
+      },
+
       patch: (
         setId: Set["id"],
         exerciseId: Set["exerciseId"],

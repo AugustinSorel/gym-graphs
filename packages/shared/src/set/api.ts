@@ -8,6 +8,7 @@ import {
 } from "./schemas";
 import { SetNotFound } from "./errors";
 import { ExerciseSchema } from "#/exercise/schemas";
+import { Forbidden } from "#/auth/errors";
 
 export const setApi = HttpApiGroup.make("Set")
   .add(
@@ -20,6 +21,7 @@ export const setApi = HttpApiGroup.make("Set")
         }),
       )
       .setPayload(CreateSetPayload)
+      .addError(Forbidden)
       .addSuccess(SetSuccessSchema),
   )
   .add(
@@ -33,6 +35,7 @@ export const setApi = HttpApiGroup.make("Set")
         }),
       )
       .setPayload(PatchSetPayload)
+      .addError(Forbidden)
       .addError(SetNotFound)
       .addSuccess(SetSuccessSchema),
   )
@@ -46,6 +49,7 @@ export const setApi = HttpApiGroup.make("Set")
           setId: Schema.NumberFromString,
         }),
       )
+      .addError(Forbidden)
       .addError(SetNotFound),
   )
   .middleware(RequireVerifiedSession)

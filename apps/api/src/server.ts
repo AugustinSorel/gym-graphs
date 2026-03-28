@@ -61,30 +61,29 @@ const CorsLive = Layer.unwrapEffect(
   }),
 );
 
-const ServicesLive = Layer.mergeAll(
-  RequireSessionLive,
-  RequireVerifiedSessionLive,
-  SessionService.Default,
-  AuthService.Default,
-  OAuthService.Default,
-  UserService.Default,
-  TagService.Default,
-  DashboardTileService.Default,
-  ExerciseService.Default,
-  SetService.Default,
-  AuthCookies.Default,
-  VerificationCodeService.Default,
-  Email.Default,
-  Database.Default,
-  HttpServerLive,
-  FetchHttpClient.layer,
-  ServerConfig.Default,
-);
-
-export const ServerLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
+const ServerBaseLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   HttpServer.withLogAddress,
   Layer.provide(CorsLive),
   Layer.provide(HttpApiSwagger.layer({ path: "/doc" })),
   Layer.provide(ApiLive),
-  Layer.provide(ServicesLive),
+  Layer.provide(RequireSessionLive),
+  Layer.provide(RequireVerifiedSessionLive),
+  Layer.provide(SessionService.Default),
+  Layer.provide(AuthService.Default),
+  Layer.provide(OAuthService.Default),
+  Layer.provide(UserService.Default),
+  Layer.provide(TagService.Default),
+  Layer.provide(DashboardTileService.Default),
+  Layer.provide(ExerciseService.Default),
+  Layer.provide(SetService.Default),
+  Layer.provide(AuthCookies.Default),
+  Layer.provide(VerificationCodeService.Default),
+  Layer.provide(Email.Default),
+  Layer.provide(Database.Default),
+);
+
+export const ServerLive = ServerBaseLive.pipe(
+  Layer.provide(HttpServerLive),
+  Layer.provide(FetchHttpClient.layer),
+  Layer.provide(ServerConfig.Default),
 );
