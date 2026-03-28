@@ -7,7 +7,7 @@ import { DashboardTileSuccess } from "#/dashboard-tile/schemas";
 
 export const exerciseApi = HttpApiGroup.make("Exercise")
   .add(
-    HttpApiEndpoint.get("get", "/exerciseId")
+    HttpApiEndpoint.get("get", "/:exerciseId")
       .setPath(
         Schema.Struct({
           exerciseId: Schema.NumberFromString,

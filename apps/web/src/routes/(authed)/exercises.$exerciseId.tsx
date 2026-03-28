@@ -1,5 +1,5 @@
 import {
-  // CatchBoundary,
+  CatchBoundary,
   ClientOnly,
   createFileRoute,
   getRouteApi,
@@ -7,7 +7,7 @@ import {
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
+// import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
@@ -56,16 +56,18 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <Title>{exercise.data.dashboardTile.name}</Title>
+        {/*
         <Button variant="secondary" size="sm" asChild>
-          {/* <routeApi.Link
+           <routeApi.Link
             to="/exercises/$exerciseId/settings"
             aria-label="exercise settings"
           >
             <span className="hidden lg:inline-flex">settings</span>
             <SettingsIcon className="lg:hidden" />
-          </routeApi.Link> */}
+          </routeApi.Link> 
         </Button>
         <CreateSetDialog />
+*/}
         <ClientOnly>
           <BackBtn />
         </ClientOnly>
