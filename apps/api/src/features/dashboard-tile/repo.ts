@@ -77,7 +77,8 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             .returning()
             .pipe(
               Effect.catchIf(
-                (e) => isUniqueViolation(e, "tile_name_dashboard_id_unique"),
+                (e) =>
+                  isUniqueViolation(e, "dashboard_tiles_name_user_id_unique"),
                 () => DuplicateDashboardTile.withName(input.name),
               ),
               Effect.andThen((rows) =>

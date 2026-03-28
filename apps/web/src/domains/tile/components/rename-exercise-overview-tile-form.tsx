@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
@@ -7,29 +7,27 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
-import { tileSchema } from "@gym-graphs/schemas/tile";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
+import { PatchDashboardTilePayload } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { Schema } from "effect";
 
 export const RenameExerciseOverviewTileForm = (props: Props) => {
   const form = useRenameExerciseTileForm();
   const renameExerciseTile = useRenameExericseTile();
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useExercise(Number(params.exerciseId));
 
-  const onSubmit = async (data: CreateExerciseSchema) => {
+  const onSubmit = async (data: RenameExerciseSchema) => {
     await renameExerciseTile.mutateAsync(
       {
-        param: {
-          tileId: exercise.data.exerciseOverviewTile.tileId.toString(),
+        path: {
+          tileId: exercise.data.tileId,
         },
-        json: {
+        payload: {
           name: data.name,
         },
       },
@@ -99,58 +97,57 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/settings");
 
 const useFormSchema = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
 
-  return tileSchema.pick({ name: true }).refine(
-    (data) => {
-      const queries = {
-        tiles: tileQueries.all().queryKey,
-      };
-
-      const cachedTiles = queryClient.getQueryData(queries.tiles);
+  return PatchDashboardTilePayload.pipe(
+    Schema.filter((data) => {
+      const cachedTiles = queryClient.getQueryData(
+        tileQueries.all().queryKey,
+      );
 
       const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.tiles)
-        .filter((tile) => tile.type === "exerciseOverview")
+        .flatMap((page) => page.dashboardTiles)
         .find((tile) => {
           return (
             tile.name === data.name &&
-            tile.exerciseOverview.exerciseId !== params.exerciseId
+            tile.exerciseId !== Number(params.exerciseId)
           );
         });
 
-      return !nameTaken;
-    },
-    {
-      message: "exercise already created",
-      path: ["name"],
-    },
+      if (nameTaken) {
+        return {
+          message: "exercise already created",
+          path: ["name"],
+        };
+      }
+
+      return undefined;
+    }),
   );
 };
 
-type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
+type RenameExerciseSchema = ReturnType<typeof useFormSchema>["Type"];
 
 const useRenameExerciseTileForm = () => {
   const formSchema = useFormSchema();
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useExercise(Number(params.exerciseId));
 
-  return useForm<CreateExerciseSchema>({
-    resolver: zodResolver(formSchema),
+  return useForm<RenameExerciseSchema>({
+    resolver: effectTsResolver(formSchema),
     defaultValues: {
-      name: exercise.data.exerciseOverviewTile.tile.name,
+      name: exercise.data.name,
     },
   });
 };
 
 const useRenameExericseTile = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().tiles[":tileId"].$patch;
+  const exercise = useExercise(Number(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),
@@ -158,8 +155,8 @@ const useRenameExericseTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "patch">) => {
+      return callApi((api) => api.DashboardTile.patch(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.exercise);
@@ -168,7 +165,7 @@ const useRenameExericseTile = () => {
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
       const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
-      const name = variables.json.name;
+      const name = variables.payload.name;
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
         if (!tiles || !name) {
@@ -180,8 +177,8 @@ const useRenameExericseTile = () => {
           pages: tiles.pages.map((page) => {
             return {
               ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.id.toString() === variables.param.tileId) {
+              dashboardTiles: page.dashboardTiles.map((tile) => {
+                if (tile.id === variables.path.tileId) {
                   return {
                     ...tile,
                     name,
@@ -202,13 +199,7 @@ const useRenameExericseTile = () => {
 
         return {
           ...exercise,
-          exerciseOverviewTile: {
-            ...exercise.exerciseOverviewTile,
-            tile: {
-              ...exercise.exerciseOverviewTile.tile,
-              name,
-            },
-          },
+          name,
         };
       });
 

@@ -68,8 +68,6 @@ export const DashboardTileLive = HttpApiBuilder.group(
           );
         }).pipe(
           Effect.catchTags({
-            DashboardTileNotFound: (e) => e,
-            DuplicateDashboardTile: (e) => e,
             EffectDrizzleQueryError: () =>
               new HttpApiError.InternalServerError(),
             TimeoutException: () => new HttpApiError.RequestTimeout(),
@@ -86,7 +84,6 @@ export const DashboardTileLive = HttpApiBuilder.group(
           );
         }).pipe(
           Effect.catchTags({
-            DashboardTileNotFound: (e) => e,
             EffectDrizzleQueryError: () =>
               new HttpApiError.InternalServerError(),
             TimeoutException: () => new HttpApiError.RequestTimeout(),
