@@ -4,16 +4,13 @@ import {
   ClientOnly,
   createFileRoute,
   Link,
-  // redirect,
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
-// import { z } from "zod";
 import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-// import { exerciseSchema } from "@gym-graphs/schemas/exercise";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
@@ -23,7 +20,6 @@ import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
-// import { useUser } from "~/domains/user/hooks/use-user";
 import type { ComponentProps } from "react";
 import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
