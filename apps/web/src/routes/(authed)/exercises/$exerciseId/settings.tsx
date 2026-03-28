@@ -1,5 +1,4 @@
-// import { useMutation } from "@tanstack/react-query";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   CatchBoundary,
   ClientOnly,
@@ -9,28 +8,26 @@ import {
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-// import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
-import { ArrowLeftIcon } from "~/ui/icons";
+import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 // import { z } from "zod";
 // import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 // import { exerciseSchema } from "@gym-graphs/schemas/exercise";
-// import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
-// import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
-// import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
-// import { Badge } from "~/ui/badge";
+import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
+import { tagQueries } from "~/domains/tag/tag.queries";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
+import { Badge } from "~/ui/badge";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
-// import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 // import { useUser } from "~/domains/user/hooks/use-user";
-// import { tileQueries } from "~/domains/tile/tile.queries";
-// import { api } from "~/libs/api";
-// import { parseJsonResponse } from "@gym-graphs/api";
 import type { ComponentProps } from "react";
-// import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
+import { tileQueries } from "~/domains/tile/tile.queries";
 
 export const Route = createFileRoute(
   "/(authed)/exercises/$exerciseId/settings",
@@ -61,8 +58,8 @@ const RouteComponent = () => {
       <Separator />
 
       <RenameTileSection />
-      {/*<ExerciseTagsSection />
-      <DeleteTileSection /> */}
+      <ExerciseTagsSection />
+      {/*<DeleteTileSection /> */}
     </Main>
   );
 };
@@ -86,10 +83,12 @@ const RenameTileSection = () => {
   );
 };
 
-/*const ExerciseTagsSection = () => {
-  const user = useUser();
+const ExerciseTagsSection = () => {
   const params = Route.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
+
+  const tags = useSuspenseQuery(tagQueries.all);
+  const tileTags = useSuspenseQuery(tileQueries.tags(exercise.data.tileId));
 
   const addTagToTile = useAddTagToTile();
   const removeTagToTile = useRemoveTagToTile();
@@ -108,16 +107,9 @@ const RenameTileSection = () => {
         <ToggleGroup
           className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="multiple"
-          value={exercise.data.exerciseOverviewTile.tile.tileToTags.map(
-            (tileToTag) => {
-              return tileToTag.tag.id.toString();
-            },
-          )}
+          value={tileTags.data.map((tag) => tag.id.toString())}
           onValueChange={(newTagsIdsStr) => {
-            const currentTagsIds =
-              exercise.data.exerciseOverviewTile.tile.tileToTags.map(
-                (tileToTag) => tileToTag.tag.id,
-              );
+            const currentTagsIds = tileTags.data.map((tag) => tag.id);
             const newTagsIds = newTagsIdsStr.map((tagId) => +tagId);
 
             const currentTagsIdsSet = new Set(currentTagsIds);
@@ -133,10 +125,10 @@ const RenameTileSection = () => {
 
             if (tagIdToAdd) {
               addTagToTile.mutate({
-                param: {
-                  tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
+                path: {
+                  tileId: exercise.data.tileId,
                 },
-                json: {
+                payload: {
                   tagId: tagIdToAdd,
                 },
               });
@@ -144,18 +136,16 @@ const RenameTileSection = () => {
 
             if (tagIdToRemove) {
               removeTagToTile.mutate({
-                param: {
-                  tileId: exercise.data.exerciseOverviewTile.tile.id.toString(),
-                },
-                json: {
+                path: {
+                  tileId: exercise.data.tileId,
                   tagId: tagIdToRemove,
                 },
               });
             }
           }}
         >
-          {!user.data.tags.length && <NoTagsText>no tags</NoTagsText>}
-          {user.data.tags.map((tag) => (
+          {!tags.data.length && <NoTagsText>no tags</NoTagsText>}
+          {tags.data.map((tag) => (
             <ToggleGroupItem
               key={tag.id}
               className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"
@@ -196,7 +186,7 @@ const RenameTileSection = () => {
   );
 };
 
-const DeleteTileSection = () => {
+/*const DeleteTileSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section className="border-destructive">
@@ -272,7 +262,6 @@ const SectionDescription = (props: ComponentProps<"p">) => {
   return <p className="text-sm" {...props} />;
 };
 
-/*
 const NoTagsText = (props: ComponentProps<"p">) => {
   return (
     <p
@@ -283,207 +272,86 @@ const NoTagsText = (props: ComponentProps<"p">) => {
 };
 
 const useAddTagToTile = () => {
-  const user = useUser();
   const params = Route.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().tiles[":tileId"].tags.$post;
+  const exercise = useExercise(Number(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),
-    tiles: tileQueries.all(),
+    tileTags: tileQueries.tags(exercise.data.tileId),
+    allTags: tagQueries.all,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "addTag">) => {
+      return callApi((api) => api.DashboardTile.addTag(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.tiles);
-      await ctx.client.cancelQueries(queries.exercise);
+      await ctx.client.cancelQueries(queries.tileTags);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
-      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+      const oldTileTags = ctx.client.getQueryData(queries.tileTags.queryKey);
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        const tag = user.data.tags.find((tag) => {
-          return tag.id === variables.json.tagId;
+      const allTags = ctx.client.getQueryData(queries.allTags.queryKey);
+      const tag = allTags?.find((t) => t.id === variables.payload.tagId);
+
+      if (tag) {
+        ctx.client.setQueryData(queries.tileTags.queryKey, (tileTags) => {
+          if (!tileTags) return tileTags;
+          return [...tileTags, { id: tag.id, name: tag.name }];
         });
+      }
 
-        if (!tiles || !tag) {
-          return tiles;
-        }
-
-        return {
-          ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.id.toString() === variables.param.tileId) {
-                  return {
-                    ...tile,
-                    tileToTags: [
-                      ...tile.tileToTags,
-                      {
-                        tileId: +variables.param.tileId,
-                        tagId: tag.id,
-                        tag,
-                        createdAt: new Date().toString(),
-                        updatedAt: new Date().toString(),
-                      },
-                    ],
-                  };
-                }
-
-                return tile;
-              }),
-            };
-          }),
-        };
-      });
-
-      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        const tag = user.data.tags.find((tag) => {
-          return tag.id === variables.json.tagId;
-        });
-
-        if (!exercise || !tag) {
-          return exercise;
-        }
-
-        return {
-          ...exercise,
-          exerciseOverviewTile: {
-            ...exercise.exerciseOverviewTile,
-            tile: {
-              ...exercise.exerciseOverviewTile.tile,
-              tileToTags: [
-                ...exercise.exerciseOverviewTile.tile.tileToTags,
-                {
-                  tileId: +variables.param.tileId,
-                  tagId: tag.id,
-                  tag,
-                  createdAt: new Date().toString(),
-                  updatedAt: new Date().toString(),
-                },
-              ],
-            },
-          },
-        };
-      });
-
-      return {
-        oldTiles,
-        oldExercise,
-      };
+      return { oldTileTags };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
       ctx.client.setQueryData(
-        queries.exercise.queryKey,
-        onMutateRes?.oldExercise,
+        queries.tileTags.queryKey,
+        onMutateRes?.oldTileTags,
       );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.tileTags);
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };
 
 const useRemoveTagToTile = () => {
-  const user = useUser();
   const params = Route.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().tiles[":tileId"].tags.$delete;
+  const exercise = useExercise(Number(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),
-    tiles: tileQueries.all(),
+    tileTags: tileQueries.tags(exercise.data.tileId),
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "removeTag">) => {
+      return callApi((api) => api.DashboardTile.removeTag(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.exercise);
-      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.tileTags);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
-      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+      const oldTileTags = ctx.client.getQueryData(queries.tileTags.queryKey);
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        const tag = user.data.tags.find((tag) => {
-          return tag.id === variables.json.tagId;
-        });
-
-        if (!tiles || !tag) {
-          return tiles;
-        }
-
-        return {
-          ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.id.toString() === variables.param.tileId) {
-                  return {
-                    ...tile,
-                    tileToTags: tile.tileToTags.filter((tileToTags) => {
-                      return tileToTags.tagId !== variables.json.tagId;
-                    }),
-                  };
-                }
-
-                return tile;
-              }),
-            };
-          }),
-        };
+      ctx.client.setQueryData(queries.tileTags.queryKey, (tileTags) => {
+        if (!tileTags) return tileTags;
+        return tileTags.filter((t) => t.id !== variables.path.tagId);
       });
 
-      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
-          return exercise;
-        }
-
-        return {
-          ...exercise,
-          exerciseOverviewTile: {
-            ...exercise.exerciseOverviewTile,
-            tile: {
-              ...exercise.exerciseOverviewTile.tile,
-              tileToTags: exercise.exerciseOverviewTile.tile.tileToTags.filter(
-                (tileToTags) => {
-                  return tileToTags.tagId !== variables.json.tagId;
-                },
-              ),
-            },
-          },
-        };
-      });
-
-      return {
-        oldTiles,
-        oldExercise,
-      };
+      return { oldTileTags };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
       ctx.client.setQueryData(
-        queries.exercise.queryKey,
-        onMutateRes?.oldExercise,
+        queries.tileTags.queryKey,
+        onMutateRes?.oldTileTags,
       );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.tileTags);
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };
-*/
 
 const BackBtn = () => {
   const canGoBack = useCanGoBack();
