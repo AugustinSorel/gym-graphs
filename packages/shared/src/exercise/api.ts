@@ -3,8 +3,7 @@ import { RequireVerifiedSession } from "#/auth/middlewares";
 import { Schema } from "effect";
 import { ExerciseNotFound } from "./errors";
 import { ExerciseSchema } from "./schemas";
-import { DashboardTileSuccess } from "#/dashboard-tile/schemas";
-import { TagSuccessSchema } from "#/tag/schemas";
+import { DashboardTileSchema } from "#/dashboard-tile/schemas";
 
 export const exerciseApi = HttpApiGroup.make("Exercise")
   .add(
@@ -18,19 +17,10 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
       .addSuccess(
         Schema.Struct({
           id: ExerciseSchema.fields.id,
-          dashboardTile: DashboardTileSuccess,
+          name: DashboardTileSchema.fields.name,
+          tileId: DashboardTileSchema.fields.id,
         }),
       ),
-  )
-  .add(
-    HttpApiEndpoint.get("getTags", "/:exerciseId/tags")
-      .setPath(
-        Schema.Struct({
-          exerciseId: Schema.NumberFromString,
-        }),
-      )
-      .addError(ExerciseNotFound)
-      .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )
   .middleware(RequireVerifiedSession)
   .prefix("/exercises");

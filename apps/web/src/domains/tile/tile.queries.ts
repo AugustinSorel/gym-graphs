@@ -1,5 +1,5 @@
 import { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { callApi } from "~/libs/api";
 
 const all = (
@@ -23,6 +23,14 @@ const all = (
   });
 };
 
+const tags = (tileId: number) =>
+  queryOptions({
+    queryKey: ["dashboard-tiles", tileId, "tags"],
+    queryFn: async () =>
+      callApi((api) => api.DashboardTile.getTags({ path: { tileId } })),
+  });
+
 export const tileQueries = {
   all,
+  tags,
 };

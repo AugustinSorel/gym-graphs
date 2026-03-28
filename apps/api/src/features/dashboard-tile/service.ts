@@ -8,15 +8,17 @@ import type {
 import type { DashboardTile } from "#/integrations/db/schema";
 import { withTransaction } from "#/integrations/db/db";
 import { ExerciseRepo } from "../exercise/repo";
+import { TagRepo } from "../tag/repo";
 
 export class DashboardTileService extends Effect.Service<DashboardTileService>()(
   "DashboardTileService",
   {
     accessors: true,
-    dependencies: [DashboardTileRepo.Default, ExerciseRepo.Default],
+    dependencies: [DashboardTileRepo.Default, ExerciseRepo.Default, TagRepo.Default],
     effect: Effect.gen(function* () {
       const dashboardTileRepo = yield* DashboardTileRepo;
       const exerciseRepo = yield* ExerciseRepo;
+      const tagRepo = yield* TagRepo;
 
       return {
         create: (
@@ -78,6 +80,15 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
 
           return dashboardTileRepo
             .reorder(reversedTileIds, userId)
+            .pipe(Effect.timeout(5000));
+        },
+
+        selectTags: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+        ) => {
+          return tagRepo
+            .selectTileTags(tileId, userId)
             .pipe(Effect.timeout(5000));
         },
       };

@@ -72,6 +72,25 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
         });
       },
 
+      selectTileTags: (
+        tileId: DashboardTile["id"],
+        userId: DashboardTile["userId"],
+      ) => {
+        return db.query.tags.findMany({
+          where: {
+            dashboardTiles: {
+              dashboardTile: {
+                id: tileId,
+                userId,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        });
+      },
+
       deleteByTagId: (tagId: Tag["id"], userId: Tag["userId"]) => {
         return db
           .delete(tags)

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 // import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
+import { tileQueries } from "~/domains/tile/tile.queries";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -41,15 +42,13 @@ export const Route = createFileRoute("/(authed)/exercises/$exerciseId")({
   },
   component: () => RouteComponent(),
   loader: async ({ context, params }) => {
-    const queries = {
-      exercise: exerciseQueries.get(params.exerciseId),
-      tags: exerciseQueries.tags(params.exerciseId),
-    };
+    const exercise = await context.queryClient.ensureQueryData(
+      exerciseQueries.get(params.exerciseId),
+    );
 
-    await Promise.all([
-      context.queryClient.ensureQueryData(queries.exercise),
-      context.queryClient.ensureQueryData(queries.tags),
-    ]);
+    await context.queryClient.ensureQueryData(
+      tileQueries.tags(exercise.tileId),
+    );
   },
 });
 
@@ -60,7 +59,7 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        <Title>{exercise.data.dashboardTile.name}</Title>
+        <Title>{exercise.data.name}</Title>
         {/*
         <Button variant="secondary" size="sm" asChild>
            <routeApi.Link

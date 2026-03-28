@@ -56,6 +56,22 @@ export const DashboardTileLive = HttpApiBuilder.group(
             TimeoutException: () => new HttpApiError.RequestTimeout(),
           }),
         );
+      })
+      .handle("getTags", ({ path }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          return yield* DashboardTileService.selectTags(
+            path.tileId,
+            session.userId,
+          );
+        }).pipe(
+          Effect.catchTags({
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
       });
   },
 );
