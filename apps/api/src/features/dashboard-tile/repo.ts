@@ -121,6 +121,28 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
           });
         },
 
+        deleteById: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+        ) => {
+          return db
+            .delete(dashboardTiles)
+            .where(
+              and(
+                eq(dashboardTiles.id, tileId),
+                eq(dashboardTiles.userId, userId),
+              ),
+            )
+            .returning()
+            .pipe(
+              Effect.andThen((rows) =>
+                Array.head(rows).pipe(
+                  Effect.mapError(() => new DashboardTileNotFound()),
+                ),
+              ),
+            );
+        },
+
         selectAll: (
           userId: DashboardTile["userId"],
           pageSize: number,

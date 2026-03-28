@@ -107,6 +107,20 @@ export const DashboardTileLive = HttpApiBuilder.group(
             TimeoutException: () => new HttpApiError.RequestTimeout(),
           }),
         );
+      })
+      .handle("delete", ({ path }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          yield* DashboardTileService.delete(path.tileId, session.userId);
+        }).pipe(
+          Effect.catchTags({
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            SqlError: () => new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
       });
   },
 );

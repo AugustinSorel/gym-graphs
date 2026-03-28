@@ -64,5 +64,14 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
       .addError(DashboardTileNotFound)
       .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )
+  .add(
+    HttpApiEndpoint.del("delete", "/:tileId")
+      .setPath(
+        Schema.Struct({
+          tileId: Schema.NumberFromString,
+        }),
+      )
+      .addError(DashboardTileNotFound),
+  )
   .middleware(RequireVerifiedSession)
   .prefix("/dashboard-tiles");

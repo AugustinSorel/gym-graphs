@@ -6,6 +6,7 @@ import {
 } from "#/integrations/db/schema";
 import { ExerciseNotFound } from "@gym-graphs/shared/exercise/errors";
 import { Effect, Array } from "effect";
+import { eq } from "drizzle-orm";
 
 export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
   "ExerciseRepo",
@@ -27,6 +28,13 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
 
         createMany: (input: Array<typeof exercises.$inferInsert>) => {
           return db.insert(exercises).values(input).returning();
+        },
+
+        deleteById: (exerciseId: Exercise["id"]) => {
+          return db
+            .delete(exercises)
+            .where(eq(exercises.id, exerciseId))
+            .returning();
         },
 
         selectByExerciseId: (

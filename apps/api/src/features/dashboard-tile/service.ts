@@ -116,6 +116,20 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             }),
           ).pipe(Effect.timeout(5000));
         },
+
+        delete: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+        ) => {
+          return withTransaction(
+            Effect.gen(function* () {
+              const tile = yield* dashboardTileRepo.deleteById(tileId, userId);
+              yield* exerciseRepo
+                .deleteById(tile.exerciseId!)
+                .pipe(Effect.when(() => tile.exerciseId !== null));
+            }),
+          ).pipe(Effect.timeout(5000));
+        },
       };
     }),
   },

@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 // import { z } from "zod";
-// import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
+import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 // import { exerciseSchema } from "@gym-graphs/schemas/exercise";
@@ -59,7 +59,7 @@ const RouteComponent = () => {
 
       <RenameTileSection />
       <ExerciseTagsSection />
-      {/*<DeleteTileSection /> */}
+      <DeleteTileSection />
     </Main>
   );
 };
@@ -148,7 +148,7 @@ const ExerciseTagsSection = () => {
   );
 };
 
-/*const DeleteTileSection = () => {
+const DeleteTileSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section className="border-destructive">
@@ -167,7 +167,6 @@ const ExerciseTagsSection = () => {
     </CatchBoundary>
   );
 };
-*/
 
 const Main = (props: ComponentProps<"main">) => {
   return (
