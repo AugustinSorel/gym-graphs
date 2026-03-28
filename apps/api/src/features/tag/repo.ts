@@ -61,8 +61,7 @@ export class TagRepo extends Effect.Service<TagRepo>()("TagRepo", {
           where: {
             dashboardTiles: {
               dashboardTile: {
-                id: tileId,
-                userId,
+                AND: [{ id: tileId }, { userId }],
               },
             },
           },
