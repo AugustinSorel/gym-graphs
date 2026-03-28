@@ -87,9 +87,10 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
           tileId: DashboardTile["id"],
           userId: DashboardTile["userId"],
         ) => {
-          return tagRepo
-            .selectTileTags(tileId, userId)
-            .pipe(Effect.timeout(5000));
+          return Effect.gen(function* () {
+            yield* dashboardTileRepo.selectById(tileId, userId);
+            return yield* tagRepo.selectTileTags(tileId, userId);
+          }).pipe(Effect.timeout(5000));
         },
       };
     }),

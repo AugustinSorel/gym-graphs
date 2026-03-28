@@ -7,7 +7,10 @@ import {
 } from "#/integrations/db/schema";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array } from "effect";
-import { DuplicateDashboardTile } from "@gym-graphs/shared/dashboard-tile/errors";
+import {
+  DuplicateDashboardTile,
+  DashboardTileNotFound,
+} from "@gym-graphs/shared/dashboard-tile/errors";
 import type { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
 import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 
@@ -35,6 +38,26 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
 
         createMany: (input: Array<PgInsertValue<typeof dashboardTiles>>) => {
           return db.insert(dashboardTiles).values(input).returning();
+        },
+
+        selectById: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+        ) => {
+          return Effect.gen(function* () {
+            const tile = yield* db.query.dashboardTiles.findFirst({
+              where: {
+                id: tileId,
+                userId,
+              },
+            });
+
+            if (!tile) {
+              return yield* Effect.fail(new DashboardTileNotFound());
+            }
+
+            return tile;
+          });
         },
 
         addTags: (
