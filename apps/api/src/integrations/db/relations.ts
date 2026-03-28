@@ -89,5 +89,13 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.dashboardTiles.exerciseId,
       optional: false,
     }),
+    sets: r.many.sets(),
+  },
+  sets: {
+    exercise: r.one.sets({
+      from: r.sets.exerciseId,
+      to: r.exercises.id,
+      optional: false,
+    }),
   },
 }));

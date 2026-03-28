@@ -215,3 +215,22 @@ export const exercises = pgTable("exercises", (t) => ({
 }));
 
 export type Exercise = Readonly<typeof exercises.$inferSelect>;
+
+export const sets = pgTable("sets", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  exerciseId: t
+    .integer("exercise_id")
+    .notNull()
+    .references(() => exercises.id, { onDelete: "cascade" }),
+  weightInKg: t.integer("weight_in_kg").notNull(),
+  repetitions: t.integer("repetitions").notNull(),
+  doneAt: t.date("done_at", { mode: "date" }).notNull().defaultNow(),
+  createdAt: t.timestamp("created_at").notNull().defaultNow(),
+  updatedAt: t
+    .timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}));
+
+export type Set = Readonly<typeof sets.$inferSelect>;
