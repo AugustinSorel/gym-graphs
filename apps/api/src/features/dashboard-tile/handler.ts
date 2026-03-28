@@ -89,6 +89,42 @@ export const DashboardTileLive = HttpApiBuilder.group(
             TimeoutException: () => new HttpApiError.RequestTimeout(),
           }),
         );
+      })
+      .handle("addTag", ({ path, payload }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          return yield* DashboardTileService.addTag(
+            path.tileId,
+            session.userId,
+            payload.tagId,
+          );
+        }).pipe(
+          Effect.catchTags({
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            SqlError: () => new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
+      })
+      .handle("removeTag", ({ path }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          return yield* DashboardTileService.removeTag(
+            path.tileId,
+            session.userId,
+            path.tagId,
+          );
+        }).pipe(
+          Effect.catchTags({
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            SqlError: () => new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
       });
   },
 );

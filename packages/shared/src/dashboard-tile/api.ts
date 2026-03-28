@@ -1,6 +1,7 @@
 import { HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { RequireVerifiedSession } from "#/auth/middlewares";
 import {
+  AddTagToTilePayload,
   CreateDashboardTilePayload,
   DashboardTileSuccess,
   PatchDashboardTilePayload,
@@ -47,6 +48,28 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
       .setPath(
         Schema.Struct({
           tileId: Schema.NumberFromString,
+        }),
+      )
+      .addError(DashboardTileNotFound)
+      .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
+  )
+  .add(
+    HttpApiEndpoint.post("addTag", "/:tileId/tags")
+      .setPath(
+        Schema.Struct({
+          tileId: Schema.NumberFromString,
+        }),
+      )
+      .setPayload(AddTagToTilePayload)
+      .addError(DashboardTileNotFound)
+      .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
+  )
+  .add(
+    HttpApiEndpoint.del("removeTag", "/:tileId/tags/:tagId")
+      .setPath(
+        Schema.Struct({
+          tileId: Schema.NumberFromString,
+          tagId: Schema.NumberFromString,
         }),
       )
       .addError(DashboardTileNotFound)

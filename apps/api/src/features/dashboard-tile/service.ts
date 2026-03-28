@@ -102,6 +102,30 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             return yield* tagRepo.selectTileTags(tileId, userId);
           }).pipe(Effect.timeout(5000));
         },
+
+        addTag: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+          tagId: number,
+        ) => {
+          return Effect.gen(function* () {
+            yield* dashboardTileRepo.selectById(tileId, userId);
+            yield* dashboardTileRepo.addTag(tileId, tagId);
+            return yield* tagRepo.selectTileTags(tileId, userId);
+          }).pipe(Effect.timeout(5000));
+        },
+
+        removeTag: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+          tagId: number,
+        ) => {
+          return Effect.gen(function* () {
+            yield* dashboardTileRepo.selectById(tileId, userId);
+            yield* dashboardTileRepo.removeTag(tileId, tagId);
+            return yield* tagRepo.selectTileTags(tileId, userId);
+          }).pipe(Effect.timeout(5000));
+        },
       };
     }),
   },

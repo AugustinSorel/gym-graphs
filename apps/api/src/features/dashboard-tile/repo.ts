@@ -104,6 +104,31 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             .returning();
         },
 
+        addTag: (
+          dashboardTileId: DashboardTilesToTags["dashboardTileId"],
+          tagId: DashboardTilesToTags["tagId"],
+        ) => {
+          return db
+            .insert(dashboardtilesToTags)
+            .values({ tagId, dashboardTileId })
+            .returning();
+        },
+
+        removeTag: (
+          dashboardTileId: DashboardTilesToTags["dashboardTileId"],
+          tagId: DashboardTilesToTags["tagId"],
+        ) => {
+          return db
+            .delete(dashboardtilesToTags)
+            .where(
+              and(
+                eq(dashboardtilesToTags.dashboardTileId, dashboardTileId),
+                eq(dashboardtilesToTags.tagId, tagId),
+              ),
+            )
+            .returning();
+        },
+
         selectAll: (
           userId: DashboardTile["userId"],
           pageSize: number,
