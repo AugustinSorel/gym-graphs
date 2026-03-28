@@ -62,3 +62,5 @@ export const ReorderDashboardTilesPayload = Schema.Struct({
 export const ReorderDashboardTilesSuccess = DashboardTileSuccess.pipe(
   Schema.Array,
 );
+
+export const PatchDashboardTilePayload = DashboardTileSchema.pick("name");

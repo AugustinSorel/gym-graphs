@@ -83,6 +83,16 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             .pipe(Effect.timeout(5000));
         },
 
+        patch: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+          input: { name: string },
+        ) => {
+          return dashboardTileRepo
+            .patch(tileId, userId, input)
+            .pipe(Effect.timeout(5000));
+        },
+
         selectTags: (
           tileId: DashboardTile["id"],
           userId: DashboardTile["userId"],

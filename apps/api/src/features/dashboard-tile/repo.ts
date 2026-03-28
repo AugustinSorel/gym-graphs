@@ -60,6 +60,34 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
           });
         },
 
+        patch: (
+          tileId: DashboardTile["id"],
+          userId: DashboardTile["userId"],
+          input: { name: string },
+        ) => {
+          return db
+            .update(dashboardTiles)
+            .set({ name: input.name })
+            .where(
+              and(
+                eq(dashboardTiles.id, tileId),
+                eq(dashboardTiles.userId, userId),
+              ),
+            )
+            .returning()
+            .pipe(
+              Effect.catchIf(
+                (e) => isUniqueViolation(e, "tile_name_dashboard_id_unique"),
+                () => DuplicateDashboardTile.withName(input.name),
+              ),
+              Effect.andThen((rows) =>
+                Array.head(rows).pipe(
+                  Effect.mapError(() => new DashboardTileNotFound()),
+                ),
+              ),
+            );
+        },
+
         addTags: (
           dashboardTileId: DashboardTilesToTags["dashboardTileId"],
           tagIds: ReadonlyArray<DashboardTilesToTags["tagId"]>,

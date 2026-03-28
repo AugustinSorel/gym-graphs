@@ -57,6 +57,25 @@ export const DashboardTileLive = HttpApiBuilder.group(
           }),
         );
       })
+      .handle("patch", ({ path, payload }) => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          return yield* DashboardTileService.patch(
+            path.tileId,
+            session.userId,
+            payload,
+          );
+        }).pipe(
+          Effect.catchTags({
+            DashboardTileNotFound: (e) => e,
+            DuplicateDashboardTile: (e) => e,
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
+      })
       .handle("getTags", ({ path }) => {
         return Effect.gen(function* () {
           const session = yield* CurrentSession;

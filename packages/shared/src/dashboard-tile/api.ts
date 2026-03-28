@@ -3,6 +3,7 @@ import { RequireVerifiedSession } from "#/auth/middlewares";
 import {
   CreateDashboardTilePayload,
   DashboardTileSuccess,
+  PatchDashboardTilePayload,
   ReorderDashboardTilesPayload,
   ReorderDashboardTilesSuccess,
   SelectAllDashboardTilesSuccess,
@@ -28,6 +29,18 @@ export const dashboardTileApi = HttpApiGroup.make("DashboardTile")
     HttpApiEndpoint.put("reorder", "/reorder")
       .setPayload(ReorderDashboardTilesPayload)
       .addSuccess(ReorderDashboardTilesSuccess),
+  )
+  .add(
+    HttpApiEndpoint.patch("patch", "/:tileId")
+      .setPath(
+        Schema.Struct({
+          tileId: Schema.NumberFromString,
+        }),
+      )
+      .setPayload(PatchDashboardTilePayload)
+      .addError(DashboardTileNotFound)
+      .addError(DuplicateDashboardTile)
+      .addSuccess(DashboardTileSuccess),
   )
   .add(
     HttpApiEndpoint.get("getTags", "/:tileId/tags")
