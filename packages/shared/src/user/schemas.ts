@@ -75,3 +75,23 @@ export const PatchUserByIdPayload = UserSchema.pick(
   "name",
   "dashboardView",
 ).pipe(Schema.partial);
+
+export const SetExportSchema = Schema.Struct({
+  id: Schema.Int,
+  weightInKg: Schema.Int,
+  repetitions: Schema.Int,
+  doneAt: Schema.DateFromString,
+  createdAt: Schema.DateFromString,
+});
+
+export const ExerciseExportSchema = Schema.Struct({
+  id: Schema.Int,
+  name: Schema.String,
+  tags: Schema.Array(Schema.String),
+  sets: Schema.Array(SetExportSchema),
+});
+
+export const UserDataExportSchema = Schema.Struct({
+  user: UserSchema.pick("id", "email", "name", "weightUnit", "oneRepMaxAlgo"),
+  exercises: Schema.Array(ExerciseExportSchema),
+});

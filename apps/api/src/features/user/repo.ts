@@ -2,7 +2,7 @@ import { Database, isUniqueViolation } from "#/integrations/db/db";
 import { users, type User } from "#/integrations/db/schema";
 import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Option } from "effect";
-import { DuplicateUser } from "@gym-graphs/shared/user/errors";
+import { DuplicateUser, UserNotFound } from "@gym-graphs/shared/user/errors";
 import { eq } from "drizzle-orm";
 
 export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
@@ -45,6 +45,18 @@ export class UserRepo extends Effect.Service<UserRepo>()("UserRepo", {
           const user = yield* pipe(Array.head(rows), Effect.orDie);
 
           return user;
+        });
+      },
+
+      selectById: (userId: User["id"]) => {
+        return Effect.gen(function* () {
+          const user = yield* db.query.users.findFirst({
+            where: { id: userId },
+          });
+
+          return yield* Option.fromNullable(user).pipe(
+            Effect.mapError(() => new UserNotFound()),
+          );
         });
       },
 

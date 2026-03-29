@@ -1,18 +1,19 @@
 import { Array, DateTime, Duration, Effect } from "effect";
 import { UserRepo } from "../user/repo";
+import { DashboardTileRepo } from "../dashboard-tile/repo";
 import type { User, Exercise } from "#/integrations/db/schema";
 import type { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
 import { TagRepo } from "../tag/repo";
 import { ExerciseRepo } from "../exercise/repo";
-import { DashboardTileRepo } from "../dashboard-tile/repo";
 import { SetRepo } from "../set/repo";
 import { withTransaction } from "#/integrations/db/db";
 
 export class UserService extends Effect.Service<UserService>()("UserService", {
   accessors: true,
-  dependencies: [UserRepo.Default],
+  dependencies: [UserRepo.Default, DashboardTileRepo.Default],
   effect: Effect.gen(function* () {
     const userRepo = yield* UserRepo;
+    const dashboardTileRepo = yield* DashboardTileRepo;
 
     return {
       patchByUserId: (
@@ -30,6 +31,36 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
         return Effect.gen(function* () {
           yield* userRepo.deleteByUserId(userId);
         }).pipe(Effect.timeout(5000));
+      },
+
+      exportDataByUserId: (userId: User["id"]) => {
+        return Effect.gen(function* () {
+          const [user, tiles] = yield* Effect.all(
+            [
+              userRepo.selectById(userId),
+              dashboardTileRepo.selectAll(userId, Number.MAX_SAFE_INTEGER, {}),
+            ],
+            { concurrency: "unbounded" },
+          );
+
+          const exercises = tiles
+            .filter((tile) => {
+              return tile.type === "exercise" && tile.exercise !== null;
+            })
+            .map((tile) => {
+              return {
+                id: tile.exercise!.id,
+                name: tile.name,
+                tags: tile.tags.map((t) => t.tag.name),
+                sets: tile.exercise!.sets,
+              };
+            });
+
+          return {
+            user,
+            exercises,
+          };
+        }).pipe(Effect.timeout(10000));
       },
     };
   }),

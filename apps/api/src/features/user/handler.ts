@@ -31,5 +31,21 @@ export const UserLive = HttpApiBuilder.group(Api, "User", (handlers) => {
           TimeoutException: () => new HttpApiError.RequestTimeout(),
         }),
       );
+    })
+    .handle("exportData", () => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        return yield* UserService.exportDataByUserId(session.userId);
+      }).pipe(
+        Effect.catchTag(
+          "EffectDrizzleQueryError",
+          () => new HttpApiError.InternalServerError(),
+        ),
+        Effect.catchTag(
+          "TimeoutException",
+          () => new HttpApiError.RequestTimeout(),
+        ),
+      );
     });
 });

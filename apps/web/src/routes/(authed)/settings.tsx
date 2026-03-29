@@ -481,15 +481,15 @@ const SectionErrorAlert = (props: Readonly<PropsWithChildren>) => {
   );
 };
 
-//FIXME
 const useDownloadUserData = () => {
   return useMutation({
     mutationFn: async () => {
-      // const req = api().users.me.data.$get();
-      // return parseJsonResponse(req);
+      return callApi((api) => api.User.exportData());
     },
     onSuccess: (userData) => {
-      const blob = new Blob([JSON.stringify(userData, null, 2)]);
+      const blob = new Blob([JSON.stringify(userData, null, 2)], {
+        type: "application/json",
+      });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
 
