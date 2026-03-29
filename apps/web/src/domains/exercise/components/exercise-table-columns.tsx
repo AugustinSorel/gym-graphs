@@ -1,6 +1,6 @@
 import { SetProvider } from "~/domains/set/set.context";
 import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
-// import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
+import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
 import { UpdateSetDoneAtDialog } from "~/domains/set/components/update-set-done-at-dialog";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { WeightValue } from "~/domains/user/components/weight-value";
@@ -8,7 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  // DropdownMenuSeparator,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import {
@@ -160,8 +160,8 @@ export const exerciseTableColumns: Array<ColumnDef<typeof SetSuccessSchema.Type>
               <UpdateSetWeightDialog />
               <UpdateSetRepetitionsDialog />
               <UpdateSetDoneAtDialog />
-              {/* <DropdownMenuSeparator />
-              <DeleteSetDialog /> */}
+              <DropdownMenuSeparator />
+              <DeleteSetDialog />
             </SetProvider>
           </DropdownMenuContent>
         </DropdownMenu>
