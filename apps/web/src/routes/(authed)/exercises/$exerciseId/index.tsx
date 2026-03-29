@@ -10,6 +10,7 @@ import {
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { setQueries } from "~/domains/set/set.queries";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -18,8 +19,8 @@ import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 // import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import { TagsList } from "~/domains/exercise/components/tags-list";
-// import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
-// import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
+import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
+import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -31,15 +32,17 @@ export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
       exerciseQueries.get(params.exerciseId),
     );
 
-    await context.queryClient.ensureQueryData(
-      tileQueries.tags(exercise.tileId),
-    );
+    await Promise.all([
+      context.queryClient.ensureQueryData(tileQueries.tags(exercise.tileId)),
+      context.queryClient.ensureQueryData(setQueries.getAll(params.exerciseId)),
+    ]);
   },
 });
 
 const RouteComponent = () => {
   const params = Route.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
+  const sets = useSuspenseQuery(setQueries.getAll(params.exerciseId));
 
   return (
     <Main>
@@ -104,7 +107,7 @@ const RouteComponent = () => {
         </Section>
       </CatchBoundary>
 
-      {/* <CatchBoundary
+      <CatchBoundary
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
@@ -113,12 +116,12 @@ const RouteComponent = () => {
 
           <SectionPanel>
             <ExerciseTable
-              sets={exercise.data.sets}
+              sets={sets.data}
               columns={exerciseTableColumns}
             />
           </SectionPanel>
         </Section>
-      </CatchBoundary> */}
+      </CatchBoundary>
     </Main>
   );
 };
