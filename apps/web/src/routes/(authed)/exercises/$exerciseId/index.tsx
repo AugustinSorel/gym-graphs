@@ -16,7 +16,7 @@ import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
-// import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
+import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 // import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import { TagsList } from "~/domains/exercise/components/tags-list";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
@@ -65,21 +65,18 @@ const RouteComponent = () => {
 
       <Separator />
 
-      {/* <CatchBoundary
+      <CatchBoundary
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
         <Section>
-          <SectionTitle>
-            1 <Abbr title="repetitions">rep</Abbr>{" "}
-            <Abbr title="maximum">max</Abbr> graph
-          </SectionTitle>
+          <SectionTitle>1 rep max graph</SectionTitle>
 
           <SectionPanel className="py-2 sm:p-4">
-            <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+            <ExerciseAdvanceOverviewGraph sets={sets.data} />
           </SectionPanel>
         </Section>
-      </CatchBoundary> */}
+      </CatchBoundary>
 
       {/* <CatchBoundary
         errorComponent={DefaultFallback}
