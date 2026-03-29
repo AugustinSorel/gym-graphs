@@ -7,7 +7,7 @@ import {
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-// import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
+import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { tileQueries } from "~/domains/tile/tile.queries";
 // import { useExercise } from "~/domains/exercise/hooks/use-exercise";
@@ -54,9 +54,7 @@ const RouteComponent = () => {
             <SettingsIcon className="lg:hidden" />
           </routeApi.Link>
         </Button>
-        {/*
         <CreateSetDialog />
-*/}
         <ClientOnly>
           <BackBtn />
         </ClientOnly>

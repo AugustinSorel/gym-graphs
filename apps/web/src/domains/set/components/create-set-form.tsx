@@ -1,23 +1,19 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { useMutation, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
-import { z } from "zod";
 import { Button } from "~/ui/button";
-import { setSchema } from "@gym-graphs/schemas/set";
+import { CreateSetPayload } from "@gym-graphs/shared/set/schemas";
 import { useExercise } from "~/domains/exercise/hooks/use-exercise";
-import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { CounterInput } from "~/ui/counter-input";
 import { useLastSet } from "~/domains/set/hooks/use-last-set";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -25,16 +21,11 @@ export const CreateSetForm = (props: Props) => {
   const params = routeApi.useParams();
   const exercise = useExercise(params.exerciseId);
 
-  const onSubmit = async (data: CreateExerciseSchema) => {
+  const onSubmit = async (payload: typeof CreateSetPayload.Type) => {
     await createSet.mutateAsync(
       {
-        param: {
-          exerciseId: exercise.data.id.toString(),
-        },
-        json: {
-          repetitions: data.repetitions,
-          weightInKg: data.weightInKg,
-        },
+        path: { exerciseId: exercise.data.id },
+        payload,
       },
       {
         onSuccess: () => {
@@ -119,28 +110,23 @@ type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
-
-const useFormSchema = () => {
-  return z
-    .object({
-      repetitions: z.number(),
-      weightInKg: z.number(),
-    })
-    .pipe(setSchema.pick({ repetitions: true, weightInKg: true }));
-};
-
-type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
 const useCreateExerciseSetForm = () => {
-  const formSchema = useFormSchema();
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
+  const sets =
+    tiles.data.find((tile) => tile.exerciseId === params.exerciseId)?.sets ??
+    [];
 
-  const lastSet = useLastSet(exercise.data.sets);
+  const lastSet = useLastSet(sets);
 
-  return useForm<CreateExerciseSchema>({
-    resolver: zodResolver(formSchema),
+  return useForm<
+    typeof CreateSetPayload.Encoded,
+    unknown,
+    typeof CreateSetPayload.Type
+  >({
+    resolver: effectTsResolver(CreateSetPayload),
     defaultValues: {
       repetitions: lastSet?.repetitions ?? 0,
       weightInKg: lastSet?.weightInKg ?? 0,
@@ -150,33 +136,28 @@ const useCreateExerciseSetForm = () => {
 
 const useCreateSet = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().exercises[":exerciseId"].sets.$post;
 
   const queries = {
-    exercise: exerciseQueries.get(exercise.data.id),
     tiles: tileQueries.all(),
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Set", "create">) => {
+      return callApi((api) => api.Set.create(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.exercise);
       await ctx.client.cancelQueries(queries.tiles);
 
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
-      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
-      const optimisticExerciseSet = {
+      const optimisticSet = {
         id: Math.random(),
-        exerciseId: +variables.param.exerciseId,
-        weightInKg: variables.json.weightInKg,
-        repetitions: variables.json.repetitions,
-        createdAt: new Date().toString(),
-        doneAt: new Date().toString(),
-        updatedAt: new Date().toString(),
+        exerciseId: params.exerciseId,
+        weightInKg: variables.payload.weightInKg,
+        repetitions: variables.payload.repetitions,
+        doneAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
@@ -186,66 +167,29 @@ const useCreateSet = () => {
 
         return {
           ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.type !== "exerciseOverview") {
-                  return tile;
-                }
-
-                if (
-                  tile.exerciseOverview.exerciseId.toString() ===
-                  variables.param.exerciseId
-                ) {
-                  return {
-                    ...tile,
-                    exerciseOverview: {
-                      ...tile.exerciseOverview,
-                      exercise: {
-                        ...tile.exerciseOverview.exercise,
-                        sets: [
-                          optimisticExerciseSet,
-                          ...tile.exerciseOverview.exercise.sets,
-                        ],
-                      },
-                    },
-                  };
-                }
-
+          pages: tiles.pages.map((page) => ({
+            ...page,
+            dashboardTiles: page.dashboardTiles.map((tile) => {
+              if (tile.exerciseId !== params.exerciseId) {
                 return tile;
-              }),
-            };
-          }),
+              }
+
+              return {
+                ...tile,
+                sets: [optimisticSet, ...tile.sets],
+              };
+            }),
+          })),
         };
       });
 
-      ctx.client.setQueryData(queries.exercise.queryKey, (exercise) => {
-        if (!exercise) {
-          return exercise;
-        }
-
-        return {
-          ...exercise,
-          sets: [optimisticExerciseSet, ...exercise.sets],
-        };
-      });
-
-      return {
-        oldTiles,
-        oldExercise,
-      };
+      return { oldTiles };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
       ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
-      ctx.client.setQueryData(
-        queries.exercise.queryKey,
-        onMutateRes?.oldExercise,
-      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
-      void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };
