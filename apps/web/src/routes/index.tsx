@@ -16,11 +16,11 @@ import { tilesMock } from "~/domains/tile/tile.mock";
 import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseMock } from "~/domains/exercise/exercise.mock";
 import type { ComponentProps } from "react";
+import { mockSets } from "~/domains/set/set.mock";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -103,29 +103,41 @@ const FeatureOne = () => {
       <Grid>
         {tiles.data.map((tile) => {
           switch (tile.type) {
-            case "exerciseOverview": {
+            case "exercise": {
               return (
                 <Card key={tile.id}>
                   <Name>{tile.name}</Name>
-                  <ExerciseOverviewGraph
-                    sets={tile.exerciseOverview.exercise.sets}
-                  />
+                  <ExerciseOverviewGraph sets={tile.sets} />
                 </Card>
               );
             }
             case "exerciseSetCount": {
+              const data = Object.entries(
+                tile.sets.reduce<Record<string, number>>((acc, set) => {
+                  const key = String(set.exerciseId);
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {}),
+              ).map(([name, count]) => ({ name, count }));
+
               return (
                 <Card key={tile.id}>
                   <Name>exercises frequency</Name>
-                  <ExerciseSetCountGraph />
+                  <ExerciseSetCountGraph data={data} />
                 </Card>
               );
             }
             case "exerciseTagCount": {
+              const data = tile.tags.map((tag, i) => ({
+                id: tag.id,
+                name: tag.name,
+                count: i + 1,
+              }));
+
               return (
                 <Card key={tile.id}>
                   <Name>tags frequency</Name>
-                  <ExerciseTagCountGraph />
+                  <ExerciseTagCountGraph data={data} />
                 </Card>
               );
             }
@@ -133,7 +145,7 @@ const FeatureOne = () => {
               return (
                 <Card key={tile.id}>
                   <Name>heat map - January</Name>
-                  <DashboardHeatMap />
+                  <DashboardHeatMap sets={mockSets} />
                 </Card>
               );
             }
@@ -141,7 +153,14 @@ const FeatureOne = () => {
               return (
                 <Card key={tile.id}>
                   <Name>fun facts</Name>
-                  <DashboardFunFacts />
+                  <DashboardFunFacts
+                    data={{
+                      totalWeightInKg: 1200,
+                      totalRepetitions: 320,
+                      tileWithMostSets: { name: "bench press" },
+                      tileWithLeastSets: { name: "squat" },
+                    }}
+                  />
                 </Card>
               );
             }
@@ -153,8 +172,6 @@ const FeatureOne = () => {
 };
 
 const FeatureTwo = () => {
-  const exercise = useExercise(exerciseMock.id);
-
   return (
     <FeatureContainer>
       <HeroTitle>
@@ -168,13 +185,10 @@ const FeatureTwo = () => {
       </Text>
 
       <CardTwo className="py-2 sm:p-4">
-        <ExerciseAdvanceOverviewGraph sets={exercise.data.sets} />
+        <ExerciseAdvanceOverviewGraph sets={mockSets} />
       </CardTwo>
       <CardTwo>
-        <ExerciseTable
-          sets={exercise.data.sets}
-          columns={homePageExerciseTableColumns}
-        />
+        <ExerciseTable sets={mockSets} columns={homePageExerciseTableColumns} />
       </CardTwo>
     </FeatureContainer>
   );
@@ -385,7 +399,7 @@ const useMockQueryClient = () => {
   queryClient.setQueryData(queries.exercise.queryKey, exerciseMock);
   queryClient.setQueryData(queries.tiles.queryKey, {
     pageParams: [],
-    pages: [{ nextCursor: 0, tiles: tilesMock }],
+    pages: [{ nextCursor: null, dashboardTiles: tilesMock }],
   });
 
   queryClient.setDefaultOptions({

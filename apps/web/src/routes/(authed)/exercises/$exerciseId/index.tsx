@@ -11,7 +11,6 @@ import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { setQueries } from "~/domains/set/set.queries";
-// import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
@@ -140,10 +139,6 @@ const Section = ({ className, ...props }: ComponentProps<"section">) => {
 const SectionTitle = (props: ComponentProps<"h2">) => {
   return <h2 className="font-semibold" {...props} />;
 };
-
-// const Abbr = (props: ComponentProps<"abbr">) => {
-//   return <abbr className="no-underline" {...props} />;
-// };
 
 const Header = (props: ComponentProps<"header">) => {
   return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
