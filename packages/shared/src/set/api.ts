@@ -12,6 +12,18 @@ import { Forbidden } from "#/auth/errors";
 
 export const setApi = HttpApiGroup.make("Set")
   .add(
+    HttpApiEndpoint.get("getAll", "/")
+      .setPath(
+        Schema.Struct({
+          exerciseId: Schema.NumberFromString.pipe(
+            Schema.compose(ExerciseSchema.fields.id),
+          ),
+        }),
+      )
+      .addError(Forbidden)
+      .addSuccess(SetSuccessSchema.pipe(Schema.Array)),
+  )
+  .add(
     HttpApiEndpoint.post("create", "/")
       .setPath(
         Schema.Struct({

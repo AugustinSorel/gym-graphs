@@ -7,6 +7,19 @@ import { Forbidden } from "@gym-graphs/shared/auth/errors";
 
 export const SetLive = HttpApiBuilder.group(Api, "Set", (handlers) => {
   return handlers
+    .handle("getAll", ({ path }) => {
+      return Effect.gen(function* () {
+        const session = yield* CurrentSession;
+
+        return yield* SetService.getAll(path.exerciseId, session.userId);
+      }).pipe(
+        Effect.catchTags({
+          ExerciseNotFound: () => new Forbidden(),
+          EffectDrizzleQueryError: () => new HttpApiError.InternalServerError(),
+          TimeoutException: () => new HttpApiError.RequestTimeout(),
+        }),
+      );
+    })
     .handle("create", ({ path, payload }) => {
       return Effect.gen(function* () {
         const session = yield* CurrentSession;

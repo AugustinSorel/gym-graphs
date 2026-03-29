@@ -10,6 +10,10 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
     const db = yield* Database;
 
     return {
+      selectByExerciseId: (exerciseId: Set["exerciseId"]) => {
+        return db.select().from(sets).where(eq(sets.exerciseId, exerciseId));
+      },
+
       create: (input: {
         exerciseId: Set["exerciseId"];
         weightInKg: Set["weightInKg"];

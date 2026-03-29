@@ -14,6 +14,16 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
     const exerciseRepo = yield* ExerciseRepo;
 
     return {
+      getAll: (
+        exerciseId: Set["exerciseId"],
+        userId: DashboardTile["userId"],
+      ) => {
+        return Effect.gen(function* () {
+          yield* exerciseRepo.selectByExerciseId(exerciseId, userId);
+          return yield* setRepo.selectByExerciseId(exerciseId);
+        }).pipe(Effect.timeout(5000));
+      },
+
       create: (
         exerciseId: Set["exerciseId"],
         userId: DashboardTile["userId"],
