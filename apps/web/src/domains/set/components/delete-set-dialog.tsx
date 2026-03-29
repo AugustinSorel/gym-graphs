@@ -114,7 +114,13 @@ const useDeleteSet = () => {
           pages: tiles.pages.map((page) => ({
             ...page,
             dashboardTiles: page.dashboardTiles.map((tile) => {
-              if (tile.exerciseId !== params.exerciseId) return tile;
+              if (tile.type !== "exercise") {
+                return tile;
+              }
+
+              if (tile.exerciseId !== params.exerciseId) {
+                return tile;
+              }
 
               return {
                 ...tile,

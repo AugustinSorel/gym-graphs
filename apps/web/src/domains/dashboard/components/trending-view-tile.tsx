@@ -10,7 +10,7 @@ import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { ExerciseTileWithSetsSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const TrendingViewTile = (props: Props) => {
   return (
@@ -26,15 +26,12 @@ export const TrendingViewTile = (props: Props) => {
       )}
 
       <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress sets={props.tile.exercise?.sets ?? []} />
+      <LastTwoSetsProgress sets={props.tile.sets} />
     </Card>
   );
 };
 
-type Tile =
-  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
-
-type Props = { tile: Extract<Tile, { type: "exercise" }> };
+type Props = { tile: typeof ExerciseTileWithSetsSuccess.Type };
 
 export const TrendingViewTileFallback = (props: ErrorComponentProps) => {
   return (
@@ -53,9 +50,9 @@ export const TrendingViewTileSkeleton = () => {
   );
 };
 
-const LastTwoSetsProgress = (props: {
-  sets: NonNullable<Pick<Props, "tile">["tile"]["exercise"]>["sets"];
-}) => {
+const LastTwoSetsProgress = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
   const user = useUser();
   const sets = useBestSortedSets(props.sets);
 

@@ -147,7 +147,7 @@ const useCreateExerciseTileForm = () => {
 };
 
 const useCreateExerciseTile = () => {
-  // const user = useUser();
+  const tags = useSuspenseQuery(tagQueries.all);
 
   const queries = {
     tiles: tileQueries.all(),
@@ -167,8 +167,11 @@ const useCreateExerciseTile = () => {
         index: 1_0000,
         type: "exercise" as const,
         name: variables.payload.name,
-        exerciseId: null,
+        exerciseId: Math.random(),
         sets: [],
+        tags: tags.data.filter((tag) => {
+          return variables.payload.tagIds.includes(tag.id);
+        }),
       };
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {

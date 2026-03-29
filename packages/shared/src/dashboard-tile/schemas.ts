@@ -48,54 +48,35 @@ export const DashboardTileSuccess = DashboardTileSchema.pick(
   "exerciseId",
 );
 
-const ExerciseTileWithSetsSuccess = Schema.Struct({
+export const ExerciseTileWithSetsSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exercise"),
-  exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
-  exercise: Schema.NullOr(
-    Schema.Struct({
-      id: ExerciseSchema.fields.id,
-      sets: SetSuccessSchema.pipe(Schema.Array),
-    }),
-  ),
-  tags: Schema.Array(Schema.Struct({ tag: TagSuccessSchema })),
+  exerciseId: ExerciseSchema.fields.id,
+  sets: SetSuccessSchema.pipe(Schema.Array),
+  tags: Schema.Array(TagSuccessSchema),
 });
 
-const ExerciseSetCountTileSuccess = Schema.Struct({
+export const ExerciseSetCountTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exerciseSetCount"),
-  exercise: Schema.NullOr(
-    Schema.Struct({
-      sets: SetSuccessSchema.pipe(Schema.Array),
-    }),
-  ),
+  sets: SetSuccessSchema.pipe(Schema.Array),
 });
 
-const ExerciseTagCountTileSuccess = Schema.Struct({
+export const ExerciseTagCountTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exerciseTagCount"),
-  tags: Schema.Struct({
-    tag: TagSuccessSchema.pipe(Schema.Array),
-  }).pipe(Schema.Array),
+  tags: Schema.Array(TagSuccessSchema),
 });
 
-const DashboardHeatMapTileSuccess = Schema.Struct({
+export const DashboardHeatMapTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("dashboardHeatMap"),
 });
 
-const DashboardFunFactsTileSuccess = Schema.Struct({
+export const DashboardFunFactsTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("dashboardFunFacts"),
 });
-
-export const DashboardTileWithSetsSuccess = Schema.Union(
-  ExerciseTileWithSetsSuccess,
-  ExerciseSetCountTileSuccess,
-  ExerciseTagCountTileSuccess,
-  DashboardHeatMapTileSuccess,
-  DashboardFunFactsTileSuccess,
-);
 
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({
   name: Schema.optionalWith(Schema.String, {
@@ -112,7 +93,13 @@ export const SelectAllDashboardTilesUrlParams = Schema.Struct({
 
 export const SelectAllDashboardTilesSuccess = Schema.Struct({
   nextCursor: Schema.NullOr(Schema.Positive),
-  dashboardTiles: DashboardTileWithSetsSuccess.pipe(Schema.Array),
+  dashboardTiles: Schema.Union(
+    ExerciseTileWithSetsSuccess,
+    ExerciseSetCountTileSuccess,
+    ExerciseTagCountTileSuccess,
+    DashboardHeatMapTileSuccess,
+    DashboardFunFactsTileSuccess,
+  ).pipe(Schema.Array),
 });
 
 export const ReorderDashboardTilesPayload = Schema.Struct({

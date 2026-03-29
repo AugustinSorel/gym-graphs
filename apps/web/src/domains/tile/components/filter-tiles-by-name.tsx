@@ -16,10 +16,18 @@ export const FilterTilesByName = () => {
 
   const updateSearch = useDebouncedCallback((value: string) => {
     void navigate({
-      search: (current) => ({
-        ...current,
-        name: value || undefined,
-      }),
+      search: (current) => {
+        const { name, ...rest } = current;
+
+        if (!name) {
+          return rest;
+        }
+
+        return {
+          ...current,
+          name: value,
+        };
+      },
     });
   }, 300);
 

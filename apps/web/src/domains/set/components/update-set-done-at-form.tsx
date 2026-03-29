@@ -56,7 +56,9 @@ export const UpdateSetDoneAtForm = (props: Props) => {
                 autoFocus
                 aria-invalid={props.fieldState.invalid}
                 value={
-                  props.field.value ? dateAsYYYYMMDD(new Date(props.field.value)) : ""
+                  props.field.value
+                    ? dateAsYYYYMMDD(new Date(props.field.value))
+                    : ""
                 }
                 onChange={(e) => props.field.onChange(e.target.value)}
               />
@@ -161,6 +163,10 @@ const useUpdateSetDoneAt = () => {
           pages: tiles.pages.map((page) => ({
             ...page,
             dashboardTiles: page.dashboardTiles.map((tile) => {
+              if (tile.type !== "exercise") {
+                return tile;
+              }
+
               if (tile.exerciseId !== params.exerciseId) return tile;
 
               return {

@@ -68,7 +68,40 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
               const lastItem = dashboardTiles.at(-1);
 
               return {
-                dashboardTiles,
+                dashboardTiles: dashboardTiles.map((tile) => {
+                  switch (tile.type) {
+                    case "exercise":
+                      return {
+                        ...tile,
+                        type: "exercise" as const,
+                        exerciseId: tile.exerciseId!,
+                        sets: tile.exercise?.sets ?? [],
+                        tags: tile.tags.map((tags) => tags.tag),
+                      };
+                    case "exerciseSetCount":
+                      return {
+                        ...tile,
+                        type: "exerciseSetCount" as const,
+                        sets: tile.exercise?.sets ?? [],
+                      };
+                    case "exerciseTagCount":
+                      return {
+                        ...tile,
+                        type: "exerciseTagCount" as const,
+                        tags: tile.tags.map((tags) => tags.tag),
+                      };
+                    case "dashboardHeatMap":
+                      return {
+                        ...tile,
+                        type: "dashboardHeatMap" as const,
+                      };
+                    case "dashboardFunFacts":
+                      return {
+                        ...tile,
+                        type: "dashboardFunFacts" as const,
+                      };
+                  }
+                }),
                 nextCursor: hasMore && lastItem ? lastItem.id : null,
               };
             }),

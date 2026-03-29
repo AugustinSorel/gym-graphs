@@ -154,13 +154,22 @@ const useUpdateSetRepetitions = () => {
           pages: tiles.pages.map((page) => ({
             ...page,
             dashboardTiles: page.dashboardTiles.map((tile) => {
-              if (tile.exerciseId !== params.exerciseId) return tile;
+              if (tile.type !== "exercise") {
+                return tile;
+              }
+
+              if (tile.exerciseId !== params.exerciseId) {
+                return tile;
+              }
 
               return {
                 ...tile,
                 sets: tile.sets.map((set) => {
                   if (set.id !== variables.path.setId) return set;
-                  return { ...set, repetitions: repetitions ?? set.repetitions };
+                  return {
+                    ...set,
+                    repetitions: repetitions ?? set.repetitions,
+                  };
                 }),
               };
             }),

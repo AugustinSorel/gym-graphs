@@ -14,7 +14,11 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, type ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
-import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
+import {
+  ExerciseSetCountTileSuccess,
+  ExerciseTileWithSetsSuccess,
+  SelectAllDashboardTilesSuccess,
+} from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
@@ -53,21 +57,17 @@ export const GraphViewTileSkeleton = () => {
 };
 
 const ExerciseOverviewTile = (props: {
-  tile: Extract<Tile, { type: "exercise" }>;
+  tile: typeof ExerciseTileWithSetsSuccess.Type;
 }) => {
   const sortable = useSortable({ id: props.tile.id });
-
-  if (!props.tile.exercise) {
-    throw new Error("exercise is not present in tile with type of exercise");
-  }
 
   return (
     <Card className="group hover:bg-accent transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exercise.id }}
-          aria-label={`go to exercise ${props.tile.exercise.id}`}
+          params={{ exerciseId: props.tile.exerciseId }}
+          aria-label={`go to exercise ${props.tile.exerciseId}`}
         />
       </Button>
 
@@ -76,13 +76,13 @@ const ExerciseOverviewTile = (props: {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <ExerciseOverviewGraph sets={props.tile.exercise.sets} />
+      <ExerciseOverviewGraph sets={props.tile.sets} />
     </Card>
   );
 };
 
 const ExerciseSetCountTile = (props: {
-  tile: Extract<Tile, { type: "exerciseSetCount" }>;
+  tile: typeof ExerciseSetCountTileSuccess.Type;
 }) => {
   const sortable = useSortable({ id: props.tile.id });
   const tiles = useSuspenseInfiniteQuery(tileQueries.all());
@@ -91,7 +91,7 @@ const ExerciseSetCountTile = (props: {
     .filter((tile) => tile.type === "exercise")
     .map((tile) => ({
       name: tile.name,
-      count: tile.exercise?.sets.length ?? 0,
+      count: tile.sets.length,
     }));
 
   return (
@@ -121,13 +121,13 @@ const ExerciseTagCountTile = (props: {
     for (const tile of tiles.data) {
       if (tile.type !== "exercise") continue;
       for (const tag of tile.tags) {
-        const entry = counts.get(tag.tag.id);
+        const entry = counts.get(tag.id);
         if (entry) {
           entry.count += 1;
         } else {
-          counts.set(tag.tag.id, {
-            id: tag.tag.id,
-            name: tag.tag.name,
+          counts.set(tag.id, {
+            id: tag.id,
+            name: tag.name,
             count: 1,
           });
         }
@@ -157,7 +157,7 @@ const DashboardHeatMapTile = (props: {
 
   const sets = tiles.data
     .filter((tile) => tile.type === "exercise")
-    .flatMap((tile) => tile.exercise?.sets ?? []);
+    .flatMap((tile) => tile.sets);
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
@@ -183,16 +183,19 @@ const DashboardFunFactsTile = (props: {
 
   const data = useMemo(() => {
     const exerciseTiles = tiles.data.filter((tile) => tile.type === "exercise");
-    const sets = exerciseTiles.flatMap((tile) => tile.exercise?.sets ?? []);
+    const sets = exerciseTiles.flatMap((tile) => tile.sets);
 
     const totalWeightInKg = sets.reduce(
       (acc, set) => acc + set.repetitions * set.weightInKg,
       0,
     );
-    const totalRepetitions = sets.reduce((acc, set) => acc + set.repetitions, 0);
+    const totalRepetitions = sets.reduce(
+      (acc, set) => acc + set.repetitions,
+      0,
+    );
 
     const sorted = exerciseTiles.toSorted(
-      (a, b) => (a.exercise?.sets.length ?? 0) - (b.exercise?.sets.length ?? 0),
+      (a, b) => a.sets.length - b.sets.length,
     );
 
     return {

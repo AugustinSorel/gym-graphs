@@ -1,5 +1,5 @@
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
-import { useMutation, useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { Button } from "~/ui/button";
@@ -14,6 +14,7 @@ import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
+import { setQueries } from "../set.queries";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -114,12 +115,10 @@ const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
 const useCreateExerciseSetForm = () => {
   const params = routeApi.useParams();
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
-  const sets =
-    tiles.data.find((tile) => tile.exerciseId === params.exerciseId)?.sets ??
-    [];
 
-  const lastSet = useLastSet(sets);
+  const sets = useSuspenseQuery(setQueries.getAll(params.exerciseId));
+
+  const lastSet = useLastSet(sets.data);
 
   return useForm<
     typeof CreateSetPayload.Encoded,
@@ -170,6 +169,10 @@ const useCreateSet = () => {
           pages: tiles.pages.map((page) => ({
             ...page,
             dashboardTiles: page.dashboardTiles.map((tile) => {
+              if (tile.type !== "exercise") {
+                return tile;
+              }
+
               if (tile.exerciseId !== params.exerciseId) {
                 return tile;
               }

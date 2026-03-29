@@ -105,16 +105,15 @@ const useFormSchema = () => {
 
   return PatchDashboardTilePayload.pipe(
     Schema.filter((data) => {
-      const cachedTiles = queryClient.getQueryData(
-        tileQueries.all().queryKey,
-      );
+      const cachedTiles = queryClient.getQueryData(tileQueries.all().queryKey);
 
       const nameTaken = cachedTiles?.pages
         .flatMap((page) => page.dashboardTiles)
         .find((tile) => {
           return (
             tile.name === data.name &&
-            tile.exerciseId !== Number(params.exerciseId)
+            tile.type === "exercise" &&
+            tile.exerciseId !== params.exerciseId
           );
         });
 
