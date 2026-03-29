@@ -17,7 +17,7 @@ import { Button } from "~/ui/button";
 import { Separator } from "~/ui/separator";
 import { ArrowLeftIcon, SettingsIcon } from "~/ui/icons";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
-// import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
+import { SetFrequencyGraph } from "~/domains/set/components/set-frequency-graph";
 import { TagsList } from "~/domains/exercise/components/tags-list";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { exerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
@@ -78,7 +78,7 @@ const RouteComponent = () => {
         </Section>
       </CatchBoundary>
 
-      {/* <CatchBoundary
+      <CatchBoundary
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
@@ -86,10 +86,10 @@ const RouteComponent = () => {
           <SectionTitle>sets frequency</SectionTitle>
 
           <SectionPanel className="py-2 sm:p-4">
-            <SetFrequencyGraph sets={exercise.data.sets} />
+            <SetFrequencyGraph sets={sets.data} />
           </SectionPanel>
         </Section>
-      </CatchBoundary> */}
+      </CatchBoundary>
 
       <CatchBoundary
         errorComponent={DefaultFallback}

@@ -8,7 +8,6 @@ import { Group } from "@visx/group";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { Fragment, useCallback, useMemo } from "react";
-import { z } from "zod";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
@@ -16,14 +15,12 @@ import { useUser } from "~/domains/user/hooks/use-user";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
-import type { Set } from "@gym-graphs/db/schemas";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-import type { Serialize } from "~/utils/json";
 
 export const SetFrequencyGraph = (props: Props) => {
   const sets = useSets(props.sets);
@@ -124,12 +121,8 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             scale={timeScale}
             numTicks={5}
             tickFormat={(value) => {
-              const date = z
-                .number()
-                .transform((d) => new Date(d))
-                .or(z.date())
-                .catch(new Date())
-                .parse(value);
+              const date =
+                value instanceof Date ? value : new Date(Number(value));
 
               return date.toLocaleDateString("en-US", {
                 month: "short",
@@ -298,12 +291,15 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Point = Readonly<
-  Pick<Serialize<Set>, "weightInKg" | "repetitions" | "doneAt" | "id">
->;
+type Point = Readonly<{
+  id: number;
+  weightInKg: number;
+  repetitions: number;
+  doneAt: Date | string;
+}>;
 
 type Props = Readonly<{
-  sets: Array<Point>;
+  sets: ReadonlyArray<Point>;
 }>;
 
 type GraphProps = Readonly<
