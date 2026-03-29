@@ -94,6 +94,12 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   userId,
                   exerciseId: null,
                 },
+                {
+                  name: "tags frequency",
+                  type: "exerciseTagCount" as const,
+                  userId,
+                  exerciseId: null,
+                },
               ]);
 
               yield* Effect.forEach(

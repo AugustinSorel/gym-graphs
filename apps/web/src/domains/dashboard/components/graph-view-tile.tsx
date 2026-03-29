@@ -6,9 +6,10 @@ import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import type { ComponentProps } from "react";
+import { useMemo, type ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
 import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
@@ -19,8 +20,8 @@ export const GraphViewTile = (props: TileProps) => {
       return <ExerciseOverviewTile tile={props.tile} />;
     case "exerciseSetCount":
       return <ExerciseSetCountTile tile={props.tile} />;
-    // case "exerciseTagCount":
-    //   return <ExerciseTagCountTile tile={props.tile} />;
+    case "exerciseTagCount":
+      return <ExerciseTagCountTile tile={props.tile} />;
     // case "dashboardHeatMap":
     //   return <DashboardHeatMapTile tile={props.tile} />;
     // case "dashboardFunFacts":
@@ -103,9 +104,29 @@ const ExerciseSetCountTile = (props: {
   );
 };
 
-/*
-const ExerciseTagCountTile = (props: TileProps) => {
+const ExerciseTagCountTile = (props: {
+  tile: Extract<Tile, { type: "exerciseTagCount" }>;
+}) => {
   const sortable = useSortable({ id: props.tile.id });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
+
+  const data = useMemo(() => {
+    const counts = new Map<number, { id: number; name: string; count: number }>();
+
+    for (const tile of tiles.data) {
+      if (tile.type !== "exercise") continue;
+      for (const tag of tile.tags) {
+        const entry = counts.get(tag.id);
+        if (entry) {
+          entry.count += 1;
+        } else {
+          counts.set(tag.id, { id: tag.id, name: tag.name, count: 1 });
+        }
+      }
+    }
+
+    return [...counts.values()].sort((a, b) => b.count - a.count);
+  }, [tiles.data]);
 
   return (
     <Card>
@@ -114,10 +135,12 @@ const ExerciseTagCountTile = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <ExerciseTagCountGraph />
+      <ExerciseTagCountGraph data={data} />
     </Card>
   );
 };
+
+/*
 
 const DashboardFunFactsTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });

@@ -186,6 +186,11 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
                   sets: true,
                 },
               },
+              tags: {
+                with: {
+                  tag: true,
+                },
+              },
             },
           });
         },

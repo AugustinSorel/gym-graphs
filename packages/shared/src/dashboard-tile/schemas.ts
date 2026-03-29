@@ -1,11 +1,13 @@
 import { ExerciseSchema } from "#/exercise/schemas";
 import { TagSchema } from "#/tag/schemas";
 import { SetSuccessSchema } from "#/set/schemas";
+import { TagSuccessSchema } from "#/tag/schemas";
 import { pipe, Schema } from "effect";
 
 export const DashboardTileTypeSchema = Schema.Literal(
   "exercise",
   "exerciseSetCount",
+  "exerciseTagCount",
 );
 
 const DashboardTileBaseSchema = Schema.Struct({
@@ -49,6 +51,7 @@ const ExerciseTileWithSetsSuccess = Schema.Struct({
   type: Schema.Literal("exercise"),
   exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
   sets: SetSuccessSchema.pipe(Schema.Array),
+  tags: TagSuccessSchema.pipe(Schema.Array),
 });
 
 const ExerciseSetCountTileSuccess = Schema.Struct({
@@ -56,9 +59,16 @@ const ExerciseSetCountTileSuccess = Schema.Struct({
   type: Schema.Literal("exerciseSetCount"),
 });
 
+const ExerciseTagCountTileSuccess = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: Schema.Literal("exerciseTagCount"),
+  tags: TagSuccessSchema.pipe(Schema.Array),
+});
+
 export const DashboardTileWithSetsSuccess = Schema.Union(
   ExerciseTileWithSetsSuccess,
   ExerciseSetCountTileSuccess,
+  ExerciseTagCountTileSuccess,
 );
 
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({

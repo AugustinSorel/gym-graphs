@@ -63,17 +63,9 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             Effect.map((rows) => {
               const hasMore = rows.length > pageSize;
 
-              const tiles = hasMore ? rows.slice(0, pageSize) : rows;
+              const dashboardTiles = hasMore ? rows.slice(0, pageSize) : rows;
 
-              const lastItem = tiles.at(-1);
-
-              const dashboardTiles = tiles.map((tile) => ({
-                id: tile.id,
-                type: tile.type,
-                name: tile.name,
-                exerciseId: tile.exerciseId,
-                sets: tile.exercise?.sets ?? [],
-              }));
+              const lastItem = dashboardTiles.at(-1);
 
               return {
                 dashboardTiles,
