@@ -26,7 +26,7 @@ export const TrendingViewTile = (props: Props) => {
       )}
 
       <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress sets={props.tile.sets} />
+      <LastTwoSetsProgress sets={props.tile.exercise?.sets ?? []} />
     </Card>
   );
 };
@@ -34,7 +34,7 @@ export const TrendingViewTile = (props: Props) => {
 type Tile =
   (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
 
-type Props = { tile: Tile };
+type Props = { tile: Extract<Tile, { type: "exercise" }> };
 
 export const TrendingViewTileFallback = (props: ErrorComponentProps) => {
   return (
@@ -53,7 +53,9 @@ export const TrendingViewTileSkeleton = () => {
   );
 };
 
-const LastTwoSetsProgress = (props: { sets: Tile["sets"] }) => {
+const LastTwoSetsProgress = (props: {
+  sets: NonNullable<Pick<Props, "tile">["tile"]["exercise"]>["sets"];
+}) => {
   const user = useUser();
   const sets = useBestSortedSets(props.sets);
 
