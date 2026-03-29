@@ -49,4 +49,4 @@ export const UpdateSetRepetitionsDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");

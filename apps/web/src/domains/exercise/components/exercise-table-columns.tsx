@@ -1,5 +1,5 @@
 import { SetProvider } from "~/domains/set/set.context";
-// import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
+import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
 // import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
 // import { UpdateSetDoneAtDialog } from "~/domains/set/components/update-set-done-at-dialog";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
@@ -158,8 +158,8 @@ export const exerciseTableColumns: Array<ColumnDef<typeof SetSuccessSchema.Type>
             <SetProvider value={set}>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <UpdateSetWeightDialog />
-              {/* <UpdateSetRepetitionsDialog />
-              <UpdateSetDoneAtDialog />
+              <UpdateSetRepetitionsDialog />
+              {/* <UpdateSetDoneAtDialog />
               <DropdownMenuSeparator />
               <DeleteSetDialog /> */}
             </SetProvider>
