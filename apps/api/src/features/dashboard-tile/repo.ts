@@ -179,6 +179,14 @@ export class DashboardTileRepo extends Effect.Service<DashboardTileRepo>()(
             },
 
             limit: pageSize + 1,
+
+            with: {
+              exercise: {
+                with: {
+                  sets: true,
+                },
+              },
+            },
           });
         },
 

@@ -1,15 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { GripVerticalIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
-// import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
-// import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
-// import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
-// import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
-// import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
-// import type { useTiles } from "~/domains/tile/hooks/use-tiles";
+import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
@@ -75,7 +70,7 @@ const ExerciseOverviewTile = (props: {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      {/*<ExerciseOverviewGraph sets={props.tile.exerciseOverview.exercise.sets} />*/}
+      <ExerciseOverviewGraph sets={props.tile.sets} />
     </Card>
   );
 };

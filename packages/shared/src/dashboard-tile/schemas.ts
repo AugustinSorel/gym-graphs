@@ -1,5 +1,6 @@
 import { ExerciseSchema } from "#/exercise/schemas";
 import { TagSchema } from "#/tag/schemas";
+import { SetSuccessSchema } from "#/set/schemas";
 import { pipe, Schema } from "effect";
 
 export const DashboardTileSchema = Schema.Struct({
@@ -34,6 +35,11 @@ export const DashboardTileSuccess = DashboardTileSchema.pick(
   "exerciseId",
 );
 
+export const DashboardTileWithSetsSuccess = Schema.Struct({
+  ...DashboardTileSuccess.fields,
+  sets: SetSuccessSchema.pipe(Schema.Array),
+});
+
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({
   name: Schema.optionalWith(Schema.String, {
     exact: true,
@@ -49,7 +55,7 @@ export const SelectAllDashboardTilesUrlParams = Schema.Struct({
 
 export const SelectAllDashboardTilesSuccess = Schema.Struct({
   nextCursor: Schema.NullOr(Schema.Positive),
-  dashboardTiles: DashboardTileSuccess.pipe(Schema.Array),
+  dashboardTiles: DashboardTileWithSetsSuccess.pipe(Schema.Array),
 });
 
 export const ReorderDashboardTilesPayload = Schema.Struct({

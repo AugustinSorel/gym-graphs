@@ -211,6 +211,8 @@ const useCreateExerciseTile = () => {
         index: 1_0000,
         type: "exercise" as const,
         name: variables.payload.name,
+        exerciseId: null,
+        sets: [],
       };
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {

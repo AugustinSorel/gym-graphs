@@ -14,7 +14,11 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
   "DashboardTileService",
   {
     accessors: true,
-    dependencies: [DashboardTileRepo.Default, ExerciseRepo.Default, TagRepo.Default],
+    dependencies: [
+      DashboardTileRepo.Default,
+      ExerciseRepo.Default,
+      TagRepo.Default,
+    ],
     effect: Effect.gen(function* () {
       const dashboardTileRepo = yield* DashboardTileRepo;
       const exerciseRepo = yield* ExerciseRepo;
@@ -59,9 +63,17 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
             Effect.map((rows) => {
               const hasMore = rows.length > pageSize;
 
-              const dashboardTiles = hasMore ? rows.slice(0, pageSize) : rows;
+              const tiles = hasMore ? rows.slice(0, pageSize) : rows;
 
-              const lastItem = dashboardTiles.at(-1);
+              const lastItem = tiles.at(-1);
+
+              const dashboardTiles = tiles.map((tile) => ({
+                id: tile.id,
+                type: tile.type,
+                name: tile.name,
+                exerciseId: tile.exerciseId,
+                sets: tile.exercise?.sets ?? [],
+              }));
 
               return {
                 dashboardTiles,
