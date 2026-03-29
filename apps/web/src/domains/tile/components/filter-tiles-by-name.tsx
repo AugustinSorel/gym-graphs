@@ -19,7 +19,7 @@ export const FilterTilesByName = () => {
       search: (current) => {
         const { name, ...rest } = current;
 
-        if (!name) {
+        if (!value) {
           return rest;
         }
 
