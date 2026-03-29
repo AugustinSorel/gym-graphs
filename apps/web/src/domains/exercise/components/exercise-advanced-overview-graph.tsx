@@ -22,6 +22,7 @@ import type {
   MouseEvent,
   TouchEvent,
 } from "react";
+import { Mutable } from "effect/Types";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useBestSortedSets(props.sets);
@@ -141,7 +142,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           />
 
           <AreaClosed<Point>
-            data={[...sets]}
+            data={sets as Mutable<typeof sets>}
             x={(d) => timeScale(getDoneAt(d))}
             y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             yScale={oneRepMaxScale}
@@ -153,7 +154,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
           <LinePath<Point>
             curve={curveMonotoneX}
-            data={[...sets]}
+            data={sets as Mutable<typeof sets>}
             x={(d) => timeScale(getDoneAt(d))}
             y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             className="stroke-primary"

@@ -24,6 +24,7 @@ import { exerciseTableColumns } from "~/domains/exercise/components/exercise-tab
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Mutable } from "effect/Types";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -113,7 +114,7 @@ const RouteComponent = () => {
 
           <SectionPanel>
             <ExerciseTable
-              sets={sets.data}
+              sets={sets.data as Mutable<typeof sets.data>}
               columns={exerciseTableColumns}
             />
           </SectionPanel>

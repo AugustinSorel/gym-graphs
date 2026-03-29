@@ -19,7 +19,7 @@ import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import type { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
 type Props = Readonly<{
-  sets: ReadonlyArray<typeof SetSuccessSchema.Type>;
+  sets: Array<typeof SetSuccessSchema.Type>;
   columns: Array<ColumnDef<typeof SetSuccessSchema.Type>>;
 }>;
 
@@ -29,7 +29,7 @@ export const ExerciseTable = ({ sets, columns }: Props) => {
   ]);
 
   const table = useReactTable({
-    data: [...sets],
+    data: sets,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

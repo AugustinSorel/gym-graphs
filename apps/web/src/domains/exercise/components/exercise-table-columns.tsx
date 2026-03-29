@@ -20,7 +20,7 @@ import {
 import { Button } from "~/ui/button";
 import { useUser } from "~/domains/user/hooks/use-user";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-// import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
+import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
@@ -157,8 +157,8 @@ export const exerciseTableColumns: Array<ColumnDef<typeof SetSuccessSchema.Type>
           <DropdownMenuContent align="end">
             <SetProvider value={set}>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {/* <UpdateSetWeightDialog />
-              <UpdateSetRepetitionsDialog />
+              <UpdateSetWeightDialog />
+              {/* <UpdateSetRepetitionsDialog />
               <UpdateSetDoneAtDialog />
               <DropdownMenuSeparator />
               <DeleteSetDialog /> */}
