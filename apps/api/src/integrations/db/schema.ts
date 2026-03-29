@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
-import { DashboardTileSchema } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { DashboardTileTypeSchema } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",
@@ -150,7 +150,7 @@ export type Tag = Readonly<typeof tags.$inferSelect>;
 
 export const dashboardTypeEnum = pgEnum(
   "dashboard_type",
-  DashboardTileSchema.fields.type.literals,
+  DashboardTileTypeSchema.literals,
 );
 
 export const dashboardTiles = pgTable(

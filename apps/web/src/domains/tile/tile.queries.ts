@@ -23,7 +23,7 @@ const all = (
   });
 };
 
-const tags = (tileId: Tile["id"]) =>
+const tags = (tileId: number) =>
   queryOptions({
     queryKey: ["dashboard-tiles", tileId, "tags"],
     queryFn: async () =>

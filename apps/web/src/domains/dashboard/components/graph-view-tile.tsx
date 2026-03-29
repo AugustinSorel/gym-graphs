@@ -5,6 +5,9 @@ import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
+import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+import { tileQueries } from "~/domains/tile/tile.queries";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
@@ -14,8 +17,8 @@ export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
     case "exercise":
       return <ExerciseOverviewTile tile={props.tile} />;
-    // case "exerciseSetCount":
-    //   return <ExerciseSetCountTile tile={props.tile} />;
+    case "exerciseSetCount":
+      return <ExerciseSetCountTile tile={props.tile} />;
     // case "exerciseTagCount":
     //   return <ExerciseTagCountTile tile={props.tile} />;
     // case "dashboardHeatMap":
@@ -75,6 +78,31 @@ const ExerciseOverviewTile = (props: {
   );
 };
 
+const ExerciseSetCountTile = (props: {
+  tile: Extract<Tile, { type: "exerciseSetCount" }>;
+}) => {
+  const sortable = useSortable({ id: props.tile.id });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
+
+  const data = tiles.data
+    .filter((tile) => tile.type === "exercise")
+    .map((tile) => ({
+      name: tile.name,
+      count: tile.sets.length,
+    }));
+
+  return (
+    <Card>
+      <CardHeader>
+        <Name>{props.tile.name}</Name>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
+      </CardHeader>
+
+      <ExerciseSetCountGraph data={data} />
+    </Card>
+  );
+};
+
 /*
 const ExerciseTagCountTile = (props: TileProps) => {
   const sortable = useSortable({ id: props.tile.id });
@@ -87,21 +115,6 @@ const ExerciseTagCountTile = (props: TileProps) => {
       </CardHeader>
 
       <ExerciseTagCountGraph />
-    </Card>
-  );
-};
-
-const ExerciseSetCountTile = (props: TileProps) => {
-  const sortable = useSortable({ id: props.tile.id });
-
-  return (
-    <Card>
-      <CardHeader>
-        <Name>{props.tile.name}</Name>
-        <DragButton {...sortable.listeners} {...sortable.attributes} />
-      </CardHeader>
-
-      <ExerciseSetCountGraph />
     </Card>
   );
 };

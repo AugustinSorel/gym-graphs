@@ -81,14 +81,20 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                 { concurrency: "unbounded" },
               );
 
-              const tiles = yield* dashboardTileRepo.createMany(
-                seedData.exercises.map((exercise, i) => ({
+              const tiles = yield* dashboardTileRepo.createMany([
+                ...seedData.exercises.map((exercise, i) => ({
                   name: exercise.name,
                   type: "exercise" as const,
                   userId,
                   exerciseId: exercises[i]!.id,
                 })),
-              );
+                {
+                  name: "exercises frequency",
+                  type: "exerciseSetCount" as const,
+                  userId,
+                  exerciseId: null,
+                },
+              ]);
 
               yield* Effect.forEach(
                 seedData.exercises,

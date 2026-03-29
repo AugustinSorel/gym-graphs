@@ -3,10 +3,13 @@ import { TagSchema } from "#/tag/schemas";
 import { SetSuccessSchema } from "#/set/schemas";
 import { pipe, Schema } from "effect";
 
-export const DashboardTileSchema = Schema.Struct({
+export const DashboardTileTypeSchema = Schema.Literal(
+  "exercise",
+  "exerciseSetCount",
+);
+
+const DashboardTileBaseSchema = Schema.Struct({
   id: Schema.Positive,
-  type: Schema.Literal("exercise"),
-  exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
   name: pipe(
     Schema.Trim.annotations({
       message: () => "name must be a valid string",
@@ -19,6 +22,12 @@ export const DashboardTileSchema = Schema.Struct({
       message: () => "name must be at most 255 characters",
     }),
   ),
+});
+
+export const DashboardTileSchema = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: DashboardTileTypeSchema,
+  exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
 });
 
 export const CreateDashboardTilePayload = Schema.extend(
@@ -35,10 +44,22 @@ export const DashboardTileSuccess = DashboardTileSchema.pick(
   "exerciseId",
 );
 
-export const DashboardTileWithSetsSuccess = Schema.Struct({
-  ...DashboardTileSuccess.fields,
+const ExerciseTileWithSetsSuccess = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: Schema.Literal("exercise"),
+  exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
   sets: SetSuccessSchema.pipe(Schema.Array),
 });
+
+const ExerciseSetCountTileSuccess = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: Schema.Literal("exerciseSetCount"),
+});
+
+export const DashboardTileWithSetsSuccess = Schema.Union(
+  ExerciseTileWithSetsSuccess,
+  ExerciseSetCountTileSuccess,
+);
 
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({
   name: Schema.optionalWith(Schema.String, {
