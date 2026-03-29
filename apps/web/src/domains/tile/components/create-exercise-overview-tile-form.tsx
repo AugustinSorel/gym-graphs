@@ -162,50 +162,6 @@ const useCreateExerciseTile = () => {
 
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
 
-      // const optimisticTile = {
-      //   id: tileId,
-      //   index: 1_0000,
-      //   type: "exerciseOverview" as const,
-      //   name: variables.payload.name,
-      //   tileToTags:
-      //     variables.payload.tagIds.map((tagId) => {
-      //       const tag = user.data.tags.find((tag) => tag.id === tagId);
-
-      //       if (!tag) {
-      //         throw new Error(`user does not have a tag with id ${tagId}`);
-      //       }
-
-      //       return {
-      //         tagId,
-      //         tileId,
-      //         tag,
-      //         createdAt: new Date().toString(),
-      //         updatedAt: new Date().toString(),
-      //       };
-      //     }) ?? [],
-      //   dashboardFunFacts: null,
-      //   dashboardHeatMap: null,
-      //   exerciseSetCount: null,
-      //   exerciseTagCount: null,
-      //   exerciseOverview: {
-      //     exercise: {
-      //       id: exerciseId,
-      //       userId: user.data.id,
-      //       sets: [],
-      //       createdAt: new Date().toString(),
-      //       updatedAt: new Date().toString(),
-      //     },
-      //     id: Math.random(),
-      //     exerciseId,
-      //     tileId,
-      //     createdAt: new Date().toString(),
-      //     updatedAt: new Date().toString(),
-      //   },
-
-      //   createdAt: new Date().toString(),
-      //   updatedAt: new Date().toString(),
-      // };
-
       const optimisticTile = {
         id: Math.random(),
         index: 1_0000,

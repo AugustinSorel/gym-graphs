@@ -133,6 +133,7 @@ const useCreateTag = () => {
       const optimisticTag = {
         id: Math.random(),
         name: variables.payload.name,
+        exerciseCount: 0,
       };
 
       ctx.client.setQueryData(queries.tags.queryKey, (tags) => {
