@@ -7,6 +7,7 @@ import { Skeleton } from "~/ui/skeleton";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
 import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
+import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, type ComponentProps } from "react";
@@ -22,8 +23,8 @@ export const GraphViewTile = (props: TileProps) => {
       return <ExerciseSetCountTile tile={props.tile} />;
     case "exerciseTagCount":
       return <ExerciseTagCountTile tile={props.tile} />;
-    // case "dashboardHeatMap":
-    //   return <DashboardHeatMapTile tile={props.tile} />;
+    case "dashboardHeatMap":
+      return <DashboardHeatMapTile tile={props.tile} />;
     // case "dashboardFunFacts":
     //   return <DashboardFunFactsTile tile={props.tile} />;
   }
@@ -55,7 +56,7 @@ const ExerciseOverviewTile = (props: {
 }) => {
   const sortable = useSortable({ id: props.tile.id });
 
-  if (!props.tile.exerciseId) {
+  if (!props.tile.exercise) {
     throw new Error("exercise is not present in tile with type of exercise");
   }
 
@@ -64,8 +65,8 @@ const ExerciseOverviewTile = (props: {
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exerciseId }}
-          aria-label={`go to exercise ${props.tile.exerciseId}`}
+          params={{ exerciseId: props.tile.exercise.id }}
+          aria-label={`go to exercise ${props.tile.exercise.id}`}
         />
       </Button>
 
@@ -74,7 +75,7 @@ const ExerciseOverviewTile = (props: {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <ExerciseOverviewGraph sets={props.tile.sets} />
+      <ExerciseOverviewGraph sets={props.tile.exercise.sets} />
     </Card>
   );
 };
@@ -89,7 +90,7 @@ const ExerciseSetCountTile = (props: {
     .filter((tile) => tile.type === "exercise")
     .map((tile) => ({
       name: tile.name,
-      count: tile.sets.length,
+      count: tile.exercise?.sets.length ?? 0,
     }));
 
   return (
@@ -111,16 +112,23 @@ const ExerciseTagCountTile = (props: {
   const tiles = useSuspenseInfiniteQuery(tileQueries.all());
 
   const data = useMemo(() => {
-    const counts = new Map<number, { id: number; name: string; count: number }>();
+    const counts = new Map<
+      number,
+      { id: number; name: string; count: number }
+    >();
 
     for (const tile of tiles.data) {
       if (tile.type !== "exercise") continue;
       for (const tag of tile.tags) {
-        const entry = counts.get(tag.id);
+        const entry = counts.get(tag.tag.id);
         if (entry) {
           entry.count += 1;
         } else {
-          counts.set(tag.id, { id: tag.id, name: tag.name, count: 1 });
+          counts.set(tag.tag.id, {
+            id: tag.tag.id,
+            name: tag.tag.name,
+            count: 1,
+          });
         }
       }
     }
@@ -140,25 +148,15 @@ const ExerciseTagCountTile = (props: {
   );
 };
 
-/*
-
-const DashboardFunFactsTile = (props: TileProps) => {
+const DashboardHeatMapTile = (props: {
+  tile: Extract<Tile, { type: "dashboardHeatMap" }>;
+}) => {
   const sortable = useSortable({ id: props.tile.id });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
 
-  return (
-    <Card>
-      <CardHeader>
-        <Name>{props.tile.name}</Name>
-        <DragButton {...sortable.listeners} {...sortable.attributes} />
-      </CardHeader>
-
-      <DashboardFunFacts />
-    </Card>
-  );
-};
-
-const DashboardHeatMapTile = (props: TileProps) => {
-  const sortable = useSortable({ id: props.tile.id });
+  const sets = tiles.data
+    .filter((tile) => tile.type === "exercise")
+    .flatMap((tile) => tile.exercise?.sets ?? []);
 
   const monthName = new Date().toLocaleString("default", { month: "long" });
 
@@ -171,7 +169,23 @@ const DashboardHeatMapTile = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <DashboardHeatMap />
+      <DashboardHeatMap sets={sets} />
+    </Card>
+  );
+};
+
+/*
+const DashboardFunFactsTile = (props: TileProps) => {
+  const sortable = useSortable({ id: props.tile.id });
+
+  return (
+    <Card>
+      <CardHeader>
+        <Name>{props.tile.name}</Name>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
+      </CardHeader>
+
+      <DashboardFunFacts />
     </Card>
   );
 };

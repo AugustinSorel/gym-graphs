@@ -100,6 +100,12 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   userId,
                   exerciseId: null,
                 },
+                {
+                  name: "heat map",
+                  type: "dashboardHeatMap" as const,
+                  userId,
+                  exerciseId: null,
+                },
               ]);
 
               yield* Effect.forEach(

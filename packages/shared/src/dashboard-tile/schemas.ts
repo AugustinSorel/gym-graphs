@@ -8,6 +8,7 @@ export const DashboardTileTypeSchema = Schema.Literal(
   "exercise",
   "exerciseSetCount",
   "exerciseTagCount",
+  "dashboardHeatMap",
 );
 
 const DashboardTileBaseSchema = Schema.Struct({
@@ -50,25 +51,43 @@ const ExerciseTileWithSetsSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exercise"),
   exerciseId: Schema.NullOr(ExerciseSchema.fields.id),
-  sets: SetSuccessSchema.pipe(Schema.Array),
-  tags: TagSuccessSchema.pipe(Schema.Array),
+  exercise: Schema.NullOr(
+    Schema.Struct({
+      id: ExerciseSchema.fields.id,
+      sets: SetSuccessSchema.pipe(Schema.Array),
+    }),
+  ),
+  tags: Schema.Array(Schema.Struct({ tag: TagSuccessSchema })),
 });
 
 const ExerciseSetCountTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exerciseSetCount"),
+  exercise: Schema.NullOr(
+    Schema.Struct({
+      sets: SetSuccessSchema.pipe(Schema.Array),
+    }),
+  ),
 });
 
 const ExerciseTagCountTileSuccess = Schema.Struct({
   ...DashboardTileBaseSchema.fields,
   type: Schema.Literal("exerciseTagCount"),
-  tags: TagSuccessSchema.pipe(Schema.Array),
+  tags: Schema.Struct({
+    tag: TagSuccessSchema.pipe(Schema.Array),
+  }).pipe(Schema.Array),
+});
+
+const DashboardHeatMapTileSuccess = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: Schema.Literal("dashboardHeatMap"),
 });
 
 export const DashboardTileWithSetsSuccess = Schema.Union(
   ExerciseTileWithSetsSuccess,
   ExerciseSetCountTileSuccess,
   ExerciseTagCountTileSuccess,
+  DashboardHeatMapTileSuccess,
 );
 
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({
