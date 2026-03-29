@@ -82,12 +82,6 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
               );
 
               const tiles = yield* dashboardTileRepo.createMany([
-                ...seedData.exercises.map((exercise, i) => ({
-                  name: exercise.name,
-                  type: "exercise" as const,
-                  userId,
-                  exerciseId: exercises[i]!.id,
-                })),
                 {
                   name: "exercises frequency",
                   type: "exerciseSetCount" as const,
@@ -112,6 +106,12 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   userId,
                   exerciseId: null,
                 },
+                ...seedData.exercises.map((exercise, i) => ({
+                  name: exercise.name,
+                  type: "exercise" as const,
+                  userId,
+                  exerciseId: exercises.at(i)?.id,
+                })),
               ]);
 
               yield* Effect.forEach(
@@ -123,7 +123,7 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                     tiles[i]!.id,
                     tags
                       .filter((tag) =>
-                        exercise.tags.includes(tag.name as never),
+                        exercise.tags.some((t) => t === tag.name),
                       )
                       .map((tag) => tag.id),
                   ),
