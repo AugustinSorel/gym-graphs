@@ -6,7 +6,7 @@ import { userQueries } from "~/domains/user/user.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { decodeUnknownOption } from "effect/ParseResult";
-import { Effect, Option } from "effect";
+import { Option } from "effect";
 
 const useUpdateDashboadView = () => {
   const queries = {
