@@ -106,6 +106,12 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   userId,
                   exerciseId: null,
                 },
+                {
+                  name: "fun facts",
+                  type: "dashboardFunFacts" as const,
+                  userId,
+                  exerciseId: null,
+                },
               ]);
 
               yield* Effect.forEach(

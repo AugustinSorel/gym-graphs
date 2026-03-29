@@ -9,6 +9,7 @@ export const DashboardTileTypeSchema = Schema.Literal(
   "exerciseSetCount",
   "exerciseTagCount",
   "dashboardHeatMap",
+  "dashboardFunFacts",
 );
 
 const DashboardTileBaseSchema = Schema.Struct({
@@ -83,11 +84,17 @@ const DashboardHeatMapTileSuccess = Schema.Struct({
   type: Schema.Literal("dashboardHeatMap"),
 });
 
+const DashboardFunFactsTileSuccess = Schema.Struct({
+  ...DashboardTileBaseSchema.fields,
+  type: Schema.Literal("dashboardFunFacts"),
+});
+
 export const DashboardTileWithSetsSuccess = Schema.Union(
   ExerciseTileWithSetsSuccess,
   ExerciseSetCountTileSuccess,
   ExerciseTagCountTileSuccess,
   DashboardHeatMapTileSuccess,
+  DashboardFunFactsTileSuccess,
 );
 
 export const SelectAllDashboardTilesUrlParams = Schema.Struct({

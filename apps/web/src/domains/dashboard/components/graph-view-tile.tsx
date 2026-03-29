@@ -8,6 +8,7 @@ import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-ov
 import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
 import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
 import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
+import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, type ComponentProps } from "react";
@@ -25,8 +26,8 @@ export const GraphViewTile = (props: TileProps) => {
       return <ExerciseTagCountTile tile={props.tile} />;
     case "dashboardHeatMap":
       return <DashboardHeatMapTile tile={props.tile} />;
-    // case "dashboardFunFacts":
-    //   return <DashboardFunFactsTile tile={props.tile} />;
+    case "dashboardFunFacts":
+      return <DashboardFunFactsTile tile={props.tile} />;
   }
 };
 
@@ -174,9 +175,33 @@ const DashboardHeatMapTile = (props: {
   );
 };
 
-/*
-const DashboardFunFactsTile = (props: TileProps) => {
+const DashboardFunFactsTile = (props: {
+  tile: Extract<Tile, { type: "dashboardFunFacts" }>;
+}) => {
   const sortable = useSortable({ id: props.tile.id });
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
+
+  const data = useMemo(() => {
+    const exerciseTiles = tiles.data.filter((tile) => tile.type === "exercise");
+    const sets = exerciseTiles.flatMap((tile) => tile.exercise?.sets ?? []);
+
+    const totalWeightInKg = sets.reduce(
+      (acc, set) => acc + set.repetitions * set.weightInKg,
+      0,
+    );
+    const totalRepetitions = sets.reduce((acc, set) => acc + set.repetitions, 0);
+
+    const sorted = exerciseTiles.toSorted(
+      (a, b) => (a.exercise?.sets.length ?? 0) - (b.exercise?.sets.length ?? 0),
+    );
+
+    return {
+      totalWeightInKg,
+      totalRepetitions,
+      tileWithMostSets: { name: sorted.at(-1)?.name ?? "unknown" },
+      tileWithLeastSets: { name: sorted.at(0)?.name ?? "unknown" },
+    };
+  }, [tiles.data]);
 
   return (
     <Card>
@@ -185,11 +210,10 @@ const DashboardFunFactsTile = (props: TileProps) => {
         <DragButton {...sortable.listeners} {...sortable.attributes} />
       </CardHeader>
 
-      <DashboardFunFacts />
+      <DashboardFunFacts data={data} />
     </Card>
   );
 };
-*/
 
 const DragButton = (props: ButtonProps) => {
   const search = routeApi.useSearch();
