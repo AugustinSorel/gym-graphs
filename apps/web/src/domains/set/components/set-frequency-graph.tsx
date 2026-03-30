@@ -11,7 +11,8 @@ import { Fragment, useCallback, useMemo } from "react";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { dateAsYYYYMMDD } from "~/utils/date";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
@@ -41,7 +42,7 @@ export const SetFrequencyGraph = (props: Props) => {
 
 const Graph = ({ height, width, sets }: GraphProps) => {
   const tooltip = useTooltip<string>();
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const setsByDoneAt = useSetsByDoneAt(sets);
 
   const timeScale = useMemo(() => {

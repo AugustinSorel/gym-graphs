@@ -32,7 +32,8 @@ import {
   TrendingViewTileFallback,
   TrendingViewTileSkeleton,
 } from "~/domains/dashboard/components/trending-view-tile";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
@@ -78,7 +79,7 @@ const NoTilesFallback = (props: PropsWithChildren) => {
 //TODO: refactor this with the new Activity Component
 //      whenever it get released by React
 const Content = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   switch (user.data.dashboardView) {
     case "graph": {

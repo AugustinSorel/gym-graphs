@@ -13,7 +13,8 @@ import { useCallback, useMemo } from "react";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 
 import type {
@@ -43,7 +44,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
 const Graph = ({ height, width, sets }: GraphProps) => {
   const tooltip = useTooltip<Point>();
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   const timeScale = useMemo(() => {
     return scaleTime({

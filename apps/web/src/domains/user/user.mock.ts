@@ -1,6 +1,8 @@
-import { useUser } from "~/domains/user/hooks/use-user";
+import { userQueries } from "~/domains/user/user.queries";
 
-export const userMock: ReturnType<typeof useUser>["data"] = {
+type UserData = Awaited<ReturnType<NonNullable<typeof userQueries.get["queryFn"]>>>;
+
+export const userMock: UserData = {
   weightUnit: "kg",
   email: "john@email.com",
   name: "john",

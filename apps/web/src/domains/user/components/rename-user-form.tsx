@@ -3,8 +3,7 @@ import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { Controller, useForm } from "react-hook-form";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
@@ -90,7 +89,7 @@ const renameUserSchema = PatchUserByIdPayload.pipe(Schema.pick("name"));
 type RenameUserSchema = typeof renameUserSchema.Type;
 
 const useCreateExerciseForm = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return useForm<RenameUserSchema>({
     resolver: effectTsResolver(renameUserSchema),

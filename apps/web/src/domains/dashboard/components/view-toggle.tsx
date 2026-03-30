@@ -1,7 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ChartLineIcon, TrendingUpDownIcon } from "~/ui/icons";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
@@ -49,7 +48,7 @@ const useUpdateDashboadView = () => {
 };
 
 export const ViewToggle = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const updateDashboardView = useUpdateDashboadView();
 
   return (

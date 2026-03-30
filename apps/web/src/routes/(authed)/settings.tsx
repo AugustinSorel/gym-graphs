@@ -1,5 +1,4 @@
 import { CatchBoundary, createFileRoute } from "@tanstack/react-router";
-import { useUser } from "~/domains/user/hooks/use-user";
 import { Separator } from "~/ui/separator";
 import { Button } from "~/ui/button";
 import { Badge } from "~/ui/badge";
@@ -21,7 +20,7 @@ import { useSignOut } from "~/domains/user/hooks/use-sign-out";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { OneRepMaxAlgorithmsGraph } from "~/domains/set/components/one-rep-max-algorithms-graph";
@@ -67,7 +66,7 @@ const RouteComponent = () => {
 };
 
 const EmailSection = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
@@ -161,7 +160,7 @@ const useUpdateOneRepMaxAlgo = () => {
 };
 
 const OneRepMaxAlgoSection = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const updateOneRepMaxAlgo = useUpdateOneRepMaxAlgo();
 
   return (
@@ -228,7 +227,7 @@ const OneRepMaxAlgoSection = () => {
 
 const ChangeWeightUnitSection = () => {
   const updateWeightUnit = useUpdateWeightUnit();
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>

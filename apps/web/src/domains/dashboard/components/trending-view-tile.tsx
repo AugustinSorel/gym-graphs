@@ -5,7 +5,8 @@ import { Skeleton } from "~/ui/skeleton";
 import { cn } from "~/styles/styles.utils";
 import { ArrowDownIcon, ArrowUpIcon, EqualIcon } from "~/ui/icons";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
@@ -53,7 +54,7 @@ export const TrendingViewTileSkeleton = () => {
 const LastTwoSetsProgress = (
   props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
 ) => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const sets = useBestSortedSets(props.sets);
 
   const set = {

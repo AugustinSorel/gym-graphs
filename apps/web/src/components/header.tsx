@@ -21,7 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { cn } from "~/styles/styles.utils";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
@@ -130,7 +131,7 @@ const MobileNav = () => {
 };
 
 const UserProfileDropdown = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const signOut = useSignOut();
   const updateWeightUnit = useUpdateWeightUnit();
   const theme = useTheme();

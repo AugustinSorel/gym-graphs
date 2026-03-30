@@ -4,13 +4,14 @@ import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { curveMonotoneX } from "@visx/curve";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import type { ComponentProps } from "react";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const sets = useBestSortedSets(props.sets);
 
   const timeScale = scaleTime({
