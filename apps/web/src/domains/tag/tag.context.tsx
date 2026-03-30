@@ -1,7 +1,10 @@
 import { createContext, use } from "react";
 import type { ComponentProps } from "react";
+import { TagSuccessSchema } from "@gym-graphs/shared/tag/schemas";
 
-const Ctx = createContext<Pick<Tag, "name" | "id"> | undefined>(undefined);
+const Ctx = createContext<
+  Pick<typeof TagSuccessSchema.Type, "name" | "id"> | undefined
+>(undefined);
 
 export const TagProvider = (props: ComponentProps<typeof Ctx>) => {
   return <Ctx {...props} />;

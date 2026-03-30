@@ -1,4 +1,4 @@
-import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/chunk-E2KPKDNP";
+import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 const setsByExercise = {
   benchPress: [

@@ -5,10 +5,12 @@ import type {
   ControllerFieldState,
   ControllerRenderProps,
 } from "react-hook-form";
-import type { Set } from "@gym-graphs/db/schemas";
+import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
 export const CounterInput = <
-  T extends Partial<Pick<Set, "weightInKg" | "repetitions">>,
+  T extends Partial<
+    Pick<typeof SetSuccessSchema.Type, "weightInKg" | "repetitions">
+  >,
 >(
   props: Props<T>,
 ) => {
@@ -49,7 +51,11 @@ export const CounterInput = <
   );
 };
 
-type Props<T extends Partial<Pick<Set, "weightInKg" | "repetitions">>> = {
+type Props<
+  T extends Partial<
+    Pick<typeof SetSuccessSchema.Type, "weightInKg" | "repetitions">
+  >,
+> = {
   field: ControllerRenderProps<T>;
   fieldState: ControllerFieldState;
 };

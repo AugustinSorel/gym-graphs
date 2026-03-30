@@ -1,7 +1,8 @@
-import type { Set, User } from "@gym-graphs/db/schemas";
+import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
+import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
 export const convertWeight = (
-  weightInKg: Set["weightInKg"],
+  weightInKg: (typeof SetSuccessSchema.Type)["weightInKg"],
   unit: "kg" | "lbs",
 ) => {
   switch (unit) {
@@ -12,7 +13,9 @@ export const convertWeight = (
   }
 };
 
-export const convertWeightUnitToSymbol = (weightUnit: User["weightUnit"]) => {
+export const convertWeightUnitToSymbol = (
+  weightUnit: (typeof CurrentSessionSchema.Type)["user"]["weightUnit"],
+) => {
   switch (weightUnit) {
     case "kg":
       return "kg";
@@ -23,7 +26,7 @@ export const convertWeightUnitToSymbol = (weightUnit: User["weightUnit"]) => {
 
 export const convertWeightsInText = (
   text: string,
-  weightUnit: User["weightUnit"],
+  weightUnit: (typeof CurrentSessionSchema.Type)["user"]["weightUnit"],
 ) => {
   const anyDigitRegex = /\b\d+(\.\d+)?\b/g;
 

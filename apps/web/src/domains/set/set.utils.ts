@@ -1,9 +1,10 @@
-import type { Set, User } from "@gym-graphs/db/schemas";
+import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
+import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
 export const calculateOneRepMax = (
-  weight: Set["weightInKg"],
-  repetitions: Set["repetitions"],
-  algo: User["oneRepMaxAlgo"],
+  weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+  repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
+  algo: (typeof CurrentSessionSchema.Type)["user"]["oneRepMaxAlgo"],
 ) => {
   if (repetitions < 1) {
     throw new Error("repetitions must be above 0");
@@ -20,8 +21,11 @@ export const calculateOneRepMax = (
 };
 
 const algoToOneRepMax: Record<
-  User["oneRepMaxAlgo"],
-  (weight: Set["weightInKg"], repetitions: Set["repetitions"]) => number
+  (typeof CurrentSessionSchema.Type)["user"]["oneRepMaxAlgo"],
+  (
+    weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+    repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
+  ) => number
 > = {
   adams: (w, r) => {
     return w / (1 - 0.02 * r);
@@ -64,7 +68,9 @@ const algoToOneRepMax: Record<
   },
 };
 
-export const getBestSetFromSets = (sets: ReadonlyArray<Set>) => {
+export const getBestSetFromSets = (
+  sets: ReadonlyArray<typeof SetSuccessSchema.Type>,
+) => {
   const setsSortedDesc = sets.toSorted((a, b) => {
     return b.repetitions * b.weightInKg - a.repetitions * a.weightInKg;
   });
