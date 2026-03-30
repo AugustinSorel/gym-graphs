@@ -1,10 +1,16 @@
 import { ScriptOnce } from "@tanstack/react-router";
+import { Option, Schema } from "effect";
 import { createContext, use, useEffect, useState } from "react";
-import { themeSchema } from "~/theme/theme.schemas";
+import { ThemeSchema } from "~/theme/theme.schemas";
 import type { Theme } from "~/theme/theme.schemas";
 import type { Dispatch, PropsWithChildren, SetStateAction } from "react";
 
 const themeKey = "theme";
+
+const decodeTheme = Schema.decodeUnknownOption(ThemeSchema);
+
+const parseTheme = (value: unknown): Theme =>
+  Option.getOrElse(decodeTheme(value), () => "system" as const);
 
 type Context = Readonly<{
   value: Theme;
@@ -19,11 +25,11 @@ export const ThemeProvider = (props: PropsWithChildren) => {
       return "system";
     }
 
-    return themeSchema.catch("system").parse(localStorage.getItem(themeKey));
+    return parseTheme(localStorage.getItem(themeKey));
   });
 
   useEffect(() => {
-    if (theme !== themeSchema.enum.system) {
+    if (theme !== "system") {
       return;
     }
 
@@ -54,11 +60,7 @@ export const ThemeProvider = (props: PropsWithChildren) => {
     window.addEventListener(
       "storage",
       () => {
-        const theme = themeSchema
-          .catch("system")
-          .parse(localStorage.getItem(themeKey));
-
-        setTheme(theme);
+        setTheme(parseTheme(localStorage.getItem(themeKey)));
       },
       {
         signal: abortController.signal,
@@ -69,7 +71,7 @@ export const ThemeProvider = (props: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
-    if (theme === themeSchema.enum.system) {
+    if (theme === "system") {
       localStorage.removeItem(themeKey);
 
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -81,14 +83,14 @@ export const ThemeProvider = (props: PropsWithChildren) => {
       }
     }
 
-    if (theme === themeSchema.enum.dark) {
-      localStorage.setItem(themeKey, themeSchema.enum.dark);
+    if (theme === "dark") {
+      localStorage.setItem(themeKey, "dark");
       document.documentElement.classList.add("dark");
       document.documentElement.style.colorScheme = "dark";
     }
 
-    if (theme === themeSchema.enum.light) {
-      localStorage.setItem(themeKey, themeSchema.enum.light);
+    if (theme === "light") {
+      localStorage.setItem(themeKey, "light");
       document.documentElement.classList.remove("dark");
       document.documentElement.style.colorScheme = "light";
     }
@@ -109,7 +111,7 @@ const LoadThemeScript = () => {
           function initTheme() {
             if (typeof localStorage === 'undefined') return
 
-            if (localStorage.getItem('${themeKey}') === '${themeSchema.enum.dark}' || (!('${themeKey}' in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches) ) {
+            if (localStorage.getItem('${themeKey}') === 'dark' || (!('${themeKey}' in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches) ) {
               document.documentElement.classList.add("dark");
               document.documentElement.style.colorScheme = 'dark'
             } else {

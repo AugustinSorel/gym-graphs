@@ -1,5 +1,5 @@
-import { z } from "zod";
+import { Schema } from "effect";
 
-export const themeSchema = z.enum(["dark", "light", "system"]);
+export const ThemeSchema = Schema.Literal("dark", "light", "system");
 
-export type Theme = Readonly<z.infer<typeof themeSchema>>;
+export type Theme = typeof ThemeSchema.Type;

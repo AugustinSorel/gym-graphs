@@ -123,7 +123,6 @@ const AnalyticScript = () => {
 | ---------| ------------------------------------------------------|
 | TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
-| TODO     | remove zod                                            |
 | TODO     | update shadcn                                         |
 | TODO     | try effect atoms                                      |
 */

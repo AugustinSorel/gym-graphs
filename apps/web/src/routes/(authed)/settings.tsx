@@ -19,7 +19,7 @@ import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit
 import { useSignOut } from "~/domains/user/hooks/use-sign-out";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
-import { themeSchema } from "~/theme/theme.schemas";
+import { ThemeSchema } from "~/theme/theme.schemas";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
@@ -29,7 +29,7 @@ import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps, PropsWithChildren } from "react";
 import { decodeUnknownOption } from "effect/ParseResult";
-import { Option } from "effect";
+import { Option, Schema } from "effect";
 import { tagQueries } from "~/domains/tag/tag.queries";
 
 export const Route = createFileRoute("/(authed)/settings")({
@@ -298,31 +298,31 @@ const ChangeThemeSection = () => {
             type="single"
             value={theme.value}
             onValueChange={(unsafeTheme) => {
-              const themeParsed = themeSchema.safeParse(unsafeTheme);
+              const themeOption = Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
 
-              if (!themeParsed.success) {
+              if (Option.isNone(themeOption)) {
                 return;
               }
 
-              theme.set(themeParsed.data);
+              theme.set(themeOption.value);
             }}
           >
             <ToggleGroupItem
-              value={themeSchema.enum.system}
+              value="system"
               aria-label="Change theme to system"
               variant="outline"
             >
               <LaptopIcon />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value={themeSchema.enum.light}
+              value="light"
               aria-label="Change theme to light"
               variant="outline"
             >
               <SunIcon />
             </ToggleGroupItem>
             <ToggleGroupItem
-              value={themeSchema.enum.dark}
+              value="dark"
               aria-label="Change theme to dark"
               variant="outline"
             >
