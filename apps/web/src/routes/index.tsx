@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -13,7 +17,6 @@ import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-
 import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { tilesMock } from "~/domains/tile/tile.mock";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
@@ -86,7 +89,7 @@ const HeroSection = () => {
 };
 
 const FeatureOne = () => {
-  const tiles = useTiles();
+  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
 
   return (
     <FeatureContainer>

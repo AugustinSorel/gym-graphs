@@ -21,7 +21,7 @@ import {
   useQueryClient,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
+
 import {
   GraphViewTile,
   GraphViewTileFallback,
@@ -49,6 +49,7 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
+import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const Dashboard = () => {
   return (
@@ -380,7 +381,8 @@ const TrendingViewContentSkeleton = () => {
   );
 };
 
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
+type Tile =
+  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
 
 const useReorderTiles = () => {
   return useMutation({

@@ -1,4 +1,4 @@
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
+import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/chunk-E2KPKDNP";
 
 const setsByExercise = {
   benchPress: [
@@ -247,68 +247,67 @@ const setsByExercise = {
   ],
 };
 
-type Tile = ReturnType<typeof useTiles>["data"][number];
-
-export const tilesMock: Array<Tile> = [
-  {
-    id: 0,
-    name: "bench press",
-    type: "exercise" as const,
-    exerciseId: 30,
-    sets: setsByExercise.benchPress,
-    tags: [{ id: 173, name: "chest" }],
-  },
-  {
-    id: 1,
-    name: "squat",
-    type: "exercise" as const,
-    exerciseId: 31,
-    sets: setsByExercise.squat,
-    tags: [{ id: 172, name: "legs" }],
-  },
-  {
-    id: 2,
-    name: "deadlift",
-    type: "exercise" as const,
-    exerciseId: 32,
-    sets: setsByExercise.deadlift,
-    tags: [
-      { id: 172, name: "legs" },
-      { id: 178, name: "calfs" },
-    ],
-  },
-  {
-    id: 4,
-    name: "biceps curls",
-    type: "exercise" as const,
-    exerciseId: 33,
-    sets: setsByExercise.bicepsCurls,
-    tags: [{ id: 174, name: "biceps" }],
-  },
-  {
-    id: 7,
-    name: "exercises frequency",
-    type: "exerciseSetCount" as const,
-    sets: Object.values(setsByExercise).flat(),
-  },
-  {
-    id: 8,
-    name: "tags frequency",
-    type: "exerciseTagCount" as const,
-    tags: [
-      { id: 172, name: "legs" },
-      { id: 173, name: "chest" },
-      { id: 174, name: "biceps" },
-    ],
-  },
-  {
-    id: 5,
-    name: "fun facts",
-    type: "dashboardFunFacts" as const,
-  },
-  {
-    id: 6,
-    name: "heat map",
-    type: "dashboardHeatMap" as const,
-  },
-];
+export const tilesMock: (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"] =
+  [
+    {
+      type: "exercise" as const,
+      id: 0,
+      name: "bench press",
+      exerciseId: 30,
+      sets: setsByExercise.benchPress,
+      tags: [{ id: 173, name: "chest" }],
+    },
+    {
+      id: 1,
+      name: "squat",
+      type: "exercise" as const,
+      exerciseId: 31,
+      sets: setsByExercise.squat,
+      tags: [{ id: 172, name: "legs" }],
+    },
+    {
+      id: 2,
+      name: "deadlift",
+      type: "exercise" as const,
+      exerciseId: 32,
+      sets: setsByExercise.deadlift,
+      tags: [
+        { id: 172, name: "legs" },
+        { id: 178, name: "calfs" },
+      ],
+    },
+    {
+      id: 4,
+      name: "biceps curls",
+      type: "exercise" as const,
+      exerciseId: 33,
+      sets: setsByExercise.bicepsCurls,
+      tags: [{ id: 174, name: "biceps" }],
+    },
+    {
+      id: 7,
+      name: "exercises frequency",
+      type: "exerciseSetCount" as const,
+      sets: Object.values(setsByExercise).flat(),
+    },
+    {
+      id: 8,
+      name: "tags frequency",
+      type: "exerciseTagCount" as const,
+      tags: [
+        { id: 172, name: "legs" },
+        { id: 173, name: "chest" },
+        { id: 174, name: "biceps" },
+      ],
+    },
+    {
+      id: 5,
+      name: "fun facts",
+      type: "dashboardFunFacts" as const,
+    },
+    {
+      id: 6,
+      name: "heat map",
+      type: "dashboardHeatMap" as const,
+    },
+  ];
