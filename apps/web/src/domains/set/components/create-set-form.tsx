@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { Button } from "~/ui/button";
 import { CreateSetPayload } from "@gym-graphs/shared/set/schemas";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { CounterInput } from "~/ui/counter-input";
 import { useLastSet } from "~/domains/set/hooks/use-last-set";
@@ -20,7 +20,7 @@ export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
   const createSet = useCreateSet();
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const onSubmit = async (payload: typeof CreateSetPayload.Type) => {
     await createSet.mutateAsync(

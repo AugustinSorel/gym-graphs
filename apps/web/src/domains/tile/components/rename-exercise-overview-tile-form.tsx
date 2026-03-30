@@ -1,12 +1,15 @@
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
@@ -19,7 +22,7 @@ export const RenameExerciseOverviewTileForm = (props: Props) => {
   const form = useRenameExerciseTileForm();
   const renameExerciseTile = useRenameExericseTile();
   const params = routeApi.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const onSubmit = async (data: RenameExerciseSchema) => {
     await renameExerciseTile.mutateAsync(
@@ -134,7 +137,7 @@ type RenameExerciseSchema = ReturnType<typeof useFormSchema>["Type"];
 const useRenameExerciseTileForm = () => {
   const formSchema = useFormSchema();
   const params = routeApi.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   return useForm<RenameExerciseSchema>({
     resolver: effectTsResolver(formSchema),
@@ -146,7 +149,7 @@ const useRenameExerciseTileForm = () => {
 
 const useRenameExericseTile = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),

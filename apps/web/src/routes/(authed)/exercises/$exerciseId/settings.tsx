@@ -11,7 +11,6 @@ import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
 import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
 import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
 import { cn } from "~/styles/styles.utils";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { tagQueries } from "~/domains/tag/tag.queries";
@@ -230,7 +229,7 @@ const NoTagsText = (props: ComponentProps<"p">) => {
 
 const useSetTileTags = () => {
   const params = Route.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),

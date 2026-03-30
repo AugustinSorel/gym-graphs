@@ -1,6 +1,8 @@
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 
-export const exerciseMock: ReturnType<typeof useExercise>["data"] = {
+type ExerciseData = Awaited<ReturnType<NonNullable<ReturnType<typeof exerciseQueries.get>["queryFn"]>>>;
+
+export const exerciseMock: ExerciseData = {
   id: 30,
   name: "bench press",
   tileId: 1,

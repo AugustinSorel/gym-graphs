@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +15,7 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
+
 import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useRouteHash } from "~/hooks/use-route-hash";
@@ -24,7 +24,7 @@ export const DeleteExerciseOverviewTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = routeApi.useNavigate();
   const params = routeApi.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
   const deleteExerciseTile = useDeleteExerciseTile();
   const routeHash = useRouteHash("delete-exercise-overview-tile");
 
@@ -89,7 +89,7 @@ const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/settings");
 
 const useDeleteExerciseTile = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(Number(params.exerciseId));
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     tiles: tileQueries.all(),
