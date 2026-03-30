@@ -26,7 +26,7 @@ import { cn } from "~/styles/styles.utils";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { AppIcon } from "~/ui/app-icon";
-import { useSignOut } from "~/domains/session/hooks/use-sign-out";
+import { useSignOut } from "~/domains/user/hooks/use-sign-out";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
 import type { ComponentProps } from "react";

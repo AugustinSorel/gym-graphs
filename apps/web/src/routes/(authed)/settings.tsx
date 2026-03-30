@@ -17,7 +17,7 @@ import { RenameUserDialog } from "~/domains/user/components/rename-user-dialog";
 import { DeleteAccountDialog } from "~/domains/user/components/delete-account-dialog";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
-import { useSignOut } from "~/domains/session/hooks/use-sign-out";
+import { useSignOut } from "~/domains/user/hooks/use-sign-out";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
 import { useTheme } from "~/theme/theme.context";
 import { themeSchema } from "~/theme/theme.schemas";
