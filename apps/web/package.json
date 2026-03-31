@@ -51,7 +51,7 @@
     "@visx/vendor": "^3.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "effect": "^3.19.19",
+    "effect": "^3.20.0",
     "input-otp": "^1.4.2",
     "nitro": "3.0.1-alpha.0",
     "react": "^19.2.1",
