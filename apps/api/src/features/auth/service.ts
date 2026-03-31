@@ -30,6 +30,7 @@ import { VerificationCodeRepo } from "../verification-code/repo";
 import { PasswordResetTokenRepo } from "../password-reset-token/repo";
 import { SeedUserService } from "../user/service";
 
+//FIXME: create more services, eg: forgot password service etc...
 export class AuthService extends Effect.Service<AuthService>()("AuthService", {
   accessors: true,
   dependencies: [
