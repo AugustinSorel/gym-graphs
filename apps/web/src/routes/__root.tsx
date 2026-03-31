@@ -121,6 +121,7 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| BUG      | tags frequency not showing graph                      |
 | TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
 | TODO     | update shadcn                                         |
