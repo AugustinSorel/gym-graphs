@@ -1,6 +1,6 @@
 # Gym Graphs
 
-Gym Graphs allows users to track their gym progress with the help of graphs. The app allows users to add new exercises, organize their exercises with a dashboard and add new data for each exercises. The app will calculate an estimate one rep max given the number of repetitions and the weight lifted.
+Gym Graphs allows users to track their gym progress with the help of graphs. The app allows users to add new exercises, organize their exercises with a dashboard and add new data for each exercise. The app will calculate an estimated one rep max given the number of repetitions and the weight lifted.
 
 ## Demo
 
@@ -14,13 +14,11 @@ Gym Graphs allows users to track their gym progress with the help of graphs. The
 
 ```txt
 ├── apps
-│   ├── api          #Hono backend API
-│   └── web          #Tanstack start frontend
-├── package.json
+│   ├── api          # Effect HTTP backend
+│   └── web          # TanStack Start frontend
 ├── packages
-│   ├── constants    #Global constants
-│   ├── db           #Global drizzle db
-│   └── schemas      #Global zod schemas
+│   └── shared       # Shared Effect schemas and HTTP API contract
+├── package.json
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
 ├── README.md
@@ -38,9 +36,6 @@ cp ./apps/api/.env.example ./apps/api/.env
 ### Dev
 
 ```bash
-pnpm cp ./apps/api/.env.example ./apps/api/.env
-pnpm cp ./packages/db/.env.example ./packages/db/.env
-
 pnpm install
 pnpm build
 
@@ -56,8 +51,8 @@ docker build --target api --tag gym_graphs_api .
 docker build --target web --tag gym_graphs_web .
 docker build --target migration --tag gym_graphs_migration .
 
-docker run  --name gym_graphs_migration --rm --env-file=./packages/db/.env --network gym-graphs_backend gym_graphs_migration
+docker run --name gym_graphs_migration --rm --env-file=./apps/api/.env --network gym-graphs_backend gym_graphs_migration
 
 docker run -p 5000:5000 --name gym_graphs_api --rm --env-file=./apps/api/.env gym_graphs_api
-docker run -p 3000:3000 --name gym_graphs_web --rm  gym_graphs_web
+docker run -p 3000:3000 --name gym_graphs_web --rm gym_graphs_web
 ```
