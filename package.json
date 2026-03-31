@@ -9,12 +9,13 @@
     "build": "pnpm -r build",
     "web": "pnpm --filter @gym-graphs/web",
     "api": "pnpm --filter @gym-graphs/api",
-    "db": "pnpm --filter @gym-graphs/db",
     "shared": "pnpm --filter @gym-graphs/shared",
     "docker:api:build": "docker build --target api --tag gym_graphs_api .",
-    "docker:api:run": "docker run -p 5000:5000 --env-file=./apps/api/.env --name gym_graphs_api --rm gym_graphs_api",
+    "docker:web:build": "docker build --target web --tag gym_graphs_web .",
     "docker:migration:build": "docker build --target migration --tag gym_graphs_migration .",
-    "docker:migration:run": "docker run --env-file=./apps/api/.env --name gym_graphs_migration --rm gym_graphs_migration"
+    "docker:migration:run": "docker run --name gym_graphs_migration --rm --env-file=./apps/api/.env --network gym-graphs_db gym_graphs_migration",
+    "docker:api:run": "docker run -p 5000:5000 --name gym_graphs_api --rm --env-file=./apps/api/.env --network gym-graphs_db gym_graphs_api",
+    "docker:web:run": "docker run -p 3000:3000 --name gym_graphs_web --rm gym_graphs_web"
   },
   "keywords": [],
   "author": "",

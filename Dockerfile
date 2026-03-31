@@ -10,7 +10,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run -r build
 RUN pnpm deploy --filter=api --prod /prod/api
 RUN pnpm deploy --filter=web --prod /prod/web
-RUN pnpm deploy --filter=db --prod /prod/migration
+RUN pnpm deploy --filter=api --prod /prod/migration
 
 FROM base AS api
 COPY --from=build /prod/api /prod/api
@@ -22,8 +22,8 @@ CMD ["pnpm", "start"]
 FROM base AS migration
 COPY --from=build /prod/migration /prod/migration
 WORKDIR /prod/migration
-RUN pnpm generate
-CMD ["pnpm", "migrate"]
+RUN pnpm db:generate
+CMD ["pnpm", "db:migrate"]
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web
