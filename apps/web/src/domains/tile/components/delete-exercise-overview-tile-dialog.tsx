@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,26 +15,24 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+
+import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { useRouteHash } from "~/hooks/use-route-hash";
-import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const DeleteExerciseOverviewTileDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = routeApi.useNavigate();
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
   const deleteExerciseTile = useDeleteExerciseTile();
   const routeHash = useRouteHash("delete-exercise-overview-tile");
 
   const deleteExerciseTileHandler = () => {
     deleteExerciseTile.mutate(
       {
-        param: {
-          tileId: exercise.data.exerciseOverviewTile.tileId.toString(),
+        path: {
+          tileId: exercise.data.tileId,
         },
       },
       {
@@ -66,7 +64,7 @@ export const DeleteExerciseOverviewTileDialog = () => {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            exercise and remove all of its data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -87,12 +85,11 @@ export const DeleteExerciseOverviewTileDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/settings");
 
 const useDeleteExerciseTile = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().tiles[":tileId"].$delete;
+  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     tiles: tileQueries.all(),
@@ -100,12 +97,12 @@ const useDeleteExerciseTile = () => {
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "delete">) => {
+      return callApi((api) => api.DashboardTile.delete(props));
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.exercise);
       void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };

@@ -1,23 +1,71 @@
-import { constant } from "@gym-graphs/constants";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { getCookie } from "@tanstack/react-start/server";
-import { api as gymGraphsApi } from "@gym-graphs/api";
-import type { ApiReqOption } from "@gym-graphs/api";
+import { Effect, Layer } from "effect";
+import {
+  FetchHttpClient,
+  HttpClient,
+  HttpClientRequest,
+  HttpApiClient,
+} from "@effect/platform";
+import { Api } from "@gym-graphs/shared/api";
+import { sessionSecurity } from "@gym-graphs/shared/auth/middlewares";
 
-export const api = () => {
-  return gymGraphsApi(getOptions());
+const ClientLayer = FetchHttpClient.layer.pipe(
+  Layer.provide(
+    Layer.succeed(FetchHttpClient.RequestInit, {
+      credentials: "include",
+    }),
+  ),
+);
+
+const ServerCookieLayer = Layer.effect(
+  HttpClient.HttpClient,
+  Effect.gen(function* () {
+    const baseClient = yield* HttpClient.HttpClient;
+    const session = getCookie(sessionSecurity.key);
+
+    if (!session) return baseClient;
+
+    return baseClient.pipe(
+      HttpClient.mapRequest(
+        HttpClientRequest.setHeader(
+          "cookie",
+          `${sessionSecurity.key}=${session}`,
+        ),
+      ),
+    );
+  }),
+);
+
+const ServerLayer = ServerCookieLayer.pipe(
+  Layer.provide(FetchHttpClient.layer),
+);
+
+const getIsomorphicLayer = createIsomorphicFn()
+  .client(() => ClientLayer)
+  .server(() => ServerLayer);
+
+const makeClient = HttpApiClient.make(Api, {
+  baseUrl: "http://localhost:5000",
+});
+
+type Client = Effect.Effect.Success<typeof makeClient>;
+
+export type InferApiProps<
+  A extends keyof Client,
+  B extends keyof Client[A],
+> = Client[A][B] extends (...args: any) => any
+  ? Omit<Parameters<Client[A][B]>[0], "withResponse">
+  : never;
+
+export const callApi = <A, E>(
+  call: (client: Client) => Effect.Effect<A, E, never>,
+) => {
+  const program = Effect.gen(function* () {
+    const client = yield* makeClient;
+
+    return yield* call(client);
+  }).pipe(Effect.provide(getIsomorphicLayer()));
+
+  return Effect.runPromise(program);
 };
-
-const getOptions = createIsomorphicFn()
-  .client((): ApiReqOption => {
-    return {
-      init: { credentials: "include" },
-    };
-  })
-  .server((): ApiReqOption => {
-    const session = getCookie(constant.cookie.session);
-
-    return {
-      headers: { Cookie: `session=${session}` },
-    };
-  });

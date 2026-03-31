@@ -5,11 +5,9 @@ import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, GithubIcon } from "~/ui/icons";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 
-const routeApi = getRouteApi("/(auth)/_layout");
+const routeApi = getRouteApi("/(auth)");
 
 export const GithubSignIn = () => {
   const githubSignIn = useGithubSignIn();
@@ -20,7 +18,11 @@ export const GithubSignIn = () => {
       <Button
         className="mt-3 w-full bg-black font-semibold hover:bg-black/80"
         onClick={() => {
-          githubSignIn.mutate({ callbackUrl: search.callbackUrl ?? "" });
+          githubSignIn.mutate({
+            urlParams: {
+              callbackUrl: search.callbackUrl ?? "",
+            },
+          });
         }}
       >
         <GithubIcon />
@@ -41,11 +43,12 @@ export const GithubSignIn = () => {
 
 const useGithubSignIn = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
-  const req = api().oauth.github.$post;
 
   const githubSignIn = useMutation({
-    mutationFn: async (query: InferApiReqInput<typeof req>["query"]) => {
-      return parseJsonResponse(req({ query }));
+    mutationFn: async (props: InferApiProps<"OAuth", "githubSignIn">) => {
+      return callApi((api) => {
+        return api.OAuth.githubSignIn(props);
+      });
     },
     onSuccess: (url) => {
       startRedirectTransition(async () => {

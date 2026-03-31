@@ -15,13 +15,12 @@ import {
 } from "~/ui/table";
 import { Button } from "~/ui/button";
 import { useState } from "react";
-import type { Set } from "@gym-graphs/db/schemas";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
-import type { Serialize } from "~/utils/json";
+import type { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
 type Props = Readonly<{
-  sets: Array<Serialize<Set>>;
-  columns: Array<ColumnDef<Serialize<Set>>>;
+  sets: Array<typeof SetSuccessSchema.Type>;
+  columns: Array<ColumnDef<typeof SetSuccessSchema.Type>>;
 }>;
 
 export const ExerciseTable = ({ sets, columns }: Props) => {

@@ -7,26 +7,33 @@ import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { Skeleton } from "~/ui/skeleton";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { Mutable } from "effect/Types";
 
-export const ExerciseTagCountGraph = () => {
-  const tilesToTagsCount = useExerciseTagCount();
+type Point = Readonly<{
+  id: number;
+  name: string;
+  count: number;
+}>;
 
-  if (!tilesToTagsCount.length) {
+type Props = Readonly<{
+  data: ReadonlyArray<Point>;
+}>;
+
+export const ExerciseTagCountGraph = (props: Props) => {
+  if (!props.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={tilesToTagsCount} />
+        <Graph height={height} width={width} data={props.data} />
       )}
     </ParentSize>
   );
@@ -150,7 +157,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
           />
 
           <Pie
-            data={data}
+            data={data as Mutable<typeof data>}
             pieValue={getCount}
             outerRadius={radius}
             innerRadius={innerRadius}
@@ -282,10 +289,8 @@ const margin = {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: ReturnType<typeof useExerciseTagCount>;
+  data: ReadonlyArray<Point>;
 }>;
-
-type Point = GraphProps["data"][number];
 
 const tooltipStyles: Readonly<CSSProperties> = {
   ...defaultStyles,
@@ -301,28 +306,4 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
-};
-
-const useExerciseTagCount = () => {
-  const tiles = useTiles();
-  const tags = useUser().data.tags;
-
-  const map = tiles.data
-    .flatMap((tile) => tile.tileToTags)
-    .reduce((map, tileToTag) => {
-      map.set(tileToTag.tagId, (map.get(tileToTag.tagId) ?? 0) + 1);
-
-      return map;
-    }, new Map<number, number>());
-
-  return tags
-    .filter((tag) => map.has(tag.id))
-    .map((tag) => {
-      return {
-        id: tag.id,
-        name: tag.name,
-        count: map.get(tag.id) ?? 0,
-      };
-    })
-    .sort((a, b) => b.count - a.count);
 };

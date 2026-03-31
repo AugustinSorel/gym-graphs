@@ -16,8 +16,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 import { useRouteHash } from "~/hooks/use-route-hash";
 
 export const DeleteAccountDialog = () => {
@@ -90,11 +89,9 @@ export const DeleteAccountDialog = () => {
 const useDeleteAccount = () => {
   return useMutation({
     mutationFn: async () => {
-      const req = api().users.me.$delete();
-
-      return parseJsonResponse(req);
+      return callApi((api) => api.User.delete());
     },
   });
 };
 
-const routeApi = getRouteApi("/(settings)/settings");
+const routeApi = getRouteApi("/(authed)/settings");

@@ -1,16 +1,13 @@
-import { tagsMock } from "~/domains/tag/tag.mock";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { userQueries } from "~/domains/user/user.queries";
 
-export const userMock: ReturnType<typeof useUser>["data"] = {
+type UserData = Awaited<ReturnType<NonNullable<typeof userQueries.get["queryFn"]>>>;
+
+export const userMock: UserData = {
   weightUnit: "kg",
   email: "john@email.com",
   name: "john",
   id: 1,
-  dashboard: {
-    id: 0,
-  },
-  tags: tagsMock,
   oneRepMaxAlgo: "epley",
   dashboardView: "graph",
-  emailVerifiedAt: new Date().toString(),
+  verifiedAt: new Date(),
 };

@@ -1,13 +1,14 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import { useUser } from "~/domains/user/hooks/use-user";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, CheckIcon, ChevronsUpDownIcon } from "~/ui/icons";
@@ -19,17 +20,18 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ComponentProps } from "react";
 import { Badge } from "~/ui/badge";
-import { createExerciseTileSchema } from "@gym-graphs/schemas/tile";
-import type { CreateExerciseTile } from "@gym-graphs/schemas/tile";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { tagQueries } from "~/domains/tag/tag.queries";
+import { CreateDashboardTilePayload } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { Schema } from "effect";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 
 export const CreateExerciseOverviewTileForm = (props: Props) => {
   const form = useCreateExerciseTileForm();
   const createExerciseTile = useCreateExerciseTile();
 
-  const onSubmit = async (data: CreateExerciseTile) => {
+  const onSubmit = async (payload: typeof CreateDashboardTilePayload.Type) => {
     await createExerciseTile.mutateAsync(
-      { json: data },
+      { payload },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -105,8 +107,8 @@ type Props = Readonly<{
 const useFormSchema = () => {
   const queryClient = useQueryClient();
 
-  return createExerciseTileSchema.refine(
-    (data) => {
+  return CreateDashboardTilePayload.pipe(
+    Schema.filter((data) => {
       const queries = {
         tiles: tileQueries.all().queryKey,
       };
@@ -114,95 +116,62 @@ const useFormSchema = () => {
       const cachedTiles = queryClient.getQueryData(queries.tiles);
 
       const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.tiles)
+        .flatMap((page) => page.dashboardTiles)
         .find((tile) => {
           return tile.name === data.name;
         });
 
-      return !nameTaken;
-    },
-    {
-      message: "exercise already created",
-      path: ["name"],
-    },
+      if (nameTaken) {
+        return {
+          message: "exercise already created",
+          path: ["name"],
+        };
+      }
+
+      return undefined;
+    }),
   );
 };
 
 const useCreateExerciseTileForm = () => {
   const formSchema = useFormSchema();
 
-  return useForm<CreateExerciseTile>({
-    resolver: zodResolver(formSchema),
+  return useForm<typeof CreateDashboardTilePayload.Type>({
+    resolver: effectTsResolver(formSchema),
     defaultValues: {
       name: "",
-      tagIds: null,
+      type: "exercise",
+      tagIds: [],
     },
   });
 };
 
 const useCreateExerciseTile = () => {
-  const user = useUser();
-  const req = api().tiles["exercise-tile"].$post;
+  const tags = useSuspenseQuery(tagQueries.all);
 
   const queries = {
     tiles: tileQueries.all(),
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"DashboardTile", "create">) => {
+      return callApi((api) => api.DashboardTile.create(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.tiles);
 
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
 
-      const exerciseId = Math.random();
-      const tileId = Math.random();
-
       const optimisticTile = {
-        id: tileId,
+        id: Math.random(),
         index: 1_0000,
-        type: "exerciseOverview" as const,
-        dashboardId: user.data.dashboard.id,
-        name: variables.json.name,
-        tileToTags:
-          variables.json.tagIds?.map((tagId) => {
-            const tag = user.data.tags.find((tag) => tag.id === tagId);
-
-            if (!tag) {
-              throw new Error(`user does not have a tag with id ${tagId}`);
-            }
-
-            return {
-              tagId,
-              tileId,
-              tag,
-              createdAt: new Date().toString(),
-              updatedAt: new Date().toString(),
-            };
-          }) ?? [],
-        dashboardFunFacts: null,
-        dashboardHeatMap: null,
-        exerciseSetCount: null,
-        exerciseTagCount: null,
-        exerciseOverview: {
-          exercise: {
-            id: exerciseId,
-            userId: user.data.id,
-            sets: [],
-            createdAt: new Date().toString(),
-            updatedAt: new Date().toString(),
-          },
-          id: Math.random(),
-          exerciseId,
-          tileId,
-          createdAt: new Date().toString(),
-          updatedAt: new Date().toString(),
-        },
-
-        createdAt: new Date().toString(),
-        updatedAt: new Date().toString(),
+        type: "exercise" as const,
+        name: variables.payload.name,
+        exerciseId: Math.random(),
+        sets: [],
+        tags: tags.data.filter((tag) => {
+          return variables.payload.tagIds.includes(tag.id);
+        }),
       };
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
@@ -216,7 +185,7 @@ const useCreateExerciseTile = () => {
             if (i === 0) {
               return {
                 ...page,
-                tiles: [optimisticTile, ...page.tiles],
+                dashboardTiles: [optimisticTile, ...page.dashboardTiles],
               };
             }
 
@@ -240,13 +209,14 @@ const useCreateExerciseTile = () => {
 
 const ExerciseTags = (
   props: Parameters<
-    ComponentProps<typeof Controller<CreateExerciseTile, "tagIds">>["render"]
+    ComponentProps<
+      typeof Controller<typeof CreateDashboardTilePayload.Type, "tagIds">
+    >["render"]
   >[0],
 ) => {
-  const user = useUser();
-  const tags = user.data.tags;
+  const tags = useSuspenseQuery(tagQueries.all);
 
-  if (!tags.length) {
+  if (!tags.data.length) {
     return <></>;
   }
 
@@ -266,7 +236,7 @@ const ExerciseTags = (
               props.field.onChange(ids.map((id) => +id));
             }}
           >
-            {user.data.tags.map((tag) => (
+            {tags.data.map((tag) => (
               <ToggleGroupItem
                 key={tag.id}
                 className="group hover:bg-transparent data-[state=on]:bg-transparent [&_svg]:size-3"

@@ -1,19 +1,16 @@
 import { Input } from "~/ui/input";
-import { userSchema } from "@gym-graphs/schemas/user";
+import { SignUpPayload } from "@gym-graphs/shared/auth/schemas";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "~/ui/spinner";
 import { useTransition } from "react";
-import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { Button } from "~/ui/button";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { getRouteApi } from "@tanstack/react-router";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const EmailSignUpForm = () => {
   const navigate = routeApi.useNavigate();
@@ -22,9 +19,9 @@ export const EmailSignUpForm = () => {
   const form = useEmailSignUpForm();
   const signUp = useSignUp();
 
-  const onSubmit = async (values: SignUpFormSchema) => {
+  const onSubmit = async (payload: typeof SignUpPayload.Type) => {
     await signUp.mutateAsync(
-      { json: values },
+      { payload },
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
@@ -130,23 +127,11 @@ export const EmailSignUpForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-up");
-
-const signUpFormSchema = z
-  .object({
-    email: userSchema.shape.email,
-    password: userSchema.shape.password,
-    confirmPassword: userSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-type SignUpFormSchema = Readonly<z.infer<typeof signUpFormSchema>>;
+const routeApi = getRouteApi("/(auth)/sign-up");
 
 const useEmailSignUpForm = () => {
-  return useForm<SignUpFormSchema>({
-    resolver: zodResolver(signUpFormSchema),
+  return useForm<typeof SignUpPayload.Type>({
+    resolver: effectTsResolver(SignUpPayload),
     defaultValues: {
       email: "",
       password: "",
@@ -156,11 +141,9 @@ const useEmailSignUpForm = () => {
 };
 
 const useSignUp = () => {
-  const req = api().users.$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Auth", "signUp">) => {
+      return callApi((api) => api.Auth.signUp(props));
     },
   });
 };

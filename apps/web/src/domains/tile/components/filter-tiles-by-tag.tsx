@@ -8,9 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
 import { Button } from "~/ui/button";
-import { useUser } from "~/domains/user/hooks/use-user";
 import { FilterIcon } from "~/ui/icons";
 import { getRouteApi } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { tagQueries } from "~/domains/tag/tag.queries";
 
 export const FilterTilesByTags = () => {
   const search = routeApi.useSearch();
@@ -41,22 +42,30 @@ export const FilterTilesByTags = () => {
 };
 
 const TagsItem = () => {
-  const user = useUser();
   const search = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
+  const tags = useSuspenseQuery(tagQueries.all);
 
-  const tags = new Set(search.tags);
+  const tagsInUrl = new Set(search.tags);
 
   const updateSearchTags = () => {
     void navigate({
-      search: (search) => ({
-        ...search,
-        tags: tags.size ? [...tags] : undefined,
-      }),
+      search: (search) => {
+        const { tags, ...rest } = search;
+
+        if (!tagsInUrl.size) {
+          return rest;
+        }
+
+        return {
+          ...rest,
+          tags: [...tagsInUrl],
+        };
+      },
     });
   };
 
-  if (!user.data.tags.length) {
+  if (!tags.data.length) {
     return (
       <p className="text-muted-foreground py-4 text-center text-sm">no tags</p>
     );
@@ -64,15 +73,15 @@ const TagsItem = () => {
 
   return (
     <>
-      {user.data.tags.map((tag) => (
+      {tags.data.map((tag) => (
         <DropdownMenuCheckboxItem
           key={tag.id}
-          checked={tags.has(tag.name)}
+          checked={tagsInUrl.has(tag.name)}
           onCheckedChange={(checked) => {
             if (checked) {
-              tags.add(tag.name);
+              tagsInUrl.add(tag.name);
             } else {
-              tags.delete(tag.name);
+              tagsInUrl.delete(tag.name);
             }
 
             updateSearchTags();
@@ -93,10 +102,11 @@ const ClearTagsItem = () => {
 
   const clearTags = () => {
     void navigate({
-      search: (search) => ({
-        ...search,
-        tags: undefined,
-      }),
+      search: (search) => {
+        const { tags, ...rest } = search;
+
+        return rest;
+      },
     });
   };
 
@@ -120,4 +130,4 @@ const ClearTagsItem = () => {
   );
 };
 
-const routeApi = getRouteApi("/(dashboard)/dashboard");
+const routeApi = getRouteApi("/(authed)/dashboard");

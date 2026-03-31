@@ -11,8 +11,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "~/theme/theme.context";
 import { userQueries } from "~/domains/user/user.queries";
 import { HeaderPrivate, HeaderPublic } from "~/components/header";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi } from "~/libs/api";
 import type { RouterCtx } from "~/router";
 import type { PropsWithChildren } from "react";
 
@@ -46,16 +45,7 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       user: userQueries.get,
     };
 
-    const cachedUser = context.queryClient.getQueryData(queries.user.queryKey);
-
-    if (cachedUser) {
-      return {
-        user: cachedUser,
-      };
-    }
-
-    const req = api().sessions.me.$get;
-    const session = await parseJsonResponse(req()).catch(() => null);
+    const session = await callApi((api) => api.Auth.me()).catch(() => null);
 
     if (!session) {
       return {
@@ -63,7 +53,7 @@ export const Route = createRootRouteWithContext<RouterCtx>()({
       };
     }
 
-    await context.queryClient.ensureQueryData(queries.user);
+    context.queryClient.setQueryData(queries.user.queryKey, session.user);
 
     return {
       user: session.user,
@@ -96,7 +86,7 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
         <AnalyticScript />
       </head>
       <body className="bg-background text-foreground">
-        {!!data.user?.emailVerifiedAt ? <HeaderPrivate /> : <HeaderPublic />}
+        {!!data.user?.verifiedAt ? <HeaderPrivate /> : <HeaderPublic />}
 
         {children}
 
@@ -131,5 +121,8 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
+| TODO     | update shadcn                                         |
+| TODO     | try effect atoms                                      |
 */

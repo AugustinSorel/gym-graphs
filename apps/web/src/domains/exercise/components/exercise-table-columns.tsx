@@ -18,14 +18,14 @@ import {
   EllipsisIcon,
 } from "~/ui/icons";
 import { Button } from "~/ui/button";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Set } from "@gym-graphs/db/schemas";
-import type { Serialize } from "~/utils/json";
+import type { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
-export const exerciseTableColumns: Array<ColumnDef<Serialize<Set>>> = [
+export const exerciseTableColumns: Array<ColumnDef<typeof SetSuccessSchema.Type>> = [
   {
     accessorKey: "oneRepMax",
     header: ({ column }) => {
@@ -172,9 +172,9 @@ export const exerciseTableColumns: Array<ColumnDef<Serialize<Set>>> = [
 ];
 
 const OneRepMaxWeightValue = (
-  props: Pick<Set, "weightInKg" | "repetitions">,
+  props: Pick<typeof SetSuccessSchema.Type, "weightInKg" | "repetitions">,
 ) => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return calculateOneRepMax(
     props.weightInKg,

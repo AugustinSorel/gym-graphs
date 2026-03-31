@@ -1,23 +1,20 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
-import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
-import { useExercise } from "~/domains/exercise/hooks/use-exercise";
-import { setSchema } from "@gym-graphs/schemas/set";
+import { PatchSetPayload } from "@gym-graphs/shared/set/schemas";
 import { useSet } from "~/domains/set/set.context";
-import { dateAsYYYYMMDD } from "~/utils/date";
 import { getRouteApi } from "@tanstack/react-router";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { Input } from "~/ui/input";
+import { callApi, InferApiProps } from "~/libs/api";
+import { setQueries } from "~/domains/set/set.queries";
 import { tileQueries } from "~/domains/tile/tile.queries";
+import { dateAsYYYYMMDD } from "~/utils/date";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
+import { Schema } from "effect";
 
 export const UpdateSetDoneAtForm = (props: Props) => {
   const form = useUpdateSetDoneAtForm();
@@ -25,16 +22,11 @@ export const UpdateSetDoneAtForm = (props: Props) => {
   const set = useSet();
   const params = routeApi.useParams();
 
-  const onSubmit = async (data: CreateExerciseSchema) => {
+  const onSubmit = async (payload: typeof DoneAtPayload.Type) => {
     await updateDoneAt.mutateAsync(
       {
-        param: {
-          setId: set.id.toString(),
-          exerciseId: params.exerciseId.toString(),
-        },
-        json: {
-          doneAt: data.doneAt.toString(),
-        },
+        path: { exerciseId: params.exerciseId, setId: set.id },
+        payload,
       },
       {
         onSuccess: () => {
@@ -60,14 +52,15 @@ export const UpdateSetDoneAtForm = (props: Props) => {
               <FieldLabel htmlFor={props.field.name}>done at:</FieldLabel>
               <Input
                 id={props.field.name}
-                {...props.field}
                 type="date"
                 autoFocus
                 aria-invalid={props.fieldState.invalid}
                 value={
-                  props.field.value ? dateAsYYYYMMDD(props.field.value) : ""
+                  props.field.value
+                    ? dateAsYYYYMMDD(new Date(props.field.value))
+                    : ""
                 }
-                onChange={(e) => props.field.onChange(e.target.valueAsDate)}
+                onChange={(e) => props.field.onChange(e.target.value)}
               />
               {props.fieldState.invalid && (
                 <FieldError errors={[props.fieldState.error]} />
@@ -102,135 +95,101 @@ export const UpdateSetDoneAtForm = (props: Props) => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
-
 type Props = Readonly<{
   onSuccess?: () => void;
 }>;
 
-const useFormSchema = () => {
-  return setSchema.pick({ doneAt: true });
-};
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
-type CreateExerciseSchema = Readonly<z.infer<ReturnType<typeof useFormSchema>>>;
+const DoneAtPayload = PatchSetPayload.pick("doneAt").pipe(
+  Schema.filter((data) => {
+    if (data.doneAt === undefined) {
+      return { path: ["doneAt"], message: "date is required" };
+    }
+    return undefined;
+  }),
+);
 
 const useUpdateSetDoneAtForm = () => {
-  const formSchema = useFormSchema();
   const set = useSet();
 
-  return useForm<CreateExerciseSchema>({
-    resolver: zodResolver(formSchema),
+  return useForm<
+    typeof DoneAtPayload.Encoded,
+    unknown,
+    typeof DoneAtPayload.Type
+  >({
+    resolver: effectTsResolver(DoneAtPayload),
     defaultValues: {
-      doneAt: new Date(set.doneAt),
+      doneAt: set.doneAt.toISOString(),
     },
   });
 };
 
 const useUpdateSetDoneAt = () => {
   const params = routeApi.useParams();
-  const exercise = useExercise(params.exerciseId);
-  const req = api().exercises[":exerciseId"].sets[":setId"].$patch;
 
   const queries = {
+    sets: setQueries.getAll(params.exerciseId),
     tiles: tileQueries.all(),
-    exercise: exerciseQueries.get(exercise.data.id),
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Set", "patch">) => {
+      return callApi((api) => api.Set.patch(props));
     },
     onMutate: async (variables, ctx) => {
+      await ctx.client.cancelQueries(queries.sets);
       await ctx.client.cancelQueries(queries.tiles);
-      await ctx.client.cancelQueries(queries.exercise);
 
+      const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
-      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
-      const doneAt = variables.json.doneAt?.toString();
+      const { doneAt } = variables.payload;
+
+      ctx.client.setQueryData(queries.sets.queryKey, (sets) => {
+        if (!sets) return sets;
+
+        return sets.map((set) => {
+          if (set.id !== variables.path.setId) return set;
+          return { ...set, doneAt: doneAt ?? set.doneAt };
+        });
+      });
 
       ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles || !doneAt) {
-          return tiles;
-        }
+        if (!tiles) return tiles;
 
         return {
           ...tiles,
-          pages: tiles.pages.map((page) => {
-            return {
-              ...page,
-              tiles: page.tiles.map((tile) => {
-                if (tile.type !== "exerciseOverview") {
-                  return tile;
-                }
-
-                if (
-                  tile.exerciseOverview.exerciseId.toString() ===
-                  variables.param.exerciseId
-                ) {
-                  return {
-                    ...tile,
-                    exerciseOverview: {
-                      ...tile.exerciseOverview,
-                      exercise: {
-                        ...tile.exerciseOverview.exercise,
-                        sets: tile.exerciseOverview.exercise.sets.map((set) => {
-                          if (set.id.toString() === variables.param.setId) {
-                            return {
-                              ...set,
-                              doneAt,
-                            };
-                          }
-
-                          return set;
-                        }),
-                      },
-                    },
-                  };
-                }
-
+          pages: tiles.pages.map((page) => ({
+            ...page,
+            dashboardTiles: page.dashboardTiles.map((tile) => {
+              if (tile.type !== "exercise") {
                 return tile;
-              }),
-            };
-          }),
-        };
-      });
+              }
 
-      ctx.client.setQueryData(queries.exercise.queryKey, (exexercise) => {
-        if (!exexercise || !doneAt) {
-          return exexercise;
-        }
+              if (tile.exerciseId !== params.exerciseId) return tile;
 
-        return {
-          ...exexercise,
-          sets: exexercise.sets.map((set) => {
-            if (set.id.toString() === variables.param.setId) {
               return {
-                ...set,
-                doneAt,
+                ...tile,
+                sets: tile.sets.map((set) => {
+                  if (set.id !== variables.path.setId) return set;
+                  return { ...set, doneAt: doneAt ?? set.doneAt };
+                }),
               };
-            }
-
-            return set;
-          }),
+            }),
+          })),
         };
       });
 
-      return {
-        oldTiles,
-        oldExercise,
-      };
+      return { oldSets, oldTiles };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
+      ctx.client.setQueryData(queries.sets.queryKey, onMutateRes?.oldSets);
       ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
-      ctx.client.setQueryData(
-        queries.exercise.queryKey,
-        onMutateRes?.oldExercise,
-      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
+      void ctx.client.invalidateQueries(queries.sets);
       void ctx.client.invalidateQueries(queries.tiles);
-      void ctx.client.invalidateQueries(queries.exercise);
     },
   });
 };

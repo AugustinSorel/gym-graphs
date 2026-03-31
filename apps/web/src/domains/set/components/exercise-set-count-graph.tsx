@@ -7,7 +7,6 @@ import { max } from "@visx/vendor/d3-array";
 import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { useCallback, useMemo } from "react";
 import { localPoint } from "@visx/event";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type {
   ComponentProps,
   CSSProperties,
@@ -15,17 +14,24 @@ import type {
   TouchEvent,
 } from "react";
 
-export const ExerciseSetCountGraph = () => {
-  const tilesToSetsCount = useExerciseToSetCounts();
+type GraphPoint = Readonly<{
+  name: string;
+  count: number;
+}>;
 
-  if (!tilesToSetsCount.length) {
+type Props = Readonly<{
+  data: ReadonlyArray<GraphPoint>;
+}>;
+
+export const ExerciseSetCountGraph = (props: Props) => {
+  if (!props.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => (
-        <Graph height={height} width={width} data={tilesToSetsCount} />
+        <Graph height={height} width={width} data={props.data} />
       )}
     </ParentSize>
   );
@@ -205,10 +211,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: ReturnType<typeof useExerciseToSetCounts>;
+  data: ReadonlyArray<GraphPoint>;
 }>;
-
-type GraphPoint = Readonly<GraphProps["data"][number]>;
 
 const degrees = 360;
 const levels = 5;
@@ -286,17 +290,4 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
-};
-
-const useExerciseToSetCounts = () => {
-  const tiles = useTiles();
-
-  return tiles.data
-    .filter((tile) => tile.type === "exerciseOverview")
-    .map((tile) => {
-      return {
-        name: tile.name,
-        count: tile.exerciseOverview.exercise.sets.length,
-      };
-    });
 };

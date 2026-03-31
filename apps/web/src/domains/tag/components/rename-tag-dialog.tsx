@@ -40,4 +40,4 @@ export const RenameTagDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(settings)/settings");
+const routeApi = getRouteApi("/(authed)/settings");

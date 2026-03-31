@@ -1,10 +1,6 @@
 import { useMemo } from "react";
-import type { Set } from "@gym-graphs/db/schemas";
-import type { Serialize } from "~/utils/json";
 
-export const useSortSetsByDoneAt = <
-  TSet extends Pick<Serialize<Set>, "doneAt">,
->(
+export const useSortSetsByDoneAt = <TSet extends { doneAt: Date | string }>(
   sets: ReadonlyArray<TSet>,
 ) => {
   return useMemo(() => {

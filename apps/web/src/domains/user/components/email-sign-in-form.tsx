@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { useTransition } from "react";
@@ -6,14 +6,11 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { z } from "zod";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { SignInPayload } from "@gym-graphs/shared/auth/schemas";
+import { callApi, InferApiProps } from "~/libs/api";
 
 export const EmailSignInForm = () => {
   const navigate = routeApi.useNavigate();
@@ -23,9 +20,9 @@ export const EmailSignInForm = () => {
   const form = useEmailSignInForm();
   const signIn = useSignIn();
 
-  const onSubmit = async (values: SignInSchema) => {
+  const onSubmit = async (payload: typeof SignInPayload.Type) => {
     await signIn.mutateAsync(
-      { json: values },
+      { payload },
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
@@ -119,14 +116,11 @@ export const EmailSignInForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/sign-in");
-
-const signInSchema = userSchema.pick({ email: true, password: true });
-type SignInSchema = Readonly<z.infer<typeof signInSchema>>;
+const routeApi = getRouteApi("/(auth)/sign-in");
 
 const useEmailSignInForm = () => {
-  return useForm<SignInSchema>({
-    resolver: zodResolver(signInSchema),
+  return useForm<typeof SignInPayload.Type>({
+    resolver: effectTsResolver(SignInPayload),
     defaultValues: {
       email: "",
       password: "",
@@ -135,11 +129,9 @@ const useEmailSignInForm = () => {
 };
 
 const useSignIn = () => {
-  const req = api().sessions.$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Auth", "signIn">) => {
+      return callApi((api) => api.Auth.signIn(props));
     },
   });
 };

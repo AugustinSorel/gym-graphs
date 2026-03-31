@@ -47,4 +47,4 @@ export const UpdateSetWeightDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises/$exerciseId");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");

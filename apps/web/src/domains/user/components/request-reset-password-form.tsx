@@ -1,26 +1,23 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { ForgotPassworPayload } from "@gym-graphs/shared/auth/schemas";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
 import type { ComponentProps } from "react";
 
 export const RequestResetPasswordForm = () => {
   const form = useRequestResetPasswordForm();
   const requestResetPassword = useRequestResetPassword();
 
-  const onSubmit = async (data: RequestResetPassword) => {
+  const onSubmit = async (payload: typeof ForgotPassworPayload.Type) => {
     await requestResetPassword.mutateAsync(
-      { json: data },
+      { payload },
       {
         onSuccess: () => {
           form.reset();
@@ -83,14 +80,9 @@ export const RequestResetPasswordForm = () => {
   );
 };
 
-const requestResetPasswordSchema = userSchema.pick({ email: true });
-type RequestResetPassword = Readonly<
-  z.infer<typeof requestResetPasswordSchema>
->;
-
 const useRequestResetPasswordForm = () => {
-  return useForm<RequestResetPassword>({
-    resolver: zodResolver(requestResetPasswordSchema),
+  return useForm<typeof ForgotPassworPayload.Type>({
+    resolver: effectTsResolver(ForgotPassworPayload),
     defaultValues: {
       email: "",
     },
@@ -98,11 +90,9 @@ const useRequestResetPasswordForm = () => {
 };
 
 const useRequestResetPassword = () => {
-  const req = api()["password-resets"].$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Auth", "forgotPassword">) => {
+      return callApi((api) => api.Auth.forgotPassword(props));
     },
   });
 };

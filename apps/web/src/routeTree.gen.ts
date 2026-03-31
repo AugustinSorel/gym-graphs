@@ -8,24 +8,26 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as authedRouteRouteImport } from './routes/(authed)/route'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as settingsSettingsRouteImport } from './routes/(settings)/settings'
-import { Route as dashboardDashboardRouteImport } from './routes/(dashboard)/dashboard'
-import { Route as authLayoutRouteImport } from './routes/(auth)/_layout'
-import { Route as exercisesExercisesExerciseIdRouteImport } from './routes/(exercises)/exercises.$exerciseId'
-import { Route as authLayoutVerifyEmailRouteImport } from './routes/(auth)/_layout.verify-email'
-import { Route as authLayoutSignUpRouteImport } from './routes/(auth)/_layout.sign-up'
-import { Route as authLayoutSignInRouteImport } from './routes/(auth)/_layout.sign-in'
-import { Route as authLayoutResetPasswordRouteImport } from './routes/(auth)/_layout.reset-password'
-import { Route as exercisesExercisesExerciseIdSettingsRouteImport } from './routes/(exercises)/exercises_.$exerciseId.settings'
-import { Route as authLayoutResetPasswordTokenRouteImport } from './routes/(auth)/_layout.reset-password_.$token'
+import { Route as authedSettingsRouteImport } from './routes/(authed)/settings'
+import { Route as authedDashboardRouteImport } from './routes/(authed)/dashboard'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
+import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
+import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authResetPasswordTokenRouteImport } from './routes/(auth)/reset-password_.$token'
+import { Route as authedExercisesExerciseIdRouteRouteImport } from './routes/(authed)/exercises/$exerciseId/route'
+import { Route as authedExercisesExerciseIdIndexRouteImport } from './routes/(authed)/exercises/$exerciseId/index'
+import { Route as authedExercisesExerciseIdSettingsRouteImport } from './routes/(authed)/exercises/$exerciseId/settings'
 
-const authRouteImport = createFileRoute('/(auth)')()
-
-const authRoute = authRouteImport.update({
+const authedRouteRoute = authedRouteRouteImport.update({
+  id: '/(authed)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -34,155 +36,164 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const settingsSettingsRoute = settingsSettingsRouteImport.update({
-  id: '/(settings)/settings',
+const authedSettingsRoute = authedSettingsRouteImport.update({
+  id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRouteRoute,
 } as any)
-const dashboardDashboardRoute = dashboardDashboardRouteImport.update({
-  id: '/(dashboard)/dashboard',
+const authedDashboardRoute = authedDashboardRouteImport.update({
+  id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => authedRouteRoute,
 } as any)
-const authLayoutRoute = authLayoutRouteImport.update({
-  id: '/_layout',
-  getParentRoute: () => authRoute,
-} as any)
-const exercisesExercisesExerciseIdRoute =
-  exercisesExercisesExerciseIdRouteImport.update({
-    id: '/(exercises)/exercises/$exerciseId',
-    path: '/exercises/$exerciseId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const authLayoutVerifyEmailRoute = authLayoutVerifyEmailRouteImport.update({
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
-  getParentRoute: () => authLayoutRoute,
+  getParentRoute: () => authRouteRoute,
 } as any)
-const authLayoutSignUpRoute = authLayoutSignUpRouteImport.update({
+const authSignUpRoute = authSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
-  getParentRoute: () => authLayoutRoute,
+  getParentRoute: () => authRouteRoute,
 } as any)
-const authLayoutSignInRoute = authLayoutSignInRouteImport.update({
+const authSignInRoute = authSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => authLayoutRoute,
+  getParentRoute: () => authRouteRoute,
 } as any)
-const authLayoutResetPasswordRoute = authLayoutResetPasswordRouteImport.update({
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => authLayoutRoute,
+  getParentRoute: () => authRouteRoute,
 } as any)
-const exercisesExercisesExerciseIdSettingsRoute =
-  exercisesExercisesExerciseIdSettingsRouteImport.update({
-    id: '/(exercises)/exercises_/$exerciseId/settings',
-    path: '/exercises/$exerciseId/settings',
-    getParentRoute: () => rootRouteImport,
+const authResetPasswordTokenRoute = authResetPasswordTokenRouteImport.update({
+  id: '/reset-password_/$token',
+  path: '/reset-password/$token',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authedExercisesExerciseIdRouteRoute =
+  authedExercisesExerciseIdRouteRouteImport.update({
+    id: '/exercises/$exerciseId',
+    path: '/exercises/$exerciseId',
+    getParentRoute: () => authedRouteRoute,
   } as any)
-const authLayoutResetPasswordTokenRoute =
-  authLayoutResetPasswordTokenRouteImport.update({
-    id: '/reset-password_/$token',
-    path: '/reset-password/$token',
-    getParentRoute: () => authLayoutRoute,
+const authedExercisesExerciseIdIndexRoute =
+  authedExercisesExerciseIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => authedExercisesExerciseIdRouteRoute,
+  } as any)
+const authedExercisesExerciseIdSettingsRoute =
+  authedExercisesExerciseIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => authedExercisesExerciseIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof authLayoutRouteWithChildren
-  '/dashboard': typeof dashboardDashboardRoute
-  '/settings': typeof settingsSettingsRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
-  '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/': typeof authedRouteRouteWithChildren
+  '/reset-password': typeof authResetPasswordRoute
+  '/sign-in': typeof authSignInRoute
+  '/sign-up': typeof authSignUpRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/dashboard': typeof authedDashboardRoute
+  '/settings': typeof authedSettingsRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
+  '/reset-password/$token': typeof authResetPasswordTokenRoute
+  '/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/exercises/$exerciseId/': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof authLayoutRouteWithChildren
-  '/dashboard': typeof dashboardDashboardRoute
-  '/settings': typeof settingsSettingsRoute
-  '/reset-password': typeof authLayoutResetPasswordRoute
-  '/sign-in': typeof authLayoutSignInRoute
-  '/sign-up': typeof authLayoutSignUpRoute
-  '/verify-email': typeof authLayoutVerifyEmailRoute
-  '/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/reset-password/$token': typeof authLayoutResetPasswordTokenRoute
-  '/exercises/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/': typeof authedRouteRouteWithChildren
+  '/reset-password': typeof authResetPasswordRoute
+  '/sign-in': typeof authSignInRoute
+  '/sign-up': typeof authSignUpRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/dashboard': typeof authedDashboardRoute
+  '/settings': typeof authedSettingsRoute
+  '/reset-password/$token': typeof authResetPasswordTokenRoute
+  '/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/exercises/$exerciseId': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteWithChildren
-  '/(auth)/_layout': typeof authLayoutRouteWithChildren
-  '/(dashboard)/dashboard': typeof dashboardDashboardRoute
-  '/(settings)/settings': typeof settingsSettingsRoute
-  '/(auth)/_layout/reset-password': typeof authLayoutResetPasswordRoute
-  '/(auth)/_layout/sign-in': typeof authLayoutSignInRoute
-  '/(auth)/_layout/sign-up': typeof authLayoutSignUpRoute
-  '/(auth)/_layout/verify-email': typeof authLayoutVerifyEmailRoute
-  '/(exercises)/exercises/$exerciseId': typeof exercisesExercisesExerciseIdRoute
-  '/(auth)/_layout/reset-password_/$token': typeof authLayoutResetPasswordTokenRoute
-  '/(exercises)/exercises_/$exerciseId/settings': typeof exercisesExercisesExerciseIdSettingsRoute
+  '/(auth)': typeof authRouteRouteWithChildren
+  '/(authed)': typeof authedRouteRouteWithChildren
+  '/(auth)/reset-password': typeof authResetPasswordRoute
+  '/(auth)/sign-in': typeof authSignInRoute
+  '/(auth)/sign-up': typeof authSignUpRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/(authed)/dashboard': typeof authedDashboardRoute
+  '/(authed)/settings': typeof authedSettingsRoute
+  '/(authed)/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
+  '/(auth)/reset-password_/$token': typeof authResetPasswordTokenRoute
+  '/(authed)/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
+  '/(authed)/exercises/$exerciseId/': typeof authedExercisesExerciseIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
-    | '/settings'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/dashboard'
+    | '/settings'
     | '/exercises/$exerciseId'
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
+    | '/exercises/$exerciseId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
-    | '/settings'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
-    | '/exercises/$exerciseId'
+    | '/dashboard'
+    | '/settings'
     | '/reset-password/$token'
     | '/exercises/$exerciseId/settings'
+    | '/exercises/$exerciseId'
   id:
     | '__root__'
     | '/'
     | '/(auth)'
-    | '/(auth)/_layout'
-    | '/(dashboard)/dashboard'
-    | '/(settings)/settings'
-    | '/(auth)/_layout/reset-password'
-    | '/(auth)/_layout/sign-in'
-    | '/(auth)/_layout/sign-up'
-    | '/(auth)/_layout/verify-email'
-    | '/(exercises)/exercises/$exerciseId'
-    | '/(auth)/_layout/reset-password_/$token'
-    | '/(exercises)/exercises_/$exerciseId/settings'
+    | '/(authed)'
+    | '/(auth)/reset-password'
+    | '/(auth)/sign-in'
+    | '/(auth)/sign-up'
+    | '/(auth)/verify-email'
+    | '/(authed)/dashboard'
+    | '/(authed)/settings'
+    | '/(authed)/exercises/$exerciseId'
+    | '/(auth)/reset-password_/$token'
+    | '/(authed)/exercises/$exerciseId/settings'
+    | '/(authed)/exercises/$exerciseId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRoute: typeof authRouteWithChildren
-  dashboardDashboardRoute: typeof dashboardDashboardRoute
-  settingsSettingsRoute: typeof settingsSettingsRoute
-  exercisesExercisesExerciseIdRoute: typeof exercisesExercisesExerciseIdRoute
-  exercisesExercisesExerciseIdSettingsRoute: typeof exercisesExercisesExerciseIdSettingsRoute
+  authRouteRoute: typeof authRouteRouteWithChildren
+  authedRouteRoute: typeof authedRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(authed)': {
+      id: '/(authed)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)': {
       id: '/(auth)'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof authRouteImport
+      preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -192,117 +203,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(settings)/settings': {
-      id: '/(settings)/settings'
+    '/(authed)/settings': {
+      id: '/(authed)/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof settingsSettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof authedSettingsRouteImport
+      parentRoute: typeof authedRouteRoute
     }
-    '/(dashboard)/dashboard': {
-      id: '/(dashboard)/dashboard'
+    '/(authed)/dashboard': {
+      id: '/(authed)/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof dashboardDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof authedDashboardRouteImport
+      parentRoute: typeof authedRouteRoute
     }
-    '/(auth)/_layout': {
-      id: '/(auth)/_layout'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authLayoutRouteImport
-      parentRoute: typeof authRoute
-    }
-    '/(exercises)/exercises/$exerciseId': {
-      id: '/(exercises)/exercises/$exerciseId'
-      path: '/exercises/$exerciseId'
-      fullPath: '/exercises/$exerciseId'
-      preLoaderRoute: typeof exercisesExercisesExerciseIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/_layout/verify-email': {
-      id: '/(auth)/_layout/verify-email'
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
       path: '/verify-email'
       fullPath: '/verify-email'
-      preLoaderRoute: typeof authLayoutVerifyEmailRouteImport
-      parentRoute: typeof authLayoutRoute
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof authRouteRoute
     }
-    '/(auth)/_layout/sign-up': {
-      id: '/(auth)/_layout/sign-up'
+    '/(auth)/sign-up': {
+      id: '/(auth)/sign-up'
       path: '/sign-up'
       fullPath: '/sign-up'
-      preLoaderRoute: typeof authLayoutSignUpRouteImport
-      parentRoute: typeof authLayoutRoute
+      preLoaderRoute: typeof authSignUpRouteImport
+      parentRoute: typeof authRouteRoute
     }
-    '/(auth)/_layout/sign-in': {
-      id: '/(auth)/_layout/sign-in'
+    '/(auth)/sign-in': {
+      id: '/(auth)/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
-      preLoaderRoute: typeof authLayoutSignInRouteImport
-      parentRoute: typeof authLayoutRoute
+      preLoaderRoute: typeof authSignInRouteImport
+      parentRoute: typeof authRouteRoute
     }
-    '/(auth)/_layout/reset-password': {
-      id: '/(auth)/_layout/reset-password'
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
-      preLoaderRoute: typeof authLayoutResetPasswordRouteImport
-      parentRoute: typeof authLayoutRoute
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof authRouteRoute
     }
-    '/(exercises)/exercises_/$exerciseId/settings': {
-      id: '/(exercises)/exercises_/$exerciseId/settings'
-      path: '/exercises/$exerciseId/settings'
-      fullPath: '/exercises/$exerciseId/settings'
-      preLoaderRoute: typeof exercisesExercisesExerciseIdSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/_layout/reset-password_/$token': {
-      id: '/(auth)/_layout/reset-password_/$token'
+    '/(auth)/reset-password_/$token': {
+      id: '/(auth)/reset-password_/$token'
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token'
-      preLoaderRoute: typeof authLayoutResetPasswordTokenRouteImport
-      parentRoute: typeof authLayoutRoute
+      preLoaderRoute: typeof authResetPasswordTokenRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId': {
+      id: '/(authed)/exercises/$exerciseId'
+      path: '/exercises/$exerciseId'
+      fullPath: '/exercises/$exerciseId'
+      preLoaderRoute: typeof authedExercisesExerciseIdRouteRouteImport
+      parentRoute: typeof authedRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId/': {
+      id: '/(authed)/exercises/$exerciseId/'
+      path: '/'
+      fullPath: '/exercises/$exerciseId/'
+      preLoaderRoute: typeof authedExercisesExerciseIdIndexRouteImport
+      parentRoute: typeof authedExercisesExerciseIdRouteRoute
+    }
+    '/(authed)/exercises/$exerciseId/settings': {
+      id: '/(authed)/exercises/$exerciseId/settings'
+      path: '/settings'
+      fullPath: '/exercises/$exerciseId/settings'
+      preLoaderRoute: typeof authedExercisesExerciseIdSettingsRouteImport
+      parentRoute: typeof authedExercisesExerciseIdRouteRoute
     }
   }
 }
 
-interface authLayoutRouteChildren {
-  authLayoutResetPasswordRoute: typeof authLayoutResetPasswordRoute
-  authLayoutSignInRoute: typeof authLayoutSignInRoute
-  authLayoutSignUpRoute: typeof authLayoutSignUpRoute
-  authLayoutVerifyEmailRoute: typeof authLayoutVerifyEmailRoute
-  authLayoutResetPasswordTokenRoute: typeof authLayoutResetPasswordTokenRoute
+interface authRouteRouteChildren {
+  authResetPasswordRoute: typeof authResetPasswordRoute
+  authSignInRoute: typeof authSignInRoute
+  authSignUpRoute: typeof authSignUpRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
+  authResetPasswordTokenRoute: typeof authResetPasswordTokenRoute
 }
 
-const authLayoutRouteChildren: authLayoutRouteChildren = {
-  authLayoutResetPasswordRoute: authLayoutResetPasswordRoute,
-  authLayoutSignInRoute: authLayoutSignInRoute,
-  authLayoutSignUpRoute: authLayoutSignUpRoute,
-  authLayoutVerifyEmailRoute: authLayoutVerifyEmailRoute,
-  authLayoutResetPasswordTokenRoute: authLayoutResetPasswordTokenRoute,
+const authRouteRouteChildren: authRouteRouteChildren = {
+  authResetPasswordRoute: authResetPasswordRoute,
+  authSignInRoute: authSignInRoute,
+  authSignUpRoute: authSignUpRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
+  authResetPasswordTokenRoute: authResetPasswordTokenRoute,
 }
 
-const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
-  authLayoutRouteChildren,
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
 )
 
-interface authRouteChildren {
-  authLayoutRoute: typeof authLayoutRouteWithChildren
+interface authedExercisesExerciseIdRouteRouteChildren {
+  authedExercisesExerciseIdSettingsRoute: typeof authedExercisesExerciseIdSettingsRoute
+  authedExercisesExerciseIdIndexRoute: typeof authedExercisesExerciseIdIndexRoute
 }
 
-const authRouteChildren: authRouteChildren = {
-  authLayoutRoute: authLayoutRouteWithChildren,
+const authedExercisesExerciseIdRouteRouteChildren: authedExercisesExerciseIdRouteRouteChildren =
+  {
+    authedExercisesExerciseIdSettingsRoute:
+      authedExercisesExerciseIdSettingsRoute,
+    authedExercisesExerciseIdIndexRoute: authedExercisesExerciseIdIndexRoute,
+  }
+
+const authedExercisesExerciseIdRouteRouteWithChildren =
+  authedExercisesExerciseIdRouteRoute._addFileChildren(
+    authedExercisesExerciseIdRouteRouteChildren,
+  )
+
+interface authedRouteRouteChildren {
+  authedDashboardRoute: typeof authedDashboardRoute
+  authedSettingsRoute: typeof authedSettingsRoute
+  authedExercisesExerciseIdRouteRoute: typeof authedExercisesExerciseIdRouteRouteWithChildren
 }
 
-const authRouteWithChildren = authRoute._addFileChildren(authRouteChildren)
+const authedRouteRouteChildren: authedRouteRouteChildren = {
+  authedDashboardRoute: authedDashboardRoute,
+  authedSettingsRoute: authedSettingsRoute,
+  authedExercisesExerciseIdRouteRoute:
+    authedExercisesExerciseIdRouteRouteWithChildren,
+}
+
+const authedRouteRouteWithChildren = authedRouteRoute._addFileChildren(
+  authedRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRoute: authRouteWithChildren,
-  dashboardDashboardRoute: dashboardDashboardRoute,
-  settingsSettingsRoute: settingsSettingsRoute,
-  exercisesExercisesExerciseIdRoute: exercisesExercisesExerciseIdRoute,
-  exercisesExercisesExerciseIdSettingsRoute:
-    exercisesExercisesExerciseIdSettingsRoute,
+  authRouteRoute: authRouteRouteWithChildren,
+  authedRouteRoute: authedRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

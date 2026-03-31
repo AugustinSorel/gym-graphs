@@ -104,10 +104,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/schemas"
-    },
-    {
-      "path": "./packages/constants"
+      "path": "./packages/shared"
     },
     {
       "path": "./apps/web"

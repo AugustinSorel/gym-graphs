@@ -1,15 +1,14 @@
 import { useMemo } from "react";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import type { Set } from "@gym-graphs/db/schemas";
-import type { Serialize } from "~/utils/json";
 
 export const useBestSetsFromDoneAt = <
-  TSet extends Pick<Serialize<Set>, "doneAt" | "weightInKg" | "repetitions">,
+  TSet extends { doneAt: Date | string; weightInKg: number; repetitions: number },
 >(
   setsByDoneAt: Map<string, Array<TSet>>,
 ) => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return useMemo(() => {
     return Array.from(setsByDoneAt).reduce<Array<TSet>>((acc, [_key, sets]) => {

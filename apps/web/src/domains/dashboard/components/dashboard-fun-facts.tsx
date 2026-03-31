@@ -7,40 +7,57 @@ import {
   CarouselItem,
 } from "~/ui/carousel";
 import { Skeleton } from "~/ui/skeleton";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
+import { createContext, use } from "react";
 import type { ComponentProps } from "react";
 
-export const DashboardFunFacts = () => {
-  const funFacts = useDashboardFunFacts();
+type FunFactsData = Readonly<{
+  totalWeightInKg: number;
+  totalRepetitions: number;
+  tileWithMostSets: { name: string };
+  tileWithLeastSets: { name: string };
+}>;
 
-  if (!funFacts.totalRepetitions) {
+type Props = Readonly<{ data: FunFactsData }>;
+
+const FunFactsContext = createContext<FunFactsData | null>(null);
+
+const useFunFacts = () => {
+  const ctx = use(FunFactsContext);
+  if (!ctx) throw new Error("useFunFacts must be used inside DashboardFunFacts");
+  return ctx;
+};
+
+export const DashboardFunFacts = (props: Props) => {
+  if (!props.data.totalRepetitions) {
     return <NoDataText>no data</NoDataText>;
   }
 
   return (
-    <Carousel>
-      <CarouselBody>
-        {FunFacts.map((FunFact, i) => (
-          <CarouselItem
-            className="grid grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center select-none"
-            key={i}
-          >
-            <FunFact />
-          </CarouselItem>
-        ))}
-      </CarouselBody>
+    <FunFactsContext value={props.data}>
+      <Carousel>
+        <CarouselBody>
+          {FunFacts.map((FunFact, i) => (
+            <CarouselItem
+              className="grid grid-rows-[1fr_auto_1fr] gap-y-3 p-3 text-center select-none"
+              key={i}
+            >
+              <FunFact />
+            </CarouselItem>
+          ))}
+        </CarouselBody>
 
-      <CarouselDotsContainer>
-        {FunFacts.map((_FunFact, i) => (
-          <CarouselDot key={i} index={i} />
-        ))}
-      </CarouselDotsContainer>
-    </Carousel>
+        <CarouselDotsContainer>
+          {FunFacts.map((_FunFact, i) => (
+            <CarouselDot key={i} index={i} />
+          ))}
+        </CarouselDotsContainer>
+      </Carousel>
+    </FunFactsContext>
   );
 };
 
 const WeightLiftedFunFact = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -53,7 +70,7 @@ const WeightLiftedFunFact = () => {
 };
 
 const NumberOfRepetitions = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -64,7 +81,7 @@ const NumberOfRepetitions = () => {
 };
 
 const FavoriteExercise = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -75,7 +92,7 @@ const FavoriteExercise = () => {
 };
 
 const LeastFavoriteExercise = () => {
-  const funFacts = useDashboardFunFacts();
+  const funFacts = useFunFacts();
 
   return (
     <>
@@ -125,44 +142,6 @@ export const TilesFunFactsSkeleton = () => {
       </div>
     </div>
   );
-};
-
-const useDashboardFunFacts = () => {
-  const tiles = useTiles().data.filter((tile) => {
-    return tile.type === "exerciseOverview";
-  });
-
-  const sets = tiles.flatMap((tile) => tile.exerciseOverview.exercise.sets);
-
-  const totalWeightInKg = sets.reduce((acc, set) => {
-    return acc + set.repetitions * set.weightInKg;
-  }, 0);
-
-  const totalRepetitions = sets.reduce((acc, set) => {
-    return acc + set.repetitions;
-  }, 0);
-
-  const tilesOrderedBySetCount = tiles.toSorted((a, b) => {
-    return a.exerciseOverview.exercise.sets.length >
-      b.exerciseOverview.exercise.sets.length
-      ? -1
-      : 1;
-  });
-
-  const tileWithMostSets = {
-    name: tilesOrderedBySetCount.at(0)?.name ?? "unknown",
-  };
-
-  const tileWithLeastSets = {
-    name: tilesOrderedBySetCount.at(-1)?.name ?? "unknown",
-  };
-
-  return {
-    totalWeightInKg,
-    totalRepetitions,
-    tileWithMostSets,
-    tileWithLeastSets,
-  };
 };
 
 const FunFacts = [

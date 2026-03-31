@@ -1,19 +1,16 @@
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { Controller, useForm } from "react-hook-form";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
-import type { z } from "zod";
+import { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
+import { Schema } from "effect";
 
 type Props = Readonly<{
   onSuccess?: () => void;
@@ -23,9 +20,9 @@ export const RenameUserForm = (props: Props) => {
   const form = useCreateExerciseForm();
   const renameUser = useRenameUser();
 
-  const onSubmit = async (data: RenameUserSchema) => {
+  const onSubmit = async (payload: RenameUserSchema) => {
     await renameUser.mutateAsync(
-      { json: data },
+      { payload },
       {
         onSuccess: () => {
           if (props.onSuccess) {
@@ -88,14 +85,14 @@ export const RenameUserForm = (props: Props) => {
   );
 };
 
-const renameUserSchema = userSchema.pick({ name: true });
-type RenameUserSchema = Readonly<z.infer<typeof renameUserSchema>>;
+const renameUserSchema = PatchUserByIdPayload.pipe(Schema.pick("name"));
+type RenameUserSchema = typeof renameUserSchema.Type;
 
 const useCreateExerciseForm = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   return useForm<RenameUserSchema>({
-    resolver: zodResolver(renameUserSchema),
+    resolver: effectTsResolver(renameUserSchema),
     defaultValues: {
       name: user.data.name,
     },
@@ -103,15 +100,13 @@ const useCreateExerciseForm = () => {
 };
 
 const useRenameUser = () => {
-  const req = api().users.me.$patch;
-
   const queries = {
     user: userQueries.get,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"User", "patch">) => {
+      return callApi((api) => api.User.patch(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(userQueries.get);
@@ -119,13 +114,13 @@ const useRenameUser = () => {
       const oldUser = ctx.client.getQueryData(queries.user.queryKey);
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user || !variables.json.name) {
+        if (!user || !variables.payload.name) {
           return user;
         }
 
         return {
           ...user,
-          name: variables.json.name,
+          name: variables.payload.name,
         };
       });
 

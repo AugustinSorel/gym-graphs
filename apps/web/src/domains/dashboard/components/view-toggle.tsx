@@ -1,23 +1,22 @@
 import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ChartLineIcon, TrendingUpDownIcon } from "~/ui/icons";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { useUser } from "~/domains/user/hooks/use-user";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
+import { decodeUnknownOption } from "effect/ParseResult";
+import { Option } from "effect";
 
 const useUpdateDashboadView = () => {
-  const req = api().users.me.$patch;
-
   const queries = {
     user: userQueries.get,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (
+      payload: Pick<InferApiProps<"User", "patch">["payload"], "dashboardView">,
+    ) => {
+      return callApi((api) => api.User.patch({ payload }));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
@@ -25,13 +24,13 @@ const useUpdateDashboadView = () => {
       const oldUser = ctx.client.getQueryData(queries.user.queryKey);
 
       ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user || !variables.json.dashboardView) {
+        if (!user || !variables.dashboardView) {
           return user;
         }
 
         return {
           ...user,
-          dashboardView: variables.json.dashboardView,
+          dashboardView: variables.dashboardView,
         };
       });
 
@@ -49,7 +48,7 @@ const useUpdateDashboadView = () => {
 };
 
 export const ViewToggle = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const updateDashboardView = useUpdateDashboadView();
 
   return (
@@ -58,24 +57,26 @@ export const ViewToggle = () => {
       className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md border p-0.5 shadow-xs"
       value={user.data.dashboardView}
       onValueChange={(unsafeView) => {
-        const view = userSchema.shape.dashboardView.safeParse(unsafeView);
+        const viewOption = decodeUnknownOption(UserSchema.fields.dashboardView)(
+          unsafeView,
+        );
 
-        if (!view.success) {
+        if (Option.isNone(viewOption)) {
           return;
         }
 
-        updateDashboardView.mutate({ json: { dashboardView: view.data } });
+        updateDashboardView.mutate({ dashboardView: viewOption.value });
       }}
     >
       <ToggleGroupItem
-        value={userSchema.shape.dashboardView.enum.graph}
+        value={UserSchema.fields.dashboardView.literals[0]}
         aria-label="Toggle grid"
         size="sm"
       >
         <ChartLineIcon />
       </ToggleGroupItem>
       <ToggleGroupItem
-        value={userSchema.shape.dashboardView.enum.trending}
+        value={UserSchema.fields.dashboardView.literals[1]}
         aria-label="Toggle list"
         size="sm"
       >

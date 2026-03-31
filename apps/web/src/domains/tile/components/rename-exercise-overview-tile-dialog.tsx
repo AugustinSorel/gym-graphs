@@ -42,4 +42,4 @@ export const RenameExerciseOverviewTileDialog = () => {
   );
 };
 
-const routeApi = getRouteApi("/(exercises)/exercises_/$exerciseId/settings");
+const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/settings");

@@ -12,13 +12,11 @@ import {
 } from "~/ui/alert-dialog";
 import { Spinner } from "~/ui/spinner";
 import { DropdownMenuItem } from "~/ui/dropdown-menu";
-import { userQueries } from "~/domains/user/user.queries";
 import { useTag } from "~/domains/tag/tag.context";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { getRouteApi } from "@tanstack/react-router";
 import { useRouteHash } from "~/hooks/use-route-hash";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { tagQueries } from "../tag.queries";
 
 export const DeleteTagDialog = () => {
   const deleteTag = useDeleteTag();
@@ -28,8 +26,8 @@ export const DeleteTagDialog = () => {
   const deleteTagHandler = () => {
     deleteTag.mutate(
       {
-        param: {
-          tagId: tag.id.toString(),
+        path: {
+          tagId: tag.id,
         },
       },
       {
@@ -85,43 +83,38 @@ export const DeleteTagDialog = () => {
 };
 
 const useDeleteTag = () => {
-  const req = api().tags[":tagId"].$delete;
-
   const queries = {
-    user: userQueries.get,
+    tags: tagQueries.all,
   };
 
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(api().tags[":tagId"].$delete(input));
+    mutationFn: async (props: InferApiProps<"Tag", "delete">) => {
+      return callApi((api) => api.Tag.delete(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.user);
+      await ctx.client.cancelQueries(queries.tags);
 
-      const oldUser = ctx.client.getQueryData(queries.user.queryKey);
+      const oldTags = ctx.client.getQueryData(queries.tags.queryKey);
 
-      ctx.client.setQueryData(queries.user.queryKey, (user) => {
-        if (!user) {
-          return user;
+      ctx.client.setQueryData(queries.tags.queryKey, (tags) => {
+        if (!tags) {
+          return tags;
         }
 
-        return {
-          ...user,
-          tags: user.tags.filter((tag) => tag.id !== +variables.param.tagId),
-        };
+        return tags.filter((tag) => tag.id !== variables.path.tagId);
       });
 
       return {
-        oldUser,
+        oldTags,
       };
     },
     onError: (_e, _variables, onMutateResult, ctx) => {
-      ctx.client.setQueryData(queries.user.queryKey, onMutateResult?.oldUser);
+      ctx.client.setQueryData(queries.tags.queryKey, onMutateResult?.oldTags);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.user);
+      void ctx.client.invalidateQueries(queries.tags);
     },
   });
 };
 
-const routeApi = getRouteApi("/(settings)/settings");
+const routeApi = getRouteApi("/(authed)/settings");

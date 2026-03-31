@@ -1,8 +1,9 @@
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
-import type { Set } from "@gym-graphs/db/schemas";
-import type { Serialize } from "~/utils/json";
+import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
-export const useLastSet = <TSet extends Pick<Serialize<Set>, "doneAt">>(
+export const useLastSet = <
+  TSet extends Pick<typeof SetSuccessSchema.Type, "doneAt">,
+>(
   sets: ReadonlyArray<TSet>,
 ) => {
   const sortedSets = useSortSetsByDoneAt(sets);

@@ -1,0 +1,1 @@
+ALTER TYPE "dashboard_type" ADD VALUE 'dashboardFunFacts';

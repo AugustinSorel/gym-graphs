@@ -9,18 +9,24 @@ import { Skeleton } from "~/ui/skeleton";
 import { getCalendarPositions, getFirstDayOfMonth } from "~/utils/date";
 import { Bar } from "@visx/shape";
 import { cn } from "~/styles/styles.utils";
-import { useTiles } from "~/domains/tile/hooks/use-tiles";
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-import type { Set } from "@gym-graphs/db/schemas";
-import type { Serialize } from "~/utils/json";
 
-export const DashboardHeatMap = () => {
-  const data = useDashboardHeatMap();
+type SetWithDoneAt = Readonly<{ doneAt: Date | string }>;
+
+type Props = Readonly<{ sets: ReadonlyArray<SetWithDoneAt> }>;
+
+export const DashboardHeatMap = (props: Props) => {
+  const setsForThisMonth = props.sets.filter(
+    (set) =>
+      new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth(),
+  );
+
+  const data = transformSetsToHeatMap(setsForThisMonth);
 
   const heatMapEmpty = data.flatMap((d) => d.bins).every((e) => !e.count);
 
@@ -198,7 +204,7 @@ const Graph = ({ width, height, data }: GraphProps) => {
 type GraphProps = Readonly<{
   height: number;
   width: number;
-  data: ReturnType<typeof useDashboardHeatMap>;
+  data: ReturnType<typeof transformSetsToHeatMap>;
 }>;
 
 type Bins = GraphProps["data"][number];
@@ -276,24 +282,8 @@ export const TilesSetsHeatMapGraphSkeleton = () => {
   );
 };
 
-const useDashboardHeatMap = () => {
-  const tiles = useTiles();
-
-  const setsForThisMonth = tiles.data
-    .filter((tile) => tile.type === "exerciseOverview")
-    .flatMap((tile) => tile.exerciseOverview.exercise.sets)
-    .filter((set) => {
-      return (
-        new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth()
-      );
-    });
-  const setsHeatMap = transformSetsToHeatMap(setsForThisMonth);
-
-  return setsHeatMap;
-};
-
 export const transformSetsToHeatMap = (
-  sets: ReadonlyArray<Pick<Serialize<Set>, "doneAt">>,
+  sets: ReadonlyArray<SetWithDoneAt>,
 ) => {
   const setsHeatMapTemplate = generateSetsHeatMapTemplate();
 
@@ -321,7 +311,7 @@ const generateSetsHeatMapTemplate = () => {
 
 const setsToHeatMap = (
   setsHeatMap: ReturnType<typeof generateSetsHeatMapTemplate>,
-  set: Pick<Serialize<Set>, "doneAt">,
+  set: SetWithDoneAt,
 ) => {
   const calendarPositions = getCalendarPositions(new Date(set.doneAt));
 

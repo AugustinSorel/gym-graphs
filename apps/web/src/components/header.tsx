@@ -21,15 +21,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/ui/dropdown-menu";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { cn } from "~/styles/styles.utils";
 import { useUpdateWeightUnit } from "~/domains/user/hooks/use-update-weight-unit";
-import { userSchema } from "@gym-graphs/schemas/user";
+import { UserSchema } from "@gym-graphs/shared/user/schemas";
 import { AppIcon } from "~/ui/app-icon";
-import { useSignOut } from "~/domains/session/hooks/use-sign-out";
+import { useSignOut } from "~/domains/user/hooks/use-sign-out";
 import { useTheme } from "~/theme/theme.context";
-import { themeSchema } from "~/theme/theme.schemas";
+import { ThemeSchema } from "~/theme/theme.schemas";
 import type { ComponentProps } from "react";
+import { Option, Schema } from "effect";
 
 export const HeaderPublic = () => {
   return (
@@ -129,7 +131,7 @@ const MobileNav = () => {
 };
 
 const UserProfileDropdown = () => {
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
   const signOut = useSignOut();
   const updateWeightUnit = useUpdateWeightUnit();
   const theme = useTheme();
@@ -161,13 +163,14 @@ const UserProfileDropdown = () => {
             className="flex gap-2"
             value={user.data.weightUnit}
             onValueChange={(unsafeWeightUnit) => {
-              const weightUnit =
-                userSchema.shape.weightUnit.parse(unsafeWeightUnit);
+              const weightUnit = Schema.decodeUnknownSync(
+                UserSchema.fields.weightUnit,
+              )(unsafeWeightUnit);
 
               updateWeightUnit.mutate({ weightUnit });
             }}
           >
-            {userSchema.shape.weightUnit.options.map((weightUnit) => (
+            {UserSchema.fields.weightUnit.literals.map((weightUnit) => (
               <DropdownMenuRadioItem
                 key={weightUnit}
                 value={weightUnit}
@@ -185,25 +188,27 @@ const UserProfileDropdown = () => {
             className="flex gap-2"
             value={theme.value}
             onValueChange={(unsafeTheme) => {
-              theme.set(themeSchema.parse(unsafeTheme));
+              const themeOption = Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
+              if (Option.isNone(themeOption)) return;
+              theme.set(themeOption.value);
             }}
           >
             <DropdownMenuRadioItem
-              value={themeSchema.enum.system}
+              value="system"
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <LaptopIcon />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
-              value={themeSchema.enum.light}
+              value="light"
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >
               <SunIcon />
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
-              value={themeSchema.enum.dark}
+              value="dark"
               className="focus:bg-accent aria-checked:bg-accent flex cursor-pointer items-center justify-center rounded-md border p-1.5 outline-hidden transition-colors disabled:pointer-events-none disabled:opacity-50 **:data-[state=checked]:hidden"
               onSelect={(e) => e.preventDefault()}
             >

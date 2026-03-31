@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "declaration": true,
+    "declaration": false,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
+      "#/*": [
         "./src/*"
       ]
     }

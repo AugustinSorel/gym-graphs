@@ -1,35 +1,36 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
-import type { Tile, Tag } from "@gym-graphs/db/schemas";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { SelectAllDashboardTilesUrlParams } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { callApi } from "~/libs/api";
 
-const all = (name?: Tile["name"], tags?: Array<Tag["name"]>) => {
+const all = (
+  urlParams?: Omit<typeof SelectAllDashboardTilesUrlParams.Encoded, "cursor">,
+) => {
   return infiniteQueryOptions({
-    queryKey: ["dashboard", "tiles", name, tags],
-    queryFn: async ({ pageParam, signal }) => {
-      const req = api().tiles.$get;
-
-      const query: InferApiReqInput<typeof req>["query"] = {
-        page: pageParam.toString(),
-      };
-
-      if (name) {
-        query.name = name;
-      }
-
-      if (tags?.length) {
-        query.tags = JSON.stringify(tags);
-      }
-
-      return parseJsonResponse(req({ query }, { init: { signal } }));
+    queryKey: ["dashboard-tiles", urlParams?.name, urlParams?.tags],
+    queryFn: async ({ pageParam }) => {
+      return callApi((api) =>
+        api.DashboardTile.all({
+          urlParams: {
+            ...urlParams,
+            cursor: pageParam,
+          },
+        }),
+      );
     },
-    initialPageParam: 1,
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    select: (tiles) => tiles.pages.flatMap((pages) => pages.tiles),
+    select: (tiles) => tiles.pages.flatMap((pages) => pages.dashboardTiles),
   });
 };
 
+const tags = (tileId: number) =>
+  queryOptions({
+    queryKey: ["dashboard-tiles", tileId, "tags"],
+    queryFn: async () =>
+      callApi((api) => api.DashboardTile.getTags({ path: { tileId } })),
+  });
+
 export const tileQueries = {
   all,
+  tags,
 };

@@ -1,19 +1,16 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "~/ui/button";
 import { Input } from "~/ui/input";
 import { Spinner } from "~/ui/spinner";
-import { userSchema } from "@gym-graphs/schemas/user";
-import { z } from "zod";
+import { ResetPasswordPayload } from "@gym-graphs/shared/auth/schemas";
 import { useTransition } from "react";
 import { getRouteApi } from "@tanstack/react-router";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import type { InferApiReqInput } from "@gym-graphs/api";
 
 export const ResetPasswordForm = () => {
   const form = useResetPasswordForm();
@@ -21,17 +18,10 @@ export const ResetPasswordForm = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
 
   const navigate = routeApi.useNavigate();
-  const params = routeApi.useParams();
 
-  const onSubmit = async (data: ResetPasswordForm) => {
+  const onSubmit = async (payload: typeof ResetPasswordPayload.Type) => {
     await resetPassword.mutateAsync(
-      {
-        json: {
-          password: data.password,
-          confirmPassword: data.confirmPassword,
-          token: params.token,
-        },
-      },
+      { payload },
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
@@ -114,35 +104,25 @@ export const ResetPasswordForm = () => {
   );
 };
 
-const routeApi = getRouteApi("/(auth)/_layout/reset-password_/$token");
-
-const resetPasswordFormSchema = z
-  .object({
-    password: userSchema.shape.password,
-    confirmPassword: userSchema.shape.password,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-type ResetPasswordForm = Readonly<z.infer<typeof resetPasswordFormSchema>>;
+const routeApi = getRouteApi("/(auth)/reset-password_/$token");
 
 const useResetPasswordForm = () => {
-  return useForm<ResetPasswordForm>({
-    resolver: zodResolver(resetPasswordFormSchema),
+  const params = routeApi.useParams();
+
+  return useForm<typeof ResetPasswordPayload.Type>({
+    resolver: effectTsResolver(ResetPasswordPayload),
     defaultValues: {
       password: "",
       confirmPassword: "",
+      token: params.token,
     },
   });
 };
 
 const useResetPassword = () => {
-  const req = api()["password-resets"].reset.$post;
-
   return useMutation({
-    mutationFn: async (input: InferApiReqInput<typeof req>) => {
-      return parseJsonResponse(req(input));
+    mutationFn: async (props: InferApiProps<"Auth", "resetPassword">) => {
+      return callApi((api) => api.Auth.resetPassword(props));
     },
   });
 };

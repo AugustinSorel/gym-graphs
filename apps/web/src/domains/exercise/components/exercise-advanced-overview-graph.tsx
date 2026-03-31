@@ -10,20 +10,20 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { LinearGradient } from "@visx/gradient";
 import { localPoint } from "@visx/event";
 import { useCallback, useMemo } from "react";
-import { z } from "zod";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
-import type { Set } from "@gym-graphs/db/schemas";
+
 import type {
   ComponentProps,
   CSSProperties,
   MouseEvent,
   TouchEvent,
 } from "react";
-import type { Serialize } from "~/utils/json";
+import { Mutable } from "effect/Types";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useBestSortedSets(props.sets);
@@ -44,7 +44,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 
 const Graph = ({ height, width, sets }: GraphProps) => {
   const tooltip = useTooltip<Point>();
-  const user = useUser();
+  const user = useSuspenseQuery(userQueries.get);
 
   const timeScale = useMemo(() => {
     return scaleTime({
@@ -106,12 +106,8 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             scale={timeScale}
             numTicks={5}
             tickFormat={(value) => {
-              const date = z
-                .number()
-                .transform((d) => new Date(d))
-                .or(z.date())
-                .catch(new Date())
-                .parse(value);
+              const date =
+                value instanceof Date ? value : new Date(Number(value));
 
               return date.toLocaleDateString("en-US", {
                 month: "short",
@@ -147,7 +143,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
           />
 
           <AreaClosed<Point>
-            data={sets}
+            data={sets as Mutable<typeof sets>}
             x={(d) => timeScale(getDoneAt(d))}
             y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             yScale={oneRepMaxScale}
@@ -159,7 +155,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
 
           <LinePath<Point>
             curve={curveMonotoneX}
-            data={sets}
+            data={sets as Mutable<typeof sets>}
             x={(d) => timeScale(getDoneAt(d))}
             y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
             className="stroke-primary"
@@ -273,12 +269,14 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Point = Readonly<
-  Pick<Serialize<Set>, "weightInKg" | "repetitions" | "doneAt">
->;
+type Point = Readonly<{
+  weightInKg: number;
+  repetitions: number;
+  doneAt: Date | string;
+}>;
 
 type Props = Readonly<{
-  sets: Array<Point>;
+  sets: ReadonlyArray<Point>;
 }>;
 
 type GraphProps = Readonly<

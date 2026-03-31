@@ -1,0 +1,67 @@
+import { Effect, Layer, Schema } from "effect";
+import { PgClient } from "@effect/sql-pg";
+import { DatabaseError, types } from "pg";
+import * as PgDrizzle from "drizzle-orm/effect-postgres";
+import { ServerConfig } from "#/server-config";
+import { relations } from "./relations";
+
+export const PgClientLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const config = yield* ServerConfig;
+
+    return PgClient.layer({
+      url: config.db.url,
+      types: {
+        getTypeParser: (typeId, format) => {
+          if (
+            // Return raw values for date/time types to let Drizzle handle parsing
+            [1184, 1114, 1082, 1186, 1231, 1115, 1185, 1187, 1182].includes(
+              typeId,
+            )
+          ) {
+            return (val: any) => val;
+          }
+          return types.getTypeParser(typeId, format);
+        },
+      },
+    });
+  }),
+);
+
+export class Database extends Effect.Service<Database>()("Database", {
+  dependencies: [PgClientLive],
+  effect: PgDrizzle.make({ relations }).pipe(
+    Effect.provide(PgDrizzle.DefaultServices),
+  ),
+  accessors: true,
+}) {}
+
+export const withTransaction = <A, E, R>(effect: Effect.Effect<A, E, R>) => {
+  return Effect.gen(function* () {
+    const db = yield* Database;
+
+    return yield* db.transaction((tx) => {
+      return effect.pipe(
+        Effect.provideService(Database, tx as unknown as Database),
+      );
+    });
+  });
+};
+
+const DatabaseErrorSchema = Schema.Struct({
+  cause: Schema.Struct({
+    error: Schema.Struct({
+      cause: Schema.instanceOf(DatabaseError),
+    }),
+  }),
+});
+
+export const isUniqueViolation = (e: unknown, constraint: string): boolean => {
+  if (!Schema.is(DatabaseErrorSchema)(e)) {
+    return false;
+  }
+
+  const dbError = e.cause.error.cause;
+
+  return dbError.code === "23505" && dbError.constraint === constraint;
+};

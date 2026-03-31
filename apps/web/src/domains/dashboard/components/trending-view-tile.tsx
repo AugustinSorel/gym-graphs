@@ -5,35 +5,34 @@ import { Skeleton } from "~/ui/skeleton";
 import { cn } from "~/styles/styles.utils";
 import { ArrowDownIcon, ArrowUpIcon, EqualIcon } from "~/ui/icons";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
-import { useUser } from "~/domains/user/hooks/use-user";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import { percentageChange } from "~/utils/math";
 import type { ComponentProps } from "react";
-import type { Set } from "@gym-graphs/db/schemas";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import type { useTiles } from "~/domains/tile/hooks/use-tiles";
-import type { Serialize } from "~/utils/json";
+import { ExerciseTileWithSetsSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
 
-export const TrendingViewTile = (props: { tile: ExerciseOverviewTile }) => {
+export const TrendingViewTile = (props: Props) => {
   return (
     <Card className="hover:bg-accent group transition-colors">
-      <Button variant="link" asChild className="absolute inset-0 h-auto">
-        <Link
-          to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exerciseOverview.exerciseId }}
-          aria-label={`go to exercise ${props.tile.exerciseOverview.exerciseId}`}
-        />
-      </Button>
+      {props.tile.exerciseId !== null && (
+        <Button variant="link" asChild className="absolute inset-0 h-auto">
+          <Link
+            to="/exercises/$exerciseId"
+            params={{ exerciseId: props.tile.exerciseId }}
+            aria-label={`go to exercise ${props.tile.exerciseId}`}
+          />
+        </Button>
+      )}
 
       <Name className="group-hover:underline">{props.tile.name}</Name>
-      <LastTwoSetsProgress sets={props.tile.exerciseOverview.exercise.sets} />
+      <LastTwoSetsProgress sets={props.tile.sets} />
     </Card>
   );
 };
 
-type Tile = Readonly<ReturnType<typeof useTiles>["data"][number]>;
-
-type ExerciseOverviewTile = Extract<Tile, { type: "exerciseOverview" }>;
+type Props = { tile: typeof ExerciseTileWithSetsSuccess.Type };
 
 export const TrendingViewTileFallback = (props: ErrorComponentProps) => {
   return (
@@ -52,8 +51,10 @@ export const TrendingViewTileSkeleton = () => {
   );
 };
 
-const LastTwoSetsProgress = (props: { sets: Array<Serialize<Set>> }) => {
-  const user = useUser();
+const LastTwoSetsProgress = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  const user = useSuspenseQuery(userQueries.get);
   const sets = useBestSortedSets(props.sets);
 
   const set = {

@@ -1,21 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
-import { api } from "~/libs/api";
-import { parseJsonResponse } from "@gym-graphs/api";
-import type { InferApiReqInput } from "@gym-graphs/api";
+import { callApi, InferApiProps } from "~/libs/api";
 
 export const useUpdateWeightUnit = () => {
-  const req = api().users.me.$patch;
-
   const queries = {
     user: userQueries.get,
   };
 
   const updateWeightUnit = useMutation({
     mutationFn: async (
-      json: Pick<InferApiReqInput<typeof req>["json"], "weightUnit">,
+      payload: Pick<InferApiProps<"User", "patch">["payload"], "weightUnit">,
     ) => {
-      return parseJsonResponse(req({ json }));
+      return callApi((api) => api.User.patch({ payload }));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.user);
@@ -26,7 +22,6 @@ export const useUpdateWeightUnit = () => {
         if (!user || !variables.weightUnit) {
           return user;
         }
-
         return {
           ...user,
           weightUnit: variables.weightUnit,

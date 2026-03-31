@@ -16,10 +16,18 @@ export const FilterTilesByName = () => {
 
   const updateSearch = useDebouncedCallback((value: string) => {
     void navigate({
-      search: (current) => ({
-        ...current,
-        name: value || undefined,
-      }),
+      search: (current) => {
+        const { name, ...rest } = current;
+
+        if (!value) {
+          return rest;
+        }
+
+        return {
+          ...current,
+          name: value,
+        };
+      },
     });
   }, 300);
 
@@ -61,7 +69,7 @@ export const FilterTilesByName = () => {
   );
 };
 
-const routeApi = getRouteApi("/(dashboard)/dashboard");
+const routeApi = getRouteApi("/(authed)/dashboard");
 
 const SearchFallback = (props: ErrorComponentProps) => {
   return (
