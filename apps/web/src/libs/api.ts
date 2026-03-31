@@ -46,7 +46,9 @@ const getIsomorphicLayer = createIsomorphicFn()
   .server(() => ServerLayer);
 
 const makeClient = HttpApiClient.make(Api, {
-  baseUrl: import.meta.dev ? "http://localhost:5000" : "api.gym-graphs.com",
+  baseUrl: import.meta.dev
+    ? "http://localhost:5000"
+    : "https://api.gym-graphs.com",
 });
 
 type Client = Effect.Effect.Success<typeof makeClient>;
