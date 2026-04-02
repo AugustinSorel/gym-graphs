@@ -46,7 +46,7 @@ const getIsomorphicLayer = createIsomorphicFn()
   .server(() => ServerLayer);
 
 const makeClient = HttpApiClient.make(Api, {
-  baseUrl: import.meta.dev
+  baseUrl: import.meta.env.DEV
     ? "http://localhost:5000"
     : "https://api.gym-graphs.com",
 });
