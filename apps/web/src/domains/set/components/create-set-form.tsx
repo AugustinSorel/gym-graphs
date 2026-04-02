@@ -138,6 +138,7 @@ const useCreateSet = () => {
 
   const queries = {
     tiles: tileQueries.all(),
+    sets: setQueries.getAll(params.exerciseId),
   };
 
   return useMutation({
@@ -145,9 +146,13 @@ const useCreateSet = () => {
       return callApi((api) => api.Set.create(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.tiles);
+      await Promise.all([
+        ctx.client.cancelQueries(queries.tiles),
+        ctx.client.cancelQueries(queries.sets),
+      ]);
 
       const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
 
       const optimisticSet = {
         id: Math.random(),
@@ -186,13 +191,23 @@ const useCreateSet = () => {
         };
       });
 
-      return { oldTiles };
+      ctx.client.setQueryData(queries.sets.queryKey, (sets) => {
+        if (!sets) {
+          return sets;
+        }
+
+        return [optimisticSet, ...sets];
+      });
+
+      return { oldTiles, oldSets };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
       ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(queries.sets.queryKey, onMutateRes?.oldSets);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.sets);
     },
   });
 };
