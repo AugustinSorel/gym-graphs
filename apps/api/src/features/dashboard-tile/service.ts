@@ -42,11 +42,9 @@ export class DashboardTileService extends Effect.Service<DashboardTileService>()
                 userId,
               });
 
-              yield* dashboardTileRepo.addTags(tile.id, payload.tagIds).pipe(
-                Effect.when(() => {
-                  return Array.isNonEmptyReadonlyArray(payload.tagIds);
-                }),
-              );
+              if (Array.isNonEmptyReadonlyArray(payload.tagIds)) {
+                yield* dashboardTileRepo.addTags(tile.id, payload.tagIds);
+              }
 
               return tile;
             }),
