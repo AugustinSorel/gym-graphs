@@ -100,7 +100,7 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                 data,
                 id: createdExercises[i]!.id,
                 tagIds: createdTags
-                  .filter((tag) => data.tags.includes(tag.name as never))
+                  .filter((tag) => data.tags.some((t) => t === tag.name))
                   .map((tag) => tag.id),
               }));
 
