@@ -82,27 +82,11 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
       const dashboardTileRepo = yield* DashboardTileRepo;
       const setRepo = yield* SetRepo;
 
-      const seedExercise = (
-        exercise: (typeof seedData.exercises)[number],
-        exerciseId: Exercise["id"],
-        tileId: number,
-        tagIds: number[],
-      ) =>
-        Effect.all(
-          [
-            dashboardTileRepo
-              .addTags(tileId, tagIds)
-              .pipe(Effect.when(() => Array.isNonEmptyArray(tagIds))),
-            setRepo.createMany(buildSets(exercise.sets, exerciseId)),
-          ],
-          { concurrency: "unbounded" },
-        );
-
       return {
         seed: (userId: User["id"]) =>
           withTransaction(
             Effect.gen(function* () {
-              const [tags, exercises] = yield* Effect.all(
+              const [createdTags, createdExercises] = yield* Effect.all(
                 [
                   tagRepo.createMany(
                     seedData.tags.map((name) => ({ name, userId })),
@@ -112,7 +96,15 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                 { concurrency: "unbounded" },
               );
 
-              const tiles = yield* dashboardTileRepo.createMany([
+              const exercises = seedData.exercises.map((data, i) => ({
+                data,
+                id: createdExercises[i]!.id,
+                tagIds: createdTags
+                  .filter((tag) => data.tags.includes(tag.name as never))
+                  .map((tag) => tag.id),
+              }));
+
+              const summaryTiles = [
                 {
                   name: "exercises frequency",
                   type: "exerciseSetCount" as const,
@@ -137,26 +129,30 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   userId,
                   exerciseId: null,
                 },
-                ...seedData.exercises.map((exercise, i) => ({
-                  name: exercise.name,
-                  type: "exercise" as const,
-                  userId,
-                  exerciseId: exercises.at(i)?.id,
-                })),
-              ]);
+              ];
+
+              const exerciseTiles = exercises.map(({ data, id }) => ({
+                name: data.name,
+                type: "exercise" as const,
+                userId,
+                exerciseId: id,
+              }));
+
+              const createdExerciseTiles = yield* dashboardTileRepo
+                .createMany([...summaryTiles, ...exerciseTiles])
+                .pipe(Effect.map((tiles) => tiles.slice(summaryTiles.length)));
 
               yield* Effect.forEach(
-                seedData.exercises,
-                (exercise, i) =>
-                  seedExercise(
-                    exercise,
-                    exercises[i]!.id,
-                    tiles[i]!.id,
-                    tags
-                      .filter((tag) =>
-                        exercise.tags.some((t) => t === tag.name),
-                      )
-                      .map((tag) => tag.id),
+                exercises,
+                ({ data, id: exerciseId, tagIds }, i) =>
+                  Effect.all(
+                    [
+                      dashboardTileRepo
+                        .addTags(createdExerciseTiles[i]!.id, tagIds)
+                        .pipe(Effect.when(() => Array.isNonEmptyArray(tagIds))),
+                      setRepo.createMany(buildSets(data.sets, exerciseId)),
+                    ],
+                    { concurrency: "unbounded" },
                   ),
                 { concurrency: "unbounded" },
               );
