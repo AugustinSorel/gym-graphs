@@ -100,6 +100,36 @@ const useDeleteExerciseTile = () => {
     mutationFn: async (props: InferApiProps<"DashboardTile", "delete">) => {
       return callApi((api) => api.DashboardTile.delete(props));
     },
+    onMutate: async (variables, ctx) => {
+      await Promise.all([
+        ctx.client.cancelQueries(queries.tiles),
+        ctx.client.cancelQueries(queries.exercise),
+      ]);
+
+      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
+
+      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
+        if (!tiles) return tiles;
+        return {
+          ...tiles,
+          pages: tiles.pages.map((page) => ({
+            ...page,
+            dashboardTiles: page.dashboardTiles.filter(
+              (tile) => tile.id !== variables.path.tileId,
+            ),
+          })),
+        };
+      });
+
+      ctx.client.setQueryData(queries.exercise.queryKey, undefined);
+
+      return { oldTiles, oldExercise };
+    },
+    onError: (_e, _variables, res, ctx) => {
+      ctx.client.setQueryData(queries.tiles.queryKey, res?.oldTiles);
+      ctx.client.setQueryData(queries.exercise.queryKey, res?.oldExercise);
+    },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.tiles);
       void ctx.client.invalidateQueries(queries.exercise);
