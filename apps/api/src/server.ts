@@ -21,6 +21,7 @@ import {
 import { SessionService } from "./features/session/service";
 import { Email } from "./integrations/email/client";
 import { VerificationCodeService } from "./features/verification-code/service";
+import { PasswordResetTokenService } from "./features/password-reset-token/service";
 import { OAuthService } from "./features/oauth/service";
 import { OAuthLive } from "./features/oauth/handlers";
 import { UserLive } from "./features/user/handler";
@@ -78,6 +79,7 @@ const ServerBaseLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(SetService.Default),
   Layer.provide(AuthCookies.Default),
   Layer.provide(VerificationCodeService.Default),
+  Layer.provide(PasswordResetTokenService.Default),
   Layer.provide(Email.Default),
   Layer.provide(Database.Default),
 );
