@@ -30,7 +30,7 @@
     "@effect/sql-pg": "^0.50.3",
     "@gym-graphs/shared": "workspace:*",
     "drizzle-kit": "1.0.0-beta.17-67b1795",
-    "drizzle-orm": "1.0.0-beta.17-67b1795",
+    "drizzle-orm": "1.0.0-beta.20",
     "effect": "^3.19.19",
     "pg": "^8.16.3"
   }
