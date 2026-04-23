@@ -1,7 +1,6 @@
-import { Array, DateTime, Duration, Effect } from "effect";
+import { DateTime, Duration, Effect } from "effect";
 import { UserRepo } from "../user/repo";
-import { DashboardTileRepo } from "../dashboard-tile/repo";
-import type { User, Exercise } from "#/integrations/db/schema";
+import type { User } from "#/integrations/db/schema";
 import type { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
 import { TagRepo } from "../tag/repo";
 import { ExerciseRepo } from "../exercise/repo";
@@ -10,10 +9,9 @@ import { withTransaction } from "#/integrations/db/db";
 
 export class UserService extends Effect.Service<UserService>()("UserService", {
   accessors: true,
-  dependencies: [UserRepo.Default, DashboardTileRepo.Default],
+  dependencies: [UserRepo.Default],
   effect: Effect.gen(function* () {
     const userRepo = yield* UserRepo;
-    const dashboardTileRepo = yield* DashboardTileRepo;
 
     return {
       patchByUserId: (
@@ -33,32 +31,14 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
         }).pipe(Effect.timeout(5000));
       },
 
+      //FIXME
       exportDataByUserId: (userId: User["id"]) => {
         return Effect.gen(function* () {
-          const [user, tiles] = yield* Effect.all(
-            [
-              userRepo.selectById(userId),
-              dashboardTileRepo.selectAll(userId, Number.MAX_SAFE_INTEGER, {}),
-            ],
-            { concurrency: "unbounded" },
-          );
-
-          const exercises = tiles
-            .filter((tile) => {
-              return tile.type === "exercise" && tile.exercise !== null;
-            })
-            .map((tile) => {
-              return {
-                id: tile.exercise!.id,
-                name: tile.name,
-                tags: tile.tags.map((t) => t.tag.name),
-                sets: tile.exercise!.sets,
-              };
-            });
+          const user = yield* userRepo.selectById(userId);
 
           return {
             user,
-            exercises,
+            exercises: [],
           };
         }).pipe(Effect.timeout(10000));
       },
@@ -70,90 +50,63 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
   "SeedUserService",
   {
     accessors: true,
-    dependencies: [
-      TagRepo.Default,
-      ExerciseRepo.Default,
-      DashboardTileRepo.Default,
-      SetRepo.Default,
-    ],
+    dependencies: [TagRepo.Default, ExerciseRepo.Default, SetRepo.Default],
     effect: Effect.gen(function* () {
       const tagRepo = yield* TagRepo;
       const exerciseRepo = yield* ExerciseRepo;
-      const dashboardTileRepo = yield* DashboardTileRepo;
       const setRepo = yield* SetRepo;
 
       return {
         seed: (userId: User["id"]) =>
           withTransaction(
             Effect.gen(function* () {
-              const [createdTags, createdExercises] = yield* Effect.all(
+              const [tags, exercises] = yield* Effect.all(
                 [
                   tagRepo.createMany(
                     seedData.tags.map((name) => ({ name, userId })),
                   ),
-                  exerciseRepo.createMany(seedData.exercises.map(() => ({}))),
+                  exerciseRepo.createMany(
+                    seedData.exercises.map((exercise) => ({
+                      name: exercise.name,
+                      userId,
+                    })),
+                  ),
                 ],
                 { concurrency: "unbounded" },
               );
 
-              const exercises = seedData.exercises.map((data, i) => ({
-                data,
-                id: createdExercises[i]!.id,
-                tagIds: createdTags
-                  .filter((tag) => data.tags.some((t) => t === tag.name))
-                  .map((tag) => tag.id),
-              }));
-
-              const summaryTiles = [
-                {
-                  name: "exercises frequency",
-                  type: "exerciseSetCount" as const,
-                  userId,
-                  exerciseId: null,
-                },
-                {
-                  name: "tags frequency",
-                  type: "exerciseTagCount" as const,
-                  userId,
-                  exerciseId: null,
-                },
-                {
-                  name: "heat map",
-                  type: "dashboardHeatMap" as const,
-                  userId,
-                  exerciseId: null,
-                },
-                {
-                  name: "fun facts",
-                  type: "dashboardFunFacts" as const,
-                  userId,
-                  exerciseId: null,
-                },
-              ];
-
-              const exerciseTiles = exercises.map(({ data, id }) => ({
-                name: data.name,
-                type: "exercise" as const,
-                userId,
-                exerciseId: id,
-              }));
-
-              const createdExerciseTiles = yield* dashboardTileRepo
-                .createMany([...summaryTiles, ...exerciseTiles])
-                .pipe(Effect.map((tiles) => tiles.slice(summaryTiles.length)));
-
               yield* Effect.forEach(
                 exercises,
-                ({ data, id: exerciseId, tagIds }, i) =>
-                  Effect.all(
+                (exercise) => {
+                  const mockExercise = seedData.exercises.find((ex) => {
+                    return ex.name === exercise.name;
+                  });
+
+                  if (!mockExercise) {
+                    return Effect.void;
+                  }
+
+                  const mockSets = mockExercise.sets.map(
+                    ({ weightInKg, repetitions, daysAgo }) => ({
+                      weightInKg,
+                      repetitions,
+                      exerciseId: exercise.id,
+                      doneAt: nDaysAgo(daysAgo),
+                    }),
+                  );
+
+                  const tagIds = tags
+                    .filter((tag) => mockExercise.tags.includes(tag.name))
+                    .map((tag) => tag.id);
+
+                  return Effect.all(
                     [
-                      dashboardTileRepo
-                        .addTags(createdExerciseTiles[i]!.id, tagIds)
-                        .pipe(Effect.when(() => Array.isNonEmptyArray(tagIds))),
-                      setRepo.createMany(buildSets(data.sets, exerciseId)),
+                      exerciseRepo.addTags(exercise.id, tagIds),
+                      setRepo.createMany(mockSets),
                     ],
                     { concurrency: "unbounded" },
-                  ),
+                  );
+                },
                 { concurrency: "unbounded" },
               );
             }),
@@ -162,6 +115,8 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
     }),
   },
 ) {}
+
+type SeedSet = { weightInKg: number; repetitions: number; daysAgo: number };
 
 const seedData = {
   tags: [
@@ -179,54 +134,45 @@ const seedData = {
     {
       name: "bench press",
       tags: ["chest"],
-      sets: {
-        primary: [10, 20, 10, 30],
-        secondary: { slice: [0, 3] as const, repOffset: (i: number) => i + 1 },
-      },
+      sets: [
+        { weightInKg: 10, repetitions: 10, daysAgo: 1 },
+        { weightInKg: 20, repetitions: 20, daysAgo: 2 },
+        { weightInKg: 10, repetitions: 10, daysAgo: 3 },
+        { weightInKg: 30, repetitions: 30, daysAgo: 4 },
+        { weightInKg: 10, repetitions: 9, daysAgo: 1 },
+        { weightInKg: 20, repetitions: 18, daysAgo: 2 },
+        { weightInKg: 10, repetitions: 7, daysAgo: 3 },
+      ] satisfies SeedSet[],
     },
     {
       name: "squat",
       tags: ["legs"],
-      sets: {
-        primary: [20, 10, 30, 10],
-        secondary: {
-          slice: [1, 4] as const,
-          repOffset: (i: number) => (i + 1) * 3,
-        },
-      },
+      sets: [
+        { weightInKg: 20, repetitions: 20, daysAgo: 1 },
+        { weightInKg: 10, repetitions: 10, daysAgo: 2 },
+        { weightInKg: 30, repetitions: 30, daysAgo: 3 },
+        { weightInKg: 10, repetitions: 10, daysAgo: 4 },
+        { weightInKg: 10, repetitions: 7, daysAgo: 1 },
+        { weightInKg: 30, repetitions: 24, daysAgo: 2 },
+        { weightInKg: 10, repetitions: 1, daysAgo: 3 },
+      ] satisfies SeedSet[],
     },
     {
       name: "deadlift",
       tags: ["legs", "calfs"],
-      sets: {
-        primary: [30, 10, 20, 30],
-        secondary: {
-          slice: [1, 3] as const,
-          repOffset: (i: number) => (i + 1) * 4,
-        },
-      },
+      sets: [
+        { weightInKg: 30, repetitions: 30, daysAgo: 1 },
+        { weightInKg: 10, repetitions: 10, daysAgo: 2 },
+        { weightInKg: 20, repetitions: 20, daysAgo: 3 },
+        { weightInKg: 30, repetitions: 30, daysAgo: 4 },
+        { weightInKg: 10, repetitions: 6, daysAgo: 1 },
+        { weightInKg: 20, repetitions: 12, daysAgo: 2 },
+      ] satisfies SeedSet[],
     },
   ],
-} as const;
+};
 
-type ExerciseSets = (typeof seedData.exercises)[number]["sets"];
-
-const buildSets = (sets: ExerciseSets, exerciseId: Exercise["id"]) => [
-  ...sets.primary.map((weight, i) => ({
-    weightInKg: weight,
-    repetitions: weight,
-    exerciseId,
-    doneAt: daysAgo(i + 1),
-  })),
-  ...sets.primary.slice(...sets.secondary.slice).map((weight, i) => ({
-    weightInKg: weight,
-    repetitions: weight - sets.secondary.repOffset(i),
-    exerciseId,
-    doneAt: daysAgo(i + 1),
-  })),
-];
-
-const daysAgo = (days: number): Date =>
+const nDaysAgo = (days: number): Date =>
   DateTime.toDate(
     DateTime.subtractDuration(DateTime.unsafeNow(), Duration.days(days)),
   );

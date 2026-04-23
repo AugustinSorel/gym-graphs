@@ -12,16 +12,10 @@ export const ExerciseLive = HttpApiBuilder.group(
       return Effect.gen(function* () {
         const session = yield* CurrentSession;
 
-        const exercise = yield* ExerciseService.selectByExerciseId(
+        return yield* ExerciseService.selectByExerciseId(
           path.exerciseId,
           session.userId,
         );
-
-        return yield* Effect.succeed({
-          id: exercise.id,
-          name: exercise.dashboardTile.name,
-          tileId: exercise.dashboardTile.id,
-        });
       }).pipe(
         Effect.catchTags({
           TimeoutException: () => new HttpApiError.RequestTimeout(),

@@ -26,12 +26,10 @@ import { OAuthService } from "./features/oauth/service";
 import { OAuthLive } from "./features/oauth/handlers";
 import { UserLive } from "./features/user/handler";
 import { TagLive } from "./features/tag/handler";
-import { DashboardTileLive } from "./features/dashboard-tile/handler";
 import { ExerciseLive } from "./features/exercise/handlers";
 import { SetLive } from "./features/set/handlers";
 import { UserService } from "./features/user/service";
 import { TagService } from "./features/tag/service";
-import { DashboardTileService } from "./features/dashboard-tile/service";
 import { ExerciseService } from "./features/exercise/service";
 import { SetService } from "./features/set/service";
 
@@ -40,7 +38,6 @@ const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide(OAuthLive),
   Layer.provide(UserLive),
   Layer.provide(TagLive),
-  Layer.provide(DashboardTileLive),
   Layer.provide(ExerciseLive),
   Layer.provide(SetLive),
 );
@@ -74,7 +71,6 @@ const ServerBaseLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(OAuthService.Default),
   Layer.provide(UserService.Default),
   Layer.provide(TagService.Default),
-  Layer.provide(DashboardTileService.Default),
   Layer.provide(ExerciseService.Default),
   Layer.provide(SetService.Default),
   Layer.provide(AuthCookies.Default),

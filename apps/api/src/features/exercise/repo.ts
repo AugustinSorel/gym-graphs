@@ -1,8 +1,9 @@
 import { Database } from "#/integrations/db/db";
 import {
   exercises,
-  type DashboardTile,
+  exercisesToTags,
   type Exercise,
+  type Tag,
 } from "#/integrations/db/schema";
 import { ExerciseNotFound } from "@gym-graphs/shared/exercise/errors";
 import { Effect, Array } from "effect";
@@ -16,10 +17,10 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
       const db = yield* Database;
 
       return {
-        create: () => {
+        create: (name: Exercise["name"], userId: Exercise["userId"]) => {
           return db
             .insert(exercises)
-            .values({})
+            .values({ name, userId })
             .returning()
             .pipe(
               Effect.andThen((rows) => Array.head(rows).pipe(Effect.orDie)),
@@ -39,18 +40,13 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
 
         selectByExerciseId: (
           exerciseId: Exercise["id"],
-          userId: DashboardTile["userId"],
+          userId: Exercise["userId"],
         ) => {
           return Effect.gen(function* () {
             const exercise = yield* db.query.exercises.findFirst({
               where: {
                 id: exerciseId,
-                dashboardTile: {
-                  userId,
-                },
-              },
-              with: {
-                dashboardTile: true,
+                userId,
               },
             });
 
@@ -60,6 +56,14 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
 
             return yield* Effect.succeed(exercise);
           });
+        },
+
+        addTags: (exerciseId: Exercise["id"], tagIds: Tag["id"][]) => {
+          return db
+            .insert(exercisesToTags)
+            .values(tagIds.map((tagId) => ({ exerciseId, tagId })))
+            .onConflictDoNothing()
+            .returning();
         },
       };
     }),
