@@ -34,7 +34,6 @@ export class SessionRepo extends Effect.Service<SessionRepo>()("SessionRepo", {
                   email: true,
                   name: true,
                   weightUnit: true,
-                  dashboardView: true,
                   oneRepMaxAlgo: true,
                 },
               },

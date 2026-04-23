@@ -27,13 +27,7 @@ import {
   GraphViewTileFallback,
   GraphViewTileSkeleton,
 } from "~/domains/dashboard/components/graph-view-tile";
-import {
-  TrendingViewTile,
-  TrendingViewTileFallback,
-  TrendingViewTileSkeleton,
-} from "~/domains/dashboard/components/trending-view-tile";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { userQueries } from "~/domains/user/user.queries";
+
 import { tileQueries } from "~/domains/tile/tile.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
@@ -59,7 +53,9 @@ export const Dashboard = () => {
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
-        <Content />
+        <Suspense fallback={<GraphViewContentSkeleton />}>
+          <Content />
+        </Suspense>
       </CatchBoundary>
     </NoTilesFallback>
   );
@@ -76,52 +72,7 @@ const NoTilesFallback = (props: PropsWithChildren) => {
   return props.children;
 };
 
-//TODO: refactor this with the new Activity Component
-//      whenever it get released by React
 const Content = () => {
-  const user = useSuspenseQuery(userQueries.get);
-
-  switch (user.data.dashboardView) {
-    case "graph": {
-      return (
-        <Suspense fallback={<GraphViewContentSkeleton />}>
-          <GraphViewContent />
-        </Suspense>
-      );
-    }
-    case "trending": {
-      return (
-        <Suspense fallback={<TrendingViewContentSkeleton />}>
-          <TrendingViewContent />
-        </Suspense>
-      );
-    }
-  }
-};
-
-const TrendingViewContent = () => {
-  const search = useSearch({ from: "/(authed)/dashboard" });
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
-
-  return (
-    <Grid>
-      <CatchBoundary
-        errorComponent={TrendingViewTileFallback}
-        getResetKey={() => "reset"}
-      >
-        {tiles.data
-          .filter((tile) => tile.type === "exercise")
-          .map((tile) => {
-            return <TrendingViewTile key={tile.id} tile={tile} />;
-          })}
-      </CatchBoundary>
-
-      {tiles.isFetchingNextPage && <TrendingViewTilesSkeleton />}
-    </Grid>
-  );
-};
-
-const GraphViewContent = () => {
   const search = useSearch({ from: "/(authed)/dashboard" });
   const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
 
@@ -360,24 +311,10 @@ const GraphTilesSkeleton = () => {
   ));
 };
 
-const TrendingViewTilesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => (
-    <TrendingViewTileSkeleton key={i} />
-  ));
-};
-
 const GraphViewContentSkeleton = () => {
   return (
     <Grid>
       <GraphTilesSkeleton />
-    </Grid>
-  );
-};
-
-const TrendingViewContentSkeleton = () => {
-  return (
-    <Grid>
-      <TrendingViewTilesSkeleton />
     </Grid>
   );
 };

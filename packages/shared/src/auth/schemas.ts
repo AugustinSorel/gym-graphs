@@ -45,6 +45,5 @@ export const CurrentSessionSchema = Schema.Struct({
     "id",
     "weightUnit",
     "oneRepMaxAlgo",
-    "dashboardView",
   ),
 });

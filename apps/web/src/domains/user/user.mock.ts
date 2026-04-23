@@ -8,6 +8,5 @@ export const userMock: UserData = {
   name: "john",
   id: 1,
   oneRepMaxAlgo: "epley",
-  dashboardView: "graph",
   verifiedAt: new Date(),
 };

@@ -3,7 +3,6 @@ import { CreateExerciseOverviewTileDialog } from "~/domains/tile/components/crea
 import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
 import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
 import { Dashboard } from "~/domains/dashboard/components/dashboard";
-import { ViewToggle } from "~/domains/dashboard/components/view-toggle";
 import { tileQueries } from "~/domains/tile/tile.queries";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
@@ -40,7 +39,6 @@ const RouteComponent = () => {
       <Header>
         <FilterTilesByName />
         <FilterTilesByTags />
-        <ViewToggle />
         <CreateExerciseOverviewTileDialog />
       </Header>
 
@@ -60,6 +58,6 @@ const Main = (props: ComponentProps<"main">) => {
 
 const Header = (props: ComponentProps<"header">) => {
   return (
-    <header className="grid grid-cols-[1fr_auto_auto_auto] gap-2" {...props} />
+    <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />
   );
 };
