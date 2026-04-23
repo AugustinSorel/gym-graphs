@@ -175,8 +175,8 @@ const GrowthIndicatorMetadata = (
 
   const user = useSuspenseQuery(userQueries.get);
 
-  const latestSet = sets.at(0);
-  const secondLatestSet = sets.at(1);
+  const latestSet = sets.at(-1);
+  const secondLatestSet = sets.at(-2);
 
   if (!latestSet) {
     return (
