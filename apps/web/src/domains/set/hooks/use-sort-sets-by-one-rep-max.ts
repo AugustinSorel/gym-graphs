@@ -1,0 +1,25 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userQueries } from "~/domains/user/user.queries";
+import { calculateOneRepMax } from "~/domains/set/set.utils";
+import { useMemo } from "react";
+
+export const useSortSetsByOneRepMax = <
+  TSet extends { weightInKg: number; repetitions: number },
+>(
+  sets: ReadonlyArray<TSet>,
+) => {
+  const user = useSuspenseQuery(userQueries.get);
+
+  return useMemo(() => {
+    return sets.toSorted((a, b) => {
+      return (
+        calculateOneRepMax(
+          b.weightInKg,
+          b.repetitions,
+          user.data.oneRepMaxAlgo,
+        ) -
+        calculateOneRepMax(a.weightInKg, a.repetitions, user.data.oneRepMaxAlgo)
+      );
+    });
+  }, [user.data.oneRepMaxAlgo]);
+};

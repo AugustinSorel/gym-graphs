@@ -36,3 +36,28 @@ export const getCalendarPositions = (date: Date) => {
     week: weekIndex,
   };
 };
+
+export const timeAgo = (from: Date) => {
+  const now = new Date();
+
+  const diffInSeconds = Math.round((from.getTime() - now.getTime()) / 1_000);
+
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  const units = [
+    { unit: "year", seconds: 31_536_000 },
+    { unit: "month", seconds: 2_592_000 },
+    { unit: "day", seconds: 86_400 },
+    { unit: "hour", seconds: 3_600 },
+    { unit: "minute", seconds: 60 },
+    { unit: "second", seconds: 1 },
+  ] as const;
+
+  for (const { seconds, unit } of units) {
+    if (Math.abs(diffInSeconds) >= seconds || unit === "second") {
+      return formatter.format(Math.round(diffInSeconds / seconds), unit);
+    }
+  }
+
+  return "just now";
+};

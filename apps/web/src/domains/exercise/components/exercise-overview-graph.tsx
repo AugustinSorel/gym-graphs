@@ -1,5 +1,5 @@
 import { extent, max } from "@visx/vendor/d3-array";
-import { LinePath } from "@visx/shape";
+import { AreaClosed, LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear } from "@visx/scale";
 import { useParentSize } from "@visx/responsive";
 import { curveMonotoneX } from "@visx/curve";
@@ -8,6 +8,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import type { ComponentProps } from "react";
+import { LinearGradient } from "@visx/gradient";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -40,8 +41,25 @@ export const ExerciseOverviewGraph = (props: Props) => {
           x={(d) => timeScale(getDoneAt(d))}
           y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
           className="stroke-primary"
-          strokeWidth={3}
+          strokeWidth={2}
           shapeRendering="geometricPrecision"
+        />
+
+        <LinearGradient
+          id="area-gradient"
+          from={"#4055bf"}
+          to={"#4055bf"}
+          fromOpacity={0.3}
+          toOpacity={0}
+        />
+
+        <AreaClosed<Point>
+          data={sets}
+          x={(d) => timeScale(getDoneAt(d))}
+          y={(d) => oneRepMaxScale(getOneRepMax(d, user.data.oneRepMaxAlgo))}
+          yScale={oneRepMaxScale}
+          fill="url(#area-gradient)"
+          curve={curveMonotoneX}
         />
       </svg>
     </div>

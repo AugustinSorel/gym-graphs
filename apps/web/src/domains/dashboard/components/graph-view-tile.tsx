@@ -10,7 +10,10 @@ import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-cou
 import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
 import { tileQueries } from "~/domains/tile/tile.queries";
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import {
+  useSuspenseInfiniteQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useMemo, type ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
@@ -19,6 +22,15 @@ import {
   ExerciseTileWithSetsSuccess,
   SelectAllDashboardTilesSuccess,
 } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { WeightValue } from "~/domains/user/components/weight-value";
+import { WeightUnit } from "~/domains/user/components/weight-unit";
+import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
+import { useSortSetsByOneRepMax } from "~/domains/set/hooks/use-sort-sets-by-one-rep-max";
+import { calculateOneRepMax } from "~/domains/set/set.utils";
+import { userQueries } from "~/domains/user/user.queries";
+import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
+import { convertWeight } from "~/domains/user/user.utils";
+import { timeAgo } from "~/utils/date";
 
 export const GraphViewTile = (props: TileProps) => {
   switch (props.tile.type) {
@@ -62,7 +74,7 @@ const ExerciseOverviewTile = (props: {
   const sortable = useSortable({ id: props.tile.id });
 
   return (
-    <Card className="group hover:bg-accent transition-colors">
+    <Card className="group hover:border-muted-foreground grid-rows-[auto_auto_1fr_auto] p-4 transition-colors">
       <Button variant="link" asChild className="absolute inset-0 h-auto">
         <Link
           to="/exercises/$exerciseId"
@@ -71,13 +83,182 @@ const ExerciseOverviewTile = (props: {
         />
       </Button>
 
-      <CardHeader>
-        <Name className="group-hover:underline">{props.tile.name}</Name>
+      <header className="flex items-center justify-between">
+        <Name>{props.tile.name}</Name>
         <DragButton {...sortable.listeners} {...sortable.attributes} />
-      </CardHeader>
+      </header>
+
+      <ExerciseMetadata sets={props.tile.sets} />
 
       <ExerciseOverviewGraph sets={props.tile.sets} />
+
+      <footer>
+        <LastChangeMade sets={props.tile.sets} />
+      </footer>
     </Card>
+  );
+};
+
+const LastChangeMade = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  const sortedSets = useSortSetsByDoneAt(props.sets);
+
+  const latestSet = sortedSets.at(0);
+
+  if (!latestSet) {
+    return null;
+  }
+
+  return (
+    <span className="text-muted-foreground flex border-t pt-2 text-xs">
+      last: {timeAgo(latestSet?.updatedAt)}
+    </span>
+  );
+};
+
+const ExerciseMetadata = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  return (
+    <Metadata>
+      <MetadataTitle>
+        <abbr title="one repetition max" className="no-underline">
+          1rm
+        </abbr>
+      </MetadataTitle>
+      <BestOneRepMaxMetadata sets={props.sets} />
+
+      <MetadataTitle className="sr-only">growth</MetadataTitle>
+      <GrowthIndicatorMetadata sets={props.sets} />
+
+      <MetadataTitle className="col-start-3">sets</MetadataTitle>
+      <SetsCountMetadata sets={props.sets} />
+    </Metadata>
+  );
+};
+
+const Metadata = (props: ComponentProps<"dl">) => {
+  return (
+    <dl
+      className="mt-2 grid grid-cols-[auto_auto_auto] grid-rows-[auto_auto] justify-between gap-x-5 [&>dt]:row-start-2"
+      {...props}
+    />
+  );
+};
+
+const MetadataTitle = ({ className, ...props }: ComponentProps<"dt">) => {
+  return (
+    <dt className={cn("text-muted-foreground text-xs", className)} {...props} />
+  );
+};
+
+const MetadataValue = (props: ComponentProps<"dt">) => {
+  return <dd {...props} />;
+};
+
+const SetsCountMetadata = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  return (
+    <MetadataValue className="text-muted-foreground text-2xl font-semibold">
+      {props.sets.length}
+    </MetadataValue>
+  );
+};
+
+const GrowthIndicatorMetadata = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  const sortedSets = useSortSetsByDoneAt(props.sets);
+  const sets = useBestSortedSets(sortedSets);
+
+  const user = useSuspenseQuery(userQueries.get);
+
+  const latestSet = sets.at(0);
+  const secondLatestSet = sets.at(1);
+
+  if (!latestSet) {
+    return (
+      <MetadataValue>
+        <span className="text-muted-foreground text-2xl font-semibold">+0</span>{" "}
+        <span className="text-muted-foreground text-sm">
+          <WeightUnit />
+        </span>
+      </MetadataValue>
+    );
+  }
+
+  const latestOneRepMax = calculateOneRepMax(
+    latestSet.weightInKg,
+    latestSet.repetitions,
+    user.data.oneRepMaxAlgo,
+  );
+
+  const secondLatestSetOneRepMax = calculateOneRepMax(
+    secondLatestSet?.weightInKg ?? 0,
+    secondLatestSet?.repetitions ?? 0,
+    user.data.oneRepMaxAlgo,
+  );
+
+  const growth = convertWeight(
+    latestOneRepMax - secondLatestSetOneRepMax,
+    user.data.weightUnit,
+  );
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+    signDisplay: "always",
+  });
+
+  const growthStatus = growth > 0 ? "inc" : growth === 0 ? "stale" : "dec";
+
+  return (
+    <MetadataValue
+      className="data-[status=inc]:text-success data-[status=stale]:text-muted-foreground data-[status=dec]:text-destructive"
+      data-status={growthStatus}
+    >
+      <span className="text-2xl font-semibold">{formatter.format(growth)}</span>{" "}
+      <span className="text-sm">
+        <WeightUnit />
+      </span>
+    </MetadataValue>
+  );
+};
+
+const BestOneRepMaxMetadata = (
+  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
+) => {
+  const sortedSets = useSortSetsByOneRepMax(props.sets);
+  const bestSet = sortedSets.at(0);
+  const user = useSuspenseQuery(userQueries.get);
+
+  if (!bestSet) {
+    return (
+      <MetadataValue>
+        <span className="text-muted-foreground text-2xl font-semibold">0</span>{" "}
+        <span className="text-muted-foreground text-sm">
+          <WeightUnit />
+        </span>
+      </MetadataValue>
+    );
+  }
+
+  const bestOneRepMax = calculateOneRepMax(
+    bestSet.weightInKg,
+    bestSet.repetitions,
+    user.data.oneRepMaxAlgo,
+  );
+
+  return (
+    <MetadataValue>
+      <span className="text-2xl font-semibold">
+        <WeightValue weightInKg={bestOneRepMax} />
+      </span>{" "}
+      <span className="text-muted-foreground text-sm">
+        <WeightUnit />
+      </span>
+    </MetadataValue>
   );
 };
 
@@ -265,13 +446,8 @@ const CardHeader = ({ className, ...props }: ComponentProps<"header">) => {
   );
 };
 
-const Name = ({ className, ...props }: ComponentProps<"h2">) => {
-  return (
-    <h2
-      className={cn(className, "truncate text-sm font-semibold capitalize")}
-      {...props}
-    />
-  );
+const Name = (props: ComponentProps<"h2">) => {
+  return <h2 className="truncate text-sm capitalize" {...props} />;
 };
 
 const ErrorMsg = (props: ComponentProps<"code">) => {
