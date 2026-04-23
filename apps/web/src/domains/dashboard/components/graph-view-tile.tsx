@@ -197,7 +197,7 @@ const GrowthIndicatorMetadata = (
 
   const secondLatestSetOneRepMax = calculateOneRepMax(
     secondLatestSet?.weightInKg ?? 0,
-    secondLatestSet?.repetitions ?? 0,
+    secondLatestSet?.repetitions ?? 1,
     user.data.oneRepMaxAlgo,
   );
 
