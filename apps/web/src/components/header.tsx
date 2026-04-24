@@ -110,7 +110,7 @@ const MobileNav = () => {
       <Button
         asChild
         variant="ghost"
-        className="data-[status=active]:[&>svg]:fill-foreground"
+        className="data-[status=active]:bg-muted"
         aria-label="go to exercises"
       >
         <Link to="/exercises">
@@ -120,7 +120,7 @@ const MobileNav = () => {
       <Button
         asChild
         variant="ghost"
-        className="data-[status=active]:[&>svg]:fill-foreground"
+        className="data-[status=active]:bg-muted"
         aria-label="go to settings"
       >
         <Link to="/settings">
