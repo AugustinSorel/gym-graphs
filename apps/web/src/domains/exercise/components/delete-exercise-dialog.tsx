@@ -15,30 +15,28 @@ import { Spinner } from "~/ui/spinner";
 import { getRouteApi } from "@tanstack/react-router";
 import { useTransition } from "react";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-
 import { callApi, InferApiProps } from "~/libs/api";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { useRouteHash } from "~/hooks/use-route-hash";
 
-export const DeleteExerciseOverviewTileDialog = () => {
+export const DeleteExerciseDialog = () => {
   const [isRedirectPending, startRedirectTransition] = useTransition();
   const navigate = routeApi.useNavigate();
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
-  const deleteExerciseTile = useDeleteExerciseTile();
-  const routeHash = useRouteHash("delete-exercise-overview-tile");
+  const deleteExercise = useDeleteExercise();
+  const routeHash = useRouteHash("delete-exercise");
 
-  const deleteExerciseTileHandler = () => {
-    deleteExerciseTile.mutate(
+  const deleteExerciseHandler = () => {
+    deleteExercise.mutate(
       {
         path: {
-          tileId: exercise.data.tileId,
+          exerciseId: exercise.data.id,
         },
       },
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
-            await navigate({ to: "/dashboard" });
+            await navigate({ to: "/exercises" });
           });
         },
       },
@@ -70,14 +68,14 @@ export const DeleteExerciseOverviewTileDialog = () => {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={deleteExerciseTile.isPending || isRedirectPending}
+            disabled={deleteExercise.isPending || isRedirectPending}
             onClick={(e) => {
               e.preventDefault();
-              deleteExerciseTileHandler();
+              deleteExerciseHandler();
             }}
           >
             <span>Delete</span>
-            {(deleteExerciseTile.isPending || isRedirectPending) && <Spinner />}
+            {(deleteExercise.isPending || isRedirectPending) && <Spinner />}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -87,51 +85,54 @@ export const DeleteExerciseOverviewTileDialog = () => {
 
 const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/settings");
 
-const useDeleteExerciseTile = () => {
+const useDeleteExercise = () => {
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
     exercise: exerciseQueries.get(exercise.data.id),
   };
 
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "delete">) => {
-      return callApi((api) => api.DashboardTile.delete(props));
+    mutationFn: async (props: InferApiProps<"Exercise", "delete">) => {
+      return callApi((api) => api.Exercise.delete(props));
     },
     onMutate: async (variables, ctx) => {
       await Promise.all([
-        ctx.client.cancelQueries(queries.tiles),
+        ctx.client.cancelQueries(queries.exercises),
         ctx.client.cancelQueries(queries.exercise),
       ]);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
       const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises) {
+          return exercises;
+        }
+
         return {
-          ...tiles,
-          pages: tiles.pages.map((page) => ({
+          ...exercises,
+          pages: exercises.pages.map((page) => ({
             ...page,
-            dashboardTiles: page.dashboardTiles.filter(
-              (tile) => tile.id !== variables.path.tileId,
-            ),
+            exercises: page.exercises.filter((exercise) => {
+              return exercise.id !== variables.path.exerciseId;
+            }),
           })),
         };
       });
 
       ctx.client.setQueryData(queries.exercise.queryKey, undefined);
 
-      return { oldTiles, oldExercise };
+      return { oldExercises, oldExercise };
     },
     onError: (_e, _variables, res, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, res?.oldTiles);
+      ctx.client.setQueryData(queries.exercises.queryKey, res?.oldExercises);
       ctx.client.setQueryData(queries.exercise.queryKey, res?.oldExercise);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });

@@ -21,14 +21,6 @@ import {
   useQueryClient,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
-
-import {
-  GraphViewTile,
-  GraphViewTileFallback,
-  GraphViewTileSkeleton,
-} from "~/domains/dashboard/components/graph-view-tile";
-
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
 import type {
@@ -44,28 +36,34 @@ import type {
   ScreenReaderInstructions,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import { SelectAllDashboardTilesSuccess } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
+import { SelectAllExercisesSuccess } from "@gym-graphs/shared/exercise/schemas";
+import {
+  ExerciseCard,
+  ExerciseCardFallback,
+  ExerciseCardSkeleton,
+} from "~/domains/exercise/components/exercise-card";
 
-export const Dashboard = () => {
+export const ExercisesGrid = () => {
   return (
-    <NoTilesFallback>
+    <NoExercisesFallback>
       <CatchBoundary
         errorComponent={DefaultFallback}
         getResetKey={() => "reset"}
       >
-        <Suspense fallback={<GraphViewContentSkeleton />}>
+        <Suspense fallback={<ExercisesGridSkeleton />}>
           <Content />
         </Suspense>
       </CatchBoundary>
-    </NoTilesFallback>
+    </NoExercisesFallback>
   );
 };
 
-const NoTilesFallback = (props: PropsWithChildren) => {
-  const search = useSearch({ from: "/(authed)/dashboard" });
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+const NoExercisesFallback = (props: PropsWithChildren) => {
+  const search = useSearch({ from: "/(authed)/exercises/" });
+  const exercises = useSuspenseInfiniteQuery(exerciseQueries.all(search));
 
-  if (!tiles.data.length) {
+  if (!exercises.data.length) {
     return <NoDataText>no data</NoDataText>;
   }
 
@@ -73,29 +71,29 @@ const NoTilesFallback = (props: PropsWithChildren) => {
 };
 
 const Content = () => {
-  const search = useSearch({ from: "/(authed)/dashboard" });
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+  const search = useSearch({ from: "/(authed)/exercises/" });
+  const exercises = useSuspenseInfiniteQuery(exerciseQueries.all(search));
 
   return (
     <Grid>
       <SortableGrid>
-        {(tile, index) => (
+        {(exercise, index) => (
           <CatchBoundary
-            errorComponent={GraphViewTileFallback}
+            errorComponent={ExerciseCardFallback}
             getResetKey={() => "reset"}
-            key={tile.id}
+            key={exercise.id}
           >
             <SortableItem
-              isLastItem={index >= tiles.data.length - 1}
-              id={tile.id}
+              isLastItem={index >= exercises.data.length - 1}
+              id={exercise.id}
             >
-              <GraphViewTile tile={tile} />
+              <ExerciseCard exercise={exercise} />
             </SortableItem>
           </CatchBoundary>
         )}
       </SortableGrid>
 
-      {tiles.isFetchingNextPage && <GraphTilesSkeleton />}
+      {exercises.isFetchingNextPage && <ExercisesSkeleton />}
     </Grid>
   );
 };
@@ -104,8 +102,8 @@ const SortableItem = (
   props: Readonly<PropsWithChildren<{ isLastItem: boolean; id: number }>>,
 ) => {
   const sortable = useSortable({ id: props.id });
-  const search = useSearch({ from: "/(authed)/dashboard" });
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+  const search = useSearch({ from: "/(authed)/exercises/" });
+  const exercises = useSuspenseInfiniteQuery(exerciseQueries.all(search));
 
   const style: Readonly<CSSProperties> = {
     transform: sortable.transform
@@ -120,12 +118,12 @@ const SortableItem = (
       return () => null;
     }
 
-    const observer = new IntersectionObserver(([tile]) => {
-      if (!tile?.isIntersecting || !tiles.hasNextPage) {
+    const observer = new IntersectionObserver(([card]) => {
+      if (!card?.isIntersecting || !exercises.hasNextPage) {
         return;
       }
 
-      void tiles.fetchNextPage();
+      void exercises.fetchNextPage();
     });
 
     observer.observe(e);
@@ -157,17 +155,17 @@ const SortableItem = (
 };
 
 const SortableGrid = (props: {
-  children: (tile: Tile, index: number) => ReactNode;
+  children: (exercise: Exercise, index: number) => ReactNode;
 }) => {
-  const search = useSearch({ from: "/(authed)/dashboard" });
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all(search));
+  const search = useSearch({ from: "/(authed)/exercises/" });
+  const exercises = useSuspenseInfiniteQuery(exerciseQueries.all(search));
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const isFirstAnnouncement = useRef(true);
-  const reorderTiles = useReorderTiles();
+  const reorderExercises = useReorderExercises();
   const queryClient = useQueryClient();
 
   const getIndex = (id: UniqueIdentifier) => {
-    return tiles.data.findIndex((tile) => tile.id === id);
+    return exercises.data.findIndex((exercise) => exercise.id === id);
   };
 
   const getPosition = (id: UniqueIdentifier) => {
@@ -178,7 +176,7 @@ const SortableGrid = (props: {
 
   const announcements: Readonly<Announcements> = {
     onDragStart: ({ active }) => {
-      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${tiles.data.length}`;
+      return `Picked up sortable item ${active.id}. Sortable item ${active.id} is in position ${getPosition(active.id)} of ${exercises.data.length}`;
     },
 
     onDragOver: ({ active, over }) => {
@@ -188,21 +186,21 @@ const SortableGrid = (props: {
       }
 
       if (over) {
-        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${tiles.data.length}`;
+        return `Sortable item ${active.id} was moved into position ${getPosition(over.id)} of ${exercises.data.length}`;
       }
 
       return;
     },
     onDragEnd: ({ active, over }) => {
       if (over) {
-        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${tiles.data.length}`;
+        return `Sortable item ${active.id} was dropped at position ${getPosition(over.id)} of ${exercises.data.length}`;
       }
 
       return;
     },
 
     onDragCancel: ({ active }) => {
-      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${tiles.data.length}.`;
+      return `Sorting was cancelled. Sortable item ${active.id} was dropped and returned to position ${getPosition(active.id)} of ${exercises.data.length}.`;
     },
   };
 
@@ -243,39 +241,41 @@ const SortableGrid = (props: {
       return;
     }
 
-    const tilesOrdered = arrayMove(tiles.data, activeIndex, overIndex);
+    const exercisesOrdered = arrayMove(exercises.data, activeIndex, overIndex);
 
     const queries = {
-      tiles: tileQueries.all().queryKey,
+      exercises: exerciseQueries.all().queryKey,
     };
 
-    queryClient.setQueryData(queries.tiles, (tiles) => {
-      if (!tiles) {
-        return tiles;
+    queryClient.setQueryData(queries.exercises, (exercises) => {
+      if (!exercises) {
+        return exercises;
       }
 
       return {
-        ...tiles,
-        pages: tiles.pages.map((page, i) => {
+        ...exercises,
+        pages: exercises.pages.map((page, i) => {
           return {
             ...page,
-            dashboardTiles: page.dashboardTiles.map((_tile, j) => {
-              const tile = tilesOrdered.at(i * page.dashboardTiles.length + j);
+            exercises: page.exercises.map((_exercise, j) => {
+              const exercise = exercisesOrdered.at(
+                i * page.exercises.length + j,
+              );
 
-              if (!tile) {
-                throw new Error("tile not found when reordering");
+              if (!exercise) {
+                throw new Error("exercise not found when reordering");
               }
 
-              return tile;
+              return exercise;
             }),
           };
         }),
       };
     });
 
-    reorderTiles.mutate({
+    reorderExercises.mutate({
       payload: {
-        tileIds: tilesOrdered.map((tile) => tile.id),
+        exerciseIds: exercisesOrdered.map((exercise) => exercise.id),
       },
     });
   };
@@ -296,8 +296,8 @@ const SortableGrid = (props: {
       onDragEnd={dragEndHandler}
       onDragCancel={dragCancelHandler}
     >
-      <SortableContext items={tiles.data} strategy={rectSortingStrategy}>
-        {tiles.data.map((item, index) => (
+      <SortableContext items={exercises.data} strategy={rectSortingStrategy}>
+        {exercises.data.map((item, index) => (
           <Fragment key={item.id}>{props.children(item, index)}</Fragment>
         ))}
       </SortableContext>
@@ -305,27 +305,24 @@ const SortableGrid = (props: {
   );
 };
 
-const GraphTilesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => (
-    <GraphViewTileSkeleton key={i} />
-  ));
+const ExercisesSkeleton = () => {
+  return [...new Array(10).keys()].map((i) => <ExerciseCardSkeleton key={i} />);
 };
 
-const GraphViewContentSkeleton = () => {
+const ExercisesGridSkeleton = () => {
   return (
     <Grid>
-      <GraphTilesSkeleton />
+      <ExercisesSkeleton />
     </Grid>
   );
 };
 
-type Tile =
-  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
+type Exercise = (typeof SelectAllExercisesSuccess.Type)["exercises"][number];
 
-const useReorderTiles = () => {
+const useReorderExercises = () => {
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "reorder">) => {
-      return callApi((api) => api.DashboardTile.reorder(props));
+    mutationFn: async (props: InferApiProps<"Exercise", "reorder">) => {
+      return callApi((api) => api.Exercise.reorder(props));
     },
   });
 };

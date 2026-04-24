@@ -11,12 +11,11 @@ import { userQueries } from "~/domains/user/user.queries";
 import { userMock } from "~/domains/user/user.mock";
 import { ArrowRightIcon } from "~/ui/icons";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
-import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
-import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
-import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
-import { tileQueries } from "~/domains/tile/tile.queries";
-import { tilesMock } from "~/domains/tile/tile.mock";
+// import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+// import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
+// import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
+// import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
+import { exercisesMock } from "~/domains/exercise/exercise.mock";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
 import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
 import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
@@ -29,7 +28,7 @@ export const Route = createFileRoute("/")({
   component: () => Home(),
   beforeLoad: ({ context }) => {
     if (context.user?.verifiedAt) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/exercises" });
     }
   },
 });
@@ -89,7 +88,7 @@ const HeroSection = () => {
 };
 
 const FeatureOne = () => {
-  const tiles = useSuspenseInfiniteQuery(tileQueries.all());
+  const exercises = useSuspenseInfiniteQuery(exerciseQueries.all());
 
   return (
     <FeatureContainer>
@@ -104,70 +103,13 @@ const FeatureOne = () => {
       </Text>
 
       <Grid>
-        {tiles.data.map((tile) => {
-          switch (tile.type) {
-            case "exercise": {
-              return (
-                <Card key={tile.id}>
-                  <Name>{tile.name}</Name>
-                  <ExerciseOverviewGraph sets={tile.sets} />
-                </Card>
-              );
-            }
-            case "exerciseSetCount": {
-              const data = Object.entries(
-                tile.sets.reduce<Record<string, number>>((acc, set) => {
-                  const key = String(set.exerciseId);
-                  acc[key] = (acc[key] ?? 0) + 1;
-                  return acc;
-                }, {}),
-              ).map(([name, count]) => ({ name, count }));
-
-              return (
-                <Card key={tile.id}>
-                  <Name>exercises frequency</Name>
-                  <ExerciseSetCountGraph data={data} />
-                </Card>
-              );
-            }
-            case "exerciseTagCount": {
-              const data = tile.tags.map((tag, i) => ({
-                id: tag.id,
-                name: tag.name,
-                count: i + 1,
-              }));
-
-              return (
-                <Card key={tile.id}>
-                  <Name>tags frequency</Name>
-                  <ExerciseTagCountGraph data={data} />
-                </Card>
-              );
-            }
-            case "dashboardHeatMap": {
-              return (
-                <Card key={tile.id}>
-                  <Name>heat map - January</Name>
-                  <DashboardHeatMap sets={mockSets} />
-                </Card>
-              );
-            }
-            case "dashboardFunFacts": {
-              return (
-                <Card key={tile.id}>
-                  <Name>fun facts</Name>
-                  <DashboardFunFacts
-                    data={{
-                      totalWeightInKg: 1200,
-                      totalRepetitions: 320,
-                      tileWithMostSets: { name: "bench press" },
-                      tileWithLeastSets: { name: "squat" },
-                    }}
-                  />
-                </Card>
-              );
-            }
-          }
+        {exercises.data.map((exercise) => {
+          return (
+            <Card key={exercise.id}>
+              <Name>{exercise.name}</Name>
+              <ExerciseOverviewGraph sets={exercise.sets} />
+            </Card>
+          );
         })}
       </Grid>
     </FeatureContainer>
@@ -394,15 +336,15 @@ const useMockQueryClient = () => {
 
   const queries = {
     user: userQueries.get,
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
     exercise: exerciseQueries.get(exerciseMock.id),
   };
 
   queryClient.setQueryData(queries.user.queryKey, userMock);
   queryClient.setQueryData(queries.exercise.queryKey, exerciseMock);
-  queryClient.setQueryData(queries.tiles.queryKey, {
+  queryClient.setQueryData(queries.exercises.queryKey, {
     pageParams: [],
-    pages: [{ nextCursor: null, dashboardTiles: tilesMock }],
+    pages: [{ nextCursor: null, exercises: exercisesMock }],
   });
 
   queryClient.setDefaultOptions({

@@ -11,24 +11,23 @@ import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { getRouteApi } from "@tanstack/react-router";
 import { callApi, InferApiProps } from "~/libs/api";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
-import { PatchDashboardTilePayload } from "@gym-graphs/shared/dashboard-tile/schemas";
 import { Schema } from "effect";
+import { PatchExercisePayload } from "@gym-graphs/shared/exercise/schemas";
 
-export const RenameExerciseOverviewTileForm = (props: Props) => {
-  const form = useRenameExerciseTileForm();
-  const renameExerciseTile = useRenameExericseTile();
+export const RenameExerciseForm = (props: Props) => {
+  const form = useRenameExerciseForm();
+  const renameExercise = useRenameExericse();
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const onSubmit = async (data: RenameExerciseSchema) => {
-    await renameExerciseTile.mutateAsync(
+    await renameExercise.mutateAsync(
       {
         path: {
-          tileId: exercise.data.tileId,
+          exerciseId: exercise.data.id,
         },
         payload: {
           name: data.name,
@@ -106,17 +105,17 @@ const useFormSchema = () => {
   const queryClient = useQueryClient();
   const params = routeApi.useParams();
 
-  return PatchDashboardTilePayload.pipe(
+  return PatchExercisePayload.pipe(
     Schema.filter((data) => {
-      const cachedTiles = queryClient.getQueryData(tileQueries.all().queryKey);
+      const cachedExercises = queryClient.getQueryData(
+        exerciseQueries.all().queryKey,
+      );
 
-      const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.dashboardTiles)
-        .find((tile) => {
+      const nameTaken = cachedExercises?.pages
+        .flatMap((page) => page.exercises)
+        .find((exercise) => {
           return (
-            tile.name === data.name &&
-            tile.type === "exercise" &&
-            tile.exerciseId !== params.exerciseId
+            exercise.name === data.name && exercise.id !== params.exerciseId
           );
         });
 
@@ -134,7 +133,7 @@ const useFormSchema = () => {
 
 type RenameExerciseSchema = ReturnType<typeof useFormSchema>["Type"];
 
-const useRenameExerciseTileForm = () => {
+const useRenameExerciseForm = () => {
   const formSchema = useFormSchema();
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
@@ -147,47 +146,47 @@ const useRenameExerciseTileForm = () => {
   });
 };
 
-const useRenameExericseTile = () => {
+const useRenameExericse = () => {
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
   };
 
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "patch">) => {
-      return callApi((api) => api.DashboardTile.patch(props));
+    mutationFn: async (props: InferApiProps<"Exercise", "patch">) => {
+      return callApi((api) => api.Exercise.patch(props));
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.exercise);
-      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercises);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
       const oldExercise = ctx.client.getQueryData(queries.exercise.queryKey);
 
       const name = variables.payload.name;
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles || !name) {
-          return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises || !name) {
+          return exercises;
         }
 
         return {
-          ...tiles,
-          pages: tiles.pages.map((page) => {
+          ...exercises,
+          pages: exercises.pages.map((page) => {
             return {
               ...page,
-              dashboardTiles: page.dashboardTiles.map((tile) => {
-                if (tile.id === variables.path.tileId) {
+              exercises: page.exercises.map((exercise) => {
+                if (exercise.id === variables.path.exerciseId) {
                   return {
-                    ...tile,
+                    ...exercise,
                     name,
                   };
                 }
 
-                return tile;
+                return exercise;
               }),
             };
           }),
@@ -206,19 +205,22 @@ const useRenameExericseTile = () => {
       });
 
       return {
-        oldTiles,
+        oldExercises,
         oldExercise,
       };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercises.queryKey,
+        onMutateRes?.oldExercises,
+      );
       ctx.client.setQueryData(
         queries.exercise.queryKey,
         onMutateRes?.oldExercise,
       );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });

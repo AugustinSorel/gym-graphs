@@ -32,10 +32,10 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
       .addSuccess(ExerciseSuccess),
   )
   .add(
-    HttpApiEndpoint.patch("patch", "/:tileId")
+    HttpApiEndpoint.patch("patch", "/:exerciseId")
       .setPath(
         Schema.Struct({
-          tileId: Schema.NumberFromString,
+          exerciseId: Schema.NumberFromString,
         }),
       )
       .setPayload(PatchExercisePayload)
@@ -54,20 +54,20 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
       .addSuccess(ExerciseSuccess),
   )
   .add(
-    HttpApiEndpoint.get("getTags", "/:tileId/tags")
+    HttpApiEndpoint.get("getTags", "/:exerciseId/tags")
       .setPath(
         Schema.Struct({
-          tileId: Schema.NumberFromString,
+          exerciseId: Schema.NumberFromString,
         }),
       )
       .addError(ExerciseNotFound)
       .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )
   .add(
-    HttpApiEndpoint.put("putTags", "/:tileId/tags")
+    HttpApiEndpoint.put("putTags", "/:exerciseId/tags")
       .setPath(
         Schema.Struct({
-          tileId: Schema.NumberFromString,
+          exerciseId: Schema.NumberFromString,
         }),
       )
       .setPayload(PutExerciseTagsPayload)
@@ -75,10 +75,10 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
       .addSuccess(TagSuccessSchema.pipe(Schema.Array, Schema.maxItems(100))),
   )
   .add(
-    HttpApiEndpoint.del("delete", "/:tileId")
+    HttpApiEndpoint.del("delete", "/:exerciseId")
       .setPath(
         Schema.Struct({
-          tileId: Schema.NumberFromString,
+          exerciseId: Schema.NumberFromString,
         }),
       )
       .addError(ExerciseNotFound),

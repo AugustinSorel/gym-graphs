@@ -10,6 +10,7 @@ import {
   MoonIcon,
   HomeIcon,
   ArrowRightIcon,
+  DumbbellIcon,
 } from "~/ui/icons";
 import {
   DropdownMenu,
@@ -89,9 +90,9 @@ const DesktopNav = () => {
     <Nav className="flex h-full gap-10">
       <Link
         className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
-        to="/dashboard"
+        to="/exercises"
       >
-        dashboard
+        exercises
       </Link>
       <Link
         className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
@@ -110,10 +111,10 @@ const MobileNav = () => {
         asChild
         variant="ghost"
         className="data-[status=active]:[&>svg]:fill-foreground"
-        aria-label="go to dashboard"
+        aria-label="go to exercises"
       >
-        <Link to="/dashboard">
-          <HomeIcon />
+        <Link to="/exercises">
+          <DumbbellIcon />
         </Link>
       </Button>
       <Button
@@ -188,7 +189,8 @@ const UserProfileDropdown = () => {
             className="flex gap-2"
             value={theme.value}
             onValueChange={(unsafeTheme) => {
-              const themeOption = Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
+              const themeOption =
+                Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
               if (Option.isNone(themeOption)) return;
               theme.set(themeOption.value);
             }}

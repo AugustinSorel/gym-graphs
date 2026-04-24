@@ -29,9 +29,7 @@ export const ExerciseLive = HttpApiBuilder.group(
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
-          const tile = yield* ExerciseService.create(payload, session.userId);
-
-          return tile;
+          return yield* ExerciseService.create(payload, session.userId);
         }).pipe(
           Effect.catchTags({
             EffectDrizzleQueryError: () =>
@@ -72,7 +70,7 @@ export const ExerciseLive = HttpApiBuilder.group(
           const session = yield* CurrentSession;
 
           return yield* ExerciseService.patch(
-            path.tileId,
+            path.exerciseId,
             session.userId,
             payload,
           );
@@ -88,7 +86,10 @@ export const ExerciseLive = HttpApiBuilder.group(
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
-          return yield* ExerciseService.selectTags(path.tileId, session.userId);
+          return yield* ExerciseService.selectTags(
+            path.exerciseId,
+            session.userId,
+          );
         }).pipe(
           Effect.catchTags({
             EffectDrizzleQueryError: () =>
@@ -102,7 +103,7 @@ export const ExerciseLive = HttpApiBuilder.group(
           const session = yield* CurrentSession;
 
           return yield* ExerciseService.setTags(
-            path.tileId,
+            path.exerciseId,
             session.userId,
             payload.tagIds,
           );
@@ -119,7 +120,7 @@ export const ExerciseLive = HttpApiBuilder.group(
         return Effect.gen(function* () {
           const session = yield* CurrentSession;
 
-          yield* ExerciseService.delete(path.tileId, session.userId);
+          yield* ExerciseService.delete(path.exerciseId, session.userId);
         }).pipe(
           Effect.catchTags({
             EffectDrizzleQueryError: () =>

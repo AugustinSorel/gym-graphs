@@ -13,7 +13,7 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { tagQueries } from "~/domains/tag/tag.queries";
 
-export const FilterTilesByTags = () => {
+export const FilterExercisesByTags = () => {
   const search = routeApi.useSearch();
 
   const tags = new Set(search.tags);
@@ -130,4 +130,4 @@ const ClearTagsItem = () => {
   );
 };
 
-const routeApi = getRouteApi("/(authed)/dashboard");
+const routeApi = getRouteApi("/(authed)/exercises/");

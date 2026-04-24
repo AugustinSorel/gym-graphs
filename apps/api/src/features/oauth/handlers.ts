@@ -75,7 +75,7 @@ export const OAuthLive = HttpApiBuilder.group(Api, "OAuth", (handlers) => {
 
         const url = urlParams.redirectUrl
           ? urlParams.redirectUrl
-          : `${config.url.web}/dashboard`;
+          : `${config.url.web}/exercises`;
 
         return HttpServerResponse.redirect(url);
       }).pipe(

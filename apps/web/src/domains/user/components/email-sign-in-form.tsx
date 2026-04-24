@@ -29,7 +29,7 @@ export const EmailSignInForm = () => {
             if (search.callbackUrl) {
               await navigate({ to: search.callbackUrl });
             } else {
-              await navigate({ to: "/dashboard" });
+              await navigate({ to: "/exercises" });
             }
           });
         },

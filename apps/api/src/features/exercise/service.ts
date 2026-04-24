@@ -70,7 +70,7 @@ export class ExerciseService extends Effect.Service<ExerciseService>()(
           payload: typeof ReorderExercisesPayload.Type,
           userId: Exercise["userId"],
         ) => {
-          const reversedTileIds = payload.tileIds.toReversed();
+          const reversedTileIds = payload.exerciseIds.toReversed();
 
           return exerciseRepo
             .reorder(reversedTileIds, userId)

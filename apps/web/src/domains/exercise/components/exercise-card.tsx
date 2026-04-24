@@ -5,23 +5,14 @@ import { getRouteApi, Link } from "@tanstack/react-router";
 import { cn } from "~/styles/styles.utils";
 import { Skeleton } from "~/ui/skeleton";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
-import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
-import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
-import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
-import { tileQueries } from "~/domains/tile/tile.queries";
-import {
-  useSuspenseInfiniteQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { useMemo, type ComponentProps } from "react";
+// import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
+// import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
+// import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
+// import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ButtonProps } from "~/ui/button";
-import {
-  ExerciseSetCountTileSuccess,
-  ExerciseTileWithSetsSuccess,
-  SelectAllDashboardTilesSuccess,
-} from "@gym-graphs/shared/dashboard-tile/schemas";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
@@ -31,23 +22,38 @@ import { userQueries } from "~/domains/user/user.queries";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
 import { convertWeight } from "~/domains/user/user.utils";
 import { timeAgo } from "~/utils/date";
+import { SelectAllExercisesSuccess } from "@gym-graphs/shared/exercise/schemas";
 
-export const GraphViewTile = (props: TileProps) => {
-  switch (props.tile.type) {
-    case "exercise":
-      return <ExerciseOverviewTile tile={props.tile} />;
-    case "exerciseSetCount":
-      return <ExerciseSetCountTile tile={props.tile} />;
-    case "exerciseTagCount":
-      return <ExerciseTagCountTile tile={props.tile} />;
-    case "dashboardHeatMap":
-      return <DashboardHeatMapTile tile={props.tile} />;
-    case "dashboardFunFacts":
-      return <DashboardFunFactsTile tile={props.tile} />;
-  }
+export const ExerciseCard = (props: Props) => {
+  const sortable = useSortable({ id: props.exercise.id });
+
+  return (
+    <Card className="group hover:border-muted-foreground grid-rows-[auto_auto_1fr_auto] p-4 transition-colors">
+      <Button variant="link" asChild className="absolute inset-0 h-auto">
+        <Link
+          to="/exercises/$exerciseId"
+          params={{ exerciseId: props.exercise.id }}
+          aria-label={`go to exercise ${props.exercise.id}`}
+        />
+      </Button>
+
+      <header className="flex items-center justify-between">
+        <Name>{props.exercise.name}</Name>
+        <DragButton {...sortable.listeners} {...sortable.attributes} />
+      </header>
+
+      <ExerciseMetadata sets={props.exercise.sets} />
+
+      <ExerciseOverviewGraph sets={props.exercise.sets} />
+
+      <footer>
+        <LastChangeMade sets={props.exercise.sets} />
+      </footer>
+    </Card>
+  );
 };
 
-export const GraphViewTileFallback = (props: ErrorComponentProps) => {
+export const ExerciseCardFallback = (props: ErrorComponentProps) => {
   return (
     <Card className="border-destructive bg-destructive/10">
       <header className="border-destructive border-b p-4">
@@ -58,7 +64,7 @@ export const GraphViewTileFallback = (props: ErrorComponentProps) => {
   );
 };
 
-export const GraphViewTileSkeleton = () => {
+export const ExerciseCardSkeleton = () => {
   return (
     <Skeleton>
       <Card>
@@ -68,40 +74,7 @@ export const GraphViewTileSkeleton = () => {
   );
 };
 
-const ExerciseOverviewTile = (props: {
-  tile: typeof ExerciseTileWithSetsSuccess.Type;
-}) => {
-  const sortable = useSortable({ id: props.tile.id });
-
-  return (
-    <Card className="group hover:border-muted-foreground grid-rows-[auto_auto_1fr_auto] p-4 transition-colors">
-      <Button variant="link" asChild className="absolute inset-0 h-auto">
-        <Link
-          to="/exercises/$exerciseId"
-          params={{ exerciseId: props.tile.exerciseId }}
-          aria-label={`go to exercise ${props.tile.exerciseId}`}
-        />
-      </Button>
-
-      <header className="flex items-center justify-between">
-        <Name>{props.tile.name}</Name>
-        <DragButton {...sortable.listeners} {...sortable.attributes} />
-      </header>
-
-      <ExerciseMetadata sets={props.tile.sets} />
-
-      <ExerciseOverviewGraph sets={props.tile.sets} />
-
-      <footer>
-        <LastChangeMade sets={props.tile.sets} />
-      </footer>
-    </Card>
-  );
-};
-
-const LastChangeMade = (
-  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
-) => {
+const LastChangeMade = (props: Pick<Exercise, "sets">) => {
   const sortedSets = useSortSetsByDoneAt(props.sets);
 
   const latestSet = sortedSets.at(0);
@@ -117,9 +90,7 @@ const LastChangeMade = (
   );
 };
 
-const ExerciseMetadata = (
-  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
-) => {
+const ExerciseMetadata = (props: Pick<Exercise, "sets">) => {
   return (
     <Metadata>
       <MetadataTitle>
@@ -157,9 +128,7 @@ const MetadataValue = (props: ComponentProps<"dt">) => {
   return <dd {...props} />;
 };
 
-const SetsCountMetadata = (
-  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
-) => {
+const SetsCountMetadata = (props: Pick<Exercise, "sets">) => {
   return (
     <MetadataValue className="text-muted-foreground text-2xl font-semibold">
       {props.sets.length}
@@ -167,9 +136,7 @@ const SetsCountMetadata = (
   );
 };
 
-const GrowthIndicatorMetadata = (
-  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
-) => {
+const GrowthIndicatorMetadata = (props: Pick<Exercise, "sets">) => {
   const sortedSets = useSortSetsByDoneAt(props.sets);
   const sets = useBestSortedSets(sortedSets);
 
@@ -226,9 +193,7 @@ const GrowthIndicatorMetadata = (
   );
 };
 
-const BestOneRepMaxMetadata = (
-  props: Pick<typeof ExerciseTileWithSetsSuccess.Type, "sets">,
-) => {
+const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
   const sortedSets = useSortSetsByOneRepMax(props.sets);
   const bestSet = sortedSets.at(0);
   const user = useSuspenseQuery(userQueries.get);
@@ -262,6 +227,7 @@ const BestOneRepMaxMetadata = (
   );
 };
 
+/*
 const ExerciseSetCountTile = (props: {
   tile: typeof ExerciseSetCountTileSuccess.Type;
 }) => {
@@ -398,6 +364,7 @@ const DashboardFunFactsTile = (props: {
     </Card>
   );
 };
+*/
 
 const DragButton = (props: ButtonProps) => {
   const search = routeApi.useSearch();
@@ -454,9 +421,8 @@ const ErrorMsg = (props: ComponentProps<"code">) => {
   return <code className="overflow-auto p-4" {...props} />;
 };
 
-type Tile =
-  (typeof SelectAllDashboardTilesSuccess.Type)["dashboardTiles"][number];
+type Exercise = (typeof SelectAllExercisesSuccess.Type)["exercises"][number];
 
-type TileProps = { tile: Tile };
+type Props = { exercise: Exercise };
 
-const routeApi = getRouteApi("/(authed)/dashboard");
+const routeApi = getRouteApi("/(authed)/exercises/");

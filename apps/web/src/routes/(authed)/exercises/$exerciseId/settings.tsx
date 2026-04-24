@@ -8,8 +8,8 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { AlertCircleIcon, ArrowLeftIcon, CheckIcon } from "~/ui/icons";
-import { DeleteExerciseOverviewTileDialog } from "~/domains/tile/components/delete-exercise-overview-tile-dialog";
-import { RenameExerciseOverviewTileDialog } from "~/domains/tile/components/rename-exercise-overview-tile-dialog";
+import { DeleteExerciseDialog } from "~/domains/exercise/components/delete-exercise-dialog";
+import { RenameExerciseDialog } from "~/domains/exercise/components/rename-exercise-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { cn } from "~/styles/styles.utils";
 import { CreateTagDialog } from "~/domains/tag/components/create-tag-dialog";
@@ -22,7 +22,6 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import type { ComponentProps } from "react";
 import { callApi, InferApiProps } from "~/libs/api";
 import { DefaultFallback } from "~/ui/fallback";
-import { tileQueries } from "~/domains/tile/tile.queries";
 
 export const Route = createFileRoute(
   "/(authed)/exercises/$exerciseId/settings",
@@ -52,14 +51,14 @@ const RouteComponent = () => {
 
       <Separator />
 
-      <RenameTileSection />
+      <RenameExerciseSection />
       <ExerciseTagsSection />
-      <DeleteTileSection />
+      <DeleteExerciseSection />
     </Main>
   );
 };
 
-const RenameTileSection = () => {
+const RenameExerciseSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section>
@@ -71,7 +70,7 @@ const RenameTileSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer>
-          <RenameExerciseOverviewTileDialog />
+          <RenameExerciseDialog />
         </Footer>
       </Section>
     </CatchBoundary>
@@ -83,9 +82,9 @@ const ExerciseTagsSection = () => {
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const tags = useSuspenseQuery(tagQueries.all);
-  const tileTags = useSuspenseQuery(tileQueries.tags(exercise.data.tileId));
+  const exerciseTags = useSuspenseQuery(exerciseQueries.tags(exercise.data.id));
 
-  const setTileTags = useSetTileTags();
+  const setExerciseTags = useSetExerciseTags();
 
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
@@ -101,10 +100,10 @@ const ExerciseTagsSection = () => {
         <ToggleGroup
           className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="multiple"
-          value={tileTags.data.map((tag) => tag.id.toString())}
+          value={exerciseTags.data.map((tag) => tag.id.toString())}
           onValueChange={(newTagsIdsStr) => {
-            setTileTags.mutate({
-              path: { tileId: exercise.data.tileId },
+            setExerciseTags.mutate({
+              path: { exerciseId: exercise.data.id },
               payload: { tagIds: newTagsIdsStr.map(Number) },
             });
           }}
@@ -127,11 +126,11 @@ const ExerciseTagsSection = () => {
           ))}
         </ToggleGroup>
 
-        {setTileTags.error && (
+        {setExerciseTags.error && (
           <Alert variant="destructive" className="m-3 w-auto lg:m-6">
             <AlertCircleIcon />
             <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>{setTileTags.error.message}</AlertDescription>
+            <AlertDescription>{setExerciseTags.error.message}</AlertDescription>
           </Alert>
         )}
 
@@ -143,7 +142,7 @@ const ExerciseTagsSection = () => {
   );
 };
 
-const DeleteTileSection = () => {
+const DeleteExerciseSection = () => {
   return (
     <CatchBoundary errorComponent={DefaultFallback} getResetKey={() => "reset"}>
       <Section className="border-destructive">
@@ -156,7 +155,7 @@ const DeleteTileSection = () => {
           </SectionDescription>
         </HGroup>
         <Footer className="border-destructive bg-destructive/10">
-          <DeleteExerciseOverviewTileDialog />
+          <DeleteExerciseDialog />
         </Footer>
       </Section>
     </CatchBoundary>
@@ -227,44 +226,49 @@ const NoTagsText = (props: ComponentProps<"p">) => {
   );
 };
 
-const useSetTileTags = () => {
+const useSetExerciseTags = () => {
   const params = Route.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const queries = {
     exercise: exerciseQueries.get(exercise.data.id),
-    tileTags: tileQueries.tags(exercise.data.tileId),
+    exerciseTags: exerciseQueries.tags(exercise.data.id),
     allTags: tagQueries.all,
   };
 
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "putTags">) => {
-      return callApi((api) => api.DashboardTile.putTags(props));
+    mutationFn: async (props: InferApiProps<"Exercise", "putTags">) => {
+      return callApi((api) => api.Exercise.putTags(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.tileTags);
+      await ctx.client.cancelQueries(queries.exerciseTags);
 
-      const oldTileTags = ctx.client.getQueryData(queries.tileTags.queryKey);
+      const oldExerciseTags = ctx.client.getQueryData(
+        queries.exerciseTags.queryKey,
+      );
 
       const allTags = ctx.client.getQueryData(queries.allTags.queryKey);
 
-      ctx.client.setQueryData(queries.tileTags.queryKey, () => {
-        if (!allTags) return oldTileTags;
+      ctx.client.setQueryData(queries.exerciseTags.queryKey, () => {
+        if (!allTags) {
+          return oldExerciseTags;
+        }
+
         return allTags
           .filter((t) => variables.payload.tagIds.includes(t.id))
           .map((t) => ({ id: t.id, name: t.name }));
       });
 
-      return { oldTileTags };
+      return { oldExerciseTags };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
       ctx.client.setQueryData(
-        queries.tileTags.queryKey,
-        onMutateRes?.oldTileTags,
+        queries.exerciseTags.queryKey,
+        onMutateRes?.oldExerciseTags,
       );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tileTags);
+      void ctx.client.invalidateQueries(queries.exerciseTags);
       void ctx.client.invalidateQueries(queries.exercise);
     },
   });
@@ -293,7 +297,7 @@ const BackBtn = () => {
       variant="link"
       className="text-muted-foreground mr-auto p-0"
     >
-      <Link to="/dashboard">
+      <Link to="/exercises">
         <ArrowLeftIcon />
         <span>back</span>
       </Link>

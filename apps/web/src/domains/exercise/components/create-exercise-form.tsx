@@ -8,7 +8,6 @@ import { Spinner } from "~/ui/spinner";
 import { Input } from "~/ui/input";
 import { Button } from "~/ui/button";
 import { callApi, InferApiProps } from "~/libs/api";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon, CheckIcon, ChevronsUpDownIcon } from "~/ui/icons";
@@ -21,16 +20,17 @@ import { ToggleGroup, ToggleGroupItem } from "~/ui/toggle-group";
 import { ComponentProps } from "react";
 import { Badge } from "~/ui/badge";
 import { tagQueries } from "~/domains/tag/tag.queries";
-import { CreateDashboardTilePayload } from "@gym-graphs/shared/dashboard-tile/schemas";
+import { CreateExercisePayload } from "@gym-graphs/shared/exercise/schemas";
 import { Schema } from "effect";
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { exerciseQueries } from "../exercise.queries";
 
-export const CreateExerciseOverviewTileForm = (props: Props) => {
-  const form = useCreateExerciseTileForm();
-  const createExerciseTile = useCreateExerciseTile();
+export const CreateExerciseForm = (props: Props) => {
+  const form = useCreateExerciseForm();
+  const createExercise = useCreateExercise();
 
-  const onSubmit = async (payload: typeof CreateDashboardTilePayload.Type) => {
-    await createExerciseTile.mutateAsync(
+  const onSubmit = async (payload: typeof CreateExercisePayload.Type) => {
+    await createExercise.mutateAsync(
       { payload },
       {
         onSuccess: () => {
@@ -107,18 +107,18 @@ type Props = Readonly<{
 const useFormSchema = () => {
   const queryClient = useQueryClient();
 
-  return CreateDashboardTilePayload.pipe(
+  return CreateExercisePayload.pipe(
     Schema.filter((data) => {
       const queries = {
-        tiles: tileQueries.all().queryKey,
+        exercises: exerciseQueries.all().queryKey,
       };
 
-      const cachedTiles = queryClient.getQueryData(queries.tiles);
+      const cachedExercises = queryClient.getQueryData(queries.exercises);
 
-      const nameTaken = cachedTiles?.pages
-        .flatMap((page) => page.dashboardTiles)
-        .find((tile) => {
-          return tile.name === data.name;
+      const nameTaken = cachedExercises?.pages
+        .flatMap((page) => page.exercises)
+        .find((exercise) => {
+          return exercise.name === data.name;
         });
 
       if (nameTaken) {
@@ -133,59 +133,56 @@ const useFormSchema = () => {
   );
 };
 
-const useCreateExerciseTileForm = () => {
+const useCreateExerciseForm = () => {
   const formSchema = useFormSchema();
 
-  return useForm<typeof CreateDashboardTilePayload.Type>({
+  return useForm<typeof CreateExercisePayload.Type>({
     resolver: effectTsResolver(formSchema),
     defaultValues: {
       name: "",
-      type: "exercise",
       tagIds: [],
     },
   });
 };
 
-const useCreateExerciseTile = () => {
+const useCreateExercise = () => {
   const tags = useSuspenseQuery(tagQueries.all);
 
   const queries = {
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
   };
 
   return useMutation({
-    mutationFn: async (props: InferApiProps<"DashboardTile", "create">) => {
-      return callApi((api) => api.DashboardTile.create(props));
+    mutationFn: async (props: InferApiProps<"Exercise", "create">) => {
+      return callApi((api) => api.Exercise.create(props));
     },
     onMutate: async (variables, ctx) => {
-      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercises);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
 
-      const optimisticTile = {
+      const optimisticExercise = {
         id: Math.random(),
         index: 1_0000,
-        type: "exercise" as const,
         name: variables.payload.name,
-        exerciseId: Math.random(),
         sets: [],
         tags: tags.data.filter((tag) => {
           return variables.payload.tagIds.includes(tag.id);
         }),
       };
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
-          return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises) {
+          return exercises;
         }
 
         return {
-          ...tiles,
-          pages: tiles.pages.map((page, i) => {
+          ...exercises,
+          pages: exercises.pages.map((page, i) => {
             if (i === 0) {
               return {
                 ...page,
-                dashboardTiles: [optimisticTile, ...page.dashboardTiles],
+                exercises: [optimisticExercise, ...page.exercises],
               };
             }
 
@@ -195,14 +192,17 @@ const useCreateExerciseTile = () => {
       });
 
       return {
-        oldTiles,
+        oldExercises,
       };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercises.queryKey,
+        onMutateRes?.oldExercises,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
     },
   });
 };
@@ -210,7 +210,7 @@ const useCreateExerciseTile = () => {
 const ExerciseTags = (
   props: Parameters<
     ComponentProps<
-      typeof Controller<typeof CreateDashboardTilePayload.Type, "tagIds">
+      typeof Controller<typeof CreateExercisePayload.Type, "tagIds">
     >["render"]
   >[0],
 ) => {

@@ -39,7 +39,7 @@ export const ExerciseTagCountGraph = (props: Props) => {
   );
 };
 
-export const TilesToTagsGraphSkeleton = () => {
+export const ExerciseTagCountGraphSkeleton = () => {
   return (
     <Skeleton className="bg-transparent">
       <ParentSize className="relative flex overflow-hidden">

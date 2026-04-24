@@ -25,7 +25,7 @@ export const ResetPasswordForm = () => {
       {
         onSuccess: () => {
           startRedirectTransition(async () => {
-            await navigate({ to: "/dashboard" });
+            await navigate({ to: "/exercises" });
           });
         },
         onError: (error) => {

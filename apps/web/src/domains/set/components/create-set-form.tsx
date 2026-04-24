@@ -10,7 +10,6 @@ import { CounterInput } from "~/ui/counter-input";
 import { useLastSet } from "~/domains/set/hooks/use-last-set";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { callApi, InferApiProps } from "~/libs/api";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
@@ -137,7 +136,7 @@ const useCreateSet = () => {
   const params = routeApi.useParams();
 
   const queries = {
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
     sets: setQueries.getAll(params.exerciseId),
   };
 
@@ -147,11 +146,11 @@ const useCreateSet = () => {
     },
     onMutate: async (variables, ctx) => {
       await Promise.all([
-        ctx.client.cancelQueries(queries.tiles),
+        ctx.client.cancelQueries(queries.exercises),
         ctx.client.cancelQueries(queries.sets),
       ]);
 
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
       const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
 
       const optimisticSet = {
@@ -164,27 +163,23 @@ const useCreateSet = () => {
         updatedAt: new Date(),
       };
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) {
-          return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises) {
+          return exercises;
         }
 
         return {
-          ...tiles,
-          pages: tiles.pages.map((page) => ({
+          ...exercises,
+          pages: exercises.pages.map((page) => ({
             ...page,
-            dashboardTiles: page.dashboardTiles.map((tile) => {
-              if (tile.type !== "exercise") {
-                return tile;
-              }
-
-              if (tile.exerciseId !== params.exerciseId) {
-                return tile;
+            exercises: page.exercises.map((exericse) => {
+              if (exericse.id !== params.exerciseId) {
+                return exericse;
               }
 
               return {
-                ...tile,
-                sets: [optimisticSet, ...tile.sets],
+                ...exericse,
+                sets: [optimisticSet, ...exericse.sets],
               };
             }),
           })),
@@ -199,14 +194,17 @@ const useCreateSet = () => {
         return [optimisticSet, ...sets];
       });
 
-      return { oldTiles, oldSets };
+      return { oldExercises, oldSets };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercises.queryKey,
+        onMutateRes?.oldExercises,
+      );
       ctx.client.setQueryData(queries.sets.queryKey, onMutateRes?.oldSets);
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
       void ctx.client.invalidateQueries(queries.sets);
     },
   });

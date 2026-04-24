@@ -18,7 +18,7 @@ export class DuplicateExercise extends Schema.TaggedError<DuplicateExercise>()(
 ) {
   static withName(name: string) {
     return new DuplicateExercise({
-      message: `Dashboard Tile with name ${name} already exists`,
+      message: `Exercise with name ${name} already exists`,
     });
   }
 }

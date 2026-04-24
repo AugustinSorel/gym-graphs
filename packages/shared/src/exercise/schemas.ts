@@ -42,15 +42,19 @@ export const SelectAllExercisesUrlParams = Schema.Struct({
 
 export const SelectAllExercisesSuccess = Schema.Struct({
   nextCursor: Schema.NullOr(Schema.Positive),
-  dashboardTiles: Schema.Struct({
+  exercises: Schema.Struct({
     id: ExerciseSchema.fields.id,
+    name: ExerciseSchema.fields.name,
     sets: SetSuccessSchema.pipe(Schema.Array),
     tags: Schema.Array(TagSuccessSchema),
   }).pipe(Schema.Array),
 });
 
 export const ReorderExercisesPayload = Schema.Struct({
-  tileIds: ExerciseSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+  exerciseIds: ExerciseSchema.fields.id.pipe(
+    Schema.Array,
+    Schema.maxItems(100),
+  ),
 });
 
 export const ReorderExercisesSuccess = ExerciseSuccess.pipe(Schema.Array);
