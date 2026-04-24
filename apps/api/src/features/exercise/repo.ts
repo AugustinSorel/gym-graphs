@@ -84,7 +84,7 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
           return db.query.exercises.findMany({
             where: {
               userId,
-              id: params.cursor ? { lt: params.cursor } : undefined,
+              index: params.cursor ? { lt: params.cursor } : undefined,
               name: {
                 ilike: filterBy.name ? `%${filterBy.name}%` : undefined,
               },

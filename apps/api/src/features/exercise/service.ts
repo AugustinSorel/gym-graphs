@@ -59,7 +59,7 @@ export class ExerciseService extends Effect.Service<ExerciseService>()(
 
               return {
                 exercises,
-                nextCursor: hasMore && lastItem ? lastItem.id : null,
+                nextCursor: hasMore && lastItem ? lastItem.index : null,
               };
             }),
             Effect.timeout(5000),
