@@ -1,13 +1,18 @@
-import { Database } from "#/integrations/db/db";
+import { Database, isUniqueViolation } from "#/integrations/db/db";
 import {
   exercises,
   exercisesToTags,
   type Exercise,
+  type ExercisesToTags,
   type Tag,
 } from "#/integrations/db/schema";
-import { ExerciseNotFound } from "@gym-graphs/shared/exercise/errors";
+import {
+  DuplicateExercise,
+  ExerciseNotFound,
+} from "@gym-graphs/shared/exercise/errors";
 import { Effect, Array } from "effect";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, sql, SQL } from "drizzle-orm";
+import type { SelectAllExercisesUrlParams } from "@gym-graphs/shared/exercise/schemas";
 
 export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
   "ExerciseRepo",
@@ -31,10 +36,15 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
           return db.insert(exercises).values(input).returning();
         },
 
-        deleteById: (exerciseId: Exercise["id"]) => {
+        deleteById: (
+          exerciseId: Exercise["id"],
+          userId: Exercise["userId"],
+        ) => {
           return db
             .delete(exercises)
-            .where(eq(exercises.id, exerciseId))
+            .where(
+              and(eq(exercises.id, exerciseId), eq(exercises.userId, userId)),
+            )
             .returning();
         },
 
@@ -58,12 +68,145 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
           });
         },
 
-        addTags: (exerciseId: Exercise["id"], tagIds: Tag["id"][]) => {
+        selectAll: (
+          userId: Exercise["userId"],
+          pageSize: number,
+          params: Pick<
+            typeof SelectAllExercisesUrlParams.Type,
+            "name" | "tags" | "cursor"
+          >,
+        ) => {
+          const filterBy = {
+            name: params.name?.length ? params.name : undefined,
+            tags: params.tags?.length ? params.tags : undefined,
+          };
+
+          return db.query.exercises.findMany({
+            where: {
+              userId,
+              id: params.cursor ? { lt: params.cursor } : undefined,
+              name: {
+                ilike: filterBy.name ? `%${filterBy.name}%` : undefined,
+              },
+              tags: filterBy.tags
+                ? {
+                    name: {
+                      in: [...filterBy.tags],
+                    },
+                  }
+                : undefined,
+            },
+
+            orderBy: {
+              index: "desc",
+            },
+
+            limit: pageSize + 1,
+
+            with: {
+              sets: true,
+              tags: true,
+            },
+          });
+        },
+
+        addTags: (
+          exerciseId: Exercise["id"],
+          tagIds: ReadonlyArray<Tag["id"]>,
+        ) => {
           return db
             .insert(exercisesToTags)
             .values(tagIds.map((tagId) => ({ exerciseId, tagId })))
             .onConflictDoNothing()
             .returning();
+        },
+
+        reorder: (
+          exerciseIds: Array<Exercise["id"]>,
+          userId: Exercise["userId"],
+        ) => {
+          const sqlChunks: Array<SQL> = [];
+
+          sqlChunks.push(sql`(case`);
+
+          exerciseIds.forEach((exerciseId, i) => {
+            sqlChunks.push(
+              sql`when ${exercises.id} = ${exerciseId} then cast(${i} as integer)`,
+            );
+          });
+
+          sqlChunks.push(sql`end)`);
+
+          const finalSql = sql.join(sqlChunks, sql.raw(" "));
+          return db
+            .update(exercises)
+            .set({ index: finalSql })
+            .where(
+              and(
+                inArray(exercises.id, exerciseIds),
+                eq(exercises.userId, userId),
+              ),
+            )
+            .returning();
+        },
+
+        patch: (
+          exerciseId: Exercise["id"],
+          userId: Exercise["userId"],
+          input: { name: string },
+        ) => {
+          return db
+            .update(exercises)
+            .set({ name: input.name })
+            .where(
+              and(eq(exercises.id, exerciseId), eq(exercises.userId, userId)),
+            )
+            .returning()
+            .pipe(
+              Effect.catchIf(
+                (e) =>
+                  isUniqueViolation(e, "dashboard_tiles_name_user_id_unique"),
+                () => DuplicateExercise.withName(input.name),
+              ),
+              Effect.andThen((rows) =>
+                Array.head(rows).pipe(
+                  Effect.mapError(() => new ExerciseNotFound()),
+                ),
+              ),
+            );
+        },
+
+        selectTagsByExerciseId: (
+          exerciseId: Exercise["id"],
+          userId: Exercise["userId"],
+        ) => {
+          return db.query.tags.findMany({
+            where: {
+              exercises: {
+                AND: [{ id: exerciseId }, { userId }],
+              },
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          });
+        },
+
+        putTagsByExerciseId: (
+          exerciseId: ExercisesToTags["exerciseId"],
+          tagIds: ReadonlyArray<ExercisesToTags["tagId"]>,
+        ) => {
+          return Effect.gen(function* () {
+            yield* db
+              .delete(exercisesToTags)
+              .where(eq(exercisesToTags.exerciseId, exerciseId));
+
+            if (tagIds.length > 0) {
+              yield* db
+                .insert(exercisesToTags)
+                .values(tagIds.map((tagId) => ({ tagId, exerciseId })));
+            }
+          });
         },
       };
     }),
