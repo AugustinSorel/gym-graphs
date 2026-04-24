@@ -1,3 +1,5 @@
+import { SetSuccessSchema } from "#/set/schemas";
+import { TagSchema, TagSuccessSchema } from "#/tag/schemas";
 import { pipe, Schema } from "effect";
 
 export const ExerciseSchema = Schema.Struct({
@@ -17,3 +19,44 @@ export const ExerciseSchema = Schema.Struct({
 });
 
 export const ExerciseSuccess = ExerciseSchema.pick("id", "name");
+
+export const CreateExercisePayload = Schema.extend(
+  Schema.Struct({
+    tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+  }),
+  ExerciseSchema.pick("name"),
+);
+
+export const SelectAllExercisesUrlParams = Schema.Struct({
+  name: Schema.optionalWith(Schema.String, {
+    exact: true,
+  }),
+  tags: Schema.optionalWith(
+    Schema.Array(TagSchema.fields.name).pipe(Schema.maxItems(200)),
+    { exact: true },
+  ),
+  cursor: Schema.optionalWith(Schema.NumberFromString, {
+    exact: true,
+  }),
+});
+
+export const SelectAllExercisesSuccess = Schema.Struct({
+  nextCursor: Schema.NullOr(Schema.Positive),
+  dashboardTiles: Schema.Struct({
+    id: ExerciseSchema.fields.id,
+    sets: SetSuccessSchema.pipe(Schema.Array),
+    tags: Schema.Array(TagSuccessSchema),
+  }).pipe(Schema.Array),
+});
+
+export const ReorderExercisesPayload = Schema.Struct({
+  tileIds: ExerciseSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+});
+
+export const ReorderExercisesSuccess = ExerciseSuccess.pipe(Schema.Array);
+
+export const PatchExercisePayload = ExerciseSchema.pick("name");
+
+export const PutExerciseTagsPayload = Schema.Struct({
+  tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+});
