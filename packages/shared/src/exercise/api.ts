@@ -11,6 +11,7 @@ import {
   ReorderExercisesSuccess,
   SelectAllExercisesSuccess,
   SelectAllExercisesUrlParams,
+  StatsSuccess,
 } from "#/exercise/schemas";
 import { TagSuccessSchema } from "#/tag/schemas";
 
@@ -82,6 +83,9 @@ export const exerciseApi = HttpApiGroup.make("Exercise")
         }),
       )
       .addError(ExerciseNotFound),
+  )
+  .add(
+    HttpApiEndpoint.get("stats", "/stats").addSuccess(StatsSuccess),
   )
   .middleware(RequireVerifiedSession)
   .prefix("/exercises");

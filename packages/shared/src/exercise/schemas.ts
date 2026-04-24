@@ -64,3 +64,30 @@ export const PatchExercisePayload = ExerciseSchema.pick("name");
 export const PutExerciseTagsPayload = Schema.Struct({
   tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
 });
+
+export const StatsSuccess = Schema.Struct({
+  totalWeightInKg: Schema.NonNegativeInt,
+  totalRepetitions: Schema.NonNegativeInt,
+  exerciseWithMostSets: Schema.NullOr(
+    Schema.Struct({ name: Schema.String }),
+  ),
+  exerciseWithLeastSets: Schema.NullOr(
+    Schema.Struct({ name: Schema.String }),
+  ),
+  setCountPerExercise: Schema.Array(
+    Schema.Struct({
+      name: Schema.String,
+      count: Schema.NonNegativeInt,
+    }),
+  ),
+  setCountPerTag: Schema.Array(
+    Schema.Struct({
+      id: Schema.Positive,
+      name: Schema.String,
+      count: Schema.NonNegativeInt,
+    }),
+  ),
+  allSets: Schema.Array(
+    Schema.Struct({ doneAt: Schema.Date }),
+  ),
+});
