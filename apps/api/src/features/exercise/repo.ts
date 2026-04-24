@@ -2,6 +2,8 @@ import { Database, isUniqueViolation } from "#/integrations/db/db";
 import {
   exercises,
   exercisesToTags,
+  sets,
+  tags,
   type Exercise,
   type ExercisesToTags,
   type Tag,
@@ -11,7 +13,7 @@ import {
   ExerciseNotFound,
 } from "@gym-graphs/shared/exercise/errors";
 import { Effect, Array } from "effect";
-import { and, eq, inArray, sql, SQL } from "drizzle-orm";
+import { and, count, eq, gt, inArray, sql, SQL } from "drizzle-orm";
 import type { SelectAllExercisesUrlParams } from "@gym-graphs/shared/exercise/schemas";
 
 export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
@@ -207,6 +209,86 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
                 .values(tagIds.map((tagId) => ({ tagId, exerciseId })));
             }
           });
+        },
+
+        selectStats: (userId: Exercise["userId"]) => {
+          const totals = db
+            .select({
+              totalWeightInKg:
+                sql<number>`coalesce(sum(${sets.weightInKg} * ${sets.repetitions}), 0)`.mapWith(
+                  Number,
+                ),
+              totalRepetitions:
+                sql<number>`coalesce(sum(${sets.repetitions}), 0)`.mapWith(
+                  Number,
+                ),
+            })
+            .from(sets)
+            .innerJoin(exercises, eq(sets.exerciseId, exercises.id))
+            .where(eq(exercises.userId, userId));
+
+          const setCountPerExercise = db
+            .select({
+              name: exercises.name,
+              count: count(sets.id),
+            })
+            .from(exercises)
+            .innerJoin(sets, eq(sets.exerciseId, exercises.id))
+            .where(eq(exercises.userId, userId))
+            .groupBy(exercises.id, exercises.name)
+            .orderBy(sql`count(${sets.id}) desc`);
+
+          const setCountPerTag = db
+            .select({
+              id: tags.id,
+              name: tags.name,
+              count: count(exercises.id),
+            })
+            .from(tags)
+            .innerJoin(exercisesToTags, eq(exercisesToTags.tagId, tags.id))
+            .innerJoin(
+              exercises,
+              and(
+                eq(exercises.id, exercisesToTags.exerciseId),
+                eq(exercises.userId, userId),
+              ),
+            )
+            .where(
+              gt(
+                db
+                  .select({ c: count(sets.id) })
+                  .from(sets)
+                  .where(eq(sets.exerciseId, exercises.id)),
+                0,
+              ),
+            )
+            .groupBy(tags.id, tags.name)
+            .orderBy(sql`count(${exercises.id}) desc`);
+
+          const allSetDates = db
+            .select({ doneAt: sets.doneAt })
+            .from(sets)
+            .innerJoin(exercises, eq(sets.exerciseId, exercises.id))
+            .where(eq(exercises.userId, userId));
+
+          return Effect.all(
+            {
+              totals: totals.pipe(
+                Effect.andThen((rows) =>
+                  Array.head(rows).pipe(
+                    Effect.orElseSucceed(() => ({
+                      totalWeightInKg: 0,
+                      totalRepetitions: 0,
+                    })),
+                  ),
+                ),
+              ),
+              setCountPerExercise,
+              setCountPerTag,
+              allSetDates,
+            },
+            { concurrency: "unbounded" },
+          );
         },
       };
     }),

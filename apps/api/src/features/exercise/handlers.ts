@@ -128,6 +128,19 @@ export const ExerciseLive = HttpApiBuilder.group(
             TimeoutException: () => new HttpApiError.RequestTimeout(),
           }),
         );
+      })
+      .handle("stats", () => {
+        return Effect.gen(function* () {
+          const session = yield* CurrentSession;
+
+          return yield* ExerciseService.getStats(session.userId);
+        }).pipe(
+          Effect.catchTags({
+            EffectDrizzleQueryError: () =>
+              new HttpApiError.InternalServerError(),
+            TimeoutException: () => new HttpApiError.RequestTimeout(),
+          }),
+        );
       });
   },
 );

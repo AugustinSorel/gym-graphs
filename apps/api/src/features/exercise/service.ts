@@ -125,6 +125,21 @@ export class ExerciseService extends Effect.Service<ExerciseService>()(
             .deleteById(exerciseId, userId)
             .pipe(Effect.timeout(5000));
         },
+
+        getStats: (userId: Exercise["userId"]) => {
+          return exerciseRepo.selectStats(userId).pipe(
+            Effect.map(({ totals, setCountPerExercise, setCountPerTag, allSetDates }) => ({
+              totalWeightInKg: totals.totalWeightInKg,
+              totalRepetitions: totals.totalRepetitions,
+              exerciseWithMostSets: setCountPerExercise.at(0) ?? null,
+              exerciseWithLeastSets: setCountPerExercise.at(-1) ?? null,
+              setCountPerExercise,
+              setCountPerTag,
+              allSets: allSetDates,
+            })),
+            Effect.timeout(5000),
+          );
+        },
       };
     }),
   },
