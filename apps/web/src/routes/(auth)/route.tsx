@@ -16,7 +16,7 @@ export const Route = createFileRoute("/(auth)")({
   component: () => RouteComponent(),
   beforeLoad: ({ context }) => {
     if (context.user?.verifiedAt) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/exercises" });
     }
   },
 });

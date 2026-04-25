@@ -40,7 +40,7 @@ const RouterNotFound = (_props: Readonly<NotFoundRouteProps>) => {
       </h1>
       <h1>this ressource does not exists!</h1>
       <Button className="font-semibold capitalize" asChild>
-        <Link to="/dashboard">go to dashboard</Link>
+        <Link to="/exercises">go to exercises</Link>
       </Button>
     </main>
   );

@@ -1,9 +1,8 @@
 import { Schema } from "effect";
-import { ExerciseSchema } from "#/exercise/schemas";
 
 export const SetSchema = Schema.Struct({
   id: Schema.Positive,
-  exerciseId: ExerciseSchema.fields.id,
+  exerciseId: Schema.Positive,
   weightInKg: Schema.NonNegativeInt,
   repetitions: Schema.Positive,
   doneAt: Schema.Date,

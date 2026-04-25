@@ -20,11 +20,12 @@ type SetWithDoneAt = Readonly<{ doneAt: Date | string }>;
 
 type Props = Readonly<{ sets: ReadonlyArray<SetWithDoneAt> }>;
 
-export const DashboardHeatMap = (props: Props) => {
-  const setsForThisMonth = props.sets.filter(
-    (set) =>
-      new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth(),
-  );
+export const SetsHeatMap = (props: Props) => {
+  const setsForThisMonth = props.sets.filter((set) => {
+    return (
+      new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth()
+    );
+  });
 
   const data = transformSetsToHeatMap(setsForThisMonth);
 
@@ -81,8 +82,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
         return;
       }
 
-      const x = Math.min(Math.max(point.x - 45, 0), 235);
-      const y = Math.min(Math.max(point.y - 7, 0), 200);
+      const x = Math.min(Math.max(point.x - 125, 0), 235);
+      const y = Math.min(Math.max(point.y - 32, 0), 200);
 
       const binHitSize = binSize + gap;
 
@@ -101,8 +102,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
         return;
       }
 
-      const tooltipX = (dayIndex + (1 * dayIndex > 3 ? -2 : 2)) * binHitSize;
-      const tooltipY = (weekIndex + (1 * weekIndex > 2 ? -1 : 1)) * binHitSize;
+      const tooltipX = (dayIndex + 4) * binHitSize;
+      const tooltipY = (weekIndex + (1 * weekIndex > 1 ? -1 : 2)) * binHitSize;
 
       tooltip.showTooltip({
         tooltipData: {
@@ -175,8 +176,8 @@ const Graph = ({ width, height, data }: GraphProps) => {
 
       {tooltip.tooltipData && (
         <Tooltip
-          top={Math.min(tooltip.tooltipTop ?? 0, height - 75)}
-          left={Math.min(tooltip.tooltipLeft ?? 0, width - 140)}
+          top={tooltip.tooltipTop ?? 0}
+          left={tooltip.tooltipLeft ?? 0}
           style={tooltipStyles}
         >
           <p className="white text-xs font-bold whitespace-nowrap capitalize">
@@ -223,7 +224,7 @@ const getBins = (d: Bins) => d.bins;
 const getCount = (d: Bin) => d.count;
 
 const margin = {
-  top: -25,
+  top: 0,
   left: 0,
   right: 0,
   bottom: 0,
@@ -245,7 +246,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-export const TilesSetsHeatMapGraphSkeleton = () => {
+export const SetsHeatMapSkeleton = () => {
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => {
@@ -282,9 +283,7 @@ export const TilesSetsHeatMapGraphSkeleton = () => {
   );
 };
 
-export const transformSetsToHeatMap = (
-  sets: ReadonlyArray<SetWithDoneAt>,
-) => {
+export const transformSetsToHeatMap = (sets: ReadonlyArray<SetWithDoneAt>) => {
   const setsHeatMapTemplate = generateSetsHeatMapTemplate();
 
   return sets

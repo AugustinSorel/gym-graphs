@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
 import { pgEnum, pgTable, primaryKey, unique } from "drizzle-orm/pg-core";
 import { UserSchema } from "@gym-graphs/shared/user/schemas";
-import { DashboardTileTypeSchema } from "@gym-graphs/shared/dashboard-tile/schemas";
 
 export const weightUnitEnum = pgEnum(
   "weight_unit",
@@ -142,44 +141,13 @@ export const tags = pgTable(
 
 export type Tag = Readonly<typeof tags.$inferSelect>;
 
-export const dashboardTypeEnum = pgEnum(
-  "dashboard_type",
-  DashboardTileTypeSchema.literals,
-);
-
-export const dashboardTiles = pgTable(
-  "dashboard_tiles",
+export const exercisesToTags = pgTable(
+  "exercises_to_tags",
   (t) => ({
-    id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-    userId: t
-      .integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: t.text("name").notNull(),
-    type: dashboardTypeEnum().notNull(),
     exerciseId: t
       .integer("exercise_id")
+      .notNull()
       .references(() => exercises.id, { onDelete: "cascade" }),
-    index: t.serial("index"),
-    createdAt: t.timestamp("created_at").notNull().defaultNow(),
-    updatedAt: t
-      .timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  }),
-  (t) => [unique().on(t.name, t.userId)],
-);
-
-export type DashboardTile = Readonly<typeof dashboardTiles.$inferSelect>;
-
-export const dashboardtilesToTags = pgTable(
-  "dashboard_tiles_to_tags",
-  (t) => ({
-    dashboardTileId: t
-      .integer("dashboard_tile_id")
-      .notNull()
-      .references(() => dashboardTiles.id, { onDelete: "cascade" }),
     tagId: t
       .integer("tag_id")
       .notNull()
@@ -191,15 +159,19 @@ export const dashboardtilesToTags = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   }),
-  (t) => [primaryKey({ columns: [t.dashboardTileId, t.tagId] })],
+  (t) => [primaryKey({ columns: [t.exerciseId, t.tagId] })],
 );
 
-export type DashboardTilesToTags = Readonly<
-  typeof dashboardtilesToTags.$inferSelect
->;
+export type ExercisesToTags = Readonly<typeof exercisesToTags.$inferSelect>;
 
 export const exercises = pgTable("exercises", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: t
+    .integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: t.text("name").notNull(),
+  index: t.serial("index"),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
   updatedAt: t
     .timestamp("updated_at")

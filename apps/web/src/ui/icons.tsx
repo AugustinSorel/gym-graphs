@@ -354,4 +354,22 @@ export const ChartLineIcon = (props: ComponentProps<typeof Icon>) => {
   );
 };
 
+export const DumbbellIcon = (props: ComponentProps<typeof Icon>) => {
+  return (
+    <Icon {...props}>
+      <path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z" />
+      <path d="m2.5 21.5 1.4-1.4" />
+      <path d="m20.1 3.9 1.4-1.4" />
+      <path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z" />
+      <path d="m9.6 14.4 4.8-4.8" />
+    </Icon>
+  );
+};
 
+export const ActivityIcon = (props: ComponentProps<typeof Icon>) => {
+  return (
+    <Icon {...props}>
+      <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+    </Icon>
+  );
+};

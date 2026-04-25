@@ -3,12 +3,10 @@ import { getRouteApi } from "@tanstack/react-router";
 import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { exerciseQueries } from "../exercise.queries";
-import { tileQueries } from "~/domains/tile/tile.queries";
 
 export const TagsList = () => {
   const params = routeApi.useParams();
-  const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
-  const tags = useSuspenseQuery(tileQueries.tags(exercise.data.tileId));
+  const tags = useSuspenseQuery(exerciseQueries.tags(params.exerciseId));
 
   if (!tags.data.length) {
     return <NoTagsText>no tags</NoTagsText>;

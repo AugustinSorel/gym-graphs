@@ -17,8 +17,6 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.passwordResetTokens.userId,
     }),
     oauthAccounts: r.many.oauthAccounts(),
-    tags: r.many.tags(),
-    dashboardTiles: r.many.dashboardTiles(),
   },
 
   sessions: {
@@ -56,41 +54,25 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.users.id,
       optional: false,
     }),
-    dashboardTiles: r.many.dashboardtilesToTags(),
-  },
-  dashboardTiles: {
-    user: r.one.users({
-      from: r.dashboardTiles.userId,
-      to: r.users.id,
-      optional: false,
-    }),
-    tags: r.many.dashboardtilesToTags(),
-    exercise: r.one.exercises({
-      from: r.dashboardTiles.exerciseId,
-      to: r.exercises.id,
-    }),
-  },
-  dashboardtilesToTags: {
-    dashboardTile: r.one.dashboardTiles({
-      from: r.dashboardtilesToTags.dashboardTileId,
-      to: r.dashboardTiles.id,
-      optional: false,
-    }),
-    tag: r.one.tags({
-      from: r.dashboardtilesToTags.tagId,
-      to: r.tags.id,
-      optional: false,
+    exercises: r.many.exercises({
+      from: r.tags.id.through(r.exercisesToTags.tagId),
+      to: r.exercises.id.through(r.exercisesToTags.exerciseId),
     }),
   },
 
   exercises: {
-    dashboardTile: r.one.dashboardTiles({
-      from: r.exercises.id,
-      to: r.dashboardTiles.exerciseId,
+    user: r.one.users({
+      from: r.exercises.userId,
+      to: r.users.id,
       optional: false,
+    }),
+    tags: r.many.tags({
+      from: r.exercises.id.through(r.exercisesToTags.exerciseId),
+      to: r.tags.id.through(r.exercisesToTags.tagId),
     }),
     sets: r.many.sets(),
   },
+
   sets: {
     exercise: r.one.exercises({
       from: r.sets.exerciseId,

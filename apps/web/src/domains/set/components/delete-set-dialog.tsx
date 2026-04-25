@@ -16,8 +16,8 @@ import { DropdownMenuItem } from "~/ui/dropdown-menu";
 import { getRouteApi } from "@tanstack/react-router";
 import { callApi, InferApiProps } from "~/libs/api";
 import { setQueries } from "~/domains/set/set.queries";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { useRouteHash } from "~/hooks/use-route-hash";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 
 export const DeleteSetDialog = () => {
   const set = useSet();
@@ -87,7 +87,7 @@ const useDeleteSet = () => {
 
   const queries = {
     sets: setQueries.getAll(params.exerciseId),
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
   };
 
   return useMutation({
@@ -96,35 +96,31 @@ const useDeleteSet = () => {
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.sets);
-      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercises);
 
       const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
 
       ctx.client.setQueryData(queries.sets.queryKey, (sets) => {
         if (!sets) return sets;
         return sets.filter((set) => set.id !== variables.path.setId);
       });
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises) return exercises;
 
         return {
-          ...tiles,
-          pages: tiles.pages.map((page) => ({
+          ...exercises,
+          pages: exercises.pages.map((page) => ({
             ...page,
-            dashboardTiles: page.dashboardTiles.map((tile) => {
-              if (tile.type !== "exercise") {
-                return tile;
-              }
-
-              if (tile.exerciseId !== params.exerciseId) {
-                return tile;
+            exercises: page.exercises.map((exercise) => {
+              if (exercise.id !== params.exerciseId) {
+                return exercise;
               }
 
               return {
-                ...tile,
-                sets: tile.sets.filter(
+                ...exercise,
+                sets: exercise.sets.filter(
                   (set) => set.id !== variables.path.setId,
                 ),
               };
@@ -133,15 +129,18 @@ const useDeleteSet = () => {
         };
       });
 
-      return { oldSets, oldTiles };
+      return { oldSets, oldExercises };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
       ctx.client.setQueryData(queries.sets.queryKey, onMutateRes?.oldSets);
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercises.queryKey,
+        onMutateRes?.oldExercises,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.sets);
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
     },
   });
 };

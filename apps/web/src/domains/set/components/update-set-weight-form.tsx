@@ -10,11 +10,11 @@ import { CounterInput } from "~/ui/counter-input";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { callApi, InferApiProps } from "~/libs/api";
 import { setQueries } from "~/domains/set/set.queries";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { Schema } from "effect";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 
 export const UpdateSetWeightForm = (props: Props) => {
   const form = useUpdateSetWeightForm();
@@ -125,7 +125,7 @@ const useUpdateSetWeight = () => {
 
   const queries = {
     sets: setQueries.getAll(params.exerciseId),
-    tiles: tileQueries.all(),
+    exercises: exerciseQueries.all(),
   };
 
   return useMutation({
@@ -134,10 +134,10 @@ const useUpdateSetWeight = () => {
     },
     onMutate: async (variables, ctx) => {
       await ctx.client.cancelQueries(queries.sets);
-      await ctx.client.cancelQueries(queries.tiles);
+      await ctx.client.cancelQueries(queries.exercises);
 
       const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
-      const oldTiles = ctx.client.getQueryData(queries.tiles.queryKey);
+      const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
 
       const { weightInKg } = variables.payload;
 
@@ -150,26 +150,25 @@ const useUpdateSetWeight = () => {
         });
       });
 
-      ctx.client.setQueryData(queries.tiles.queryKey, (tiles) => {
-        if (!tiles) return tiles;
+      ctx.client.setQueryData(queries.exercises.queryKey, (exercises) => {
+        if (!exercises) return exercises;
 
         return {
-          ...tiles,
-          pages: tiles.pages.map((page) => ({
+          ...exercises,
+          pages: exercises.pages.map((page) => ({
             ...page,
-            dashboardTiles: page.dashboardTiles.map((tile) => {
-              if (tile.type !== "exercise") {
-                return tile;
-              }
-
-              if (tile.exerciseId !== params.exerciseId) {
-                return tile;
+            exercises: page.exercises.map((exercise) => {
+              if (exercise.id !== params.exerciseId) {
+                return exercise;
               }
 
               return {
-                ...tile,
-                sets: tile.sets.map((set) => {
-                  if (set.id !== variables.path.setId) return set;
+                ...exercise,
+                sets: exercise.sets.map((set) => {
+                  if (set.id !== variables.path.setId) {
+                    return set;
+                  }
+
                   return { ...set, weightInKg: weightInKg ?? set.weightInKg };
                 }),
               };
@@ -178,15 +177,18 @@ const useUpdateSetWeight = () => {
         };
       });
 
-      return { oldSets, oldTiles };
+      return { oldSets, oldExercises };
     },
     onError: (_e, _variables, onMutateRes, ctx) => {
       ctx.client.setQueryData(queries.sets.queryKey, onMutateRes?.oldSets);
-      ctx.client.setQueryData(queries.tiles.queryKey, onMutateRes?.oldTiles);
+      ctx.client.setQueryData(
+        queries.exercises.queryKey,
+        onMutateRes?.oldExercises,
+      );
     },
     onSettled: (_data, _error, _variables, _res, ctx) => {
       void ctx.client.invalidateQueries(queries.sets);
-      void ctx.client.invalidateQueries(queries.tiles);
+      void ctx.client.invalidateQueries(queries.exercises);
     },
   });
 };

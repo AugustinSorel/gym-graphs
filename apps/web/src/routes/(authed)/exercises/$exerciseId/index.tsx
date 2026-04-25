@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 import { CreateSetDialog } from "~/domains/set/components/create-set-dialog";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { tileQueries } from "~/domains/tile/tile.queries";
 import { setQueries } from "~/domains/set/set.queries";
 import { cn } from "~/styles/styles.utils";
 import { Button } from "~/ui/button";
@@ -33,7 +32,7 @@ export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
     );
 
     await Promise.all([
-      context.queryClient.ensureQueryData(tileQueries.tags(exercise.tileId)),
+      context.queryClient.ensureQueryData(exerciseQueries.tags(exercise.id)),
       context.queryClient.ensureQueryData(setQueries.getAll(params.exerciseId)),
     ]);
   },
@@ -184,7 +183,7 @@ const BackBtn = () => {
       variant="link"
       className="text-muted-foreground row-start-2 mr-auto p-0"
     >
-      <Link to="/dashboard">
+      <Link to="/exercises">
         <ArrowLeftIcon />
         <span>back</span>
       </Link>

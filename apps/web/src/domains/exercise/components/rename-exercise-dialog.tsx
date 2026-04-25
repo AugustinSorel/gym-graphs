@@ -7,12 +7,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/ui/dialog";
-import { RenameExerciseOverviewTileForm } from "~/domains/tile/components/rename-exercise-overview-tile-form";
+import { RenameExerciseForm } from "~/domains/exercise/components/rename-exercise-form";
 import { useRouteHash } from "~/hooks/use-route-hash";
 import { getRouteApi } from "@tanstack/react-router";
 
-export const RenameExerciseOverviewTileDialog = () => {
-  const routeHash = useRouteHash("rename-exercise-overview-tile");
+export const RenameExerciseDialog = () => {
+  const routeHash = useRouteHash("rename-exercise");
 
   return (
     <Dialog
@@ -36,7 +36,7 @@ export const RenameExerciseOverviewTileDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <RenameExerciseOverviewTileForm onSuccess={() => routeHash.remove()} />
+        <RenameExerciseForm onSuccess={() => routeHash.remove()} />
       </DialogContent>
     </Dialog>
   );

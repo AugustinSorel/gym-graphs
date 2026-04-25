@@ -8,11 +8,11 @@ import { useDebouncedCallback } from "~/hooks/use-debounced-callback";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import type { ChangeEvent } from "react";
 
-export const FilterTilesByName = () => {
+export const FilterExercisesByName = () => {
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
 
-  const [tileName, setTileName] = useState(search.name);
+  const [name, setName] = useState(search.name);
 
   const updateSearch = useDebouncedCallback((value: string) => {
     void navigate({
@@ -33,12 +33,12 @@ export const FilterTilesByName = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setTileName(value);
+    setName(value);
     updateSearch(value);
   };
 
   const clearSearch = () => {
-    setTileName("");
+    setName("");
     updateSearch("");
   };
 
@@ -47,13 +47,13 @@ export const FilterTilesByName = () => {
       <search className="relative">
         <Input
           type="search"
-          placeholder="Search tiles..."
+          placeholder="Search exercises..."
           className="bg-secondary pl-10"
-          value={tileName ?? ""}
+          value={name ?? ""}
           onChange={handleChange}
         />
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
-        {tileName && (
+        {name && (
           <Button
             size="icon"
             variant="ghost"
@@ -69,7 +69,7 @@ export const FilterTilesByName = () => {
   );
 };
 
-const routeApi = getRouteApi("/(authed)/dashboard");
+const routeApi = getRouteApi("/(authed)/exercises/");
 
 const SearchFallback = (props: ErrorComponentProps) => {
   return (

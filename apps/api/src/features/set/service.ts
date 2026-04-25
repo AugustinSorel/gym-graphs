@@ -1,9 +1,11 @@
 import { Effect } from "effect";
 import { SetRepo } from "./repo";
 import { ExerciseRepo } from "../exercise/repo";
-import type { CreateSetPayload, PatchSetPayload } from "@gym-graphs/shared/set/schemas";
-import type { Set } from "#/integrations/db/schema";
-import type { DashboardTile } from "#/integrations/db/schema";
+import type {
+  CreateSetPayload,
+  PatchSetPayload,
+} from "@gym-graphs/shared/set/schemas";
+import type { Exercise, Set } from "#/integrations/db/schema";
 import { ExerciseNotFound } from "@gym-graphs/shared/exercise/errors";
 
 export class SetService extends Effect.Service<SetService>()("SetService", {
@@ -14,10 +16,7 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
     const exerciseRepo = yield* ExerciseRepo;
 
     return {
-      getAll: (
-        exerciseId: Set["exerciseId"],
-        userId: DashboardTile["userId"],
-      ) => {
+      getAll: (exerciseId: Set["exerciseId"], userId: Exercise["userId"]) => {
         return Effect.gen(function* () {
           yield* exerciseRepo.selectByExerciseId(exerciseId, userId);
           return yield* setRepo.selectByExerciseId(exerciseId);
@@ -26,7 +25,7 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
 
       create: (
         exerciseId: Set["exerciseId"],
-        userId: DashboardTile["userId"],
+        userId: Exercise["userId"],
         payload: typeof CreateSetPayload.Type,
       ) => {
         return Effect.gen(function* () {
@@ -47,7 +46,7 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
       patch: (
         exerciseId: Set["exerciseId"],
         setId: Set["id"],
-        userId: DashboardTile["userId"],
+        userId: Exercise["userId"],
         payload: typeof PatchSetPayload.Type,
       ) => {
         return Effect.gen(function* () {
@@ -66,7 +65,7 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
       delete: (
         exerciseId: Set["exerciseId"],
         setId: Set["id"],
-        userId: DashboardTile["userId"],
+        userId: Exercise["userId"],
       ) => {
         return Effect.gen(function* () {
           yield* exerciseRepo.selectByExerciseId(exerciseId, userId);

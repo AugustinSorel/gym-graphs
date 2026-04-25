@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CreateExerciseOverviewTileDialog } from "~/domains/tile/components/create-exercise-overview-tile-dialog";
-import { FilterTilesByTags } from "~/domains/tile/components/filter-tiles-by-tag";
-import { FilterTilesByName } from "~/domains/tile/components/filter-tiles-by-name";
-import { Dashboard } from "~/domains/dashboard/components/dashboard";
-import { tileQueries } from "~/domains/tile/tile.queries";
+import { CreateExerciseDialog } from "~/domains/exercise/components/create-exercise-dialog";
+import { ExercisesGrid } from "~/domains/exercise/components/exercises-grid";
 import type { ComponentProps } from "react";
 import { Schema } from "effect";
 import { tagQueries } from "~/domains/tag/tag.queries";
+import { FilterExercisesByName } from "~/domains/exercise/components/filter-exercises-by-name";
+import { FilterExercisesByTags } from "~/domains/exercise/components/filter-exercises-by-tag";
+import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 
-export const Route = createFileRoute("/(authed)/dashboard")({
+export const Route = createFileRoute("/(authed)/exercises/")({
   validateSearch: (e) => {
     return Schema.decodeUnknownSync(
       Schema.Struct({
@@ -24,11 +24,11 @@ export const Route = createFileRoute("/(authed)/dashboard")({
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     const queries = {
-      tiles: tileQueries.all(deps),
+      exercises: exerciseQueries.all(deps),
       tags: tagQueries.all,
     };
 
-    await context.queryClient.ensureInfiniteQueryData(queries.tiles);
+    await context.queryClient.ensureInfiniteQueryData(queries.exercises);
     await context.queryClient.ensureQueryData(queries.tags);
   },
 });
@@ -37,12 +37,12 @@ const RouteComponent = () => {
   return (
     <Main>
       <Header>
-        <FilterTilesByName />
-        <FilterTilesByTags />
-        <CreateExerciseOverviewTileDialog />
+        <FilterExercisesByName />
+        <FilterExercisesByTags />
+        <CreateExerciseDialog />
       </Header>
 
-      <Dashboard />
+      <ExercisesGrid />
     </Main>
   );
 };
@@ -57,7 +57,5 @@ const Main = (props: ComponentProps<"main">) => {
 };
 
 const Header = (props: ComponentProps<"header">) => {
-  return (
-    <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />
-  );
+  return <header className="grid grid-cols-[1fr_auto_auto] gap-2" {...props} />;
 };
