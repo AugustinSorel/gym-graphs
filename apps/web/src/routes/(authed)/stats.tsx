@@ -103,7 +103,7 @@ const RouteComponent = () => {
           errorComponent={DefaultFallback}
           getResetKey={() => "reset"}
         >
-          <BentoCell className="col-span-2 min-h-48">
+          <BentoCell className="col-span-2 min-h-80">
             <BentoCellTitle>this month</BentoCellTitle>
             <Suspense fallback={<StatsHeatMapSkeleton />}>
               <StatsHeatMap />
