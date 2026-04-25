@@ -15,5 +15,7 @@ export const StatsTotalWeightCard = () => {
 };
 
 export const StatsTotalWeightCardSkeleton = () => {
-  return <Skeleton className="bg-border h-7 w-48 rounded-full" />;
+  return (
+    <Skeleton className="bg-border m-auto h-4 w-[min(8rem,75%)] rounded-full" />
+  );
 };
