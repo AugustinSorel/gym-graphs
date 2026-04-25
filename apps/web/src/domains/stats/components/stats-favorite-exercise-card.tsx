@@ -7,7 +7,7 @@ export const StatsFavoriteExerciseCard = () => {
   const name = stats.data.exerciseWithMostSets?.name ?? "-";
 
   return (
-    <span className="my-3 text-center text-xl font-bold first-letter:capitalize lg:my-10 lg:text-3xl">
+    <span className="my-3 text-center text-xl font-bold first-letter:capitalize lg:my-10 lg:text-2xl">
       {name}
     </span>
   );

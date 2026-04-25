@@ -8,7 +8,7 @@ export const StatsTotalWeightCard = () => {
   const stats = useSuspenseQuery(exerciseQueries.stats);
 
   return (
-    <span className="my-3 text-center text-xl font-bold lg:my-10 lg:text-3xl">
+    <span className="my-3 text-center text-xl font-bold lg:my-10 lg:text-2xl">
       <WeightValue weightInKg={stats.data.totalWeightInKg} /> <WeightUnit />
     </span>
   );
