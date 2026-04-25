@@ -39,8 +39,14 @@ const tags = (exerciseId: number) =>
       callApi((api) => api.Exercise.getTags({ path: { exerciseId } })),
   });
 
+const stats = queryOptions({
+  queryKey: ["exercises", "stats"],
+  queryFn: async () => callApi((api) => api.Exercise.stats()),
+});
+
 export const exerciseQueries = {
   all,
   get,
   tags,
+  stats,
 };

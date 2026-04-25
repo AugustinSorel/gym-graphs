@@ -13,7 +13,6 @@ import { ArrowRightIcon } from "~/ui/icons";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
 // import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
 // import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-// import { DashboardFunFacts } from "~/domains/dashboard/components/dashboard-fun-facts";
 // import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import { exercisesMock } from "~/domains/exercise/exercise.mock";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";

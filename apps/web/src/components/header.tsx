@@ -8,9 +8,10 @@ import {
   LaptopIcon,
   SunIcon,
   MoonIcon,
-  HomeIcon,
   ArrowRightIcon,
   DumbbellIcon,
+  ChartLineIcon,
+  ActivityIcon,
 } from "~/ui/icons";
 import {
   DropdownMenu,
@@ -96,6 +97,12 @@ const DesktopNav = () => {
       </Link>
       <Link
         className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
+        to="/stats"
+      >
+        stats
+      </Link>
+      <Link
+        className="text-muted-foreground ring-offset-background after:bg-primary hover:text-foreground focus-visible:ring-ring data-[status=active]:text-foreground relative flex items-center font-bold capitalize transition-colors after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:translate-y-1/2 after:opacity-0 after:transition-opacity hover:after:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden data-[status=active]:after:opacity-100"
         to="/settings"
       >
         settings
@@ -107,6 +114,16 @@ const DesktopNav = () => {
 const MobileNav = () => {
   return (
     <Nav className="flex w-full items-center justify-evenly gap-4 [&_a_svg]:size-6">
+      <Button
+        asChild
+        variant="ghost"
+        className="data-[status=active]:bg-muted"
+        aria-label="go to stats"
+      >
+        <Link to="/stats">
+          <ActivityIcon />
+        </Link>
+      </Button>
       <Button
         asChild
         variant="ghost"

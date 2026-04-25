@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as authedRouteRouteImport } from './routes/(authed)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as authedStatsRouteImport } from './routes/(authed)/stats'
 import { Route as authedSettingsRouteImport } from './routes/(authed)/settings'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authedStatsRoute = authedStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => authedRouteRoute,
 } as any)
 const authedSettingsRoute = authedSettingsRouteImport.update({
   id: '/settings',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/settings': typeof authedSettingsRoute
+  '/stats': typeof authedStatsRoute
   '/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
   '/reset-password/$token': typeof authResetPasswordTokenRoute
   '/exercises': typeof authedExercisesIndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/settings': typeof authedSettingsRoute
+  '/stats': typeof authedStatsRoute
   '/reset-password/$token': typeof authResetPasswordTokenRoute
   '/exercises': typeof authedExercisesIndexRoute
   '/exercises/$exerciseId/settings': typeof authedExercisesExerciseIdSettingsRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/(auth)/sign-up': typeof authSignUpRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(authed)/settings': typeof authedSettingsRoute
+  '/(authed)/stats': typeof authedStatsRoute
   '/(authed)/exercises/$exerciseId': typeof authedExercisesExerciseIdRouteRouteWithChildren
   '/(auth)/reset-password_/$token': typeof authResetPasswordTokenRoute
   '/(authed)/exercises/': typeof authedExercisesIndexRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/verify-email'
     | '/settings'
+    | '/stats'
     | '/exercises/$exerciseId'
     | '/reset-password/$token'
     | '/exercises'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/verify-email'
     | '/settings'
+    | '/stats'
     | '/reset-password/$token'
     | '/exercises'
     | '/exercises/$exerciseId/settings'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/(auth)/sign-up'
     | '/(auth)/verify-email'
     | '/(authed)/settings'
+    | '/(authed)/stats'
     | '/(authed)/exercises/$exerciseId'
     | '/(auth)/reset-password_/$token'
     | '/(authed)/exercises/'
@@ -202,6 +214,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(authed)/stats': {
+      id: '/(authed)/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof authedStatsRouteImport
+      parentRoute: typeof authedRouteRoute
     }
     '/(authed)/settings': {
       id: '/(authed)/settings'
@@ -315,12 +334,14 @@ const authedExercisesExerciseIdRouteRouteWithChildren =
 
 interface authedRouteRouteChildren {
   authedSettingsRoute: typeof authedSettingsRoute
+  authedStatsRoute: typeof authedStatsRoute
   authedExercisesExerciseIdRouteRoute: typeof authedExercisesExerciseIdRouteRouteWithChildren
   authedExercisesIndexRoute: typeof authedExercisesIndexRoute
 }
 
 const authedRouteRouteChildren: authedRouteRouteChildren = {
   authedSettingsRoute: authedSettingsRoute,
+  authedStatsRoute: authedStatsRoute,
   authedExercisesExerciseIdRouteRoute:
     authedExercisesExerciseIdRouteRouteWithChildren,
   authedExercisesIndexRoute: authedExercisesIndexRoute,

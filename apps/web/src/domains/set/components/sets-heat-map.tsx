@@ -20,7 +20,7 @@ type SetWithDoneAt = Readonly<{ doneAt: Date | string }>;
 
 type Props = Readonly<{ sets: ReadonlyArray<SetWithDoneAt> }>;
 
-export const DashboardHeatMap = (props: Props) => {
+export const SetsHeatMap = (props: Props) => {
   const setsForThisMonth = props.sets.filter(
     (set) =>
       new Date(set.doneAt) <= new Date() && new Date() >= getFirstDayOfMonth(),
@@ -245,7 +245,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
   return <p className="text-muted-foreground m-auto text-sm" {...props} />;
 };
 
-export const TilesSetsHeatMapGraphSkeleton = () => {
+export const SetsHeatMapSkeleton = () => {
   return (
     <ParentSize className="relative flex overflow-hidden">
       {({ height, width }) => {
@@ -282,9 +282,7 @@ export const TilesSetsHeatMapGraphSkeleton = () => {
   );
 };
 
-export const transformSetsToHeatMap = (
-  sets: ReadonlyArray<SetWithDoneAt>,
-) => {
+export const transformSetsToHeatMap = (sets: ReadonlyArray<SetWithDoneAt>) => {
   const setsHeatMapTemplate = generateSetsHeatMapTemplate();
 
   return sets
