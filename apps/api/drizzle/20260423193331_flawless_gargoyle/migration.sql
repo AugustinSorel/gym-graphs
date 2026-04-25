@@ -6,12 +6,15 @@ CREATE TABLE "exercises_to_tags" (
 	CONSTRAINT "exercises_to_tags_pkey" PRIMARY KEY("exercise_id","tag_id")
 );
 --> statement-breakpoint
+ALTER TABLE "exercises" ADD COLUMN "user_id" integer;--> statement-breakpoint
+ALTER TABLE "exercises" ADD COLUMN "name" text;--> statement-breakpoint
+ALTER TABLE "exercises" ADD COLUMN "index" serial;--> statement-breakpoint
+UPDATE "exercises" e SET "user_id" = dt."user_id", "name" = dt."name" FROM "dashboard_tiles" dt WHERE dt."exercise_id" = e."id";--> statement-breakpoint
+ALTER TABLE "exercises" ALTER COLUMN "user_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "exercises" ALTER COLUMN "name" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "dashboard_tiles_to_tags" DROP CONSTRAINT "dashboard_tiles_to_tags_YuatKHcVkZut_fkey";--> statement-breakpoint
 DROP TABLE "dashboard_tiles";--> statement-breakpoint
 DROP TABLE "dashboard_tiles_to_tags";--> statement-breakpoint
-ALTER TABLE "exercises" ADD COLUMN "user_id" integer NOT NULL;--> statement-breakpoint
-ALTER TABLE "exercises" ADD COLUMN "name" text NOT NULL;--> statement-breakpoint
-ALTER TABLE "exercises" ADD COLUMN "index" serial;--> statement-breakpoint
 ALTER TABLE "exercises" ADD CONSTRAINT "exercises_user_id_users_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "exercises_to_tags" ADD CONSTRAINT "exercises_to_tags_exercise_id_exercises_id_fkey" FOREIGN KEY ("exercise_id") REFERENCES "exercises"("id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "exercises_to_tags" ADD CONSTRAINT "exercises_to_tags_tag_id_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "tag"("id") ON DELETE CASCADE;--> statement-breakpoint
