@@ -6,7 +6,7 @@ export const StatsTotalRepsCard = () => {
   const stats = useSuspenseQuery(exerciseQueries.stats);
 
   return (
-    <span className="my-3 text-center text-xl font-bold lg:my-10 lg:text-2xl">
+    <span className="my-3 text-center text-xl font-bold lg:my-6 lg:text-2xl">
       {stats.data.totalRepetitions.toLocaleString()}
     </span>
   );
