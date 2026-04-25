@@ -121,8 +121,9 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | go stats page                                         |
+| TODO     | do stats page                                         |
 | TODO     | redo home page                                        |
+| TODO     | redo exercise card                                    |
 | TODO     | redo exercise page                                    |
 | TODO     | add more stats graphs                                 |
 | TODO     | rename web dirs                                       |
