@@ -37,3 +37,5 @@ export const PatchSetPayload = Schema.Struct({
   }),
   doneAt: Schema.optionalWith(Schema.Date, { exact: true }),
 });
+
+export const SelectSetsSuccess = SetSuccessSchema.pipe(Schema.Array);

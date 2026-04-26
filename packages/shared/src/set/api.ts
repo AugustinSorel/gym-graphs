@@ -4,6 +4,7 @@ import { Schema } from "effect";
 import {
   CreateSetPayload,
   PatchSetPayload,
+  SelectSetsSuccess,
   SetSuccessSchema,
 } from "./schemas";
 import { SetNotFound } from "./errors";
@@ -21,7 +22,7 @@ export const setApi = HttpApiGroup.make("Set")
         }),
       )
       .addError(Forbidden)
-      .addSuccess(SetSuccessSchema.pipe(Schema.Array)),
+      .addSuccess(SelectSetsSuccess),
   )
   .add(
     HttpApiEndpoint.post("create", "/")
