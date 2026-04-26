@@ -11,7 +11,14 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
 
     return {
       selectByExerciseId: (exerciseId: Set["exerciseId"]) => {
-        return db.select().from(sets).where(eq(sets.exerciseId, exerciseId));
+        return db.query.sets.findMany({
+          where: {
+            exerciseId,
+          },
+          orderBy: {
+            doneAt: "asc",
+          },
+        });
       },
 
       create: (input: {
@@ -24,9 +31,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
           .insert(sets)
           .values(input)
           .returning()
-          .pipe(
-            Effect.andThen((rows) => Array.head(rows).pipe(Effect.orDie)),
-          );
+          .pipe(Effect.andThen((rows) => Array.head(rows).pipe(Effect.orDie)));
       },
 
       createMany: (
@@ -56,9 +61,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
           .returning()
           .pipe(
             Effect.andThen((rows) =>
-              Array.head(rows).pipe(
-                Effect.mapError(() => new SetNotFound()),
-              ),
+              Array.head(rows).pipe(Effect.mapError(() => new SetNotFound())),
             ),
           );
       },
@@ -70,9 +73,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
           .returning()
           .pipe(
             Effect.andThen((rows) =>
-              Array.head(rows).pipe(
-                Effect.mapError(() => new SetNotFound()),
-              ),
+              Array.head(rows).pipe(Effect.mapError(() => new SetNotFound())),
             ),
           );
       },

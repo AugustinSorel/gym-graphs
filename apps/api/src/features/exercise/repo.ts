@@ -106,7 +106,11 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
             limit: pageSize + 1,
 
             with: {
-              sets: true,
+              sets: {
+                orderBy: {
+                  doneAt: "asc",
+                },
+              },
               tags: true,
             },
           });
