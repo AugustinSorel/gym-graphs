@@ -10,7 +10,6 @@ import {
   MoonIcon,
   ArrowRightIcon,
   DumbbellIcon,
-  ChartLineIcon,
   ActivityIcon,
 } from "~/ui/icons";
 import {
