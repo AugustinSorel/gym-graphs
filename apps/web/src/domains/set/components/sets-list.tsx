@@ -1,46 +1,32 @@
-import type { SelectSetsSuccess } from "@gym-graphs/shared/set/schemas";
-import { ComponentProps } from "react";
+import type {
+  SelectSetsSuccess,
+  SetSuccessSchema,
+} from "@gym-graphs/shared/set/schemas";
+import { ComponentProps, ReactNode } from "react";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/ui/dropdown-menu";
+import { Table, TableBody, TableHeader, TableRow } from "~/ui/table";
 import { SetProvider } from "~/domains/set/set.context";
-import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weight-dialog";
-import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
-import { UpdateSetDoneAtDialog } from "~/domains/set/components/update-set-done-at-dialog";
-import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
-import { EllipsisIcon, StarIcon } from "~/ui/icons";
-import { Button } from "~/ui/button";
-import { WeightValue } from "~/domains/user/components/weight-value";
-import { WeightUnit } from "~/domains/user/components/weight-unit";
-import {
-  calculateOneRepMax,
-  calculateVolume,
-  exceedsOneRepMax,
-} from "~/domains/set/set.utils";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { userQueries } from "~/domains/user/user.queries";
+import { exceedsOneRepMax } from "~/domains/set/set.utils";
 import { Badge } from "~/ui/badge";
 import { Mutable } from "effect/Types";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
 import { cn } from "~/styles/styles.utils";
 
+export type SetRow = typeof SetSuccessSchema.Type;
+
+export type ColumnDef<TData> = {
+  id: string;
+  header: () => ReactNode;
+  cell: (row: { data: TData; index: number; isPr: boolean }) => ReactNode;
+};
+
+export const createColumnHelper = <TData,>() => ({
+  column: (def: ColumnDef<TData>): ColumnDef<TData> => def,
+});
+
 export const SetsList = (props: Props) => {
   const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
   const sets = useSetsByDoneAt(sortedSets);
-  const user = useSuspenseQuery(userQueries.get);
 
   if (!props.sets.length) {
     return <NoDataText>no data</NoDataText>;
@@ -85,93 +71,26 @@ export const SetsList = (props: Props) => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-muted-foreground w-[min(100px,auto)]">
-                    #
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">
-                    Weight
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">
-                    <abbr title="repetitions" className="no-underline">
-                      Reps
-                    </abbr>
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">
-                    <abbr title="1 rep max" className="no-underline">
-                      1RM
-                    </abbr>
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">
-                    Volume
-                  </TableHead>
-                  <TableHead className="text-muted-foreground text-right">
-                    Action
-                  </TableHead>
+                  {props.columns.map((col) => (
+                    <col.header key={col.id} />
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sets.map((set, i) => (
-                  <TableRow
-                    key={set.id}
-                    className={cn(progressivePrs.has(set.id) && "font-bold")}
-                  >
-                    <TableCell className="">
-                      {progressivePrs.has(set.id) && (
-                        <StarIcon className="-mt-1 mr-1 inline-flex fill-current stroke-none" />
+                  <SetProvider key={set.id} value={set}>
+                    <TableRow
+                      className={cn(progressivePrs.has(set.id) && "font-bold")}
+                    >
+                      {props.columns.map((col) =>
+                        col.cell({
+                          data: set,
+                          index: i,
+                          isPr: progressivePrs.has(set.id),
+                        }),
                       )}
-                      {i + 1}
-                    </TableCell>
-                    <TableCell>
-                      <WeightValue weightInKg={set.weightInKg} />{" "}
-                      <span className="text-muted-foreground text-sm font-normal">
-                        <WeightUnit />
-                      </span>
-                    </TableCell>
-                    <TableCell>{set.repetitions}</TableCell>
-                    <TableCell>
-                      <WeightValue
-                        weightInKg={calculateOneRepMax(
-                          set.weightInKg,
-                          set.repetitions,
-                          user.data.oneRepMaxAlgo,
-                        )}
-                      />{" "}
-                      <span className="text-muted-foreground text-sm font-normal">
-                        <WeightUnit />
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <WeightValue
-                        weightInKg={calculateVolume(
-                          set.weightInKg,
-                          set.repetitions,
-                        )}
-                      />{" "}
-                      <span className="text-muted-foreground text-sm font-normal">
-                        <WeightUnit />
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <EllipsisIcon />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <SetProvider value={set}>
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <UpdateSetWeightDialog />
-                            <UpdateSetRepetitionsDialog />
-                            <UpdateSetDoneAtDialog />
-                            <DropdownMenuSeparator />
-                            <DeleteSetDialog />
-                          </SetProvider>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                    </TableRow>
+                  </SetProvider>
                 ))}
               </TableBody>
             </Table>
@@ -184,6 +103,7 @@ export const SetsList = (props: Props) => {
 
 type Props = {
   sets: typeof SelectSetsSuccess.Type;
+  columns: ColumnDef<SetRow>[];
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {

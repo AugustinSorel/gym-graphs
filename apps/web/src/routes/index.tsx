@@ -18,6 +18,13 @@ import { exerciseMock } from "~/domains/exercise/exercise.mock";
 import type { ComponentProps } from "react";
 import { mockSets } from "~/domains/set/set.mock";
 import { SetsList } from "~/domains/set/components/sets-list";
+import {
+  indexColumn,
+  weightColumn,
+  repsColumn,
+  oneRmColumn,
+  volumeColumn,
+} from "~/domains/set/components/sets-list.columns";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -128,7 +135,16 @@ const FeatureTwo = () => {
         <ExerciseAdvanceOverviewGraph sets={mockSets} />
       </CardTwo>
       <CardTwo className="border-none bg-transparent">
-        <SetsList sets={mockSets.splice(0, 6)} />
+        <SetsList
+          sets={mockSets.toSpliced(0, 6)}
+          columns={[
+            indexColumn,
+            weightColumn,
+            repsColumn,
+            oneRmColumn,
+            volumeColumn,
+          ]}
+        />
       </CardTwo>
     </FeatureContainer>
   );

@@ -21,6 +21,7 @@ import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SetsList } from "~/domains/set/components/sets-list";
+import { defaultColumns } from "~/domains/set/components/sets-list.columns";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -108,7 +109,7 @@ const RouteComponent = () => {
         <Section>
           <SectionTitle>sets</SectionTitle>
 
-          <SetsList sets={sets.data} />
+          <SetsList sets={sets.data} columns={defaultColumns} />
         </Section>
       </CatchBoundary>
     </Main>
