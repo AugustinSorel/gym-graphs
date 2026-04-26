@@ -121,7 +121,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| FIX      | data type for sets                                    |
 | TODO     | types                                                 |
 | TODO     | delete set table                                      |
 | TODO     | redo home page                                        |

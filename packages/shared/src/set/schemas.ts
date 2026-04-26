@@ -3,8 +3,8 @@ import { Schema } from "effect";
 export const SetSchema = Schema.Struct({
   id: Schema.Positive,
   exerciseId: Schema.Positive,
-  weightInKg: Schema.NonNegativeInt,
-  repetitions: Schema.Positive,
+  weightInKg: Schema.Number.pipe(Schema.positive()),
+  repetitions: Schema.NonNegativeInt,
   doneAt: Schema.Date,
   createdAt: Schema.Date,
   updatedAt: Schema.Date,
