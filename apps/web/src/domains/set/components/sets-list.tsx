@@ -85,7 +85,7 @@ export const SetsList = (props: Props) => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-muted-foreground w-[100px]">
+                  <TableHead className="text-muted-foreground w-[min(100px,auto)]">
                     #
                   </TableHead>
                   <TableHead className="text-muted-foreground">

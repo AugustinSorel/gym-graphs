@@ -11,17 +11,13 @@ import { userQueries } from "~/domains/user/user.queries";
 import { userMock } from "~/domains/user/user.mock";
 import { ArrowRightIcon } from "~/ui/icons";
 import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-overview-graph";
-// import { ExerciseSetCountGraph } from "~/domains/set/components/exercise-set-count-graph";
-// import { ExerciseTagCountGraph } from "~/domains/tag/components/exercise-tag-count-graph";
-// import { DashboardHeatMap } from "~/domains/dashboard/components/dashboard-heat-map";
 import { exercisesMock } from "~/domains/exercise/exercise.mock";
 import { ExerciseAdvanceOverviewGraph } from "~/domains/exercise/components/exercise-advanced-overview-graph";
-import { ExerciseTable } from "~/domains/exercise/components/exercise-table";
-import { homePageExerciseTableColumns } from "~/domains/exercise/components/exercise-table-columns";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { exerciseMock } from "~/domains/exercise/exercise.mock";
 import type { ComponentProps } from "react";
 import { mockSets } from "~/domains/set/set.mock";
+import { SetsList } from "~/domains/set/components/sets-list";
 
 export const Route = createFileRoute("/")({
   component: () => Home(),
@@ -131,8 +127,8 @@ const FeatureTwo = () => {
       <CardTwo className="py-2 sm:p-4">
         <ExerciseAdvanceOverviewGraph sets={mockSets} />
       </CardTwo>
-      <CardTwo>
-        <ExerciseTable sets={mockSets} columns={homePageExerciseTableColumns} />
+      <CardTwo className="border-none bg-transparent">
+        <SetsList sets={mockSets.splice(0, 6)} />
       </CardTwo>
     </FeatureContainer>
   );

@@ -121,7 +121,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | types                                                 |
 | TODO     | delete set table                                      |
 | TODO     | redo home page                                        |
 | TODO     | redo exercise card                                    |
