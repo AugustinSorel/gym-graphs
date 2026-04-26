@@ -123,6 +123,7 @@ const AnalyticScript = () => {
 | ---------| ------------------------------------------------------|
 | FIX      | data type for sets                                    |
 | TODO     | types                                                 |
+| TODO     | delete set table                                      |
 | TODO     | redo home page                                        |
 | TODO     | redo exercise card                                    |
 | TODO     | redo exercise page                                    |

@@ -1,4 +1,7 @@
-import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
+import {
+  SelectSetsSuccess,
+  SetSuccessSchema,
+} from "@gym-graphs/shared/set/schemas";
 import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
 export const calculateOneRepMax = (
@@ -18,6 +21,48 @@ export const calculateOneRepMax = (
   const oneRepMax = calculateOneRepMax(weight, repetitions);
 
   return parseFloat(oneRepMax.toFixed(2));
+};
+
+export const calculateVolume = (
+  weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+  repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
+) => {
+  if (repetitions < 1) {
+    throw new Error("repetitions must be above 0");
+  }
+
+  if (weight < 0) {
+    throw new Error("weight cannot be negative");
+  }
+
+  const volume = weight * repetitions;
+
+  return parseFloat(volume.toFixed(2));
+};
+
+export const exceedsOneRepMax = (
+  a: (typeof SelectSetsSuccess.Type)[number],
+  b: (typeof SelectSetsSuccess.Type)[number],
+) => {
+  const currentOneRepMax = calculateOneRepMax(
+    a.weightInKg,
+    a.repetitions,
+    "epley",
+  );
+
+  const candidateOneRepMax = calculateOneRepMax(
+    b.weightInKg,
+    b.repetitions,
+    "epley",
+  );
+
+  return candidateOneRepMax > currentOneRepMax;
+};
+
+export const accumulateVolumeInSets = (sets: typeof SelectSetsSuccess.Type) => {
+  return sets.reduce((acc, set) => {
+    return acc + calculateVolume(set.weightInKg, set.repetitions);
+  }, 0);
 };
 
 const algoToOneRepMax: Record<

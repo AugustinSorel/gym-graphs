@@ -23,6 +23,7 @@ import { DefaultFallback } from "~/ui/fallback";
 import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Mutable } from "effect/Types";
+import { SetsList } from "~/domains/set/components/sets-list";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -110,12 +111,7 @@ const RouteComponent = () => {
         <Section>
           <SectionTitle>sets</SectionTitle>
 
-          <SectionPanel>
-            <ExerciseTable
-              sets={sets.data as Mutable<typeof sets.data>}
-              columns={exerciseTableColumns}
-            />
-          </SectionPanel>
+          <SetsList sets={sets.data} />
         </Section>
       </CatchBoundary>
     </Main>
