@@ -164,15 +164,7 @@ const GrowthIndicatorMetadata = (props: Pick<Exercise, "sets">) => {
     user.data.oneRepMaxAlgo,
   );
 
-  const growth = convertWeight(
-    latestOneRepMax - secondLatestSetOneRepMax,
-    user.data.weightUnit,
-  );
-
-  const formatter = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2,
-    signDisplay: "always",
-  });
+  const growth = latestOneRepMax - secondLatestSetOneRepMax;
 
   const growthStatus = growth > 0 ? "inc" : growth === 0 ? "stale" : "dec";
 
@@ -181,7 +173,14 @@ const GrowthIndicatorMetadata = (props: Pick<Exercise, "sets">) => {
       className="data-[status=inc]:text-success data-[status=stale]:text-muted-foreground data-[status=dec]:text-destructive"
       data-status={growthStatus}
     >
-      <span className="text-2xl font-semibold">{formatter.format(growth)}</span>{" "}
+      <span className="text-2xl font-semibold">
+        <WeightValue
+          weightInG={growth}
+          formatter={{
+            signDisplay: "always",
+          }}
+        />
+      </span>{" "}
       <span className="text-sm">
         <WeightUnit />
       </span>

@@ -18,9 +18,8 @@ export const calculateOneRepMax = (
   }
 
   const calculateOneRepMax = algoToOneRepMax[algo];
-  const oneRepMax = calculateOneRepMax(weight, repetitions);
 
-  return parseFloat(oneRepMax.toFixed(2));
+  return calculateOneRepMax(weight, repetitions);
 };
 
 export const calculateVolume = (
@@ -37,7 +36,7 @@ export const calculateVolume = (
 
   const volume = weight * repetitions;
 
-  return parseFloat(volume.toFixed(2));
+  return volume;
 };
 
 export const exceedsOneRepMax = (
