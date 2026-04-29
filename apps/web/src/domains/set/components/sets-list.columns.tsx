@@ -10,7 +10,7 @@ import { UpdateSetWeightDialog } from "~/domains/set/components/update-set-weigh
 import { UpdateSetRepetitionsDialog } from "~/domains/set/components/update-set-repetitions-dialog";
 import { UpdateSetDoneAtDialog } from "~/domains/set/components/update-set-done-at-dialog";
 import { DeleteSetDialog } from "~/domains/set/components/delete-set-dialog";
-import { EllipsisIcon, StarIcon } from "~/ui/icons";
+import { EllipsisIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
@@ -32,7 +32,10 @@ export const indexColumn = columnHelper.column({
   cell: ({ index, isPr }) => (
     <TableCell key="index">
       {isPr && (
-        <StarIcon className="-mt-1 mr-1 inline-flex fill-current stroke-none" />
+        <span
+          aria-hidden
+          className="bg-primary mr-1.5 mb-0.5 inline-flex size-2 rounded-full"
+        />
       )}
       {index + 1}
     </TableCell>
