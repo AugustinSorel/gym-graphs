@@ -4,7 +4,7 @@ import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { useMemo } from "react";
 
 export const useSortSetsByOneRepMax = <
-  TSet extends { weightInKg: number; repetitions: number },
+  TSet extends { weightInG: number; repetitions: number },
 >(
   sets: ReadonlyArray<TSet>,
 ) => {
@@ -14,11 +14,11 @@ export const useSortSetsByOneRepMax = <
     return sets.toSorted((a, b) => {
       return (
         calculateOneRepMax(
-          b.weightInKg,
+          b.weightInG,
           b.repetitions,
           user.data.oneRepMaxAlgo,
         ) -
-        calculateOneRepMax(a.weightInKg, a.repetitions, user.data.oneRepMaxAlgo)
+        calculateOneRepMax(a.weightInG, a.repetitions, user.data.oneRepMaxAlgo)
       );
     });
   }, [user.data.oneRepMaxAlgo]);

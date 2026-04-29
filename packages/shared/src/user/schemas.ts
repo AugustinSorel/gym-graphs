@@ -76,7 +76,7 @@ export const PatchUserByIdPayload = UserSchema.pick(
 
 export const SetExportSchema = Schema.Struct({
   id: Schema.Int,
-  weightInKg: Schema.Int,
+  weightInG: Schema.Int,
   repetitions: Schema.Int,
   doneAt: Schema.DateFromString,
   createdAt: Schema.DateFromString,

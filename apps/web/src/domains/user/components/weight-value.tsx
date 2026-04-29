@@ -4,9 +4,9 @@ import { convertWeight } from "~/domains/user/user.utils";
 import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
 export const WeightValue = (
-  props: Pick<typeof SetSuccessSchema.Type, "weightInKg">,
+  props: Pick<typeof SetSuccessSchema.Type, "weightInG">,
 ) => {
   const user = useSuspenseQuery(userQueries.get);
 
-  return convertWeight(props.weightInKg, user.data.weightUnit);
+  return convertWeight(props.weightInG, user.data.weightUnit);
 };

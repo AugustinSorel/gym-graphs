@@ -218,8 +218,8 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
         selectStats: (userId: Exercise["userId"]) => {
           const totals = db
             .select({
-              totalWeightInKg:
-                sql<number>`coalesce(sum(${sets.weightInKg} * ${sets.repetitions}), 0)`.mapWith(
+              totalWeightInG:
+                sql<number>`coalesce(sum(${sets.weightInG} * ${sets.repetitions}), 0)`.mapWith(
                   Number,
                 ),
               totalRepetitions:
@@ -281,7 +281,7 @@ export class ExerciseRepo extends Effect.Service<ExerciseRepo>()(
                 Effect.andThen((rows) =>
                   Array.head(rows).pipe(
                     Effect.orElseSucceed(() => ({
-                      totalWeightInKg: 0,
+                      totalWeightInG: 0,
                       totalRepetitions: 0,
                     })),
                   ),

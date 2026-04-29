@@ -2,7 +2,7 @@ export const mockSets = [
   {
     id: 77,
     exerciseId: 30,
-    weightInKg: 20,
+    weightInG: 20000,
     repetitions: 20,
     doneAt: new Date("2025-01-08T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -11,7 +11,7 @@ export const mockSets = [
   {
     id: 78,
     exerciseId: 30,
-    weightInKg: 20,
+    weightInG: 20000,
     repetitions: 18,
     doneAt: new Date("2025-01-08T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:33:12.498Z"),
@@ -20,7 +20,7 @@ export const mockSets = [
   {
     id: 79,
     exerciseId: 30,
-    weightInKg: 20,
+    weightInG: 20000,
     repetitions: 14,
     doneAt: new Date("2025-01-08T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:34:12.498Z"),
@@ -29,7 +29,7 @@ export const mockSets = [
   {
     id: 80,
     exerciseId: 30,
-    weightInKg: 30,
+    weightInG: 30000,
     repetitions: 40,
     doneAt: new Date("2025-01-10T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -38,7 +38,7 @@ export const mockSets = [
   {
     id: 81,
     exerciseId: 30,
-    weightInKg: 30,
+    weightInG: 30000,
     repetitions: 38,
     doneAt: new Date("2025-01-10T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:33:12.498Z"),
@@ -47,7 +47,7 @@ export const mockSets = [
   {
     id: 82,
     exerciseId: 30,
-    weightInKg: 40,
+    weightInG: 40000,
     repetitions: 40,
     doneAt: new Date("2025-01-12T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -56,7 +56,7 @@ export const mockSets = [
   {
     id: 83,
     exerciseId: 30,
-    weightInKg: 40,
+    weightInG: 40000,
     repetitions: 38,
     doneAt: new Date("2025-01-12T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:33:12.498Z"),
@@ -65,7 +65,7 @@ export const mockSets = [
   {
     id: 84,
     exerciseId: 30,
-    weightInKg: 40,
+    weightInG: 40000,
     repetitions: 36,
     doneAt: new Date("2025-01-12T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:33:12.498Z"),
@@ -74,7 +74,7 @@ export const mockSets = [
   {
     id: 85,
     exerciseId: 30,
-    weightInKg: 30,
+    weightInG: 30000,
     repetitions: 30,
     doneAt: new Date("2025-01-15T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -83,7 +83,7 @@ export const mockSets = [
   {
     id: 86,
     exerciseId: 30,
-    weightInKg: 10,
+    weightInG: 10000,
     repetitions: 10,
     doneAt: new Date("2025-01-16T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -92,7 +92,7 @@ export const mockSets = [
   {
     id: 87,
     exerciseId: 30,
-    weightInKg: 10,
+    weightInG: 10000,
     repetitions: 8,
     doneAt: new Date("2025-01-16T00:00:00.000Z"),
     createdAt: new Date("2025-01-09T11:33:12.498Z"),

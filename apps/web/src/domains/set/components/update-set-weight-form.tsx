@@ -46,7 +46,7 @@ export const UpdateSetWeightForm = (props: Props) => {
       <FieldGroup>
         <Controller
           control={form.control}
-          name="weightInKg"
+          name="weightInG"
           render={(props) => (
             <Field
               className="flex flex-col gap-1"
@@ -96,10 +96,10 @@ type Props = Readonly<{
 
 const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
-const WeightPayload = PatchSetPayload.pick("weightInKg").pipe(
+const WeightPayload = PatchSetPayload.pick("weightInG").pipe(
   Schema.filter((data) => {
-    if (data.weightInKg === undefined) {
-      return { path: ["weightInKg"], message: "weight is required" };
+    if (data.weightInG === undefined) {
+      return { path: ["weightInG"], message: "weight is required" };
     }
     return undefined;
   }),
@@ -115,7 +115,7 @@ const useUpdateSetWeightForm = () => {
   >({
     resolver: effectTsResolver(WeightPayload),
     defaultValues: {
-      weightInKg: set.weightInKg,
+      weightInG: set.weightInG,
     },
   });
 };
@@ -139,14 +139,14 @@ const useUpdateSetWeight = () => {
       const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
       const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
 
-      const { weightInKg } = variables.payload;
+      const { weightInG } = variables.payload;
 
       ctx.client.setQueryData(queries.sets.queryKey, (sets) => {
         if (!sets) return sets;
 
         return sets.map((set) => {
           if (set.id !== variables.path.setId) return set;
-          return { ...set, weightInKg: weightInKg ?? set.weightInKg };
+          return { ...set, weightInG: weightInG ?? set.weightInG };
         });
       });
 
@@ -169,7 +169,7 @@ const useUpdateSetWeight = () => {
                     return set;
                   }
 
-                  return { ...set, weightInKg: weightInKg ?? set.weightInKg };
+                  return { ...set, weightInG: weightInG ?? set.weightInG };
                 }),
               };
             }),

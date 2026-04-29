@@ -9,7 +9,7 @@ export const StatsTotalWeightCard = () => {
 
   return (
     <span className="my-3 text-center text-xl font-bold lg:my-6 lg:text-2xl">
-      <WeightValue weightInKg={stats.data.totalWeightInKg} /> <WeightUnit />
+      <WeightValue weightInG={stats.data.totalWeightInG} /> <WeightUnit />
     </span>
   );
 };

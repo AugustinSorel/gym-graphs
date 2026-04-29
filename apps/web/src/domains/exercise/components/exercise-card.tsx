@@ -153,13 +153,13 @@ const GrowthIndicatorMetadata = (props: Pick<Exercise, "sets">) => {
   }
 
   const latestOneRepMax = calculateOneRepMax(
-    latestSet.weightInKg,
+    latestSet.weightInG,
     latestSet.repetitions,
     user.data.oneRepMaxAlgo,
   );
 
   const secondLatestSetOneRepMax = calculateOneRepMax(
-    secondLatestSet?.weightInKg ?? 0,
+    secondLatestSet?.weightInG ?? 0,
     secondLatestSet?.repetitions ?? 1,
     user.data.oneRepMaxAlgo,
   );
@@ -206,7 +206,7 @@ const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
   }
 
   const bestOneRepMax = calculateOneRepMax(
-    bestSet.weightInKg,
+    bestSet.weightInG,
     bestSet.repetitions,
     user.data.oneRepMaxAlgo,
   );
@@ -214,7 +214,7 @@ const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
   return (
     <MetadataValue>
       <span className="text-2xl font-semibold">
-        <WeightValue weightInKg={bestOneRepMax} />
+        <WeightValue weightInG={bestOneRepMax} />
       </span>{" "}
       <span className="text-muted-foreground text-sm">
         <WeightUnit />

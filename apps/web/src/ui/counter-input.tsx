@@ -9,7 +9,7 @@ import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
 export const CounterInput = <
   T extends Partial<
-    Pick<typeof SetSuccessSchema.Type, "weightInKg" | "repetitions">
+    Pick<typeof SetSuccessSchema.Type, "weightInG" | "repetitions">
   >,
 >(
   props: Props<T>,
@@ -53,7 +53,7 @@ export const CounterInput = <
 
 type Props<
   T extends Partial<
-    Pick<typeof SetSuccessSchema.Type, "weightInKg" | "repetitions">
+    Pick<typeof SetSuccessSchema.Type, "weightInG" | "repetitions">
   >,
 > = {
   field: ControllerRenderProps<T>;

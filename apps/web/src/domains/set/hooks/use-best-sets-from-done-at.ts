@@ -4,7 +4,7 @@ import { userQueries } from "~/domains/user/user.queries";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 
 export const useBestSetsFromDoneAt = <
-  TSet extends { doneAt: Date | string; weightInKg: number; repetitions: number },
+  TSet extends { doneAt: Date | string; weightInG: number; repetitions: number },
 >(
   setsByDoneAt: Map<string, Array<TSet>>,
 ) => {
@@ -15,12 +15,12 @@ export const useBestSetsFromDoneAt = <
       const sortedSetsByOneRepMax = sets.toSorted((a, b) => {
         return (
           calculateOneRepMax(
-            b.weightInKg,
+            b.weightInG,
             b.repetitions,
             user.data.oneRepMaxAlgo,
           ) -
           calculateOneRepMax(
-            a.weightInKg,
+            a.weightInG,
             a.repetitions,
             user.data.oneRepMaxAlgo,
           )

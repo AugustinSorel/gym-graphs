@@ -129,7 +129,7 @@ export class ExerciseService extends Effect.Service<ExerciseService>()(
         getStats: (userId: Exercise["userId"]) => {
           return exerciseRepo.selectStats(userId).pipe(
             Effect.map(({ totals, setCountPerExercise, setCountPerTag, allSetDates }) => ({
-              totalWeightInKg: totals.totalWeightInKg,
+              totalWeightInG: totals.totalWeightInG,
               totalRepetitions: totals.totalRepetitions,
               exerciseWithMostSets: setCountPerExercise.at(0) ?? null,
               exerciseWithLeastSets: setCountPerExercise.at(-1) ?? null,

@@ -3,7 +3,7 @@ import { Schema } from "effect";
 export const SetSchema = Schema.Struct({
   id: Schema.Positive,
   exerciseId: Schema.Positive,
-  weightInKg: Schema.Number.pipe(Schema.positive()),
+  weightInG: Schema.Int.pipe(Schema.positive()),
   repetitions: Schema.NonNegativeInt,
   doneAt: Schema.Date,
   createdAt: Schema.Date,
@@ -13,7 +13,7 @@ export const SetSchema = Schema.Struct({
 export const SetSuccessSchema = SetSchema.pick(
   "id",
   "exerciseId",
-  "weightInKg",
+  "weightInG",
   "repetitions",
   "doneAt",
   "createdAt",
@@ -21,7 +21,7 @@ export const SetSuccessSchema = SetSchema.pick(
 );
 
 export const CreateSetPayload = Schema.Struct({
-  weightInKg: SetSchema.fields.weightInKg,
+  weightInG: SetSchema.fields.weightInG,
   repetitions: SetSchema.fields.repetitions,
   doneAt: Schema.optionalWith(Schema.Date, {
     default: () => new Date(),
@@ -29,7 +29,7 @@ export const CreateSetPayload = Schema.Struct({
 });
 
 export const PatchSetPayload = Schema.Struct({
-  weightInKg: Schema.optionalWith(SetSchema.fields.weightInKg, {
+  weightInG: Schema.optionalWith(SetSchema.fields.weightInG, {
     exact: true,
   }),
   repetitions: Schema.optionalWith(SetSchema.fields.repetitions, {

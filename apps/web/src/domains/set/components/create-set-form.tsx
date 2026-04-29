@@ -44,7 +44,7 @@ export const CreateSetForm = (props: Props) => {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
       <FieldGroup>
         <Controller
-          name="weightInKg"
+          name="weightInG"
           control={form.control}
           render={(props) => (
             <Field
@@ -127,7 +127,7 @@ const useCreateExerciseSetForm = () => {
     resolver: effectTsResolver(CreateSetPayload),
     defaultValues: {
       repetitions: lastSet?.repetitions ?? 0,
-      weightInKg: lastSet?.weightInKg ?? 0,
+      weightInG: lastSet?.weightInG ?? 0,
     },
   });
 };
@@ -156,7 +156,7 @@ const useCreateSet = () => {
       const optimisticSet = {
         id: Math.random(),
         exerciseId: params.exerciseId,
-        weightInKg: variables.payload.weightInKg,
+        weightInG: variables.payload.weightInG,
         repetitions: variables.payload.repetitions,
         doneAt: new Date(),
         createdAt: new Date(),

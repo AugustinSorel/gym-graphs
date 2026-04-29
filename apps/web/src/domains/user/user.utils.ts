@@ -2,14 +2,14 @@ import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
 export const convertWeight = (
-  weightInKg: (typeof SetSuccessSchema.Type)["weightInKg"],
+  weightInG: (typeof SetSuccessSchema.Type)["weightInG"],
   unit: "kg" | "lbs",
 ) => {
   switch (unit) {
     case "kg":
-      return weightInKg;
+      return weightInG / 1000;
     case "lbs":
-      return weightInKg * 2.205;
+      return (weightInG / 1000) * 2.205;
   }
 };
 
@@ -30,7 +30,7 @@ export const convertWeightsInText = (
 ) => {
   const anyDigitRegex = /\b\d+(\.\d+)?\b/g;
 
-  return text.replace(anyDigitRegex, (weightInKg) => {
-    return `${convertWeight(+weightInKg, weightUnit)} ${convertWeightUnitToSymbol(weightUnit)}`;
+  return text.replace(anyDigitRegex, (weightInG) => {
+    return `${convertWeight(+weightInG, weightUnit)} ${convertWeightUnitToSymbol(weightUnit)}`;
   });
 };

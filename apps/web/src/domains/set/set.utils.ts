@@ -5,7 +5,7 @@ import {
 import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
 export const calculateOneRepMax = (
-  weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+  weight: (typeof SetSuccessSchema.Type)["weightInG"],
   repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
   algo: (typeof CurrentSessionSchema.Type)["user"]["oneRepMaxAlgo"],
 ) => {
@@ -24,7 +24,7 @@ export const calculateOneRepMax = (
 };
 
 export const calculateVolume = (
-  weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+  weight: (typeof SetSuccessSchema.Type)["weightInG"],
   repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
 ) => {
   if (repetitions < 1) {
@@ -45,13 +45,13 @@ export const exceedsOneRepMax = (
   b: (typeof SelectSetsSuccess.Type)[number],
 ) => {
   const currentOneRepMax = calculateOneRepMax(
-    a.weightInKg,
+    a.weightInG,
     a.repetitions,
     "epley",
   );
 
   const candidateOneRepMax = calculateOneRepMax(
-    b.weightInKg,
+    b.weightInG,
     b.repetitions,
     "epley",
   );
@@ -61,14 +61,14 @@ export const exceedsOneRepMax = (
 
 export const accumulateVolumeInSets = (sets: typeof SelectSetsSuccess.Type) => {
   return sets.reduce((acc, set) => {
-    return acc + calculateVolume(set.weightInKg, set.repetitions);
+    return acc + calculateVolume(set.weightInG, set.repetitions);
   }, 0);
 };
 
 const algoToOneRepMax: Record<
   (typeof CurrentSessionSchema.Type)["user"]["oneRepMaxAlgo"],
   (
-    weight: (typeof SetSuccessSchema.Type)["weightInKg"],
+    weight: (typeof SetSuccessSchema.Type)["weightInG"],
     repetitions: (typeof SetSuccessSchema.Type)["repetitions"],
   ) => number
 > = {
@@ -117,7 +117,7 @@ export const getBestSetFromSets = (
   sets: ReadonlyArray<typeof SetSuccessSchema.Type>,
 ) => {
   const setsSortedDesc = sets.toSorted((a, b) => {
-    return b.repetitions * b.weightInKg - a.repetitions * a.weightInKg;
+    return b.repetitions * b.weightInG - a.repetitions * a.weightInG;
   });
 
   return setsSortedDesc.at(0);
