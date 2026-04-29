@@ -14,10 +14,7 @@ import { EllipsisIcon, StarIcon } from "~/ui/icons";
 import { Button } from "~/ui/button";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
-import {
-  calculateOneRepMax,
-  calculateVolume,
-} from "~/domains/set/set.utils";
+import { calculateOneRepMax, calculateVolume } from "~/domains/set/set.utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { TableCell, TableHead } from "~/ui/table";
@@ -44,9 +41,7 @@ export const indexColumn = columnHelper.column({
 
 export const weightColumn = columnHelper.column({
   id: "weight",
-  header: () => (
-    <TableHead className="text-muted-foreground">Weight</TableHead>
-  ),
+  header: () => <TableHead className="text-muted-foreground">Weight</TableHead>,
   cell: ({ data }) => (
     <TableCell key="weight">
       <WeightValue weightInKg={data.weightInKg} />{" "}
@@ -66,9 +61,7 @@ export const repsColumn = columnHelper.column({
       </abbr>
     </TableHead>
   ),
-  cell: ({ data }) => (
-    <TableCell key="reps">{data.repetitions}</TableCell>
-  ),
+  cell: ({ data }) => <TableCell key="reps">{data.repetitions}</TableCell>,
 });
 
 const OneRmCell = ({ data }: { data: SetRow }) => {
@@ -103,9 +96,7 @@ export const oneRmColumn = columnHelper.column({
 
 export const volumeColumn = columnHelper.column({
   id: "volume",
-  header: () => (
-    <TableHead className="text-muted-foreground">Volume</TableHead>
-  ),
+  header: () => <TableHead className="text-muted-foreground">Volume</TableHead>,
   cell: ({ data }) => (
     <TableCell key="volume">
       <WeightValue
