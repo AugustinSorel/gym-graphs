@@ -34,7 +34,7 @@ export const indexColumn = columnHelper.column({
       {isPr && (
         <span
           aria-hidden
-          className="bg-primary mr-1.5 mb-0.5 inline-flex size-2 rounded-full"
+          className="bg-primary mr-1.5 mb-0.25 inline-flex size-2 rounded-full"
         />
       )}
       {index + 1}
