@@ -19,7 +19,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 79,
           exerciseId: 30,
-          weightInG: 20000,
+          weightInMg: 20_000_000,
           repetitions: 20,
           doneAt: new Date("2025-01-08T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -28,7 +28,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 80,
           exerciseId: 30,
-          weightInG: 30000,
+          weightInMg: 30_000_000,
           repetitions: 40,
           doneAt: new Date("2025-01-10T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -37,7 +37,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 81,
           exerciseId: 30,
-          weightInG: 40000,
+          weightInMg: 40_000_000,
           repetitions: 40,
           doneAt: new Date("2025-01-12T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -46,7 +46,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 82,
           exerciseId: 30,
-          weightInG: 30000,
+          weightInMg: 30_000_000,
           repetitions: 30,
           doneAt: new Date("2025-01-15T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -55,7 +55,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 83,
           exerciseId: 30,
-          weightInG: 10000,
+          weightInMg: 10_000_000,
           repetitions: 10,
           doneAt: new Date("2025-01-16T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -71,7 +71,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 84,
           exerciseId: 31,
-          weightInG: 10000,
+          weightInMg: 10_000_000,
           repetitions: 10,
           doneAt: new Date("2025-01-09T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -80,7 +80,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 85,
           exerciseId: 31,
-          weightInG: 20000,
+          weightInMg: 20_000_000,
           repetitions: 20,
           doneAt: new Date("2025-01-08T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -89,7 +89,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 86,
           exerciseId: 31,
-          weightInG: 10000,
+          weightInMg: 10_000_000,
           repetitions: 10,
           doneAt: new Date("2025-01-11T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -98,7 +98,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 87,
           exerciseId: 31,
-          weightInG: 20000,
+          weightInMg: 20_000_000,
           repetitions: 20,
           doneAt: new Date("2025-01-12T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -114,7 +114,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 90,
           exerciseId: 32,
-          weightInG: 30000,
+          weightInMg: 30_000_000,
           repetitions: 30,
           doneAt: new Date("2025-01-11T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -123,7 +123,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 91,
           exerciseId: 32,
-          weightInG: 10000,
+          weightInMg: 10_000_000,
           repetitions: 10,
           doneAt: new Date("2025-01-20T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -132,7 +132,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 92,
           exerciseId: 32,
-          weightInG: 40000,
+          weightInMg: 40_000_000,
           repetitions: 40,
           doneAt: new Date("2025-01-24T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -141,7 +141,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 93,
           exerciseId: 32,
-          weightInG: 40000,
+          weightInMg: 40_000_000,
           repetitions: 40,
           doneAt: new Date("2025-01-26T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -160,7 +160,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 100,
           exerciseId: 33,
-          weightInG: 30000,
+          weightInMg: 30_000_000,
           repetitions: 30,
           doneAt: new Date("2025-01-03T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -169,7 +169,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 101,
           exerciseId: 33,
-          weightInG: 50000,
+          weightInMg: 50_000_000,
           repetitions: 30,
           doneAt: new Date("2025-01-08T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -178,7 +178,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 102,
           exerciseId: 33,
-          weightInG: 40000,
+          weightInMg: 40_000_000,
           repetitions: 20,
           doneAt: new Date("2025-01-12T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -187,7 +187,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 103,
           exerciseId: 33,
-          weightInG: 40000,
+          weightInMg: 40_000_000,
           repetitions: 50,
           doneAt: new Date("2025-01-13T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),
@@ -196,7 +196,7 @@ export const exercisesMock: (typeof SelectAllExercisesSuccess.Type)["exercises"]
         {
           id: 104,
           exerciseId: 33,
-          weightInG: 30000,
+          weightInMg: 30_000_000,
           repetitions: 30,
           doneAt: new Date("2025-01-20T00:00:00.000Z"),
           createdAt: new Date("2025-01-09T11:32:12.498Z"),

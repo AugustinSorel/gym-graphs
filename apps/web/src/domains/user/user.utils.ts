@@ -4,26 +4,26 @@ import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 const lbsPerKg = 2.20462;
 
 export const convertWeight = (
-  weightInG: (typeof SetSuccessSchema.Type)["weightInG"],
+  weightInMg: (typeof SetSuccessSchema.Type)["weightInMg"],
   unit: "kg" | "lbs",
 ) => {
   switch (unit) {
     case "kg":
-      return weightInG / 1000;
+      return weightInMg / 1_000_000;
     case "lbs":
-      return (weightInG / 1000) * lbsPerKg;
+      return (weightInMg / 1_000_000) * lbsPerKg;
   }
 };
 
-export const convertWeightToG = (
+export const convertWeightToMg = (
   displayValue: number,
   unit: "kg" | "lbs",
-): (typeof SetSuccessSchema.Type)["weightInG"] => {
+): (typeof SetSuccessSchema.Type)["weightInMg"] => {
   switch (unit) {
     case "kg":
-      return displayValue * 1000;
+      return Math.round(displayValue * 1_000_000);
     case "lbs":
-      return (displayValue / lbsPerKg) * 1000;
+      return Math.round((displayValue / lbsPerKg) * 1_000_000);
   }
 };
 
@@ -44,7 +44,7 @@ export const convertWeightsInText = (
 ) => {
   const anyDigitRegex = /\b\d+(\.\d+)?\b/g;
 
-  return text.replace(anyDigitRegex, (weightInG) => {
-    return `${convertWeight(+weightInG, weightUnit)} ${convertWeightUnitToSymbol(weightUnit)}`;
+  return text.replace(anyDigitRegex, (weightInMg) => {
+    return `${convertWeight(+weightInMg, weightUnit)} ${convertWeightUnitToSymbol(weightUnit)}`;
   });
 };

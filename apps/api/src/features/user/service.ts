@@ -87,8 +87,8 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
                   }
 
                   const mockSets = mockExercise.sets.map(
-                    ({ weightInG, repetitions, daysAgo }) => ({
-                      weightInG,
+                    ({ weightInMg, repetitions, daysAgo }) => ({
+                      weightInMg,
                       repetitions,
                       exerciseId: exercise.id,
                       doneAt: nDaysAgo(daysAgo),
@@ -116,7 +116,7 @@ export class SeedUserService extends Effect.Service<SeedUserService>()(
   },
 ) {}
 
-type SeedSet = { weightInG: number; repetitions: number; daysAgo: number };
+type SeedSet = { weightInMg: number; repetitions: number; daysAgo: number };
 
 const seedData = {
   tags: [
@@ -135,38 +135,38 @@ const seedData = {
       name: "bench press",
       tags: ["chest"],
       sets: [
-        { weightInG: 10000, repetitions: 10, daysAgo: 1 },
-        { weightInG: 20000, repetitions: 20, daysAgo: 2 },
-        { weightInG: 10000, repetitions: 10, daysAgo: 3 },
-        { weightInG: 30000, repetitions: 30, daysAgo: 4 },
-        { weightInG: 10000, repetitions: 9, daysAgo: 1 },
-        { weightInG: 20000, repetitions: 18, daysAgo: 2 },
-        { weightInG: 10000, repetitions: 7, daysAgo: 3 },
+        { weightInMg: 10_000_000, repetitions: 10, daysAgo: 1 },
+        { weightInMg: 20_000_000, repetitions: 20, daysAgo: 2 },
+        { weightInMg: 10_000_000, repetitions: 10, daysAgo: 3 },
+        { weightInMg: 30_000_000, repetitions: 30, daysAgo: 4 },
+        { weightInMg: 10_000_000, repetitions: 9, daysAgo: 1 },
+        { weightInMg: 20_000_000, repetitions: 18, daysAgo: 2 },
+        { weightInMg: 10_000_000, repetitions: 7, daysAgo: 3 },
       ] satisfies SeedSet[],
     },
     {
       name: "squat",
       tags: ["legs"],
       sets: [
-        { weightInG: 20000, repetitions: 20, daysAgo: 1 },
-        { weightInG: 10000, repetitions: 10, daysAgo: 2 },
-        { weightInG: 30000, repetitions: 30, daysAgo: 3 },
-        { weightInG: 10000, repetitions: 10, daysAgo: 4 },
-        { weightInG: 10000, repetitions: 7, daysAgo: 1 },
-        { weightInG: 30000, repetitions: 24, daysAgo: 2 },
-        { weightInG: 10000, repetitions: 1, daysAgo: 3 },
+        { weightInMg: 20_000_000, repetitions: 20, daysAgo: 1 },
+        { weightInMg: 10_000_000, repetitions: 10, daysAgo: 2 },
+        { weightInMg: 30_000_000, repetitions: 30, daysAgo: 3 },
+        { weightInMg: 10_000_000, repetitions: 10, daysAgo: 4 },
+        { weightInMg: 10_000_000, repetitions: 7, daysAgo: 1 },
+        { weightInMg: 30_000_000, repetitions: 24, daysAgo: 2 },
+        { weightInMg: 10_000_000, repetitions: 1, daysAgo: 3 },
       ] satisfies SeedSet[],
     },
     {
       name: "deadlift",
       tags: ["legs", "calfs"],
       sets: [
-        { weightInG: 30000, repetitions: 30, daysAgo: 1 },
-        { weightInG: 10000, repetitions: 10, daysAgo: 2 },
-        { weightInG: 20000, repetitions: 20, daysAgo: 3 },
-        { weightInG: 30000, repetitions: 30, daysAgo: 4 },
-        { weightInG: 10000, repetitions: 6, daysAgo: 1 },
-        { weightInG: 20000, repetitions: 12, daysAgo: 2 },
+        { weightInMg: 30_000_000, repetitions: 30, daysAgo: 1 },
+        { weightInMg: 10_000_000, repetitions: 10, daysAgo: 2 },
+        { weightInMg: 20_000_000, repetitions: 20, daysAgo: 3 },
+        { weightInMg: 30_000_000, repetitions: 30, daysAgo: 4 },
+        { weightInMg: 10_000_000, repetitions: 6, daysAgo: 1 },
+        { weightInMg: 20_000_000, repetitions: 12, daysAgo: 2 },
       ] satisfies SeedSet[],
     },
   ],

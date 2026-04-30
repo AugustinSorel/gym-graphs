@@ -11,12 +11,12 @@ export const WeightValue = (props: Props) => {
     ...props.formatter,
   });
 
-  const displayWeight = convertWeight(props.weightInG, user.data.weightUnit);
+  const displayWeight = convertWeight(props.weightInMg, user.data.weightUnit);
 
   return formatter.format(displayWeight);
 };
 
-type Props = Pick<typeof SetSuccessSchema.Type, "weightInG"> &
+type Props = Pick<typeof SetSuccessSchema.Type, "weightInMg"> &
   Partial<{
     formatter: Intl.NumberFormatOptions;
   }>;

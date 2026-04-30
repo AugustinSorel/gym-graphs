@@ -72,7 +72,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         id: -1,
         doneAt: new Date().toString(),
         repetitions: 0,
-        weightInG: 0,
+        weightInMg: 0,
       };
 
       const d1 = sets.at(index);
@@ -93,7 +93,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
         id: -1,
         doneAt: new Date().toString(),
         repetitions: 0,
-        weightInG: 0,
+        weightInMg: 0,
       };
 
       tooltip.showTooltip({
@@ -242,8 +242,8 @@ const Graph = ({ height, width, sets }: GraphProps) => {
                 <dt>set {i + 1}</dt>
                  <dd>
                    <WeightValue
-                    weightInG={calculateOneRepMax(
-                      set.weightInG,
+                    weightInMg={calculateOneRepMax(
+                      set.weightInMg,
                       set.repetitions,
                       user.data.oneRepMaxAlgo,
                     )}
@@ -263,7 +263,7 @@ const getDoneAt = (d: Point) => new Date(new Date(d.doneAt).toDateString());
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],
-) => calculateOneRepMax(d.weightInG, d.repetitions, algo);
+) => calculateOneRepMax(d.weightInMg, d.repetitions, algo);
 const bisectDate = bisector<Point, Date>((d) => new Date(d.doneAt)).left;
 
 const margin = {
@@ -294,7 +294,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
 
 type Point = Readonly<{
   id: number;
-  weightInG: number;
+  weightInMg: number;
   repetitions: number;
   doneAt: Date | string;
 }>;

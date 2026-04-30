@@ -36,7 +36,7 @@ export class SetService extends Effect.Service<SetService>()("SetService", {
 
           return yield* setRepo.create({
             exerciseId: exercise.id,
-            weightInG: payload.weightInG,
+            weightInMg: payload.weightInMg,
             repetitions: payload.repetitions,
             doneAt: payload.doneAt,
           });

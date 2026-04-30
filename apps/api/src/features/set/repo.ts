@@ -23,7 +23,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
 
       create: (input: {
         exerciseId: Set["exerciseId"];
-        weightInG: Set["weightInG"];
+        weightInMg: Set["weightInMg"];
         repetitions: Set["repetitions"];
         doneAt: Set["doneAt"];
       }) => {
@@ -37,7 +37,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
       createMany: (
         input: Array<{
           exerciseId: Set["exerciseId"];
-          weightInG: Set["weightInG"];
+          weightInMg: Set["weightInMg"];
           repetitions: Set["repetitions"];
           doneAt: Set["doneAt"];
         }>,
@@ -49,7 +49,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
         setId: Set["id"],
         exerciseId: Set["exerciseId"],
         input: {
-          weightInG?: Set["weightInG"];
+          weightInMg?: Set["weightInMg"];
           repetitions?: Set["repetitions"];
           doneAt?: Set["doneAt"];
         },

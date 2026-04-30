@@ -14,7 +14,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
-import { convertWeight, convertWeightToG } from "~/domains/user/user.utils";
+import { convertWeight, convertWeightToMg } from "~/domains/user/user.utils";
 import { userQueries } from "~/domains/user/user.queries";
 
 export const UpdateSetWeightForm = (props: Props) => {
@@ -27,7 +27,7 @@ export const UpdateSetWeightForm = (props: Props) => {
     await updateWeight.mutateAsync(
       {
         path: { exerciseId: params.exerciseId, setId: set.id },
-        payload: { weightInG: values.weightDisplay },
+        payload: { weightInMg: values.weightDisplay },
       },
       {
         onSuccess: () => {
@@ -99,9 +99,9 @@ const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
 const makeFormSchema = (weightUnit: "kg" | "lbs") => {
   return Schema.Struct({
-    weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
+      weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
-      decode: (w) => Math.round(convertWeightToG(w, weightUnit)),
+      decode: (w) => convertWeightToMg(w, weightUnit),
       encode: (w) => convertWeight(w, weightUnit),
     }),
   });
@@ -118,7 +118,7 @@ const useUpdateSetWeightForm = () => {
   return useForm({
     resolver: effectTsResolver(schema),
     defaultValues: {
-      weightDisplay: convertWeight(set.weightInG, user.data.weightUnit),
+      weightDisplay: convertWeight(set.weightInMg, user.data.weightUnit),
     },
   });
 };
@@ -142,14 +142,14 @@ const useUpdateSetWeight = () => {
       const oldSets = ctx.client.getQueryData(queries.sets.queryKey);
       const oldExercises = ctx.client.getQueryData(queries.exercises.queryKey);
 
-      const { weightInG } = variables.payload;
+      const { weightInMg } = variables.payload;
 
       ctx.client.setQueryData(queries.sets.queryKey, (sets) => {
         if (!sets) return sets;
 
         return sets.map((set) => {
           if (set.id !== variables.path.setId) return set;
-          return { ...set, weightInG: weightInG ?? set.weightInG };
+          return { ...set, weightInMg: weightInMg ?? set.weightInMg };
         });
       });
 
@@ -172,7 +172,7 @@ const useUpdateSetWeight = () => {
                     return set;
                   }
 
-                  return { ...set, weightInG: weightInG ?? set.weightInG };
+                  return { ...set, weightInMg: weightInMg ?? set.weightInMg };
                 }),
               };
             }),

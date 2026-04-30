@@ -70,7 +70,7 @@ const getDoneAt = (d: Point) => new Date(d.doneAt);
 const getOneRepMax = (
   d: Point,
   algo: Parameters<typeof calculateOneRepMax>[2],
-) => calculateOneRepMax(d.weightInG, d.repetitions, algo);
+) => calculateOneRepMax(d.weightInMg, d.repetitions, algo);
 
 const margin = {
   top: 20,
@@ -80,7 +80,7 @@ const margin = {
 } as const;
 
 type Point = Readonly<{
-  weightInG: number;
+  weightInMg: number;
   repetitions: number;
   doneAt: Date | string;
 }>;

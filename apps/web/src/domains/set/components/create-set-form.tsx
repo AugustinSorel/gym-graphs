@@ -12,7 +12,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { setQueries } from "../set.queries";
-import { convertWeight, convertWeightToG } from "~/domains/user/user.utils";
+import { convertWeight, convertWeightToMg } from "~/domains/user/user.utils";
 import { userQueries } from "~/domains/user/user.queries";
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { Schema } from "effect";
@@ -28,7 +28,7 @@ export const CreateSetForm = (props: Props) => {
       {
         path: { exerciseId: exercise.data.id },
         payload: {
-          weightInG: values.weightDisplay,
+          weightInMg: values.weightDisplay,
           repetitions: values.repetitions,
           doneAt: new Date(),
         },
@@ -121,9 +121,9 @@ const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 const makeFormSchema = (weightUnit: "kg" | "lbs") => {
   return Schema.Struct({
     repetitions: Schema.NonNegativeInt,
-    weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
+      weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
-      decode: (w) => Math.round(convertWeightToG(w, weightUnit)),
+      decode: (w) => convertWeightToMg(w, weightUnit),
       encode: (w) => convertWeight(w, weightUnit),
     }),
   });
@@ -144,7 +144,7 @@ const useCreateExerciseSetForm = () => {
     defaultValues: {
       repetitions: lastSet?.repetitions ?? 0,
       weightDisplay: lastSet
-        ? convertWeight(lastSet.weightInG, user.data.weightUnit)
+        ? convertWeight(lastSet.weightInMg, user.data.weightUnit)
         : 0,
     },
   });
@@ -174,7 +174,7 @@ const useCreateSet = () => {
       const optimisticSet = {
         id: Math.random(),
         exerciseId: params.exerciseId,
-        weightInG: variables.payload.weightInG,
+        weightInMg: variables.payload.weightInMg,
         repetitions: variables.payload.repetitions,
         doneAt: new Date(),
         createdAt: new Date(),

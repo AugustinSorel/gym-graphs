@@ -188,7 +188,7 @@ export const sets = pgTable("sets", (t) => ({
     .integer("exercise_id")
     .notNull()
     .references(() => exercises.id, { onDelete: "cascade" }),
-  weightInG: t.integer("weight_in_g").notNull(),
+  weightInMg: t.integer("weight_in_mg").notNull(),
   repetitions: t.integer("repetitions").notNull(),
   doneAt: t.timestamp("done_at", { mode: "date" }).notNull().defaultNow(),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),

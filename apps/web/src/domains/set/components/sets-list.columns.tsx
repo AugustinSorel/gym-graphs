@@ -47,7 +47,7 @@ export const weightColumn = columnHelper.column({
   header: () => <TableHead className="text-muted-foreground">Weight</TableHead>,
   cell: ({ data }) => (
     <TableCell key="weight">
-      <WeightValue weightInG={data.weightInG} />{" "}
+      <WeightValue weightInMg={data.weightInMg} />{" "}
       <span className="text-muted-foreground text-sm font-normal">
         <WeightUnit />
       </span>
@@ -71,14 +71,14 @@ const OneRmCell = ({ data }: { data: SetRow }) => {
   const user = useSuspenseQuery(userQueries.get);
 
   const oneRepMax = calculateOneRepMax(
-    data.weightInG,
+    data.weightInMg,
     data.repetitions,
     user.data.oneRepMaxAlgo,
   );
 
   return (
     <TableCell key="1rm">
-      <WeightValue weightInG={oneRepMax} />{" "}
+      <WeightValue weightInMg={oneRepMax} />{" "}
       <span className="text-muted-foreground text-sm font-normal">
         <WeightUnit />
       </span>
@@ -104,7 +104,7 @@ export const volumeColumn = columnHelper.column({
   cell: ({ data }) => (
     <TableCell key="volume">
       <WeightValue
-        weightInG={calculateVolume(data.weightInG, data.repetitions)}
+        weightInMg={calculateVolume(data.weightInMg, data.repetitions)}
       />{" "}
       <span className="text-muted-foreground text-sm font-normal">
         <WeightUnit />
