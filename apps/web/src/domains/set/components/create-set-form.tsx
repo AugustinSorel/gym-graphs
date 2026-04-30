@@ -123,7 +123,7 @@ const makeFormSchema = (weightUnit: "kg" | "lbs") => {
     repetitions: Schema.NonNegativeInt,
     weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
-      decode: (w) => Math.round(convertWeightToG(w, weightUnit)),
+      decode: (w) => convertWeightToG(w, weightUnit),
       encode: (w) => convertWeight(w, weightUnit),
     }),
   });
