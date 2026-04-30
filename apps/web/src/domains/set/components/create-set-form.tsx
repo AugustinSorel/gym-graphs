@@ -23,14 +23,13 @@ export const CreateSetForm = (props: Props) => {
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
-  const onSubmit = async (
-    values: ReturnType<typeof makeDisplayFormSchema>["Type"],
-  ) => {
+  const onSubmit = async (values: Form) => {
+    console.log(values.weightDisplay, "SENDING>>>");
     await createSet.mutateAsync(
       {
         path: { exerciseId: exercise.data.id },
         payload: {
-          weightInG: values.weightInG,
+          weightInG: values.weightDisplay,
           repetitions: values.repetitions,
           doneAt: new Date(),
         },
@@ -47,6 +46,8 @@ export const CreateSetForm = (props: Props) => {
       },
     );
   };
+
+  console.log(form.formState.errors);
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -120,37 +121,18 @@ type Props = Readonly<{
 
 const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
-const makeDisplayFormSchema = (weightUnit: "kg" | "lbs") =>
-  Schema.Struct({
-    weightDisplay: Schema.Number.pipe(
-      Schema.positive(),
-      Schema.filter((value) => {
-        const g = convertWeightToG(value, weightUnit);
-        return Number.isInteger(g) && g > 0
-          ? true
-          : `weight must resolve to a whole number of grams (try up to 3 decimal places, e.g. 2.500)`;
-      }),
-    ),
+const makeFormSchema = (weightUnit: "kg" | "lbs") => {
+  return Schema.Struct({
     repetitions: Schema.NonNegativeInt,
-  }).pipe(
-    Schema.transform(
-      Schema.Struct({
-        weightInG: Schema.Int.pipe(Schema.positive()),
-        repetitions: Schema.NonNegativeInt,
-      }),
-      {
-        strict: true,
-        decode: ({ weightDisplay, repetitions }) => ({
-          weightInG: convertWeightToG(weightDisplay, weightUnit),
-          repetitions,
-        }),
-        encode: ({ weightInG, repetitions }) => ({
-          weightDisplay: convertWeight(weightInG, weightUnit),
-          repetitions,
-        }),
-      },
-    ),
-  );
+    weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
+      strict: true,
+      decode: (w) => Math.round(convertWeightToG(w, weightUnit)),
+      encode: (w) => convertWeight(w, weightUnit),
+    }),
+  });
+};
+
+type Form = ReturnType<typeof makeFormSchema>["Type"];
 
 const useCreateExerciseSetForm = () => {
   const params = routeApi.useParams();
@@ -158,7 +140,9 @@ const useCreateExerciseSetForm = () => {
   const lastSet = useLastSet(sets.data);
   const user = useSuspenseQuery(userQueries.get);
 
-  const schema = makeDisplayFormSchema(user.data.weightUnit);
+  const schema = makeFormSchema(user.data.weightUnit);
+
+  console.log(lastSet?.weightInG, "READING<<<");
 
   return useForm({
     resolver: effectTsResolver(schema),

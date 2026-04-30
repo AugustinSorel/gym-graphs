@@ -23,13 +23,11 @@ export const UpdateSetWeightForm = (props: Props) => {
   const set = useSet();
   const params = routeApi.useParams();
 
-  const onSubmit = async (
-    values: ReturnType<typeof makeDisplayFormSchema>["Type"],
-  ) => {
+  const onSubmit = async (values: Form) => {
     await updateWeight.mutateAsync(
       {
         path: { exerciseId: params.exerciseId, setId: set.id },
-        payload: { weightInG: values.weightInG },
+        payload: { weightInG: values.weightDisplay },
       },
       {
         onSuccess: () => {
@@ -99,39 +97,23 @@ type Props = Readonly<{
 
 const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
-const makeDisplayFormSchema = (weightUnit: "kg" | "lbs") =>
-  Schema.Struct({
-    weightDisplay: Schema.Number.pipe(
-      Schema.positive(),
-      Schema.filter((value) => {
-        const g = convertWeightToG(value, weightUnit);
-        return Number.isInteger(g) && g > 0
-          ? true
-          : `weight must resolve to a whole number of grams (try up to 3 decimal places, e.g. 2.500)`;
-      }),
-    ),
-  }).pipe(
-    Schema.transform(
-      Schema.Struct({
-        weightInG: Schema.Int.pipe(Schema.positive()),
-      }),
-      {
-        strict: true,
-        decode: ({ weightDisplay }) => ({
-          weightInG: convertWeightToG(weightDisplay, weightUnit),
-        }),
-        encode: ({ weightInG }) => ({
-          weightDisplay: convertWeight(weightInG, weightUnit),
-        }),
-      },
-    ),
-  );
+const makeFormSchema = (weightUnit: "kg" | "lbs") => {
+  return Schema.Struct({
+    weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
+      strict: true,
+      decode: (w) => Math.round(convertWeightToG(w, weightUnit)),
+      encode: (w) => convertWeight(w, weightUnit),
+    }),
+  });
+};
+
+type Form = ReturnType<typeof makeFormSchema>["Type"];
 
 const useUpdateSetWeightForm = () => {
   const set = useSet();
   const user = useSuspenseQuery(userQueries.get);
 
-  const schema = makeDisplayFormSchema(user.data.weightUnit);
+  const schema = makeFormSchema(user.data.weightUnit);
 
   return useForm({
     resolver: effectTsResolver(schema),

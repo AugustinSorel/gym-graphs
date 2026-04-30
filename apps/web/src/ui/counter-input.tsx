@@ -15,7 +15,6 @@ export const CounterInput = <T extends FieldValues>(props: Props<T>) => {
         className="border-none"
         type="number"
         placeholder="10"
-        step={props.step ?? 1}
         aria-invalid={props.fieldState.invalid}
         id={props.field.name}
         {...props.field}
@@ -50,5 +49,4 @@ export const CounterInput = <T extends FieldValues>(props: Props<T>) => {
 type Props<T extends FieldValues> = {
   field: ControllerRenderProps<T, Path<T>>;
   fieldState: ControllerFieldState;
-  step?: number;
 };
