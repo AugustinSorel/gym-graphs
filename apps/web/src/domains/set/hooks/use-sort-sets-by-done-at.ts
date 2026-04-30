@@ -12,5 +12,5 @@ export const useSortSetsByDoneAt = <TSet extends { doneAt: Date | string }>(
 
       return new Date(b.doneAt).getTime() - new Date(a.doneAt).getTime();
     });
-  }, [sets]);
+  }, [sets, sortBy]);
 };
