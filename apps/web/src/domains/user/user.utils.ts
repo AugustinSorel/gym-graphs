@@ -11,7 +11,7 @@ export const convertWeight = (
     case "kg":
       return weightInG / 1000;
     case "lbs":
-      return Math.round((weightInG / 1000) * lbsPerKg * 1000) / 1000;
+      return (weightInG / 1000) * lbsPerKg;
   }
 };
 
@@ -21,9 +21,9 @@ export const convertWeightToG = (
 ): (typeof SetSuccessSchema.Type)["weightInG"] => {
   switch (unit) {
     case "kg":
-      return Math.round(displayValue * 1000);
+      return displayValue * 1000;
     case "lbs":
-      return Math.round((displayValue / lbsPerKg) * 1000);
+      return (displayValue / lbsPerKg) * 1000;
   }
 };
 
