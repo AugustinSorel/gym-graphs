@@ -4,22 +4,18 @@ import { MinusIcon, PlusIcon } from "~/ui/icons";
 import type {
   ControllerFieldState,
   ControllerRenderProps,
+  FieldValues,
+  Path,
 } from "react-hook-form";
-import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 
-export const CounterInput = <
-  T extends Partial<
-    Pick<typeof SetSuccessSchema.Type, "weightInG" | "repetitions">
-  >,
->(
-  props: Props<T>,
-) => {
+export const CounterInput = <T extends FieldValues>(props: Props<T>) => {
   return (
     <div className="flex w-max items-center justify-center rounded-md border">
       <Input
         className="border-none"
         type="number"
         placeholder="10"
+        step={props.step ?? 1}
         aria-invalid={props.fieldState.invalid}
         id={props.field.name}
         {...props.field}
@@ -51,11 +47,8 @@ export const CounterInput = <
   );
 };
 
-type Props<
-  T extends Partial<
-    Pick<typeof SetSuccessSchema.Type, "weightInG" | "repetitions">
-  >,
-> = {
-  field: ControllerRenderProps<T>;
+type Props<T extends FieldValues> = {
+  field: ControllerRenderProps<T, Path<T>>;
   fieldState: ControllerFieldState;
+  step?: number;
 };

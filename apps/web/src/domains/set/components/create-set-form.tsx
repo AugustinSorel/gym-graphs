@@ -1,9 +1,7 @@
-import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { Spinner } from "~/ui/spinner";
 import { Button } from "~/ui/button";
-import { CreateSetPayload } from "@gym-graphs/shared/set/schemas";
 import { exerciseQueries } from "~/domains/exercise/exercise.queries";
 import { getRouteApi } from "@tanstack/react-router";
 import { CounterInput } from "~/ui/counter-input";
@@ -14,6 +12,10 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "~/ui/field";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/alert";
 import { AlertCircleIcon } from "~/ui/icons";
 import { setQueries } from "../set.queries";
+import { convertWeight, convertWeightToG } from "~/domains/user/user.utils";
+import { userQueries } from "~/domains/user/user.queries";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { Schema } from "effect";
 
 export const CreateSetForm = (props: Props) => {
   const form = useCreateExerciseSetForm();
@@ -21,11 +23,17 @@ export const CreateSetForm = (props: Props) => {
   const params = routeApi.useParams();
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
-  const onSubmit = async (payload: typeof CreateSetPayload.Type) => {
+  const onSubmit = async (
+    values: ReturnType<typeof makeDisplayFormSchema>["Type"],
+  ) => {
     await createSet.mutateAsync(
       {
         path: { exerciseId: exercise.data.id },
-        payload,
+        payload: {
+          weightInG: values.weightInG,
+          repetitions: values.repetitions,
+          doneAt: new Date(),
+        },
       },
       {
         onSuccess: () => {
@@ -44,7 +52,7 @@ export const CreateSetForm = (props: Props) => {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
       <FieldGroup>
         <Controller
-          name="weightInG"
+          name="weightDisplay"
           control={form.control}
           render={(props) => (
             <Field
@@ -112,22 +120,53 @@ type Props = Readonly<{
 
 const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
+const makeDisplayFormSchema = (weightUnit: "kg" | "lbs") =>
+  Schema.Struct({
+    weightDisplay: Schema.Number.pipe(
+      Schema.positive(),
+      Schema.filter((value) => {
+        const g = convertWeightToG(value, weightUnit);
+        return Number.isInteger(g) && g > 0
+          ? true
+          : `weight must resolve to a whole number of grams (try up to 3 decimal places, e.g. 2.500)`;
+      }),
+    ),
+    repetitions: Schema.NonNegativeInt,
+  }).pipe(
+    Schema.transform(
+      Schema.Struct({
+        weightInG: Schema.Int.pipe(Schema.positive()),
+        repetitions: Schema.NonNegativeInt,
+      }),
+      {
+        strict: true,
+        decode: ({ weightDisplay, repetitions }) => ({
+          weightInG: convertWeightToG(weightDisplay, weightUnit),
+          repetitions,
+        }),
+        encode: ({ weightInG, repetitions }) => ({
+          weightDisplay: convertWeight(weightInG, weightUnit),
+          repetitions,
+        }),
+      },
+    ),
+  );
+
 const useCreateExerciseSetForm = () => {
   const params = routeApi.useParams();
-
   const sets = useSuspenseQuery(setQueries.getAll(params.exerciseId));
-
   const lastSet = useLastSet(sets.data);
+  const user = useSuspenseQuery(userQueries.get);
 
-  return useForm<
-    typeof CreateSetPayload.Encoded,
-    unknown,
-    typeof CreateSetPayload.Type
-  >({
-    resolver: effectTsResolver(CreateSetPayload),
+  const schema = makeDisplayFormSchema(user.data.weightUnit);
+
+  return useForm({
+    resolver: effectTsResolver(schema),
     defaultValues: {
       repetitions: lastSet?.repetitions ?? 0,
-      weightInG: lastSet?.weightInG ?? 0,
+      weightDisplay: lastSet
+        ? convertWeight(lastSet.weightInG, user.data.weightUnit)
+        : 0,
     },
   });
 };

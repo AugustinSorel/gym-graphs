@@ -13,6 +13,18 @@ export const convertWeight = (
   }
 };
 
+export const convertWeightToG = (
+  displayValue: number,
+  unit: "kg" | "lbs",
+): (typeof SetSuccessSchema.Type)["weightInG"] => {
+  switch (unit) {
+    case "kg":
+      return displayValue * 1000;
+    case "lbs":
+      return (displayValue / 2.205) * 1000;
+  }
+};
+
 export const convertWeightUnitToSymbol = (
   weightUnit: (typeof CurrentSessionSchema.Type)["user"]["weightUnit"],
 ) => {

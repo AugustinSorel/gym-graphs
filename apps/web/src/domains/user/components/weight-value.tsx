@@ -7,7 +7,7 @@ export const WeightValue = (props: Props) => {
   const user = useSuspenseQuery(userQueries.get);
 
   const formatter = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 3,
     ...props.formatter,
   });
 
