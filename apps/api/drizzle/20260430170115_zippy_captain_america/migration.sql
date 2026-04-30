@@ -1,0 +1,1 @@
+ALTER TABLE "sets" ALTER COLUMN "done_at" SET DATA TYPE timestamp USING "done_at"::timestamp;

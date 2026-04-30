@@ -16,7 +16,7 @@ export class SetRepo extends Effect.Service<SetRepo>()("SetRepo", {
             exerciseId,
           },
           orderBy: {
-            doneAt: "asc",
+            doneAt: "desc",
           },
         });
       },
