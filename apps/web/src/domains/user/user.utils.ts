@@ -1,6 +1,8 @@
 import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
 import { CurrentSessionSchema } from "@gym-graphs/shared/auth/schemas";
 
+const lbsPerKg = 2.20462;
+
 export const convertWeight = (
   weightInG: (typeof SetSuccessSchema.Type)["weightInG"],
   unit: "kg" | "lbs",
@@ -9,7 +11,7 @@ export const convertWeight = (
     case "kg":
       return weightInG / 1000;
     case "lbs":
-      return (weightInG / 1000) * 2.205;
+      return Math.round((weightInG / 1000) * lbsPerKg * 1000) / 1000;
   }
 };
 
@@ -19,9 +21,9 @@ export const convertWeightToG = (
 ): (typeof SetSuccessSchema.Type)["weightInG"] => {
   switch (unit) {
     case "kg":
-      return displayValue * 1000;
+      return Math.round(displayValue * 1000);
     case "lbs":
-      return (displayValue / 2.205) * 1000;
+      return Math.round((displayValue / lbsPerKg) * 1000);
   }
 };
 
