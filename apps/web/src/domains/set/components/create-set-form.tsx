@@ -24,7 +24,6 @@ export const CreateSetForm = (props: Props) => {
   const exercise = useSuspenseQuery(exerciseQueries.get(params.exerciseId));
 
   const onSubmit = async (values: Form) => {
-    console.log(values.weightDisplay, "SENDING>>>");
     await createSet.mutateAsync(
       {
         path: { exerciseId: exercise.data.id },
@@ -46,8 +45,6 @@ export const CreateSetForm = (props: Props) => {
       },
     );
   };
-
-  console.log(form.formState.errors);
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -141,8 +138,6 @@ const useCreateExerciseSetForm = () => {
   const user = useSuspenseQuery(userQueries.get);
 
   const schema = makeFormSchema(user.data.weightUnit);
-
-  console.log(lastSet?.weightInG, "READING<<<");
 
   return useForm({
     resolver: effectTsResolver(schema),

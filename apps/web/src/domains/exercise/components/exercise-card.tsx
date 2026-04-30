@@ -16,7 +16,6 @@ import { useSortSetsByOneRepMax } from "~/domains/set/hooks/use-sort-sets-by-one
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { userQueries } from "~/domains/user/user.queries";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
-import { convertWeight } from "~/domains/user/user.utils";
 import { timeAgo } from "~/utils/date";
 import { SelectAllExercisesSuccess } from "@gym-graphs/shared/exercise/schemas";
 
