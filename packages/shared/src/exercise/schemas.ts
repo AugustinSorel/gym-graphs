@@ -66,7 +66,7 @@ export const PutExerciseTagsPayload = Schema.Struct({
 });
 
 export const StatsSuccess = Schema.Struct({
-  totalWeightInG: Schema.NonNegativeInt,
+  totalWeightInMg: Schema.NonNegativeInt,
   totalRepetitions: Schema.NonNegativeInt,
   exerciseWithMostSets: Schema.NullOr(
     Schema.Struct({ name: Schema.String }),
