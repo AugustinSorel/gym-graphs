@@ -99,9 +99,9 @@ const routeApi = getRouteApi("/(authed)/exercises/$exerciseId/");
 
 const makeFormSchema = (weightUnit: "kg" | "lbs") => {
   return Schema.Struct({
-      weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
+    weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
-      decode: (w) => convertWeightToMg(w, weightUnit),
+      decode: (w) => Math.round(convertWeightToMg(w, weightUnit)),
       encode: (w) => convertWeight(w, weightUnit),
     }),
   });

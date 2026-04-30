@@ -21,9 +21,9 @@ export const convertWeightToMg = (
 ): (typeof SetSuccessSchema.Type)["weightInMg"] => {
   switch (unit) {
     case "kg":
-      return Math.round(displayValue * 1_000_000);
+      return displayValue * 1_000_000;
     case "lbs":
-      return Math.round((displayValue / lbsPerKg) * 1_000_000);
+      return (displayValue / lbsPerKg) * 1_000_000;
   }
 };
 
