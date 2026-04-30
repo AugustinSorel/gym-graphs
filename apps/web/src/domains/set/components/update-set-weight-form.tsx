@@ -102,7 +102,7 @@ const makeFormSchema = (weightUnit: "kg" | "lbs") => {
     weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
       decode: (w) => Math.round(convertWeightToMg(w, weightUnit)),
-      encode: (w) => convertWeight(w, weightUnit),
+      encode: (w) => Math.round(convertWeight(w, weightUnit) * 1000) / 1000,
     }),
   });
 };
@@ -117,9 +117,9 @@ const useUpdateSetWeightForm = () => {
 
   return useForm({
     resolver: effectTsResolver(schema),
-    defaultValues: {
-      weightDisplay: convertWeight(set.weightInMg, user.data.weightUnit),
-    },
+    defaultValues: Schema.encodeSync(schema)({
+      weightDisplay: set.weightInMg,
+    }),
   });
 };
 

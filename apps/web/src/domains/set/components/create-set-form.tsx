@@ -124,7 +124,7 @@ const makeFormSchema = (weightUnit: "kg" | "lbs") => {
     weightDisplay: Schema.transform(Schema.Number, Schema.Int, {
       strict: true,
       decode: (w) => Math.round(convertWeightToMg(w, weightUnit)),
-      encode: (w) => convertWeight(w, weightUnit),
+      encode: (w) => Math.round(convertWeight(w, weightUnit) * 1000) / 1000,
     }),
   });
 };
@@ -141,12 +141,10 @@ const useCreateExerciseSetForm = () => {
 
   return useForm({
     resolver: effectTsResolver(schema),
-    defaultValues: {
-      repetitions: lastSet?.repetitions ?? 0,
-      weightDisplay: lastSet
-        ? convertWeight(lastSet.weightInMg, user.data.weightUnit)
-        : 0,
-    },
+    defaultValues: Schema.encodeSync(schema)({
+      repetitions: lastSet?.repetitions ?? 1,
+      weightDisplay: lastSet?.weightInMg ?? 0,
+    }),
   });
 };
 

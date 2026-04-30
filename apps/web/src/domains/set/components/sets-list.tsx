@@ -27,14 +27,11 @@ export const createColumnHelper = <TData,>() => ({
 export const SetsList = (props: Props) => {
   const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
   const sets = useSetsByDoneAt(sortedSets);
+  const progressivePrs = useProgressivePrs(props);
 
   if (!props.sets.length) {
     return <NoDataText>no data</NoDataText>;
   }
-
-  const progressivePrs = new Set(
-    getProgressivePrs(props.sets).flatMap((pr) => pr.id),
-  );
 
   return (
     <ol className="space-y-3">
@@ -115,8 +112,10 @@ const NoDataText = (props: ComponentProps<"p">) => {
   );
 };
 
-const getProgressivePrs = (sets: typeof SelectSetsSuccess.Type) => {
-  return sets.reduce<Mutable<typeof SelectSetsSuccess.Type>>(
+const useProgressivePrs = (props: Pick<Props, "sets">) => {
+  const sorted = useSortSetsByDoneAt(props.sets);
+
+  const prs = sorted.reduce<Mutable<typeof SelectSetsSuccess.Type>>(
     (progressivePrs, candidateSet) => {
       const currentPr = progressivePrs.at(-1);
 
@@ -135,4 +134,6 @@ const getProgressivePrs = (sets: typeof SelectSetsSuccess.Type) => {
     },
     [],
   );
+
+  return new Set(prs.flatMap((pr) => pr.id));
 };
