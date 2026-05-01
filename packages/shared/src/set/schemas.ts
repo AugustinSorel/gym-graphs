@@ -10,6 +10,8 @@ export const SetSchema = Schema.Struct({
   updatedAt: Schema.Date,
 });
 
+export type Set = typeof SetSchema.Type;
+
 export const SetSuccessSchema = SetSchema.pick(
   "id",
   "exerciseId",

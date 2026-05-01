@@ -1,8 +1,6 @@
 import { Database } from "#/integrations/db/db";
-import {
-  passwordResetTokens,
-  type PasswordResetToken,
-} from "#/integrations/db/schema";
+import { passwordResetTokens } from "#/integrations/db/schema";
+import type { PasswordResetToken } from "@gym-graphs/shared/password-reset-token/schemas";
 import { eq } from "drizzle-orm";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, Option } from "effect";

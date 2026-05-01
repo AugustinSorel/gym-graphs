@@ -4,10 +4,12 @@ import {
   exercisesToTags,
   sets,
   tags,
-  type Exercise,
-  type ExercisesToTags,
-  type Tag,
 } from "#/integrations/db/schema";
+import type {
+  Exercise,
+  ExercisesToTags,
+} from "@gym-graphs/shared/exercise/schemas";
+import type { Tag } from "@gym-graphs/shared/tag/schemas";
 import {
   DuplicateExercise,
   ExerciseNotFound,

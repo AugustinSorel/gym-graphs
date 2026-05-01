@@ -1,4 +1,5 @@
 import { pipe, Schema } from "effect";
+import { UserSchema } from "#/user/schemas";
 
 export const PasswordResetTokenSchema = Schema.Struct({
   token: pipe(
@@ -13,4 +14,10 @@ export const PasswordResetTokenSchema = Schema.Struct({
       message: () => "token must be at most 255 characters",
     }),
   ),
+  userId: UserSchema.fields.id,
+  expiresAt: Schema.Date,
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
 });
+
+export type PasswordResetToken = typeof PasswordResetTokenSchema.Type;

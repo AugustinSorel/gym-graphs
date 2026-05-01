@@ -1,5 +1,6 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import { users, type User } from "#/integrations/db/schema";
+import { users } from "#/integrations/db/schema";
+import type { User } from "@gym-graphs/shared/user/schemas";
 import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Option } from "effect";
 import { DuplicateUser, UserNotFound } from "@gym-graphs/shared/user/errors";

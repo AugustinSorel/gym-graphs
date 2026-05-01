@@ -29,7 +29,6 @@ export const users = pgTable("users", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type User = Readonly<typeof users.$inferSelect>;
 
 export const sessions = pgTable("sessions", (t) => ({
   id: t.text("id").notNull().primaryKey(),
@@ -52,7 +51,6 @@ export const sessions = pgTable("sessions", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type Session = Readonly<typeof sessions.$inferSelect>;
 
 export const verificationCodes = pgTable("verification_codes", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -73,7 +71,6 @@ export const verificationCodes = pgTable("verification_codes", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type VerificationCode = Readonly<typeof verificationCodes.$inferSelect>;
 
 export const passwordResetTokens = pgTable("password_reset_tokens", (t) => ({
   token: t.text("token").notNull().primaryKey(),
@@ -93,9 +90,6 @@ export const passwordResetTokens = pgTable("password_reset_tokens", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type PasswordResetToken = Readonly<
-  typeof passwordResetTokens.$inferSelect
->;
 
 export const oauthProviders = pgEnum("oauth_provider", ["github"]);
 
@@ -118,7 +112,6 @@ export const oauthAccounts = pgTable(
   (t) => [primaryKey({ columns: [t.providerId, t.providerUserId] })],
 );
 
-export type OAuthAccount = Readonly<typeof oauthAccounts.$inferSelect>;
 
 export const tags = pgTable(
   "tag",
@@ -139,7 +132,6 @@ export const tags = pgTable(
   (t) => [unique().on(t.name, t.userId)],
 );
 
-export type Tag = Readonly<typeof tags.$inferSelect>;
 
 export const exercisesToTags = pgTable(
   "exercises_to_tags",
@@ -162,7 +154,6 @@ export const exercisesToTags = pgTable(
   (t) => [primaryKey({ columns: [t.exerciseId, t.tagId] })],
 );
 
-export type ExercisesToTags = Readonly<typeof exercisesToTags.$inferSelect>;
 
 export const exercises = pgTable("exercises", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -180,7 +171,6 @@ export const exercises = pgTable("exercises", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type Exercise = Readonly<typeof exercises.$inferSelect>;
 
 export const sets = pgTable("sets", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -199,4 +189,3 @@ export const sets = pgTable("sets", (t) => ({
     .$onUpdate(() => new Date()),
 }));
 
-export type Set = Readonly<typeof sets.$inferSelect>;

@@ -47,3 +47,5 @@ export const CurrentSessionSchema = Schema.Struct({
     "oneRepMaxAlgo",
   ),
 });
+
+export type CurrentUser = typeof CurrentSessionSchema.Type["user"];

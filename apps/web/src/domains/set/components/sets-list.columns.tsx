@@ -18,7 +18,8 @@ import { calculateOneRepMax, calculateVolume } from "~/domains/set/set.utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { TableCell, TableHead } from "~/ui/table";
-import { createColumnHelper, type SetRow } from "./sets-list";
+import { createColumnHelper } from "~/domains/set/components/sets-list";
+import type { SetRow } from "~/domains/set/components/sets-list";
 
 const columnHelper = createColumnHelper<SetRow>();
 

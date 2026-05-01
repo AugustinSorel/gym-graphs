@@ -1,8 +1,6 @@
 import { Database } from "#/integrations/db/db";
-import {
-  verificationCodes,
-  type VerificationCode,
-} from "#/integrations/db/schema";
+import { verificationCodes } from "#/integrations/db/schema";
+import type { VerificationCode } from "@gym-graphs/shared/verification-code/schemas";
 import { eq } from "drizzle-orm";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Option } from "effect";

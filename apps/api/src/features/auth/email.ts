@@ -1,8 +1,6 @@
 import { ServerConfig } from "#/server-config";
-import type {
-  PasswordResetToken,
-  VerificationCode,
-} from "#/integrations/db/schema";
+import type { VerificationCode } from "@gym-graphs/shared/verification-code/schemas";
+import type { PasswordResetToken } from "@gym-graphs/shared/password-reset-token/schemas";
 import { Effect } from "effect";
 
 export const verifyAccountEmailContent = (code: VerificationCode["code"]) => {

@@ -2,6 +2,7 @@ import { pipe, Schema } from "effect";
 
 export const TagSchema = Schema.Struct({
   id: Schema.Positive,
+  userId: Schema.Positive,
   name: pipe(
     Schema.Trim.annotations({
       message: () => "name must be a valid string",
@@ -14,7 +15,11 @@ export const TagSchema = Schema.Struct({
       message: () => "name must be at most 255 characters",
     }),
   ),
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
 });
+
+export type Tag = typeof TagSchema.Type;
 
 export const TagSuccessSchema = TagSchema.pick("id", "name");
 

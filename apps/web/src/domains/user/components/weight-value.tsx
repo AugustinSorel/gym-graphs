@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { userQueries } from "~/domains/user/user.queries";
 import { convertWeight } from "~/domains/user/user.utils";
-import { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
+import type { Set } from "@gym-graphs/shared/set/schemas";
 
 export const WeightValue = (props: Props) => {
   const user = useSuspenseQuery(userQueries.get);
@@ -16,7 +16,7 @@ export const WeightValue = (props: Props) => {
   return formatter.format(displayWeight);
 };
 
-type Props = Pick<typeof SetSuccessSchema.Type, "weightInMg"> &
+type Props = Pick<Set, "weightInMg"> &
   Partial<{
     formatter: Intl.NumberFormatOptions;
   }>;

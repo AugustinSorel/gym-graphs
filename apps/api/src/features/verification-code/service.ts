@@ -8,7 +8,8 @@ import {
   VerificationCodeExpired,
   VerificationCodeNotFound,
 } from "@gym-graphs/shared/verification-code/errors";
-import type { User, VerificationCode } from "#/integrations/db/schema";
+import type { User } from "@gym-graphs/shared/user/schemas";
+import type { VerificationCode } from "@gym-graphs/shared/verification-code/schemas";
 import { Email } from "#/integrations/email/client";
 import { verifyAccountEmailContent } from "../auth/email";
 import { VerificationCodeRepo } from "./repo";

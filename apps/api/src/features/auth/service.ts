@@ -12,7 +12,7 @@ import {
   type SignUpPayload,
   type SignInPayload,
 } from "@gym-graphs/shared/auth/schemas";
-import type { Session } from "#/integrations/db/schema";
+import type { Session } from "@gym-graphs/shared/session/schemas";
 import { Email } from "#/integrations/email/client";
 import { verifyAccountEmailContent } from "./email";
 import { VerificationCodeRepo } from "../verification-code/repo";

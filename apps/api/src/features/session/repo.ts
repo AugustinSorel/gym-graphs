@@ -1,5 +1,6 @@
 import { Database } from "#/integrations/db/db";
-import { sessions, type Session } from "#/integrations/db/schema";
+import { sessions } from "#/integrations/db/schema";
+import type { Session } from "@gym-graphs/shared/session/schemas";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import { Effect, Array, pipe, Clock, Duration, Option } from "effect";
 import { eq } from "drizzle-orm";

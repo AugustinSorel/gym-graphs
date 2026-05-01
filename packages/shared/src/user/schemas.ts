@@ -66,7 +66,12 @@ export const UserSchema = Schema.Struct({
     "wathen",
   ),
 
+  salt: Schema.NullOr(Schema.String),
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
 });
+
+export type User = typeof UserSchema.Type;
 
 export const PatchUserByIdPayload = UserSchema.pick(
   "weightUnit",

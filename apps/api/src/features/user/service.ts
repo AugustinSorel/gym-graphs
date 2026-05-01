@@ -1,6 +1,6 @@
 import { DateTime, Duration, Effect } from "effect";
 import { UserRepo } from "../user/repo";
-import type { User } from "#/integrations/db/schema";
+import type { User } from "@gym-graphs/shared/user/schemas";
 import type { PatchUserByIdPayload } from "@gym-graphs/shared/user/schemas";
 import { TagRepo } from "../tag/repo";
 import { ExerciseRepo } from "../exercise/repo";

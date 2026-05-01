@@ -1,5 +1,6 @@
 import { Database, isUniqueViolation } from "#/integrations/db/db";
-import { exercisesToTags, tags, type Tag } from "#/integrations/db/schema";
+import { exercisesToTags, tags } from "#/integrations/db/schema";
+import type { Tag } from "@gym-graphs/shared/tag/schemas";
 import { DuplicateTag, TagNotFound } from "@gym-graphs/shared/tag/errors";
 import { and, eq } from "drizzle-orm";
 import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";

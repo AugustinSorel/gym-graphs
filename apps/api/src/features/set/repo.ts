@@ -1,5 +1,6 @@
 import { Database } from "#/integrations/db/db";
-import { sets, type Set } from "#/integrations/db/schema";
+import { sets } from "#/integrations/db/schema";
+import type { Set } from "@gym-graphs/shared/set/schemas";
 import { SetNotFound } from "@gym-graphs/shared/set/errors";
 import { and, eq } from "drizzle-orm";
 import { Effect, Array } from "effect";

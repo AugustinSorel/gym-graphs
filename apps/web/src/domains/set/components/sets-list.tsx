@@ -1,7 +1,4 @@
-import type {
-  SelectSetsSuccess,
-  SetSuccessSchema,
-} from "@gym-graphs/shared/set/schemas";
+import type { Set } from "@gym-graphs/shared/set/schemas";
 import { ComponentProps, ReactNode } from "react";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
 import { Table, TableBody, TableHeader, TableRow } from "~/ui/table";
@@ -12,7 +9,7 @@ import { Mutable } from "effect/Types";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
 import { cn } from "~/styles/styles.utils";
 
-export type SetRow = typeof SetSuccessSchema.Type;
+export type SetRow = Set;
 
 export type ColumnDef<TData> = {
   id: string;
@@ -99,8 +96,8 @@ export const SetsList = (props: Props) => {
 };
 
 type Props = {
-  sets: typeof SelectSetsSuccess.Type;
-  columns: ColumnDef<SetRow>[];
+  sets: ReadonlyArray<Set>;
+  columns: ColumnDef<Set>[];
 };
 
 const NoDataText = (props: ComponentProps<"p">) => {
@@ -115,7 +112,7 @@ const NoDataText = (props: ComponentProps<"p">) => {
 const useProgressivePrs = (props: Pick<Props, "sets">) => {
   const sorted = useSortSetsByDoneAt(props.sets);
 
-  const prs = sorted.reduce<Mutable<typeof SelectSetsSuccess.Type>>(
+  const prs = sorted.reduce<Mutable<Array<Set>>>(
     (progressivePrs, candidateSet) => {
       const currentPr = progressivePrs.at(-1);
 

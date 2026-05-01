@@ -1,10 +1,8 @@
 import { createContext, use } from "react";
 import type { ComponentProps } from "react";
-import type { SetSuccessSchema } from "@gym-graphs/shared/set/schemas";
+import type { Set } from "@gym-graphs/shared/set/schemas";
 
-const SetCtx = createContext<typeof SetSuccessSchema.Type | undefined>(
-  undefined,
-);
+const SetCtx = createContext<Set | undefined>(undefined);
 
 export const SetProvider = (props: ComponentProps<typeof SetCtx>) => {
   return <SetCtx {...props} />;

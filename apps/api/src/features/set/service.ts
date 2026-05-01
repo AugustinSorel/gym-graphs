@@ -5,7 +5,8 @@ import type {
   CreateSetPayload,
   PatchSetPayload,
 } from "@gym-graphs/shared/set/schemas";
-import type { Exercise, Set } from "#/integrations/db/schema";
+import type { Set } from "@gym-graphs/shared/set/schemas";
+import type { Exercise } from "@gym-graphs/shared/exercise/schemas";
 import { ExerciseNotFound } from "@gym-graphs/shared/exercise/errors";
 
 export class SetService extends Effect.Service<SetService>()("SetService", {

@@ -1,6 +1,7 @@
 import { Array, Effect } from "effect";
 import { ExerciseRepo } from "./repo";
-import type { Exercise, User } from "#/integrations/db/schema";
+import type { Exercise } from "@gym-graphs/shared/exercise/schemas";
+import type { User } from "@gym-graphs/shared/user/schemas";
 import type {
   CreateExercisePayload,
   ReorderExercisesPayload,

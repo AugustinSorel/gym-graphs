@@ -25,7 +25,7 @@ export const VerifyEmailForm = () => {
   const form = useVerifyEmailForm();
   const verifyEmail = useVerifyEmail();
 
-  const onSubmit = async (payload: typeof VerificationCodeSchema.Type) => {
+  const onSubmit = async (payload: typeof VerifyEmailPayload.Type) => {
     await verifyEmail.mutateAsync(
       { payload },
       {
@@ -104,9 +104,11 @@ export const VerifyEmailForm = () => {
   );
 };
 
+const VerifyEmailPayload = VerificationCodeSchema.pick("code");
+
 const useVerifyEmailForm = () => {
-  const form = useForm<typeof VerificationCodeSchema.Type>({
-    resolver: effectTsResolver(VerificationCodeSchema),
+  const form = useForm({
+    resolver: effectTsResolver(VerifyEmailPayload),
     defaultValues: {
       code: "",
     },

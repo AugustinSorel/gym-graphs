@@ -4,6 +4,7 @@ import { pipe, Schema } from "effect";
 
 export const ExerciseSchema = Schema.Struct({
   id: Schema.Positive,
+  userId: Schema.Positive,
   name: pipe(
     Schema.Trim.annotations({
       message: () => "name must be a valid string",
@@ -16,7 +17,21 @@ export const ExerciseSchema = Schema.Struct({
       message: () => "name must be at most 255 characters",
     }),
   ),
+  index: Schema.Int,
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
 });
+
+export type Exercise = typeof ExerciseSchema.Type;
+
+export const ExercisesToTagsSchema = Schema.Struct({
+  exerciseId: ExerciseSchema.fields.id,
+  tagId: Schema.Positive,
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
+});
+
+export type ExercisesToTags = typeof ExercisesToTagsSchema.Type;
 
 export const ExerciseSuccess = ExerciseSchema.pick("id", "name");
 

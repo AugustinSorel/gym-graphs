@@ -9,7 +9,7 @@ import {
   PasswordResetTokenNotFound,
 } from "@gym-graphs/shared/password-reset-token/errors";
 import type { ResetPasswordPayload } from "@gym-graphs/shared/auth/schemas";
-import type { User } from "#/integrations/db/schema";
+import type { User } from "@gym-graphs/shared/user/schemas";
 import { Email } from "#/integrations/email/client";
 import { resetPasswordEmailContent } from "../auth/email";
 import { PasswordResetTokenRepo } from "./repo";

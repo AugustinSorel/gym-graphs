@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import type { Tag } from "#/integrations/db/schema";
+import type { Tag } from "@gym-graphs/shared/tag/schemas";
 import type {
   CreateTagPayload,
   PatchTagPayload,
