@@ -23,6 +23,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { SetsList } from "~/domains/set/components/sets-list";
 import { defaultColumns } from "~/domains/set/components/sets-list.columns";
 import { RepsRangeGraph } from "~/domains/set/components/reps-range-graph";
+import { PrLineGraph } from "~/domains/set/components/pr-line-graph";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -89,8 +90,9 @@ const RouteComponent = () => {
           </Panel>
           <Panel className="h-48 p-3">
             <span className="text-muted-foreground text-xs font-medium">
-              reps distribution
+              progressive prs
             </span>
+            <PrLineGraph sets={sets.data} />
           </Panel>
           <Panel className="h-48 p-3">
             <span className="text-muted-foreground text-xs font-medium">

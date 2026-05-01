@@ -24,6 +24,7 @@ import type {
   TouchEvent,
 } from "react";
 import { Mutable } from "effect/Types";
+import { Set } from "@gym-graphs/shared/set/schemas";
 
 export const ExerciseAdvanceOverviewGraph = (props: Props) => {
   const sets = useBestSortedSets(props.sets);
@@ -70,7 +71,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
       const index = bisectDate(sets, x0, 1);
 
       const d0: Point = sets.at(index - 1) ?? {
-        doneAt: new Date().toString(),
+        doneAt: new Date(),
         repetitions: 0,
         weightInMg: 0,
       };
@@ -222,7 +223,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
               />{" "}
               <WeightUnit />
             </dd>
-             <dt>weight</dt>
+            <dt>weight</dt>
             <dd>
               <WeightValue weightInMg={tooltip.tooltipData.weightInMg} />{" "}
               <WeightUnit />
@@ -269,11 +270,7 @@ const tooltipStyles: Readonly<CSSProperties> = {
   backgroundColor: "hsl(var(--secondary))",
 };
 
-type Point = Readonly<{
-  weightInMg: number;
-  repetitions: number;
-  doneAt: Date | string;
-}>;
+type Point = Pick<Set, "weightInMg" | "repetitions" | "doneAt">;
 
 type Props = Readonly<{
   sets: ReadonlyArray<Point>;

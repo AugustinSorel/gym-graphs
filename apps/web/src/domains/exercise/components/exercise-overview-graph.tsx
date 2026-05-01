@@ -9,6 +9,8 @@ import { userQueries } from "~/domains/user/user.queries";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import type { ComponentProps } from "react";
 import { LinearGradient } from "@visx/gradient";
+import { Set } from "@gym-graphs/shared/set/schemas";
+import { User } from "@gym-graphs/shared/user/schemas";
 
 export const ExerciseOverviewGraph = (props: Props) => {
   const { parentRef, width, height } = useParentSize();
@@ -67,10 +69,9 @@ export const ExerciseOverviewGraph = (props: Props) => {
 };
 
 const getDoneAt = (d: Point) => new Date(d.doneAt);
-const getOneRepMax = (
-  d: Point,
-  algo: Parameters<typeof calculateOneRepMax>[2],
-) => calculateOneRepMax(d.weightInMg, d.repetitions, algo);
+const getOneRepMax = (d: Point, algo: User["oneRepMaxAlgo"]) => {
+  return calculateOneRepMax(d.weightInMg, d.repetitions, algo);
+};
 
 const margin = {
   top: 20,
@@ -79,11 +80,7 @@ const margin = {
   right: 0,
 } as const;
 
-type Point = Readonly<{
-  weightInMg: number;
-  repetitions: number;
-  doneAt: Date | string;
-}>;
+type Point = Pick<Set, "weightInMg" | "repetitions" | "doneAt">;
 
 type Props = Readonly<{
   sets: ReadonlyArray<Point>;
