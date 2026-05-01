@@ -22,6 +22,7 @@ import type { ComponentProps } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SetsList } from "~/domains/set/components/sets-list";
 import { defaultColumns } from "~/domains/set/components/sets-list.columns";
+import { RepsRangeGraph } from "~/domains/set/components/reps-range-graph";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -70,11 +71,34 @@ const RouteComponent = () => {
         <Section>
           <SectionTitle>1 rep max graph</SectionTitle>
 
-          <SectionPanel className="py-2 sm:p-4">
+          <Panel className="py-2 sm:p-4">
             <ExerciseAdvanceOverviewGraph sets={sets.data} />
-          </SectionPanel>
+          </Panel>
         </Section>
       </CatchBoundary>
+
+      <Section>
+        <SectionTitle>more graphs</SectionTitle>
+
+        <GridOfPanels>
+          <Panel className="h-48 p-3">
+            <span className="text-muted-foreground text-xs font-medium">
+              reps range
+            </span>
+            <RepsRangeGraph sets={sets.data} />
+          </Panel>
+          <Panel className="h-48 p-3">
+            <span className="text-muted-foreground text-xs font-medium">
+              reps distribution
+            </span>
+          </Panel>
+          <Panel className="h-48 p-3">
+            <span className="text-muted-foreground text-xs font-medium">
+              weight progression
+            </span>
+          </Panel>
+        </GridOfPanels>
+      </Section>
 
       <CatchBoundary
         errorComponent={DefaultFallback}
@@ -83,9 +107,9 @@ const RouteComponent = () => {
         <Section>
           <SectionTitle>sets frequency</SectionTitle>
 
-          <SectionPanel className="py-2 sm:p-4">
+          <Panel className="py-2 sm:p-4">
             <SetFrequencyGraph sets={sets.data} />
-          </SectionPanel>
+          </Panel>
         </Section>
       </CatchBoundary>
 
@@ -96,9 +120,9 @@ const RouteComponent = () => {
         <Section>
           <SectionTitle>tags</SectionTitle>
 
-          <SectionPanel>
+          <Panel>
             <TagsList />
-          </SectionPanel>
+          </Panel>
         </Section>
       </CatchBoundary>
 
@@ -143,10 +167,22 @@ const Title = (props: ComponentProps<"h1">) => {
   );
 };
 
-const SectionPanel = ({ className, ...props }: ComponentProps<"div">) => {
+const GridOfPanels = (props: ComponentProps<"ul">) => {
   return (
-    <div
-      className={cn("bg-secondary relative grid rounded-md border", className)}
+    <ul
+      className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4"
+      {...props}
+    />
+  );
+};
+
+const Panel = ({ className, ...props }: ComponentProps<"li">) => {
+  return (
+    <li
+      className={cn(
+        "bg-secondary overlfow-hidden relative grid rounded-md border",
+        className,
+      )}
       {...props}
     />
   );
