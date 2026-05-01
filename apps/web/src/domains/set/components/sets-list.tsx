@@ -1,13 +1,12 @@
 import type { Set } from "@gym-graphs/shared/set/schemas";
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps, ReactNode, useMemo } from "react";
 import { useSetsByDoneAt } from "~/domains/set/hooks/use-sets-by-done-at";
 import { Table, TableBody, TableHeader, TableRow } from "~/ui/table";
 import { SetProvider } from "~/domains/set/set.context";
-import { exceedsOneRepMax } from "~/domains/set/set.utils";
 import { Badge } from "~/ui/badge";
-import { Mutable } from "effect/Types";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
 import { cn } from "~/styles/styles.utils";
+import { useProgressivePrs } from "~/domains/set/hooks/use-progressive-prs";
 
 export type SetRow = Set;
 
@@ -24,7 +23,13 @@ export const createColumnHelper = <TData,>() => ({
 export const SetsList = (props: Props) => {
   const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
   const sets = useSetsByDoneAt(sortedSets);
-  const progressivePrs = useProgressivePrs(props);
+
+  const progressivePrs = useProgressivePrs(props.sets);
+
+  const progressivePrIds = useMemo(
+    () => new Set(progressivePrs.map((pr) => pr.id)),
+    [progressivePrs],
+  );
 
   if (!props.sets.length) {
     return <NoDataText>no data</NoDataText>;
@@ -58,7 +63,7 @@ export const SetsList = (props: Props) => {
                 </span>
               </time>
 
-              {sets.some((set) => progressivePrs.has(set.id)) && (
+              {sets.some((set) => progressivePrIds.has(set.id)) && (
                 <Badge className="font-semibold uppercase">pr</Badge>
               )}
             </header>
@@ -74,13 +79,15 @@ export const SetsList = (props: Props) => {
                 {sets.map((set, i) => (
                   <SetProvider key={set.id} value={set}>
                     <TableRow
-                      className={cn(progressivePrs.has(set.id) && "font-bold")}
+                      className={cn(
+                        progressivePrIds.has(set.id) && "font-bold",
+                      )}
                     >
                       {props.columns.map((col) =>
                         col.cell({
                           data: set,
                           index: i,
-                          isPr: progressivePrs.has(set.id),
+                          isPr: progressivePrIds.has(set.id),
                         }),
                       )}
                     </TableRow>
@@ -107,30 +114,4 @@ const NoDataText = (props: ComponentProps<"p">) => {
       {...props}
     />
   );
-};
-
-const useProgressivePrs = (props: Pick<Props, "sets">) => {
-  const sorted = useSortSetsByDoneAt(props.sets);
-
-  const prs = sorted.reduce<Mutable<Array<Set>>>(
-    (progressivePrs, candidateSet) => {
-      const currentPr = progressivePrs.at(-1);
-
-      if (!currentPr) {
-        progressivePrs.push(candidateSet);
-        return progressivePrs;
-      }
-
-      const newPr = exceedsOneRepMax(currentPr, candidateSet);
-
-      if (newPr) {
-        progressivePrs.push(candidateSet);
-      }
-
-      return progressivePrs;
-    },
-    [],
-  );
-
-  return new Set(prs.flatMap((pr) => pr.id));
 };
