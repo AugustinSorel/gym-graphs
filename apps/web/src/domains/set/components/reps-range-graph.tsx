@@ -5,6 +5,7 @@ import { defaultStyles, Tooltip, useTooltip } from "@visx/tooltip";
 import { Bar } from "@visx/shape";
 import { localPoint } from "@visx/event";
 import {
+  ComponentProps,
   MouseEvent,
   TouchEvent,
   useCallback,
@@ -24,6 +25,12 @@ export const RepsRangeGraph = (props: Props) => {
       })),
     [props.sets],
   );
+
+  const noData = data.every((bucket) => !bucket.count);
+
+  if (noData) {
+    return <NoDataText>no data</NoDataText>;
+  }
 
   return (
     <ParentSize className="relative flex min-h-full">
@@ -218,3 +225,7 @@ type GraphProps = Readonly<{
   width: number;
   data: ReadonlyArray<RepsRange>;
 }>;
+
+const NoDataText = (props: ComponentProps<"p">) => (
+  <p className="text-muted-foreground m-auto text-sm" {...props} />
+);
