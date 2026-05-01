@@ -24,6 +24,7 @@ import { SetsList } from "~/domains/set/components/sets-list";
 import { defaultColumns } from "~/domains/set/components/sets-list.columns";
 import { RepsRangeGraph } from "~/domains/set/components/reps-range-graph";
 import { PrLineGraph } from "~/domains/set/components/pr-line-graph";
+import { VolumePerSessionGraph } from "~/domains/set/components/volume-per-session-graph";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -96,8 +97,9 @@ const RouteComponent = () => {
           </Panel>
           <Panel className="h-48 p-3">
             <span className="text-muted-foreground text-xs font-medium">
-              weight progression
+              volume per session
             </span>
+            <VolumePerSessionGraph sets={sets.data} />
           </Panel>
         </GridOfPanels>
       </Section>
