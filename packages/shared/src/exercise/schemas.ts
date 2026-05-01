@@ -17,7 +17,9 @@ export const ExerciseSchema = Schema.Struct({
       message: () => "name must be at most 255 characters",
     }),
   ),
-  index: Schema.Int,
+  index: Schema.Int.pipe(
+    Schema.nonNegative({ message: () => "index must be 0 or greater" }),
+  ),
   createdAt: Schema.Date,
   updatedAt: Schema.Date,
 });
@@ -37,7 +39,10 @@ export const ExerciseSuccess = ExerciseSchema.pick("id", "name");
 
 export const CreateExercisePayload = Schema.extend(
   Schema.Struct({
-    tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+    tagIds: TagSchema.fields.id.pipe(
+      Schema.Array,
+      Schema.maxItems(100, { message: () => "tagIds must contain at most 100 items" }),
+    ),
   }),
   ExerciseSchema.pick("name"),
 );
@@ -68,7 +73,7 @@ export const SelectAllExercisesSuccess = Schema.Struct({
 export const ReorderExercisesPayload = Schema.Struct({
   exerciseIds: ExerciseSchema.fields.id.pipe(
     Schema.Array,
-    Schema.maxItems(100),
+    Schema.maxItems(100, { message: () => "exerciseIds must contain at most 100 items" }),
   ),
 });
 
@@ -77,7 +82,10 @@ export const ReorderExercisesSuccess = ExerciseSuccess.pipe(Schema.Array);
 export const PatchExercisePayload = ExerciseSchema.pick("name");
 
 export const PutExerciseTagsPayload = Schema.Struct({
-  tagIds: TagSchema.fields.id.pipe(Schema.Array, Schema.maxItems(100)),
+  tagIds: TagSchema.fields.id.pipe(
+    Schema.Array,
+    Schema.maxItems(100, { message: () => "tagIds must contain at most 100 items" }),
+  ),
 });
 
 export const StatsSuccess = Schema.Struct({

@@ -48,7 +48,9 @@ export const UserSchema = Schema.Struct({
 
   verifiedAt: Schema.NullOr(Schema.Date),
 
-  weightUnit: Schema.Literal("kg", "lbs"),
+  weightUnit: Schema.Literal("kg", "lbs").annotations({
+    message: () => 'weightUnit must be one of: "kg", "lbs"',
+  }),
 
   oneRepMaxAlgo: Schema.Literal(
     "adams",
@@ -64,7 +66,10 @@ export const UserSchema = Schema.Struct({
     "naclerio",
     "oConner",
     "wathen",
-  ),
+  ).annotations({
+    message: () =>
+      'oneRepMaxAlgo must be one of: "adams", "baechle", "berger", "brown", "brzycki", "epley", "kemmler", "landers", "lombardi", "mayhew", "naclerio", "oConner", "wathen"',
+  }),
 
   salt: Schema.NullOr(Schema.String),
   createdAt: Schema.Date,

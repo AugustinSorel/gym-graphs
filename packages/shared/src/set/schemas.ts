@@ -1,11 +1,18 @@
-import { Schema } from "effect";
+import { pipe, Schema } from "effect";
 
 export const SetSchema = Schema.Struct({
   id: Schema.Positive,
   exerciseId: Schema.Positive,
-  weightInMg: Schema.Int.pipe(Schema.positive()),
-  repetitions: Schema.NonNegativeInt,
-  doneAt: Schema.Date,
+  weightInMg: pipe(
+    Schema.Int.annotations({ message: () => "weightInMg must be a whole number" }),
+    Schema.positive({ message: () => "weightInMg must be greater than 0" }),
+  ),
+  repetitions: Schema.Int.pipe(
+    Schema.positive({ message: () => "repetitions must be at least 1" }),
+  ),
+  doneAt: Schema.Date.annotations({
+    message: () => "doneAt must be a valid date",
+  }),
   createdAt: Schema.Date,
   updatedAt: Schema.Date,
 });
