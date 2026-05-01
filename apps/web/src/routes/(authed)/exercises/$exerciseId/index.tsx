@@ -184,7 +184,7 @@ const Panel = ({ className, ...props }: ComponentProps<"li">) => {
   return (
     <li
       className={cn(
-        "bg-secondary overlfow-hidden relative grid rounded-md border",
+        "bg-secondary overlfow-hidden relative grid grid-rows-[auto_1fr] rounded-md border",
         className,
       )}
       {...props}
