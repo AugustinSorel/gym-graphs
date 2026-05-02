@@ -70,7 +70,7 @@ export const ExerciseCardSkeleton = () => {
 };
 
 const LastChangeMade = (props: Pick<Exercise, "sets">) => {
-  const sortedSets = useSortSetsByDoneAt(props.sets);
+  const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
 
   const latestSet = sortedSets.at(0);
 
@@ -80,7 +80,7 @@ const LastChangeMade = (props: Pick<Exercise, "sets">) => {
 
   return (
     <span className="text-muted-foreground flex border-t pt-2 text-xs">
-      last: {timeAgo(latestSet?.updatedAt)}
+      last: {timeAgo(latestSet.doneAt)}
     </span>
   );
 };
