@@ -121,6 +121,8 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| FIX      | last label doesn't work in exercises page             |
+| TODO     | add dot on graph                                      |
 | TODO     | redo home page                                        |
 | TODO     | redo exercise card                                    |
 | TODO     | redo exercise page                                    |
