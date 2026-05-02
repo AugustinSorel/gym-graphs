@@ -25,6 +25,7 @@ import { defaultColumns } from "~/domains/set/components/sets-list.columns";
 import { RepsRangeGraph } from "~/domains/set/components/reps-range-graph";
 import { PrLineGraph } from "~/domains/set/components/pr-line-graph";
 import { VolumePerSessionGraph } from "~/domains/set/components/volume-per-session-graph";
+import { ExerciseStatGrid } from "~/domains/exercise/components/exercise-stats-grid";
 
 export const Route = createFileRoute("/(authed)/exercises/$exerciseId/")({
   component: () => RouteComponent(),
@@ -65,6 +66,13 @@ const RouteComponent = () => {
       </Header>
 
       <Separator />
+
+      <CatchBoundary
+        errorComponent={DefaultFallback}
+        getResetKey={() => "reset"}
+      >
+        <ExerciseStatGrid sets={sets.data} />
+      </CatchBoundary>
 
       <CatchBoundary
         errorComponent={DefaultFallback}
