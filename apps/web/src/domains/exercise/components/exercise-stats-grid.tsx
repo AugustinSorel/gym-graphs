@@ -141,12 +141,7 @@ const StatCardFallback = (props: ErrorComponentProps) => {
 };
 
 const Grid = (props: ComponentProps<"ul">) => {
-  return (
-    <ul
-      className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3"
-      {...props}
-    />
-  );
+  return <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4" {...props} />;
 };
 
 const Card = ({ className, ...props }: ComponentProps<"li">) => {
