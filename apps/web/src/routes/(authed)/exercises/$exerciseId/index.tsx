@@ -91,24 +91,39 @@ const RouteComponent = () => {
         <SectionTitle>more graphs</SectionTitle>
 
         <GridOfPanels>
-          <Panel className="h-48 p-3">
-            <span className="text-muted-foreground text-xs font-medium">
-              reps range
-            </span>
-            <RepsRangeGraph sets={sets.data} />
-          </Panel>
-          <Panel className="h-48 p-3">
-            <span className="text-muted-foreground text-xs font-medium">
-              progressive prs
-            </span>
-            <PrLineGraph sets={sets.data} />
-          </Panel>
-          <Panel className="h-48 p-3">
-            <span className="text-muted-foreground text-xs font-medium">
-              volume per session
-            </span>
-            <VolumePerSessionGraph sets={sets.data} />
-          </Panel>
+          <CatchBoundary
+            errorComponent={DefaultFallback}
+            getResetKey={() => "reset"}
+          >
+            <Panel className="h-48 p-3">
+              <span className="text-muted-foreground text-xs font-medium">
+                reps range
+              </span>
+              <RepsRangeGraph sets={sets.data} />
+            </Panel>
+          </CatchBoundary>
+          <CatchBoundary
+            errorComponent={DefaultFallback}
+            getResetKey={() => "reset"}
+          >
+            <Panel className="h-48 p-3">
+              <span className="text-muted-foreground text-xs font-medium">
+                progressive prs
+              </span>
+              <PrLineGraph sets={sets.data} />
+            </Panel>
+          </CatchBoundary>
+          <CatchBoundary
+            errorComponent={DefaultFallback}
+            getResetKey={() => "reset"}
+          >
+            <Panel className="h-48 p-3">
+              <span className="text-muted-foreground text-xs font-medium">
+                volume per session
+              </span>
+              <VolumePerSessionGraph sets={sets.data} />
+            </Panel>
+          </CatchBoundary>
         </GridOfPanels>
       </Section>
 
