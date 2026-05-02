@@ -19,7 +19,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
 
   const timeScale = scaleTime({
     domain: extent(sets, getDoneAt) as [Date, Date],
-    range: [0, width],
+    range: [0, width - dotRadius - dotStrokeWidth],
   });
 
   const oneRepMaxScale = scaleLinear({
@@ -33,6 +33,8 @@ export const ExerciseOverviewGraph = (props: Props) => {
   if (!sets.length) {
     return <NoDataText>no data</NoDataText>;
   }
+
+  const lastSet = sets.at(-1);
 
   return (
     <div ref={parentRef} className="overflow-hidden">
@@ -63,6 +65,17 @@ export const ExerciseOverviewGraph = (props: Props) => {
           fill="url(#area-gradient)"
           curve={curveMonotoneX}
         />
+
+        {lastSet && (
+          <circle
+            cx={timeScale(getDoneAt(lastSet))}
+            cy={oneRepMaxScale(getOneRepMax(lastSet, user.data.oneRepMaxAlgo))}
+            r={dotRadius}
+            className="fill-primary"
+            stroke="white"
+            strokeWidth={dotStrokeWidth}
+          />
+        )}
       </svg>
     </div>
   );
@@ -79,6 +92,9 @@ const margin = {
   left: 0,
   right: 0,
 } as const;
+
+const dotRadius = 4;
+const dotStrokeWidth = 2;
 
 type Point = Pick<Set, "weightInMg" | "repetitions" | "doneAt">;
 

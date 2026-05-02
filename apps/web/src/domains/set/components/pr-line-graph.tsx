@@ -41,6 +41,7 @@ export const PrLineGraph = ({ sets }: Props) => {
 const Graph = ({ width, height, prs }: GraphProps) => {
   const user = useSuspenseQuery(userQueries.get);
   const tooltip = useTooltip<Point>();
+  const lastPr = prs.at(-1);
 
   const timeScale = scaleTime({
     domain: extent(prs, getDoneAt) as [Date, Date],
@@ -118,6 +119,19 @@ const Graph = ({ width, height, prs }: GraphProps) => {
           fill="url(#pr-area-gradient)"
           curve={curveMonotoneX}
         />
+
+        {/*end of line dot*/}
+        {lastPr && (
+          <circle
+            cx={timeScale(getDoneAt(lastPr))}
+            cy={oneRepMaxScale(getOneRepMax(lastPr, user.data.oneRepMaxAlgo))}
+            r={4}
+            className="fill-primary"
+            stroke="white"
+            strokeWidth={2}
+            pointerEvents="none"
+          />
+        )}
 
         {/*hit zone for tooltip*/}
         <Group top={0} left={0}>

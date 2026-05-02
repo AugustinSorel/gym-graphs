@@ -121,7 +121,6 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
-| TODO     | add dot on graph                                      |
 | TODO     | redo home page                                        |
 | TODO     | redo exercise card                                    |
 | TODO     | add more stats graphs                                 |

@@ -46,6 +46,7 @@ export const ExerciseAdvanceOverviewGraph = (props: Props) => {
 const Graph = ({ height, width, sets }: GraphProps) => {
   const tooltip = useTooltip<Point>();
   const user = useSuspenseQuery(userQueries.get);
+  const lastSet = sets.at(-1);
 
   const timeScale = useMemo(() => {
     return scaleTime({
@@ -163,6 +164,20 @@ const Graph = ({ height, width, sets }: GraphProps) => {
             strokeWidth={2}
             shapeRendering="geometricPrecision"
           />
+
+          {lastSet && (
+            <circle
+              cx={timeScale(getDoneAt(lastSet))}
+              cy={oneRepMaxScale(
+                getOneRepMax(lastSet, user.data.oneRepMaxAlgo),
+              )}
+              r={4}
+              className="fill-primary"
+              stroke="white"
+              strokeWidth={2}
+              pointerEvents="none"
+            />
+          )}
         </Group>
 
         {/*hit zone for tooltip*/}
