@@ -7,6 +7,8 @@ import { Badge } from "~/ui/badge";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
 import { cn } from "~/styles/styles.utils";
 import { useProgressivePrs } from "~/domains/set/hooks/use-progressive-prs";
+import { CatchBoundary } from "@tanstack/react-router";
+import { DefaultFallback, RowFallback } from "~/ui/fallback";
 
 export type SetRow = Set;
 
@@ -43,59 +45,68 @@ export const SetsList = (props: Props) => {
         }
 
         return (
-          <li
+          <CatchBoundary
             key={doneAt}
-            className="bg-secondary relative grid rounded-md border p-5"
+            errorComponent={DefaultFallback}
+            getResetKey={() => doneAt}
           >
-            <header className="mt-3 mb-6 flex justify-between">
-              <time dateTime={doneAt}>
-                <span className="text-xl first-letter:uppercase">
-                  {new Date(doneAt).toLocaleDateString("en-US", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>{" "}
-                <span className="text-muted-foreground text-sm">
-                  {new Date(doneAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                  })}
-                </span>
-              </time>
+            <li className="bg-secondary relative grid rounded-md border p-5">
+              <header className="mt-3 mb-6 flex justify-between">
+                <time dateTime={doneAt}>
+                  <span className="text-xl first-letter:uppercase">
+                    {new Date(doneAt).toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>{" "}
+                  <span className="text-muted-foreground text-sm">
+                    {new Date(doneAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                    })}
+                  </span>
+                </time>
 
-              {sets.some((set) => progressivePrIds.has(set.id)) && (
-                <Badge className="font-semibold uppercase">pr</Badge>
-              )}
-            </header>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {props.columns.map((col) => (
-                    <col.header key={col.id} />
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sets.map((set, i) => (
-                  <SetProvider key={set.id} value={set}>
-                    <TableRow
-                      className={cn(
-                        progressivePrIds.has(set.id) && "font-bold",
-                      )}
+                {sets.some((set) => progressivePrIds.has(set.id)) && (
+                  <Badge className="font-semibold uppercase">pr</Badge>
+                )}
+              </header>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {props.columns.map((col) => (
+                      <col.header key={col.id} />
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sets.map((set, i) => (
+                    <CatchBoundary
+                      key={set.id}
+                      errorComponent={RowFallback}
+                      getResetKey={() => set.id}
                     >
-                      {props.columns.map((col) =>
-                        col.cell({
-                          data: set,
-                          index: i,
-                          isPr: progressivePrIds.has(set.id),
-                        }),
-                      )}
-                    </TableRow>
-                  </SetProvider>
-                ))}
-              </TableBody>
-            </Table>
-          </li>
+                      <SetProvider value={set}>
+                        <TableRow
+                          className={cn(
+                            progressivePrIds.has(set.id) && "font-bold",
+                          )}
+                        >
+                          {props.columns.map((col) =>
+                            col.cell({
+                              data: set,
+                              index: i,
+                              isPr: progressivePrIds.has(set.id),
+                            }),
+                          )}
+                        </TableRow>
+                      </SetProvider>
+                    </CatchBoundary>
+                  ))}
+                </TableBody>
+              </Table>
+            </li>
+          </CatchBoundary>
         );
       })}
     </ol>

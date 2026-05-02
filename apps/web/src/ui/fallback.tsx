@@ -48,3 +48,18 @@ export const DefaultFallback = (props: ErrorComponentProps) => {
     </FallbackContainer>
   );
 };
+
+export const RowFallback = (props: ErrorComponentProps) => {
+  return (
+    <tr role="alert" className="border-destructive bg-destructive/10 border-b">
+      <td colSpan={999} className="text-destructive w-full px-4 py-2 text-sm">
+        <div className="flex w-full items-center justify-between">
+          <span>something went wrong</span>
+          <Button size="sm" variant="destructive" onClick={props.reset}>
+            try again
+          </Button>
+        </div>
+      </td>
+    </tr>
+  );
+};
