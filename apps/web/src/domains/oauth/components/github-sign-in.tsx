@@ -20,7 +20,7 @@ export const GithubSignIn = () => {
         onClick={() => {
           githubSignIn.mutate({
             urlParams: {
-              callbackUrl: search.callbackUrl ?? "",
+              callbackUrl: search.callbackUrl || undefined,
             },
           });
         }}
