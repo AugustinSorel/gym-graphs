@@ -3,6 +3,8 @@ import { cn } from "~/styles/styles.utils";
 import type { Set } from "@gym-graphs/shared/set/schemas";
 import { CatchBoundary } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { WeightValue } from "~/domains/user/components/weight-value";
+import { WeightUnit } from "~/domains/user/components/weight-unit";
 
 type Props = {
   sets: ReadonlyArray<Set>;
@@ -17,7 +19,10 @@ export const ExerciseStatGrid = (_props: Props) => {
       >
         <Card>
           <Label>best 1rm</Label>
-          <Value>—</Value>
+          <Value>
+            <WeightValue weightInMg={142_500_000} />{" "}
+            <Unit><WeightUnit /></Unit>
+          </Value>
         </Card>
       </CatchBoundary>
 
@@ -27,7 +32,10 @@ export const ExerciseStatGrid = (_props: Props) => {
       >
         <Card>
           <Label>highest weight</Label>
-          <Value>—</Value>
+          <Value>
+            <WeightValue weightInMg={130_000_000} />{" "}
+            <Unit><WeightUnit /></Unit>
+          </Value>
         </Card>
       </CatchBoundary>
 
@@ -37,7 +45,10 @@ export const ExerciseStatGrid = (_props: Props) => {
       >
         <Card>
           <Label>total volume</Label>
-          <Value>—</Value>
+          <Value>
+            <WeightValue weightInMg={12_450_000_000} />{" "}
+            <Unit><WeightUnit /></Unit>
+          </Value>
         </Card>
       </CatchBoundary>
 
@@ -47,7 +58,7 @@ export const ExerciseStatGrid = (_props: Props) => {
       >
         <Card>
           <Label>total sets</Label>
-          <Value>—</Value>
+          <Value>87</Value>
         </Card>
       </CatchBoundary>
     </Grid>
@@ -102,4 +113,13 @@ const Label = ({ className, ...props }: ComponentProps<"dt">) => {
 
 const Value = ({ className, ...props }: ComponentProps<"dd">) => {
   return <dd className={cn("text-2xl font-semibold", className)} {...props} />;
+};
+
+const Unit = (props: ComponentProps<"span">) => {
+  return (
+    <span
+      className="text-muted-foreground text-sm font-medium"
+      {...props}
+    />
+  );
 };
