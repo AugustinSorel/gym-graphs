@@ -41,10 +41,6 @@ const ServerLayer = ServerCookieLayer.pipe(
   Layer.provide(FetchHttpClient.layer),
 );
 
-const getIsomorphicLayer = createIsomorphicFn()
-  .client(() => ClientLayer)
-  .server(() => ServerLayer);
-
 const makeClient = HttpApiClient.make(Api, {
   baseUrl: import.meta.env.DEV
     ? "http://localhost:5000"
@@ -59,6 +55,11 @@ export type InferApiProps<
 > = Client[A][B] extends (...args: any) => any
   ? Omit<Parameters<Client[A][B]>[0], "withResponse">
   : never;
+
+const getIsomorphicLayer = () =>
+  createIsomorphicFn()
+    .client(() => ClientLayer)
+    .server(() => ServerLayer)();
 
 export const callApi = <A, E>(
   call: (client: Client) => Effect.Effect<A, E, never>,
