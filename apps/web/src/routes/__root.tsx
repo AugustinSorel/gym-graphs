@@ -121,6 +121,7 @@ const AnalyticScript = () => {
 # APP TAKS
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
+| FIX      | add error boundaries in the exercise page             |
 | FIX      | last label doesn't work in exercises page             |
 | TODO     | add dot on graph                                      |
 | TODO     | redo home page                                        |
