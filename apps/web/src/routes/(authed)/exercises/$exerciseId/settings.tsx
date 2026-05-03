@@ -98,7 +98,7 @@ const ExerciseTagsSection = () => {
         </HGroup>
 
         <ToggleGroup
-          className="m-3 mt-0 flex flex-wrap justify-start rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
+          className="m-3 mt-0 flex w-auto flex-wrap justify-start rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="multiple"
           value={exerciseTags.data.map((tag) => tag.id.toString())}
           onValueChange={(newTagsIdsStr) => {
