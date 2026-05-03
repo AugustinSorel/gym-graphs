@@ -79,7 +79,7 @@ export const RenameExerciseForm = (props: Props) => {
           </Alert>
         )}
 
-        <footer className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+        <footer className="bg-muted/50 -mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t p-4 sm:flex-row sm:justify-end">
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
