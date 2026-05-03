@@ -92,6 +92,7 @@ export const ResetPasswordForm = () => {
         )}
 
         <Button
+          size="lg"
           type="submit"
           disabled={form.formState.isSubmitting || isRedirectPending}
           className="font-semibold"

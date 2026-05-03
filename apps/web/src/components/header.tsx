@@ -41,13 +41,13 @@ export const HeaderPublic = () => {
       <Button
         variant="link"
         asChild
-        className="text-base font-semibold capitalize"
+        className="text-foreground text-base font-semibold capitalize"
       >
         <Link to="/">gym graphs</Link>
       </Button>
       <Button
         variant="link"
-        className="ml-auto flex items-center font-semibold capitalize"
+        className="text-foreground ml-auto flex items-center font-semibold capitalize"
         asChild
       >
         <Link to="/sign-up">

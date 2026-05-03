@@ -64,6 +64,7 @@ export const RequestResetPasswordForm = () => {
         )}
 
         <Button
+          size="lg"
           type="submit"
           disabled={form.formState.isSubmitting}
           className="font-semibold"

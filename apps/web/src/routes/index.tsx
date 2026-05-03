@@ -72,6 +72,7 @@ const HeroSection = () => {
           asChild
           variant="secondary"
           className="bg-foreground text-background hover:bg-foreground/80 capitalize"
+          size="lg"
         >
           <Link to="/sign-in">
             <span className="sm:text-xl">get started</span>
@@ -163,7 +164,7 @@ const HeroSectionTwo = () => {
         graphs, detailed heat maps, and customizable dashboards.
       </Text>
 
-      <Button className="font-semibold" asChild>
+      <Button className="font-semibold" asChild size="lg">
         <Link to="/sign-in">
           <span>Get started</span>
           <ArrowRightIcon aria-label="arrow-right" />
