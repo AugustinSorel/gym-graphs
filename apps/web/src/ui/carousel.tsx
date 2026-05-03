@@ -2,7 +2,6 @@ import { useParentSize } from "@visx/responsive";
 import { createContext, use, useState } from "react";
 import { Button } from "~/ui/button";
 import { cn } from "~/styles/styles.utils";
-import type { ButtonProps } from "~/ui/button";
 import type { ComponentProps, CSSProperties } from "react";
 
 type Ctx = Readonly<{
@@ -219,7 +218,7 @@ export const CarouselDot = ({
   variant = "outline",
   size = "icon",
   ...props
-}: ButtonProps & { index: number }) => {
+}: ComponentProps<typeof Button> & { index: number }) => {
   const carousel = useCarousel();
 
   return (

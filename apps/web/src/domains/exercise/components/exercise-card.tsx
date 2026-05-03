@@ -8,7 +8,6 @@ import { ExerciseOverviewGraph } from "~/domains/exercise/components/exercise-ov
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import type { ButtonProps } from "~/ui/button";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
 import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
@@ -221,7 +220,7 @@ const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
   );
 };
 
-const DragButton = (props: ButtonProps) => {
+const DragButton = (props: ComponentProps<typeof Button>) => {
   const search = routeApi.useSearch();
 
   const isFiltering = Boolean(search.name ?? search.tags?.length);
