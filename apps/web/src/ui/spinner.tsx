@@ -1,8 +1,15 @@
 import { SpinnerIcon } from "~/ui/icons";
 import { cn } from "~/styles/styles.utils";
 
-export type SpinnerProps = React.SVGProps<SVGSVGElement>;
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+  return (
+    <SpinnerIcon
+      role="status"
+      aria-label="Loading"
+      className={cn("size-4 animate-spin", className)}
+      {...props}
+    />
+  );
+}
 
-export const Spinner = ({ className, ...rest }: SpinnerProps) => {
-  return <SpinnerIcon className={cn("animate-spin", className)} {...rest} />;
-};
+export { Spinner };
