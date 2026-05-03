@@ -48,7 +48,7 @@ export const FilterExercisesByName = () => {
         <Input
           type="search"
           placeholder="Search exercises..."
-          className="bg-secondary h-10 pl-10"
+          className="bg-secondary h-9 pl-10"
           value={name ?? ""}
           onChange={handleChange}
         />

@@ -27,7 +27,12 @@ export const CreateExerciseDialog = () => {
         }
       }}
     >
-      <Button asChild className="hidden lg:inline-flex" disabled={isFiltering}>
+      <Button
+        asChild
+        className="hidden lg:inline-flex"
+        disabled={isFiltering}
+        size="lg"
+      >
         <routeApi.Link hash={routeHash.hash}>create exercise</routeApi.Link>
       </Button>
 

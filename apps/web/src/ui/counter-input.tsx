@@ -25,7 +25,8 @@ export const CounterInput = <T extends FieldValues>(props: Props<T>) => {
       <Button
         type="button"
         variant="ghost"
-        className="rounded-none border-l"
+        className="border-l-border rounded-none border-l"
+        size="lg"
         onClick={() => {
           props.field.onChange((props.field.value ?? 0) - 1);
         }}
@@ -35,7 +36,8 @@ export const CounterInput = <T extends FieldValues>(props: Props<T>) => {
       <Button
         type="button"
         variant="ghost"
-        className="rounded-none border-l"
+        className="border-l-border rounded-none border-l"
+        size="lg"
         onClick={() => {
           props.field.onChange((props.field.value ?? 0) + 1);
         }}

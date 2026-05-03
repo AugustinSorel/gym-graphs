@@ -24,7 +24,7 @@ export const CreateSetDialog = () => {
         }
       }}
     >
-      <Button asChild className="hidden lg:inline-flex" size="sm">
+      <Button asChild className="hidden lg:inline-flex" size="lg">
         <routeApi.Link hash={routeHash.hash}>create set</routeApi.Link>
       </Button>
 

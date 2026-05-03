@@ -359,7 +359,6 @@ const DownloadUserData = () => {
 
         <Footer>
           <Button
-            size="sm"
             onClick={() => downloadUserData.mutate(undefined)}
             disabled={downloadUserData.isPending}
           >
@@ -384,7 +383,6 @@ const SignOutSection = () => {
         </HGroup>
         <Footer>
           <Button
-            size="sm"
             disabled={signOut.isPending}
             data-umami-event="sign-out"
             onClick={() => {

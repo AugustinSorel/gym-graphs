@@ -53,7 +53,7 @@ export const DeleteExerciseDialog = () => {
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" asChild>
+        <Button variant="destructive" className="bg-transparent" asChild>
           <routeApi.Link hash={routeHash.hash}>delete</routeApi.Link>
         </Button>
       </AlertDialogTrigger>

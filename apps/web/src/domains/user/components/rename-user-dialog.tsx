@@ -24,7 +24,7 @@ export const RenameUserDialog = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm" asChild>
+        <Button asChild>
           <routeApi.Link hash={routeHash.hash}>rename</routeApi.Link>
         </Button>
       </DialogTrigger>

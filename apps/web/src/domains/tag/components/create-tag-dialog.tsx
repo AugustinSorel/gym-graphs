@@ -24,7 +24,7 @@ export const CreateTagDialog = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm" asChild>
+        <Button asChild>
           <Link hash={routeHash.hash} to=".">
             create tag
           </Link>

@@ -50,7 +50,7 @@ const RouteComponent = () => {
     <Main>
       <Header>
         <Title>{exercise.data.name}</Title>
-        <Button variant="secondary" size="sm" asChild>
+        <Button variant="secondary" size="lg" asChild>
           <routeApi.Link
             to="/exercises/$exerciseId/settings"
             aria-label="exercise settings"

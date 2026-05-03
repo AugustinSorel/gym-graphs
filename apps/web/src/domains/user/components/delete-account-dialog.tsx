@@ -48,7 +48,7 @@ export const DeleteAccountDialog = () => {
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" asChild>
+        <Button variant="destructive" className="bg-transparent" asChild>
           <routeApi.Link hash={routeHash.hash}>delete acount</routeApi.Link>
         </Button>
       </AlertDialogTrigger>

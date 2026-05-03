@@ -123,7 +123,7 @@ const ActionsCell = ({ data }: { data: SetRow }) => (
           <EllipsisIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-auto">
         <SetProvider value={data}>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <UpdateSetWeightDialog />
