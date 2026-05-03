@@ -68,6 +68,7 @@ export const DeleteTagDialog = () => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={deleteTag.isPending}
+            variant="destructive"
             onClick={(e) => {
               e.preventDefault();
               deleteTagHandler();

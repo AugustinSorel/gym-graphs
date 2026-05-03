@@ -69,6 +69,7 @@ export const DeleteExerciseDialog = () => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={deleteExercise.isPending || isRedirectPending}
+            variant="destructive"
             onClick={(e) => {
               e.preventDefault();
               deleteExerciseHandler();

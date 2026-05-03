@@ -66,6 +66,7 @@ export const DeleteSetDialog = () => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={deleteSet.isPending}
+            variant="destructive"
             onClick={(e) => {
               e.preventDefault();
               onDelete();
