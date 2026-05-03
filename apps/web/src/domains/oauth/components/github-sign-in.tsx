@@ -17,6 +17,7 @@ export const GithubSignIn = () => {
     <>
       <Button
         className="mt-3 w-full bg-black font-semibold hover:bg-black/80"
+        size="lg"
         onClick={() => {
           githubSignIn.mutate({
             urlParams: {

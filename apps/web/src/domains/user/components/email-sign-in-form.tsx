@@ -107,6 +107,7 @@ export const EmailSignInForm = () => {
           type="submit"
           disabled={form.formState.isSubmitting || isRedirectPending}
           className="font-semibold"
+          size="lg"
         >
           <span>sign in</span>
           {(form.formState.isSubmitting || isRedirectPending) && <Spinner />}

@@ -117,6 +117,7 @@ export const EmailSignUpForm = () => {
         <Button
           type="submit"
           disabled={form.formState.isSubmitting || isRedirectPending}
+          size="lg"
           className="font-semibold"
         >
           <span>sign up</span>

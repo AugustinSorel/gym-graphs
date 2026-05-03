@@ -126,5 +126,4 @@ const AnalyticScript = () => {
 | TODO     | add more stats graphs                                 |
 | TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
-| TODO     | update shadcn                                         |
 */
