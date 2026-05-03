@@ -229,7 +229,7 @@ const ExerciseTags = (
       <CollapsibleContent>
         <Field data-invalid={props.fieldState.invalid}>
           <ToggleGroup
-            className="mt-3 flex flex-wrap justify-start gap-1 rounded-md border p-1"
+            className="mt-3 flex flex-wrap justify-start rounded-md border p-1"
             type="multiple"
             value={props.field.value?.map((id) => id.toString()) ?? []}
             onValueChange={(ids) => {

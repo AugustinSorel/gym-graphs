@@ -175,7 +175,7 @@ const OneRepMaxAlgoSection = () => {
         </HGroup>
 
         <ToggleGroup
-          className="m-3 mt-0 flex flex-wrap justify-start gap-1 rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
+          className="m-3 mt-0 flex flex-wrap justify-start rounded-md border p-1 lg:m-6 lg:gap-4 lg:p-4"
           type="single"
           value={user.data.oneRepMaxAlgo}
           onValueChange={(unsafeOneRepMaxAlgo) => {
@@ -250,6 +250,7 @@ const ChangeWeightUnitSection = () => {
             type="single"
             value={user.data.weightUnit}
             variant="outline"
+            spacing={1}
             onValueChange={(unsafeWeightUnit) => {
               const weightUnitOption = decodeUnknownOption(
                 UserSchema.fields.weightUnit,
@@ -297,8 +298,10 @@ const ChangeThemeSection = () => {
           <ToggleGroup
             type="single"
             value={theme.value}
+            spacing={1}
             onValueChange={(unsafeTheme) => {
-              const themeOption = Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
+              const themeOption =
+                Schema.decodeUnknownOption(ThemeSchema)(unsafeTheme);
 
               if (Option.isNone(themeOption)) {
                 return;
