@@ -42,7 +42,7 @@ export const timeAgo = (from: Date) => {
 
   const diffInSeconds = Math.round((from.getTime() - now.getTime()) / 1_000);
 
-  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "always" });
 
   const units = [
     { unit: "year", seconds: 31_536_000 },
