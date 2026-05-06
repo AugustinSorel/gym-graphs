@@ -61,3 +61,16 @@ export const timeAgo = (from: Date) => {
 
   return "just now";
 };
+
+export const splitTimeAgo = (input: Date) => {
+  const str = timeAgo(input).match(/^(\d+)(.*)$/);
+
+  const day = str?.at(1);
+  const timeAgoStr = str?.at(2);
+
+  if (!day || !timeAgoStr) {
+    throw new Error(`timeAgo fn returned malformed output (${str})`);
+  }
+
+  return [day, timeAgoStr] as const;
+};

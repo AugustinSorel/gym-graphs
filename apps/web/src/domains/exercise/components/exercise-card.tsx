@@ -10,12 +10,11 @@ import type { ComponentProps } from "react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { WeightValue } from "~/domains/user/components/weight-value";
 import { WeightUnit } from "~/domains/user/components/weight-unit";
-import { useBestSortedSets } from "~/domains/set/hooks/use-best-sorted-sets";
 import { useSortSetsByOneRepMax } from "~/domains/set/hooks/use-sort-sets-by-one-rep-max";
 import { calculateOneRepMax } from "~/domains/set/set.utils";
 import { userQueries } from "~/domains/user/user.queries";
 import { useSortSetsByDoneAt } from "~/domains/set/hooks/use-sort-sets-by-done-at";
-import { timeAgo } from "~/utils/date";
+import { splitTimeAgo } from "~/utils/date";
 import { SelectAllExercisesSuccess } from "@gym-graphs/shared/exercise/schemas";
 
 export const ExerciseCard = (props: Props) => {
@@ -39,10 +38,6 @@ export const ExerciseCard = (props: Props) => {
       <ExerciseMetadata sets={props.exercise.sets} />
 
       <ExerciseOverviewGraph sets={props.exercise.sets} />
-
-      <footer>
-        <LastChangeMade sets={props.exercise.sets} />
-      </footer>
     </Card>
   );
 };
@@ -68,37 +63,35 @@ export const ExerciseCardSkeleton = () => {
   );
 };
 
-const LastChangeMade = (props: Pick<Exercise, "sets">) => {
-  const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
-
-  const latestSet = sortedSets.at(0);
-
-  if (!latestSet) {
-    return null;
-  }
-
-  return (
-    <span className="text-muted-foreground flex border-t pt-2 text-xs">
-      last: {timeAgo(latestSet.doneAt)}
-    </span>
-  );
-};
-
 const ExerciseMetadata = (props: Pick<Exercise, "sets">) => {
   return (
     <Metadata>
-      <MetadataTitle>
-        <abbr title="one repetition max" className="no-underline">
-          1rm
-        </abbr>
-      </MetadataTitle>
-      <BestOneRepMaxMetadata sets={props.sets} />
+      <div className="row-span-full">
+        <MetadataValue>
+          <BestOneRepMaxMetadata sets={props.sets} />
+        </MetadataValue>
+        <MetadataLabel className="col-start-1 row-start-2 text-xs uppercase">
+          <abbr className="no-underline" title="one repetition max">
+            1 rep max
+          </abbr>
+        </MetadataLabel>
+      </div>
 
-      <MetadataTitle className="sr-only">growth</MetadataTitle>
-      <GrowthIndicatorMetadata sets={props.sets} />
+      <div className="flex items-center justify-end gap-1">
+        <MetadataValue className="font-semibold">
+          <SetsCount sets={props.sets} />
+        </MetadataValue>
+        <MetadataLabel>sets</MetadataLabel>
+      </div>
 
-      <MetadataTitle className="col-start-3">sets</MetadataTitle>
-      <SetsCountMetadata sets={props.sets} />
+      <div className="flex items-center justify-end gap-1">
+        <MetadataValue className="font-semibold">
+          <LastChangeMadeValue sets={props.sets} />
+        </MetadataValue>
+        <MetadataLabel>
+          <LastChangeMadeLabel sets={props.sets} />
+        </MetadataLabel>
+      </div>
     </Metadata>
   );
 };
@@ -106,84 +99,52 @@ const ExerciseMetadata = (props: Pick<Exercise, "sets">) => {
 const Metadata = (props: ComponentProps<"dl">) => {
   return (
     <dl
-      className="mt-2 grid grid-cols-[auto_auto_auto] grid-rows-[auto_auto] justify-between gap-x-5 [&>dt]:row-start-2"
+      className="mt-1 grid grid-cols-[auto_auto] grid-rows-[auto_auto] justify-between gap-x-5"
       {...props}
     />
   );
 };
 
-const MetadataTitle = ({ className, ...props }: ComponentProps<"dt">) => {
-  return (
-    <dt className={cn("text-muted-foreground text-xs", className)} {...props} />
-  );
-};
-
-const MetadataValue = (props: ComponentProps<"dt">) => {
+const MetadataValue = (props: ComponentProps<"dd">) => {
   return <dd {...props} />;
 };
 
-const SetsCountMetadata = (props: Pick<Exercise, "sets">) => {
+const MetadataLabel = ({ className, ...props }: ComponentProps<"dt">) => {
   return (
-    <MetadataValue className="text-muted-foreground text-2xl font-semibold">
-      {props.sets.length}
-    </MetadataValue>
+    <dt className={cn("text-muted-foreground text-sm", className)} {...props} />
   );
 };
 
-const GrowthIndicatorMetadata = (props: Pick<Exercise, "sets">) => {
-  const sortedSets = useSortSetsByDoneAt(props.sets);
-  const sets = useBestSortedSets(sortedSets);
+const SetsCount = (props: Pick<Exercise, "sets">) => {
+  return <dd>{props.sets.length}</dd>;
+};
 
-  const user = useSuspenseQuery(userQueries.get);
+const LastChangeMadeValue = (props: Pick<Exercise, "sets">) => {
+  const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
 
-  const latestSet = sets.at(-1);
-  const secondLatestSet = sets.at(-2);
+  const latestSet = sortedSets.at(0);
 
   if (!latestSet) {
-    return (
-      <MetadataValue>
-        <span className="text-muted-foreground text-2xl font-semibold">+0</span>{" "}
-        <span className="text-muted-foreground text-sm">
-          <WeightUnit />
-        </span>
-      </MetadataValue>
-    );
+    return "-";
   }
 
-  const latestOneRepMax = calculateOneRepMax(
-    latestSet.weightInMg,
-    latestSet.repetitions,
-    user.data.oneRepMaxAlgo,
-  );
+  const [day] = splitTimeAgo(latestSet.doneAt);
 
-  const secondLatestSetOneRepMax = calculateOneRepMax(
-    secondLatestSet?.weightInMg ?? 0,
-    secondLatestSet?.repetitions ?? 1,
-    user.data.oneRepMaxAlgo,
-  );
+  return day;
+};
 
-  const growth = latestOneRepMax - secondLatestSetOneRepMax;
+const LastChangeMadeLabel = (props: Pick<Exercise, "sets">) => {
+  const sortedSets = useSortSetsByDoneAt(props.sets, "desc");
 
-  const growthStatus = growth > 0 ? "inc" : growth === 0 ? "stale" : "dec";
+  const latestSet = sortedSets.at(0);
 
-  return (
-    <MetadataValue
-      className="data-[status=inc]:text-success data-[status=stale]:text-muted-foreground data-[status=dec]:text-destructive"
-      data-status={growthStatus}
-    >
-      <span className="text-2xl font-semibold">
-        <WeightValue
-          weightInMg={growth}
-          formatter={{
-            signDisplay: "always",
-          }}
-        />
-      </span>{" "}
-      <span className="text-sm">
-        <WeightUnit />
-      </span>
-    </MetadataValue>
-  );
+  if (!latestSet) {
+    return "days ago";
+  }
+
+  const [_day, label] = splitTimeAgo(latestSet.doneAt);
+
+  return label;
 };
 
 const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
@@ -193,12 +154,12 @@ const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
 
   if (!bestSet) {
     return (
-      <MetadataValue>
-        <span className="text-muted-foreground text-2xl font-semibold">0</span>{" "}
+      <>
+        <span className="text-4xl font-semibold">0</span>{" "}
         <span className="text-muted-foreground text-sm">
           <WeightUnit />
         </span>
-      </MetadataValue>
+      </>
     );
   }
 
@@ -209,14 +170,14 @@ const BestOneRepMaxMetadata = (props: Pick<Exercise, "sets">) => {
   );
 
   return (
-    <MetadataValue>
-      <span className="text-2xl font-semibold">
+    <>
+      <span className="text-4xl font-semibold">
         <WeightValue weightInMg={bestOneRepMax} />
       </span>{" "}
       <span className="text-muted-foreground text-sm">
         <WeightUnit />
       </span>
-    </MetadataValue>
+    </>
   );
 };
 
