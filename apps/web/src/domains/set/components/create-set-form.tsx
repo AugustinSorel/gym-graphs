@@ -136,6 +136,7 @@ const useCreateExerciseSetForm = () => {
   const sets = useSuspenseQuery(setQueries.getAll(params.exerciseId));
   const lastSet = useLastSet(sets.data);
   const user = useSuspenseQuery(userQueries.get);
+  const defaultWeight = convertWeightToMg(1_000_000, user.data.weightUnit);
 
   const schema = makeFormSchema(user.data.weightUnit);
 
@@ -143,7 +144,7 @@ const useCreateExerciseSetForm = () => {
     resolver: effectTsResolver(schema),
     defaultValues: Schema.encodeSync(schema)({
       repetitions: lastSet?.repetitions ?? 1,
-      weightDisplay: lastSet?.weightInMg ?? 0,
+      weightDisplay: lastSet?.weightInMg ?? defaultWeight,
     }),
   });
 };
