@@ -122,9 +122,6 @@ const AnalyticScript = () => {
 | Type     | Description                                           |
 | ---------| ------------------------------------------------------|
 | TODO     | redo home page                                        |
-| TODO     | redo exercise card                                    |
-| TODO     | add more stats graphs                                 |
 | TODO     | rename web dirs                                       |
 | TODO     | upgrading vix                                         |
-| TODO     | upgrade tanstack                                      |
 */
