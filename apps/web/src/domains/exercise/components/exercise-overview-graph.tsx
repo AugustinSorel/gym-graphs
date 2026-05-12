@@ -71,8 +71,7 @@ export const ExerciseOverviewGraph = (props: Props) => {
             cx={timeScale(getDoneAt(lastSet))}
             cy={oneRepMaxScale(getOneRepMax(lastSet, user.data.oneRepMaxAlgo))}
             r={dotRadius}
-            className="fill-primary"
-            stroke="white"
+            className="fill-primary stroke-background"
             strokeWidth={dotStrokeWidth}
           />
         )}

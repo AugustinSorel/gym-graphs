@@ -126,8 +126,7 @@ const Graph = ({ width, height, prs }: GraphProps) => {
             cx={timeScale(getDoneAt(lastPr))}
             cy={oneRepMaxScale(getOneRepMax(lastPr, user.data.oneRepMaxAlgo))}
             r={4}
-            className="fill-primary"
-            stroke="white"
+            className="fill-primary stroke-background"
             strokeWidth={2}
             pointerEvents="none"
           />

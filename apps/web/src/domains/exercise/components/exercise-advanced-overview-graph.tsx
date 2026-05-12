@@ -172,8 +172,7 @@ const Graph = ({ height, width, sets }: GraphProps) => {
                 getOneRepMax(lastSet, user.data.oneRepMaxAlgo),
               )}
               r={4}
-              className="fill-primary"
-              stroke="white"
+              className="fill-primary stroke-background"
               strokeWidth={2}
               pointerEvents="none"
             />
