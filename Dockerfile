@@ -1,6 +1,8 @@
 FROM node:22-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ENV CI=true
+ENV npm_config_confirm_modules_purge=false
 RUN corepack enable
 
 FROM base AS build
