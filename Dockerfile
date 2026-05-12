@@ -1,14 +1,13 @@
 FROM node:22-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV CI=true
-ENV npm_config_confirm_modules_purge=false
 RUN corepack enable
 
 FROM base AS build
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+ENV npm_config_frozen_lockfile=false
 RUN pnpm run -r build
 RUN pnpm deploy --filter=api --prod /prod/api
 RUN pnpm deploy --filter=web --prod /prod/web
