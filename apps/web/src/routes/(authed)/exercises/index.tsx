@@ -28,8 +28,10 @@ export const Route = createFileRoute("/(authed)/exercises/")({
       tags: tagQueries.all,
     };
 
-    await context.queryClient.ensureInfiniteQueryData(queries.exercises);
-    await context.queryClient.ensureQueryData(queries.tags);
+    await Promise.all([
+      context.queryClient.ensureInfiniteQueryData(queries.exercises),
+      context.queryClient.ensureQueryData(queries.tags),
+    ]);
   },
 });
 

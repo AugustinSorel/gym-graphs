@@ -31,7 +31,7 @@ export const FilterExercisesByName = () => {
     });
   }, 300);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const filterByName = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setName(value);
     updateSearch(value);
@@ -50,7 +50,7 @@ export const FilterExercisesByName = () => {
           placeholder="Search exercises..."
           className="bg-secondary h-9 pl-10"
           value={name ?? ""}
-          onChange={handleChange}
+          onChange={filterByName}
         />
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-4 size-4 -translate-y-1/2" />
         {name && (

@@ -41,7 +41,7 @@ export const SetsList = (props: Props) => {
     <ol className="space-y-3">
       {Array.from(sets).map(([doneAt, sets]) => {
         if (!sets.length) {
-          return <NoDataText>no data</NoDataText>;
+          return <NoDataText key={doneAt}>no data</NoDataText>;
         }
 
         return (

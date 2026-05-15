@@ -306,7 +306,9 @@ const SortableGrid = (props: {
 };
 
 const ExercisesSkeleton = () => {
-  return [...new Array(10).keys()].map((i) => <ExerciseCardSkeleton key={i} />);
+  return [...new Array(10).keys()].map((i) => (
+    <ExerciseCardSkeleton key={`skeleton-${i}`} />
+  ));
 };
 
 const ExercisesGridSkeleton = () => {
