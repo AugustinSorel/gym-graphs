@@ -35,22 +35,6 @@
 }
 
 @layer base {
-  html {
-    color-scheme: light dark;
-  }
-
-  html:has(dialog[open]) {
-    overflow: hidden;
-  }
-
-  [data-theme="light"] {
-    color-scheme: light;
-  }
-
-  [data-theme="dark"] {
-    color-scheme: dark;
-  }
-
   :root {
     --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 6%));
     --on-surface: light-dark(hsl(0 0% 4%), hsl(0 0% 96%));

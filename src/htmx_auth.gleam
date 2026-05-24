@@ -10,7 +10,7 @@ pub fn main() -> Nil {
 
   let secret_key_base = wisp.random_string(64)
 
-  let ctx = Context(static_directory: static_directory())
+  let ctx = Context
 
   let handler = router.handle_request(_, ctx)
 
@@ -21,9 +21,4 @@ pub fn main() -> Nil {
     |> mist.start
 
   process.sleep_forever()
-}
-
-pub fn static_directory() -> String {
-  let assert Ok(priv_directory) = wisp.priv_directory("htmx_auth")
-  priv_directory <> "/static"
 }
