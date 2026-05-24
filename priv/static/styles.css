@@ -9,6 +9,8 @@
     monospace;
     --spacing: 0.25rem;
     --container-xl: 36rem;
+    --container-3xl: 48rem;
+    --container-5xl: 64rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
     --font-weight-semibold: 600;
@@ -172,6 +174,9 @@
   }
 }
 @layer utilities {
+  .mx-auto {
+    margin-inline: auto;
+  }
   .flex {
     display: flex;
   }
@@ -184,11 +189,26 @@
   .table {
     display: table;
   }
+  .max-w-3xl {
+    max-width: var(--container-3xl);
+  }
+  .max-w-5xl {
+    max-width: var(--container-5xl);
+  }
+  .max-w-\[12rem\] {
+    max-width: 12rem;
+  }
+  .border-collapse {
+    border-collapse: collapse;
+  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
   .cursor-pointer {
     cursor: pointer;
+  }
+  .resize {
+    resize: both;
   }
   .flex-col {
     flex-direction: column;
@@ -207,6 +227,10 @@
   }
   .gap-10 {
     gap: calc(var(--spacing) * 10);
+  }
+  .border {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
   }
   .border-2 {
     border-style: var(--tw-border-style);
@@ -272,10 +296,22 @@
   .text-surface {
     color: var(--color-surface);
   }
+  .underline {
+    text-decoration-line: underline;
+  }
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
   .transition-colors {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .invalid\:text-error {
+    &:invalid {
+      color: var(--color-error);
+    }
   }
   .hover\:bg-on-surface\/90 {
     &:hover {
@@ -300,6 +336,31 @@
   .disabled\:opacity-50 {
     &:disabled {
       opacity: 50%;
+    }
+  }
+  .has-\[\>\[aria-invalid\=true\]\]\:text-error {
+    &:has(>[aria-invalid=true]) {
+      color: var(--color-error);
+    }
+  }
+  .has-\[\>aria-invalid\=true\]\:text-error {
+    &:has(>aria-invalid=true) {
+      color: var(--color-error);
+    }
+  }
+  .aria-invalid\:text-error {
+    &[aria-invalid="true"] {
+      color: var(--color-error);
+    }
+  }
+  .\[\&\:has\(aria-invalid\)\]\:text-error {
+    &:has(aria-invalid) {
+      color: var(--color-error);
+    }
+  }
+  .\[\&\:has\(aria-invalid\=true\)\]\:text-error {
+    &:has(aria-invalid=true) {
+      color: var(--color-error);
     }
   }
 }
@@ -369,6 +430,11 @@
   syntax: "*";
   inherits: false;
 }
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
@@ -379,6 +445,7 @@
       --tw-skew-y: initial;
       --tw-border-style: solid;
       --tw-font-weight: initial;
+      --tw-outline-style: solid;
     }
   }
 }

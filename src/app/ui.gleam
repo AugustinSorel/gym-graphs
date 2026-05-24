@@ -24,9 +24,12 @@ pub fn layout(children: Element(a)) -> Element(a) {
       ),
       html.title([], "auth"),
     ]),
-    html.body([attribute.class("bg-surface text-on-surface p-4")], [
-      children,
-    ]),
+    html.body(
+      [attribute.class("bg-surface text-on-surface p-4 max-w-3xl mx-auto")],
+      [
+        children,
+      ],
+    ),
   ])
 }
 

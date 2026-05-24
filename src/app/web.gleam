@@ -1,4 +1,4 @@
-import wisp
+import wisp.{type Response}
 
 pub type Context {
   Context
@@ -25,4 +25,14 @@ pub fn get_static_directory() -> String {
   let assert Ok(priv_directory) = wisp.priv_directory("htmx_auth")
 
   priv_directory <> "/static"
+}
+
+pub fn require_ok(
+  result: Result(data, Response),
+  next next: fn(data) -> Response,
+) -> Response {
+  case result {
+    Ok(data) -> next(data)
+    Error(err) -> err
+  }
 }
