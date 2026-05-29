@@ -1,6 +1,5 @@
-import app/sign_up/sign_up_form.{type Create}
 import app/ui
-import formal/form.{type Form}
+import formal/form.{type FieldError, type Form, MustBeEmail}
 import gleam/bool
 import gleam/list
 import gleam/result
@@ -9,17 +8,19 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn form_page() -> Element(a) {
-  let values = sign_up_form.create()
+pub fn create_sign_up_session_page() -> Element(a) {
+  let form = get_sign_up_session_form()
 
   ui.layout(
     html.main([], [
-      form(values),
+      create_sign_up_session_form(form),
     ]),
   )
 }
 
-pub fn form(form: Form(Create)) -> Element(a) {
+pub fn create_sign_up_session_form(
+  form: Form(CreateSignUpSessionForm),
+) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
 
   html.form(
@@ -78,4 +79,31 @@ pub fn form(form: Form(Create)) -> Element(a) {
       ),
     ],
   )
+}
+
+pub type CreateSignUpSessionForm {
+  CreateSignUpSessionForm(email: String)
+}
+
+pub fn get_sign_up_session_form() -> Form(CreateSignUpSessionForm) {
+  let schema = {
+    use email <- form.field("email", {
+      form.parse_email
+      |> form.map(string.trim)
+      |> form.check_not_empty
+      |> form.check_string_length_less_than(255)
+      |> form.check_string_length_more_than(3)
+    })
+
+    form.success(CreateSignUpSessionForm(email:))
+  }
+
+  form.new(schema) |> form.language(translate)
+}
+
+fn translate(error: FieldError) -> String {
+  case error {
+    MustBeEmail -> "please enter a valid email address"
+    _ -> form.en_gb(error)
+  }
 }
