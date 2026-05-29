@@ -3,7 +3,6 @@ import app/sign_up_session/ui
 import app/user/sql as user_sql
 import app/web.{type Context}
 import formal/form
-import gleam/list
 import gleam/result
 import wisp.{type Request}
 
@@ -25,7 +24,7 @@ pub fn create_sign_up_session(req: Request, ctx: Context) {
     |> result.map_error(fn(form) {
       form
       |> ui.create_sign_up_session_form
-      |> web.html(wisp.unprocessable_content().status)
+      |> web.html(422)
     })
 
   use form <- web.require_ok(parsed_form)
@@ -38,7 +37,7 @@ pub fn create_sign_up_session(req: Request, ctx: Context) {
       candidate_form
       |> form.add_error("root", form.CustomError(msg))
       |> ui.create_sign_up_session_form()
-      |> web.html(wisp.internal_server_error().status)
+      |> web.html(500)
     })
 
   use rows <- web.require_ok(candidate_user)
@@ -49,7 +48,7 @@ pub fn create_sign_up_session(req: Request, ctx: Context) {
       candidate_form
       |> form.add_error("email", form.CustomError("Email already taken"))
       |> ui.create_sign_up_session_form()
-      |> web.html(wisp.unprocessable_content().status)
+      |> web.html(409)
       |> Error
   }
 

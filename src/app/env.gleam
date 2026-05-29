@@ -24,14 +24,19 @@ pub fn load() -> Env {
 }
 
 fn require_str(key: String) -> String {
-  let assert Ok(value) = envoy.get(key)
-  value
+  case envoy.get(key) {
+    Ok(value) -> value
+    Error(_) -> panic as { "Missing required environment variable: " <> key }
+  }
 }
 
 fn require_int(key: String) -> Int {
-  let assert Ok(value) = envoy.get(key)
+  let value = require_str(key)
 
-  let assert Ok(value) = int.parse(value)
-
-  value
+  case int.parse(value) {
+    Ok(value) -> value
+    Error(_) -> {
+      panic as { "Parsing to int failed for environment variable: " <> key }
+    }
+  }
 }
