@@ -1,3 +1,8 @@
+import app/ui
+import gleam/http.{type Method}
+import gleam/list
+import gleam/string
+import lustre/element.{type Element}
 import wisp.{type Response}
 
 pub type Context {
@@ -25,6 +30,12 @@ pub fn get_static_directory() -> String {
   let assert Ok(priv_directory) = wisp.priv_directory("htmx_auth")
 
   priv_directory <> "/static"
+}
+
+pub fn html(el: Element(a), status: Int) -> Response {
+  wisp.response(status)
+  |> wisp.set_header("content-type", "text/html")
+  |> wisp.string_tree_body(element.to_string_tree(el))
 }
 
 pub fn require_ok(

@@ -296,6 +296,9 @@
   .text-surface {
     color: var(--color-surface);
   }
+  .uppercase {
+    text-transform: uppercase;
+  }
   .underline {
     text-decoration-line: underline;
   }

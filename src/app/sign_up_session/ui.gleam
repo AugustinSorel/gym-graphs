@@ -25,7 +25,7 @@ pub fn create_sign_up_session_form(
 
   html.form(
     [
-      attribute.attribute("hx-post", "/sign-up"),
+      attribute.attribute("hx-patch", "/sign-up"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
     ],
     [

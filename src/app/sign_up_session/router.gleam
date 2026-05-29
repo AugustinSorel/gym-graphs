@@ -2,13 +2,11 @@ import app/sign_up_session/ui
 import app/web
 import formal/form
 import gleam/result
-import lustre/element
 import wisp.{type Request}
 
 pub fn view_create_sign_up_session_page() {
   ui.create_sign_up_session_page()
-  |> element.to_string
-  |> wisp.html_response(wisp.ok().status)
+  |> web.html(200)
 }
 
 pub fn create_sign_up_session(req: Request) {
@@ -21,8 +19,7 @@ pub fn create_sign_up_session(req: Request) {
     |> result.map_error(fn(form) {
       form
       |> ui.create_sign_up_session_form
-      |> element.to_string
-      |> wisp.html_response(422)
+      |> web.html(wisp.unprocessable_content().status)
     })
 
   use form <- web.require_ok(candidate_form)
