@@ -22,6 +22,7 @@ pub fn create_sign_up_session_form(
   form: Form(CreateSignUpSessionForm),
 ) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
+  let root_err = list.first(form.field_error_messages(form, "root"))
 
   html.form(
     [
@@ -70,6 +71,16 @@ pub fn create_sign_up_session_form(
               },
             ],
           ),
+
+          case root_err {
+            Ok(msg) -> {
+              ui.alert([
+                ui.alert_title(element.text("something went wrong")),
+                ui.alert_description(element.text(msg)),
+              ])
+            }
+            Error(_) -> element.none()
+          },
 
           ui.button([attribute.type_("submit")], [
             html.text("continue"),
