@@ -40,10 +40,13 @@
                 ];
 
                 shellHook = ''
-                  export DATABASE_URL=postgres://postgres:postgres@localhost:5432/gleam_htmx_auth
+                  if [ -f .env ]; then
+                    echo "here"
+                    source .env
+                  fi
 
                   export GOOSE_DRIVER=postgres
-                  export GOOSE_DBSTRING=$DATABASE_URL
+                  export GOOSE_DBSTRING=postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME
                   export GOOSE_MIGRATION_DIR=./migrations
                 '';
               };

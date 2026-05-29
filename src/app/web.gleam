@@ -1,12 +1,9 @@
-import app/ui
-import gleam/http.{type Method}
-import gleam/list
-import gleam/string
 import lustre/element.{type Element}
+import pog
 import wisp.{type Response}
 
 pub type Context {
-  Context
+  Context(db: pog.Connection)
 }
 
 pub fn middleware(

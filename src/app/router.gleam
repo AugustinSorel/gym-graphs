@@ -7,15 +7,15 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
-    ["sign-up"] -> sign_up_session(req)
+    ["sign-up"] -> sign_up_session(req, ctx)
     _ -> wisp.not_found()
   }
 }
 
-fn sign_up_session(req: Request) -> Response {
+fn sign_up_session(req: Request, ctx: Context) -> Response {
   case req.method {
     Get -> router.view_create_sign_up_session_page()
-    Post -> router.create_sign_up_session(req)
+    Post -> router.create_sign_up_session(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }
