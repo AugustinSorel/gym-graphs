@@ -1,8 +1,12 @@
+import app/crypto
 import app/ctx.{type Ctx}
+import app/sign_up_session/repo
 import app/sign_up_session/ui
 import app/user/repo as user_repo
 import app/web
 import formal/form
+import gleam/bit_array
+import gleam/int
 import gleam/result
 import wisp.{type Request}
 
@@ -50,5 +54,39 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
 
   use _ <- web.require_ok(candidate_user)
 
-  wisp.redirect(to: "/")
+  let secret = crypto.generate_session_secret()
+  let secret_hashed = crypto.hash_session_secret(secret)
+  let verification_code = crypto.generate_email_verification_code()
+
+  let sign_up_session =
+    repo.create_sign_up_session(
+      ctx.db,
+      secret_hashed,
+      form.email,
+      verification_code,
+    )
+    |> result.map_error(fn(_) {
+      candidate_form
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.create_sign_up_session_form()
+      |> web.html(500)
+    })
+
+  use session <- web.require_ok(sign_up_session)
+
+  //TODO: send email code
+  echo verification_code
+
+  let encoded_secret = bit_array.base64_encode(secret, False)
+  let session_token = int.to_string(session.id) <> "." <> encoded_secret
+
+  wisp.created()
+  |> wisp.set_header("HX-Redirect", "/")
+  |> wisp.set_cookie(
+    req,
+    name: "sign_up_session_token",
+    value: session_token,
+    security: wisp.Signed,
+    max_age: 60 * 60 * 24,
+  )
 }

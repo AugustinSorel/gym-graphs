@@ -2,12 +2,15 @@ import app/ctx.{type Ctx}
 import app/sign_up_session/router
 import app/web
 import gleam/http.{Get, Post}
+import lustre/element
+import lustre/element/html
 import wisp.{type Request, type Response}
 
 pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
+    [] -> html.h1([], [element.text("hello")]) |> web.html(200)
     ["sign-up"] -> sign_up_session(req, ctx)
     _ -> wisp.not_found()
   }
