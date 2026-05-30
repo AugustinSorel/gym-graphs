@@ -86,6 +86,21 @@ pub fn create_sign_up_session_form(
             html.text("continue"),
             ui.spinner(),
           ]),
+
+          html.p([attribute.class("text-right text-sm")], [
+            element.text("already have an account? "),
+            html.a(
+              [
+                attribute.href("/sign-in"),
+                attribute.class(
+                  "underline hover:text-current/80 transition-colors",
+                ),
+              ],
+              [
+                element.text("sign in"),
+              ],
+            ),
+          ]),
         ],
       ),
     ],
