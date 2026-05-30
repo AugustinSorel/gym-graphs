@@ -189,7 +189,13 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
 
 pub fn resend_verification_code(_req: Request, _ctx: Ctx) {
   //TODO: resend the verification code email
-  wisp.ok()
+  ui.get_verify_email_address_form()
+  |> form.add_string(
+    "success_message",
+    "a new verification code has been sent to your email address",
+  )
+  |> ui.verify_email_address_form()
+  |> web.html(200)
 }
 
 fn parse_session_token(req: Request) -> Result(#(Int, BitArray), Nil) {

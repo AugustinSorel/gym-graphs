@@ -136,20 +136,33 @@ pub fn button(
   )
 }
 
+pub type AlertVariant {
+  AlertError
+  AlertSuccess
+}
+
 pub fn alert(children: List(Element(a))) -> Element(a) {
+  alert_variant(AlertError, children)
+}
+
+pub fn alert_variant(
+  variant: AlertVariant,
+  children: List(Element(a)),
+) -> Element(a) {
+  let classes = case variant {
+    AlertError ->
+      "bg-error-container border-2 border-error p-3 grid gap-1"
+    AlertSuccess ->
+      "bg-success-container border-2 border-success p-3 grid gap-1"
+  }
   html.div(
-    [
-      attribute.role("alert"),
-      attribute.class("bg-error-container border-2 border-error p-3 grid gap-1"),
-    ],
+    [attribute.role("alert"), attribute.class(classes)],
     children,
   )
 }
 
 pub fn alert_title(children: Element(a)) -> Element(a) {
-  html.p([attribute.class("text-on-error-container font-semibold")], [
-    children,
-  ])
+  html.p([attribute.class("font-semibold")], [children])
 }
 
 pub fn alert_description(children: Element(a)) -> Element(a) {

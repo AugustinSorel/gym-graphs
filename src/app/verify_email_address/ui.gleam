@@ -17,6 +17,7 @@ pub fn verify_email_address_form(
 ) -> Element(a) {
   let code_err = list.first(form.field_error_messages(form, "code"))
   let root_err = list.first(form.field_error_messages(form, "root"))
+  let success_message = form.field_value(form, "success_message")
 
   html.form(
     [
@@ -63,6 +64,16 @@ pub fn verify_email_address_form(
               },
             ],
           ),
+
+          case success_message {
+            "" -> element.none()
+            msg ->
+              ui.alert_variant(ui.AlertSuccess, [
+                ui.alert_title(element.text("verification code sent")),
+                ui.alert_description(element.text(msg)),
+              ])
+          },
+
           case root_err {
             Ok(msg) ->
               ui.alert([
@@ -80,12 +91,14 @@ pub fn verify_email_address_form(
               [
                 attribute.type_("button"),
                 attribute.attribute("hx-post", "/verify-email-address/resend"),
-
+                attribute.attribute("hx-disable", "this"),
+                attribute.attribute("hx-target", "closest form"),
+                attribute.attribute("hx-swap", "outerHTML"),
                 attribute.class(
-                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm",
+                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
                 ),
               ],
-              [html.text("resend verification code")],
+              [html.text("resend verification code"), ui.spinner()],
             ),
             html.a(
               [

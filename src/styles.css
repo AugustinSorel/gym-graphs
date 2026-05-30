@@ -28,6 +28,11 @@
   --color-error-container: var(--error-container);
   --color-on-error-container: var(--on-error-container);
 
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+  --color-success-container: var(--success-container);
+  --color-on-success-container: var(--on-success-container);
+
   --color-outline: var(--outline);
 
   --max-width-app: var(--container-xl);
@@ -62,6 +67,11 @@
     --on-error: light-dark(hsl(0 0% 100%), hsl(3 71% 22%));
     --error-container: light-dark(hsl(4 71% 92%), hsl(3 71% 32%));
     --on-error-container: light-dark(hsl(3 71% 32%), hsl(4 71% 92%));
+
+    --success: light-dark(hsl(140 60% 32%), hsl(140 52% 76%));
+    --on-success: light-dark(hsl(0 0% 100%), hsl(140 60% 14%));
+    --success-container: light-dark(hsl(141 60% 90%), hsl(140 44% 22%));
+    --on-success-container: light-dark(hsl(140 44% 22%), hsl(141 60% 90%));
 
     --outline: light-dark(hsl(270 4% 47%), hsl(264 5% 58%));
   }
