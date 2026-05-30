@@ -10,8 +10,12 @@ import gleam/int
 import gleam/result
 import wisp.{type Request}
 
+//TODO: protect routes
+
 pub fn view_create_sign_up_session_page() {
-  ui.create_sign_up_session_page()
+  ui.get_sign_up_session_form()
+  |> ui.create_sign_up_session_form()
+  |> ui.create_sign_up_session_page()
   |> web.html(200)
 }
 

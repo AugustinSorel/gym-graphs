@@ -8,14 +8,8 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn create_sign_up_session_page() -> Element(a) {
-  let form = get_sign_up_session_form()
-
-  ui.layout(
-    html.main([], [
-      create_sign_up_session_form(form),
-    ]),
-  )
+pub fn create_sign_up_session_page(children: Element(a)) -> Element(a) {
+  ui.layout(html.main([], [children]))
 }
 
 pub fn create_sign_up_session_form(

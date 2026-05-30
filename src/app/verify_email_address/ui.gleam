@@ -8,14 +8,8 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn verify_email_address_page() -> Element(a) {
-  let form = get_verify_email_address_form()
-
-  ui.layout(
-    html.main([], [
-      verify_email_address_form(form),
-    ]),
-  )
+pub fn verify_email_address_page(children: Element(a)) -> Element(a) {
+  ui.layout(html.main([], [children]))
 }
 
 pub fn verify_email_address_form(
@@ -46,9 +40,10 @@ pub fn verify_email_address_form(
               html.text("verification code:"),
               html.input([
                 attribute.id("code_input"),
-                attribute.type_("number"),
+                attribute.type_("text"),
+                attribute.attribute("inputmode", "numeric"),
                 attribute.class("border-b-2 border-current"),
-                attribute.placeholder("123456"),
+                attribute.placeholder("12345678"),
                 attribute.name("code"),
                 attribute.value(form.field_value(form, "code")),
                 attribute.aria_invalid(
@@ -109,12 +104,17 @@ pub fn verify_email_address_form(
 }
 
 pub type VerifyEmailAddressForm {
-  VerifyEmailAddressForm(code: Int)
+  VerifyEmailAddressForm(code: String)
 }
 
 pub fn get_verify_email_address_form() -> Form(VerifyEmailAddressForm) {
   let schema = {
-    use code <- form.field("code", { form.parse_int })
+    use code <- form.field("code", {
+      form.parse_string
+      |> form.check_not_empty
+      |> form.check_string_length_more_than(7)
+      |> form.check_string_length_less_than(9)
+    })
 
     form.success(VerifyEmailAddressForm(code:))
   }

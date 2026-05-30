@@ -13,7 +13,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   case wisp.path_segments(req) {
     [] -> html.h1([], [element.text("hello")]) |> web.html(200)
     ["sign-up"] -> sign_up_session(req, ctx)
-    ["verify-email-address"] -> verify_email_address(req)
+    ["verify-email-address"] -> verify_email_address(req, ctx)
     ["verify-email-address", "resend"] -> resend_verification_code(req)
     _ -> wisp.not_found()
   }
@@ -27,9 +27,9 @@ fn sign_up_session(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn verify_email_address(req: Request) -> Response {
+fn verify_email_address(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> verify_email_address_router.view_verify_email_address_page()
+    Get -> verify_email_address_router.view_verify_email_address_page(req, ctx)
     Post -> verify_email_address_router.verify_email_address(req)
     _ -> wisp.method_not_allowed([Get, Post])
   }

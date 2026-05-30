@@ -10,7 +10,7 @@ pub fn hash_session_secret(secret: BitArray) -> BitArray {
   crypto.hash(crypto.Sha256, secret)
 }
 
-pub fn generate_email_verification_code() {
+pub fn generate_email_verification_code() -> String {
   let random_bytes = crypto.strong_random_bytes(4)
 
   let assert <<n:unsigned-big-size(32)>> = random_bytes
@@ -18,4 +18,8 @@ pub fn generate_email_verification_code() {
   let code = n % 100_000_000
 
   string.pad_start(int.to_string(code), 8, "0")
+}
+
+pub fn validate_session_secret(a: BitArray, b: BitArray) -> Bool {
+  crypto.secure_compare(a, b)
 }
