@@ -81,7 +81,7 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
   let session_token = int.to_string(session.id) <> "." <> encoded_secret
 
   wisp.created()
-  |> wisp.set_header("HX-Redirect", "/")
+  |> wisp.set_header("HX-Redirect", "/verify-email-address")
   |> wisp.set_cookie(
     req,
     name: "sign_up_session_token",
