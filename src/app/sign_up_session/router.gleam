@@ -1,7 +1,8 @@
-import app/database
+import app/ctx.{type Ctx}
+import app/error
 import app/sign_up_session/ui
-import app/user/sql as user_sql
-import app/web.{type Context}
+import app/user/repo as user_repo
+import app/web
 import formal/form
 import gleam/result
 import wisp.{type Request}
@@ -11,7 +12,7 @@ pub fn view_create_sign_up_session_page() {
   |> web.html(200)
 }
 
-pub fn create_sign_up_session(req: Request, ctx: Context) {
+pub fn create_sign_up_session(req: Request, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let candidate_form =
@@ -29,30 +30,26 @@ pub fn create_sign_up_session(req: Request, ctx: Context) {
 
   use form <- web.require_ok(parsed_form)
 
-  let candidate_user =
-    user_sql.select_by_email_address(ctx.db, form.email)
-    |> result.map_error(fn(error) {
-      let msg = database.query_error_to_string(error)
+  let candidate_user = user_repo.select_by_email_address(ctx.db, form.email)
 
-      candidate_form
-      |> form.add_error("root", form.CustomError(msg))
-      |> ui.create_sign_up_session_form()
-      |> web.html(500)
-    })
-
-  use rows <- web.require_ok(candidate_user)
-
-  let user_not_taken = case rows.rows {
-    [] -> Ok(Nil)
-    _ ->
+  let candidate_user = case candidate_user {
+    Ok(_) ->
       candidate_form
       |> form.add_error("email", form.CustomError("Email already taken"))
       |> ui.create_sign_up_session_form()
       |> web.html(409)
       |> Error
+    Error(error.UserNotFound) -> Ok(Nil)
+    Error(error.Database) -> {
+      candidate_form
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.create_sign_up_session_form()
+      |> web.html(500)
+      |> Error
+    }
   }
 
-  use _ <- web.require_ok(user_not_taken)
+  use _ <- web.require_ok(candidate_user)
 
   wisp.redirect(to: "/")
 }

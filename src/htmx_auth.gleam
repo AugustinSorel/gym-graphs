@@ -1,6 +1,6 @@
+import app/ctx.{Ctx}
 import app/env
 import app/router
-import app/web.{Context}
 import gleam/erlang/process
 import gleam/option
 import gleam/otp/static_supervisor as supervisor
@@ -17,7 +17,7 @@ pub fn main() -> Nil {
   let pool_name = process.new_name("db_pool")
   let db = pog.named_connection(pool_name)
 
-  let ctx = Context(db: db)
+  let ctx = Ctx(db: db)
 
   let pool_child =
     pog.default_config(pool_name)

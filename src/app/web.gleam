@@ -1,14 +1,10 @@
+import app/ctx.{type Ctx}
 import lustre/element.{type Element}
-import pog
 import wisp.{type Response}
-
-pub type Context {
-  Context(db: pog.Connection)
-}
 
 pub fn middleware(
   req: wisp.Request,
-  _ctx: Context,
+  _ctx: Ctx,
   handle_request: fn(wisp.Request) -> wisp.Response,
 ) -> wisp.Response {
   let req = wisp.method_override(req)
