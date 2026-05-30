@@ -1,3 +1,4 @@
+import gleam/bit_array
 import gleam/crypto
 import gleam/int
 import gleam/string
@@ -22,4 +23,8 @@ pub fn generate_email_verification_code() -> String {
 
 pub fn validate_session_secret(a: BitArray, b: BitArray) -> Bool {
   crypto.secure_compare(a, b)
+}
+
+pub fn validate_verification_code(a: String, b: String) -> Bool {
+  crypto.secure_compare(bit_array.from_string(a), bit_array.from_string(b))
 }

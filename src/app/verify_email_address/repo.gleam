@@ -24,3 +24,20 @@ pub fn select_by_id(db: pog.Connection, id: Int) {
     }
   }
 }
+
+pub fn set_account_as_verified(db: pog.Connection, id: Int) {
+  case sql.set_account_as_verified(db, id) {
+    Ok(pog.Returned(_count, [session, ..])) -> {
+      Ok(session)
+    }
+    Ok(pog.Returned(_count, [])) -> {
+      Error(NotFound)
+    }
+    Error(error) -> {
+      wisp.log_error(
+        "selecting sign up session by id failed: " <> string.inspect(error),
+      )
+      Error(Database)
+    }
+  }
+}
