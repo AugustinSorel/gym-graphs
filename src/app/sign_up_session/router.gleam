@@ -1,5 +1,4 @@
 import app/ctx.{type Ctx}
-import app/error
 import app/sign_up_session/ui
 import app/user/repo as user_repo
 import app/web
@@ -39,8 +38,8 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
       |> ui.create_sign_up_session_form()
       |> web.html(409)
       |> Error
-    Error(error.UserNotFound) -> Ok(Nil)
-    Error(error.Database) -> {
+    Error(user_repo.UserNotFound) -> Ok(Nil)
+    Error(user_repo.Database) -> {
       candidate_form
       |> form.add_error("root", form.CustomError("something went wrong"))
       |> ui.create_sign_up_session_form()

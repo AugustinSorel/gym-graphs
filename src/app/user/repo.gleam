@@ -1,8 +1,12 @@
-import app/error.{Database, UserNotFound}
 import app/user/sql
 import gleam/string
 import pog
 import wisp
+
+pub type Error {
+  UserNotFound
+  Database
+}
 
 pub fn select_by_email_address(db: pog.Connection, email: String) {
   case sql.select_by_email_address(db, email) {
