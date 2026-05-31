@@ -15,6 +15,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["sign-up"] -> sign_up_session(req, ctx)
     ["verify-email-address"] -> verify_email_address(req, ctx)
     ["verify-email-address", "resend"] -> resend_verification_code(req, ctx)
+    ["verify-email-address", "cancel"] -> cancel_verify_email_address(req, ctx)
     _ -> wisp.not_found()
   }
 }
@@ -38,6 +39,13 @@ fn verify_email_address(req: Request, ctx: Ctx) -> Response {
 fn resend_verification_code(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Post -> verify_email_address_router.resend_verification_code(req, ctx)
+    _ -> wisp.method_not_allowed([Post])
+  }
+}
+
+fn cancel_verify_email_address(req: Request, ctx: Ctx) -> Response {
+  case req.method {
+    Post -> verify_email_address_router.cancel_verify_email_address(req, ctx)
     _ -> wisp.method_not_allowed([Post])
   }
 }

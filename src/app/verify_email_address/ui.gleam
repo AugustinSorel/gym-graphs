@@ -100,14 +100,19 @@ pub fn verify_email_address_form(
               ],
               [html.text("resend verification code"), ui.spinner()],
             ),
-            html.a(
+            html.button(
               [
-                attribute.href("/sign-up"),
+                attribute.type_("button"),
+                attribute.attribute(
+                  "hx-post",
+                  "/verify-email-address/cancel",
+                ),
+                attribute.attribute("hx-disable", "this"),
                 attribute.class(
-                  "underline hover:text-current/80 transition-colors text-sm",
+                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
                 ),
               ],
-              [html.text("cancel")],
+              [html.text("cancel"), ui.spinner()],
             ),
           ]),
         ],

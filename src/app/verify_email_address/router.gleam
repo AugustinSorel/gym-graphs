@@ -106,6 +106,30 @@ pub fn resend_verification_code(req: Request, ctx: Ctx) {
   |> web.html(200)
 }
 
+pub fn cancel_verify_email_address(req: Request, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let candidate_form =
+    ui.get_verify_email_address_form()
+    |> form.add_values(formdata.values)
+
+  use session <- require_sign_up_session(req, ctx)
+
+  let deleted_session =
+    repo.delete_sign_up_session_by_id(ctx.db, session.id)
+    |> result.map_error(fn(_) {
+      candidate_form
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(500)
+    })
+
+  use _ <- web.require_ok(deleted_session)
+
+  wisp.ok() |> clear_cookie(req) |> wisp.set_header("HX-Redirect", "/sign-up")
+}
+
 fn parse_sign_up_session_token(req: Request) -> Result(#(Int, BitArray), Nil) {
   let candidate_token =
     wisp.get_cookie(req, "sign_up_session_token", wisp.Signed)

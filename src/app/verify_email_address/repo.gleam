@@ -41,3 +41,24 @@ pub fn set_account_as_verified(db: pog.Connection, id: Int) {
     }
   }
 }
+
+pub fn delete_sign_up_session_by_id(db: pog.Connection, id: Int) {
+  case sql.delete_sign_up_session_by_id(db, id) {
+    Ok(pog.Returned(_count, [])) -> {
+      Ok(Nil)
+    }
+    Ok(pog.Returned(_count, _rows)) -> {
+      wisp.log_error(
+        "unexpected returned by database in delete sign up session by id",
+      )
+
+      Error(Database)
+    }
+    Error(error) -> {
+      wisp.log_error(
+        "selecting sign up session by id failed: " <> string.inspect(error),
+      )
+      Error(Database)
+    }
+  }
+}
