@@ -49,6 +49,7 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
                 attribute.class("border-b-2 border-current"),
                 attribute.name("password"),
                 attribute.placeholder("********"),
+                attribute.value(form.field_value(form, "password")),
                 attribute.aria_invalid(
                   string.lowercase(bool.to_string(result.is_ok(password_err))),
                 ),

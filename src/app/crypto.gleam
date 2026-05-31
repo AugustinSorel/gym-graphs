@@ -1,3 +1,4 @@
+import argus.{type HashError, type Hashes}
 import gleam/bit_array
 import gleam/crypto
 import gleam/int
@@ -27,4 +28,16 @@ pub fn validate_session_secret(a: BitArray, b: BitArray) -> Bool {
 
 pub fn validate_verification_code(a: String, b: String) -> Bool {
   crypto.secure_compare(bit_array.from_string(a), bit_array.from_string(b))
+}
+
+pub fn generate_hashing_salt() -> BitArray {
+  argus.gen_salt() |> bit_array.from_string
+}
+
+pub fn hash_user_password(password: String, salt: BitArray) {
+  let assert Ok(salt) = bit_array.to_string(salt)
+
+  let assert Ok(hashes) = argus.hasher() |> argus.hash(password, salt)
+
+  hashes
 }
