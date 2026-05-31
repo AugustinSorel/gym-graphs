@@ -15,58 +15,7 @@ import wisp.{type Request}
 //TODO: protect routes
 
 pub fn view_verify_email_address_page(req: Request, ctx: Ctx) {
-  let candidate_token =
-    parse_session_token(req)
-    |> result.replace_error(wisp.redirect("/sign-up") |> clear_cookie(req))
-
-  use candidate_token <- web.require_ok(candidate_token)
-
-  let #(candidate_session_id, candidate_session_secret) = candidate_token
-
-  let session = repo.select_by_id(ctx.db, candidate_session_id)
-
-  let session = case session {
-    Ok(session) -> Ok(session)
-    Error(NotFound) ->
-      ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("Invalid or expired token"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(401)
-      |> clear_cookie(req)
-      |> Error
-    Error(Database) ->
-      ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("Something went wrong"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(500)
-      |> Error
-  }
-
-  use session <- web.require_ok(session)
-
-  let is_secret_valid =
-    candidate_session_secret
-    |> crypto.hash_session_secret()
-    |> crypto.validate_session_secret(session.secret_hash)
-
-  use <- bool.guard(
-    when: !is_secret_valid,
-    return: ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("invalid token"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(401)
-      |> clear_cookie(req),
-  )
-
-  let already_verified = option.is_some(session.email_address_verified_at)
-
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/set-password"),
-  )
+  use _session <- require_sign_up_session(req, ctx)
 
   ui.get_verify_email_address_form()
   |> ui.verify_email_address_form()
@@ -75,59 +24,6 @@ pub fn view_verify_email_address_page(req: Request, ctx: Ctx) {
 }
 
 pub fn verify_email_address(req: Request, ctx: Ctx) {
-  let candidate_token =
-    parse_session_token(req)
-    |> result.replace_error(wisp.redirect("/sign-up") |> clear_cookie(req))
-
-  use candidate_token <- web.require_ok(candidate_token)
-
-  let #(candidate_session_id, candidate_session_secret) = candidate_token
-
-  let session = repo.select_by_id(ctx.db, candidate_session_id)
-
-  let session = case session {
-    Ok(session) -> Ok(session)
-    Error(NotFound) ->
-      ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("Invalid or expired token"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(401)
-      |> clear_cookie(req)
-      |> Error
-    Error(Database) ->
-      ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("Something went wrong"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(500)
-      |> Error
-  }
-
-  use session <- web.require_ok(session)
-
-  let is_secret_valid =
-    candidate_session_secret
-    |> crypto.hash_session_secret()
-    |> crypto.validate_session_secret(session.secret_hash)
-
-  use <- bool.guard(
-    when: !is_secret_valid,
-    return: ui.get_verify_email_address_form()
-      |> form.add_error("root", form.CustomError("invalid token"))
-      |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
-      |> web.html(401)
-      |> clear_cookie(req),
-  )
-
-  let already_verified = option.is_some(session.email_address_verified_at)
-
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/set-password"),
-  )
-
   use formdata <- wisp.require_form(req)
 
   let candidate_form =
@@ -144,6 +40,8 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
     })
 
   use form <- web.require_ok(parsed_form)
+
+  use session <- require_sign_up_session(req, ctx)
 
   let verification_match =
     crypto.validate_verification_code(
@@ -187,8 +85,12 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
   wisp.ok() |> wisp.set_header("HX-Redirect", "set-password")
 }
 
-pub fn resend_verification_code(_req: Request, _ctx: Ctx) {
-  //TODO: resend the verification code email
+pub fn resend_verification_code(req: Request, ctx: Ctx) {
+  use session <- require_sign_up_session(req, ctx)
+
+  //TODO: send verification with email
+  echo session.email_address_verification_code
+
   ui.get_verify_email_address_form()
   |> form.add_string(
     "success_message",
@@ -198,7 +100,7 @@ pub fn resend_verification_code(_req: Request, _ctx: Ctx) {
   |> web.html(200)
 }
 
-fn parse_session_token(req: Request) -> Result(#(Int, BitArray), Nil) {
+fn parse_sign_up_session_token(req: Request) -> Result(#(Int, BitArray), Nil) {
   let candidate_token =
     wisp.get_cookie(req, "sign_up_session_token", wisp.Signed)
 
@@ -215,6 +117,63 @@ fn parse_session_token(req: Request) -> Result(#(Int, BitArray), Nil) {
   use candidate_secret <- result.map(bit_array.base64_decode(raw_secret))
 
   #(candidate_id, candidate_secret)
+}
+
+fn require_sign_up_session(req: Request, ctx: Ctx, next) {
+  let candidate_token =
+    parse_sign_up_session_token(req)
+    |> result.replace_error(wisp.redirect("/sign-up") |> clear_cookie(req))
+
+  use candidate_token <- web.require_ok(candidate_token)
+
+  let #(candidate_session_id, candidate_session_secret) = candidate_token
+
+  let session = repo.select_by_id(ctx.db, candidate_session_id)
+
+  let session = case session {
+    Ok(session) -> Ok(session)
+    Error(NotFound) ->
+      ui.get_verify_email_address_form()
+      |> form.add_error("root", form.CustomError("Invalid or expired token"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(401)
+      |> clear_cookie(req)
+      |> Error
+    Error(Database) ->
+      ui.get_verify_email_address_form()
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(500)
+      |> Error
+  }
+
+  use session <- web.require_ok(session)
+
+  let is_secret_valid =
+    candidate_session_secret
+    |> crypto.hash_session_secret()
+    |> crypto.validate_session_secret(session.secret_hash)
+
+  use <- bool.guard(
+    when: !is_secret_valid,
+    return: ui.get_verify_email_address_form()
+      |> form.add_error("root", form.CustomError("invalid token"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(401)
+      |> clear_cookie(req),
+  )
+
+  let already_verified = option.is_some(session.email_address_verified_at)
+
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/set-password"),
+  )
+
+  next(session)
 }
 
 fn clear_cookie(res, req) {
