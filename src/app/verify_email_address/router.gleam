@@ -82,7 +82,7 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
 
   use _ <- web.require_ok(session)
 
-  wisp.ok() |> wisp.set_header("HX-Redirect", "set-password")
+  wisp.ok() |> wisp.set_header("HX-Redirect", "/set-password")
 }
 
 pub fn resend_verification_code(req: Request, ctx: Ctx) {
