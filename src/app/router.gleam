@@ -1,4 +1,5 @@
 import app/ctx.{type Ctx}
+import app/set_password/router as set_password_router
 import app/sign_up_session/router
 import app/verify_email_address/router as verify_email_address_router
 import app/web
@@ -16,6 +17,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["verify-email-address"] -> verify_email_address(req, ctx)
     ["verify-email-address", "resend"] -> resend_verification_code(req, ctx)
     ["verify-email-address", "cancel"] -> cancel_verify_email_address(req, ctx)
+    ["set-password"] -> set_password(req, ctx)
     _ -> wisp.not_found()
   }
 }
@@ -47,5 +49,13 @@ fn cancel_verify_email_address(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Post -> verify_email_address_router.cancel_verify_email_address(req, ctx)
     _ -> wisp.method_not_allowed([Post])
+  }
+}
+
+fn set_password(req: Request, ctx: Ctx) -> Response {
+  case req.method {
+    Get -> set_password_router.view_set_password_page(req, ctx)
+    Post -> set_password_router.set_password(req, ctx)
+    _ -> wisp.method_not_allowed([Get, Post])
   }
 }
