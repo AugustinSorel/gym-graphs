@@ -86,12 +86,18 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
 }
 
 pub fn resend_verification_code(req: Request, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let candidate_form =
+    ui.get_verify_email_address_form()
+    |> form.add_values(formdata.values)
+
   use session <- require_sign_up_session(req, ctx)
 
   //TODO: send verification with email
   echo session.email_address_verification_code
 
-  ui.get_verify_email_address_form()
+  candidate_form
   |> form.add_string(
     "success_message",
     "a new verification code has been sent to your email address",
