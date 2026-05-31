@@ -140,7 +140,7 @@ pub fn cancel_verify_email_address(req: Request, ctx: Ctx) {
 fn require_verified_sign_up_session(req, ctx, next) {
   let token =
     sign_up_session_cookie.parse(req)
-    |> result.try(sign_up_session_token.parse)
+    |> result.try(sign_up_session_token.decode)
     |> result.replace_error(
       wisp.redirect("/sign-up") |> sign_up_session_cookie.clear(req),
     )

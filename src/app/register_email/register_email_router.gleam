@@ -3,11 +3,10 @@ import app/ctx.{type Ctx}
 import app/register_email/ui
 import app/sign_up_session/sign_up_session_cookie
 import app/sign_up_session/sign_up_session_repo
+import app/sign_up_session/sign_up_session_token
 import app/user/user_repo
 import app/web
 import formal/form
-import gleam/bit_array
-import gleam/int
 import gleam/result
 import wisp.{type Request}
 
@@ -82,10 +81,9 @@ pub fn register_email(req: Request, ctx: Ctx) {
   //TODO: send email code
   echo verification_code
 
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  let session_token = int.to_string(session.id) <> "." <> encoded_secret
+  let token = sign_up_session_token.encode(session.id, secret)
 
   wisp.created()
   |> wisp.set_header("HX-Redirect", "/verify-email-address")
-  |> sign_up_session_cookie.set(req, session_token)
+  |> sign_up_session_cookie.set(req, token)
 }

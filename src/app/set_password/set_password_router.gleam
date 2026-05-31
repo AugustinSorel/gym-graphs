@@ -9,9 +9,7 @@ import app/sign_up_session/sign_up_session_token
 import app/user/user_repo
 import app/web
 import formal/form
-import gleam/bit_array
 import gleam/bool
-import gleam/int
 import gleam/option
 import gleam/result
 import gleam/string
@@ -158,19 +156,18 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
 
   use auth_session <- web.require_ok(auth_session)
 
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  let session_token = int.to_string(auth_session.id) <> "." <> encoded_secret
+  let token = auth_session_cookie.encode(auth_session.id, secret)
 
   wisp.created()
   |> wisp.set_header("HX-Redirect", "/")
   |> sign_up_session_cookie.clear(req)
-  |> auth_session_cookie.set(req, session_token)
+  |> auth_session_cookie.set(req, token)
 }
 
 fn require_verified_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
   let token =
     sign_up_session_cookie.parse(req)
-    |> result.try(sign_up_session_token.parse)
+    |> result.try(sign_up_session_token.decode)
     |> result.replace_error(
       wisp.redirect("/sign-up") |> sign_up_session_cookie.clear(req),
     )
