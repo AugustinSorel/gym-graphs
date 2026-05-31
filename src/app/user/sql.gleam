@@ -8,14 +8,66 @@ import gleam/dynamic/decode
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
-/// A row you get from running the `select_by_email_address` query
-/// defined in `./src/app/user/sql/select_by_email_address.sql`.
+/// A row you get from running the `create_user` query
+/// defined in `./src/app/user/sql/create_user.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.6.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectByEmailAddressRow {
-  SelectByEmailAddressRow(
+pub type CreateUserRow {
+  CreateUserRow(id: Int, email_address: String)
+}
+
+/// Runs the `create_user` query
+/// defined in `./src/app/user/sql/create_user.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_user(
+  db: pog.Connection,
+  arg_1: BitArray,
+  arg_2: BitArray,
+  arg_3: Int,
+) -> Result(pog.Returned(CreateUserRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    decode.success(CreateUserRow(id:, email_address:))
+  }
+
+  "insert into users (
+  email_address, password_hash, 
+  password_salt 
+) 
+select 
+  email_address,
+  $1,
+  $2
+from 
+  sign_up_sessions 
+where 
+  id = $3 
+  AND email_address_verified_at is not null 
+returning 
+  id, email_address
+"
+  |> pog.query
+  |> pog.parameter(pog.bytea(arg_1))
+  |> pog.parameter(pog.bytea(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_user_by_email_address` query
+/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectUserByEmailAddressRow {
+  SelectUserByEmailAddressRow(
     id: Int,
     email_address: String,
     password_hash: BitArray,
@@ -24,23 +76,23 @@ pub type SelectByEmailAddressRow {
   )
 }
 
-/// Runs the `select_by_email_address` query
-/// defined in `./src/app/user/sql/select_by_email_address.sql`.
+/// Runs the `select_user_by_email_address` query
+/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.6.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_by_email_address(
+pub fn select_user_by_email_address(
   db: pog.Connection,
   arg_1: String,
-) -> Result(pog.Returned(SelectByEmailAddressRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectUserByEmailAddressRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
     use password_hash <- decode.field(2, decode.bit_array)
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
-    decode.success(SelectByEmailAddressRow(
+    decode.success(SelectUserByEmailAddressRow(
       id:,
       email_address:,
       password_hash:,

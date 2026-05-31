@@ -1,4 +1,4 @@
-import argus.{type HashError, type Hashes}
+import argus
 import gleam/bit_array
 import gleam/crypto
 import gleam/int

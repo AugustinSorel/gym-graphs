@@ -1,8 +1,9 @@
 import app/crypto
 import app/ctx.{type Ctx}
-import app/sign_up_session/repo
-import app/sign_up_session/ui
-import app/user/repo as user_repo
+import app/register_email/ui
+import app/sign_up_session/sign_up_session_cookie
+import app/sign_up_session/sign_up_session_repo
+import app/user/user_repo
 import app/web
 import formal/form
 import gleam/bit_array
@@ -12,18 +13,18 @@ import wisp.{type Request}
 
 //TODO: protect routes
 
-pub fn view_create_sign_up_session_page() {
-  ui.get_sign_up_session_form()
-  |> ui.create_sign_up_session_form()
-  |> ui.create_sign_up_session_page()
+pub fn view_page() {
+  ui.get_register_email_form()
+  |> ui.email_register_form()
+  |> ui.email_register_page()
   |> web.html(200)
 }
 
-pub fn create_sign_up_session(req: Request, ctx: Ctx) {
+pub fn register_email(req: Request, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let candidate_form =
-    ui.get_sign_up_session_form()
+    ui.get_register_email_form()
     |> form.add_values(formdata.values)
 
   let parsed_form =
@@ -31,7 +32,7 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
     |> form.run()
     |> result.map_error(fn(form) {
       form
-      |> ui.create_sign_up_session_form
+      |> ui.email_register_form
       |> web.html(422)
     })
 
@@ -43,14 +44,14 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
     Ok(_) ->
       candidate_form
       |> form.add_error("email", form.CustomError("Email already taken"))
-      |> ui.create_sign_up_session_form()
+      |> ui.email_register_form()
       |> web.html(409)
       |> Error
     Error(user_repo.UserNotFound) -> Ok(Nil)
     Error(user_repo.Database) -> {
       candidate_form
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.create_sign_up_session_form()
+      |> ui.email_register_form()
       |> web.html(500)
       |> Error
     }
@@ -63,7 +64,7 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
   let verification_code = crypto.generate_email_verification_code()
 
   let sign_up_session =
-    repo.create_sign_up_session(
+    sign_up_session_repo.create(
       ctx.db,
       secret_hashed,
       form.email,
@@ -72,7 +73,7 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
     |> result.map_error(fn(_) {
       candidate_form
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.create_sign_up_session_form()
+      |> ui.email_register_form()
       |> web.html(500)
     })
 
@@ -86,11 +87,5 @@ pub fn create_sign_up_session(req: Request, ctx: Ctx) {
 
   wisp.created()
   |> wisp.set_header("HX-Redirect", "/verify-email-address")
-  |> wisp.set_cookie(
-    req,
-    name: "sign_up_session_token",
-    value: session_token,
-    security: wisp.Signed,
-    max_age: 60 * 60 * 24,
-  )
+  |> sign_up_session_cookie.set(req, session_token)
 }

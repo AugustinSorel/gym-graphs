@@ -1,11 +1,12 @@
+import app/auth_session/auth_session_cookie
+import app/auth_session/auth_session_repo
 import app/crypto
 import app/ctx.{type Ctx}
-import app/middleware/sign_up_session_guard
-import app/set_password/repo
 import app/set_password/ui
-import app/user/repo as user_repo
-import app/verify_email_address/repo as verify_email_address_repo
-import app/verify_email_address/sql
+import app/sign_up_session/sign_up_session_cookie
+import app/sign_up_session/sign_up_session_repo
+import app/sign_up_session/sign_up_session_token
+import app/user/user_repo
 import app/web
 import formal/form
 import gleam/bit_array
@@ -87,27 +88,27 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
   let auth_session =
     pog.transaction(ctx.db, fn(tx) {
       let user =
-        repo.create_user(tx, password_hashed.raw_hash, salt, session.id)
-
-      let user = case user {
-        Ok(user) -> Ok(user)
-        Error(repo.Database) -> {
-          candidate_form
-          |> form.add_error("root", form.CustomError("something went wrong"))
-          |> ui.set_password_form()
-          |> web.html(500)
-          |> Error
-        }
-      }
+        user_repo.create(tx, password_hashed.raw_hash, salt, session.id)
+        |> result.map_error(fn(err) {
+          case err {
+            user_repo.Database | user_repo.UserNotFound ->
+              candidate_form
+              |> form.add_error(
+                "root",
+                form.CustomError("something went wrong"),
+              )
+              |> ui.set_password_form()
+              |> web.html(500)
+          }
+        })
 
       use user <- result.try(user)
 
       let session =
-        verify_email_address_repo.delete_sign_up_session_by_id(tx, session.id)
+        sign_up_session_repo.delete_by_id(tx, session.id)
         |> result.map_error(fn(err) {
           case err {
-            verify_email_address_repo.NotFound
-            | verify_email_address_repo.Database -> {
+            sign_up_session_repo.NotFound | sign_up_session_repo.Database -> {
               candidate_form
               |> form.add_error(
                 "root",
@@ -122,10 +123,10 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
       use _ <- result.try(session)
 
       let auth_session =
-        repo.create_auth_session(tx, user.id, secret_hashed)
+        auth_session_repo.create(tx, user.id, secret_hashed)
         |> result.map_error(fn(err) {
           case err {
-            repo.Database -> {
+            auth_session_repo.Database -> {
               candidate_form
               |> form.add_error(
                 "root",
@@ -162,69 +163,53 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
 
   wisp.created()
   |> wisp.set_header("HX-Redirect", "/")
-  |> clear_cookie(req)
-  |> wisp.set_cookie(
-    req,
-    name: "auth_session_token",
-    value: session_token,
-    security: wisp.Signed,
-    max_age: 60 * 60 * 24,
-  )
+  |> sign_up_session_cookie.clear(req)
+  |> auth_session_cookie.set(req, session_token)
 }
 
-fn require_verified_sign_up_session(
-  req: Request,
-  ctx: Ctx,
-  next: fn(sql.SelectByIdRow) -> Response,
-) -> Response {
-  let session = sign_up_session_guard.against_invalid(req, ctx)
+fn require_verified_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
+  let token =
+    sign_up_session_cookie.parse(req)
+    |> result.try(sign_up_session_token.parse)
+    |> result.replace_error(
+      wisp.redirect("/sign-up") |> sign_up_session_cookie.clear(req),
+    )
 
-  let session = case session {
-    Ok(session) -> Ok(session)
-    Error(sign_up_session_guard.MalformedToken) -> {
-      wisp.redirect("/sign-up")
-      |> clear_cookie(req)
-      |> Error
-    }
-    Error(sign_up_session_guard.InvalidToken) -> {
-      ui.get_set_password_form()
-      |> form.add_error("root", form.CustomError("invalid token"))
-      |> ui.set_password_form()
-      |> ui.set_password_page()
-      |> web.html(401)
-      |> clear_cookie(req)
-      |> Error
-    }
-    Error(sign_up_session_guard.TokenNotFound) -> {
-      ui.get_set_password_form()
-      |> form.add_error("root", form.CustomError("Invalid or expired token"))
-      |> ui.set_password_form()
-      |> ui.set_password_page()
-      |> web.html(401)
-      |> clear_cookie(req)
-      |> Error
-    }
-    Error(sign_up_session_guard.Database) ->
-      ui.get_set_password_form()
-      |> form.add_error("root", form.CustomError("Something went wrong"))
-      |> ui.set_password_form()
-      |> ui.set_password_page()
-      |> web.html(500)
-      |> Error
-  }
+  use token <- web.require_ok(token)
+
+  let session =
+    sign_up_session_token.verify(token, ctx)
+    |> result.map_error(fn(err) {
+      case err {
+        sign_up_session_token.InvalidToken -> {
+          ui.get_set_password_form()
+          |> form.add_error("root", form.CustomError("invalid token"))
+          |> ui.set_password_form()
+          |> ui.set_password_page()
+          |> web.html(401)
+          |> sign_up_session_cookie.clear(req)
+        }
+        sign_up_session_token.TokenNotFound -> {
+          ui.get_set_password_form()
+          |> form.add_error(
+            "root",
+            form.CustomError("Invalid or expired token"),
+          )
+          |> ui.set_password_form()
+          |> ui.set_password_page()
+          |> web.html(401)
+          |> sign_up_session_cookie.clear(req)
+        }
+        sign_up_session_token.Database ->
+          ui.get_set_password_form()
+          |> form.add_error("root", form.CustomError("Something went wrong"))
+          |> ui.set_password_form()
+          |> ui.set_password_page()
+          |> web.html(500)
+      }
+    })
 
   use session <- web.require_ok(session)
 
   next(session)
-}
-
-fn clear_cookie(res: Response, req: Request) -> Response {
-  wisp.set_cookie(
-    res,
-    req,
-    name: "sign_up_session_token",
-    value: "",
-    security: wisp.Signed,
-    max_age: 0,
-  )
 }

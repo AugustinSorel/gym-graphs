@@ -1,15 +1,38 @@
-import app/verify_email_address/sql
+import app/sign_up_session/sql
 import gleam/string
-import pog
+import pog.{type Connection}
 import wisp
 
-pub type Error {
-  NotFound
+pub type SignUpSessionRepoError {
   Database
+  NotFound
+}
+
+pub fn create(
+  db: Connection,
+  secret: BitArray,
+  email: String,
+  verification_code: String,
+) {
+  case sql.create_sign_up_session(db, secret, email, verification_code) {
+    Ok(pog.Returned(_rows, [session, ..])) -> {
+      Ok(session)
+    }
+    Ok(pog.Returned(_rows, _rows)) -> {
+      wisp.log_error(
+        "unexpected returned by database in create sign up session",
+      )
+      Error(Database)
+    }
+    Error(error) -> {
+      wisp.log_error("create sign up session failed: " <> string.inspect(error))
+      Error(Database)
+    }
+  }
 }
 
 pub fn select_by_id(db: pog.Connection, id: Int) {
-  case sql.select_by_id(db, id) {
+  case sql.select_sign_up_session_by_id(db, id) {
     Ok(pog.Returned(_count, [])) -> {
       Error(NotFound)
     }
@@ -25,8 +48,8 @@ pub fn select_by_id(db: pog.Connection, id: Int) {
   }
 }
 
-pub fn set_account_as_verified(db: pog.Connection, id: Int) {
-  case sql.set_account_as_verified(db, id) {
+pub fn set_email_address_verified_at_to_now(db: pog.Connection, id: Int) {
+  case sql.set_email_address_verified_at_to_now(db, id) {
     Ok(pog.Returned(_count, [session, ..])) -> {
       Ok(session)
     }
@@ -42,7 +65,7 @@ pub fn set_account_as_verified(db: pog.Connection, id: Int) {
   }
 }
 
-pub fn delete_sign_up_session_by_id(db: pog.Connection, id: Int) {
+pub fn delete_by_id(db: pog.Connection, id: Int) {
   case sql.delete_sign_up_session_by_id(db, id) {
     Ok(pog.Returned(_count, [])) -> {
       Ok(Nil)

@@ -1,7 +1,7 @@
 import app/ctx.{type Ctx}
-import app/set_password/router as set_password_router
-import app/sign_up_session/router
-import app/verify_email_address/router as verify_email_address_router
+import app/register_email/register_email_router
+import app/set_password/set_password_router
+import app/verify_email_address/verify_email_address_router
 import app/web
 import gleam/http.{Get, Post}
 import lustre/element
@@ -24,8 +24,8 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
 fn sign_up_session(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> router.view_create_sign_up_session_page()
-    Post -> router.create_sign_up_session(req, ctx)
+    Get -> register_email_router.view_page()
+    Post -> register_email_router.register_email(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }

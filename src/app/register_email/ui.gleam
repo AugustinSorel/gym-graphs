@@ -8,13 +8,11 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn create_sign_up_session_page(children: Element(a)) -> Element(a) {
+pub fn email_register_page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
 }
 
-pub fn create_sign_up_session_form(
-  form: Form(CreateSignUpSessionForm),
-) -> Element(a) {
+pub fn email_register_form(form: Form(EmailRegisterForm)) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
   let root_err = list.first(form.field_error_messages(form, "root"))
 
@@ -101,11 +99,11 @@ pub fn create_sign_up_session_form(
   )
 }
 
-pub type CreateSignUpSessionForm {
-  CreateSignUpSessionForm(email: String)
+pub type EmailRegisterForm {
+  EmailRegisterForm(email: String)
 }
 
-pub fn get_sign_up_session_form() -> Form(CreateSignUpSessionForm) {
+pub fn get_register_email_form() -> Form(EmailRegisterForm) {
   let schema = {
     use email <- form.field("email", {
       form.parse_email
@@ -115,7 +113,7 @@ pub fn get_sign_up_session_form() -> Form(CreateSignUpSessionForm) {
       |> form.check_string_length_more_than(3)
     })
 
-    form.success(CreateSignUpSessionForm(email:))
+    form.success(EmailRegisterForm(email:))
   }
 
   form.new(schema) |> form.language(translate)
