@@ -13,7 +13,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
   case wisp.path_segments(req) {
     [] -> html.h1([], [element.text("hello")]) |> web.html(200)
-    ["sign-up"] -> sign_up_session(req, ctx)
+    ["sign-up"] -> register_email(req, ctx)
     ["verify-email-address"] -> verify_email_address(req, ctx)
     ["verify-email-address", "resend"] -> resend_verification_code(req, ctx)
     ["verify-email-address", "cancel"] -> cancel_verify_email_address(req, ctx)
@@ -22,7 +22,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn sign_up_session(req: Request, ctx: Ctx) -> Response {
+fn register_email(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Get -> register_email_router.view_page()
     Post -> register_email_router.register_email(req, ctx)

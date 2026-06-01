@@ -1,12 +1,12 @@
 import app/auth_session/auth_session_cookie
-import app/auth_session/auth_session_repo
+import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
 import app/set_password/ui
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_repo
 import app/sign_up_session/sign_up_session_token
-import app/user/user_repo
+import app/sign_up_session/sql
+import app/user/sql as user_sql
 import app/web
 import formal/form
 import gleam/bool
@@ -56,24 +56,30 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
   use <- bool.guard(when: !verified, return: wisp.redirect(to: "/sign-up"))
 
   let candidate_user =
-    user_repo.select_by_email_address(ctx.db, session.email_address)
+    user_sql.select_user_by_email_address(ctx.db, session.email_address)
+    |> result.map_error(fn(error) {
+      { "selecting user by email failed: " <> string.inspect(error) }
+      |> wisp.log_error()
 
-  let candidate_user = case candidate_user {
-    Ok(_) ->
-      candidate_form
-      |> form.add_error("root", form.CustomError("Email already taken"))
-      |> ui.set_password_form()
-      |> web.html(409)
-      |> Error
-    Error(user_repo.UserNotFound) -> Ok(Nil)
-    Error(user_repo.Database) -> {
       candidate_form
       |> form.add_error("root", form.CustomError("something went wrong"))
       |> ui.set_password_form()
       |> web.html(500)
-      |> Error
-    }
-  }
+    })
+    |> result.try(fn(user) {
+      case user {
+        pog.Returned(_count, []) -> {
+          Ok(Nil)
+        }
+        pog.Returned(_count, [_user, ..]) -> {
+          candidate_form
+          |> form.add_error("root", form.CustomError("Email already taken"))
+          |> ui.set_password_form()
+          |> web.html(409)
+          |> Error
+        }
+      }
+    })
 
   use _ <- web.require_ok(candidate_user)
 
@@ -86,10 +92,23 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
   let auth_session =
     pog.transaction(ctx.db, fn(tx) {
       let user =
-        user_repo.create(tx, password_hashed.raw_hash, salt, session.id)
-        |> result.map_error(fn(err) {
-          case err {
-            user_repo.Database | user_repo.UserNotFound ->
+        user_sql.create_user(tx, password_hashed.raw_hash, salt, session.id)
+        |> result.map_error(fn(error) {
+          wisp.log_error("create user failed: " <> string.inspect(error))
+
+          candidate_form
+          |> form.add_error("root", form.CustomError("something went wrong"))
+          |> ui.set_password_form()
+          |> web.html(500)
+        })
+        |> result.try(fn(user) {
+          case user {
+            pog.Returned(_count, [user, ..]) -> {
+              Ok(user)
+            }
+            pog.Returned(_count, _rows) -> {
+              wisp.log_error("unexpected returned by database in create user")
+
               candidate_form
               |> form.add_error(
                 "root",
@@ -97,34 +116,45 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
               )
               |> ui.set_password_form()
               |> web.html(500)
+              |> Error
+            }
           }
         })
 
       use user <- result.try(user)
 
       let session =
-        sign_up_session_repo.delete_by_id(tx, session.id)
-        |> result.map_error(fn(err) {
-          case err {
-            sign_up_session_repo.NotFound | sign_up_session_repo.Database -> {
-              candidate_form
-              |> form.add_error(
-                "root",
-                form.CustomError("something went wrong"),
-              )
-              |> ui.set_password_form()
-              |> web.html(500)
-            }
-          }
+        sql.delete_sign_up_session_by_id(tx, session.id)
+        |> result.map_error(fn(error) {
+          { "deleting sign up session by id failed: " <> string.inspect(error) }
+          |> wisp.log_error()
+
+          candidate_form
+          |> form.add_error("root", form.CustomError("something went wrong"))
+          |> ui.set_password_form()
+          |> web.html(500)
         })
 
       use _ <- result.try(session)
 
       let auth_session =
-        auth_session_repo.create(tx, user.id, secret_hashed)
-        |> result.map_error(fn(err) {
-          case err {
-            auth_session_repo.Database -> {
+        auth_session_sql.create_auth_session(tx, user.id, secret_hashed)
+        |> result.map_error(fn(error) {
+          wisp.log_error("create auth session failed:" <> string.inspect(error))
+          candidate_form
+          |> form.add_error("root", form.CustomError("something went wrong"))
+          |> ui.set_password_form()
+          |> web.html(500)
+        })
+        |> result.try(fn(session) {
+          case session {
+            pog.Returned(_count, [session, ..]) -> {
+              Ok(session)
+            }
+            pog.Returned(_count, _rows) -> {
+              { "unexpected returned by database in create auth session" }
+              |> wisp.log_error()
+
               candidate_form
               |> form.add_error(
                 "root",
@@ -132,6 +162,7 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
               )
               |> ui.set_password_form()
               |> web.html(500)
+              |> Error
             }
           }
         })

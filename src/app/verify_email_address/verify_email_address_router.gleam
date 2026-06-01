@@ -1,14 +1,16 @@
 import app/crypto
 import app/ctx.{type Ctx}
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_repo
 import app/sign_up_session/sign_up_session_token
+import app/sign_up_session/sql
 import app/verify_email_address/ui
 import app/web
 import formal/form
 import gleam/bool
 import gleam/option
 import gleam/result
+import gleam/string
+import pog
 import wisp.{type Request}
 
 //TODO: protect routes
@@ -58,25 +60,29 @@ pub fn verify_email_address(req: Request, ctx: Ctx) {
   )
 
   let session =
-    sign_up_session_repo.set_email_address_verified_at_to_now(
-      ctx.db,
-      session.id,
-    )
-    |> result.map_error(fn(err) {
-      case err {
-        sign_up_session_repo.NotFound -> {
+    sql.set_email_address_verified_at_to_now(ctx.db, session.id)
+    |> result.map_error(fn(error) {
+      { "selecting sign up session by id failed: " <> string.inspect(error) }
+      |> wisp.log_error()
+
+      candidate_form
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(500)
+    })
+    |> result.try(fn(session) {
+      case session {
+        pog.Returned(_count, [session, ..]) -> {
+          Ok(session)
+        }
+        pog.Returned(_count, []) -> {
           candidate_form
           |> form.add_error("root", form.CustomError("invalid code"))
           |> ui.verify_email_address_form()
           |> ui.verify_email_address_page()
           |> web.html(401)
-        }
-        sign_up_session_repo.Database -> {
-          candidate_form
-          |> form.add_error("root", form.CustomError("something went wrong"))
-          |> ui.verify_email_address_form()
-          |> ui.verify_email_address_page()
-          |> web.html(500)
+          |> Error
         }
       }
     })
@@ -117,17 +123,16 @@ pub fn cancel_verify_email_address(req: Request, ctx: Ctx) {
   use session <- require_verified_sign_up_session(req, ctx)
 
   let deleted_session =
-    sign_up_session_repo.delete_by_id(ctx.db, session.id)
-    |> result.map_error(fn(err) {
-      case err {
-        sign_up_session_repo.NotFound | sign_up_session_repo.Database -> {
-          candidate_form
-          |> form.add_error("root", form.CustomError("something went wrong"))
-          |> ui.verify_email_address_form()
-          |> ui.verify_email_address_page()
-          |> web.html(500)
-        }
-      }
+    sql.delete_sign_up_session_by_id(ctx.db, session.id)
+    |> result.map_error(fn(error) {
+      { "deleting sign up session by id failed: " <> string.inspect(error) }
+      |> wisp.log_error()
+
+      candidate_form
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.verify_email_address_form()
+      |> ui.verify_email_address_page()
+      |> web.html(500)
     })
 
   use _ <- web.require_ok(deleted_session)

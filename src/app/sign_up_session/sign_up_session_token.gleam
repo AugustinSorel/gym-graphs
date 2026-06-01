@@ -1,11 +1,13 @@
 import app/crypto
 import app/ctx.{type Ctx}
-import app/sign_up_session/sign_up_session_repo
+import app/sign_up_session/sql
 import gleam/bit_array
 import gleam/bool
 import gleam/int
 import gleam/result
 import gleam/string
+import pog
+import wisp
 
 pub type SignUpSessionToken {
   SignUpSessionToken(id: Int, secret: BitArray)
@@ -43,11 +45,17 @@ pub type VerifySignUpSessionToken {
 
 pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
   let session =
-    sign_up_session_repo.select_by_id(ctx.db, token.id)
-    |> result.map_error(fn(err) {
-      case err {
-        sign_up_session_repo.NotFound -> TokenNotFound
-        sign_up_session_repo.Database -> Database
+    sql.select_sign_up_session_by_id(ctx.db, token.id)
+    |> result.map_error(fn(error) {
+      { "selecting sign up session by id failed: " <> string.inspect(error) }
+      |> wisp.log_error()
+
+      Database
+    })
+    |> result.try(fn(session) {
+      case session {
+        pog.Returned(_count, []) -> Error(TokenNotFound)
+        pog.Returned(_count, [session, ..]) -> Ok(session)
       }
     })
 
