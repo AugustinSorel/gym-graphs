@@ -39,8 +39,8 @@ pub fn decode(candidate_token: String) {
 
 pub type VerifySignUpSessionToken {
   InvalidToken
-  TokenNotFound
-  Database
+  ExpiredOrNotFound
+  DatabaseFailure(pog.QueryError)
 }
 
 pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
@@ -50,11 +50,11 @@ pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
       { "selecting sign up session by id failed: " <> string.inspect(error) }
       |> wisp.log_error()
 
-      Database
+      DatabaseFailure(error)
     })
     |> result.try(fn(session) {
       case session {
-        pog.Returned(_count, []) -> Error(TokenNotFound)
+        pog.Returned(_count, []) -> Error(ExpiredOrNotFound)
         pog.Returned(_count, [session, ..]) -> Ok(session)
       }
     })

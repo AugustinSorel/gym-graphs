@@ -1,9 +1,6 @@
 import app/ui
 import formal/form.{type Form}
-import gleam/bool
-import gleam/list
-import gleam/result
-import gleam/string
+import gleam/option
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -12,17 +9,25 @@ pub fn verify_email_address_page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
 }
 
-pub fn verify_email_address_form(
-  form: Form(VerifyEmailAddressForm),
-) -> Element(a) {
-  let code_err = list.first(form.field_error_messages(form, "code"))
-  let root_err = list.first(form.field_error_messages(form, "root"))
-  let success_message = form.field_value(form, "success_message")
+pub type FieldErrors {
+  FieldErrors(code: option.Option(String))
+}
 
+pub type RootMsg {
+  RootErr(msg: String)
+  RootSuccess(msg: String)
+}
+
+pub fn verify_email_address_form(
+  field_values field_values: VerifyEmailAddressForm,
+  field_errors field_errors: option.Option(FieldErrors),
+  root_msg root_msg: option.Option(RootMsg),
+) -> Element(a) {
   html.form(
     [
       attribute.attribute("hx-post", "/verify-email-address"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],
     [
       html.fieldset(
@@ -46,42 +51,43 @@ pub fn verify_email_address_form(
                 attribute.class("border-b-2 border-current"),
                 attribute.placeholder("12345678"),
                 attribute.name("code"),
-                attribute.value(form.field_value(form, "code")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(code_err))),
-                ),
+                attribute.value(field_values.code),
+                attribute.aria_invalid(case field_errors {
+                  option.Some(FieldErrors(code: option.Some(_))) -> "true"
+                  option.Some(_) | option.None -> "false"
+                }),
               ]),
-              case code_err {
-                Ok(msg) ->
+
+              case field_errors {
+                option.Some(FieldErrors(code: option.Some(code))) ->
                   html.p(
                     [
                       attribute.role("alert"),
                       attribute.class("text-error text-sm"),
                     ],
-                    [html.text(msg)],
+                    [html.text(code)],
                   )
-                Error(_) -> element.none()
+                option.Some(_) | option.None -> element.none()
               },
             ],
           ),
 
-          case success_message {
-            "" -> element.none()
-            msg ->
+          case root_msg {
+            option.Some(RootSuccess(msg)) -> {
               ui.alert_variant(ui.AlertSuccess, [
                 ui.alert_title(element.text("verification code sent")),
                 ui.alert_description(element.text(msg)),
               ])
-          },
-
-          case root_err {
-            Ok(msg) ->
+            }
+            option.Some(RootErr(msg)) -> {
               ui.alert([
                 ui.alert_title(element.text("something went wrong")),
                 ui.alert_description(element.text(msg)),
               ])
-            Error(_) -> element.none()
+            }
+            option.None -> element.none()
           },
+
           ui.button([attribute.type_("submit")], [
             html.text("verify"),
             ui.spinner(),
@@ -103,10 +109,7 @@ pub fn verify_email_address_form(
             html.button(
               [
                 attribute.type_("button"),
-                attribute.attribute(
-                  "hx-post",
-                  "/verify-email-address/cancel",
-                ),
+                attribute.attribute("hx-post", "/verify-email-address/cancel"),
                 attribute.attribute("hx-disable", "this"),
                 attribute.class(
                   "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",

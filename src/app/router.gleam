@@ -32,8 +32,8 @@ fn register_email(req: Request, ctx: Ctx) -> Response {
 
 fn verify_email_address(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> verify_email_address_router.view_verify_email_address_page(req, ctx)
-    Post -> verify_email_address_router.verify_email_address(req, ctx)
+    Get -> verify_email_address_router.view_page(req, ctx)
+    Post -> verify_email_address_router.verify(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }

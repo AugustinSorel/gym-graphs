@@ -217,7 +217,7 @@ fn require_verified_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
           |> web.html(401)
           |> sign_up_session_cookie.clear(req)
         }
-        sign_up_session_token.TokenNotFound -> {
+        sign_up_session_token.ExpiredOrNotFound -> {
           ui.get_set_password_form()
           |> form.add_error(
             "root",
@@ -228,7 +228,7 @@ fn require_verified_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
           |> web.html(401)
           |> sign_up_session_cookie.clear(req)
         }
-        sign_up_session_token.Database ->
+        sign_up_session_token.DatabaseFailure(err) ->
           ui.get_set_password_form()
           |> form.add_error("root", form.CustomError("Something went wrong"))
           |> ui.set_password_form()
