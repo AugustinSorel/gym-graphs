@@ -1,6 +1,10 @@
 import app/ui
 import formal/form.{type Form}
+import gleam/bool
+import gleam/list
 import gleam/option
+import gleam/result
+import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -19,10 +23,12 @@ pub type RootMsg {
 }
 
 pub fn verify_email_address_form(
-  field_values field_values: VerifyEmailAddressForm,
-  field_errors field_errors: option.Option(FieldErrors),
-  root_msg root_msg: option.Option(RootMsg),
+  form: form.Form(VerifyEmailAddressForm),
 ) -> Element(a) {
+  let code_err = list.first(form.field_error_messages(form, "code"))
+  let root_err = list.first(form.field_error_messages(form, "root"))
+  let success_msg = list.first(form.field_error_messages(form, "success_msg"))
+
   html.form(
     [
       attribute.attribute("hx-post", "/verify-email-address"),
@@ -51,41 +57,47 @@ pub fn verify_email_address_form(
                 attribute.class("border-b-2 border-current"),
                 attribute.placeholder("12345678"),
                 attribute.name("code"),
-                attribute.value(field_values.code),
-                attribute.aria_invalid(case field_errors {
-                  option.Some(FieldErrors(code: option.Some(_))) -> "true"
-                  option.Some(_) | option.None -> "false"
-                }),
+                attribute.value(form.field_value(form, "code")),
+                attribute.aria_invalid(
+                  string.lowercase(bool.to_string(result.is_ok(code_err))),
+                ),
               ]),
 
-              case field_errors {
-                option.Some(FieldErrors(code: option.Some(code))) ->
+              case code_err {
+                Ok(msg) -> {
                   html.p(
                     [
                       attribute.role("alert"),
                       attribute.class("text-error text-sm"),
                     ],
-                    [html.text(code)],
+                    [
+                      html.text(msg),
+                    ],
                   )
-                option.Some(_) | option.None -> element.none()
+                }
+                Error(_) -> element.none()
               },
             ],
           ),
 
-          case root_msg {
-            option.Some(RootSuccess(msg)) -> {
-              ui.alert_variant(ui.AlertSuccess, [
-                ui.alert_title(element.text("verification code sent")),
-                ui.alert_description(element.text(msg)),
-              ])
-            }
-            option.Some(RootErr(msg)) -> {
+          case root_err {
+            Ok(msg) -> {
               ui.alert([
                 ui.alert_title(element.text("something went wrong")),
                 ui.alert_description(element.text(msg)),
               ])
             }
-            option.None -> element.none()
+            Error(_) -> element.none()
+          },
+
+          case success_msg {
+            Ok(msg) -> {
+              ui.alert_variant(ui.AlertSuccess, [
+                ui.alert_title(element.text("verification code sent")),
+                ui.alert_description(element.text(msg)),
+              ])
+            }
+            Error(_) -> element.none()
           },
 
           ui.button([attribute.type_("submit")], [

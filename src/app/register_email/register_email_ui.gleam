@@ -8,11 +8,11 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn email_register_page(children: Element(a)) -> Element(a) {
+pub fn page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
 }
 
-pub fn email_register_form(form: Form(EmailRegisterForm)) -> Element(a) {
+pub fn form(form: Form(EmailRegisterForm)) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
   let root_err = list.first(form.field_error_messages(form, "root"))
 
@@ -103,7 +103,7 @@ pub type EmailRegisterForm {
   EmailRegisterForm(email: String)
 }
 
-pub fn get_register_email_form() -> Form(EmailRegisterForm) {
+pub fn get_form() -> Form(EmailRegisterForm) {
   let schema = {
     use email <- form.field("email", {
       form.parse_email

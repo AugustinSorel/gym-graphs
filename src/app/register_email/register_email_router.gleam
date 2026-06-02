@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/register_email/register_email
-import app/register_email/ui
+import app/register_email/register_email_error
+import app/register_email/register_email_ui
 import app/sign_up_session/sign_up_session_cookie
 import app/sign_up_session/sign_up_session_token
 import app/web
@@ -11,58 +12,68 @@ import wisp.{type Request}
 //TODO: protect routes
 
 pub fn view_page() {
-  ui.get_register_email_form()
-  |> ui.email_register_form()
-  |> ui.email_register_page()
+  register_email_ui.get_form()
+  |> register_email_ui.form()
+  |> register_email_ui.page()
   |> web.html(200)
 }
 
 pub fn register_email(req: Request, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
-  let candidate_form =
-    ui.get_register_email_form()
+  let raw_input =
+    register_email_ui.get_form()
     |> form.add_values(formdata.values)
 
-  let parsed_form =
-    candidate_form
-    |> form.run()
-    |> result.map_error(fn(form) {
-      form
-      |> ui.email_register_form
-      |> web.html(422)
-    })
+  let result = {
+    let input =
+      raw_input
+      |> form.run()
+      |> result.map_error(register_email_error.Validation)
 
-  use form <- web.require_ok(parsed_form)
+    use input <- result.try(input)
 
-  let session =
-    register_email.register(ctx.db, form.email)
-    |> result.map_error(register_error_response(candidate_form, _))
+    let email_available = register_email.ensure_available(ctx.db, input)
 
-  use session <- web.require_ok(session)
+    use _ <- result.try(email_available)
 
-  //TODO: send email code
-  echo session.verification_code
+    let session = register_email.register(ctx.db, input.email)
 
-  let token = sign_up_session_token.encode(session.id, session.secret)
+    use session <- result.try(session)
 
-  wisp.created()
-  |> wisp.set_header("HX-Redirect", "/verify-email-address")
-  |> sign_up_session_cookie.set(req, token)
-}
+    //TODO: send email code
+    echo session.verification_code
 
-fn register_error_response(form, err) {
-  case err {
-    register_email.EmailAlreadyTaken ->
-      form
-      |> form.add_error("email", form.CustomError("Email already taken"))
-      |> ui.email_register_form()
+    let token = sign_up_session_token.encode(session.id, session.secret)
+
+    Ok(token)
+  }
+
+  case result {
+    Ok(token) ->
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/verify-email-address")
+      |> sign_up_session_cookie.set(req, token)
+
+    Error(register_email_error.DuplicateEmail) -> {
+      raw_input
+      |> form.add_error("root", form.CustomError("Email address already taken"))
+      |> register_email_ui.form()
       |> web.html(409)
-
-    register_email.DatabaseError(_) | register_email.UnexpectedDatabaseResult ->
-      form
-      |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.email_register_form()
+    }
+    Error(register_email_error.Validation(invalid_form:)) ->
+      invalid_form
+      |> register_email_ui.form()
+      |> web.html(422)
+    Error(register_email_error.DatabaseFailure(error:)) ->
+      raw_input
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> register_email_ui.form()
+      |> web.html(500)
+    Error(register_email_error.UnexpectedDatabaseResult) ->
+      raw_input
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> register_email_ui.form()
       |> web.html(500)
   }
 }
