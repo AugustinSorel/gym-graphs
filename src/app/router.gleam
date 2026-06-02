@@ -1,7 +1,12 @@
 import app/ctx.{type Ctx}
-import app/register_email/register_email_router
-import app/set_password/set_password_router
-import app/verify_email_address/verify_email_address_router
+import app/register_email/register_email
+import app/register_email/register_email_page
+import app/set_password/set_password
+import app/set_password/set_password_page
+import app/verify_email_address/cancel_verify_email
+import app/verify_email_address/resend_email_verification_code
+import app/verify_email_address/verify_email_address
+import app/verify_email_address/verify_email_address_page
 import app/web
 import gleam/http.{Get, Post}
 import lustre/element
@@ -24,38 +29,38 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
 fn register_email(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> register_email_router.view_page()
-    Post -> register_email_router.register_email(req, ctx)
+    Get -> register_email_page.view_page()
+    Post -> register_email.register(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }
 
 fn verify_email_address(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> verify_email_address_router.view_page(req, ctx)
-    Post -> verify_email_address_router.verify(req, ctx)
+    Get -> verify_email_address_page.view_page(req, ctx)
+    Post -> verify_email_address.verify(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }
 
 fn resend_verification_code(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Post -> verify_email_address_router.resend_verification_code(req, ctx)
+    Post -> resend_email_verification_code.resend(req, ctx)
     _ -> wisp.method_not_allowed([Post])
   }
 }
 
 fn cancel_verify_email_address(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Post -> verify_email_address_router.cancel_verify_email_address(req, ctx)
+    Post -> cancel_verify_email.cancel(req, ctx)
     _ -> wisp.method_not_allowed([Post])
   }
 }
 
 fn set_password(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> set_password_router.view_set_password_page(req, ctx)
-    Post -> set_password_router.set_password(req, ctx)
+    Get -> set_password_page.view_page(req, ctx)
+    Post -> set_password.set(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
 }
