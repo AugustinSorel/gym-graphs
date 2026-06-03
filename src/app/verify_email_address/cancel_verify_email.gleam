@@ -52,6 +52,7 @@ pub fn cancel(req: Request, ctx: Ctx) {
       )
       |> ui.verify_email_address_form()
       |> web.html(401)
+      |> sign_up_session_cookie.clear(req)
 
     Error(DatabaseFailure(_)) ->
       ui.get_verify_email_address_form()
