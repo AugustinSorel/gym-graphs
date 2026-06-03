@@ -46,9 +46,9 @@ pub fn cancel(req: Request, ctx: Ctx) {
     Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
       |> form.add_values(form_data.values)
-      |> form.add_string("root", "Invalid token")
+      |> form.add_string("root", "Your session has expired. Please sign up again.")
       |> ui.verify_email_address_form()
-      |> web.html(500)
+      |> web.html(401)
 
     Error(DatabaseFailure(_)) ->
       ui.get_verify_email_address_form()

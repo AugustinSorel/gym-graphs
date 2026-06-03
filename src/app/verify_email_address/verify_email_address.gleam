@@ -72,7 +72,10 @@ pub fn verify(req: Request, ctx: Ctx) {
     Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Invalid token")
+      |> form.add_string(
+        "root",
+        "Your session has expired. Please sign up again.",
+      )
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(401)
@@ -81,10 +84,13 @@ pub fn verify(req: Request, ctx: Ctx) {
     Error(InvalidCode) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Invalid verification code.")
+      |> form.add_string(
+        "root",
+        "The verification code you entered is incorrect. Please try again.",
+      )
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
-      |> web.html(401)
+      |> web.html(422)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedResult) ->
       ui.get_verify_email_address_form()

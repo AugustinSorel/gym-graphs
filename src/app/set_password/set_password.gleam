@@ -4,9 +4,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/set_password/ui
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token.{
-  type VerifySignUpSessionTokenError,
-}
+import app/sign_up_session/sign_up_session_token
 import app/sign_up_session/sql
 import app/user/sql as user_sql
 import app/web

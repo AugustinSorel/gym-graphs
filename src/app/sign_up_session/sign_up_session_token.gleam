@@ -7,7 +7,6 @@ import gleam/int
 import gleam/result
 import gleam/string
 import pog
-import wisp
 
 pub type SignUpSessionToken {
   SignUpSessionToken(id: Int, secret: BitArray)
