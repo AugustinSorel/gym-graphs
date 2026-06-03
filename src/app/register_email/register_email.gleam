@@ -1,3 +1,4 @@
+import app/auth_session/auth_session
 import app/crypto
 import app/ctx.{type Ctx}
 import app/register_email/register_email_ui.{type EmailRegisterForm}
@@ -20,6 +21,7 @@ type RegisterEmailError {
 
 //TODO: protect routes
 pub fn register(req: Request, ctx: Ctx) {
+  use <- auth_session.require_blank(req, ctx)
   use formdata <- wisp.require_form(req)
 
   let result = {

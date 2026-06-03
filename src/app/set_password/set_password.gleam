@@ -1,11 +1,12 @@
+import app/auth_session/auth_session
 import app/auth_session/auth_session_cookie
 import app/auth_session/auth_session_token
 import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
 import app/set_password/ui
+import app/sign_up_session/sign_up_session
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token
 import app/sign_up_session/sql
 import app/user/sql as user_sql
 import app/web
@@ -18,8 +19,7 @@ import wisp.{type Request, type Response}
 
 type SetPasswordError {
   Validation(form: form.Form(ui.SetPasswordForm))
-  InvalidSignUpSessionCookie
-  InvalidSignUpSessionToken
+  InvalidSignUpSession
   EmailNotVerified
   EmailAlreadyTaken
   DatabaseFailure(pog.QueryError)
@@ -27,6 +27,9 @@ type SetPasswordError {
 }
 
 pub fn set(req: Request, ctx: Ctx) -> Response {
+  use <- auth_session.require_blank(req, ctx)
+
+  use session <- sign_up_session.require(req, ctx)
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -35,17 +38,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(Validation),
-    )
-
-    use token <- result.try(
-      sign_up_session_cookie.parse(req)
-      |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidSignUpSessionCookie),
-    )
-
-    use session <- result.try(
-      sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     let not_verified = option.is_none(session.email_address_verified_at)
@@ -103,7 +95,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       wisp.redirect("/verify-email-address")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
+    Error(InvalidSignUpSession) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 

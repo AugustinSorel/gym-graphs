@@ -1,6 +1,7 @@
+import app/auth_session/auth_session
 import app/ctx.{type Ctx}
+import app/sign_up_session/sign_up_session
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token
 import app/sign_up_session/sql as sign_up_session_sql
 import app/verify_email_address/ui
 import app/web
@@ -12,27 +13,18 @@ import pog.{type Connection}
 import wisp.{type Request}
 
 type CancelError {
-  InvalidSignUpSessionCookie
-  InvalidSignUpSessionToken
+  InvalidSignUpSession
   AlreadyVerified
   DatabaseFailure(pog.QueryError)
 }
 
 pub fn cancel(req: Request, ctx: Ctx) {
+  use <- auth_session.require_blank(req, ctx)
+
+  use session <- sign_up_session.require(req, ctx)
   use form_data <- wisp.require_form(req)
 
   let result = {
-    use token <- result.try(
-      sign_up_session_cookie.parse(req)
-      |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidSignUpSessionCookie),
-    )
-
-    use session <- result.try(
-      sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSignUpSessionToken),
-    )
-
     let already_verified = option.is_some(session.email_address_verified_at)
 
     use <- bool.guard(when: already_verified, return: Error(AlreadyVerified))
@@ -46,7 +38,7 @@ pub fn cancel(req: Request, ctx: Ctx) {
       |> sign_up_session_cookie.clear(req)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
-    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
+    Error(InvalidSignUpSession) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 

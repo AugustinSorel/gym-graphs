@@ -1,33 +1,25 @@
+import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/set_password/ui
+import app/sign_up_session/sign_up_session
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token
 import app/web
 import formal/form
 import gleam/bool
 import gleam/option
-import gleam/result
 import wisp.{type Request, type Response}
 
 type ViewPageError {
-  InvalidSignUpSessionCookie
-  InvalidSignUpSessionToken
+  InvalidSignUpSession
   EmailNotVerified
 }
 
 pub fn view_page(req: Request, ctx: Ctx) -> Response {
+  use <- auth_session.require_blank(req, ctx)
+
+  use session <- sign_up_session.require(req, ctx)
+
   let result = {
-    use token <- result.try(
-      sign_up_session_cookie.parse(req)
-      |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidSignUpSessionCookie),
-    )
-
-    use session <- result.try(
-      sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSignUpSessionToken),
-    )
-
     let not_verified = option.is_none(session.email_address_verified_at)
 
     use <- bool.guard(when: not_verified, return: Error(EmailNotVerified))
@@ -47,7 +39,7 @@ pub fn view_page(req: Request, ctx: Ctx) -> Response {
       wisp.redirect("/verify-email-address")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
+    Error(InvalidSignUpSession) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
   }

@@ -32,7 +32,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
 fn register_email(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> register_email_page.view_page()
+    Get -> register_email_page.view_page(req, ctx)
     Post -> register_email.register(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }

@@ -1,7 +1,8 @@
+import app/auth_session/auth_session
 import app/crypto
 import app/ctx.{type Ctx}
+import app/sign_up_session/sign_up_session
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token
 import app/sign_up_session/sql as sign_up_session_sql
 import app/verify_email_address/ui
 import app/web
@@ -14,8 +15,7 @@ import wisp.{type Request}
 
 type VerifyError {
   Validation(form: form.Form(ui.VerifyEmailAddressForm))
-  InvalidSignUpSessionCookie
-  InvalidSignUpSessionToken
+  InvalidSignUpSession
   InvalidCode
   AlreadyVerified
   DatabaseFailure(pog.QueryError)
@@ -23,6 +23,9 @@ type VerifyError {
 }
 
 pub fn verify(req: Request, ctx: Ctx) {
+  use <- auth_session.require_blank(req, ctx)
+
+  use session <- sign_up_session.require(req, ctx)
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -31,17 +34,6 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(Validation),
-    )
-
-    use token <- result.try(
-      sign_up_session_cookie.parse(req)
-      |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidSignUpSessionCookie),
-    )
-
-    use session <- result.try(
-      sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     let already_verified = option.is_some(session.email_address_verified_at)
@@ -71,7 +63,7 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_form()
       |> web.html(422)
 
-    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
+    Error(InvalidSignUpSession) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
