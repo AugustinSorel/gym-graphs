@@ -22,13 +22,10 @@ type RegisterEmailError {
 pub fn register(req: Request, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
-  let raw_input =
-    register_email_ui.get_form()
-    |> form.add_values(formdata.values)
-
   let result = {
     use input <- result.try(
-      raw_input
+      register_email_ui.get_form()
+      |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(Validation),
     )
@@ -55,13 +52,15 @@ pub fn register(req: Request, ctx: Ctx) {
       |> web.html(422)
 
     Error(DuplicateEmail) ->
-      raw_input
+      register_email_ui.get_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Email address already taken.")
       |> register_email_ui.form()
       |> web.html(409)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
-      raw_input
+      register_email_ui.get_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Something went wrong, please try again.")
       |> register_email_ui.form()
       |> web.html(500)

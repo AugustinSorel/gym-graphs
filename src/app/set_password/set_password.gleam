@@ -28,13 +28,10 @@ type SetPasswordError {
 pub fn set(req: Request, ctx: Ctx) -> Response {
   use formdata <- wisp.require_form(req)
 
-  let raw_form =
-    ui.get_set_password_form()
-    |> form.add_values(formdata.values)
-
   let result = {
     use form <- result.try(
-      raw_form
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(Validation),
     )
@@ -144,7 +141,8 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> sign_up_session_cookie.clear(req)
 
     Error(InvalidSession) ->
-      raw_form
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Session expired, please sign up again.")
       |> ui.set_password_form()
       |> ui.set_password_page()
@@ -152,14 +150,16 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> sign_up_session_cookie.clear(req)
 
     Error(EmailAlreadyTaken) ->
-      raw_form
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "This email address is already taken.")
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(409)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
-      raw_form
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Something went wrong, please try again.")
       |> ui.set_password_form()
       |> ui.set_password_page()

@@ -24,13 +24,10 @@ type VerifyError {
 pub fn verify(req: Request, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
-  let raw_form =
-    ui.get_verify_email_address_form()
-    |> form.add_values(formdata.values)
-
   let result = {
     use form <- result.try(
-      raw_form
+      ui.get_verify_email_address_form()
+      |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(Validation),
     )
@@ -73,7 +70,8 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> sign_up_session_cookie.clear(req)
 
     Error(InvalidSession) ->
-      raw_form
+      ui.get_verify_email_address_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Session expired, please sign up again.")
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
@@ -81,14 +79,16 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> sign_up_session_cookie.clear(req)
 
     Error(InvalidCode) ->
-      raw_form
+      ui.get_verify_email_address_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Invalid verification code.")
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(401)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedResult) ->
-      raw_form
+      ui.get_verify_email_address_form()
+      |> form.add_values(formdata.values)
       |> form.add_string("root", "Something went wrong, please try again.")
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
