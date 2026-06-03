@@ -21,6 +21,7 @@ pub fn form(form: Form(SignInForm)) -> Element(a) {
     [
       attribute.attribute("hx-post", "/sign-in"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],
     [
       html.fieldset(

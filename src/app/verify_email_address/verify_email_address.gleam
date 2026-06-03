@@ -2,7 +2,6 @@ import app/auth_session/auth_session
 import app/crypto
 import app/ctx.{type Ctx}
 import app/sign_up_session/sign_up_session
-import app/sign_up_session/sign_up_session_cookie
 import app/sign_up_session/sql as sign_up_session_sql
 import app/verify_email_address/ui
 import app/web

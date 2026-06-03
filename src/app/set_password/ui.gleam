@@ -21,6 +21,7 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
     [
       attribute.attribute("hx-post", "/set-password"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],
     [
       html.input([

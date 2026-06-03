@@ -22,7 +22,11 @@ pub fn require(req: Request, ctx: Ctx, next) -> Response {
   }
 }
 
-pub fn require_blank(req, ctx, next) {
+pub fn require_blank(
+  req: Request,
+  ctx: Ctx,
+  next: fn() -> Response,
+) -> Response {
   let res =
     auth_session_cookie.parse(req)
     |> result.try(auth_session_token.decode)

@@ -20,6 +20,7 @@ pub fn form(form: Form(EmailRegisterForm)) -> Element(a) {
     [
       attribute.attribute("hx-post", "/sign-up"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],
     [
       html.fieldset(

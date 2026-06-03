@@ -48,14 +48,10 @@ pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
     |> result.map_error(DatabaseFailure),
   )
 
-  echo "1"
-
   use session <- result.try(case session {
     pog.Returned(_count, []) -> Error(ExpiredOrNotFound)
     pog.Returned(_count, [session, ..]) -> Ok(session)
   })
-
-  echo "2"
 
   let is_secret_valid =
     token.secret
@@ -63,8 +59,6 @@ pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
     |> crypto.validate_session_secret(session.secret_hash)
 
   use <- bool.guard(when: !is_secret_valid, return: Error(InvalidToken))
-
-  echo "3"
 
   Ok(session)
 }
