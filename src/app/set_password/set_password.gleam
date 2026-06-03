@@ -12,7 +12,7 @@ import formal/form
 import gleam/bool
 import gleam/option
 import gleam/result
-import pog
+import pog.{type Connection}
 import wisp.{type Request, type Response}
 
 type SetPasswordError {
@@ -47,61 +47,28 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> result.replace_error(InvalidSignUpSessionToken),
     )
 
-    use <- bool.guard(
-      when: option.is_none(session.email_address_verified_at),
-      return: Error(EmailNotVerified),
-    )
+    let not_verified = option.is_none(session.email_address_verified_at)
 
-    use _ <- result.try(
-      user_sql.select_user_by_email_address(ctx.db, session.email_address)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, []) -> Ok(Nil)
-          pog.Returned(_, [_, ..]) -> Error(EmailAlreadyTaken)
-        }
-      }),
-    )
+    use <- bool.guard(when: not_verified, return: Error(EmailNotVerified))
+
+    use _ <- result.try(verify_email_available(ctx.db, session.email_address))
 
     let salt = crypto.generate_hashing_salt()
     let password_hashed = crypto.hash_user_password(form.password, salt)
     let secret = crypto.generate_session_secret()
-    let secret_hashed = crypto.hash_session_secret(secret)
+    let secret_hash = crypto.hash_session_secret(secret)
 
-    use auth_session <- result.try(
+    let auth_session = {
       pog.transaction(ctx.db, fn(tx) {
-        use user <- result.try(
-          user_sql.create_user(tx, password_hashed.raw_hash, salt, session.id)
-          |> result.map_error(DatabaseFailure)
-          |> result.try(fn(returned) {
-            case returned {
-              pog.Returned(_, [user, ..]) -> Ok(user)
-              pog.Returned(_, []) -> {
-                wisp.log_error("unexpected result in create user")
-                Error(UnexpectedDatabaseResult)
-              }
-            }
-          }),
-        )
+        use user <- result.try({
+          create_user(tx, password_hashed.raw_hash, salt, session.id)
+        })
 
-        use _ <- result.try(
-          sql.delete_sign_up_session_by_id(tx, session.id)
-          |> result.map_error(DatabaseFailure),
-        )
+        use _ <- result.try(delete_sign_up_session(ctx.db, session.id))
 
-        use auth_session <- result.try(
-          auth_session_sql.create_auth_session(tx, user.id, secret_hashed)
-          |> result.map_error(DatabaseFailure)
-          |> result.try(fn(returned) {
-            case returned {
-              pog.Returned(_, [session, ..]) -> Ok(session)
-              pog.Returned(_, []) -> {
-                wisp.log_error("unexpected result in create auth session")
-                Error(UnexpectedDatabaseResult)
-              }
-            }
-          }),
-        )
+        use auth_session <- result.try({
+          create_auth_session(ctx.db, user.id, secret_hash)
+        })
 
         Ok(auth_session)
       })
@@ -110,8 +77,10 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
           pog.TransactionRolledBack(e) -> e
           pog.TransactionQueryError(err) -> DatabaseFailure(err)
         }
-      }),
-    )
+      })
+    }
+
+    use auth_session <- result.try(auth_session)
 
     Ok(#(auth_session, secret))
   }
@@ -132,19 +101,11 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> web.html(422)
 
     Error(EmailNotVerified) ->
-      wisp.redirect("/sign-up")
+      wisp.redirect("/verify-email-address")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSignUpSessionCookie) ->
+    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
       wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
-
-    Error(InvalidSignUpSessionToken) ->
-      ui.get_set_password_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error("root", form.CustomError("token is invalid"))
-      |> ui.set_password_form()
-      |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
     Error(EmailAlreadyTaken) ->
@@ -167,4 +128,50 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> ui.set_password_form()
       |> web.html(500)
   }
+}
+
+fn verify_email_available(
+  db: Connection,
+  email: String,
+) -> Result(Nil, SetPasswordError) {
+  user_sql.select_user_by_email_address(db, email)
+  |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, []) -> Ok(Nil)
+      pog.Returned(_, [_, ..]) -> Error(EmailAlreadyTaken)
+    }
+  })
+}
+
+fn create_user(
+  db: Connection,
+  raw_hash: BitArray,
+  salt: BitArray,
+  session_id: Int,
+) {
+  user_sql.create_user(db, raw_hash, salt, session_id)
+  |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [user, ..]) -> Ok(user)
+      pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
+    }
+  })
+}
+
+fn delete_sign_up_session(db: Connection, session_id: Int) {
+  sql.delete_sign_up_session_by_id(db, session_id)
+  |> result.map_error(DatabaseFailure)
+}
+
+fn create_auth_session(db: Connection, user_id: Int, secret_hash: BitArray) {
+  auth_session_sql.create_auth_session(db, user_id, secret_hash)
+  |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [session, ..]) -> Ok(session)
+      pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
+    }
+  })
 }

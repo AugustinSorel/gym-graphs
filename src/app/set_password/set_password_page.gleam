@@ -28,10 +28,9 @@ pub fn view_page(req: Request, ctx: Ctx) -> Response {
       |> result.replace_error(InvalidSignUpSessionToken),
     )
 
-    use <- bool.guard(
-      when: option.is_none(session.email_address_verified_at),
-      return: Error(EmailNotVerified),
-    )
+    let not_verified = option.is_none(session.email_address_verified_at)
+
+    use <- bool.guard(when: not_verified, return: Error(EmailNotVerified))
 
     Ok(session)
   }
@@ -45,19 +44,11 @@ pub fn view_page(req: Request, ctx: Ctx) -> Response {
       |> web.html(200)
 
     Error(EmailNotVerified) ->
-      wisp.redirect("/sign-up")
+      wisp.redirect("/verify-email-address")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSignUpSessionCookie) ->
+    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
       wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
-
-    Error(InvalidSignUpSessionToken) ->
-      ui.get_set_password_form()
-      |> form.add_error("root", form.CustomError("invalid token"))
-      |> ui.set_password_form()
-      |> ui.set_password_page()
-      |> web.html(401)
       |> sign_up_session_cookie.clear(req)
   }
 }

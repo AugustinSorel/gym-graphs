@@ -7,6 +7,7 @@ import app/verify_email_address/ui
 import app/web
 import formal/form
 import gleam/bool
+import gleam/option
 import gleam/result
 import pog
 import wisp.{type Request}
@@ -43,7 +44,11 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> result.replace_error(InvalidSignUpSessionToken),
     )
 
-    verify_idk(
+    let already_verified = option.is_some(session.email_address_verified_at)
+
+    use <- bool.guard(when: already_verified, return: Error(AlreadyVerified))
+
+    verify_email_address(
       ctx.db,
       session.id,
       session.email_address_verification_code,
@@ -66,19 +71,8 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_form()
       |> web.html(422)
 
-    Error(InvalidSignUpSessionCookie) ->
+    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
       wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
-
-    Error(InvalidSignUpSessionToken) ->
-      ui.get_verify_email_address_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Your session has expired. Please sign up again."),
-      )
-      |> ui.verify_email_address_form()
-      |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
     Error(InvalidCode) ->
@@ -105,7 +99,7 @@ pub fn verify(req: Request, ctx: Ctx) {
   }
 }
 
-fn verify_idk(
+fn verify_email_address(
   db: pog.Connection,
   session_id: Int,
   stored_code: String,
@@ -121,10 +115,4 @@ fn verify_idk(
 fn mark_email_verified(db: pog.Connection, session_id: Int) {
   sign_up_session_sql.set_email_address_verified_at_to_now(db, session_id)
   |> result.map_error(DatabaseFailure)
-  |> result.try(fn(result) {
-    case result {
-      pog.Returned(_, [_, ..]) -> Ok(Nil)
-      pog.Returned(_, []) -> Error(AlreadyVerified)
-    }
-  })
 }

@@ -5,6 +5,8 @@ import app/sign_up_session/sql as sign_up_session_sql
 import app/verify_email_address/ui
 import app/web
 import formal/form
+import gleam/bool
+import gleam/option
 import gleam/result
 import pog.{type Connection}
 import wisp.{type Request}
@@ -12,6 +14,7 @@ import wisp.{type Request}
 type CancelError {
   InvalidSignUpSessionCookie
   InvalidSignUpSessionToken
+  AlreadyVerified
   DatabaseFailure(pog.QueryError)
 }
 
@@ -30,6 +33,10 @@ pub fn cancel(req: Request, ctx: Ctx) {
       |> result.replace_error(InvalidSignUpSessionToken),
     )
 
+    let already_verified = option.is_some(session.email_address_verified_at)
+
+    use <- bool.guard(when: already_verified, return: Error(AlreadyVerified))
+
     cancel_email(ctx.db, session.id)
   }
 
@@ -39,19 +46,8 @@ pub fn cancel(req: Request, ctx: Ctx) {
       |> sign_up_session_cookie.clear(req)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
-    Error(InvalidSignUpSessionCookie) ->
+    Error(InvalidSignUpSessionCookie) | Error(InvalidSignUpSessionToken) ->
       wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
-
-    Error(InvalidSignUpSessionToken) ->
-      ui.get_verify_email_address_form()
-      |> form.add_values(form_data.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Your session has expired. Please sign up again."),
-      )
-      |> ui.verify_email_address_form()
-      |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
     Error(DatabaseFailure(_)) ->
@@ -63,6 +59,10 @@ pub fn cancel(req: Request, ctx: Ctx) {
       )
       |> ui.verify_email_address_form()
       |> web.html(500)
+
+    Error(AlreadyVerified) ->
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/set-password")
   }
 }
 
