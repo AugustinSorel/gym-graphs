@@ -54,14 +54,20 @@ pub fn register(req: Request, ctx: Ctx) {
     Error(DuplicateEmail) ->
       register_email_ui.get_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Email address already taken.")
+      |> form.add_error(
+        "root",
+        form.CustomError("Email address already taken."),
+      )
       |> register_email_ui.form()
       |> web.html(409)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
       register_email_ui.get_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Something went wrong, please try again.")
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
       |> register_email_ui.form()
       |> web.html(500)
   }
