@@ -1,4 +1,5 @@
 import app/auth_session/auth_session_cookie
+import app/auth_session/auth_session_token
 import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
@@ -85,7 +86,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
 
   case result {
     Ok(#(auth_session, secret)) -> {
-      let token = auth_session_cookie.encode(auth_session.id, secret)
+      let token = auth_session_token.encode(auth_session.id, secret)
 
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/")

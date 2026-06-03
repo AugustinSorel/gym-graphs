@@ -1,6 +1,4 @@
-import gleam/bit_array
-import gleam/int
-import wisp
+import wisp.{type Request}
 
 const name = "auth_session_token"
 
@@ -19,7 +17,6 @@ pub fn clear(res, req) {
   wisp.set_cookie(res, req, name:, value: "", security: wisp.Signed, max_age: 0)
 }
 
-pub fn encode(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
+pub fn parse(req: Request) {
+  wisp.get_cookie(req, name, wisp.Signed)
 }

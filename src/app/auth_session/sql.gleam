@@ -55,3 +55,49 @@ pub fn create_auth_session(
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
+
+/// A row you get from running the `select_auth_session_by_id` query
+/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectAuthSessionByIdRow {
+  SelectAuthSessionByIdRow(
+    id: Int,
+    user_id: Int,
+    secret_hash: BitArray,
+    created_at: Timestamp,
+  )
+}
+
+/// Runs the `select_auth_session_by_id` query
+/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_auth_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectAuthSessionByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use user_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use created_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectAuthSessionByIdRow(
+      id:,
+      user_id:,
+      secret_hash:,
+      created_at:,
+    ))
+  }
+
+  "select * from auth_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
