@@ -107,4 +107,10 @@ fn verify_email_address(
 fn mark_email_verified(db: pog.Connection, session_id: Int) {
   sign_up_session_sql.set_email_address_verified_at_to_now(db, session_id)
   |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [_, ..]) -> Ok(Nil)
+      pog.Returned(_, []) -> Error(AlreadyVerified)
+    }
+  })
 }

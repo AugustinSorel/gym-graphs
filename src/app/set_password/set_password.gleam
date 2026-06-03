@@ -93,7 +93,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
 
     Error(EmailNotVerified) ->
       wisp.redirect("/verify-email-address")
-      |> sign_up_session_cookie.clear(req)
 
     Error(InvalidSignUpSession) ->
       wisp.redirect("/sign-up")
