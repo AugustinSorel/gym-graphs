@@ -4,7 +4,9 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/set_password/ui
 import app/sign_up_session/sign_up_session_cookie
-import app/sign_up_session/sign_up_session_token
+import app/sign_up_session/sign_up_session_token.{
+  type VerifySignUpSessionTokenError,
+}
 import app/sign_up_session/sql
 import app/user/sql as user_sql
 import app/web
@@ -17,8 +19,8 @@ import wisp.{type Request, type Response}
 
 type SetPasswordError {
   Validation(form: form.Form(ui.SetPasswordForm))
-  InvalidCookie
-  InvalidSession
+  InvalidSignUpSessionCookie
+  InvalidSignUpSessionToken
   EmailNotVerified
   EmailAlreadyTaken
   DatabaseFailure(pog.QueryError)
@@ -39,12 +41,12 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     use token <- result.try(
       sign_up_session_cookie.parse(req)
       |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidCookie),
+      |> result.replace_error(InvalidSignUpSessionCookie),
     )
 
     use session <- result.try(
       sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSession),
+      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     use <- bool.guard(
@@ -136,14 +138,14 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidCookie) ->
+    Error(InvalidSignUpSessionCookie) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSession) ->
+    Error(InvalidSignUpSessionToken) ->
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Session expired, please sign up again.")
+      |> form.add_string("root", "token is invalid")
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(401)

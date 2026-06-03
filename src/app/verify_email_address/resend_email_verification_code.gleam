@@ -8,20 +8,22 @@ import gleam/result
 import wisp.{type Request}
 
 type ResendError {
-  InvalidCookie
-  InvalidSession
+  InvalidSignUpSessionCookie
+  InvalidSignUpSessionToken
 }
 
 pub fn resend(req: Request, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
   let result = {
     use token <- result.try(
       sign_up_session_cookie.parse(req)
       |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidCookie),
+      |> result.replace_error(InvalidSignUpSessionCookie),
     )
 
     sign_up_session_token.verify(token, ctx)
-    |> result.replace_error(InvalidSession)
+    |> result.replace_error(InvalidSignUpSessionToken)
   }
 
   case result {
@@ -30,6 +32,7 @@ pub fn resend(req: Request, ctx: Ctx) {
 
       // TODO: send verification email with _session.email_address_verification_code
       ui.get_verify_email_address_form()
+      |> form.add_values(form_data.values)
       |> form.add_string(
         "success_msg",
         "A new verification code has been sent to your email address.",
@@ -37,13 +40,14 @@ pub fn resend(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_form()
       |> web.html(200)
     }
-    Error(InvalidCookie) ->
+    Error(InvalidSignUpSessionCookie) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSession) ->
+    Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
-      |> form.add_string("root", "Session expired, please sign up again.")
+      |> form.add_values(form_data.values)
+      |> form.add_string("root", "Invalid token")
       |> ui.verify_email_address_form()
       |> web.html(401)
       |> sign_up_session_cookie.clear(req)

@@ -37,29 +37,22 @@ pub fn decode(candidate_token: String) {
   SignUpSessionToken(id:, secret:)
 }
 
-pub type VerifySignUpSessionToken {
+pub type VerifySignUpSessionTokenError {
   InvalidToken
   ExpiredOrNotFound
   DatabaseFailure(pog.QueryError)
 }
 
 pub fn verify(token: SignUpSessionToken, ctx: Ctx) {
-  let session =
+  use session <- result.try(
     sql.select_sign_up_session_by_id(ctx.db, token.id)
-    |> result.map_error(fn(error) {
-      { "selecting sign up session by id failed: " <> string.inspect(error) }
-      |> wisp.log_error()
+    |> result.map_error(DatabaseFailure),
+  )
 
-      DatabaseFailure(error)
-    })
-    |> result.try(fn(session) {
-      case session {
-        pog.Returned(_count, []) -> Error(ExpiredOrNotFound)
-        pog.Returned(_count, [session, ..]) -> Ok(session)
-      }
-    })
-
-  use session <- result.try(session)
+  use session <- result.try(case session {
+    pog.Returned(_count, []) -> Error(ExpiredOrNotFound)
+    pog.Returned(_count, [session, ..]) -> Ok(session)
+  })
 
   let is_secret_valid =
     token.secret

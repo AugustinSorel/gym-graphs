@@ -13,8 +13,8 @@ import wisp.{type Request}
 
 type VerifyError {
   Validation(form: form.Form(ui.VerifyEmailAddressForm))
-  InvalidCookie
-  InvalidSession
+  InvalidSignUpSessionCookie
+  InvalidSignUpSessionToken
   InvalidCode
   AlreadyVerified
   DatabaseFailure(pog.QueryError)
@@ -35,12 +35,12 @@ pub fn verify(req: Request, ctx: Ctx) {
     use token <- result.try(
       sign_up_session_cookie.parse(req)
       |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidCookie),
+      |> result.replace_error(InvalidSignUpSessionCookie),
     )
 
     use session <- result.try(
       sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSession),
+      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     verify_idk(
@@ -65,14 +65,14 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_page()
       |> web.html(422)
 
-    Error(InvalidCookie) ->
+    Error(InvalidSignUpSessionCookie) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSession) ->
+    Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Session expired, please sign up again.")
+      |> form.add_string("root", "Invalid token")
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(401)

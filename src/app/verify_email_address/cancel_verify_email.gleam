@@ -10,22 +10,24 @@ import pog.{type Connection}
 import wisp.{type Request}
 
 type CancelError {
-  InvalidCookie
-  InvalidSession
+  InvalidSignUpSessionCookie
+  InvalidSignUpSessionToken
   DatabaseFailure(pog.QueryError)
 }
 
 pub fn cancel(req: Request, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
   let result = {
     use token <- result.try(
       sign_up_session_cookie.parse(req)
       |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidCookie),
+      |> result.replace_error(InvalidSignUpSessionCookie),
     )
 
     use session <- result.try(
       sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSession),
+      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     cancel_email(ctx.db, session.id)
@@ -37,19 +39,22 @@ pub fn cancel(req: Request, ctx: Ctx) {
       |> sign_up_session_cookie.clear(req)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
-    Error(InvalidCookie) ->
+    Error(InvalidSignUpSessionCookie) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
+    Error(InvalidSignUpSessionToken) ->
+      ui.get_verify_email_address_form()
+      |> form.add_values(form_data.values)
+      |> form.add_string("root", "Invalid token")
+      |> ui.verify_email_address_form()
+      |> web.html(500)
 
     Error(DatabaseFailure(_)) ->
       ui.get_verify_email_address_form()
+      |> form.add_values(form_data.values)
       |> form.add_string("root", "Something went wrong, please try again.")
       |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
       |> web.html(500)
   }
 }

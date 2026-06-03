@@ -10,8 +10,8 @@ import gleam/result
 import wisp.{type Request, type Response}
 
 type ViewPageError {
-  InvalidCookie
-  InvalidSession
+  InvalidSignUpSessionCookie
+  InvalidSignUpSessionToken
   EmailNotVerified
 }
 
@@ -20,12 +20,12 @@ pub fn view_page(req: Request, ctx: Ctx) -> Response {
     use token <- result.try(
       sign_up_session_cookie.parse(req)
       |> result.try(sign_up_session_token.decode)
-      |> result.replace_error(InvalidCookie),
+      |> result.replace_error(InvalidSignUpSessionCookie),
     )
 
     use session <- result.try(
       sign_up_session_token.verify(token, ctx)
-      |> result.replace_error(InvalidSession),
+      |> result.replace_error(InvalidSignUpSessionToken),
     )
 
     use <- bool.guard(
@@ -48,12 +48,13 @@ pub fn view_page(req: Request, ctx: Ctx) -> Response {
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidCookie) ->
+    Error(InvalidSignUpSessionCookie) ->
       wisp.redirect("/sign-up")
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidSession) ->
+    Error(InvalidSignUpSessionToken) ->
       ui.get_set_password_form()
+      |> form.add_error("root", form.CustomError("invalid token"))
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(401)
