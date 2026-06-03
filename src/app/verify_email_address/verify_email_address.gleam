@@ -72,30 +72,38 @@ pub fn verify(req: Request, ctx: Ctx) {
     Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string(
+      |> form.add_error(
         "root",
-        "Your session has expired. Please sign up again.",
+        form.CustomError("Your session has expired. Please sign up again."),
       )
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidCode) ->
+    Error(InvalidCode) -> {
+      echo "HERE"
+
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string(
+      |> form.add_error(
         "root",
-        "The verification code you entered is incorrect. Please try again.",
+        form.CustomError(
+          "The verification code you entered is incorrect. Please try again.",
+        ),
       )
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(422)
+    }
 
     Error(DatabaseFailure(_)) | Error(UnexpectedResult) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Something went wrong, please try again.")
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(500)

@@ -47,7 +47,7 @@ pub fn resend(req: Request, ctx: Ctx) {
     Error(InvalidSignUpSessionToken) ->
       ui.get_verify_email_address_form()
       |> form.add_values(form_data.values)
-      |> form.add_string("root", "Invalid token")
+      |> form.add_error("root", form.CustomError("Invalid token"))
       |> ui.verify_email_address_form()
       |> web.html(401)
       |> sign_up_session_cookie.clear(req)

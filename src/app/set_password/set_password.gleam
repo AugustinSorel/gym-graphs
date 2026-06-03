@@ -143,7 +143,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     Error(InvalidSignUpSessionToken) ->
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "token is invalid")
+      |> form.add_error("root", form.CustomError("token is invalid"))
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(401)
@@ -152,7 +152,10 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     Error(EmailAlreadyTaken) ->
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "This email address is already taken.")
+      |> form.add_error(
+        "root",
+        form.CustomError("This email address is already taken."),
+      )
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(409)
@@ -160,7 +163,10 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
-      |> form.add_string("root", "Something went wrong, please try again.")
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
       |> ui.set_password_form()
       |> ui.set_password_page()
       |> web.html(500)
