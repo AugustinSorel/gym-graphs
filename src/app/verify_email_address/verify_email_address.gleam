@@ -57,12 +57,13 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> wisp.set_header("HX-Redirect", "/set-password")
     }
 
-    Error(AlreadyVerified) -> wisp.redirect("/set-password")
+    Error(AlreadyVerified) ->
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/set-password")
 
     Error(Validation(form:)) ->
       form
       |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
       |> web.html(422)
 
     Error(InvalidSignUpSessionCookie) ->
@@ -77,13 +78,10 @@ pub fn verify(req: Request, ctx: Ctx) {
         form.CustomError("Your session has expired. Please sign up again."),
       )
       |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
       |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
-    Error(InvalidCode) -> {
-      echo "HERE"
-
+    Error(InvalidCode) ->
       ui.get_verify_email_address_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -93,9 +91,7 @@ pub fn verify(req: Request, ctx: Ctx) {
         ),
       )
       |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
       |> web.html(422)
-    }
 
     Error(DatabaseFailure(_)) | Error(UnexpectedResult) ->
       ui.get_verify_email_address_form()
@@ -105,7 +101,6 @@ pub fn verify(req: Request, ctx: Ctx) {
         form.CustomError("Something went wrong, please try again."),
       )
       |> ui.verify_email_address_form()
-      |> ui.verify_email_address_page()
       |> web.html(500)
   }
 }

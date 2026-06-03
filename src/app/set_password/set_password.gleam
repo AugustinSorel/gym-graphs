@@ -129,7 +129,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     Error(Validation(form:)) ->
       form
       |> ui.set_password_form()
-      |> ui.set_password_page()
       |> web.html(422)
 
     Error(EmailNotVerified) ->
@@ -145,7 +144,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("token is invalid"))
       |> ui.set_password_form()
-      |> ui.set_password_page()
       |> web.html(401)
       |> sign_up_session_cookie.clear(req)
 
@@ -157,7 +155,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
         form.CustomError("This email address is already taken."),
       )
       |> ui.set_password_form()
-      |> ui.set_password_page()
       |> web.html(409)
 
     Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
@@ -168,7 +165,6 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
         form.CustomError("Something went wrong, please try again."),
       )
       |> ui.set_password_form()
-      |> ui.set_password_page()
       |> web.html(500)
   }
 }
