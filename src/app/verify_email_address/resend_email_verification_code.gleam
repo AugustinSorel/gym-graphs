@@ -1,7 +1,6 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/sign_up_session/sign_up_session
-import app/sign_up_session/sign_up_session_cookie
 import app/verify_email_address/ui
 import app/web
 import formal/form
@@ -10,7 +9,6 @@ import gleam/option
 import wisp.{type Request}
 
 type ResendError {
-  InvalidSignUpSession
   AlreadyVerified
 }
 
@@ -42,10 +40,6 @@ pub fn resend(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_form()
       |> web.html(200)
     }
-
-    Error(InvalidSignUpSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
 
     Error(AlreadyVerified) ->
       wisp.ok()

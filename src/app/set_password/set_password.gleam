@@ -19,7 +19,6 @@ import wisp.{type Request, type Response}
 
 type SetPasswordError {
   Validation(form: form.Form(ui.SetPasswordForm))
-  InvalidSignUpSession
   EmailNotVerified
   EmailAlreadyTaken
   DatabaseFailure(pog.QueryError)
@@ -91,12 +90,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> ui.set_password_form()
       |> web.html(422)
 
-    Error(EmailNotVerified) ->
-      wisp.redirect("/verify-email-address")
-
-    Error(InvalidSignUpSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
+    Error(EmailNotVerified) -> wisp.redirect("/verify-email-address")
 
     Error(EmailAlreadyTaken) ->
       ui.get_set_password_form()

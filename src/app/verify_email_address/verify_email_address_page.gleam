@@ -1,7 +1,6 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/sign_up_session/sign_up_session
-import app/sign_up_session/sign_up_session_cookie
 import app/verify_email_address/ui
 import app/web
 import gleam/bool
@@ -9,7 +8,6 @@ import gleam/option
 import wisp.{type Request}
 
 type ViewPageError {
-  InvalidSignUpSession
   AlreadyVerified
 }
 
@@ -32,10 +30,6 @@ pub fn view_page(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_form()
       |> ui.verify_email_address_page()
       |> web.html(200)
-
-    Error(InvalidSignUpSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
 
     Error(AlreadyVerified) -> wisp.redirect("/set-password")
   }

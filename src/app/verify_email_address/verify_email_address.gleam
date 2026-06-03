@@ -15,7 +15,6 @@ import wisp.{type Request}
 
 type VerifyError {
   Validation(form: form.Form(ui.VerifyEmailAddressForm))
-  InvalidSignUpSession
   InvalidCode
   AlreadyVerified
   DatabaseFailure(pog.QueryError)
@@ -62,10 +61,6 @@ pub fn verify(req: Request, ctx: Ctx) {
       form
       |> ui.verify_email_address_form()
       |> web.html(422)
-
-    Error(InvalidSignUpSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
 
     Error(InvalidCode) ->
       ui.get_verify_email_address_form()

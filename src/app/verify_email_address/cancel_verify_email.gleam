@@ -13,7 +13,6 @@ import pog.{type Connection}
 import wisp.{type Request}
 
 type CancelError {
-  InvalidSignUpSession
   AlreadyVerified
   DatabaseFailure(pog.QueryError)
 }
@@ -37,10 +36,6 @@ pub fn cancel(req: Request, ctx: Ctx) {
       wisp.ok()
       |> sign_up_session_cookie.clear(req)
       |> wisp.set_header("HX-Redirect", "/sign-up")
-
-    Error(InvalidSignUpSession) ->
-      wisp.redirect("/sign-up")
-      |> sign_up_session_cookie.clear(req)
 
     Error(DatabaseFailure(_)) ->
       ui.get_verify_email_address_form()
