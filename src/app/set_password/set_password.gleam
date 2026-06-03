@@ -58,16 +58,16 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     let secret = crypto.generate_session_secret()
     let secret_hash = crypto.hash_session_secret(secret)
 
-    let auth_session = {
+    use auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
         use user <- result.try({
           create_user(tx, password_hashed.raw_hash, salt, session.id)
         })
 
-        use _ <- result.try(delete_sign_up_session(ctx.db, session.id))
+        use _ <- result.try(delete_sign_up_session(tx, session.id))
 
         use auth_session <- result.try({
-          create_auth_session(ctx.db, user.id, secret_hash)
+          create_auth_session(tx, user.id, secret_hash)
         })
 
         Ok(auth_session)
@@ -77,10 +77,8 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
           pog.TransactionRolledBack(e) -> e
           pog.TransactionQueryError(err) -> DatabaseFailure(err)
         }
-      })
-    }
-
-    use auth_session <- result.try(auth_session)
+      }),
+    )
 
     Ok(#(auth_session, secret))
   }
