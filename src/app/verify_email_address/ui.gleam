@@ -27,7 +27,7 @@ pub fn verify_email_address_form(
 ) -> Element(a) {
   let code_err = list.first(form.field_error_messages(form, "code"))
   let root_err = list.first(form.field_error_messages(form, "root"))
-  let success_msg = list.first(form.field_error_messages(form, "success_msg"))
+  let success_msg = form.field_value(form, "success_msg")
 
   html.form(
     [
@@ -90,14 +90,14 @@ pub fn verify_email_address_form(
             Error(_) -> element.none()
           },
 
-          case success_msg {
-            Ok(msg) -> {
+          case string.is_empty(success_msg) {
+            False -> {
               ui.alert_variant(ui.AlertSuccess, [
                 ui.alert_title(element.text("verification code sent")),
-                ui.alert_description(element.text(msg)),
+                ui.alert_description(element.text(success_msg)),
               ])
             }
-            Error(_) -> element.none()
+            True -> element.none()
           },
 
           ui.button([attribute.type_("submit")], [
