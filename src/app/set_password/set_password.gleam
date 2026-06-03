@@ -46,14 +46,14 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     use _ <- result.try(verify_email_available(ctx.db, session.email_address))
 
     let salt = crypto.generate_hashing_salt()
-    let password_hashed = crypto.hash_user_password(form.password, salt)
+    let password_hash = crypto.hash_user_password(form.password, salt)
     let secret = crypto.generate_session_secret()
     let secret_hash = crypto.hash_session_secret(secret)
 
     use auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
         use user <- result.try({
-          create_user(tx, password_hashed.raw_hash, salt, session.id)
+          create_user(tx, password_hash, salt, session.id)
         })
 
         use _ <- result.try(delete_sign_up_session(tx, session.id))

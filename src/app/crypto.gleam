@@ -2,6 +2,7 @@ import argus
 import gleam/bit_array
 import gleam/crypto
 import gleam/int
+import gleam/result
 import gleam/string
 
 pub fn generate_session_secret() -> BitArray {
@@ -39,5 +40,11 @@ pub fn hash_user_password(password: String, salt: BitArray) {
 
   let assert Ok(hashes) = argus.hasher() |> argus.hash(password, salt)
 
-  hashes
+  bit_array.from_string(hashes.encoded_hash)
+}
+
+pub fn validate_user_password(stored_hash: BitArray, plain_password: String) -> Bool {
+  let assert Ok(hash_str) = stored_hash |> bit_array.to_string
+
+  argus.verify(hash_str, plain_password) |> result.unwrap(False)
 }
