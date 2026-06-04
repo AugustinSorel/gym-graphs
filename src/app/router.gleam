@@ -15,6 +15,8 @@ import lustre/element
 import lustre/element/html
 import wisp.{type Request, type Response}
 
+//TODO: logging
+
 pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
 
