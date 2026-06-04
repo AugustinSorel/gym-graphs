@@ -72,6 +72,7 @@ pub type SelectAuthSessionByIdRow {
     secret_hash: BitArray,
     created_at: Timestamp,
     last_active_at: Timestamp,
+    email_address: String,
   )
 }
 
@@ -91,16 +92,27 @@ pub fn select_auth_session_by_id(
     use secret_hash <- decode.field(2, decode.bit_array)
     use created_at <- decode.field(3, pog.timestamp_decoder())
     use last_active_at <- decode.field(4, pog.timestamp_decoder())
+    use email_address <- decode.field(5, decode.string)
     decode.success(SelectAuthSessionByIdRow(
       id:,
       user_id:,
       secret_hash:,
       created_at:,
       last_active_at:,
+      email_address:,
     ))
   }
 
-  "select * from auth_sessions where id = $1;
+  "select
+  s.id,
+  s.user_id,
+  s.secret_hash,
+  s.created_at,
+  s.last_active_at,
+  u.email_address
+from auth_sessions s
+join users u on u.id = s.user_id
+where s.id = $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))

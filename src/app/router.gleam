@@ -1,3 +1,4 @@
+import app/account/account_page
 import app/ctx.{type Ctx}
 import app/register_email/register_email
 import app/register_email/register_email_page
@@ -11,8 +12,6 @@ import app/verify_email_address/verify_email_address
 import app/verify_email_address/verify_email_address_page
 import app/web
 import gleam/http.{Get, Post}
-import lustre/element
-import lustre/element/html
 import wisp.{type Request, type Response}
 
 //TODO: logging
@@ -21,7 +20,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
-    [] -> html.h1([], [element.text("hello")]) |> web.html(200)
+    [] -> account(req, ctx)
     ["sign-up"] -> register_email(req, ctx)
     ["sign-in"] -> handle_sign_in(req, ctx)
     ["verify-email-address"] -> verify_email_address(req, ctx)
@@ -75,5 +74,12 @@ fn set_password(req: Request, ctx: Ctx) -> Response {
     Get -> set_password_page.view_page(req, ctx)
     Post -> set_password.set(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
+  }
+}
+
+fn account(req: Request, ctx: Ctx) -> Response {
+  case req.method {
+    Get -> account_page.view_page(req, ctx)
+    _ -> wisp.method_not_allowed([Get])
   }
 }
