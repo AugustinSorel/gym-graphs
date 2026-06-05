@@ -29,11 +29,6 @@ pub fn form(form: Form(ResetPasswordForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("reset password"),
           ]),
-          html.p([attribute.class("text-sm")], [
-            element.text(
-              "enter your email address and we'll send you a link to reset your password.",
-            ),
-          ]),
           html.label(
             [
               attribute.class(
