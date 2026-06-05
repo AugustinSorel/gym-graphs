@@ -3,6 +3,7 @@ import app/ctx.{type Ctx}
 import app/register_email/register_email
 import app/register_email/register_email_page
 import app/reset_password/reset_password_page
+import app/reset_password/reset_password_register
 import app/set_password/set_password
 import app/set_password/set_password_page
 import app/sign_in/sign_in
@@ -17,6 +18,7 @@ import gleam/http.{Get, Post}
 import wisp.{type Request, type Response}
 
 //TODO: logging
+//TODO: refactor sign up crap
 
 pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
@@ -98,6 +100,7 @@ fn account(req: Request, ctx: Ctx) -> Response {
 fn handle_reset_password(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Get -> reset_password_page.view_page(req, ctx)
+    Post -> reset_password_register.register(req, ctx)
     _ -> wisp.method_not_allowed([Get])
   }
 }

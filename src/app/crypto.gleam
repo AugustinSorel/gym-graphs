@@ -2,6 +2,7 @@ import argus
 import gleam/bit_array
 import gleam/crypto
 import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 
@@ -43,8 +44,32 @@ pub fn hash_user_password(password: String, salt: BitArray) {
   bit_array.from_string(hashes.encoded_hash)
 }
 
-pub fn validate_user_password(stored_hash: BitArray, plain_password: String) -> Bool {
+pub fn validate_user_password(
+  stored_hash: BitArray,
+  plain_password: String,
+) -> Bool {
   let assert Ok(hash_str) = stored_hash |> bit_array.to_string
 
   argus.verify(hash_str, plain_password) |> result.unwrap(False)
+}
+
+pub fn generate_password_reset_email_code() {
+  let alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+  let random_bytes = crypto.strong_random_bytes(5)
+
+  let assert <<a:5, b:5, c:5, d:5, e:5, f:5, g:5, h:5>> = random_bytes
+
+  [a, b, c, d, e, f, g, h]
+  |> list.map(fn(i) { string.slice(alphabet, i, 1) })
+  |> string.join("")
+}
+
+pub fn hash_password_reset_email_code(email_code: String, salt: BitArray) {
+  let assert Ok(salt_str) = bit_array.to_string(salt)
+
+  let assert Ok(hashes) =
+    argus.hasher()
+    |> argus.hash(email_code, salt_str)
+
+  hashes
 }
