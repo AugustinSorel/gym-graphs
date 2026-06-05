@@ -1,3 +1,5 @@
+import gleam/float
+import gleam/time/duration
 import wisp.{type Request}
 
 const name = "auth_session_token"
@@ -9,7 +11,7 @@ pub fn set(res, req, value) {
     name:,
     value:,
     security: wisp.Signed,
-    max_age: 60 * 60 * 24,
+    max_age: duration.hours(24) |> duration.to_seconds() |> float.round(),
   )
 }
 
