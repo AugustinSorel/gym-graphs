@@ -110,7 +110,7 @@ pub fn form(form: Form(SignInForm)) -> Element(a) {
           html.div([attribute.class("flex justify-between")], [
             html.a(
               [
-                attribute.href("/forgot-password"),
+                attribute.href("/reset-password"),
                 attribute.class(
                   "text-right text-sm underline hover:text-current/80 transition-colors",
                 ),

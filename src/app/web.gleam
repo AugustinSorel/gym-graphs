@@ -30,13 +30,3 @@ pub fn html(el: Element(a), status: Int) -> Response {
   |> wisp.set_header("content-type", "text/html")
   |> wisp.string_tree_body(element.to_string_tree(el))
 }
-
-pub fn require_ok(
-  result: Result(data, Response),
-  next next: fn(data) -> Response,
-) -> Response {
-  case result {
-    Ok(data) -> next(data)
-    Error(err) -> err
-  }
-}
