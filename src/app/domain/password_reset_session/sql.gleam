@@ -76,6 +76,28 @@ returning *
   |> pog.execute(db)
 }
 
+/// Runs the `delete_password_reset_session_by_id` query
+/// defined in `./src/app/domain/password_reset_session/sql/delete_password_reset_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_password_reset_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from password_reset_sessions where id =
+$1;
+
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_password_reset_session_by_id` query
 /// defined in `./src/app/domain/password_reset_session/sql/select_password_reset_session_by_id.sql`.
 ///
@@ -135,34 +157,6 @@ pub fn select_password_reset_session_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `set_user_identity_verified_at_to_now` query.
-///
-pub type SetUserIdentityVerifiedAtToNowRow {
-  SetUserIdentityVerifiedAtToNowRow(id: Int)
-}
-
-/// Runs the `set_user_identity_verified_at_to_now` query.
-///
-pub fn set_user_identity_verified_at_to_now(
-  db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(SetUserIdentityVerifiedAtToNowRow), pog.QueryError) {
-  let decoder = {
-    use id <- decode.field(0, decode.int)
-    decode.success(SetUserIdentityVerifiedAtToNowRow(id:))
-  }
-
-  "update password_reset_sessions
-set user_identity_verified_at = now()
-where id = $1 and user_identity_verified_at is null
-returning id;
-"
-  |> pog.query
-  |> pog.parameter(pog.int(arg_1))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
 /// A row you get from running the `select_user_by_password_reset_session_id` query
 /// defined in `./src/app/domain/password_reset_session/sql/select_user_by_password_reset_session_id.sql`.
 ///
@@ -196,6 +190,47 @@ where password_reset_sessions.id
 $1;
 
 
+
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `set_password_reset_session_to_verified_by_id` query
+/// defined in `./src/app/domain/password_reset_session/sql/set_password_reset_session_to_verified_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SetPasswordResetSessionToVerifiedByIdRow {
+  SetPasswordResetSessionToVerifiedByIdRow(id: Int)
+}
+
+/// Runs the `set_password_reset_session_to_verified_by_id` query
+/// defined in `./src/app/domain/password_reset_session/sql/set_password_reset_session_to_verified_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn set_password_reset_session_to_verified_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(
+  pog.Returned(SetPasswordResetSessionToVerifiedByIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(SetPasswordResetSessionToVerifiedByIdRow(id:))
+  }
+
+  "update password_reset_sessions
+set user_identity_verified_at = now()
+where id =
+$1 and user_identity_verified_at is null
+returning id
 
 "
   |> pog.query

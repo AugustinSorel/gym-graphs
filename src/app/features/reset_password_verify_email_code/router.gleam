@@ -1,4 +1,5 @@
 import app/ctx.{type Ctx}
+import app/features/reset_password_verify_email_code/cancel
 import app/features/reset_password_verify_email_code/page
 import app/features/reset_password_verify_email_code/verify_email_code
 import gleam/http.{Get, Post}
@@ -12,6 +13,13 @@ pub fn handle(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-pub fn handle_cancel(_req: Request, _ctx: Ctx) -> Response {
+pub fn handle_resend(_req: Request, _ctx: Ctx) -> Response {
   wisp.not_found()
+}
+
+pub fn handle_cancel(req: Request, ctx: Ctx) -> Response {
+  case req.method {
+    Post -> cancel.cancel(req, ctx)
+    _ -> wisp.method_not_allowed([Post])
+  }
 }

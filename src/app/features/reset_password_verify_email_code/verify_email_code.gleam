@@ -60,14 +60,12 @@ pub fn verify(req: Request, ctx: Ctx) {
       |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
 
     Error(Validation(form:)) -> {
-      let email = get_email(ctx, session.id)
       form
-      |> ui.form(email)
+      |> ui.form("")
       |> web.html(422)
     }
 
     Error(IncorrectCode) -> {
-      let email = get_email(ctx, session.id)
       ui.get_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -76,7 +74,7 @@ pub fn verify(req: Request, ctx: Ctx) {
           "The verification code you entered is incorrect. Please try again.",
         ),
       )
-      |> ui.form(email)
+      |> ui.form("")
       |> web.html(422)
     }
 
@@ -96,7 +94,7 @@ pub fn verify(req: Request, ctx: Ctx) {
 }
 
 fn mark_verified(ctx: Ctx, session_id: Int) {
-  password_reset_session_sql.set_user_identity_verified_at_to_now(
+  password_reset_session_sql.set_password_reset_session_to_verified_by_id(
     ctx.db,
     session_id,
   )
