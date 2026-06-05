@@ -35,6 +35,9 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       create_reset_password_session(ctx.db, user.email_address)
     })
 
+    //TODO: send verification code
+    echo session.verification_code
+
     let token = password_reset_session_token.encode(session.id, session.secret)
 
     Ok(token)
