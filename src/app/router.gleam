@@ -2,6 +2,7 @@ import app/account/account_page
 import app/ctx.{type Ctx}
 import app/register_email/register_email
 import app/register_email/register_email_page
+import app/reset_password/reset_password_page
 import app/set_password/set_password
 import app/set_password/set_password_page
 import app/sign_in/sign_in
@@ -29,6 +30,7 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["verify-email-address", "resend"] -> resend_verification_code(req, ctx)
     ["verify-email-address", "cancel"] -> cancel_verify_email_address(req, ctx)
     ["set-password"] -> set_password(req, ctx)
+    ["reset-password"] -> handle_reset_password(req, ctx)
     _ -> wisp.not_found()
   }
 }
@@ -89,6 +91,13 @@ fn set_password(req: Request, ctx: Ctx) -> Response {
 fn account(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Get -> account_page.view_page(req, ctx)
+    _ -> wisp.method_not_allowed([Get])
+  }
+}
+
+fn handle_reset_password(req: Request, ctx: Ctx) -> Response {
+  case req.method {
+    Get -> reset_password_page.view_page(req, ctx)
     _ -> wisp.method_not_allowed([Get])
   }
 }
