@@ -1,113 +1,30 @@
-import app/account/account_page
 import app/ctx.{type Ctx}
-import app/register_email/register_email
-import app/register_email/register_email_page
-import app/reset_password/reset_password_page
-import app/reset_password/reset_password_register
-import app/set_password/set_password
-import app/set_password/set_password_page
-import app/sign_in/sign_in
-import app/sign_in/sign_in_page
-import app/sign_out/sign_out
-import app/verify_email_address/cancel_verify_email
-import app/verify_email_address/resend_email_verification_code
-import app/verify_email_address/verify_email_address
-import app/verify_email_address/verify_email_address_page
+import app/features/account/router as account_router
+import app/features/reset_password/router as reset_password_router
+import app/features/sign_in/router as sign_in_router
+import app/features/sign_out/router as sign_out_router
+import app/features/sign_up/router as sign_up_router
+import app/features/sign_up_set_password/router as sign_up_set_password_router
+import app/features/sign_up_verify_email/router as sign_up_verify_email_router
 import app/web
-import gleam/http.{Get, Post}
 import wisp.{type Request, type Response}
-
-//TODO: logging
-//TODO: refactor sign up crap
 
 pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
-    [] -> account(req, ctx)
-    ["sign-up"] -> register_email(req, ctx)
-    ["sign-up", "verify-email-address"] -> verify_email_address(req, ctx)
-    ["sign-up", "verify-email-address", "resend"] -> {
-      resend_verification_code(req, ctx)
-    }
-    ["sign-up", "verify-email-address", "cancel"] -> {
-      cancel_verify_email_address(req, ctx)
-    }
-    ["sign-up", "set-password"] -> set_password(req, ctx)
-
-    ["sign-in"] -> handle_sign_in(req, ctx)
-
-    ["sign-out"] -> handle_sign_out(req, ctx)
-
-    ["reset-password"] -> handle_reset_password(req, ctx)
+    [] -> account_router.handle(req, ctx)
+    ["sign-up"] -> sign_up_router.handle(req, ctx)
+    ["sign-up", "verify-email-address"] ->
+      sign_up_verify_email_router.handle(req, ctx)
+    ["sign-up", "verify-email-address", "resend"] ->
+      sign_up_verify_email_router.handle_resend(req, ctx)
+    ["sign-up", "verify-email-address", "cancel"] ->
+      sign_up_verify_email_router.handle_cancel(req, ctx)
+    ["sign-up", "set-password"] -> sign_up_set_password_router.handle(req, ctx)
+    ["sign-in"] -> sign_in_router.handle(req, ctx)
+    ["sign-out"] -> sign_out_router.handle(req, ctx)
+    ["reset-password"] -> reset_password_router.handle(req, ctx)
     _ -> wisp.not_found()
-  }
-}
-
-fn register_email(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> register_email_page.view_page(req, ctx)
-    Post -> register_email.register(req, ctx)
-    _ -> wisp.method_not_allowed([Get, Post])
-  }
-}
-
-fn handle_sign_in(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> sign_in_page.view_page(req, ctx)
-    Post -> sign_in.sign_in(req, ctx)
-    _ -> wisp.method_not_allowed([Get, Post])
-  }
-}
-
-fn handle_sign_out(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Post -> sign_out.sign_out(req, ctx)
-    _ -> wisp.method_not_allowed([Get, Post])
-  }
-}
-
-fn verify_email_address(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> verify_email_address_page.view_page(req, ctx)
-    Post -> verify_email_address.verify(req, ctx)
-    _ -> wisp.method_not_allowed([Get, Post])
-  }
-}
-
-fn resend_verification_code(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Post -> resend_email_verification_code.resend(req, ctx)
-    _ -> wisp.method_not_allowed([Post])
-  }
-}
-
-fn cancel_verify_email_address(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Post -> cancel_verify_email.cancel(req, ctx)
-    _ -> wisp.method_not_allowed([Post])
-  }
-}
-
-fn set_password(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> set_password_page.view_page(req, ctx)
-    Post -> set_password.set(req, ctx)
-    _ -> wisp.method_not_allowed([Get, Post])
-  }
-}
-
-fn account(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> account_page.view_page(req, ctx)
-    _ -> wisp.method_not_allowed([Get])
-  }
-}
-
-fn handle_reset_password(req: Request, ctx: Ctx) -> Response {
-  case req.method {
-    Get -> reset_password_page.view_page(req, ctx)
-    Post -> reset_password_register.register(req, ctx)
-    _ -> wisp.method_not_allowed([Get])
   }
 }
