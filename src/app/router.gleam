@@ -26,12 +26,19 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   case wisp.path_segments(req) {
     [] -> account(req, ctx)
     ["sign-up"] -> register_email(req, ctx)
+    ["sign-up", "verify-email-address"] -> verify_email_address(req, ctx)
+    ["sign-up", "verify-email-address", "resend"] -> {
+      resend_verification_code(req, ctx)
+    }
+    ["sign-up", "verify-email-address", "cancel"] -> {
+      cancel_verify_email_address(req, ctx)
+    }
+    ["sign-up", "set-password"] -> set_password(req, ctx)
+
     ["sign-in"] -> handle_sign_in(req, ctx)
+
     ["sign-out"] -> handle_sign_out(req, ctx)
-    ["verify-email-address"] -> verify_email_address(req, ctx)
-    ["verify-email-address", "resend"] -> resend_verification_code(req, ctx)
-    ["verify-email-address", "cancel"] -> cancel_verify_email_address(req, ctx)
-    ["set-password"] -> set_password(req, ctx)
+
     ["reset-password"] -> handle_reset_password(req, ctx)
     _ -> wisp.not_found()
   }

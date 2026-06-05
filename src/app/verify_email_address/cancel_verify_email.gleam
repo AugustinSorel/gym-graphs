@@ -49,7 +49,7 @@ pub fn cancel(req: Request, ctx: Ctx) {
 
     Error(AlreadyVerified) ->
       wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/set-password")
+      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
   }
 }
 

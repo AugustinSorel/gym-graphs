@@ -49,12 +49,12 @@ pub fn verify(req: Request, ctx: Ctx) {
   case result {
     Ok(_) -> {
       wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/set-password")
+      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
     }
 
     Error(AlreadyVerified) ->
       wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/set-password")
+      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
 
     Error(Validation(form:)) ->
       form

@@ -31,6 +31,6 @@ pub fn view_page(req: Request, ctx: Ctx) {
       |> ui.verify_email_address_page()
       |> web.html(200)
 
-    Error(AlreadyVerified) -> wisp.redirect("/set-password")
+    Error(AlreadyVerified) -> wisp.redirect("/sign-up/set-password")
   }
 }

@@ -45,7 +45,7 @@ pub fn register(req: Request, ctx: Ctx) {
   case result {
     Ok(token) ->
       wisp.created()
-      |> wisp.set_header("HX-Redirect", "/verify-email-address")
+      |> wisp.set_header("HX-Redirect", "/sign-up/verify-email-address")
       |> sign_up_session_cookie.set(req, token)
 
     Error(Validation(form:)) ->

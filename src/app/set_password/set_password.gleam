@@ -90,7 +90,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
       |> ui.set_password_form()
       |> web.html(422)
 
-    Error(EmailNotVerified) -> wisp.redirect("/verify-email-address")
+    Error(EmailNotVerified) -> wisp.redirect("/sign-up/verify-email-address")
 
     Error(EmailAlreadyTaken) ->
       ui.get_set_password_form()
