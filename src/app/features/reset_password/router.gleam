@@ -6,7 +6,7 @@ import wisp.{type Request, type Response}
 
 pub fn handle(req: Request, ctx: Ctx) -> Response {
   case req.method {
-    Get -> page.view(req, ctx)
+    Get -> page.view()
     Post -> reset_password.register(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
   }
