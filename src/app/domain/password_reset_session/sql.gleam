@@ -135,6 +135,34 @@ pub fn select_password_reset_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `set_user_identity_verified_at_to_now` query.
+///
+pub type SetUserIdentityVerifiedAtToNowRow {
+  SetUserIdentityVerifiedAtToNowRow(id: Int)
+}
+
+/// Runs the `set_user_identity_verified_at_to_now` query.
+///
+pub fn set_user_identity_verified_at_to_now(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SetUserIdentityVerifiedAtToNowRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(SetUserIdentityVerifiedAtToNowRow(id:))
+  }
+
+  "update password_reset_sessions
+set user_identity_verified_at = now()
+where id = $1 and user_identity_verified_at is null
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_user_by_password_reset_session_id` query
 /// defined in `./src/app/domain/password_reset_session/sql/select_user_by_password_reset_session_id.sql`.
 ///

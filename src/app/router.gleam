@@ -28,8 +28,6 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["reset-password"] -> reset_password_router.handle(req, ctx)
     ["reset-password", "verify-email-code"] ->
       reset_password_verify_email_code_router.handle(req, ctx)
-    ["reset-password", "verify-email-code", "resend"] ->
-      reset_password_verify_email_code_router.handle_resend(req, ctx)
     ["reset-password", "verify-email-code", "cancel"] ->
       reset_password_verify_email_code_router.handle_cancel(req, ctx)
     _ -> wisp.not_found()

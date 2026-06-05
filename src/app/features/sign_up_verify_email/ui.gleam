@@ -128,7 +128,7 @@ pub fn form(form: form.Form(VerifyEmailAddressForm)) -> Element(a) {
                 ),
                 attribute.attribute("hx-disable", "this"),
                 attribute.class(
-                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
+                  "ml-auto underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
                 ),
               ],
               [html.text("cancel"), ui.spinner()],
