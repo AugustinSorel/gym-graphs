@@ -1,7 +1,12 @@
+import app/crypto
+import app/ctx.{type Ctx}
+import app/domain/password_reset_session/sql
 import gleam/bit_array
+import gleam/bool
 import gleam/int
 import gleam/result
 import gleam/string
+import pog
 
 pub type PasswordResetSessionToken {
   PasswordResetSessionToken(id: Int, secret: BitArray)
@@ -29,4 +34,31 @@ pub fn decode(candidate_token: String) {
   use secret <- result.map(candidate_secret)
 
   PasswordResetSessionToken(id:, secret:)
+}
+
+pub type VerifyPasswordResetSessionTokenError {
+  InvalidToken
+  ExpiredOrNotFound
+  DatabaseFailure(pog.QueryError)
+}
+
+pub fn verify(token: PasswordResetSessionToken, ctx: Ctx) {
+  use session <- result.try(
+    sql.select_password_reset_session_by_id(ctx.db, token.id)
+    |> result.map_error(DatabaseFailure),
+  )
+
+  use session <- result.try(case session {
+    pog.Returned(_count, []) -> Error(ExpiredOrNotFound)
+    pog.Returned(_count, [session, ..]) -> Ok(session)
+  })
+
+  let is_secret_valid =
+    token.secret
+    |> crypto.hash_session_secret()
+    |> crypto.validate_session_secret(session.secret_hash)
+
+  use <- bool.guard(when: !is_secret_valid, return: Error(InvalidToken))
+
+  Ok(session)
 }

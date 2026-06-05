@@ -5,7 +5,7 @@ create table password_reset_sessions (
     secret_hash bytea not null,
     email_code_hash bytea not null,
     email_code_salt bytea not null,
-    user_identity_verified_at timestamp default now(),
+    user_identity_verified_at timestamp,
     created_at timestamp default now() not null
 );
 

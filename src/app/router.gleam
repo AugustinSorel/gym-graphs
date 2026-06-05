@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/features/account/router as account_router
 import app/features/reset_password/router as reset_password_router
+import app/features/reset_password_verify_email_code/router as reset_password_verify_email_code_router
 import app/features/sign_in/router as sign_in_router
 import app/features/sign_out/router as sign_out_router
 import app/features/sign_up/router as sign_up_router
@@ -25,6 +26,12 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["sign-in"] -> sign_in_router.handle(req, ctx)
     ["sign-out"] -> sign_out_router.handle(req, ctx)
     ["reset-password"] -> reset_password_router.handle(req, ctx)
+    ["reset-password", "verify-email-code"] ->
+      reset_password_verify_email_code_router.handle(req, ctx)
+    ["reset-password", "verify-email-code", "resend"] ->
+      reset_password_verify_email_code_router.handle_resend(req, ctx)
+    ["reset-password", "verify-email-code", "cancel"] ->
+      reset_password_verify_email_code_router.handle_cancel(req, ctx)
     _ -> wisp.not_found()
   }
 }
