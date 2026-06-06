@@ -238,3 +238,48 @@ returning id
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
+
+/// A row you get from running the `update_user_password_by_id` query
+/// defined in `./src/app/domain/password_reset_session/sql/update_user_password_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateUserPasswordByIdRow {
+  UpdateUserPasswordByIdRow(id: Int)
+}
+
+/// Runs the `update_user_password_by_id` query
+/// defined in `./src/app/domain/password_reset_session/sql/update_user_password_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_user_password_by_id(
+  db: pog.Connection,
+  arg_1: BitArray,
+  arg_2: BitArray,
+  arg_3: Int,
+) -> Result(pog.Returned(UpdateUserPasswordByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdateUserPasswordByIdRow(id:))
+  }
+
+  "update users
+set
+  password_hash = $1,
+  password_salt = $2
+from password_reset_sessions
+where users.id = password_reset_sessions.user_id
+and password_reset_sessions.id = $3
+and password_reset_sessions.user_identity_verified_at is not null
+returning users.id
+"
+  |> pog.query
+  |> pog.parameter(pog.bytea(arg_1))
+  |> pog.parameter(pog.bytea(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
