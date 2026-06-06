@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/features/account/router as account_router
 import app/features/reset_password/router as reset_password_router
+import app/features/reset_password_set_new_password/router as reset_password_set_new_password_router
 import app/features/reset_password_verify_email_code/router as reset_password_verify_email_code_router
 import app/features/sign_in/router as sign_in_router
 import app/features/sign_out/router as sign_out_router
@@ -30,6 +31,8 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       reset_password_verify_email_code_router.handle(req, ctx)
     ["reset-password", "verify-email-code", "cancel"] ->
       reset_password_verify_email_code_router.handle_cancel(req, ctx)
+    ["reset-password", "set-new-password"] ->
+      reset_password_set_new_password_router.handle(req, ctx)
     _ -> wisp.not_found()
   }
 }
