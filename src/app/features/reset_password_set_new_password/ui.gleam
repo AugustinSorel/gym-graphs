@@ -15,8 +15,6 @@ pub fn page(children: Element(a)) -> Element(a) {
 pub fn form(form: Form(SetNewPasswordForm)) -> Element(a) {
   let email_address = form.field_value(form, "email_address")
   let password_err = list.first(form.field_error_messages(form, "password"))
-  let confirm_password_err =
-    list.first(form.field_error_messages(form, "confirm_password"))
   let root_err = list.first(form.field_error_messages(form, "root"))
 
   html.form(
@@ -71,40 +69,7 @@ pub fn form(form: Form(SetNewPasswordForm)) -> Element(a) {
               },
             ],
           ),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("confirm new password:"),
-              html.input([
-                attribute.type_("password"),
-                attribute.class("border-b-2 border-current"),
-                attribute.name("confirm_password"),
-                attribute.placeholder("********"),
-                attribute.value(form.field_value(form, "confirm_password")),
-                attribute.attribute("autocomplete", "new-password"),
-                attribute.aria_invalid(
-                  string.lowercase(
-                    bool.to_string(result.is_ok(confirm_password_err)),
-                  ),
-                ),
-              ]),
-              case confirm_password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+
           case root_err {
             Ok(msg) ->
               ui.alert([
@@ -113,10 +78,12 @@ pub fn form(form: Form(SetNewPasswordForm)) -> Element(a) {
               ])
             Error(_) -> element.none()
           },
+
           ui.button([attribute.type_("submit")], [
             html.text("set new password"),
             ui.spinner(),
           ]),
+
           html.div([attribute.class("flex justify-end")], [
             html.button(
               [
@@ -140,7 +107,7 @@ pub fn form(form: Form(SetNewPasswordForm)) -> Element(a) {
 }
 
 pub type SetNewPasswordForm {
-  SetNewPasswordForm(password: String, confirm_password: String)
+  SetNewPasswordForm(password: String)
 }
 
 pub fn get_form() -> Form(SetNewPasswordForm) {
@@ -152,13 +119,7 @@ pub fn get_form() -> Form(SetNewPasswordForm) {
       |> form.check_string_length_less_than(72)
     })
 
-    use confirm_password <- form.field("confirm_password", {
-      form.parse_string
-      |> form.check_not_empty
-      |> form.check_confirms(password)
-    })
-
-    form.success(SetNewPasswordForm(password:, confirm_password:))
+    form.success(SetNewPasswordForm(password:))
   }
 
   form.new(schema) |> form.language(form.en_gb)

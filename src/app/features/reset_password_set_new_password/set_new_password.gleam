@@ -46,7 +46,7 @@ pub fn set(req: Request, ctx: Ctx) -> Response {
     use auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
         use _ <- result.try({
-          update_password(tx, password_hash, salt, session.user_id)
+          update_password(tx, password_hash, salt, session.id)
         })
 
         use _ <- result.try(delete_reset_session(tx, session.id))
@@ -101,13 +101,13 @@ fn update_password(
   db: Connection,
   password_hash: BitArray,
   salt: BitArray,
-  user_id: Int,
+  session_id: Int,
 ) -> Result(Nil, SetNewPasswordError) {
   password_reset_session_sql.update_user_password_by_id(
     db,
     password_hash,
     salt,
-    user_id,
+    session_id,
   )
   |> result.map_error(DatabaseFailure)
   |> result.try(fn(returned) {
