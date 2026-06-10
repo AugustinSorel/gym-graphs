@@ -2,7 +2,6 @@ import app/ui
 import formal/form.{type Form}
 import gleam/bool
 import gleam/list
-import gleam/option
 import gleam/result
 import gleam/string
 import lustre/attribute
@@ -11,15 +10,6 @@ import lustre/element/html
 
 pub fn page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
-}
-
-pub type FieldErrors {
-  FieldErrors(code: option.Option(String))
-}
-
-pub type RootMsg {
-  RootErr(msg: String)
-  RootSuccess(msg: String)
 }
 
 pub fn form(form: form.Form(VerifyEmailAddressForm)) -> Element(a) {

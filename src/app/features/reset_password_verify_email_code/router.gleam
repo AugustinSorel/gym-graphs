@@ -13,10 +13,6 @@ pub fn handle(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-pub fn handle_resend(_req: Request, _ctx: Ctx) -> Response {
-  wisp.not_found()
-}
-
 pub fn handle_cancel(req: Request, ctx: Ctx) -> Response {
   case req.method {
     Post -> cancel.cancel(req, ctx)
