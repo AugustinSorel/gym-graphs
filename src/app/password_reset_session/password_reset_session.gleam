@@ -25,6 +25,7 @@ type PasswordResetError(form) {
   UserNotFound
   IncorrectCode
   AlreadyVerified
+  NotVerified
 }
 
 pub fn view_password_reset_page() {
@@ -415,4 +416,152 @@ fn verify_token(token: PasswordResetSessionToken, ctx: Ctx) {
   use <- bool.guard(when: !is_secret_valid, return: Error(InvalidToken))
 
   Ok(session)
+}
+
+pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
+  use session <- require(req, ctx)
+
+  let result = {
+    let not_verified = option.is_none(session.user_identity_verified_at)
+
+    use <- bool.guard(when: not_verified, return: Error(NotVerified))
+
+    use user <- result.try(select_user(ctx.db, session.id))
+
+    Ok(user)
+  }
+
+  case result {
+    Ok(user) ->
+      ui.get_set_new_password_form()
+      |> form.add_string("email_address", user.email_address)
+      |> ui.set_new_password_form()
+      |> ui.set_new_password_page()
+      |> web.html(200)
+
+    Error(NotVerified) -> wisp.redirect("/reset-password/verify-email-code")
+
+    Error(_) ->
+      ui.get_set_new_password_form()
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> ui.set_new_password_form()
+      |> ui.set_new_password_page()
+      |> web.html(500)
+  }
+}
+
+pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
+  use session <- require(req, ctx)
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_set_new_password_form()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(Validation),
+    )
+
+    let not_verified = option.is_none(session.user_identity_verified_at)
+
+    use <- bool.guard(when: not_verified, return: Error(NotVerified))
+
+    let salt = crypto.generate_hashing_salt()
+    let password_hash = crypto.hash_user_password(input.password, salt)
+    let secret = crypto.generate_session_secret()
+    let secret_hash = crypto.hash_session_secret(secret)
+
+    use new_auth_session <- result.try(
+      pog.transaction(ctx.db, fn(tx) {
+        use _ <- result.try({
+          update_password(tx, password_hash, salt, session.id)
+        })
+
+        use _ <- result.try(delete_reset_session(tx, session.id))
+
+        use new_auth_session <- result.try({
+          create_auth_session(tx, session.user_id, secret_hash)
+        })
+
+        Ok(new_auth_session)
+      })
+      |> result.map_error(fn(err) {
+        case err {
+          pog.TransactionRolledBack(e) -> e
+          pog.TransactionQueryError(err) -> DatabaseFailure(err)
+        }
+      }),
+    )
+
+    Ok(#(new_auth_session, secret))
+  }
+
+  case result {
+    Ok(#(new_auth_session, secret)) -> {
+      let token = encode_token(new_auth_session.id, secret)
+
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/")
+      |> clear_cookie(req)
+      |> auth_session.set_cookie(req, token)
+    }
+
+    Error(Validation(form:)) ->
+      form
+      |> ui.set_new_password_form()
+      |> web.html(422)
+
+    Error(NotVerified) -> wisp.redirect("/reset-password/verify-email-code")
+
+    Error(_) ->
+      ui.get_set_new_password_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> ui.set_new_password_form()
+      |> web.html(500)
+  }
+}
+
+fn update_password(
+  db: Connection,
+  password_hash: BitArray,
+  salt: BitArray,
+  session_id: Int,
+) {
+  password_reset_session_sql.update_user_password_by_id(
+    db,
+    password_hash,
+    salt,
+    session_id,
+  )
+  |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [_, ..]) -> Ok(Nil)
+      pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
+    }
+  })
+}
+
+fn delete_reset_session(db: Connection, session_id: Int) {
+  password_reset_session_sql.delete_password_reset_session_by_id(db, session_id)
+  |> result.map_error(DatabaseFailure)
+  |> result.map(fn(_) { Nil })
+}
+
+fn create_auth_session(db: Connection, user_id: Int, secret_hash: BitArray) {
+  auth_session_sql.create_auth_session(db, user_id, secret_hash)
+  |> result.map_error(DatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [session, ..]) -> Ok(session)
+      pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
+    }
+  })
 }

@@ -40,8 +40,8 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     }
     ["sign-up", "set-password"] -> {
       case req.method {
-        Get -> user.view_set_password_page(req, ctx)
-        Post -> user.set_password(req, ctx)
+        Get -> sign_up_session.view_set_password_page(req, ctx)
+        Post -> sign_up_session.set_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
@@ -80,8 +80,8 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
     ["reset-password", "set-new-password"] -> {
       case req.method {
-        Get -> user.view_set_new_password_page(req, ctx)
-        Post -> user.set_new_password(req, ctx)
+        Get -> password_reset_session.view_set_new_password_page(req, ctx)
+        Post -> password_reset_session.set_new_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
