@@ -94,6 +94,7 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
       |> clear_cookie(req)
     }
     Error(error) -> {
+      wisp.log_error("sign out failed [session_id=" <> int.to_string(session.id) <> "]")
       base_ui.alert([
         base_ui.alert_title(html.text("Something went wrong")),
         base_ui.alert_description(html.text("unexpected error")),
@@ -179,7 +180,8 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
       |> ui.sign_in_form()
       |> web.html(401)
 
-    Error(DatabaseFailure(_)) | Error(UnexpectedDatabaseResult) ->
+    Error(DatabaseFailure(err)) -> {
+      wisp.log_error("sign in database failure: " <> string.inspect(err))
       ui.get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -188,6 +190,19 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
       )
       |> ui.sign_in_form()
       |> web.html(500)
+    }
+
+    Error(UnexpectedDatabaseResult) -> {
+      wisp.log_error("sign in: unexpected database result")
+      ui.get_sign_in_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> ui.sign_in_form()
+      |> web.html(500)
+    }
   }
 }
 

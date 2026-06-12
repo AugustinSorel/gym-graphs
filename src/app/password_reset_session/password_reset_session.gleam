@@ -54,30 +54,31 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     //TODO: send verification code
     echo session.verification_code
-
     let token = encode_token(session.id, session.secret)
 
     Ok(token)
   }
 
   case result {
-    Ok(token) -> {
+    Ok(token) ->
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/reset-password/verify-email-code")
       |> set_cookie(req, token)
-    }
-    Error(Validation(form:)) -> {
+
+    Error(Validation(form:)) ->
       form
       |> ui.password_reset_form()
       |> web.html(422)
-    }
+
     Error(UserNotFound) ->
       ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Account not found"))
       |> ui.password_reset_form()
       |> web.html(404)
-    Error(e) ->
+
+    Error(DatabaseFailure(err)) -> {
+      wisp.log_error("password reset: database failure: " <> string.inspect(err))
       ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -86,6 +87,19 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       )
       |> ui.password_reset_form()
       |> web.html(500)
+    }
+
+    Error(_e) -> {
+      wisp.log_error("password reset: unexpected error")
+      ui.get_password_reset_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> ui.password_reset_form()
+      |> web.html(500)
+    }
   }
 }
 
@@ -207,13 +221,12 @@ pub fn verify(req: Request, ctx: Ctx) {
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
 
-    Error(Validation(form:)) -> {
+    Error(Validation(form:)) ->
       form
       |> ui.verify_form("")
       |> web.html(422)
-    }
 
-    Error(IncorrectCode) -> {
+    Error(IncorrectCode) ->
       ui.get_verify_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -224,9 +237,9 @@ pub fn verify(req: Request, ctx: Ctx) {
       )
       |> ui.verify_form("")
       |> web.html(422)
-    }
 
-    Error(e) -> {
+    Error(_e) -> {
+      wisp.log_error("password reset: verify error [session_id=" <> int.to_string(session.id) <> "]")
       ui.get_verify_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -516,7 +529,8 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
 
     Error(NotVerified) -> wisp.redirect("/reset-password/verify-email-code")
 
-    Error(_) ->
+    Error(error) -> {
+      wisp.log_error("password reset: set new password error [session_id=" <> int.to_string(session.id) <> "]")
       ui.get_set_new_password_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -525,6 +539,7 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
       )
       |> ui.set_new_password_form()
       |> web.html(500)
+    }
   }
 }
 

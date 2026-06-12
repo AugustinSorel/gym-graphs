@@ -57,7 +57,6 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     //TODO: send email code
     echo session.verification_code
-
     Ok(encode_token(session.id, session.secret))
   }
 
@@ -82,7 +81,17 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> ui.register_form()
       |> web.html(409)
 
+    Error(DatabaseFailure(err)) -> {
+      wisp.log_error("sign up: database failure: " <> string.inspect(err))
+      ui.get_register_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.register_form()
+      |> web.html(500)
+    }
+
     Error(error) -> {
+      wisp.log_error("sign up: unexpected error")
       ui.get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
@@ -157,10 +166,9 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
   }
 
   case result {
-    Ok(_) -> {
+    Ok(_) ->
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
-    }
 
     Error(EmailAlreadyVerified) ->
       wisp.ok()
@@ -183,12 +191,14 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
       |> ui.verify_email_form()
       |> web.html(422)
 
-    Error(error) ->
+    Error(error) -> {
+      wisp.log_error("sign up: verify email error")
       ui.get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.verify_email_form()
       |> web.html(500)
+    }
   }
 }
 
@@ -211,9 +221,8 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
 
   case result {
     Ok(session) -> {
-      echo session.email_address_verification_code
-
       // TODO: send verification email with session.email_address_verification_code
+      echo session.email_address_verification_code
       ui.get_verify_email_form()
       |> form.add_values(form_data.values)
       |> form.add_string(
@@ -229,6 +238,7 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
       |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
 
     Error(error) -> {
+      wisp.log_error("sign up: resend verification code error")
       ui.get_verify_email_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong"))
@@ -552,12 +562,14 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
       |> ui.set_password_form()
       |> web.html(409)
 
-    Error(_) ->
+    Error(error) -> {
+      wisp.log_error("sign up: set password error [session_id=" <> int.to_string(session.id) <> "]")
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.set_password_form()
       |> web.html(500)
+    }
   }
 }
 
