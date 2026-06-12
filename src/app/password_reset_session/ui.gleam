@@ -91,32 +91,6 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
   )
 }
 
-pub fn success_message() -> Element(a) {
-  html.div(
-    [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
-    [
-      html.p([attribute.class("text-sm font-semibold")], [
-        element.text("check your email"),
-      ]),
-      ui.alert_variant(ui.AlertSuccess, [
-        ui.alert_title(element.text("reset link sent")),
-        ui.alert_description(element.text(
-          "if an account exists for that address, you'll receive a password reset email shortly.",
-        )),
-      ]),
-      html.p([attribute.class("text-right text-sm")], [
-        html.a(
-          [
-            attribute.href("/sign-in"),
-            attribute.class("underline hover:text-current/80 transition-colors"),
-          ],
-          [element.text("back to sign in")],
-        ),
-      ]),
-    ],
-  )
-}
-
 pub type ResetPasswordForm {
   ResetPasswordForm(email: String)
 }
