@@ -8,11 +8,11 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn page(children: Element(a)) -> Element(a) {
+pub fn sign_in_page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
 }
 
-pub fn form(form: Form(SignInForm)) -> Element(a) {
+pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
   let password_err = list.first(form.field_error_messages(form, "password"))
   let root_err = list.first(form.field_error_messages(form, "root"))
@@ -140,7 +140,7 @@ pub type SignInForm {
   SignInForm(email: String, password: String)
 }
 
-pub fn get_form() -> Form(SignInForm) {
+pub fn get_sign_in_form() -> Form(SignInForm) {
   let schema = {
     use email <- form.field("email", {
       form.parse_email
@@ -155,12 +155,11 @@ pub fn get_form() -> Form(SignInForm) {
     form.success(SignInForm(email:, password:))
   }
 
-  form.new(schema) |> form.language(translate)
-}
-
-fn translate(error: FieldError) -> String {
-  case error {
-    MustBeEmail -> "please enter a valid email address"
-    _ -> form.en_gb(error)
-  }
+  form.new(schema)
+  |> form.language(fn(error: FieldError) -> String {
+    case error {
+      MustBeEmail -> "please enter a valid email address"
+      _ -> form.en_gb(error)
+    }
+  })
 }
