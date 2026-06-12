@@ -1,11 +1,6 @@
 import app/auth_session/sql.{type SelectAuthSessionByIdRow} as auth_session_sql
-import app/auth_session/ui.{type SignInForm}
 import app/crypto
 import app/ctx.{type Ctx}
-import app/ui as base_ui
-import app/user/sql as user_sql
-import app/web
-import formal/form.{type Form}
 import gleam/bit_array
 import gleam/bool
 import gleam/float
@@ -15,16 +10,8 @@ import gleam/result
 import gleam/string
 import gleam/time/duration
 import gleam/time/timestamp
-import lustre/element/html
 import pog.{type Connection}
 import wisp.{type Request, type Response}
-
-type AuthSessionError {
-  Validation(form: Form(SignInForm))
-  InvalidCredentials
-  DatabaseFailure(pog.QueryError)
-  UnexpectedDatabaseResult
-}
 
 pub fn require(req: Request, ctx: Ctx, next) -> Response {
   let redirect = wisp.redirect("/sign-up") |> clear_cookie(req)
@@ -75,156 +62,9 @@ pub fn require_blank(
   }
 }
 
-pub fn sign_out(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
-
-  let result = {
-    use _ <- result.try(
-      auth_session_sql.delete_auth_session_by_id(ctx.db, session.id)
-      |> result.map_error(DatabaseFailure),
-    )
-
-    Ok(Nil)
-  }
-
-  case result {
-    Ok(_) -> {
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/sign-in")
-      |> clear_cookie(req)
-    }
-    Error(error) -> {
-      wisp.log_error("sign out failed [session_id=" <> int.to_string(session.id) <> "]")
-      base_ui.alert([
-        base_ui.alert_title(html.text("Something went wrong")),
-        base_ui.alert_description(html.text("unexpected error")),
-      ])
-      |> web.html(500)
-    }
-  }
-}
-
-pub fn view_sign_in_page(req: Request, ctx: Ctx) {
-  use <- require_blank(req, ctx)
-
-  ui.get_sign_in_form()
-  |> ui.sign_in_form()
-  |> ui.sign_in_page()
-  |> web.html(200)
-}
-
-pub fn sign_in(req: Request, ctx: Ctx) -> Response {
-  use <- require_blank(req, ctx)
-
-  use formdata <- wisp.require_form(req)
-
-  let result = {
-    use input <- result.try(
-      ui.get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.run()
-      |> result.map_error(Validation),
-    )
-
-    use user <- result.try(
-      user_sql.select_user_by_email_address(ctx.db, input.email)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [user, ..]) -> Ok(user)
-          pog.Returned(_, []) -> Error(InvalidCredentials)
-        }
-      }),
-    )
-
-    let password_valid =
-      crypto.validate_user_password(user.password_hash, input.password)
-
-    use <- bool.guard(when: !password_valid, return: Error(InvalidCredentials))
-
-    let secret = crypto.generate_session_secret()
-    let secret_hash = crypto.hash_session_secret(secret)
-
-    use auth_session <- result.try(
-      auth_session_sql.create_auth_session(ctx.db, user.id, secret_hash)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [session, ..]) -> Ok(session)
-          pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
-        }
-      }),
-    )
-
-    Ok(#(auth_session.id, secret))
-  }
-
-  case result {
-    Ok(#(session_id, secret)) -> {
-      let token = encode_token(session_id, secret)
-
-      wisp.created()
-      |> wisp.set_header("HX-Redirect", "/")
-      |> set_cookie(req, token)
-    }
-
-    Error(Validation(form:)) ->
-      form
-      |> ui.sign_in_form()
-      |> web.html(422)
-
-    Error(InvalidCredentials) ->
-      ui.get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error("root", form.CustomError("Invalid email or password."))
-      |> ui.sign_in_form()
-      |> web.html(401)
-
-    Error(DatabaseFailure(err)) -> {
-      wisp.log_error("sign in database failure: " <> string.inspect(err))
-      ui.get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Something went wrong, please try again."),
-      )
-      |> ui.sign_in_form()
-      |> web.html(500)
-    }
-
-    Error(UnexpectedDatabaseResult) -> {
-      wisp.log_error("sign in: unexpected database result")
-      ui.get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Something went wrong, please try again."),
-      )
-      |> ui.sign_in_form()
-      |> web.html(500)
-    }
-  }
-}
-
-fn refresh_auth_session(session: SelectAuthSessionByIdRow, db: Connection) {
-  let elapsed_vs_threshold =
-    timestamp.system_time()
-    |> timestamp.difference(session.last_active_at)
-    |> duration.compare(duration.hours(12))
-
-  case elapsed_vs_threshold {
-    order.Gt -> {
-      auth_session_sql.update_auth_session_last_active_at(db, session.id)
-      |> result.replace(Nil)
-      |> result.replace_error(Nil)
-    }
-    order.Lt | order.Eq -> Error(Nil)
-  }
-}
-
 const cookie_name = "auth_session_token"
 
-pub fn set_cookie(res, req, value) {
+pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -235,7 +75,7 @@ pub fn set_cookie(res, req, value) {
   )
 }
 
-fn clear_cookie(res, req) {
+pub fn clear_cookie(res: Response, req: Request) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -302,4 +142,20 @@ fn verify_token(token: AuthSessionToken, ctx: Ctx) {
   use <- bool.guard(when: !is_secret_valid, return: Error(InvalidToken))
 
   Ok(session)
+}
+
+fn refresh_auth_session(session: SelectAuthSessionByIdRow, db: Connection) {
+  let elapsed_vs_threshold =
+    timestamp.system_time()
+    |> timestamp.difference(session.last_active_at)
+    |> duration.compare(duration.hours(12))
+
+  case elapsed_vs_threshold {
+    order.Gt -> {
+      auth_session_sql.update_auth_session_last_active_at(db, session.id)
+      |> result.replace(Nil)
+      |> result.replace_error(Nil)
+    }
+    order.Lt | order.Eq -> Error(Nil)
+  }
 }
