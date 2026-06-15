@@ -1,163 +1,26 @@
-import app/auth_session/auth_session
-import app/auth_session/sql as auth_session_sql
-import app/crypto
-import app/ctx.{type Ctx}
 import app/ui
-import app/user/sql as user_sql
-import app/web
 import formal/form.{type FieldError, type Form, MustBeEmail}
 import gleam/bool
-import gleam/int
 import gleam/list
 import gleam/result
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
-import pog
-import wisp.{type Request, type Response}
 
-type SignInError {
-  Validation(form: Form(SignInForm))
-  InvalidCredentials
-  DatabaseFailure(pog.QueryError)
-  UnexpectedDatabaseResult
-}
+// ---------------------------------------------------------------------------
+// Form types
+// ---------------------------------------------------------------------------
 
-pub fn view_sign_in_page(req: Request, ctx: Ctx) -> Response {
-  use <- auth_session.require_blank(req, ctx)
-
-  get_sign_in_form()
-  |> sign_in_form()
-  |> sign_in_page()
-  |> web.html(200)
-}
-
-pub fn sign_in(req: Request, ctx: Ctx) -> Response {
-  use <- auth_session.require_blank(req, ctx)
-
-  use formdata <- wisp.require_form(req)
-
-  let result = {
-    use input <- result.try(
-      get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.run()
-      |> result.map_error(Validation),
-    )
-
-    use user <- result.try(
-      user_sql.select_user_by_email_address(ctx.db, input.email)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [user, ..]) -> Ok(user)
-          pog.Returned(_, []) -> Error(InvalidCredentials)
-        }
-      }),
-    )
-
-    let password_valid =
-      crypto.validate_user_password(user.password_hash, input.password)
-
-    use <- bool.guard(when: !password_valid, return: Error(InvalidCredentials))
-
-    let secret = crypto.generate_session_secret()
-    let secret_hash = crypto.hash_session_secret(secret)
-
-    use auth_session <- result.try(
-      auth_session_sql.create_auth_session(ctx.db, user.id, secret_hash)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [session, ..]) -> Ok(session)
-          pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
-        }
-      }),
-    )
-
-    Ok(#(auth_session.id, secret))
-  }
-
-  case result {
-    Ok(#(session_id, secret)) -> {
-      let token = auth_session.encode_token(session_id, secret)
-
-      wisp.created()
-      |> wisp.set_header("HX-Redirect", "/")
-      |> auth_session.set_cookie(req, token)
-    }
-
-    Error(Validation(form:)) ->
-      form
-      |> sign_in_form()
-      |> web.html(422)
-
-    Error(InvalidCredentials) ->
-      get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error("root", form.CustomError("Invalid email or password."))
-      |> sign_in_form()
-      |> web.html(401)
-
-    Error(DatabaseFailure(err)) -> {
-      wisp.log_error("sign in database failure: " <> string.inspect(err))
-      get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Something went wrong, please try again."),
-      )
-      |> sign_in_form()
-      |> web.html(500)
-    }
-
-    Error(UnexpectedDatabaseResult) -> {
-      wisp.log_error("sign in: unexpected database result")
-      get_sign_in_form()
-      |> form.add_values(formdata.values)
-      |> form.add_error(
-        "root",
-        form.CustomError("Something went wrong, please try again."),
-      )
-      |> sign_in_form()
-      |> web.html(500)
-    }
-  }
-}
-
-pub fn sign_out(req: Request, ctx: Ctx) -> Response {
-  use session <- auth_session.require(req, ctx)
-
-  let result =
-    auth_session_sql.delete_auth_session_by_id(ctx.db, session.id)
-    |> result.map_error(DatabaseFailure)
-    |> result.replace(Nil)
-
-  case result {
-    Ok(_) ->
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/sign-in")
-      |> auth_session.clear_cookie(req)
-
-    Error(_) -> {
-      wisp.log_error(
-        "sign out failed [session_id=" <> int.to_string(session.id) <> "]",
-      )
-      ui.alert([
-        ui.alert_title(html.text("Something went wrong")),
-        ui.alert_description(html.text("unexpected error")),
-      ])
-      |> web.html(500)
-    }
-  }
-}
-
-type SignInForm {
+pub type SignInForm {
   SignInForm(email: String, password: String)
 }
 
-fn get_sign_in_form() -> Form(SignInForm) {
+// ---------------------------------------------------------------------------
+// Sign in UI
+// ---------------------------------------------------------------------------
+
+pub fn get_sign_in_form() -> Form(SignInForm) {
   let schema = {
     use email <- form.field("email", {
       form.parse_email
@@ -181,11 +44,11 @@ fn get_sign_in_form() -> Form(SignInForm) {
   })
 }
 
-fn sign_in_page(children: Element(a)) -> Element(a) {
+pub fn sign_in_page(children: Element(a)) -> Element(a) {
   ui.layout(html.main([], [children]))
 }
 
-fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
+pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
   let email_err = list.first(form.field_error_messages(form, "email"))
   let password_err = list.first(form.field_error_messages(form, "password"))
   let root_err = list.first(form.field_error_messages(form, "root"))
