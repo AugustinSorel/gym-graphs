@@ -18,7 +18,7 @@ import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
 
-pub fn require(
+fn require(
   req: Request,
   ctx: Ctx,
   next: fn(SelectPasswordResetSessionByIdRow) -> Response,
@@ -44,7 +44,7 @@ pub fn require(
 
 const cookie_name = "password_reset_session_token"
 
-pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
+fn set_cookie(res: Response, req: Request, value: String) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -55,7 +55,7 @@ pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
   )
 }
 
-pub fn clear_cookie(res: Response, req: Request) -> Response {
+fn clear_cookie(res: Response, req: Request) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -74,7 +74,7 @@ type PasswordResetSessionToken {
   PasswordResetSessionToken(id: Int, secret: BitArray)
 }
 
-pub fn encode_token(id: Int, secret: BitArray) -> String {
+fn encode_token(id: Int, secret: BitArray) -> String {
   let encoded_secret = bit_array.base64_encode(secret, False)
   int.to_string(id) <> "." <> encoded_secret
 }
@@ -154,9 +154,10 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     use user <- result.try(select_user_by_email(ctx.db, input.email))
 
-    use session <- result.try(
-      create_reset_password_session(ctx.db, user.email_address),
-    )
+    use session <- result.try(create_reset_password_session(
+      ctx.db,
+      user.email_address,
+    ))
 
     //TODO: send verification code
     echo session.verification_code
@@ -184,7 +185,9 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> web.html(404)
 
     Error(PasswordResetDatabaseFailure(err)) -> {
-      wisp.log_error("password reset: database failure: " <> string.inspect(err))
+      wisp.log_error(
+        "password reset: database failure: " <> string.inspect(err),
+      )
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -540,9 +543,11 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
 
         use _ <- result.try(delete_reset_session(tx, session.id))
 
-        use new_auth_session <- result.try(
-          create_auth_session(tx, session.user_id, secret_hash),
-        )
+        use new_auth_session <- result.try(create_auth_session(
+          tx,
+          session.user_id,
+          secret_hash,
+        ))
 
         Ok(new_auth_session)
       })

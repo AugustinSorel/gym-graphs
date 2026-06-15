@@ -81,7 +81,7 @@ pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
   )
 }
 
-pub fn clear_cookie(res: Response, req: Request) -> Response {
+fn clear_cookie(res: Response, req: Request) -> Response {
   wisp.set_cookie(
     res,
     req,

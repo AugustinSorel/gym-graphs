@@ -41,7 +41,7 @@ pub fn require(
 
 const cookie_name: String = "sign_up_session_token"
 
-pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
+fn set_cookie(res: Response, req: Request, value: String) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -52,7 +52,7 @@ pub fn set_cookie(res: Response, req: Request, value: String) -> Response {
   )
 }
 
-pub fn clear_cookie(res: Response, req: Request) -> Response {
+fn clear_cookie(res: Response, req: Request) -> Response {
   wisp.set_cookie(
     res,
     req,
@@ -188,7 +188,14 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(UnexpectedDatabaseResult) -> todo
+    Error(UnexpectedDatabaseResult) -> {
+      wisp.log_error("sign up: Unexpected database result")
+      sign_up_ui.get_register_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_ui.register_form()
+      |> web.html(500)
+    }
   }
 }
 
@@ -234,7 +241,6 @@ fn encode_token(id: Int, secret: BitArray) -> String {
   let encoded_secret = bit_array.base64_encode(secret, False)
   int.to_string(id) <> "." <> encoded_secret
 }
-
 
 type SharedEmailError {
   EmailAlreadyVerified
@@ -452,7 +458,9 @@ fn mark_email_verified(db: pog.Connection, session_id: Int) {
 
 fn cancel_email(db: pog.Connection, session_id: Int) {
   sign_up_session_sql.delete_sign_up_session_by_id(db, session_id)
-  |> result.map_error(fn(err) { CancelInternal(VerifyEmailDatabaseFailure(err)) })
+  |> result.map_error(fn(err) {
+    CancelInternal(VerifyEmailDatabaseFailure(err))
+  })
   |> result.replace(Nil)
 }
 
