@@ -1,8 +1,6 @@
 import app/ui
 import formal/form.{type FieldError, type Form, MustBeEmail}
-import gleam/bool
 import gleam/list
-import gleam/result
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
@@ -70,38 +68,26 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("reset password"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("email:"),
-              html.input([
-                attribute.id("email_input"),
-                attribute.type_("email"),
-                attribute.class("border-b-2 border-current"),
-                attribute.placeholder("hello@google.com"),
-                attribute.name("email"),
-                attribute.value(form.field_value(form, "email")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(email_err))),
-                ),
-              ]),
-              case email_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+              )], [
+            html.text("email:"),
+            ui.input([
+              attribute.id("email_input"),
+              attribute.type_("email"),
+              attribute.placeholder("hello@google.com"),
+              attribute.name("email"),
+              attribute.value(form.field_value(form, "email")),
+            ]),
+            case email_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
           case root_err {
             Ok(msg) ->
               ui.alert([
@@ -176,38 +162,27 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm), email: String) -> Element(a)
           html.p([attribute.class("text-sm")], [
             html.text("We sent an 8-digit code to " <> email <> "."),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("verification code:"),
-              html.input([
-                attribute.id("code_input"),
-                attribute.type_("text"),
-                attribute.class("border-b-2 border-current uppercase"),
-                attribute.placeholder("A3KX7PQR"),
-                attribute.name("code"),
-                attribute.value(form.field_value(form, "code")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(code_err))),
-                ),
-              ]),
-              case code_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+              )], [
+            html.text("verification code:"),
+            ui.input([
+              attribute.id("code_input"),
+              attribute.type_("text"),
+              attribute.class("uppercase"),
+              attribute.placeholder("A3KX7PQR"),
+              attribute.name("code"),
+              attribute.value(form.field_value(form, "code")),
+            ]),
+            case code_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
           case root_err {
             Ok(msg) ->
               ui.alert([
@@ -291,39 +266,27 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("set new password"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("new password:"),
-              html.input([
-                attribute.id("password_input"),
-                attribute.type_("password"),
-                attribute.class("border-b-2 border-current"),
-                attribute.name("password"),
-                attribute.placeholder("********"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.attribute("autocomplete", "new-password"),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+              )], [
+            html.text("new password:"),
+            ui.input([
+              attribute.id("password_input"),
+              attribute.type_("password"),
+              attribute.name("password"),
+              attribute.placeholder("********"),
+              attribute.value(form.field_value(form, "password")),
+              attribute.attribute("autocomplete", "new-password"),
+            ]),
+            case password_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
 
           case root_err {
             Ok(msg) ->

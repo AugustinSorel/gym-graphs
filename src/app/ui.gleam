@@ -127,7 +127,7 @@ pub fn button(
     list.append(
       [
         attribute.class(
-          "items-center justify-center gap-1.5 bg-on-surface inline-flex text-surface font-semibold p-2 text-sm hover:bg-on-surface/90 transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+          "items-center justify-center gap-1.5 bg-on-surface inline-flex text-surface font-semibold p-2 text-sm hover:bg-on-surface/90 transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-on-surface focus-visible:ring-offset-2",
         ),
       ],
       attrs,
@@ -150,15 +150,11 @@ pub fn alert_variant(
   children: List(Element(a)),
 ) -> Element(a) {
   let classes = case variant {
-    AlertError ->
-      "bg-error-container border-2 border-error p-3 grid gap-1"
+    AlertError -> "bg-error-container border-2 border-error p-3 grid gap-1"
     AlertSuccess ->
       "bg-success-container border-2 border-success p-3 grid gap-1"
   }
-  html.div(
-    [attribute.role("alert"), attribute.class(classes)],
-    children,
-  )
+  html.div([attribute.role("alert"), attribute.class(classes)], children)
 }
 
 pub fn alert_title(children: Element(a)) -> Element(a) {
@@ -169,4 +165,15 @@ pub fn alert_description(children: Element(a)) -> Element(a) {
   html.p([attribute.class("text-sm")], [
     children,
   ])
+}
+
+pub fn input(attrs: List(Attribute(a))) -> Element(a) {
+  html.input(list.append(
+    [
+      attribute.class(
+        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_var(--on-surface)]",
+      ),
+    ],
+    attrs,
+  ))
 }

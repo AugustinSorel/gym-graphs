@@ -71,39 +71,29 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("sign up form"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
+              )], [
+            html.text("email:"),
+            ui.input([
+              attribute.id("email_input"),
+              attribute.type_("email"),
+              attribute.placeholder("hello@google.com"),
+              attribute.name("email"),
+              attribute.value(form.field_value(form, "email")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(email_err))),
               ),
-            ],
-            [
-              html.text("email:"),
-              html.input([
-                attribute.id("email_input"),
-                attribute.type_("email"),
-                attribute.class("border-b-2 border-current"),
-                attribute.placeholder("hello@google.com"),
-                attribute.name("email"),
-                attribute.value(form.field_value(form, "email")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(email_err))),
-                ),
-              ]),
-              case email_err {
-                Ok(msg) -> {
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                }
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+            ]),
+            case email_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
 
           case root_err {
             Ok(msg) -> {
@@ -179,40 +169,30 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("verify email address"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
+              )], [
+            html.text("verification code:"),
+            ui.input([
+              attribute.id("code_input"),
+              attribute.type_("text"),
+              attribute.attribute("inputmode", "numeric"),
+              attribute.placeholder("12345678"),
+              attribute.name("code"),
+              attribute.value(form.field_value(form, "code")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(code_err))),
               ),
-            ],
-            [
-              html.text("verification code:"),
-              html.input([
-                attribute.id("code_input"),
-                attribute.type_("text"),
-                attribute.attribute("inputmode", "numeric"),
-                attribute.class("border-b-2 border-current"),
-                attribute.placeholder("12345678"),
-                attribute.name("code"),
-                attribute.value(form.field_value(form, "code")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(code_err))),
-                ),
-              ]),
-              case code_err {
-                Ok(msg) -> {
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                }
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+            ]),
+            case code_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
 
           case root_err {
             Ok(msg) -> {
@@ -323,38 +303,26 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("set password"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("password:"),
-              html.input([
-                attribute.id("password_input"),
-                attribute.type_("password"),
-                attribute.class("border-b-2 border-current"),
-                attribute.name("password"),
-                attribute.placeholder("********"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+              )], [
+            html.text("password:"),
+            ui.input([
+              attribute.id("password_input"),
+              attribute.type_("password"),
+              attribute.name("password"),
+              attribute.placeholder("********"),
+              attribute.value(form.field_value(form, "password")),
+            ]),
+            case password_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
 
           case root_err {
             Ok(msg) ->

@@ -8,17 +8,9 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-// ---------------------------------------------------------------------------
-// Form types
-// ---------------------------------------------------------------------------
-
 pub type SignInForm {
   SignInForm(email: String, password: String)
 }
-
-// ---------------------------------------------------------------------------
-// Sign in UI
-// ---------------------------------------------------------------------------
 
 pub fn get_sign_in_form() -> Form(SignInForm) {
   let schema = {
@@ -66,70 +58,52 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("sign in"),
           ]),
-          html.label(
-            [
-              attribute.class(
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
+              )], [
+            html.text("email:"),
+            ui.input([
+              attribute.id("email_input"),
+              attribute.type_("email"),
+              attribute.placeholder("hello@google.com"),
+              attribute.name("email"),
+              attribute.value(form.field_value(form, "email")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(email_err))),
               ),
-            ],
-            [
-              html.text("email:"),
-              html.input([
-                attribute.id("email_input"),
-                attribute.type_("email"),
-                attribute.class("border-b-2 border-current"),
-                attribute.placeholder("hello@google.com"),
-                attribute.name("email"),
-                attribute.value(form.field_value(form, "email")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(email_err))),
-                ),
-              ]),
-              case email_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-          html.label(
-            [
-              attribute.class(
+            ]),
+            case email_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
+          html.label([attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
+              )], [
+            html.text("password:"),
+            ui.input([
+              attribute.id("password_input"),
+              attribute.type_("password"),
+              attribute.placeholder("********"),
+              attribute.name("password"),
+              attribute.value(form.field_value(form, "password")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(password_err))),
               ),
-            ],
-            [
-              html.text("password:"),
-              html.input([
-                attribute.id("password_input"),
-                attribute.type_("password"),
-                attribute.class("border-b-2 border-current"),
-                attribute.placeholder("********"),
-                attribute.name("password"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
+            ]),
+            case password_err {
+              Ok(msg) ->
+                html.p(
+                  [attribute.role("alert"), attribute.class("text-error text-sm")],
+                  [html.text(msg)],
+                )
+              Error(_) -> element.none()
+            },
+          ]),
           case root_err {
             Ok(msg) ->
               ui.alert([
