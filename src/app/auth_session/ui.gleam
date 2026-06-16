@@ -118,24 +118,17 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
           ]),
 
           html.div([attribute.class("flex justify-between")], [
-            html.a(
+            ui.link(
               [
                 attribute.href("/reset-password"),
-                attribute.class(
-                  "text-right text-sm underline hover:text-current/80 transition-colors",
-                ),
+                attribute.class("text-right text-sm"),
               ],
               [element.text("forgot password?")],
             ),
             html.p([attribute.class("text-right text-sm")], [
               element.text("don't have an account? "),
-              html.a(
-                [
-                  attribute.href("/sign-up"),
-                  attribute.class(
-                    "underline hover:text-current/80 transition-colors",
-                  ),
-                ],
+              ui.link(
+                [attribute.href("/sign-up")],
                 [element.text("sign up")],
               ),
             ]),

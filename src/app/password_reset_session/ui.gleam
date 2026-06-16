@@ -1,6 +1,8 @@
 import app/ui
 import formal/form.{type FieldError, type Form, MustBeEmail}
+import gleam/bool
 import gleam/list
+import gleam/result
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
@@ -78,6 +80,9 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
               attribute.placeholder("hello@google.com"),
               attribute.name("email"),
               attribute.value(form.field_value(form, "email")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(email_err))),
+              ),
             ]),
             case email_err {
               Ok(msg) ->
@@ -102,13 +107,8 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
           ]),
           html.p([attribute.class("text-right text-sm")], [
             element.text("remembered your password? "),
-            html.a(
-              [
-                attribute.href("/sign-in"),
-                attribute.class(
-                  "underline hover:text-current/80 transition-colors",
-                ),
-              ],
+            ui.link(
+              [attribute.href("/sign-in")],
               [element.text("sign in")],
             ),
           ]),
@@ -173,6 +173,9 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm), email: String) -> Element(a)
               attribute.placeholder("A3KX7PQR"),
               attribute.name("code"),
               attribute.value(form.field_value(form, "code")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(code_err))),
+              ),
             ]),
             case code_err {
               Ok(msg) ->
@@ -196,8 +199,7 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm), email: String) -> Element(a)
             ui.spinner(),
           ]),
           html.div([attribute.class("flex justify-end")], [
-            html.button(
-              [
+            ui.button_variant(ui.ButtonLink, [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
@@ -206,9 +208,6 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm), email: String) -> Element(a)
                 attribute.attribute("hx-disable", "this"),
                 attribute.attribute("hx-target", "closest form"),
                 attribute.attribute("hx-swap", "outerHTML"),
-                attribute.class(
-                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
-                ),
               ],
               [html.text("cancel"), ui.spinner()],
             ),
@@ -277,6 +276,9 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
               attribute.placeholder("********"),
               attribute.value(form.field_value(form, "password")),
               attribute.attribute("autocomplete", "new-password"),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(password_err))),
+              ),
             ]),
             case password_err {
               Ok(msg) ->
@@ -303,17 +305,13 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
           ]),
 
           html.div([attribute.class("flex justify-end")], [
-            html.button(
-              [
+            ui.button_variant(ui.ButtonLink, [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
                   "/reset-password/verify-email-code/cancel",
                 ),
                 attribute.attribute("hx-disable", "this"),
-                attribute.class(
-                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
-                ),
               ],
               [html.text("cancel"), ui.spinner()],
             ),

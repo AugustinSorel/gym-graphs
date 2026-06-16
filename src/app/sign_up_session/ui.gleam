@@ -112,13 +112,8 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
 
           html.p([attribute.class("text-right text-sm")], [
             element.text("already have an account? "),
-            html.a(
-              [
-                attribute.href("/sign-in"),
-                attribute.class(
-                  "underline hover:text-current/80 transition-colors",
-                ),
-              ],
+            ui.link(
+              [attribute.href("/sign-in")],
               [element.text("sign in")],
             ),
           ]),
@@ -219,8 +214,7 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
             ui.spinner(),
           ]),
           html.div([attribute.class("flex justify-between")], [
-            html.button(
-              [
+            ui.button_variant(ui.ButtonLink, [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
@@ -229,23 +223,17 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
                 attribute.attribute("hx-disable", "this"),
                 attribute.attribute("hx-target", "closest form"),
                 attribute.attribute("hx-swap", "outerHTML"),
-                attribute.class(
-                  "underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
-                ),
               ],
               [html.text("resend verification code"), ui.spinner()],
             ),
-            html.button(
-              [
+            ui.button_variant(ui.ButtonLink, [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
                   "/sign-up/verify-email-address/cancel",
                 ),
                 attribute.attribute("hx-disable", "this"),
-                attribute.class(
-                  "ml-auto underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
-                ),
+                attribute.class("ml-auto"),
               ],
               [html.text("cancel"), ui.spinner()],
             ),
@@ -313,6 +301,9 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
               attribute.name("password"),
               attribute.placeholder("********"),
               attribute.value(form.field_value(form, "password")),
+              attribute.aria_invalid(
+                string.lowercase(bool.to_string(result.is_ok(password_err))),
+              ),
             ]),
             case password_err {
               Ok(msg) ->
@@ -338,17 +329,14 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
             ui.spinner(),
           ]),
 
-          html.button(
-            [
+          ui.button_variant(ui.ButtonLink, [
               attribute.type_("button"),
               attribute.attribute(
                 "hx-post",
                 "/sign-up/verify-email-address/cancel",
               ),
               attribute.attribute("hx-disable", "this"),
-              attribute.class(
-                "ml-auto underline hover:text-current/80 transition-colors cursor-pointer text-sm inline-flex items-center gap-1 disabled:opacity-50 disabled:pointer-events-none",
-              ),
+              attribute.class("ml-auto"),
             ],
             [html.text("cancel"), ui.spinner()],
           ),
