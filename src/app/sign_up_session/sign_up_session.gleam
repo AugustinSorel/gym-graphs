@@ -2,10 +2,13 @@ import app/auth_session/auth_session
 import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
+import app/email
 import app/sign_up_session/sql.{type SelectSignUpSessionByIdRow} as sign_up_session_sql
+import app/sign_up_session/template
 import app/sign_up_session/ui as sign_up_ui
 import app/user/sql as user_sql
 import app/web
+import aws/services/sesv2
 import formal/form.{type Form}
 import gleam/bit_array
 import gleam/bool
@@ -124,6 +127,7 @@ type SignUpError {
   EmailAlreadyTaken
   SignUpDatabaseFailure(QueryError)
   UnexpectedDatabaseResult
+  SignUpEmailSendFailure(sesv2.SendEmailError)
 }
 
 pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
@@ -152,8 +156,15 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     use session <- result.try(create_sign_up_session(ctx.db, input.email))
 
-    //TODO: send email code
-    echo session.verification_code
+    use _ <- result.try(
+      email.send(
+        email: ctx.email,
+        to: input.email,
+        subject: "Your verification code",
+        body: "Your verification code is: " <> session.verification_code,
+      )
+      |> result.map_error(SignUpEmailSendFailure),
+    )
 
     Ok(encode_token(session.id, session.secret))
   }
@@ -190,6 +201,15 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     Error(UnexpectedDatabaseResult) -> {
       wisp.log_error("sign up: Unexpected database result")
+      sign_up_ui.get_register_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_ui.register_form()
+      |> web.html(500)
+    }
+
+    Error(SignUpEmailSendFailure(reason)) -> {
+      wisp.log_error("sign up: " <> string.inspect(reason))
       sign_up_ui.get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
@@ -350,6 +370,11 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
   }
 }
 
+type ResendEmailVerificationError {
+  ResendEmailVerificationSharedError(SharedEmailError)
+  ResendEmailVerificationFailure(sesv2.SendEmailError)
+}
+
 pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
 
@@ -361,16 +386,26 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
 
     use <- bool.guard(
       when: already_verified,
-      return: Error(EmailAlreadyVerified),
+      return: Error(ResendEmailVerificationSharedError(EmailAlreadyVerified)),
     )
 
-    Ok(session)
+    use _ <- result.try(
+      email.send(
+        email: ctx.email,
+        to: session.email_address,
+        subject: "Your verification code",
+        body: template.verification_code(
+          session.email_address_verification_code,
+        ),
+      )
+      |> result.map_error(ResendEmailVerificationFailure),
+    )
+
+    Ok(Nil)
   }
 
   case result {
-    Ok(session) -> {
-      // TODO: send verification email with session.email_address_verification_code
-      echo session.email_address_verification_code
+    Ok(_) ->
       sign_up_ui.get_verify_email_form()
       |> form.add_values(form_data.values)
       |> form.add_string(
@@ -379,9 +414,17 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
       )
       |> sign_up_ui.verify_email_form()
       |> web.html(200)
+
+    Error(ResendEmailVerificationFailure(reason)) -> {
+      wisp.log_error("sign up: resend verify email: " <> string.inspect(reason))
+      sign_up_ui.get_verify_email_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_ui.verify_email_form()
+      |> web.html(500)
     }
 
-    Error(EmailAlreadyVerified) ->
+    Error(ResendEmailVerificationSharedError(EmailAlreadyVerified)) ->
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
   }

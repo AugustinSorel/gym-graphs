@@ -9,6 +9,7 @@ pub type Env {
     db_user: String,
     db_password: String,
     secret_key_base: String,
+    ses_from_address: String,
   )
 }
 
@@ -20,6 +21,7 @@ pub fn load() -> Env {
     db_user: require_str("DB_USER"),
     db_password: require_str("DB_PASSWORD"),
     secret_key_base: require_str("SECRET_KEY_BASE"),
+    ses_from_address: require_str("SES_FROM_ADDRESS"),
   )
 }
 

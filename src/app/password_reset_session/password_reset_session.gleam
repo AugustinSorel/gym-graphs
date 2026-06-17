@@ -2,10 +2,13 @@ import app/auth_session/auth_session
 import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
+import app/email
 import app/password_reset_session/sql.{type SelectPasswordResetSessionByIdRow} as password_reset_session_sql
+import app/password_reset_session/template
 import app/password_reset_session/ui as password_reset_ui
 import app/user/sql as user_sql
 import app/web
+import aws/services/sesv2
 import formal/form
 import gleam/bit_array
 import gleam/bool
@@ -131,6 +134,7 @@ type PasswordResetError {
   PasswordResetValidation(form: form.Form(password_reset_ui.ResetPasswordForm))
   PasswordResetDatabaseFailure(QueryError)
   PasswordResetUnexpectedDatabaseResult
+  PasswordResetEmailSendFailure(sesv2.SendEmailError)
   UserNotFound
 }
 
@@ -159,8 +163,16 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       user.email_address,
     ))
 
-    //TODO: send verification code
-    echo session.verification_code
+    use _ <- result.try(
+      email.send(
+        email: ctx.email,
+        to: user.email_address,
+        subject: "Your password reset code",
+        body: template.register_code(session.verification_code),
+      )
+      |> result.map_error(PasswordResetEmailSendFailure),
+    )
+
     let token = encode_token(session.id, session.secret)
 
     Ok(token)
@@ -200,6 +212,18 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
     Error(PasswordResetUnexpectedDatabaseResult) -> {
       wisp.log_error("password reset: unexpected database result")
+      password_reset_ui.get_password_reset_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> password_reset_ui.password_reset_form()
+      |> web.html(500)
+    }
+
+    Error(PasswordResetEmailSendFailure(reason)) -> {
+      wisp.log_error("password reset: " <> string.inspect(reason))
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
