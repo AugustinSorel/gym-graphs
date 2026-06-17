@@ -21,7 +21,11 @@ fn account_page(children: Element(a)) -> Element(a) {
 
 fn account_details(email: String) -> Element(a) {
   html.main(
-    [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+    [
+      attribute.class(
+        "border-2 border-current flex flex-col p-10 gap-10 max-w-xl mx-auto m-20",
+      ),
+    ],
     [
       html.h1([attribute.class("text-lg font-semibold")], [
         html.text("account"),

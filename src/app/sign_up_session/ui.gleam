@@ -51,7 +51,30 @@ pub fn get_register_form() -> Form(EmailRegisterForm) {
 }
 
 pub fn register_page(children: Element(a)) -> Element(a) {
-  ui.layout(html.main([], [children]))
+  ui.layout(
+    html.main(
+      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
+      [
+        html.section(
+          [
+            attribute.class("bg-surface-container-highest hidden lg:block"),
+            attribute.aria_hidden(True),
+          ],
+          [],
+        ),
+        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+        html.section(
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [
+            html.h1([attribute.class("text-5xl text-center")], [
+              html.text("Create an account"),
+            ]),
+            children,
+          ],
+        ),
+      ],
+    ),
+  )
 }
 
 pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
@@ -143,7 +166,30 @@ pub fn get_verify_email_form() -> Form(VerifyEmailAddressForm) {
 }
 
 pub fn verify_email_page(children: Element(a)) -> Element(a) {
-  ui.layout(html.main([], [children]))
+  ui.layout(
+    html.main(
+      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
+      [
+        html.section(
+          [
+            attribute.class("bg-surface-container-highest hidden lg:block"),
+            attribute.aria_hidden(True),
+          ],
+          [],
+        ),
+        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+        html.section(
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [
+            html.h1([attribute.class("text-5xl text-center")], [
+              html.text("Check your inbox"),
+            ]),
+            children,
+          ],
+        ),
+      ],
+    ),
+  )
 }
 
 pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
@@ -264,7 +310,30 @@ pub fn get_set_password_form() -> Form(SetPasswordForm) {
 }
 
 pub fn set_password_page(children: Element(a)) -> Element(a) {
-  ui.layout(html.main([], [children]))
+  ui.layout(
+    html.main(
+      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
+      [
+        html.section(
+          [
+            attribute.class("bg-surface-container-highest hidden lg:block"),
+            attribute.aria_hidden(True),
+          ],
+          [],
+        ),
+        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+        html.section(
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [
+            html.h1([attribute.class("text-5xl text-center")], [
+              html.text("Set your password"),
+            ]),
+            children,
+          ],
+        ),
+      ],
+    ),
+  )
 }
 
 pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {

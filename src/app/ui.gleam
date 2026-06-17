@@ -24,12 +24,9 @@ pub fn layout(children: Element(a)) -> Element(a) {
       ),
       html.title([], "auth"),
     ]),
-    html.body(
-      [attribute.class("bg-surface text-on-surface p-4 max-w-3xl mx-auto")],
-      [
-        children,
-      ],
-    ),
+    html.body([attribute.class("bg-surface text-on-surface")], [
+      children,
+    ]),
   ])
 }
 
@@ -200,7 +197,7 @@ pub fn input(attrs: List(Attribute(a))) -> Element(a) {
   html.input(list.append(
     [
       attribute.class(
-        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_var(--on-surface)]",
+        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_currentColor]",
       ),
     ],
     attrs,
