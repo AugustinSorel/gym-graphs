@@ -1,13 +1,13 @@
 services:
   database:
     image: postgres:latest
-    container_name: gleam_htmx_auth_db
+    container_name: gym_graphs_db
     ports:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=gleam_htmx_auth
+      - POSTGRES_DB=gym_graphs
     networks:
       - db
 
