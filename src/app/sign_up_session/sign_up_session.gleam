@@ -8,7 +8,6 @@ import app/sign_up_session/template
 import app/sign_up_session/ui as sign_up_ui
 import app/user/sql as user_sql
 import app/web
-import aws/services/sesv2
 import formal/form.{type Form}
 import gleam/bit_array
 import gleam/bool
@@ -127,7 +126,7 @@ type SignUpError {
   EmailAlreadyTaken
   SignUpDatabaseFailure(QueryError)
   UnexpectedDatabaseResult
-  SignUpEmailSendFailure(sesv2.SendEmailError)
+  SignUpEmailSendFailure(email.SendEmailError)
 }
 
 pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
@@ -372,7 +371,7 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
 
 type ResendEmailVerificationError {
   ResendEmailVerificationSharedError(SharedEmailError)
-  ResendEmailVerificationFailure(sesv2.SendEmailError)
+  ResendEmailVerificationFailure(email.SendEmailError)
 }
 
 pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {

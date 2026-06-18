@@ -27,8 +27,8 @@ envoy = ">= 1.2.0 and < 2.0.0"
 gleam_time = ">= 1.8.0 and < 2.0.0"
 gleam_otp = ">= 1.2.0 and < 2.0.0"
 argus = ">= 1.0.4 and < 2.0.0"
-aws_gleam_sesv2 = ">= 1.5.0 and < 2.0.0"
-aws_gleam_runtime = ">= 1.5.0 and < 2.0.0"
+aws4_request = ">= 1.0.0 and < 2.0.0"
+gleam_httpc = ">= 4.0.0 and < 6.0.0"
 
 [dev_dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

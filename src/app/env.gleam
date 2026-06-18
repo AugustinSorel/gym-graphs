@@ -10,6 +10,9 @@ pub type Env {
     db_password: String,
     secret_key_base: String,
     ses_from_address: String,
+    aws_region: String,
+    aws_access_key_id: String,
+    aws_secret_access_key: String,
   )
 }
 
@@ -22,6 +25,9 @@ pub fn load() -> Env {
     db_password: require_str("DB_PASSWORD"),
     secret_key_base: require_str("SECRET_KEY_BASE"),
     ses_from_address: require_str("SES_FROM_ADDRESS"),
+    aws_region: require_str("AWS_REGION"),
+    aws_access_key_id: require_str("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key: require_str("AWS_SECRET_ACCESS_KEY"),
   )
 }
 

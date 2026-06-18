@@ -8,7 +8,6 @@ import app/password_reset_session/template
 import app/password_reset_session/ui as password_reset_ui
 import app/user/sql as user_sql
 import app/web
-import aws/services/sesv2
 import formal/form
 import gleam/bit_array
 import gleam/bool
@@ -134,7 +133,7 @@ type PasswordResetError {
   PasswordResetValidation(form: form.Form(password_reset_ui.ResetPasswordForm))
   PasswordResetDatabaseFailure(QueryError)
   PasswordResetUnexpectedDatabaseResult
-  PasswordResetEmailSendFailure(sesv2.SendEmailError)
+  PasswordResetEmailSendFailure(email.SendEmailError)
   UserNotFound
 }
 
