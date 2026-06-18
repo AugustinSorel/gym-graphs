@@ -94,29 +94,37 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("sign up form"),
           ]),
-          html.label([attribute.class(
+          html.label(
+            [
+              attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              )], [
-            html.text("email:"),
-            ui.input([
-              attribute.id("email_input"),
-              attribute.type_("email"),
-              attribute.placeholder("hello@google.com"),
-              attribute.name("email"),
-              attribute.value(form.field_value(form, "email")),
-              attribute.aria_invalid(
-                string.lowercase(bool.to_string(result.is_ok(email_err))),
               ),
-            ]),
-            case email_err {
-              Ok(msg) ->
-                html.p(
-                  [attribute.role("alert"), attribute.class("text-error text-sm")],
-                  [html.text(msg)],
-                )
-              Error(_) -> element.none()
-            },
-          ]),
+            ],
+            [
+              html.text("email:"),
+              ui.input([
+                attribute.id("email_input"),
+                attribute.type_("email"),
+                attribute.placeholder("hello@google.com"),
+                attribute.name("email"),
+                attribute.value(form.field_value(form, "email")),
+                attribute.aria_invalid(
+                  string.lowercase(bool.to_string(result.is_ok(email_err))),
+                ),
+              ]),
+              case email_err {
+                Ok(msg) ->
+                  html.p(
+                    [
+                      attribute.role("alert"),
+                      attribute.class("text-error text-sm"),
+                    ],
+                    [html.text(msg)],
+                  )
+                Error(_) -> element.none()
+              },
+            ],
+          ),
 
           case root_err {
             Ok(msg) -> {
@@ -128,17 +136,14 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
             Error(_) -> element.none()
           },
 
-          ui.button([attribute.type_("submit")], [
+          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
             html.text("continue"),
             ui.spinner(),
           ]),
 
           html.p([attribute.class("text-right text-sm")], [
             element.text("already have an account? "),
-            ui.link(
-              [attribute.href("/sign-in")],
-              [element.text("sign in")],
-            ),
+            ui.link([attribute.href("/sign-in")], [element.text("sign in")]),
           ]),
         ],
       ),
@@ -210,30 +215,38 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("verify email address"),
           ]),
-          html.label([attribute.class(
+          html.label(
+            [
+              attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              )], [
-            html.text("verification code:"),
-            ui.input([
-              attribute.id("code_input"),
-              attribute.type_("text"),
-              attribute.attribute("inputmode", "numeric"),
-              attribute.placeholder("12345678"),
-              attribute.name("code"),
-              attribute.value(form.field_value(form, "code")),
-              attribute.aria_invalid(
-                string.lowercase(bool.to_string(result.is_ok(code_err))),
               ),
-            ]),
-            case code_err {
-              Ok(msg) ->
-                html.p(
-                  [attribute.role("alert"), attribute.class("text-error text-sm")],
-                  [html.text(msg)],
-                )
-              Error(_) -> element.none()
-            },
-          ]),
+            ],
+            [
+              html.text("verification code:"),
+              ui.input([
+                attribute.id("code_input"),
+                attribute.type_("text"),
+                attribute.attribute("inputmode", "numeric"),
+                attribute.placeholder("12345678"),
+                attribute.name("code"),
+                attribute.value(form.field_value(form, "code")),
+                attribute.aria_invalid(
+                  string.lowercase(bool.to_string(result.is_ok(code_err))),
+                ),
+              ]),
+              case code_err {
+                Ok(msg) ->
+                  html.p(
+                    [
+                      attribute.role("alert"),
+                      attribute.class("text-error text-sm"),
+                    ],
+                    [html.text(msg)],
+                  )
+                Error(_) -> element.none()
+              },
+            ],
+          ),
 
           case root_err {
             Ok(msg) -> {
@@ -255,12 +268,14 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
             True -> element.none()
           },
 
-          ui.button([attribute.type_("submit")], [
+          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
             html.text("verify"),
             ui.spinner(),
           ]),
           html.div([attribute.class("flex justify-between")], [
-            ui.button_variant(ui.ButtonLink, [
+            ui.button(
+              ui.ButtonLink,
+              [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
@@ -272,7 +287,9 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
               ],
               [html.text("resend verification code"), ui.spinner()],
             ),
-            ui.button_variant(ui.ButtonLink, [
+            ui.button(
+              ui.ButtonLink,
+              [
                 attribute.type_("button"),
                 attribute.attribute(
                   "hx-post",
@@ -360,29 +377,37 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("set password"),
           ]),
-          html.label([attribute.class(
+          html.label(
+            [
+              attribute.class(
                 "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              )], [
-            html.text("password:"),
-            ui.input([
-              attribute.id("password_input"),
-              attribute.type_("password"),
-              attribute.name("password"),
-              attribute.placeholder("********"),
-              attribute.value(form.field_value(form, "password")),
-              attribute.aria_invalid(
-                string.lowercase(bool.to_string(result.is_ok(password_err))),
               ),
-            ]),
-            case password_err {
-              Ok(msg) ->
-                html.p(
-                  [attribute.role("alert"), attribute.class("text-error text-sm")],
-                  [html.text(msg)],
-                )
-              Error(_) -> element.none()
-            },
-          ]),
+            ],
+            [
+              html.text("password:"),
+              ui.input([
+                attribute.id("password_input"),
+                attribute.type_("password"),
+                attribute.name("password"),
+                attribute.placeholder("********"),
+                attribute.value(form.field_value(form, "password")),
+                attribute.aria_invalid(
+                  string.lowercase(bool.to_string(result.is_ok(password_err))),
+                ),
+              ]),
+              case password_err {
+                Ok(msg) ->
+                  html.p(
+                    [
+                      attribute.role("alert"),
+                      attribute.class("text-error text-sm"),
+                    ],
+                    [html.text(msg)],
+                  )
+                Error(_) -> element.none()
+              },
+            ],
+          ),
 
           case root_err {
             Ok(msg) ->
@@ -393,12 +418,14 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
             Error(_) -> element.none()
           },
 
-          ui.button([attribute.type_("submit")], [
+          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
             html.text("set password"),
             ui.spinner(),
           ]),
 
-          ui.button_variant(ui.ButtonLink, [
+          ui.button(
+            ui.ButtonLink,
+            [
               attribute.type_("button"),
               attribute.attribute(
                 "hx-post",

@@ -119,28 +119,23 @@ pub fn spinner() -> Element(a) {
 pub type ButtonVariant {
   ButtonPrimary
   ButtonLink
+  ButtonDestroy
 }
 
 fn button_classes(variant: ButtonVariant) -> String {
   let shared =
-    "items-center justify-center gap-1.5 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
+    "items-center font-semibold justify-center gap-1.5 p-2 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
   let variant_classes = case variant {
     ButtonPrimary ->
-      "font-semibold bg-on-surface text-surface p-2 hover:bg-on-surface/90 focus-visible:ring-on-surface"
+      "bg-on-surface text-surface hover:bg-on-surface/90 focus-visible:ring-on-surface"
     ButtonLink ->
-      "underline hover:text-current/80 focus-visible:ring-on-surface"
+      "underline font-normal hover:text-current/80 focus-visible:ring-on-surface p-0"
+    ButtonDestroy -> "bg-error text-on-error focus-visible:ring-error"
   }
   shared <> " " <> variant_classes
 }
 
 pub fn button(
-  attrs: List(Attribute(a)),
-  children: List(Element(a)),
-) -> Element(a) {
-  button_variant(ButtonPrimary, attrs, children)
-}
-
-pub fn button_variant(
   variant: ButtonVariant,
   attrs: List(Attribute(a)),
   children: List(Element(a)),

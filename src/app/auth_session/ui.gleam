@@ -151,7 +151,7 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
               ])
             Error(_) -> element.none()
           },
-          ui.button([attribute.type_("submit")], [
+          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
             html.text("sign in"),
             ui.spinner(),
           ]),

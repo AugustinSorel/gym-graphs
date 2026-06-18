@@ -36,6 +36,7 @@ fn account_details(email: String) -> Element(a) {
       ]),
 
       ui.button(
+        ui.ButtonPrimary,
         [
           attribute.attribute("hx-post", "/sign-out"),
           attribute.attribute("hx-disable", "this"),
@@ -45,6 +46,7 @@ fn account_details(email: String) -> Element(a) {
           ui.spinner(),
         ],
       ),
+      ui.button(ui.ButtonDestroy, [], [html.text("delete account")]),
     ],
   )
 }
