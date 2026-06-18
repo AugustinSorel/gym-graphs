@@ -167,8 +167,8 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       email.send(
         email: ctx.email,
         to: user.email_address,
-        subject: "Your password reset code",
-        body: template.register_code(session.verification_code),
+        subject: "Your password reset code - " <> session.verification_code,
+        html: template.register_code(session.verification_code),
       )
       |> result.map_error(PasswordResetEmailSendFailure),
     )

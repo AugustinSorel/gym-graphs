@@ -15,7 +15,7 @@ pub fn send(
   email email: Email,
   to to: String,
   subject subject: String,
-  body body: String,
+  html html: String,
 ) {
   let content =
     sesv2.EmailContent(
@@ -23,8 +23,8 @@ pub fn send(
       simple: option.Some(sesv2.message_default(
         subject: sesv2.content_default(data: subject),
         body: sesv2.Body(
-          text: option.Some(sesv2.content_default(data: body)),
-          html: option.None,
+          text: option.None,
+          html: option.Some(sesv2.content_default(data: html)),
         ),
       )),
     )

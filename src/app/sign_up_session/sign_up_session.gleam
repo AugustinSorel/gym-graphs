@@ -160,8 +160,8 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       email.send(
         email: ctx.email,
         to: input.email,
-        subject: "Your verification code",
-        body: "Your verification code is: " <> session.verification_code,
+        subject: "Your verification code - " <> session.verification_code,
+        html: template.verification_code(session.verification_code),
       )
       |> result.map_error(SignUpEmailSendFailure),
     )
@@ -393,8 +393,9 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
       email.send(
         email: ctx.email,
         to: session.email_address,
-        subject: "Your verification code",
-        body: template.verification_code(
+        subject: "Your verification code - "
+          <> session.email_address_verification_code,
+        html: template.verification_code(
           session.email_address_verification_code,
         ),
       )
