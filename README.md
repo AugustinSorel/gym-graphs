@@ -1,20 +1,20 @@
-# htmx_auth
+# gym_graphs
 
-[![Package Version](https://img.shields.io/hexpm/v/htmx_auth)](https://hex.pm/packages/htmx_auth)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/htmx_auth/)
+[![Package Version](https://img.shields.io/hexpm/v/gym_graphs)](https://hex.pm/packages/gym_graphs)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/gym_graphs/)
 
 ```sh
-gleam add htmx_auth@1
+gleam add gym_graphs@1
 ```
 ```gleam
-import htmx_auth
+import gym_graphs
 
 pub fn main() -> Nil {
   // TODO: An example of the project in use
 }
 ```
 
-Further documentation can be found at <https://hexdocs.pm/htmx_auth>.
+Further documentation can be found at <https://hexdocs.pm/gym_graphs>.
 
 ## Development
 
