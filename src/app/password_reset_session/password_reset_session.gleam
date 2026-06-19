@@ -309,9 +309,9 @@ pub fn view_verify_page(req: Request, ctx: Ctx) -> Response {
   }
 
   case result {
-    Ok(user) ->
+    Ok(_user) ->
       password_reset_ui.get_verify_form()
-      |> password_reset_ui.verify_form(user.email_address)
+      |> password_reset_ui.verify_form()
       |> password_reset_ui.verify_page()
       |> web.html(200)
 
@@ -323,7 +323,7 @@ pub fn view_verify_page(req: Request, ctx: Ctx) -> Response {
         "root",
         form.CustomError("Something went wrong, please try again."),
       )
-      |> password_reset_ui.verify_form("")
+      |> password_reset_ui.verify_form()
       |> password_reset_ui.verify_page()
       |> web.html(500)
   }
@@ -380,7 +380,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
 
     Error(VerifyValidation(form:)) ->
       form
-      |> password_reset_ui.verify_form("")
+      |> password_reset_ui.verify_form()
       |> web.html(422)
 
     Error(IncorrectCode) ->
@@ -392,7 +392,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
           "The verification code you entered is incorrect. Please try again.",
         ),
       )
-      |> password_reset_ui.verify_form("")
+      |> password_reset_ui.verify_form()
       |> web.html(422)
 
     Error(VerifyShared(VerifyUserNotFound)) | Error(VerifyInternal(_)) -> {
@@ -407,7 +407,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
         "root",
         form.CustomError("Something went wrong, please try again."),
       )
-      |> password_reset_ui.verify_form("")
+      |> password_reset_ui.verify_form()
       |> web.html(500)
     }
   }
@@ -444,7 +444,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
         "root",
         form.CustomError("Something went wrong, please try again."),
       )
-      |> password_reset_ui.verify_form("")
+      |> password_reset_ui.verify_form()
       |> web.html(500)
     }
   }

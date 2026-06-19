@@ -1,23 +1,25 @@
-import app/account_deletion_session/sql as account_deletion_session_sql
+import app/account_deletion_session/sql.{
+  type SelectAccountDeletionSessionByIdRow,
+} as account_deletion_session_sql
 import app/account_deletion_session/ui as account_deletion_ui
 import app/auth_session/auth_session
 import app/crypto
 import app/ctx.{type Ctx}
 import app/ui
+import app/user/sql as user_sql
 import app/web
+import formal/form
 import gleam/bit_array
+import gleam/bool
 import gleam/float
 import gleam/int
+import gleam/option
 import gleam/result
 import gleam/string
 import gleam/time/duration
 import lustre/element/html
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
-
-// ---------------------------------------------------------------------------
-// Cookie helpers
-// ---------------------------------------------------------------------------
 
 const cookie_name = "account_deletion_session_token"
 
@@ -76,26 +78,56 @@ fn decode_token(candidate_token: String) {
 //       with SelectAccountDeletionSessionByIdRow and add proper DB verification.
 // ---------------------------------------------------------------------------
 
-fn require(req: Request, _ctx: Ctx, next: fn(Nil) -> Response) -> Response {
+fn require(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectAccountDeletionSessionByIdRow) -> Response,
+) -> Response {
   let redirect =
-    wisp.redirect("/delete-account")
+    wisp.redirect("/")
     |> clear_cookie(req)
 
   let result =
     parse_cookie(req)
     |> result.try(decode_token)
     |> result.replace_error(redirect)
-    |> result.try(fn(_token) {
-      // TODO: verify token against DB
-      // account_deletion_session_sql.select_account_deletion_session_by_id(ctx.db, token.id)
-      // ...
-      Error(redirect)
+    |> result.try(fn(token) {
+      verify_token(token, ctx) |> result.replace_error(redirect)
     })
 
   case result {
     Ok(session) -> next(session)
     Error(response) -> response
   }
+}
+
+type VerifySignUpSessionTokenError {
+  TokenInvalid
+  TokenExpiredOrNotFound
+}
+
+fn verify_token(token: AccountDeletionSessionToken, ctx: Ctx) {
+  use session <- result.try(
+    account_deletion_session_sql.select_account_deletion_session_by_id(
+      ctx.db,
+      token.id,
+    )
+    |> result.replace_error(TokenInvalid),
+  )
+
+  use session <- result.try(case session {
+    pog.Returned(_count, []) -> Error(TokenExpiredOrNotFound)
+    pog.Returned(_count, [session, ..]) -> Ok(session)
+  })
+
+  let is_secret_valid =
+    token.secret
+    |> crypto.hash_session_secret()
+    |> crypto.validate_session_secret(session.secret_hash)
+
+  use <- bool.guard(when: !is_secret_valid, return: Error(TokenInvalid))
+
+  Ok(session)
 }
 
 pub type StartError {
@@ -117,7 +149,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(token) ->
       wisp.created()
-      |> wisp.set_header("HX-Redirect", "/delete-account/confirm")
+      |> wisp.set_header("HX-Redirect", "/delete-account/verify-password")
       |> set_cookie(req, token)
 
     Error(StartDatabaseFailure(err:)) -> {
@@ -139,12 +171,63 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-/// Step 2 (GET) – Show the deletion confirmation page.
-pub fn view_confirm_page(req: Request, ctx: Ctx) -> Response {
-  use _session <- require(req, ctx)
+type VerifyPasswordPageError {
+  SessionMissmatch
+  SessionAlreadyVerified
+  UserNotFound
+  VerifyPasswordDatabaseFailure(error: QueryError)
+}
 
-  account_deletion_ui.confirm_page()
-  |> web.html(200)
+pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
+  use auth_session <- auth_session.require(req, ctx)
+
+  use account_deletion_session <- require(req, ctx)
+
+  let result = {
+    let same_session =
+      auth_session.id == account_deletion_session.auth_session_id
+
+    use <- bool.guard(when: !same_session, return: Error(SessionMissmatch))
+
+    let already_verified =
+      option.is_some(account_deletion_session.user_identity_verified_at)
+
+    use <- bool.guard(
+      when: already_verified,
+      return: Error(SessionAlreadyVerified),
+    )
+
+    use user <- result.try(select_user_by_id(ctx.db, auth_session.user_id))
+
+    Ok(user)
+  }
+
+  case result {
+    Ok(user) ->
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values([#("email", user.email_address)])
+      |> account_deletion_ui.verify_password_form()
+      |> account_deletion_ui.verify_password_page()
+      |> web.html(200)
+
+    Error(SessionMissmatch) -> wisp.redirect("/") |> clear_cookie(req)
+    Error(SessionAlreadyVerified) -> wisp.redirect("/delete-account/confirm")
+    Error(UserNotFound) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_error("root_err", form.CustomError("user not found"))
+      |> account_deletion_ui.verify_password_form()
+      |> account_deletion_ui.verify_password_page()
+      |> web.html(404)
+    }
+    Error(VerifyPasswordDatabaseFailure(error:)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_error("root_err", form.CustomError("something went wrong"))
+      |> account_deletion_ui.verify_password_form()
+      |> account_deletion_ui.verify_password_page()
+      |> web.html(404)
+    }
+  }
 }
 
 /// Step 2 (POST) – User confirms; delete the account.
@@ -195,5 +278,16 @@ fn create_account_deletion_session(db: pog.Connection, auth_session_id: Int) {
   })
   |> result.map(fn(session) {
     InternalAccountDeletionSession(id: session.id, secret:)
+  })
+}
+
+fn select_user_by_id(db: pog.Connection, id: Int) {
+  user_sql.select_user_by_id(db, id)
+  |> result.map_error(VerifyPasswordDatabaseFailure)
+  |> result.try(fn(user) {
+    case user {
+      pog.Returned(_, []) -> Error(UserNotFound)
+      pog.Returned(_, [user, ..]) -> Ok(user)
+    }
   })
 }

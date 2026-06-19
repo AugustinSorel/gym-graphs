@@ -8,10 +8,6 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-// ---------------------------------------------------------------------------
-// Form types
-// ---------------------------------------------------------------------------
-
 pub type EmailRegisterForm {
   EmailRegisterForm(email: String)
 }
@@ -23,10 +19,6 @@ pub type VerifyEmailAddressForm {
 pub type SetPasswordForm {
   SetPasswordForm(password: String)
 }
-
-// ---------------------------------------------------------------------------
-// Sign up (register) UI
-// ---------------------------------------------------------------------------
 
 pub fn get_register_form() -> Form(EmailRegisterForm) {
   let schema = {
@@ -150,10 +142,6 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
     ],
   )
 }
-
-// ---------------------------------------------------------------------------
-// Verify email UI
-// ---------------------------------------------------------------------------
 
 pub fn get_verify_email_form() -> Form(VerifyEmailAddressForm) {
   let schema = {
@@ -306,10 +294,6 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
     ],
   )
 }
-
-// ---------------------------------------------------------------------------
-// Set password UI
-// ---------------------------------------------------------------------------
 
 pub fn get_set_password_form() -> Form(SetPasswordForm) {
   let schema = {

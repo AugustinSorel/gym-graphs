@@ -1,13 +1,14 @@
 import app/ui
+import formal/form.{type Form}
+import gleam/bool
+import gleam/list
+import gleam/result
+import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-// ---------------------------------------------------------------------------
-// Confirm deletion page
-// ---------------------------------------------------------------------------
-
-pub fn confirm_page() -> Element(a) {
+pub fn verify_password_page(children: Element(a)) -> Element(a) {
   ui.layout(
     html.main(
       [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
@@ -26,7 +27,7 @@ pub fn confirm_page() -> Element(a) {
             html.h1([attribute.class("text-5xl text-center")], [
               html.text("Delete your account"),
             ]),
-            confirm_form(),
+            children,
           ],
         ),
       ],
@@ -34,7 +35,11 @@ pub fn confirm_page() -> Element(a) {
   )
 }
 
-pub fn confirm_form() -> Element(a) {
+pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
+  let email_address = form.field_value(form, "email_address")
+  let password_err = list.first(form.field_error_messages(form, "password"))
+  let root_err = list.first(form.field_error_messages(form, "root"))
+
   html.form(
     [
       attribute.attribute("hx-post", "/delete-account/confirm"),
@@ -42,21 +47,64 @@ pub fn confirm_form() -> Element(a) {
       attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],
     [
+      html.input([
+        attribute.type_("hidden"),
+        attribute.name("username"),
+        attribute.attribute("autocomplete", "username"),
+        attribute.value(email_address),
+      ]),
       html.fieldset(
         [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("confirm account deletion"),
+            html.text("verify your password"),
           ]),
-          html.p([attribute.class("text-sm")], [
-            html.text(
-              "This action is permanent and cannot be undone. All your data will be deleted.",
-            ),
-          ]),
-          ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
-            html.text("yes, delete my account"),
+          html.label(
+            [
+              attribute.class(
+                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
+              ),
+            ],
+            [
+              html.text("password:"),
+              ui.input([
+                attribute.type_("password"),
+                attribute.name("password"),
+                attribute.placeholder("********"),
+                attribute.value(form.field_value(form, "password")),
+                attribute.attribute("autocomplete", "new-password"),
+                attribute.aria_invalid(
+                  string.lowercase(bool.to_string(result.is_ok(password_err))),
+                ),
+              ]),
+              case password_err {
+                Ok(msg) ->
+                  html.p(
+                    [
+                      attribute.role("alert"),
+                      attribute.class("text-error text-sm"),
+                    ],
+                    [html.text(msg)],
+                  )
+                Error(_) -> element.none()
+              },
+            ],
+          ),
+
+          case root_err {
+            Ok(msg) ->
+              ui.alert([
+                ui.alert_title(element.text("something went wrong")),
+                ui.alert_description(element.text(msg)),
+              ])
+            Error(_) -> element.none()
+          },
+
+          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+            html.text("continue"),
             ui.spinner(),
           ]),
+
           html.div([attribute.class("flex justify-end")], [
             ui.button(
               ui.ButtonLink,
@@ -72,4 +120,23 @@ pub fn confirm_form() -> Element(a) {
       ),
     ],
   )
+}
+
+pub type VerifyPasswordForm {
+  VerifyPasswordForm(password: String)
+}
+
+pub fn get_verify_password_form() -> Form(VerifyPasswordForm) {
+  let schema = {
+    use password <- form.field("password", {
+      form.parse_string
+      |> form.check_not_empty
+      |> form.check_string_length_more_than(7)
+      |> form.check_string_length_less_than(72)
+    })
+
+    form.success(VerifyPasswordForm(password:))
+  }
+
+  form.new(schema)
 }

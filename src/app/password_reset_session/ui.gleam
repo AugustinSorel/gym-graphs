@@ -8,10 +8,6 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-// ---------------------------------------------------------------------------
-// Form types
-// ---------------------------------------------------------------------------
-
 pub type ResetPasswordForm {
   ResetPasswordForm(email: String)
 }
@@ -23,10 +19,6 @@ pub type VerifyEmailCodeForm {
 pub type SetNewPasswordForm {
   SetNewPasswordForm(password: String)
 }
-
-// ---------------------------------------------------------------------------
-// Password reset (enter email) UI
-// ---------------------------------------------------------------------------
 
 pub fn get_password_reset_form() -> Form(ResetPasswordForm) {
   let schema = {
@@ -146,10 +138,6 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Verify email code UI
-// ---------------------------------------------------------------------------
-
 pub fn get_verify_form() -> Form(VerifyEmailCodeForm) {
   let schema = {
     use code <- form.field("code", {
@@ -193,10 +181,7 @@ pub fn verify_page(children: Element(a)) -> Element(a) {
   )
 }
 
-pub fn verify_form(
-  form: Form(VerifyEmailCodeForm),
-  email: String,
-) -> Element(a) {
+pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
   let code_err = list.first(form.field_error_messages(form, "code"))
   let root_err = list.first(form.field_error_messages(form, "root"))
 
@@ -214,7 +199,7 @@ pub fn verify_form(
             html.text("verify email address"),
           ]),
           html.p([attribute.class("text-sm")], [
-            html.text("We sent an 8-digit code to " <> email <> "."),
+            html.text("Check your inbox, we sent an 8-digit code."),
           ]),
           html.label(
             [
@@ -281,10 +266,6 @@ pub fn verify_form(
     ],
   )
 }
-
-// ---------------------------------------------------------------------------
-// Set new password UI
-// ---------------------------------------------------------------------------
 
 pub fn get_set_new_password_form() -> Form(SetNewPasswordForm) {
   let schema = {
