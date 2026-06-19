@@ -99,12 +99,12 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
-    // ["delete-account", "cancel"] -> {
-    //   case req.method {
-    //     Post -> account_deletion_session.cancel(req, ctx)
-    //     _ -> wisp.method_not_allowed([Post])
-    //   }
-    // }
+    ["delete-account", "cancel"] -> {
+      case req.method {
+        Post -> account_deletion_session.cancel(req, ctx)
+        _ -> wisp.method_not_allowed([Post])
+      }
+    }
     _ -> wisp.not_found()
   }
 }

@@ -18,7 +18,7 @@ import gleam/result
 import gleam/string
 import gleam/time/duration
 import lustre/element/html
-import pog.{type QueryError}
+import pog.{type Connection, type QueryError}
 import wisp.{type Request, type Response}
 
 const cookie_name = "account_deletion_session_token"
@@ -184,10 +184,10 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
   use account_deletion_session <- require(req, ctx)
 
   let result = {
-    let same_session =
+    let session_matched =
       auth_session.id == account_deletion_session.auth_session_id
 
-    use <- bool.guard(when: !same_session, return: Error(SessionMissmatch))
+    use <- bool.guard(when: !session_matched, return: Error(SessionMissmatch))
 
     let already_verified =
       option.is_some(account_deletion_session.user_identity_verified_at)
@@ -244,23 +244,61 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
   |> clear_cookie(req)
 }
 
-/// Cancel – User backs out; delete the deletion session and go home.
+pub type CancelAccountDeletionError {
+  CancelSessionMissmatch
+  CancelDatabaseFailure(errors: QueryError)
+}
+
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use _session <- require(req, ctx)
+  use auth_session <- auth_session.require(req, ctx)
 
-  // TODO: account_deletion_session_sql.delete_account_deletion_session_by_id(ctx.db, session.id)
-  let _ = ctx
+  use account_deletion_session <- require(req, ctx)
 
-  wisp.ok()
-  |> clear_cookie(req)
-  |> wisp.set_header("HX-Redirect", "/")
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    let session_matched =
+      auth_session.id == account_deletion_session.auth_session_id
+
+    use <- bool.guard(
+      when: !session_matched,
+      return: Error(CancelSessionMissmatch),
+    )
+
+    cancel_account_deletion(ctx.db, account_deletion_session.id)
+  }
+
+  case result {
+    Ok(_) ->
+      wisp.ok()
+      |> clear_cookie(req)
+      |> wisp.set_header("HX-Redirect", "/")
+
+    Error(CancelSessionMissmatch) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root_err", form.CustomError("session missmatched"))
+      |> account_deletion_ui.verify_password_form()
+      |> account_deletion_ui.verify_password_page()
+      |> web.html(403)
+    }
+    Error(CancelDatabaseFailure(errors:)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(errors))
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root_err", form.CustomError("something went wrong"))
+      |> account_deletion_ui.verify_password_form()
+      |> account_deletion_ui.verify_password_page()
+      |> web.html(403)
+    }
+  }
 }
 
 type InternalAccountDeletionSession {
   InternalAccountDeletionSession(id: Int, secret: BitArray)
 }
 
-fn create_account_deletion_session(db: pog.Connection, auth_session_id: Int) {
+fn create_account_deletion_session(db: Connection, auth_session_id: Int) {
   let secret = crypto.generate_session_secret()
   let secret_hash = crypto.hash_session_secret(secret)
 
@@ -281,7 +319,7 @@ fn create_account_deletion_session(db: pog.Connection, auth_session_id: Int) {
   })
 }
 
-fn select_user_by_id(db: pog.Connection, id: Int) {
+fn select_user_by_id(db: Connection, id: Int) {
   user_sql.select_user_by_id(db, id)
   |> result.map_error(VerifyPasswordDatabaseFailure)
   |> result.try(fn(user) {
@@ -290,4 +328,10 @@ fn select_user_by_id(db: pog.Connection, id: Int) {
       pog.Returned(_, [user, ..]) -> Ok(user)
     }
   })
+}
+
+fn cancel_account_deletion(db: Connection, id: Int) {
+  account_deletion_session_sql.delete_account_deletion_session_by_id(db, id)
+  |> result.map_error(CancelDatabaseFailure)
+  |> result.replace(Nil)
 }
