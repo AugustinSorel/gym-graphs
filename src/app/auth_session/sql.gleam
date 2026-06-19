@@ -1,6 +1,6 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/domain/auth_session/sql`.
-//// > 🐿️ This module was generated automatically using v4.6.0 of
+//// `./src/app/auth_session/sql`.
+//// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
 
@@ -9,9 +9,9 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_auth_session` query
-/// defined in `./src/app/domain/auth_session/sql/create_auth_session.sql`.
+/// defined in `./src/app/auth_session/sql/create_auth_session.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type CreateAuthSessionRow {
@@ -25,9 +25,9 @@ pub type CreateAuthSessionRow {
 }
 
 /// Runs the `create_auth_session` query
-/// defined in `./src/app/domain/auth_session/sql/create_auth_session.sql`.
+/// defined in `./src/app/auth_session/sql/create_auth_session.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn create_auth_session(
@@ -60,9 +60,9 @@ pub fn create_auth_session(
 }
 
 /// Runs the `delete_auth_session_by_id` query
-/// defined in `./src/app/domain/auth_session/sql/delete_auth_session_by_id.sql`.
+/// defined in `./src/app/auth_session/sql/delete_auth_session_by_id.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn delete_auth_session_by_id(
@@ -83,9 +83,9 @@ pub fn delete_auth_session_by_id(
 }
 
 /// A row you get from running the `select_auth_session_by_id` query
-/// defined in `./src/app/domain/auth_session/sql/select_auth_session_by_id.sql`.
+/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SelectAuthSessionByIdRow {
@@ -100,9 +100,9 @@ pub type SelectAuthSessionByIdRow {
 }
 
 /// Runs the `select_auth_session_by_id` query
-/// defined in `./src/app/domain/auth_session/sql/select_auth_session_by_id.sql`.
+/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn select_auth_session_by_id(
@@ -144,9 +144,9 @@ where s.id = $1;
 }
 
 /// Runs the `update_auth_session_last_active_at` query
-/// defined in `./src/app/domain/auth_session/sql/update_auth_session_last_active_at.sql`.
+/// defined in `./src/app/auth_session/sql/update_auth_session_last_active_at.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn update_auth_session_last_active_at(

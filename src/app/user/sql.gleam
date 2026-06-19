@@ -1,6 +1,6 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/domain/user/sql`.
-//// > 🐿️ This module was generated automatically using v4.6.0 of
+//// `./src/app/user/sql`.
+//// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
 
@@ -9,9 +9,9 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_user` query
-/// defined in `./src/app/domain/user/sql/create_user.sql`.
+/// defined in `./src/app/user/sql/create_user.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type CreateUserRow {
@@ -19,16 +19,16 @@ pub type CreateUserRow {
 }
 
 /// Runs the `create_user` query
-/// defined in `./src/app/domain/user/sql/create_user.sql`.
+/// defined in `./src/app/user/sql/create_user.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn create_user(
   db: pog.Connection,
   arg_1: BitArray,
   arg_2: BitArray,
-  arg_3: Int,
+  id: Int,
 ) -> Result(pog.Returned(CreateUserRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -55,15 +55,15 @@ returning
   |> pog.query
   |> pog.parameter(pog.bytea(arg_1))
   |> pog.parameter(pog.bytea(arg_2))
-  |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
 
 /// A row you get from running the `select_user_by_email_address` query
-/// defined in `./src/app/domain/user/sql/select_user_by_email_address.sql`.
+/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SelectUserByEmailAddressRow {
@@ -77,9 +77,9 @@ pub type SelectUserByEmailAddressRow {
 }
 
 /// Runs the `select_user_by_email_address` query
-/// defined in `./src/app/domain/user/sql/select_user_by_email_address.sql`.
+/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn select_user_by_email_address(

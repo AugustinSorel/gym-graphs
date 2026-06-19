@@ -1,3 +1,4 @@
+import app/account_deletion_session/account_deletion_session
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/password_reset_session/password_reset_session
@@ -85,6 +86,25 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    ["delete-account"] -> {
+      case req.method {
+        Post -> account_deletion_session.start(req, ctx)
+        _ -> wisp.method_not_allowed([Post])
+      }
+    }
+    // ["delete-account", "confirm"] -> {
+    //   case req.method {
+    //     Get -> account_deletion_session.view_confirm_page(req, ctx)
+    //     Post -> account_deletion_session.confirm(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // }
+    // ["delete-account", "cancel"] -> {
+    //   case req.method {
+    //     Post -> account_deletion_session.cancel(req, ctx)
+    //     _ -> wisp.method_not_allowed([Post])
+    //   }
+    // }
     _ -> wisp.not_found()
   }
 }

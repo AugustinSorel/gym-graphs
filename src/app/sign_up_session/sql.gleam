@@ -1,6 +1,6 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/domain/sign_up_session/sql`.
-//// > 🐿️ This module was generated automatically using v4.6.0 of
+//// `./src/app/sign_up_session/sql`.
+//// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
 
@@ -10,9 +10,9 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_sign_up_session` query
-/// defined in `./src/app/domain/sign_up_session/sql/create_sign_up_session.sql`.
+/// defined in `./src/app/sign_up_session/sql/create_sign_up_session.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type CreateSignUpSessionRow {
@@ -27,9 +27,9 @@ pub type CreateSignUpSessionRow {
 }
 
 /// Runs the `create_sign_up_session` query
-/// defined in `./src/app/domain/sign_up_session/sql/create_sign_up_session.sql`.
+/// defined in `./src/app/sign_up_session/sql/create_sign_up_session.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn create_sign_up_session(
@@ -74,9 +74,9 @@ returning *;
 }
 
 /// Runs the `delete_sign_up_session_by_id` query
-/// defined in `./src/app/domain/sign_up_session/sql/delete_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up_session/sql/delete_sign_up_session_by_id.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn delete_sign_up_session_by_id(
@@ -94,9 +94,9 @@ pub fn delete_sign_up_session_by_id(
 }
 
 /// A row you get from running the `select_sign_up_session_by_id` query
-/// defined in `./src/app/domain/sign_up_session/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up_session/sql/select_sign_up_session_by_id.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SelectSignUpSessionByIdRow {
@@ -111,14 +111,14 @@ pub type SelectSignUpSessionByIdRow {
 }
 
 /// Runs the `select_sign_up_session_by_id` query
-/// defined in `./src/app/domain/sign_up_session/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up_session/sql/select_sign_up_session_by_id.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn select_sign_up_session_by_id(
   db: pog.Connection,
-  arg_1: Int,
+  id: Int,
 ) -> Result(pog.Returned(SelectSignUpSessionByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -143,15 +143,15 @@ pub fn select_sign_up_session_by_id(
   "select * from sign_up_sessions where id = $1 and created_at > now() - interval '24 hours';
 "
   |> pog.query
-  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
 
 /// A row you get from running the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/domain/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
+/// defined in `./src/app/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
 ///
-/// > 🐿️ This type definition was generated automatically using v4.6.0 of the
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SetEmailAddressVerifiedAtToNowRow {
@@ -166,14 +166,14 @@ pub type SetEmailAddressVerifiedAtToNowRow {
 }
 
 /// Runs the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/domain/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
+/// defined in `./src/app/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
 ///
-/// > 🐿️ This function was generated automatically using v4.6.0 of
+/// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub fn set_email_address_verified_at_to_now(
   db: pog.Connection,
-  arg_1: Int,
+  id: Int,
 ) -> Result(pog.Returned(SetEmailAddressVerifiedAtToNowRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -206,7 +206,7 @@ returning
   *;
 "
   |> pog.query
-  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
