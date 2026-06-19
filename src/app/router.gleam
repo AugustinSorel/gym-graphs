@@ -95,10 +95,16 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["delete-account", "verify-password"] -> {
       case req.method {
         Get -> account_deletion_session.view_verify_password_page(req, ctx)
-        // Post -> account_deletion_session.confirm(req, ctx)
+        Post -> account_deletion_session.verify_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    // ["delete-account", "confirm"] -> {
+    //   case req.method {
+    //     Post -> account_deletion_session.confirm(req, ctx)
+    //     _ -> wisp.method_not_allowed([Post])
+    //   }
+    // }
     ["delete-account", "cancel"] -> {
       case req.method {
         Post -> account_deletion_session.cancel(req, ctx)

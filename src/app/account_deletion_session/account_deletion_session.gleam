@@ -230,13 +230,9 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-/// Step 2 (POST) – User confirms; delete the account.
-pub fn confirm(req: Request, ctx: Ctx) -> Response {
+pub fn verify_password(req: Request, ctx: Ctx) -> Response {
   use _session <- require(req, ctx)
 
-  // TODO: inside a pog.transaction:
-  //   1. delete the user row (cascades to auth_sessions and deletion session)
-  //   2. clear both auth and deletion cookies
   let _ = ctx
 
   wisp.created()
