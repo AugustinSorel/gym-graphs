@@ -368,6 +368,7 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
     Ok(_) ->
       wisp.ok()
       |> clear_cookie(req)
+      |> auth_session.clear_cookie(req)
       |> wisp.set_header("HX-Redirect", "/sign-in")
 
     Error(ConfirmUserError(error)) -> {
@@ -404,7 +405,6 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
     Ok(_) ->
       wisp.ok()
       |> clear_cookie(req)
-      |> auth_session.clear_cookie(req)
       |> wisp.set_header("HX-Redirect", "/")
 
     Error(CancelDatabaseFailure(error)) -> {
