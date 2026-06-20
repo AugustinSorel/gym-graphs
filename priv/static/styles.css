@@ -3,14 +3,18 @@
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
-    --font-sans: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    --font-mono: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-sans: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+    --font-mono: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
     --spacing: 0.25rem;
     --container-xl: 36rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
     --text-lg: 1.125rem;
     --text-lg--line-height: calc(1.75 / 1.125);
+    --text-4xl: 2.25rem;
+    --text-4xl--line-height: calc(2.5 / 2.25);
     --text-5xl: 3rem;
     --text-5xl--line-height: 1;
     --font-weight-normal: 400;
@@ -27,6 +31,7 @@
     --color-error-container: var(--error-container);
     --color-success: var(--success);
     --color-success-container: var(--success-container);
+    --color-outline: var(--outline);
   }
 }
 @layer base {
@@ -178,6 +183,9 @@
   }
 }
 @layer utilities {
+  .relative {
+    position: relative;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -238,14 +246,20 @@
   .max-w-xl {
     max-width: var(--container-xl);
   }
-  .flex-shrink {
-    flex-shrink: 1;
+  .grow {
+    flex-grow: 1;
   }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
   .cursor-pointer {
     cursor: pointer;
+  }
+  .list-none {
+    list-style-type: none;
+  }
+  .grid-rows-\[auto_1fr\] {
+    grid-template-rows: auto 1fr;
   }
   .flex-col {
     flex-direction: column;
@@ -268,8 +282,18 @@
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
   }
+  .gap-5 {
+    gap: calc(var(--spacing) * 5);
+  }
   .gap-10 {
     gap: calc(var(--spacing) * 10);
+  }
+  .space-y-1 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-y-reverse)));
+    }
   }
   .space-y-15 {
     :where(& > :not(:last-child)) {
@@ -278,13 +302,27 @@
       margin-block-end: calc(calc(var(--spacing) * 15) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
-  .border {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
+  .divide-y {
+    :where(& > :not(:last-child)) {
+      --tw-divide-y-reverse: 0;
+      border-bottom-style: var(--tw-border-style);
+      border-top-style: var(--tw-border-style);
+      border-top-width: calc(1px * var(--tw-divide-y-reverse));
+      border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    }
+  }
+  .divide-current {
+    :where(& > :not(:last-child)) {
+      border-color: currentcolor;
+    }
   }
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
+  }
+  .border-y {
+    border-block-style: var(--tw-border-style);
+    border-block-width: 1px;
   }
   .border-b-2 {
     border-bottom-style: var(--tw-border-style);
@@ -338,17 +376,27 @@
   .p-10 {
     padding: calc(var(--spacing) * 10);
   }
+  .p-20 {
+    padding: calc(var(--spacing) * 20);
+  }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
   }
+  .pt-5 {
+    padding-top: calc(var(--spacing) * 5);
+  }
   .text-center {
     text-align: center;
   }
   .text-right {
     text-align: right;
+  }
+  .text-4xl {
+    font-size: var(--text-4xl);
+    line-height: var(--tw-leading, var(--text-4xl--line-height));
   }
   .text-5xl {
     font-size: var(--text-5xl);
@@ -379,6 +427,9 @@
   .text-on-surface {
     color: var(--color-on-surface);
   }
+  .text-outline {
+    color: var(--color-outline);
+  }
   .text-surface {
     color: var(--color-surface);
   }
@@ -400,6 +451,59 @@
   .outline-none {
     --tw-outline-style: none;
     outline-style: none;
+  }
+  .\[counter-reset\:my-counter\] {
+    counter-reset: my-counter;
+  }
+  .before\:absolute {
+    &::before {
+      content: var(--tw-content);
+      position: absolute;
+    }
+  }
+  .before\:top-2 {
+    &::before {
+      content: var(--tw-content);
+      top: calc(var(--spacing) * 2);
+    }
+  }
+  .before\:-left-0 {
+    &::before {
+      content: var(--tw-content);
+      left: calc(var(--spacing) * -0);
+    }
+  }
+  .before\:text-sm {
+    &::before {
+      content: var(--tw-content);
+      font-size: var(--text-sm);
+      line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+  }
+  .before\:leading-none {
+    &::before {
+      content: var(--tw-content);
+      --tw-leading: 1;
+      line-height: 1;
+    }
+  }
+  .before\:text-outline {
+    &::before {
+      content: var(--tw-content);
+      color: var(--color-outline);
+    }
+  }
+  .before\:content-\[counter\(my-counter\,decimal-leading-zero\)\] {
+    &::before {
+      --tw-content: counter(my-counter,decimal-leading-zero);
+      content: var(--tw-content);
+    }
+  }
+  .before\:\[counter-increment\:my-counter\] {
+    &::before {
+      content: var(--tw-content);
+      counter-increment: my-counter;
+    }
   }
   .hover\:bg-error\/90 {
     &:hover {
@@ -496,6 +600,11 @@
       display: block;
     }
   }
+  .lg\:grid {
+    @media (width >= 64rem) {
+      display: grid;
+    }
+  }
   .lg\:grid-cols-\[1fr_auto_1fr\] {
     @media (width >= 64rem) {
       grid-template-columns: 1fr auto 1fr;
@@ -509,6 +618,16 @@
   .lg\:justify-between {
     @media (width >= 64rem) {
       justify-content: space-between;
+    }
+  }
+  .\[\&\>\*\]\:ml-10 {
+    &>* {
+      margin-left: calc(var(--spacing) * 10);
+    }
+  }
+  .\[\&\>li\]\:pb-5 {
+    &>li {
+      padding-bottom: calc(var(--spacing) * 5);
     }
   }
 }
@@ -548,10 +667,10 @@
     --surface-variant: light-dark(hsl(275 24% 90%), hsl(264 7% 29%));
     --on-surface-variant: light-dark(hsl(264 7% 29%), hsl(270 11% 79%));
     --surface-container-lowest: light-dark(hsl(0 0% 100%), hsl(0 0% 10%));
-    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 14%));
-    --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 17%));
-    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 22%));
-    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 28%));
+    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 4%));
+    --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 6%));
+    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 8%));
+    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 10%));
     --primary: light-dark(hsl(256 34% 48%), hsl(258 100% 87%));
     --on-primary: light-dark(hsl(0 0% 100%), hsl(259 58% 28%));
     --primary-container: light-dark(hsl(263 100% 93%), hsl(257 43% 38%));
@@ -607,6 +726,11 @@
   inherits: false;
   initial-value: 0;
 }
+@property --tw-divide-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -620,6 +744,15 @@
   syntax: "*";
   inherits: false;
   initial-value: solid;
+}
+@property --tw-content {
+  syntax: "*";
+  initial-value: "";
+  inherits: false;
+}
+@property --tw-leading {
+  syntax: "*";
+  inherits: false;
 }
 @property --tw-shadow {
   syntax: "*";
@@ -695,9 +828,12 @@
       --tw-skew-x: initial;
       --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
+      --tw-divide-y-reverse: 0;
       --tw-border-style: solid;
       --tw-font-weight: initial;
       --tw-outline-style: solid;
+      --tw-content: "";
+      --tw-leading: initial;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
       --tw-shadow-alpha: 100%;

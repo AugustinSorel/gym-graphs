@@ -6,8 +6,10 @@
   font-weight: 400;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2") format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff") format("woff");
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2")
+      format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff")
+      format("woff");
 }
 
 @font-face {
@@ -16,8 +18,10 @@
   font-weight: 400;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2") format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff") format("woff");
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2")
+      format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff")
+      format("woff");
 }
 
 @font-face {
@@ -26,8 +30,10 @@
   font-weight: 700;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2") format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff") format("woff");
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2")
+      format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff")
+      format("woff");
 }
 
 @font-face {
@@ -36,8 +42,10 @@
   font-weight: 700;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2") format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff") format("woff");
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2")
+      format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff")
+      format("woff");
 }
 
 @theme {
@@ -75,8 +83,12 @@
 
   --color-outline: var(--outline);
 
-  --font-sans: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-mono: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans:
+    "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  --font-mono:
+    "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
 
   --max-width-app: var(--container-xl);
   --width-app: var(--container-xl);
@@ -93,10 +105,10 @@
     --on-surface-variant: light-dark(hsl(264 7% 29%), hsl(270 11% 79%));
 
     --surface-container-lowest: light-dark(hsl(0 0% 100%), hsl(0 0% 10%));
-    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 14%));
-    --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 17%));
-    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 22%));
-    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 28%));
+    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 4%));
+    --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 6%));
+    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 8%));
+    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 10%));
 
     --primary: light-dark(hsl(256 34% 48%), hsl(258 100% 87%));
     --on-primary: light-dark(hsl(0 0% 100%), hsl(259 58% 28%));
