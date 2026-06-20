@@ -2,11 +2,11 @@ import app/auth_session/sql.{type SelectAuthSessionByIdRow} as auth_session_sql
 import app/auth_session/ui as auth_session_ui
 import app/crypto
 import app/ctx.{type Ctx}
+import app/session_token
 import app/ui
 import app/user/sql as user_sql
 import app/web
 import formal/form
-import gleam/bit_array
 import gleam/bool
 import gleam/float
 import gleam/int
@@ -57,25 +57,8 @@ fn parse_cookie(req: Request) {
   wisp.get_cookie(req, name: cookie_name, security: wisp.Signed)
 }
 
-type AuthSessionToken {
-  AuthSessionToken(id: Int, secret: BitArray)
-}
-
 pub fn encode_token(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
-}
-
-fn decode_token(candidate_token: String) {
-  let candidate_token = case string.split(candidate_token, on: ".") {
-    [raw_id, raw_secret] -> Ok(#(raw_id, raw_secret))
-    _ -> Error(Nil)
-  }
-
-  use #(raw_id, raw_secret) <- result.try(candidate_token)
-  use id <- result.try(int.parse(raw_id))
-  use secret <- result.map(bit_array.base64_decode(raw_secret))
-  AuthSessionToken(id:, secret:)
+  session_token.encode(id, secret)
 }
 
 type VerifyAuthSessionTokenError {
@@ -83,7 +66,7 @@ type VerifyAuthSessionTokenError {
   ExpiredOrNotFound
 }
 
-fn verify_token(token: AuthSessionToken, ctx: Ctx) {
+fn verify_token(token: session_token.SessionToken, ctx: Ctx) {
   use session <- result.try(
     auth_session_sql.select_auth_session_by_id(ctx.db, token.id)
     |> result.replace_error(InvalidToken),
@@ -129,7 +112,7 @@ pub fn require(req: Request, ctx: Ctx, next) -> Response {
     )
 
     use token <- result.try(
-      decode_token(raw_token) |> result.replace_error(redirect),
+      session_token.decode(raw_token) |> result.replace_error(redirect),
     )
 
     use session <- result.try(
@@ -155,7 +138,7 @@ pub fn require_blank(
 ) -> Response {
   let res =
     parse_cookie(req)
-    |> result.try(decode_token)
+    |> result.try(session_token.decode)
     |> result.try(fn(token) {
       verify_token(token, ctx) |> result.map_error(fn(_) { Nil })
     })
@@ -221,7 +204,7 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
 
   case result {
     Ok(#(session_id, secret)) -> {
-      let token = encode_token(session_id, secret)
+      let token = session_token.encode(session_id, secret)
 
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/")

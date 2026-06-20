@@ -6,13 +6,12 @@ import app/email
 import app/password_reset_session/sql.{type SelectPasswordResetSessionByIdRow} as password_reset_session_sql
 import app/password_reset_session/template
 import app/password_reset_session/ui as password_reset_ui
+import app/session_token
 import app/user/sql as user_sql
 import app/web
 import formal/form
-import gleam/bit_array
 import gleam/bool
 import gleam/float
-import gleam/int
 import gleam/option
 import gleam/result
 import gleam/string
@@ -58,34 +57,12 @@ pub type SessionLookupError {
   SessionDatabaseFailure(QueryError)
 }
 
-type PasswordResetSessionToken {
-  PasswordResetSessionToken(id: Int, secret: BitArray)
-}
-
-fn encode_token(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
-}
-
-fn decode_token(candidate_token: String) {
-  let candidate_token = case string.split(candidate_token, on: ".") {
-    [raw_id, raw_secret] -> Ok(#(raw_id, raw_secret))
-    _ -> Error(Nil)
-  }
-
-  use #(raw_id, raw_secret) <- result.try(candidate_token)
-  use id <- result.try(int.parse(raw_id))
-  use secret <- result.map(bit_array.base64_decode(raw_secret))
-
-  PasswordResetSessionToken(id:, secret:)
-}
-
 type VerifyPasswordResetSessionTokenError {
   InvalidToken
   ExpiredOrNotFound
 }
 
-fn verify_token(token: PasswordResetSessionToken, ctx: Ctx) {
+fn verify_token(token: session_token.SessionToken, ctx: Ctx) {
   use session <- result.try(
     password_reset_session_sql.select_password_reset_session_by_id(
       ctx.db,
@@ -118,7 +95,7 @@ fn require(
 
   let result =
     parse_cookie(req)
-    |> result.try(decode_token)
+    |> result.try(session_token.decode)
     |> result.replace_error(invalid)
     |> result.try(fn(token) {
       verify_token(token, ctx) |> result.replace_error(invalid)
@@ -209,7 +186,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> result.map_error(RegisterEmailSendFailure),
     )
 
-    Ok(encode_token(session.id, session.secret))
+    Ok(session_token.encode(session.id, session.secret))
   }
 
   case result {

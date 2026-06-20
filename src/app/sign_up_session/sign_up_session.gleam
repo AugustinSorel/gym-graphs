@@ -3,16 +3,15 @@ import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
 import app/email
+import app/session_token
 import app/sign_up_session/sql.{type SelectSignUpSessionByIdRow} as sign_up_session_sql
 import app/sign_up_session/template
 import app/sign_up_session/ui as sign_up_ui
 import app/user/sql as user_sql
 import app/web
 import formal/form.{type Form}
-import gleam/bit_array
 import gleam/bool
 import gleam/float
-import gleam/int
 import gleam/option
 import gleam/result
 import gleam/string
@@ -58,29 +57,13 @@ pub type UserLookupError {
   UserDatabaseFailure(QueryError)
 }
 
-type SignUpSessionToken {
-  SignUpSessionToken(id: Int, secret: BitArray)
-}
-
-fn decode_token(candidate_token: String) {
-  let candidate_token = case string.split(candidate_token, on: ".") {
-    [raw_id, raw_secret] -> Ok(#(raw_id, raw_secret))
-    _ -> Error(Nil)
-  }
-
-  use #(raw_id, raw_secret) <- result.try(candidate_token)
-  use id <- result.try(int.parse(raw_id))
-  use secret <- result.map(bit_array.base64_decode(raw_secret))
-  SignUpSessionToken(id:, secret:)
-}
-
 type VerifySignUpSessionTokenError {
   TokenInvalid
   TokenExpiredOrNotFound
 }
 
 fn verify_token(
-  token: SignUpSessionToken,
+  token: session_token.SessionToken,
   ctx: Ctx,
 ) -> Result(SelectSignUpSessionByIdRow, VerifySignUpSessionTokenError) {
   use session <- result.try(
@@ -103,11 +86,6 @@ fn verify_token(
   Ok(session)
 }
 
-fn encode_token(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
-}
-
 pub fn require(
   req: Request,
   ctx: Ctx,
@@ -117,7 +95,7 @@ pub fn require(
 
   let result =
     parse_cookie(req)
-    |> result.try(decode_token)
+    |> result.try(session_token.decode)
     |> result.replace_error(invalid)
     |> result.try(fn(token) {
       verify_token(token, ctx) |> result.replace_error(invalid)
@@ -216,7 +194,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> result.map_error(RegisterEmailSendFailure),
     )
 
-    Ok(encode_token(session.id, session.secret))
+    Ok(session_token.encode(session.id, session.secret))
   }
 
   case result {

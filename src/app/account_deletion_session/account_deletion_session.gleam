@@ -6,14 +6,13 @@ import app/auth_session/auth_session
 import app/auth_session/sql.{type SelectAuthSessionByIdRow}
 import app/crypto
 import app/ctx.{type Ctx}
+import app/session_token
 import app/ui
 import app/user/sql as user_sql
 import app/web
 import formal/form.{type Form}
-import gleam/bit_array
 import gleam/bool
 import gleam/float
-import gleam/int
 import gleam/option
 import gleam/result
 import gleam/string
@@ -60,34 +59,12 @@ pub type SessionLookupError {
   SessionDatabaseFailure(QueryError)
 }
 
-type AccountDeletionSessionToken {
-  AccountDeletionSessionToken(id: Int, secret: BitArray)
-}
-
-fn encode_token(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
-}
-
-fn decode_token(candidate_token: String) {
-  use #(raw_id, raw_secret) <- result.try(
-    case string.split(candidate_token, on: ".") {
-      [raw_id, raw_secret] -> Ok(#(raw_id, raw_secret))
-      _ -> Error(Nil)
-    },
-  )
-
-  use id <- result.try(int.parse(raw_id))
-  use secret <- result.map(bit_array.base64_decode(raw_secret))
-  AccountDeletionSessionToken(id:, secret:)
-}
-
 type VerifyTokenError {
   TokenInvalid
   TokenExpiredOrNotFound
 }
 
-fn verify_token(token: AccountDeletionSessionToken, ctx: Ctx) {
+fn verify_token(token: session_token.SessionToken, ctx: Ctx) {
   use session <- result.try(
     account_deletion_session_sql.select_account_deletion_session_by_id(
       ctx.db,
@@ -120,7 +97,7 @@ fn require(
 
   let result =
     parse_cookie(req)
-    |> result.try(decode_token)
+    |> result.try(session_token.decode)
     |> result.replace_error(invalid)
     |> result.try(fn(token) {
       verify_token(token, ctx) |> result.replace_error(invalid)
@@ -183,7 +160,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 
   let result =
     create_account_deletion_session(ctx.db, auth_session.id)
-    |> result.map(fn(session) { encode_token(session.id, session.secret) })
+    |> result.map(fn(session) { session_token.encode(session.id, session.secret) })
 
   case result {
     Ok(token) ->
