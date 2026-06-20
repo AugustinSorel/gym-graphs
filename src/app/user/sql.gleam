@@ -60,6 +60,67 @@ returning
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_user_by_account_deletion_session_id` query
+/// defined in `./src/app/user/sql/delete_user_by_account_deletion_session_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteUserByAccountDeletionSessionIdRow {
+  DeleteUserByAccountDeletionSessionIdRow(
+    id: Int,
+    email_address: String,
+    password_hash: BitArray,
+    password_salt: BitArray,
+    created_at: Timestamp,
+  )
+}
+
+/// Runs the `delete_user_by_account_deletion_session_id` query
+/// defined in `./src/app/user/sql/delete_user_by_account_deletion_session_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_user_by_account_deletion_session_id(
+  db: pog.Connection,
+  account_deletion_sessions_id: Int,
+) -> Result(
+  pog.Returned(DeleteUserByAccountDeletionSessionIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    use password_hash <- decode.field(2, decode.bit_array)
+    use password_salt <- decode.field(3, decode.bit_array)
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    decode.success(DeleteUserByAccountDeletionSessionIdRow(
+      id:,
+      email_address:,
+      password_hash:,
+      password_salt:,
+      created_at:,
+    ))
+  }
+
+  "delete from users
+where id in (
+    select auth_sessions.user_id
+    from auth_sessions
+    inner join account_deletion_sessions
+        on auth_sessions.id = account_deletion_sessions.auth_session_id
+    where account_deletion_sessions.id = $1
+    and account_deletion_sessions.user_identity_verified_at is not null
+)
+returning *;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(account_deletion_sessions_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_user_by_email_address` query
 /// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
 ///

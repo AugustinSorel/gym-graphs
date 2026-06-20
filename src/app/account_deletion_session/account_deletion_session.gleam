@@ -297,11 +297,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
       |> wisp.set_header("HX-Redirect", "/delete-account/confirm")
     }
     Error(VerifyPasswordSessionMissmatch) -> {
-      account_deletion_ui.get_verify_password_form()
-      |> form.add_values(form_data.values)
-      |> form.add_error("root", form.CustomError("Session missmatched."))
-      |> account_deletion_ui.verify_password_form()
-      |> web.html(500)
+      wisp.redirect("/") |> clear_cookie(req)
     }
     Error(VerifyPasswordSessionAlreadyVerified) -> {
       wisp.ok()
@@ -352,6 +348,125 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
   }
 }
 
+type ViewConfirmPageError {
+  ConfirmSessionMissmatch
+  ConfirmSessionNotVerified
+}
+
+pub fn view_confirm_page(req: Request, ctx: Ctx) -> Response {
+  use auth_session <- auth_session.require(req, ctx)
+
+  use account_deletion_session <- require(req, ctx)
+
+  let result = {
+    let session_matched =
+      auth_session.id == account_deletion_session.auth_session_id
+
+    use <- bool.guard(
+      when: !session_matched,
+      return: Error(ConfirmSessionMissmatch),
+    )
+
+    let is_verified =
+      option.is_some(account_deletion_session.user_identity_verified_at)
+
+    use <- bool.guard(
+      when: !is_verified,
+      return: Error(ConfirmSessionNotVerified),
+    )
+
+    Ok(Nil)
+  }
+
+  case result {
+    Ok(_) ->
+      account_deletion_ui.get_account_deletion_form()
+      |> account_deletion_ui.confirm_form()
+      |> account_deletion_ui.confirm_page()
+      |> web.html(200)
+
+    Error(ConfirmSessionMissmatch) -> {
+      wisp.redirect("/") |> clear_cookie(req)
+    }
+    Error(ConfirmSessionNotVerified) -> {
+      wisp.redirect("/delete-account/verify-password")
+    }
+  }
+}
+
+type ConfirmError {
+  ConfirmSessionMissmatchError
+  ConfirmSessionNotVerifiedError
+  ConfirmUserError(error: UserError)
+}
+
+pub fn confirm(req: Request, ctx: Ctx) -> Response {
+  use auth_session <- auth_session.require(req, ctx)
+
+  use account_deletion_session <- require(req, ctx)
+
+  let result =
+    {
+      let session_matched =
+        auth_session.id == account_deletion_session.auth_session_id
+
+      use <- bool.guard(
+        when: !session_matched,
+        return: Error(ConfirmSessionMissmatchError),
+      )
+
+      let is_verified =
+        option.is_some(account_deletion_session.user_identity_verified_at)
+
+      use <- bool.guard(
+        when: !is_verified,
+        return: Error(ConfirmSessionNotVerifiedError),
+      )
+
+      use _ <- result.try(
+        delete_user(ctx.db, account_deletion_session.id)
+        |> result.map_error(ConfirmUserError),
+      )
+
+      Ok(Nil)
+    }
+    |> echo
+
+  case result {
+    Ok(_) ->
+      wisp.ok()
+      |> clear_cookie(req)
+      |> wisp.set_header("HX-Redirect", "/sign-in")
+
+    Error(ConfirmSessionMissmatchError) -> {
+      wisp.redirect("/") |> clear_cookie(req)
+    }
+
+    Error(ConfirmSessionNotVerifiedError) ->
+      wisp.redirect("/delete-account/verify-password")
+
+    Error(ConfirmUserError(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      account_deletion_ui.get_account_deletion_form()
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> account_deletion_ui.confirm_form()
+      |> web.html(500)
+    }
+  }
+}
+
+fn delete_user(db: Connection, id: Int) {
+  user_sql.delete_user_by_account_deletion_session_id(db, id)
+  |> result.map_error(UserDatabaseFailure)
+  |> result.try(fn(rows) {
+    echo rows
+    case rows {
+      pog.Returned(_count, [a, ..]) -> Ok(a)
+      pog.Returned(_count, _rows) -> Error(UserNotFound)
+    }
+  })
+}
+
 pub type CancelAccountDeletionError {
   CancelSessionMissmatch
   CancelDatabaseFailure(errors: QueryError)
@@ -380,6 +495,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
     Ok(_) ->
       wisp.ok()
       |> clear_cookie(req)
+      |> auth_session.clear_cookie(req)
       |> wisp.set_header("HX-Redirect", "/")
 
     Error(CancelSessionMissmatch) -> {

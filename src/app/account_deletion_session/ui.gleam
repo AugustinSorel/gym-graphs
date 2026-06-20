@@ -122,6 +122,97 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
   )
 }
 
+pub fn confirm_page(children: Element(a)) -> Element(a) {
+  ui.layout(
+    html.main(
+      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
+      [
+        html.section(
+          [
+            attribute.class("bg-surface-container-highest hidden lg:block"),
+            attribute.aria_hidden(True),
+          ],
+          [],
+        ),
+        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+        html.section(
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [
+            html.h1([attribute.class("text-5xl text-center")], [
+              html.text("Delete your account"),
+            ]),
+            children,
+          ],
+        ),
+      ],
+    ),
+  )
+}
+
+pub type AccountDeletionConfirmForm {
+  AccountDeletionConfirmForm
+}
+
+pub fn get_account_deletion_form() -> Form(AccountDeletionConfirmForm) {
+  AccountDeletionConfirmForm
+  |> form.success
+  |> form.new
+}
+
+pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
+  let root_err = list.first(form.field_error_messages(form, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-post", "/delete-account/confirm"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+    ],
+    [
+      html.fieldset(
+        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
+            html.text("confirm"),
+          ]),
+
+          html.p([attribute.class("text-center")], [
+            html.text(
+              "Are you sure you want to permanently delete your account? This action cannot be undone.",
+            ),
+          ]),
+
+          ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
+            html.text("yes, delete my account"),
+            ui.spinner(),
+          ]),
+
+          case root_err {
+            Ok(msg) -> {
+              ui.alert([
+                ui.alert_title(element.text("something went wrong")),
+                ui.alert_description(element.text(msg)),
+              ])
+            }
+            Error(_) -> element.none()
+          },
+
+          ui.button(
+            ui.ButtonLink,
+            [
+              attribute.type_("button"),
+              attribute.attribute("hx-post", "/delete-account/cancel"),
+              attribute.attribute("hx-disable", "this"),
+              attribute.class("ml-auto"),
+            ],
+            [html.text("cancel"), ui.spinner()],
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
 pub type VerifyPasswordForm {
   VerifyPasswordForm(password: String)
 }

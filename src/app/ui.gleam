@@ -130,7 +130,8 @@ fn button_classes(variant: ButtonVariant) -> String {
       "bg-on-surface text-surface hover:bg-on-surface/90 focus-visible:ring-on-surface"
     ButtonLink ->
       "underline font-normal hover:text-current/80 focus-visible:ring-on-surface p-0"
-    ButtonDestroy -> "bg-error text-on-error focus-visible:ring-error"
+    ButtonDestroy ->
+      "bg-error text-on-error focus-visible:ring-error hover:bg-error/90"
   }
   shared <> " " <> variant_classes
 }
