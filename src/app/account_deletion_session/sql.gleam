@@ -136,3 +136,55 @@ pub fn select_account_deletion_session_by_id(
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
+
+/// A row you get from running the `set_identity_verified_to_now` query
+/// defined in `./src/app/account_deletion_session/sql/set_identity_verified_to_now.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SetIdentityVerifiedToNowRow {
+  SetIdentityVerifiedToNowRow(
+    id: Int,
+    auth_session_id: Int,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+  )
+}
+
+/// Runs the `set_identity_verified_to_now` query
+/// defined in `./src/app/account_deletion_session/sql/set_identity_verified_to_now.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn set_identity_verified_to_now(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(SetIdentityVerifiedToNowRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use auth_session_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use user_identity_verified_at <- decode.field(
+      3,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    decode.success(SetIdentityVerifiedToNowRow(
+      id:,
+      auth_session_id:,
+      secret_hash:,
+      user_identity_verified_at:,
+      created_at:,
+    ))
+  }
+
+  "update account_deletion_sessions set user_identity_verified_at = now() where id = $1 and user_identity_verified_at is null returning *;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}

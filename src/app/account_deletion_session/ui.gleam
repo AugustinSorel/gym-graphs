@@ -42,7 +42,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
 
   html.form(
     [
-      attribute.attribute("hx-post", "/delete-account/confirm"),
+      attribute.attribute("hx-post", "/delete-account/verify-password"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
     ],

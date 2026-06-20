@@ -1,14 +1,14 @@
 import app/account_deletion_session/sql.{
   type SelectAccountDeletionSessionByIdRow,
 } as account_deletion_session_sql
-import app/account_deletion_session/ui as account_deletion_ui
+import app/account_deletion_session/ui.{type VerifyPasswordForm} as account_deletion_ui
 import app/auth_session/auth_session
 import app/crypto
 import app/ctx.{type Ctx}
 import app/ui
 import app/user/sql as user_sql
 import app/web
-import formal/form
+import formal/form.{type Form}
 import gleam/bit_array
 import gleam/bool
 import gleam/float
@@ -70,13 +70,6 @@ fn decode_token(candidate_token: String) {
   use secret <- result.map(bit_array.base64_decode(raw_secret))
   AccountDeletionSessionToken(id:, secret:)
 }
-
-// ---------------------------------------------------------------------------
-// Session guard
-//
-// TODO: once squirrel has generated sql.gleam, replace the Nil session type
-//       with SelectAccountDeletionSessionByIdRow and add proper DB verification.
-// ---------------------------------------------------------------------------
 
 fn require(
   req: Request,
@@ -171,11 +164,10 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-type VerifyPasswordPageError {
+type ViewVerifyPasswordPageError {
   SessionMissmatch
+  ViewVerifyPasswordPageUserError(error: UserError)
   SessionAlreadyVerified
-  UserNotFound
-  VerifyPasswordDatabaseFailure(error: QueryError)
 }
 
 pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
@@ -197,7 +189,10 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
       return: Error(SessionAlreadyVerified),
     )
 
-    use user <- result.try(select_user_by_id(ctx.db, auth_session.user_id))
+    use user <- result.try(
+      select_user_by_id(ctx.db, auth_session.user_id)
+      |> result.map_error(ViewVerifyPasswordPageUserError),
+    )
 
     Ok(user)
   }
@@ -212,14 +207,14 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
 
     Error(SessionMissmatch) -> wisp.redirect("/") |> clear_cookie(req)
     Error(SessionAlreadyVerified) -> wisp.redirect("/delete-account/confirm")
-    Error(UserNotFound) -> {
+    Error(ViewVerifyPasswordPageUserError(UserNotFound)) -> {
       account_deletion_ui.get_verify_password_form()
       |> form.add_error("root_err", form.CustomError("user not found"))
       |> account_deletion_ui.verify_password_form()
       |> account_deletion_ui.verify_password_page()
       |> web.html(404)
     }
-    Error(VerifyPasswordDatabaseFailure(error:)) -> {
+    Error(ViewVerifyPasswordPageUserError(UserDatabaseFailure(error))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       account_deletion_ui.get_verify_password_form()
       |> form.add_error("root_err", form.CustomError("something went wrong"))
@@ -230,14 +225,131 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
   }
 }
 
+type UserError {
+  UserNotFound
+  UserDatabaseFailure(error: QueryError)
+}
+
+type VerifyPasswordError {
+  VerifyPasswordSessionMissmatch
+  VerifyPasswordSessionAlreadyVerified
+  VerifyPasswordUserError(error: UserError)
+  Validation(form: Form(VerifyPasswordForm))
+  InvalidPassword
+  SessionNotFound
+  AccountDeletionSessionDatabaseFailure(error: QueryError)
+}
+
 pub fn verify_password(req: Request, ctx: Ctx) -> Response {
-  use _session <- require(req, ctx)
+  use auth_session <- auth_session.require(req, ctx)
 
-  let _ = ctx
+  use account_deletion_session <- require(req, ctx)
 
-  wisp.created()
-  |> wisp.set_header("HX-Redirect", "/sign-up")
-  |> clear_cookie(req)
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(Validation),
+    )
+
+    let session_matched =
+      auth_session.id == account_deletion_session.auth_session_id
+
+    use <- bool.guard(
+      when: !session_matched,
+      return: Error(VerifyPasswordSessionMissmatch),
+    )
+
+    let session_verified =
+      option.is_some(account_deletion_session.user_identity_verified_at)
+
+    use <- bool.guard(
+      when: session_verified,
+      return: Error(VerifyPasswordSessionAlreadyVerified),
+    )
+
+    use user <- result.try({
+      select_user_by_id(ctx.db, auth_session.user_id)
+      |> result.map_error(VerifyPasswordUserError)
+    })
+
+    let is_password_correct =
+      crypto.validate_user_password(user.password_hash, input.password)
+
+    use <- bool.guard(
+      when: !is_password_correct,
+      return: Error(InvalidPassword),
+    )
+
+    use _ <- result.try({
+      mark_session_as_verified(ctx.db, account_deletion_session.id)
+    })
+
+    Ok(Nil)
+  }
+
+  case result {
+    Ok(_) -> {
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/delete-account/confirm")
+    }
+    Error(VerifyPasswordSessionMissmatch) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Session missmatched."))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(500)
+    }
+    Error(VerifyPasswordSessionAlreadyVerified) -> {
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/delete-account/confirm")
+    }
+    Error(VerifyPasswordUserError(UserNotFound)) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("User not found"))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(404)
+    }
+    Error(VerifyPasswordUserError(UserDatabaseFailure(error:))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(500)
+    }
+    Error(Validation(form:)) -> {
+      form
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(422)
+    }
+    Error(InvalidPassword) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("password", form.CustomError("Incorect password."))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(422)
+    }
+    Error(SessionNotFound) -> {
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Session not found"))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(404)
+    }
+    Error(AccountDeletionSessionDatabaseFailure(error:)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      account_deletion_ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> account_deletion_ui.verify_password_form()
+      |> web.html(500)
+    }
+  }
 }
 
 pub type CancelAccountDeletionError {
@@ -317,7 +429,7 @@ fn create_account_deletion_session(db: Connection, auth_session_id: Int) {
 
 fn select_user_by_id(db: Connection, id: Int) {
   user_sql.select_user_by_id(db, id)
-  |> result.map_error(VerifyPasswordDatabaseFailure)
+  |> result.map_error(UserDatabaseFailure)
   |> result.try(fn(user) {
     case user {
       pog.Returned(_, []) -> Error(UserNotFound)
@@ -330,4 +442,15 @@ fn cancel_account_deletion(db: Connection, id: Int) {
   account_deletion_session_sql.delete_account_deletion_session_by_id(db, id)
   |> result.map_error(CancelDatabaseFailure)
   |> result.replace(Nil)
+}
+
+fn mark_session_as_verified(db: Connection, id: Int) {
+  account_deletion_session_sql.set_identity_verified_to_now(db, id)
+  |> result.map_error(AccountDeletionSessionDatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [_, ..]) -> Ok(Nil)
+      pog.Returned(_, []) -> Error(SessionNotFound)
+    }
+  })
 }
