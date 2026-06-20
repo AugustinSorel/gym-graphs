@@ -41,13 +41,7 @@ pub fn sign_in_page(children: Element(a)) -> Element(a) {
     html.main(
       [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
       [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
+        sign_in_hero_section(),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
         html.section(
           [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
@@ -60,6 +54,61 @@ pub fn sign_in_page(children: Element(a)) -> Element(a) {
         ),
       ],
     ),
+  )
+}
+
+fn sign_in_hero_section() {
+  let text = [
+    #("track", "Every session. Every rep. Every weight."),
+    #("measure", "Progress is a number. Know yours."),
+    #("push", "Last week's max is this week's warm-up."),
+    #("grow", "The graph doesn't lie."),
+  ]
+
+  html.section(
+    [
+      attribute.class(
+        "bg-surface-container-highest hidden lg:grid p-20 grid-rows-[auto_1fr] justify-content-center",
+      ),
+    ],
+    [
+      html.header([], [
+        html.span([attribute.class("text-sm uppercase")], [
+          html.text("gym graphs"),
+        ]),
+      ]),
+      html.ol(
+        [
+          attribute.class(
+            "m-auto flex gap-5 flex-col list-none [counter-reset:my-counter] divide-y divide-current [&>li]:pb-5 border-y pt-5 w-full",
+          ),
+        ],
+        list.map(text, fn(data) {
+          let #(title, body) = data
+
+          html.li(
+            [
+              attribute.class(
+                "space-y-1 [&>*]:ml-10 relative before:content-[counter(my-counter,decimal-leading-zero)] before:[counter-increment:my-counter] before:absolute before:-left-0 before:top-2 before:text-sm before:text-outline before:leading-none",
+              ),
+            ],
+            [
+              html.h2(
+                [
+                  attribute.class("text-4xl font-semibold uppercase"),
+                ],
+                [
+                  html.text(title),
+                ],
+              ),
+              html.p([attribute.class("text-sm text-outline")], [
+                html.text(body),
+              ]),
+            ],
+          )
+        }),
+      ),
+    ],
   )
 }
 
