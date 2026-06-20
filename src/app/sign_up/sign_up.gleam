@@ -4,9 +4,9 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/email
 import app/session_token
-import app/sign_up_session/sql.{type SelectSignUpSessionByIdRow} as sign_up_session_sql
-import app/sign_up_session/template
-import app/sign_up_session/ui as sign_up_ui
+import app/sign_up/sql.{type SelectSignUpSessionByIdRow} as sign_up_session_sql
+import app/sign_up/template
+import app/sign_up/ui as sign_up_ui
 import app/user/sql as user_sql
 import app/web
 import formal/form.{type Form}

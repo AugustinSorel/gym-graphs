@@ -1,7 +1,7 @@
-import app/account_deletion_session/sql.{
+import app/account_deletion/sql.{
   type SelectAccountDeletionSessionByIdRow,
 } as account_deletion_session_sql
-import app/account_deletion_session/ui.{type VerifyPasswordForm} as account_deletion_ui
+import app/account_deletion/ui.{type VerifyPasswordForm} as account_deletion_ui
 import app/auth_session/auth_session
 import app/auth_session/sql.{type SelectAuthSessionByIdRow}
 import app/crypto

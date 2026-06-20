@@ -3,9 +3,9 @@ import app/auth_session/sql as auth_session_sql
 import app/crypto
 import app/ctx.{type Ctx}
 import app/email
-import app/password_reset_session/sql.{type SelectPasswordResetSessionByIdRow} as password_reset_session_sql
-import app/password_reset_session/template
-import app/password_reset_session/ui as password_reset_ui
+import app/password_reset/sql.{type SelectPasswordResetSessionByIdRow} as password_reset_session_sql
+import app/password_reset/template
+import app/password_reset/ui as password_reset_ui
 import app/session_token
 import app/user/sql as user_sql
 import app/web

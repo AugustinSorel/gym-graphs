@@ -1,8 +1,8 @@
-import app/account_deletion_session/account_deletion_session
+import app/account_deletion/account_deletion
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
-import app/password_reset_session/password_reset_session
-import app/sign_up_session/sign_up_session
+import app/password_reset/password_reset
+import app/sign_up/sign_up
 import app/user/user
 import app/web
 import gleam/http.{Get, Post}
@@ -15,34 +15,34 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     [] -> user.view_account_page(req, ctx)
     ["sign-up"] -> {
       case req.method {
-        Get -> sign_up_session.view_register_page(req, ctx)
-        Post -> sign_up_session.register(req, ctx)
+        Get -> sign_up.view_register_page(req, ctx)
+        Post -> sign_up.register(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["sign-up", "verify-email-address"] -> {
       case req.method {
-        Get -> sign_up_session.view_verify_email_page(req, ctx)
-        Post -> sign_up_session.verify_email(req, ctx)
+        Get -> sign_up.view_verify_email_page(req, ctx)
+        Post -> sign_up.verify_email(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["sign-up", "verify-email-address", "resend"] -> {
       case req.method {
-        Post -> sign_up_session.resend_verify_email_code(req, ctx)
+        Post -> sign_up.resend_verify_email_code(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }
     ["sign-up", "verify-email-address", "cancel"] -> {
       case req.method {
-        Post -> sign_up_session.cancel_verify_email(req, ctx)
+        Post -> sign_up.cancel_verify_email(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }
     ["sign-up", "set-password"] -> {
       case req.method {
-        Get -> sign_up_session.view_set_password_page(req, ctx)
-        Post -> sign_up_session.set_password(req, ctx)
+        Get -> sign_up.view_set_password_page(req, ctx)
+        Post -> sign_up.set_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
@@ -61,54 +61,54 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     }
     ["reset-password"] -> {
       case req.method {
-        Get -> password_reset_session.view_password_reset_page()
-        Post -> password_reset_session.register(req, ctx)
+        Get -> password_reset.view_password_reset_page()
+        Post -> password_reset.register(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["reset-password", "verify-email-code"] ->
       case req.method {
-        Get -> password_reset_session.view_verify_page(req, ctx)
-        Post -> password_reset_session.verify(req, ctx)
+        Get -> password_reset.view_verify_page(req, ctx)
+        Post -> password_reset.verify(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     ["reset-password", "verify-email-code", "cancel"] -> {
       case req.method {
-        Post -> password_reset_session.cancel(req, ctx)
+        Post -> password_reset.cancel(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }
 
     ["reset-password", "set-new-password"] -> {
       case req.method {
-        Get -> password_reset_session.view_set_new_password_page(req, ctx)
-        Post -> password_reset_session.set_new_password(req, ctx)
+        Get -> password_reset.view_set_new_password_page(req, ctx)
+        Post -> password_reset.set_new_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["delete-account"] -> {
       case req.method {
-        Post -> account_deletion_session.start(req, ctx)
+        Post -> account_deletion.start(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }
     ["delete-account", "verify-password"] -> {
       case req.method {
-        Get -> account_deletion_session.view_verify_password_page(req, ctx)
-        Post -> account_deletion_session.verify_password(req, ctx)
+        Get -> account_deletion.view_verify_password_page(req, ctx)
+        Post -> account_deletion.verify_password(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["delete-account", "confirm"] -> {
       case req.method {
-        Get -> account_deletion_session.view_confirm_page(req, ctx)
-        Post -> account_deletion_session.confirm(req, ctx)
+        Get -> account_deletion.view_confirm_page(req, ctx)
+        Post -> account_deletion.confirm(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
     ["delete-account", "cancel"] -> {
       case req.method {
-        Post -> account_deletion_session.cancel(req, ctx)
+        Post -> account_deletion.cancel(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }
