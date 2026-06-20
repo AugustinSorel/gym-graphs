@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2") format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff") format("woff");
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2") format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff") format("woff");
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2") format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff") format("woff");
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2") format("woff2"),
+    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff") format("woff");
+}
+
 @theme {
   --color-surface: var(--surface);
   --color-on-surface: var(--on-surface);
@@ -34,6 +74,9 @@
   --color-on-success-container: var(--on-success-container);
 
   --color-outline: var(--outline);
+
+  --font-sans: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --max-width-app: var(--container-xl);
   --width-app: var(--container-xl);
