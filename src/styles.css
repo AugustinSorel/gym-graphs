@@ -41,6 +41,8 @@
 
 @layer base {
   :root {
+    color-scheme: light dark;
+
     --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 6%));
     --on-surface: light-dark(hsl(0 0% 4%), hsl(0 0% 96%));
 

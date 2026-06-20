@@ -7,6 +7,8 @@
     'Noto Color Emoji';
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
+    --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-blue-500: oklch(62.3% 0.214 259.815);
     --spacing: 0.25rem;
     --container-xl: 36rem;
     --text-sm: 0.875rem;
@@ -180,6 +182,9 @@
   }
 }
 @layer utilities {
+  .fixed {
+    position: fixed;
+  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -240,6 +245,9 @@
   .max-w-xl {
     max-width: var(--container-xl);
   }
+  .flex-shrink {
+    flex-shrink: 1;
+  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
@@ -276,6 +284,10 @@
       margin-block-start: calc(calc(var(--spacing) * 15) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 15) * calc(1 - var(--tw-space-y-reverse)));
     }
+  }
+  .border {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
   }
   .border-2 {
     border-style: var(--tw-border-style);
@@ -383,6 +395,13 @@
   .underline {
     text-decoration-line: underline;
   }
+  .ring-blue-500 {
+    --tw-ring-color: var(--color-blue-500);
+  }
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
   .transition-colors {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -450,6 +469,11 @@
       --tw-ring-color: var(--color-on-surface);
     }
   }
+  .focus-visible\:ring-red-500 {
+    &:focus-visible {
+      --tw-ring-color: var(--color-red-500);
+    }
+  }
   .focus-visible\:ring-offset-2 {
     &:focus-visible {
       --tw-ring-offset-width: 2px;
@@ -460,6 +484,21 @@
     &:focus-visible {
       --tw-ring-offset-width: 4px;
       --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    }
+  }
+  .focus-visible\:ring-offset-blue-500 {
+    &:focus-visible {
+      --tw-ring-offset-color: var(--color-blue-500);
+    }
+  }
+  .focus-visible\:ring-offset-red-500 {
+    &:focus-visible {
+      --tw-ring-offset-color: var(--color-red-500);
+    }
+  }
+  .focus-visible\:ring-offset-surface {
+    &:focus-visible {
+      --tw-ring-offset-color: var(--color-surface);
     }
   }
   .disabled\:pointer-events-none {
@@ -500,6 +539,7 @@
 }
 @layer base {
   :root {
+    color-scheme: light dark;
     --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 6%));
     --on-surface: light-dark(hsl(0 0% 4%), hsl(0 0% 96%));
     --surface-variant: light-dark(hsl(275 24% 90%), hsl(264 7% 29%));
@@ -572,6 +612,11 @@
 @property --tw-font-weight {
   syntax: "*";
   inherits: false;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 @property --tw-shadow {
   syntax: "*";
@@ -649,6 +694,7 @@
       --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-font-weight: initial;
+      --tw-outline-style: solid;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
       --tw-shadow-alpha: 100%;
