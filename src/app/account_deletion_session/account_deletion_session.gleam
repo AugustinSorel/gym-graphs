@@ -233,7 +233,7 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
 
     Error(ViewVerifyPasswordPageUserError(UserNotFound)) -> {
       account_deletion_ui.get_verify_password_form()
-      |> form.add_error("root_err", form.CustomError("user not found"))
+      |> form.add_error("root", form.CustomError("user not found"))
       |> account_deletion_ui.verify_password_form()
       |> account_deletion_ui.verify_password_page()
       |> web.html(404)
@@ -241,7 +241,7 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
     Error(ViewVerifyPasswordPageUserError(UserDatabaseFailure(error))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       account_deletion_ui.get_verify_password_form()
-      |> form.add_error("root_err", form.CustomError("something went wrong"))
+      |> form.add_error("root", form.CustomError("something went wrong"))
       |> account_deletion_ui.verify_password_form()
       |> account_deletion_ui.verify_password_page()
       |> web.html(500)
@@ -411,7 +411,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       account_deletion_ui.get_verify_password_form()
       |> form.add_values(form_data.values)
-      |> form.add_error("root_err", form.CustomError("something went wrong"))
+      |> form.add_error("root", form.CustomError("something went wrong"))
       |> account_deletion_ui.verify_password_form()
       |> account_deletion_ui.verify_password_page()
       |> web.html(500)
