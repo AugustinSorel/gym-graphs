@@ -20,27 +20,6 @@ import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
 
-pub fn require(
-  req: Request,
-  ctx: Ctx,
-  next: fn(SelectSignUpSessionByIdRow) -> Response,
-) -> Response {
-  let redirect = wisp.redirect("/sign-up") |> clear_cookie(req)
-
-  let result =
-    parse_cookie(req)
-    |> result.try(decode_token)
-    |> result.replace_error(redirect)
-    |> result.try(fn(token) {
-      verify_token(token, ctx) |> result.replace_error(redirect)
-    })
-
-  case result {
-    Ok(session) -> next(session)
-    Error(response) -> response
-  }
-}
-
 const cookie_name: String = "sign_up_session_token"
 
 fn set_cookie(res: Response, req: Request, value: String) -> Response {
@@ -69,6 +48,16 @@ fn parse_cookie(req: Request) {
   wisp.get_cookie(req, cookie_name, wisp.Signed)
 }
 
+pub type SessionLookupError {
+  SessionRecordNotFound
+  SessionDatabaseFailure(QueryError)
+}
+
+pub type UserLookupError {
+  UserNotFound
+  UserDatabaseFailure(QueryError)
+}
+
 type SignUpSessionToken {
   SignUpSessionToken(id: Int, secret: BitArray)
 }
@@ -80,15 +69,8 @@ fn decode_token(candidate_token: String) {
   }
 
   use #(raw_id, raw_secret) <- result.try(candidate_token)
-
-  let candidate_id = raw_id |> int.parse()
-
-  use id <- result.try(candidate_id)
-
-  let candidate_secret = raw_secret |> bit_array.base64_decode()
-
-  use secret <- result.map(candidate_secret)
-
+  use id <- result.try(int.parse(raw_id))
+  use secret <- result.map(bit_array.base64_decode(raw_secret))
   SignUpSessionToken(id:, secret:)
 }
 
@@ -121,12 +103,62 @@ fn verify_token(
   Ok(session)
 }
 
-type SignUpError {
-  SignUpValidation(form: Form(sign_up_ui.EmailRegisterForm))
-  EmailAlreadyTaken
-  SignUpDatabaseFailure(QueryError)
-  UnexpectedDatabaseResult
-  SignUpEmailSendFailure(email.SendEmailError)
+fn encode_token(id: Int, secret: BitArray) -> String {
+  let encoded_secret = bit_array.base64_encode(secret, False)
+  int.to_string(id) <> "." <> encoded_secret
+}
+
+pub fn require(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectSignUpSessionByIdRow) -> Response,
+) -> Response {
+  let invalid = wisp.redirect("/sign-up") |> clear_cookie(req)
+
+  let result =
+    parse_cookie(req)
+    |> result.try(decode_token)
+    |> result.replace_error(invalid)
+    |> result.try(fn(token) {
+      verify_token(token, ctx) |> result.replace_error(invalid)
+    })
+
+  case result {
+    Ok(session) -> next(session)
+    Error(response) -> response
+  }
+}
+
+fn require_unverified_email_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectSignUpSessionByIdRow) -> Response,
+) -> Response {
+  use session <- require(req, ctx)
+
+  let already_verified = option.is_some(session.email_address_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/sign-up/set-password"),
+  )
+
+  next(session)
+}
+
+fn require_verified_email_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectSignUpSessionByIdRow) -> Response,
+) -> Response {
+  use session <- require(req, ctx)
+
+  let not_verified = option.is_none(session.email_address_verified_at)
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/sign-up/verify-email-address"),
+  )
+
+  next(session)
 }
 
 pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
@@ -136,6 +168,13 @@ pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
   |> sign_up_ui.register_form()
   |> sign_up_ui.register_page()
   |> web.html(200)
+}
+
+type RegisterError {
+  RegisterFormError(Form(sign_up_ui.EmailRegisterForm))
+  EmailAlreadyTaken
+  RegisterSessionError(SessionLookupError)
+  RegisterEmailSendFailure(email.SendEmailError)
 }
 
 pub fn register(req: Request, ctx: Ctx) -> Response {
@@ -148,12 +187,24 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       sign_up_ui.get_register_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(SignUpValidation),
+      |> result.map_error(RegisterFormError),
     )
 
-    use _ <- result.try(ensure_email_available(ctx.db, input.email))
+    use _ <- result.try(
+      ensure_email_available(ctx.db, input.email)
+      |> result.map_error(fn(e) {
+        case e {
+          UserDatabaseFailure(err) ->
+            RegisterSessionError(SessionDatabaseFailure(err))
+          UserNotFound -> EmailAlreadyTaken
+        }
+      }),
+    )
 
-    use session <- result.try(create_sign_up_session(ctx.db, input.email))
+    use session <- result.try(
+      create_sign_up_session(ctx.db, input.email)
+      |> result.map_error(RegisterSessionError),
+    )
 
     use _ <- result.try(
       email.send(
@@ -162,7 +213,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
         subject: "Your verification code - " <> session.verification_code,
         html: template.verification_code(session.verification_code),
       )
-      |> result.map_error(SignUpEmailSendFailure),
+      |> result.map_error(RegisterEmailSendFailure),
     )
 
     Ok(encode_token(session.id, session.secret))
@@ -174,7 +225,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> wisp.set_header("HX-Redirect", "/sign-up/verify-email-address")
       |> set_cookie(req, token)
 
-    Error(SignUpValidation(form:)) ->
+    Error(RegisterFormError(form)) ->
       form
       |> sign_up_ui.register_form()
       |> web.html(422)
@@ -189,7 +240,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.register_form()
       |> web.html(409)
 
-    Error(SignUpDatabaseFailure(err)) -> {
+    Error(RegisterSessionError(SessionDatabaseFailure(err))) -> {
       wisp.log_error("sign up: database failure: " <> string.inspect(err))
       sign_up_ui.get_register_form()
       |> form.add_values(formdata.values)
@@ -197,17 +248,15 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.register_form()
       |> web.html(500)
     }
-
-    Error(UnexpectedDatabaseResult) -> {
-      wisp.log_error("sign up: Unexpected database result")
+    Error(RegisterSessionError(SessionRecordNotFound)) -> {
+      wisp.log_error("sign up: unexpected database result")
       sign_up_ui.get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> sign_up_ui.register_form()
       |> web.html(500)
     }
-
-    Error(SignUpEmailSendFailure(reason)) -> {
+    Error(RegisterEmailSendFailure(reason)) -> {
       wisp.log_error("sign up: " <> string.inspect(reason))
       sign_up_ui.get_register_form()
       |> form.add_values(formdata.values)
@@ -218,117 +267,41 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn ensure_email_available(db: pog.Connection, email: String) {
-  user_sql.select_user_by_email_address(db, email)
-  |> result.map_error(SignUpDatabaseFailure)
-  |> result.try(fn(user) {
-    case user {
-      pog.Returned(_, []) -> Ok(Nil)
-      pog.Returned(_, [_, ..]) -> Error(EmailAlreadyTaken)
-    }
-  })
-}
-
-type InternalSignUpSession {
-  InternalSignUpSession(id: Int, secret: BitArray, verification_code: String)
-}
-
-fn create_sign_up_session(db: pog.Connection, email: String) {
-  let secret = crypto.generate_session_secret()
-  let secret_hash = crypto.hash_session_secret(secret)
-  let verification_code = crypto.generate_email_verification_code()
-
-  sign_up_session_sql.create_sign_up_session(
-    db,
-    secret_hash,
-    email,
-    verification_code,
-  )
-  |> result.map_error(SignUpDatabaseFailure)
-  |> result.try(fn(session) {
-    case session {
-      pog.Returned(_, [session, ..]) -> Ok(session)
-      pog.Returned(_, _) -> Error(UnexpectedDatabaseResult)
-    }
-  })
-  |> result.map(fn(session) {
-    InternalSignUpSession(id: session.id, secret:, verification_code:)
-  })
-}
-
-fn encode_token(id: Int, secret: BitArray) -> String {
-  let encoded_secret = bit_array.base64_encode(secret, False)
-  int.to_string(id) <> "." <> encoded_secret
-}
-
-type SharedEmailError {
-  EmailAlreadyVerified
-}
-
-type VerifyEmailInternalError {
-  VerifyEmailDatabaseFailure(QueryError)
-}
-
 pub fn view_verify_email_page(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  use _session <- require_unverified_email_session(req, ctx)
 
-  use session <- require(req, ctx)
-
-  let result = {
-    let already_verified = option.is_some(session.email_address_verified_at)
-
-    use <- bool.guard(
-      when: already_verified,
-      return: Error(EmailAlreadyVerified),
-    )
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(_) ->
-      sign_up_ui.get_verify_email_form()
-      |> sign_up_ui.verify_email_form()
-      |> sign_up_ui.verify_email_page()
-      |> web.html(200)
-
-    Error(EmailAlreadyVerified) -> wisp.redirect("/sign-up/set-password")
-  }
+  sign_up_ui.get_verify_email_form()
+  |> sign_up_ui.verify_email_form()
+  |> sign_up_ui.verify_email_page()
+  |> web.html(200)
 }
 
 type VerifyEmailError {
-  VerifyEmailValidation(form: Form(sign_up_ui.VerifyEmailAddressForm))
-  InvalidVerificationCode
-  VerifySharedError(SharedEmailError)
-  VerifyInternalError(VerifyEmailInternalError)
+  VerifyEmailFormError(Form(sign_up_ui.VerifyEmailAddressForm))
+  VerifyEmailInvalidCode
+  VerifyEmailSessionUpdateError(SessionLookupError)
 }
 
 pub fn verify_email(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  use session <- require_unverified_email_session(req, ctx)
 
-  use session <- require(req, ctx)
   use formdata <- wisp.require_form(req)
 
   let result = {
-    use form <- result.try(
+    use input <- result.try(
       sign_up_ui.get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(VerifyEmailValidation),
-    )
-
-    let already_verified = option.is_some(session.email_address_verified_at)
-
-    use <- bool.guard(
-      when: already_verified,
-      return: Error(VerifySharedError(EmailAlreadyVerified)),
+      |> result.map_error(VerifyEmailFormError),
     )
 
     verify_email_address(
       ctx.db,
       session.id,
       session.email_address_verification_code,
-      form.code,
+      input.code,
     )
   }
 
@@ -337,16 +310,12 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
 
-    Error(VerifySharedError(EmailAlreadyVerified)) ->
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
-
-    Error(VerifyEmailValidation(form:)) ->
+    Error(VerifyEmailFormError(form)) ->
       form
       |> sign_up_ui.verify_email_form()
       |> web.html(422)
 
-    Error(InvalidVerificationCode) ->
+    Error(VerifyEmailInvalidCode) ->
       sign_up_ui.get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -358,8 +327,16 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.verify_email_form()
       |> web.html(422)
 
-    Error(VerifyInternalError(VerifyEmailDatabaseFailure(err))) -> {
-      wisp.log_error("sign up: verify email error" <> string.inspect(err))
+    Error(VerifyEmailSessionUpdateError(SessionDatabaseFailure(err))) -> {
+      wisp.log_error("sign up: verify email error: " <> string.inspect(err))
+      sign_up_ui.get_verify_email_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_ui.verify_email_form()
+      |> web.html(500)
+    }
+    Error(VerifyEmailSessionUpdateError(SessionRecordNotFound)) -> {
+      wisp.log_error("sign up: verify email: session not found")
       sign_up_ui.get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
@@ -370,39 +347,24 @@ pub fn verify_email(req: Request, ctx: Ctx) -> Response {
 }
 
 type ResendEmailVerificationError {
-  ResendEmailVerificationSharedError(SharedEmailError)
-  ResendEmailVerificationFailure(email.SendEmailError)
+  ResendEmailSendFailure(email.SendEmailError)
 }
 
 pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  use session <- require_unverified_email_session(req, ctx)
 
-  use session <- require(req, ctx)
   use form_data <- wisp.require_form(req)
 
-  let result = {
-    let already_verified = option.is_some(session.email_address_verified_at)
-
-    use <- bool.guard(
-      when: already_verified,
-      return: Error(ResendEmailVerificationSharedError(EmailAlreadyVerified)),
+  let result =
+    email.send(
+      email: ctx.email,
+      to: session.email_address,
+      subject: "Your verification code - "
+        <> session.email_address_verification_code,
+      html: template.verification_code(session.email_address_verification_code),
     )
-
-    use _ <- result.try(
-      email.send(
-        email: ctx.email,
-        to: session.email_address,
-        subject: "Your verification code - "
-          <> session.email_address_verification_code,
-        html: template.verification_code(
-          session.email_address_verification_code,
-        ),
-      )
-      |> result.map_error(ResendEmailVerificationFailure),
-    )
-
-    Ok(Nil)
-  }
+    |> result.map_error(ResendEmailSendFailure)
 
   case result {
     Ok(_) ->
@@ -415,7 +377,7 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.verify_email_form()
       |> web.html(200)
 
-    Error(ResendEmailVerificationFailure(reason)) -> {
+    Error(ResendEmailSendFailure(reason)) -> {
       wisp.log_error("sign up: resend verify email: " <> string.inspect(reason))
       sign_up_ui.get_verify_email_form()
       |> form.add_values(form_data.values)
@@ -423,34 +385,22 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.verify_email_form()
       |> web.html(500)
     }
-
-    Error(ResendEmailVerificationSharedError(EmailAlreadyVerified)) ->
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
   }
 }
 
 type CancelError {
-  CancelSharedError(SharedEmailError)
-  CancelInternal(VerifyEmailInternalError)
+  CancelDatabaseFailure(QueryError)
 }
 
 pub fn cancel_verify_email(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  use session <- require_unverified_email_session(req, ctx)
 
-  use session <- require(req, ctx)
   use form_data <- wisp.require_form(req)
 
-  let result = {
-    let already_verified = option.is_some(session.email_address_verified_at)
-
-    use <- bool.guard(
-      when: already_verified,
-      return: Error(CancelSharedError(EmailAlreadyVerified)),
-    )
-
-    cancel_email(ctx.db, session.id)
-  }
+  let result =
+    cancel_session(ctx.db, session.id)
+    |> result.map_error(CancelDatabaseFailure)
 
   case result {
     Ok(_) ->
@@ -458,12 +408,8 @@ pub fn cancel_verify_email(req: Request, ctx: Ctx) -> Response {
       |> clear_cookie(req)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
-    Error(CancelSharedError(EmailAlreadyVerified)) ->
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
-
-    Error(CancelInternal(VerifyEmailDatabaseFailure(err))) -> {
-      wisp.log_error("cancel verify email failed" <> string.inspect(err))
+    Error(CancelDatabaseFailure(err)) -> {
+      wisp.log_error("cancel verify email failed: " <> string.inspect(err))
       sign_up_ui.get_verify_email_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
@@ -473,96 +419,36 @@ pub fn cancel_verify_email(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn verify_email_address(
-  db: pog.Connection,
-  session_id: Int,
-  stored_code: String,
-  submitted_code: String,
-) {
-  let is_valid = crypto.validate_verification_code(stored_code, submitted_code)
+pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
+  use <- auth_session.require_blank(req, ctx)
+  use session <- require_verified_email_session(req, ctx)
 
-  use <- bool.guard(when: !is_valid, return: Error(InvalidVerificationCode))
-
-  mark_email_verified(db, session_id)
-}
-
-fn mark_email_verified(db: pog.Connection, session_id: Int) {
-  sign_up_session_sql.set_email_address_verified_at_to_now(db, session_id)
-  |> result.map_error(fn(err) {
-    VerifyInternalError(VerifyEmailDatabaseFailure(err))
-  })
-  |> result.try(fn(returned) {
-    case returned {
-      pog.Returned(_, [_, ..]) -> Ok(Nil)
-      pog.Returned(_, []) -> Error(VerifySharedError(EmailAlreadyVerified))
-    }
-  })
-}
-
-fn cancel_email(db: pog.Connection, session_id: Int) {
-  sign_up_session_sql.delete_sign_up_session_by_id(db, session_id)
-  |> result.map_error(fn(err) {
-    CancelInternal(VerifyEmailDatabaseFailure(err))
-  })
-  |> result.replace(Nil)
-}
-
-type SetPasswordShared {
-  EmailNotVerified
+  sign_up_ui.get_set_password_form()
+  |> form.add_string("email_address", session.email_address)
+  |> sign_up_ui.set_password_form()
+  |> sign_up_ui.set_password_page()
+  |> web.html(200)
 }
 
 type SetPasswordError {
-  SetPasswordValidation(form: Form(sign_up_ui.SetPasswordForm))
-  SetPasswordErrorShared(SetPasswordShared)
+  SetPasswordFormError(Form(sign_up_ui.SetPasswordForm))
   SetPasswordEmailAlreadyTaken
   SetPasswordDatabaseFailure(QueryError)
-  SetPasswordUnexpectedDatabaseResult
-}
-
-pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
-  use <- auth_session.require_blank(req, ctx)
-
-  use session <- require(req, ctx)
-
-  let result = {
-    let not_verified = option.is_none(session.email_address_verified_at)
-
-    use <- bool.guard(when: not_verified, return: Error(EmailNotVerified))
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(session) ->
-      sign_up_ui.get_set_password_form()
-      |> form.add_string("email_address", session.email_address)
-      |> sign_up_ui.set_password_form()
-      |> sign_up_ui.set_password_page()
-      |> web.html(200)
-
-    Error(EmailNotVerified) -> wisp.redirect("/sign-up/verify-email-address")
-  }
+  SetPasswordRecordNotFound
 }
 
 pub fn set_password(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  use session <- require_verified_email_session(req, ctx)
 
-  use session <- require(req, ctx)
   use formdata <- wisp.require_form(req)
 
   let result = {
-    use form <- result.try(
+    use input <- result.try(
       sign_up_ui.get_set_password_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(SetPasswordValidation),
-    )
-
-    let not_verified = option.is_none(session.email_address_verified_at)
-
-    use <- bool.guard(
-      when: not_verified,
-      return: Error(SetPasswordErrorShared(EmailNotVerified)),
+      |> result.map_error(SetPasswordFormError),
     )
 
     use _ <- result.try(ensure_email_available_for_set_password(
@@ -571,23 +457,20 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
     ))
 
     let salt = crypto.generate_hashing_salt()
-    let password_hash = crypto.hash_user_password(form.password, salt)
+    let password_hash = crypto.hash_user_password(input.password, salt)
     let secret = crypto.generate_session_secret()
     let secret_hash = crypto.hash_session_secret(secret)
 
     use auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
-        use user <- result.try({
-          create_user(tx, password_hash, salt, session.id)
-        })
-
+        use user <- result.try(create_user(tx, password_hash, salt, session.id))
         use _ <- result.try(delete_sign_up_session(tx, session.id))
-
-        use auth_session <- result.try({
-          create_auth_session(tx, user.id, secret_hash)
-        })
-
-        Ok(auth_session)
+        use new_auth_session <- result.try(create_auth_session(
+          tx,
+          user.id,
+          secret_hash,
+        ))
+        Ok(new_auth_session)
       })
       |> result.map_error(fn(err) {
         case err {
@@ -610,7 +493,7 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
       |> auth_session.set_cookie(req, token)
     }
 
-    Error(SetPasswordValidation(form:)) ->
+    Error(SetPasswordFormError(form)) ->
       form
       |> sign_up_ui.set_password_form()
       |> web.html(422)
@@ -625,11 +508,7 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
       |> sign_up_ui.set_password_form()
       |> web.html(409)
 
-    Error(SetPasswordErrorShared(EmailNotVerified)) ->
-      wisp.redirect("/sign-up/verify-email-address")
-
-    Error(SetPasswordUnexpectedDatabaseResult)
-    | Error(SetPasswordDatabaseFailure(_)) -> {
+    Error(SetPasswordRecordNotFound) | Error(SetPasswordDatabaseFailure(_)) -> {
       sign_up_ui.get_set_password_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong"))
@@ -639,7 +518,54 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn ensure_email_available_for_set_password(db: pog.Connection, email: String) {
+type InternalSignUpSession {
+  InternalSignUpSession(id: Int, secret: BitArray, verification_code: String)
+}
+
+fn create_sign_up_session(
+  db: pog.Connection,
+  email: String,
+) -> Result(InternalSignUpSession, SessionLookupError) {
+  let secret = crypto.generate_session_secret()
+  let secret_hash = crypto.hash_session_secret(secret)
+  let verification_code = crypto.generate_email_verification_code()
+
+  sign_up_session_sql.create_sign_up_session(
+    db,
+    secret_hash,
+    email,
+    verification_code,
+  )
+  |> result.map_error(SessionDatabaseFailure)
+  |> result.try(fn(session) {
+    case session {
+      pog.Returned(_, [session, ..]) -> Ok(session)
+      pog.Returned(_, _) -> Error(SessionRecordNotFound)
+    }
+  })
+  |> result.map(fn(session) {
+    InternalSignUpSession(id: session.id, secret:, verification_code:)
+  })
+}
+
+fn ensure_email_available(
+  db: pog.Connection,
+  email: String,
+) -> Result(Nil, UserLookupError) {
+  user_sql.select_user_by_email_address(db, email)
+  |> result.map_error(UserDatabaseFailure)
+  |> result.try(fn(user) {
+    case user {
+      pog.Returned(_, []) -> Ok(Nil)
+      pog.Returned(_, [_, ..]) -> Error(UserNotFound)
+    }
+  })
+}
+
+fn ensure_email_available_for_set_password(
+  db: pog.Connection,
+  email: String,
+) -> Result(Nil, SetPasswordError) {
   user_sql.select_user_by_email_address(db, email)
   |> result.map_error(SetPasswordDatabaseFailure)
   |> result.try(fn(user) {
@@ -650,23 +576,57 @@ fn ensure_email_available_for_set_password(db: pog.Connection, email: String) {
   })
 }
 
+fn verify_email_address(
+  db: pog.Connection,
+  session_id: Int,
+  stored_code: String,
+  submitted_code: String,
+) -> Result(Nil, VerifyEmailError) {
+  let is_valid = crypto.validate_verification_code(stored_code, submitted_code)
+
+  use <- bool.guard(when: !is_valid, return: Error(VerifyEmailInvalidCode))
+
+  sign_up_session_sql.set_email_address_verified_at_to_now(db, session_id)
+  |> result.map_error(fn(err) {
+    VerifyEmailSessionUpdateError(SessionDatabaseFailure(err))
+  })
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [_, ..]) -> Ok(Nil)
+      pog.Returned(_, []) ->
+        Error(VerifyEmailSessionUpdateError(SessionRecordNotFound))
+    }
+  })
+}
+
+fn cancel_session(
+  db: pog.Connection,
+  session_id: Int,
+) -> Result(Nil, QueryError) {
+  sign_up_session_sql.delete_sign_up_session_by_id(db, session_id)
+  |> result.replace(Nil)
+}
+
 fn create_user(
   db: pog.Connection,
   raw_hash: BitArray,
   salt: BitArray,
   session_id: Int,
-) {
+) -> Result(_, SetPasswordError) {
   user_sql.create_user(db, raw_hash, salt, session_id)
   |> result.map_error(SetPasswordDatabaseFailure)
   |> result.try(fn(returned) {
     case returned {
       pog.Returned(_, [user, ..]) -> Ok(user)
-      pog.Returned(_, []) -> Error(SetPasswordUnexpectedDatabaseResult)
+      pog.Returned(_, []) -> Error(SetPasswordRecordNotFound)
     }
   })
 }
 
-fn delete_sign_up_session(db: pog.Connection, session_id: Int) {
+fn delete_sign_up_session(
+  db: pog.Connection,
+  session_id: Int,
+) -> Result(Nil, SetPasswordError) {
   sign_up_session_sql.delete_sign_up_session_by_id(db, session_id)
   |> result.map_error(SetPasswordDatabaseFailure)
   |> result.replace(Nil)
@@ -676,13 +636,13 @@ fn create_auth_session(
   db: pog.Connection,
   user_id: Int,
   secret_hash: BitArray,
-) {
+) -> Result(_, SetPasswordError) {
   auth_session_sql.create_auth_session(db, user_id, secret_hash)
   |> result.map_error(SetPasswordDatabaseFailure)
   |> result.try(fn(returned) {
     case returned {
       pog.Returned(_, [session, ..]) -> Ok(session)
-      pog.Returned(_, []) -> Error(SetPasswordUnexpectedDatabaseResult)
+      pog.Returned(_, []) -> Error(SetPasswordRecordNotFound)
     }
   })
 }

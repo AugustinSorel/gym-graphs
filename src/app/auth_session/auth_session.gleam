@@ -16,56 +16,17 @@ import gleam/string
 import gleam/time/duration
 import gleam/time/timestamp
 import lustre/element/html
-import pog.{type Connection}
+import pog.{type Connection, type QueryError}
 import wisp.{type Request, type Response}
 
-pub fn require(req: Request, ctx: Ctx, next) -> Response {
-  let redirect = wisp.redirect("/sign-up") |> clear_cookie(req)
-
-  let res = {
-    use raw_token <- result.try(
-      parse_cookie(req) |> result.replace_error(redirect),
-    )
-
-    use token <- result.try(
-      decode_token(raw_token)
-      |> result.replace_error(redirect),
-    )
-
-    use session <- result.try(
-      verify_token(token, ctx)
-      |> result.replace_error(redirect),
-    )
-
-    let response = next(session)
-
-    refresh_auth_session(session, ctx.db)
-    |> result.replace(response |> set_cookie(req, raw_token))
-    |> result.replace_error(response)
-  }
-
-  case res {
-    Ok(response) | Error(response) -> response
-  }
+type UserLookupError {
+  UserNotFound
+  UserDatabaseFailure(QueryError)
 }
 
-pub fn require_blank(
-  req: Request,
-  ctx: Ctx,
-  next: fn() -> Response,
-) -> Response {
-  let res =
-    parse_cookie(req)
-    |> result.try(decode_token)
-    |> result.try(fn(token) {
-      verify_token(token, ctx)
-      |> result.map_error(fn(_) { Nil })
-    })
-
-  case res {
-    Ok(_session) -> wisp.redirect("/")
-    Error(_) -> next()
-  }
+type SessionLookupError {
+  SessionRecordNotFound
+  SessionDatabaseFailure(QueryError)
 }
 
 const cookie_name = "auth_session_token"
@@ -112,15 +73,8 @@ fn decode_token(candidate_token: String) {
   }
 
   use #(raw_id, raw_secret) <- result.try(candidate_token)
-
-  let candidate_id = raw_id |> int.parse()
-
-  use id <- result.try(candidate_id)
-
-  let candidate_secret = raw_secret |> bit_array.base64_decode()
-
-  use secret <- result.map(candidate_secret)
-
+  use id <- result.try(int.parse(raw_id))
+  use secret <- result.map(bit_array.base64_decode(raw_secret))
   AuthSessionToken(id:, secret:)
 }
 
@@ -166,11 +120,50 @@ fn refresh_auth_session(session: SelectAuthSessionByIdRow, db: Connection) {
   }
 }
 
-type SignInError {
-  Validation(form: form.Form(auth_session_ui.SignInForm))
-  InvalidCredentials
-  DatabaseFailure(pog.QueryError)
-  UnexpectedDatabaseResult
+pub fn require(req: Request, ctx: Ctx, next) -> Response {
+  let redirect = wisp.redirect("/sign-up") |> clear_cookie(req)
+
+  let res = {
+    use raw_token <- result.try(
+      parse_cookie(req) |> result.replace_error(redirect),
+    )
+
+    use token <- result.try(
+      decode_token(raw_token) |> result.replace_error(redirect),
+    )
+
+    use session <- result.try(
+      verify_token(token, ctx) |> result.replace_error(redirect),
+    )
+
+    let response = next(session)
+
+    refresh_auth_session(session, ctx.db)
+    |> result.replace(response |> set_cookie(req, raw_token))
+    |> result.replace_error(response)
+  }
+
+  case res {
+    Ok(response) | Error(response) -> response
+  }
+}
+
+pub fn require_blank(
+  req: Request,
+  ctx: Ctx,
+  next: fn() -> Response,
+) -> Response {
+  let res =
+    parse_cookie(req)
+    |> result.try(decode_token)
+    |> result.try(fn(token) {
+      verify_token(token, ctx) |> result.map_error(fn(_) { Nil })
+    })
+
+  case res {
+    Ok(_session) -> wisp.redirect("/")
+    Error(_) -> next()
+  }
 }
 
 pub fn view_sign_in_page(req: Request, ctx: Ctx) -> Response {
@@ -180,6 +173,13 @@ pub fn view_sign_in_page(req: Request, ctx: Ctx) -> Response {
   |> auth_session_ui.sign_in_form()
   |> auth_session_ui.sign_in_page()
   |> web.html(200)
+}
+
+type SignInError {
+  SignInFormError(form.Form(auth_session_ui.SignInForm))
+  SignInInvalidCredentials
+  SignInUserError(UserLookupError)
+  SignInSessionError(SessionLookupError)
 }
 
 pub fn sign_in(req: Request, ctx: Ctx) -> Response {
@@ -192,37 +192,28 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
       auth_session_ui.get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(Validation),
+      |> result.map_error(SignInFormError),
     )
 
     use user <- result.try(
-      user_sql.select_user_by_email_address(ctx.db, input.email)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [user, ..]) -> Ok(user)
-          pog.Returned(_, []) -> Error(InvalidCredentials)
-        }
-      }),
+      select_user_by_email(ctx.db, input.email)
+      |> result.map_error(SignInUserError),
     )
 
     let password_valid =
       crypto.validate_user_password(user.password_hash, input.password)
 
-    use <- bool.guard(when: !password_valid, return: Error(InvalidCredentials))
+    use <- bool.guard(
+      when: !password_valid,
+      return: Error(SignInInvalidCredentials),
+    )
 
     let secret = crypto.generate_session_secret()
     let secret_hash = crypto.hash_session_secret(secret)
 
     use auth_session <- result.try(
-      auth_session_sql.create_auth_session(ctx.db, user.id, secret_hash)
-      |> result.map_error(DatabaseFailure)
-      |> result.try(fn(returned) {
-        case returned {
-          pog.Returned(_, [session, ..]) -> Ok(session)
-          pog.Returned(_, []) -> Error(UnexpectedDatabaseResult)
-        }
-      }),
+      create_auth_session(ctx.db, user.id, secret_hash)
+      |> result.map_error(SignInSessionError),
     )
 
     Ok(#(auth_session.id, secret))
@@ -237,19 +228,19 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
       |> set_cookie(req, token)
     }
 
-    Error(Validation(form:)) ->
+    Error(SignInFormError(form)) ->
       form
       |> auth_session_ui.sign_in_form()
       |> web.html(422)
 
-    Error(InvalidCredentials) ->
+    Error(SignInInvalidCredentials) | Error(SignInUserError(UserNotFound)) ->
       auth_session_ui.get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Invalid email or password."))
       |> auth_session_ui.sign_in_form()
       |> web.html(401)
 
-    Error(DatabaseFailure(err)) -> {
+    Error(SignInUserError(UserDatabaseFailure(err))) -> {
       wisp.log_error("sign in database failure: " <> string.inspect(err))
       auth_session_ui.get_sign_in_form()
       |> form.add_values(formdata.values)
@@ -261,7 +252,18 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(UnexpectedDatabaseResult) -> {
+    Error(SignInSessionError(SessionDatabaseFailure(err))) -> {
+      wisp.log_error("sign in database failure: " <> string.inspect(err))
+      auth_session_ui.get_sign_in_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> auth_session_ui.sign_in_form()
+      |> web.html(500)
+    }
+    Error(SignInSessionError(SessionRecordNotFound)) -> {
       wisp.log_error("sign in: unexpected database result")
       auth_session_ui.get_sign_in_form()
       |> form.add_values(formdata.values)
@@ -280,7 +282,6 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
 
   let result =
     auth_session_sql.delete_auth_session_by_id(ctx.db, session.id)
-    |> result.map_error(DatabaseFailure)
     |> result.replace(Nil)
 
   case result {
@@ -289,9 +290,12 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
       |> wisp.set_header("HX-Redirect", "/sign-in")
       |> clear_cookie(req)
 
-    Error(_) -> {
+    Error(err) -> {
       wisp.log_error(
-        "sign out failed [session_id=" <> int.to_string(session.id) <> "]",
+        "sign out failed [session_id="
+        <> int.to_string(session.id)
+        <> "]: "
+        <> string.inspect(err),
       )
       ui.alert([
         ui.alert_title(html.text("Something went wrong")),
@@ -300,4 +304,33 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
   }
+}
+
+fn select_user_by_email(
+  db: Connection,
+  email: String,
+) -> Result(_, UserLookupError) {
+  user_sql.select_user_by_email_address(db, email)
+  |> result.map_error(UserDatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [user, ..]) -> Ok(user)
+      pog.Returned(_, []) -> Error(UserNotFound)
+    }
+  })
+}
+
+fn create_auth_session(
+  db: Connection,
+  user_id: Int,
+  secret_hash: BitArray,
+) -> Result(_, SessionLookupError) {
+  auth_session_sql.create_auth_session(db, user_id, secret_hash)
+  |> result.map_error(SessionDatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [session, ..]) -> Ok(session)
+      pog.Returned(_, []) -> Error(SessionRecordNotFound)
+    }
+  })
 }

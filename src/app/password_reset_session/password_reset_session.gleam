@@ -20,30 +20,6 @@ import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
 
-fn require(
-  req: Request,
-  ctx: Ctx,
-  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
-) -> Response {
-  let redirect =
-    wisp.redirect("/reset-password")
-    |> clear_cookie(req)
-
-  let result =
-    parse_cookie(req)
-    |> result.try(decode_token)
-    |> result.replace_error(redirect)
-    |> result.try(fn(token) {
-      verify_token(token, ctx)
-      |> result.replace_error(redirect)
-    })
-
-  case result {
-    Ok(session) -> next(session)
-    Error(response) -> response
-  }
-}
-
 const cookie_name = "password_reset_session_token"
 
 fn set_cookie(res: Response, req: Request, value: String) -> Response {
@@ -72,6 +48,16 @@ fn parse_cookie(req: Request) {
   wisp.get_cookie(req, name: cookie_name, security: wisp.Signed)
 }
 
+pub type UserLookupError {
+  UserNotFound
+  UserDatabaseFailure(QueryError)
+}
+
+pub type SessionLookupError {
+  SessionRecordNotFound
+  SessionDatabaseFailure(QueryError)
+}
+
 type PasswordResetSessionToken {
   PasswordResetSessionToken(id: Int, secret: BitArray)
 }
@@ -88,14 +74,8 @@ fn decode_token(candidate_token: String) {
   }
 
   use #(raw_id, raw_secret) <- result.try(candidate_token)
-
-  let candidate_id = raw_id |> int.parse()
-
-  use id <- result.try(candidate_id)
-
-  let candidate_secret = raw_secret |> bit_array.base64_decode()
-
-  use secret <- result.map(candidate_secret)
+  use id <- result.try(int.parse(raw_id))
+  use secret <- result.map(bit_array.base64_decode(raw_secret))
 
   PasswordResetSessionToken(id:, secret:)
 }
@@ -129,12 +109,59 @@ fn verify_token(token: PasswordResetSessionToken, ctx: Ctx) {
   Ok(session)
 }
 
-type PasswordResetError {
-  PasswordResetValidation(form: form.Form(password_reset_ui.ResetPasswordForm))
-  PasswordResetDatabaseFailure(QueryError)
-  PasswordResetUnexpectedDatabaseResult
-  PasswordResetEmailSendFailure(email.SendEmailError)
-  UserNotFound
+fn require(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
+) -> Response {
+  let invalid = wisp.redirect("/reset-password") |> clear_cookie(req)
+
+  let result =
+    parse_cookie(req)
+    |> result.try(decode_token)
+    |> result.replace_error(invalid)
+    |> result.try(fn(token) {
+      verify_token(token, ctx) |> result.replace_error(invalid)
+    })
+
+  case result {
+    Ok(session) -> next(session)
+    Error(response) -> response
+  }
+}
+
+fn require_unverified_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
+) -> Response {
+  use session <- require(req, ctx)
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/reset-password/set-new-password"),
+  )
+
+  next(session)
+}
+
+// Requires: token valid + email code IS verified.
+// On not verified: redirects to /reset-password/verify-email-code
+fn require_verified_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
+) -> Response {
+  use session <- require(req, ctx)
+
+  let not_verified = option.is_none(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/reset-password/verify-email-code"),
+  )
+
+  next(session)
 }
 
 pub fn view_password_reset_page() -> Response {
@@ -142,6 +169,13 @@ pub fn view_password_reset_page() -> Response {
   |> password_reset_ui.password_reset_form()
   |> password_reset_ui.password_reset_page()
   |> web.html(200)
+}
+
+type RegisterError {
+  RegisterFormError(form.Form(password_reset_ui.ResetPasswordForm))
+  RegisterUserError(UserLookupError)
+  RegisterSessionError(SessionLookupError)
+  RegisterEmailSendFailure(email.SendEmailError)
 }
 
 pub fn register(req: Request, ctx: Ctx) -> Response {
@@ -152,15 +186,18 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(PasswordResetValidation),
+      |> result.map_error(RegisterFormError),
     )
 
-    use user <- result.try(select_user_by_email(ctx.db, input.email))
+    use user <- result.try(
+      select_user_by_email(ctx.db, input.email)
+      |> result.map_error(RegisterUserError),
+    )
 
-    use session <- result.try(create_reset_password_session(
-      ctx.db,
-      user.email_address,
-    ))
+    use session <- result.try(
+      create_reset_password_session(ctx.db, user.email_address)
+      |> result.map_error(RegisterSessionError),
+    )
 
     use _ <- result.try(
       email.send(
@@ -169,12 +206,10 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
         subject: "Your password reset code - " <> session.verification_code,
         html: template.register_code(session.verification_code),
       )
-      |> result.map_error(PasswordResetEmailSendFailure),
+      |> result.map_error(RegisterEmailSendFailure),
     )
 
-    let token = encode_token(session.id, session.secret)
-
-    Ok(token)
+    Ok(encode_token(session.id, session.secret))
   }
 
   case result {
@@ -183,19 +218,19 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> wisp.set_header("HX-Redirect", "/reset-password/verify-email-code")
       |> set_cookie(req, token)
 
-    Error(PasswordResetValidation(form:)) ->
+    Error(RegisterFormError(form)) ->
       form
       |> password_reset_ui.password_reset_form()
       |> web.html(422)
 
-    Error(UserNotFound) ->
+    Error(RegisterUserError(UserNotFound)) ->
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Account not found"))
       |> password_reset_ui.password_reset_form()
       |> web.html(404)
 
-    Error(PasswordResetDatabaseFailure(err)) -> {
+    Error(RegisterUserError(UserDatabaseFailure(err))) -> {
       wisp.log_error(
         "password reset: database failure: " <> string.inspect(err),
       )
@@ -209,7 +244,20 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(PasswordResetUnexpectedDatabaseResult) -> {
+    Error(RegisterSessionError(SessionDatabaseFailure(err))) -> {
+      wisp.log_error(
+        "password reset: database failure: " <> string.inspect(err),
+      )
+      password_reset_ui.get_password_reset_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> password_reset_ui.password_reset_form()
+      |> web.html(500)
+    }
+    Error(RegisterSessionError(SessionRecordNotFound)) -> {
       wisp.log_error("password reset: unexpected database result")
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
@@ -221,7 +269,7 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(PasswordResetEmailSendFailure(reason)) -> {
+    Error(RegisterEmailSendFailure(reason)) -> {
       wisp.log_error("password reset: " <> string.inspect(reason))
       password_reset_ui.get_password_reset_form()
       |> form.add_values(formdata.values)
@@ -235,109 +283,24 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-type InternalResetPasswordSession {
-  InternalResetPasswordSession(
-    id: Int,
-    secret: BitArray,
-    verification_code: String,
-  )
-}
-
-fn create_reset_password_session(
-  db: pog.Connection,
-  email_address: String,
-) -> Result(InternalResetPasswordSession, PasswordResetError) {
-  let secret = crypto.generate_session_secret()
-  let secret_hash = crypto.hash_session_secret(secret)
-
-  let email_code = crypto.generate_password_reset_email_code()
-  let email_code_salt = crypto.generate_hashing_salt()
-  let email_code_hash =
-    crypto.hash_password_reset_email_code(email_code, email_code_salt)
-
-  password_reset_session_sql.create_password_reset_session(
-    db,
-    secret_hash,
-    email_code_hash.raw_hash,
-    email_code_salt,
-    email_address,
-  )
-  |> result.map_error(PasswordResetDatabaseFailure)
-  |> result.try(fn(session) {
-    case session {
-      pog.Returned(_count, []) -> Error(PasswordResetUnexpectedDatabaseResult)
-      pog.Returned(_count, [session, ..]) ->
-        Ok(InternalResetPasswordSession(session.id, secret, email_code))
-    }
-  })
-}
-
-fn select_user_by_email(
-  db: pog.Connection,
-  email: String,
-) -> Result(user_sql.SelectUserByEmailAddressRow, PasswordResetError) {
-  user_sql.select_user_by_email_address(db, email)
-  |> result.map_error(PasswordResetDatabaseFailure)
-  |> result.try(fn(user) {
-    case user {
-      pog.Returned(_count, []) -> Error(UserNotFound)
-      pog.Returned(_count, [user, ..]) -> Ok(user)
-    }
-  })
-}
-
-type VerifySharedError {
-  AlreadyVerified
-  VerifyUserNotFound
-}
-
-type VerifyEmailCodeInternalError {
-  VerifyDatabaseFailure(QueryError)
-}
-
 pub fn view_verify_page(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use _session <- require_unverified_session(req, ctx)
 
-  let result = {
-    let already_verified = option.is_some(session.user_identity_verified_at)
-
-    use <- bool.guard(when: already_verified, return: Error(AlreadyVerified))
-
-    use user <- result.try(select_user_for_session(ctx.db, session.id))
-
-    Ok(user)
-  }
-
-  case result {
-    Ok(_user) ->
-      password_reset_ui.get_verify_form()
-      |> password_reset_ui.verify_form()
-      |> password_reset_ui.verify_page()
-      |> web.html(200)
-
-    Error(AlreadyVerified) -> wisp.redirect("/reset-password/set-new-password")
-
-    Error(_) ->
-      password_reset_ui.get_verify_form()
-      |> form.add_error(
-        "root",
-        form.CustomError("Something went wrong, please try again."),
-      )
-      |> password_reset_ui.verify_form()
-      |> password_reset_ui.verify_page()
-      |> web.html(500)
-  }
+  password_reset_ui.get_verify_form()
+  |> password_reset_ui.verify_form()
+  |> password_reset_ui.verify_page()
+  |> web.html(200)
 }
 
 type VerifyError {
-  VerifyValidation(form: form.Form(password_reset_ui.VerifyEmailCodeForm))
-  VerifyShared(VerifySharedError)
-  VerifyInternal(VerifyEmailCodeInternalError)
-  IncorrectCode
+  VerifyFormError(form.Form(password_reset_ui.VerifyEmailCodeForm))
+  VerifyIncorrectCode
+  VerifySessionUpdateError(SessionLookupError)
 }
 
 pub fn verify(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use session <- require_unverified_session(req, ctx)
+
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -345,14 +308,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
       password_reset_ui.get_verify_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(VerifyValidation),
-    )
-
-    let is_verified = option.is_some(session.user_identity_verified_at)
-
-    use <- bool.guard(
-      when: is_verified,
-      return: Error(VerifyShared(AlreadyVerified)),
+      |> result.map_error(VerifyFormError),
     )
 
     let email_code_hash =
@@ -364,7 +320,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
         email_code_hash.raw_hash,
       )
 
-    use <- bool.guard(when: !code_correct, return: Error(IncorrectCode))
+    use <- bool.guard(when: !code_correct, return: Error(VerifyIncorrectCode))
 
     mark_verified(ctx.db, session.id)
   }
@@ -374,16 +330,12 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
 
-    Error(VerifyShared(AlreadyVerified)) ->
-      wisp.ok()
-      |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
-
-    Error(VerifyValidation(form:)) ->
+    Error(VerifyFormError(form)) ->
       form
       |> password_reset_ui.verify_form()
       |> web.html(422)
 
-    Error(IncorrectCode) ->
+    Error(VerifyIncorrectCode) ->
       password_reset_ui.get_verify_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
@@ -395,11 +347,12 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
       |> password_reset_ui.verify_form()
       |> web.html(422)
 
-    Error(VerifyShared(VerifyUserNotFound)) | Error(VerifyInternal(_)) -> {
+    Error(VerifySessionUpdateError(err)) -> {
       wisp.log_error(
         "password reset: verify error [session_id="
         <> string.inspect(session.id)
-        <> "]",
+        <> "]: "
+        <> string.inspect(err),
       )
       password_reset_ui.get_verify_form()
       |> form.add_values(formdata.values)
@@ -414,22 +367,17 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
 }
 
 type CancelError {
-  CancelInternalError(VerifyEmailCodeInternalError)
+  CancelDatabaseFailure(QueryError)
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
   use session <- require(req, ctx)
+
   use form_data <- wisp.require_form(req)
 
   let result =
-    password_reset_session_sql.delete_password_reset_session_by_id(
-      ctx.db,
-      session.id,
-    )
-    |> result.map_error(fn(err) {
-      CancelInternalError(VerifyDatabaseFailure(err))
-    })
-    |> result.replace(Nil)
+    delete_reset_session(ctx.db, session.id)
+    |> result.map_error(CancelDatabaseFailure)
 
   case result {
     Ok(_) ->
@@ -437,7 +385,13 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
       |> clear_cookie(req)
       |> wisp.set_header("HX-Redirect", "/reset-password")
 
-    Error(CancelInternalError(_)) -> {
+    Error(CancelDatabaseFailure(err)) -> {
+      wisp.log_error(
+        "password reset: cancel failed [session_id="
+        <> string.inspect(session.id)
+        <> "]: "
+        <> string.inspect(err),
+      )
       password_reset_ui.get_verify_form()
       |> form.add_values(form_data.values)
       |> form.add_error(
@@ -450,69 +404,16 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   }
 }
 
-fn mark_verified(
-  db: pog.Connection,
-  session_id: Int,
-) -> Result(Nil, VerifyError) {
-  password_reset_session_sql.set_password_reset_session_to_verified_by_id(
-    db,
-    session_id,
-  )
-  |> result.map_error(fn(err) { VerifyInternal(VerifyDatabaseFailure(err)) })
-  |> result.try(fn(returned) {
-    case returned {
-      pog.Returned(_, [_, ..]) -> Ok(Nil)
-      pog.Returned(_, []) -> Error(VerifyShared(AlreadyVerified))
-    }
-  })
-}
-
-fn select_user_for_session(
-  db: pog.Connection,
-  session_id: Int,
-) -> Result(
-  password_reset_session_sql.SelectUserByPasswordResetSessionIdRow,
-  VerifySharedError,
-) {
-  password_reset_session_sql.select_user_by_password_reset_session_id(
-    db,
-    session_id,
-  )
-  |> result.map_error(fn(_) { VerifyUserNotFound })
-  |> result.try(fn(returned) {
-    case returned {
-      pog.Returned(_, [user, ..]) -> Ok(user)
-      pog.Returned(_, []) -> Error(VerifyUserNotFound)
-    }
-  })
-}
-
-type SetNewPasswordShared {
-  NotVerified
-  SetNewPasswordUserNotFound
-}
-
-type SetNewPasswordError {
-  SetNewPasswordValidation(
-    form: form.Form(password_reset_ui.SetNewPasswordForm),
-  )
-  SetNewPasswordSharedError(SetNewPasswordShared)
-  SetNewPasswordDatabaseFailure(QueryError)
-  SetNewPasswordUnexpectedDatabaseResult
+type ViewSetNewPasswordPageError {
+  ViewSetNewPasswordUserError(UserLookupError)
 }
 
 pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use session <- require_verified_session(req, ctx)
 
-  let result = {
-    let not_verified = option.is_none(session.user_identity_verified_at)
-
-    use <- bool.guard(when: not_verified, return: Error(NotVerified))
-
-    use user <- result.try(select_user_for_set_password(ctx.db, session.id))
-
-    Ok(user)
-  }
+  let result =
+    select_user_by_session_id(ctx.db, session.id)
+    |> result.map_error(ViewSetNewPasswordUserError)
 
   case result {
     Ok(user) ->
@@ -522,9 +423,12 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
       |> password_reset_ui.set_new_password_page()
       |> web.html(200)
 
-    Error(NotVerified) -> wisp.redirect("/reset-password/verify-email-code")
-
-    Error(_) ->
+    Error(ViewSetNewPasswordUserError(UserNotFound)) -> {
+      wisp.log_error(
+        "password reset: user not found for session [session_id="
+        <> string.inspect(session.id)
+        <> "]",
+      )
       password_reset_ui.get_set_new_password_form()
       |> form.add_error(
         "root",
@@ -533,11 +437,35 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
       |> password_reset_ui.set_new_password_form()
       |> password_reset_ui.set_new_password_page()
       |> web.html(500)
+    }
+    Error(ViewSetNewPasswordUserError(UserDatabaseFailure(err))) -> {
+      wisp.log_error(
+        "password reset: database failure [session_id="
+        <> string.inspect(session.id)
+        <> "]: "
+        <> string.inspect(err),
+      )
+      password_reset_ui.get_set_new_password_form()
+      |> form.add_error(
+        "root",
+        form.CustomError("Something went wrong, please try again."),
+      )
+      |> password_reset_ui.set_new_password_form()
+      |> password_reset_ui.set_new_password_page()
+      |> web.html(500)
+    }
   }
 }
 
+type SetNewPasswordError {
+  SetNewPasswordFormError(form.Form(password_reset_ui.SetNewPasswordForm))
+  SetNewPasswordDatabaseFailure(QueryError)
+  SetNewPasswordRecordNotFound
+}
+
 pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use session <- require_verified_session(req, ctx)
+
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -545,14 +473,7 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
       password_reset_ui.get_set_new_password_form()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(SetNewPasswordValidation),
-    )
-
-    let not_verified = option.is_none(session.user_identity_verified_at)
-
-    use <- bool.guard(
-      when: not_verified,
-      return: Error(SetNewPasswordSharedError(NotVerified)),
+      |> result.map_error(SetNewPasswordFormError),
     )
 
     let salt = crypto.generate_hashing_salt()
@@ -563,15 +484,15 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
     use new_auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
         use _ <- result.try(update_password(tx, password_hash, salt, session.id))
-
-        use _ <- result.try(delete_reset_session(tx, session.id))
-
+        use _ <- result.try(
+          delete_reset_session(tx, session.id)
+          |> result.map_error(SetNewPasswordDatabaseFailure),
+        )
         use new_auth_session <- result.try(create_auth_session(
           tx,
           session.user_id,
           secret_hash,
         ))
-
         Ok(new_auth_session)
       })
       |> result.map_error(fn(err) {
@@ -595,20 +516,17 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
       |> auth_session.set_cookie(req, token)
     }
 
-    Error(SetNewPasswordValidation(form:)) ->
+    Error(SetNewPasswordFormError(form)) ->
       form
       |> password_reset_ui.set_new_password_form()
       |> web.html(422)
 
-    Error(SetNewPasswordSharedError(NotVerified)) ->
-      wisp.redirect("/reset-password/verify-email-code")
-
-    Error(error) -> {
+    Error(SetNewPasswordRecordNotFound)
+    | Error(SetNewPasswordDatabaseFailure(_)) -> {
       wisp.log_error(
         "password reset: set new password error [session_id="
         <> string.inspect(session.id)
-        <> "]: "
-        <> string.inspect(error),
+        <> "]",
       )
       password_reset_ui.get_set_new_password_form()
       |> form.add_values(formdata.values)
@@ -620,6 +538,96 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
   }
+}
+
+type InternalResetPasswordSession {
+  InternalResetPasswordSession(
+    id: Int,
+    secret: BitArray,
+    verification_code: String,
+  )
+}
+
+fn create_reset_password_session(
+  db: pog.Connection,
+  email_address: String,
+) -> Result(InternalResetPasswordSession, SessionLookupError) {
+  let secret = crypto.generate_session_secret()
+  let secret_hash = crypto.hash_session_secret(secret)
+  let email_code = crypto.generate_password_reset_email_code()
+  let email_code_salt = crypto.generate_hashing_salt()
+  let email_code_hash =
+    crypto.hash_password_reset_email_code(email_code, email_code_salt)
+
+  password_reset_session_sql.create_password_reset_session(
+    db,
+    secret_hash,
+    email_code_hash.raw_hash,
+    email_code_salt,
+    email_address,
+  )
+  |> result.map_error(SessionDatabaseFailure)
+  |> result.try(fn(session) {
+    case session {
+      pog.Returned(_count, []) -> Error(SessionRecordNotFound)
+      pog.Returned(_count, [session, ..]) ->
+        Ok(InternalResetPasswordSession(session.id, secret, email_code))
+    }
+  })
+}
+
+fn select_user_by_email(
+  db: pog.Connection,
+  email: String,
+) -> Result(user_sql.SelectUserByEmailAddressRow, UserLookupError) {
+  user_sql.select_user_by_email_address(db, email)
+  |> result.map_error(UserDatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_count, []) -> Error(UserNotFound)
+      pog.Returned(_count, [user, ..]) -> Ok(user)
+    }
+  })
+}
+
+fn select_user_by_session_id(
+  db: pog.Connection,
+  session_id: Int,
+) -> Result(
+  password_reset_session_sql.SelectUserByPasswordResetSessionIdRow,
+  UserLookupError,
+) {
+  password_reset_session_sql.select_user_by_password_reset_session_id(
+    db,
+    session_id,
+  )
+  |> result.map_error(UserDatabaseFailure)
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [user, ..]) -> Ok(user)
+      pog.Returned(_, []) -> Error(UserNotFound)
+    }
+  })
+}
+
+fn mark_verified(
+  db: pog.Connection,
+  session_id: Int,
+) -> Result(Nil, VerifyError) {
+  password_reset_session_sql.set_password_reset_session_to_verified_by_id(
+    db,
+    session_id,
+  )
+  |> result.map_error(fn(err) {
+    VerifySessionUpdateError(SessionDatabaseFailure(err))
+  })
+  |> result.try(fn(returned) {
+    case returned {
+      pog.Returned(_, [_, ..]) -> Ok(Nil)
+      pog.Returned(_, []) ->
+        Error(VerifySessionUpdateError(SessionRecordNotFound))
+    }
+  })
 }
 
 fn update_password(
@@ -638,7 +646,7 @@ fn update_password(
   |> result.try(fn(returned) {
     case returned {
       pog.Returned(_, [_, ..]) -> Ok(Nil)
-      pog.Returned(_, []) -> Error(SetNewPasswordUnexpectedDatabaseResult)
+      pog.Returned(_, []) -> Error(SetNewPasswordRecordNotFound)
     }
   })
 }
@@ -646,10 +654,9 @@ fn update_password(
 fn delete_reset_session(
   db: pog.Connection,
   session_id: Int,
-) -> Result(Nil, SetNewPasswordError) {
+) -> Result(Nil, QueryError) {
   password_reset_session_sql.delete_password_reset_session_by_id(db, session_id)
-  |> result.map_error(SetNewPasswordDatabaseFailure)
-  |> result.map(fn(_) { Nil })
+  |> result.replace(Nil)
 }
 
 fn create_auth_session(
@@ -662,27 +669,7 @@ fn create_auth_session(
   |> result.try(fn(returned) {
     case returned {
       pog.Returned(_, [session, ..]) -> Ok(session)
-      pog.Returned(_, []) -> Error(SetNewPasswordUnexpectedDatabaseResult)
-    }
-  })
-}
-
-fn select_user_for_set_password(
-  db: pog.Connection,
-  session_id: Int,
-) -> Result(
-  password_reset_session_sql.SelectUserByPasswordResetSessionIdRow,
-  SetNewPasswordShared,
-) {
-  password_reset_session_sql.select_user_by_password_reset_session_id(
-    db,
-    session_id,
-  )
-  |> result.map_error(fn(_) { SetNewPasswordUserNotFound })
-  |> result.try(fn(returned) {
-    case returned {
-      pog.Returned(_, [user, ..]) -> Ok(user)
-      pog.Returned(_, []) -> Error(SetNewPasswordUserNotFound)
+      pog.Returned(_, []) -> Error(SetNewPasswordRecordNotFound)
     }
   })
 }
