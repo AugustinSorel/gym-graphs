@@ -20,6 +20,142 @@ pub type SetNewPasswordForm {
   SetNewPasswordForm(password: String)
 }
 
+pub type CurrentStep {
+  EnterEmail
+  VerifyEmailCode(email: String)
+  SetNewPassword(email: String)
+}
+
+fn step_sidebar(current_step: CurrentStep) -> Element(a) {
+  let li_base =
+    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
+
+  html.ol(
+    [
+      attribute.class(
+        "flex gap-20 flex-col border-l justify-center pl-10 group",
+      ),
+      attribute.data("active", case current_step {
+        EnterEmail -> "enter-email"
+        VerifyEmailCode(email: _) -> "verify-email-code"
+        SetNewPassword(email: _) -> "set-new-password"
+      }),
+    ],
+    [
+      // Step 1
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " group-data-[active=enter-email]:before:content-['*']",
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=enter-email]:opacity-100",
+              ),
+            ],
+            [html.text("enter your email")],
+          ),
+          case current_step {
+            VerifyEmailCode(email) | SetNewPassword(email) ->
+              html.p([attribute.class("text-sm text-outline")], [
+                html.text(email),
+              ])
+            EnterEmail -> element.none()
+          },
+        ],
+      ),
+      // Step 2
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " group-data-[active=verify-email-code]:before:content-['*']",
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-email-code]:opacity-100",
+              ),
+            ],
+            [html.text("verify your email")],
+          ),
+          case current_step {
+            SetNewPassword(_) ->
+              html.p([attribute.class("text-sm text-outline")], [
+                html.text("email verified"),
+              ])
+            _ -> element.none()
+          },
+        ],
+      ),
+      // Step 3
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " group-data-[active=set-new-password]:before:content-['*']",
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=set-new-password]:opacity-100",
+              ),
+            ],
+            [html.text("set new password")],
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
+fn password_reset_layout(
+  current_step: CurrentStep,
+  heading: String,
+  children: Element(a),
+) -> Element(a) {
+  ui.layout(
+    html.main(
+      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
+      [
+        html.section(
+          [
+            attribute.class(
+              "bg-surface-container-highest hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center",
+            ),
+          ],
+          [
+            html.header([], [
+              html.span([attribute.class("text-sm uppercase")], [
+                html.text("gym graphs"),
+              ]),
+            ]),
+            step_sidebar(current_step),
+          ],
+        ),
+        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+        html.section(
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [
+            html.h1([attribute.class("text-5xl text-center")], [
+              html.text(heading),
+            ]),
+            children,
+          ],
+        ),
+      ],
+    ),
+  )
+}
+
 pub fn get_password_reset_form() -> Form(ResetPasswordForm) {
   let schema = {
     use email <- form.field("email", {
@@ -42,30 +178,7 @@ pub fn get_password_reset_form() -> Form(ResetPasswordForm) {
 }
 
 pub fn password_reset_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Forgot your password?"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
-  )
+  password_reset_layout(EnterEmail, "Forgot your password?", children)
 }
 
 pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
@@ -154,31 +267,8 @@ pub fn get_verify_form() -> Form(VerifyEmailCodeForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn verify_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Check your inbox"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
-  )
+pub fn verify_page(email: String, children: Element(a)) -> Element(a) {
+  password_reset_layout(VerifyEmailCode(email:), "Check your inbox", children)
 }
 
 pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
@@ -282,30 +372,11 @@ pub fn get_set_new_password_form() -> Form(SetNewPasswordForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn set_new_password_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Set a new password"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
+pub fn set_new_password_page(email: String, children: Element(a)) -> Element(a) {
+  password_reset_layout(
+    SetNewPassword(email:),
+    "Set a new password",
+    children,
   )
 }
 

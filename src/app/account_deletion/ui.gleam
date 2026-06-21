@@ -8,24 +8,97 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn verify_password_page(children: Element(a)) -> Element(a) {
+pub type CurrentStep {
+  VerifyPassword
+  Confirm
+}
+
+fn step_sidebar(current_step: CurrentStep) -> Element(a) {
+  let li_base =
+    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
+
+  html.ol(
+    [
+      attribute.class(
+        "flex gap-20 flex-col border-l justify-center pl-10 group",
+      ),
+      attribute.data("active", case current_step {
+        VerifyPassword -> "verify-password"
+        Confirm -> "confirm"
+      }),
+    ],
+    [
+      // Step 1
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " group-data-[active=verify-password]:before:content-['*']",
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-password]:opacity-100",
+              ),
+            ],
+            [html.text("verify your password")],
+          ),
+        ],
+      ),
+      // Step 2
+      html.li(
+        [
+          attribute.class(
+            li_base <> " group-data-[active=confirm]:before:content-['*']",
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=confirm]:opacity-100",
+              ),
+            ],
+            [html.text("confirm deletion")],
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
+fn account_deletion_layout(
+  current_step: CurrentStep,
+  heading: String,
+  children: Element(a),
+) -> Element(a) {
   ui.layout(
     html.main(
       [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
       [
         html.section(
           [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
+            attribute.class(
+              "bg-surface-container-highest hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center",
+            ),
           ],
-          [],
+          [
+            html.header([], [
+              html.span([attribute.class("text-sm uppercase")], [
+                html.text("gym graphs"),
+              ]),
+            ]),
+            step_sidebar(current_step),
+          ],
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
         html.section(
           [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
           [
             html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Delete your account"),
+              html.text(heading),
             ]),
             children,
           ],
@@ -33,6 +106,10 @@ pub fn verify_password_page(children: Element(a)) -> Element(a) {
       ],
     ),
   )
+}
+
+pub fn verify_password_page(children: Element(a)) -> Element(a) {
+  account_deletion_layout(VerifyPassword, "Delete your account", children)
 }
 
 pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
@@ -123,30 +200,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
 }
 
 pub fn confirm_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Delete your account"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
-  )
+  account_deletion_layout(Confirm, "Delete your account", children)
 }
 
 pub type AccountDeletionConfirmForm {
