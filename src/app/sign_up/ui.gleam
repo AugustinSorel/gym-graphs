@@ -42,24 +42,172 @@ pub fn get_register_form() -> Form(EmailRegisterForm) {
   })
 }
 
-pub fn register_page(children: Element(a)) -> Element(a) {
+pub type CurrentStep {
+  EnterEmail
+  VerifyEmail(email: String)
+  SetPassword(email: String)
+}
+
+fn step_sidebar(current_step: CurrentStep) -> Element(a) {
+  let dot_active = "before:border-current before:bg-surface-container-highest"
+  let dot_inactive = "before:border-surface-container-highest before:bg-current"
+
+  let li_base =
+    "relative before:absolute before:size-8 before:bg-current before:-left-10 before:top-0 before:rounded-full before:-translate-x-1/2 before:border-12 before:ring before:ring-current"
+
+  let step1_done = case current_step {
+    VerifyEmail(_) | SetPassword(_) -> True
+    EnterEmail -> False
+  }
+  let step1_email = case current_step {
+    VerifyEmail(email) | SetPassword(email) ->
+      html.p([attribute.class("text-sm text-outline")], [html.text(email)])
+    EnterEmail -> element.none()
+  }
+
+  let step2_active = case current_step {
+    VerifyEmail(_) -> True
+    _ -> False
+  }
+  let step2_done = case current_step {
+    SetPassword(_) -> True
+    _ -> False
+  }
+  let step2_sub = case current_step {
+    SetPassword(_) ->
+      html.p([attribute.class("text-sm text-outline")], [
+        html.text("email verified"),
+      ])
+    _ -> element.none()
+  }
+
+  let step3_active = case current_step {
+    SetPassword(_) -> True
+    _ -> False
+  }
+  let step3_done = False
+
+  html.ol(
+    [
+      attribute.class("flex gap-20 flex-col border-l justify-center pl-10"),
+    ],
+    [
+      // Step 1
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " "
+            <> case step1_done {
+              True -> dot_active
+              False -> dot_inactive
+            },
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase "
+                <> case step1_done {
+                  True -> "opacity-25"
+                  False -> "opacity-100"
+                },
+              ),
+            ],
+            [html.text("enter your email")],
+          ),
+          step1_email,
+        ],
+      ),
+      // Step 2
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " "
+            <> case step2_done {
+              True -> dot_active
+              False -> dot_inactive
+            },
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase "
+                <> case step2_active {
+                  True -> "opacity-100"
+                  False -> "opacity-25"
+                },
+              ),
+            ],
+            [html.text("verify your email")],
+          ),
+          step2_sub,
+        ],
+      ),
+      // Step 3
+      html.li(
+        [
+          attribute.class(
+            li_base
+            <> " "
+            <> case step3_done {
+              False -> dot_inactive
+            },
+          ),
+        ],
+        [
+          html.p(
+            [
+              attribute.class(
+                "text-xl font-semibold uppercase "
+                <> case step3_active {
+                  True -> "opacity-100"
+                  False -> "opacity-25"
+                },
+              ),
+            ],
+            [html.text("set your password")],
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
+fn sign_up_layout(
+  current_step: CurrentStep,
+  heading: String,
+  children: Element(a),
+) -> Element(a) {
   ui.layout(
     html.main(
       [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
       [
         html.section(
           [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
+            attribute.class(
+              "bg-surface-container-highest hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center",
+            ),
           ],
-          [],
+          [
+            html.header([], [
+              html.span([attribute.class("text-sm uppercase")], [
+                html.text("gym graphs"),
+              ]),
+            ]),
+            step_sidebar(current_step),
+          ],
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
         html.section(
           [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
           [
             html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Create an account"),
+              html.text(heading),
             ]),
             children,
           ],
@@ -67,6 +215,10 @@ pub fn register_page(children: Element(a)) -> Element(a) {
       ],
     ),
   )
+}
+
+pub fn register_page(children: Element(a)) -> Element(a) {
+  sign_up_layout(EnterEmail, "Create an account", children)
 }
 
 pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
@@ -158,31 +310,8 @@ pub fn get_verify_email_form() -> Form(VerifyEmailAddressForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn verify_email_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Check your inbox"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
-  )
+pub fn verify_email_page(email: String, children: Element(a)) -> Element(a) {
+  sign_up_layout(VerifyEmail(email:), "Check your inbox", children)
 }
 
 pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
@@ -310,31 +439,8 @@ pub fn get_set_password_form() -> Form(SetPasswordForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn set_password_page(children: Element(a)) -> Element(a) {
-  ui.layout(
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class("bg-surface-container-highest hidden lg:block"),
-            attribute.aria_hidden(True),
-          ],
-          [],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-5xl text-center")], [
-              html.text("Set your password"),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
-  )
+pub fn set_password_page(email: String, children: Element(a)) -> Element(a) {
+  sign_up_layout(SetPassword(email:), "Set your password", children)
 }
 
 pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {

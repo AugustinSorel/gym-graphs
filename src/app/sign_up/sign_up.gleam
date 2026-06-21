@@ -247,11 +247,11 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 
 pub fn view_verify_email_page(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
-  use _session <- require_unverified_email_session(req, ctx)
+  use session <- require_unverified_email_session(req, ctx)
 
   sign_up_ui.get_verify_email_form()
   |> sign_up_ui.verify_email_form()
-  |> sign_up_ui.verify_email_page()
+  |> sign_up_ui.verify_email_page(session.email_address, _)
   |> web.html(200)
 }
 
@@ -372,6 +372,7 @@ type CancelError {
 
 pub fn cancel_verify_email(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
+  //FIX:
   use session <- require_unverified_email_session(req, ctx)
 
   use form_data <- wisp.require_form(req)
@@ -404,7 +405,7 @@ pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
   sign_up_ui.get_set_password_form()
   |> form.add_string("email_address", session.email_address)
   |> sign_up_ui.set_password_form()
-  |> sign_up_ui.set_password_page()
+  |> sign_up_ui.set_password_page(session.email_address, _)
   |> web.html(200)
 }
 
