@@ -372,8 +372,7 @@ type CancelError {
 
 pub fn cancel_verify_email(req: Request, ctx: Ctx) -> Response {
   use <- auth_session.require_blank(req, ctx)
-  //FIX:
-  use session <- require_unverified_email_session(req, ctx)
+  use session <- require(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
