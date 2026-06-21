@@ -49,125 +49,83 @@ pub type CurrentStep {
 }
 
 fn step_sidebar(current_step: CurrentStep) -> Element(a) {
-  let dot_active = "before:border-current before:bg-surface-container-highest"
-  let dot_inactive = "before:border-surface-container-highest before:bg-current"
-
   let li_base =
-    "relative before:absolute before:size-8 before:bg-current before:-left-10 before:top-0 before:rounded-full before:-translate-x-1/2 before:border-12 before:ring before:ring-current"
-
-  let step1_done = case current_step {
-    VerifyEmail(_) | SetPassword(_) -> True
-    EnterEmail -> False
-  }
-  let step1_email = case current_step {
-    VerifyEmail(email) | SetPassword(email) ->
-      html.p([attribute.class("text-sm text-outline")], [html.text(email)])
-    EnterEmail -> element.none()
-  }
-
-  let step2_active = case current_step {
-    VerifyEmail(_) -> True
-    _ -> False
-  }
-  let step2_done = case current_step {
-    SetPassword(_) -> True
-    _ -> False
-  }
-  let step2_sub = case current_step {
-    SetPassword(_) ->
-      html.p([attribute.class("text-sm text-outline")], [
-        html.text("email verified"),
-      ])
-    _ -> element.none()
-  }
-
-  let step3_active = case current_step {
-    SetPassword(_) -> True
-    _ -> False
-  }
-  let step3_done = False
+    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
 
   html.ol(
     [
-      attribute.class("flex gap-20 flex-col border-l justify-center pl-10"),
+      attribute.class(
+        "flex gap-20 flex-col border-l justify-center pl-10 group",
+      ),
+      attribute.data("active", case current_step {
+        EnterEmail -> "enter-email"
+        VerifyEmail(email: _) -> "verify-email"
+        SetPassword(email: _) -> "set-password"
+      }),
     ],
     [
       // Step 1
       html.li(
         [
           attribute.class(
-            li_base
-            <> " "
-            <> case step1_done {
-              True -> dot_active
-              False -> dot_inactive
-            },
+            li_base <> " group-data-[active=enter-email]:before:content-['*']",
           ),
         ],
         [
           html.p(
             [
               attribute.class(
-                "text-xl font-semibold uppercase "
-                <> case step1_done {
-                  True -> "opacity-25"
-                  False -> "opacity-100"
-                },
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=enter-email]:opacity-100",
               ),
             ],
             [html.text("enter your email")],
           ),
-          step1_email,
+          case current_step {
+            VerifyEmail(email) | SetPassword(email) ->
+              html.p([attribute.class("text-sm text-outline")], [
+                html.text(email),
+              ])
+            EnterEmail -> element.none()
+          },
         ],
       ),
       // Step 2
       html.li(
         [
           attribute.class(
-            li_base
-            <> " "
-            <> case step2_done {
-              True -> dot_active
-              False -> dot_inactive
-            },
+            li_base <> " group-data-[active=verify-email]:before:content-['*']",
           ),
         ],
         [
           html.p(
             [
               attribute.class(
-                "text-xl font-semibold uppercase "
-                <> case step2_active {
-                  True -> "opacity-100"
-                  False -> "opacity-25"
-                },
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-email]:opacity-100",
               ),
             ],
             [html.text("verify your email")],
           ),
-          step2_sub,
+          case current_step {
+            SetPassword(_) ->
+              html.p([attribute.class("text-sm text-outline")], [
+                html.text("email verified"),
+              ])
+            _ -> element.none()
+          },
         ],
       ),
       // Step 3
       html.li(
         [
           attribute.class(
-            li_base
-            <> " "
-            <> case step3_done {
-              False -> dot_inactive
-            },
+            li_base <> " group-data-[active=set-password]:before:content-['*']",
           ),
         ],
         [
           html.p(
             [
               attribute.class(
-                "text-xl font-semibold uppercase "
-                <> case step3_active {
-                  True -> "opacity-100"
-                  False -> "opacity-25"
-                },
+                "text-xl font-semibold uppercase opacity-25 group-data-[active=set-password]:opacity-100",
               ),
             ],
             [html.text("set your password")],
