@@ -2,6 +2,9 @@ import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/ui
 import app/web
+import gleam/bool
+import gleam/list
+import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -11,32 +14,48 @@ pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
   use session <- auth_session.require(req, ctx)
 
   account_details(session.email_address)
-  |> account_page()
+  |> account_page(req)
   |> web.html(200)
 }
 
-fn account_page(children: Element(a)) -> Element(a) {
+fn account_page(children: Element(a), req: Request) -> Element(a) {
+  let links = [
+    #("exercises", "/"),
+    #("stats", "/stats"),
+    #("account", "/account"),
+  ]
+
   ui.layout([
     html.header(
       [
         attribute.class(
-          "border-b-4 py-7 px-[calc((100vw-var(--max-width-app))/2)]",
+          "border-b-4 py-7 px-[calc((100vw-var(--max-width-app))/2)] flex justify-between",
         ),
       ],
       [
-        html.nav([], [
-          ui.link(
-            [
-              attribute.href("/exercises"),
-              attribute.class(
-                "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1",
-              ),
-            ],
-            [
-              html.text("exercises"),
-            ],
-          ),
+        html.h1([attribute.class("uppercase text-sm")], [
+          html.text("gym graphs"),
         ]),
+        html.nav(
+          [attribute.class("space-x-5")],
+          list.map(links, fn(link) {
+            let #(title, href) = link
+            ui.link(
+              [
+                attribute.href(href),
+                attribute.class(
+                  "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface",
+                ),
+                attribute.aria_current(
+                  string.lowercase(bool.to_string(href == req.path)),
+                ),
+              ],
+              [
+                html.text(title),
+              ],
+            )
+          }),
+        ),
       ],
     ),
     html.main(

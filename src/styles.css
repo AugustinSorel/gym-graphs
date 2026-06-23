@@ -90,8 +90,8 @@
     "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     monospace;
 
-  --max-width-app: var(--container-xl);
-  --width-app: var(--container-xl);
+  --max-width-app: var(--container-5xl);
+  --width-app: var(--container-5xl);
 }
 
 @layer base {
