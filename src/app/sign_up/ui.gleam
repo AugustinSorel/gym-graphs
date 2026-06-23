@@ -44,96 +44,8 @@ pub fn get_register_form() -> Form(EmailRegisterForm) {
 
 pub type CurrentStep {
   EnterEmail
-  VerifyEmail(email: String)
-  SetPassword(email: String)
-}
-
-fn step_sidebar(current_step: CurrentStep) -> Element(a) {
-  let li_base =
-    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
-
-  html.ol(
-    [
-      attribute.class(
-        "flex gap-20 flex-col border-l justify-center pl-10 group",
-      ),
-      attribute.data("active", case current_step {
-        EnterEmail -> "enter-email"
-        VerifyEmail(email: _) -> "verify-email"
-        SetPassword(email: _) -> "set-password"
-      }),
-    ],
-    [
-      // Step 1
-      html.li(
-        [
-          attribute.class(
-            li_base <> " group-data-[active=enter-email]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=enter-email]:opacity-100",
-              ),
-            ],
-            [html.text("enter your email")],
-          ),
-          case current_step {
-            VerifyEmail(email) | SetPassword(email) ->
-              html.p([attribute.class("text-sm text-outline")], [
-                html.text(email),
-              ])
-            EnterEmail -> element.none()
-          },
-        ],
-      ),
-      // Step 2
-      html.li(
-        [
-          attribute.class(
-            li_base <> " group-data-[active=verify-email]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-email]:opacity-100",
-              ),
-            ],
-            [html.text("verify your email")],
-          ),
-          case current_step {
-            SetPassword(_) ->
-              html.p([attribute.class("text-sm text-outline")], [
-                html.text("email verified"),
-              ])
-            _ -> element.none()
-          },
-        ],
-      ),
-      // Step 3
-      html.li(
-        [
-          attribute.class(
-            li_base <> " group-data-[active=set-password]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=set-password]:opacity-100",
-              ),
-            ],
-            [html.text("set your password")],
-          ),
-        ],
-      ),
-    ],
-  )
+  VerifyEmail
+  SetPassword
 }
 
 fn sign_up_layout(
@@ -157,7 +69,8 @@ fn sign_up_layout(
                 html.text("gym graphs"),
               ]),
             ]),
-            step_sidebar(current_step),
+
+            current_step_indication(current_step),
           ],
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
@@ -173,6 +86,52 @@ fn sign_up_layout(
       ],
     ),
   )
+}
+
+fn current_step_indication(current_step: CurrentStep) {
+  let email_step = #("01", "enter your email")
+  let verify_step = #("02", "verify your email")
+  let password_step = #("03", "set your password")
+
+  let #(current_info, upcoming_steps) = case current_step {
+    EnterEmail -> #(email_step, [verify_step, password_step])
+    VerifyEmail -> #(verify_step, [password_step])
+    SetPassword -> #(password_step, [])
+  }
+
+  let #(current_num, current_title) = current_info
+
+  html.div([attribute.class("grid grid-rows-[1fr_auto_1fr]")], [
+    html.h1([attribute.class("row-start-2 flex flex-col")], [
+      html.span([attribute.class("text-[15rem] font-bold leading-[0.85]")], [
+        html.text(current_num),
+      ]),
+      html.span([attribute.class("text-3xl font-bold uppercase")], [
+        html.text(current_title),
+      ]),
+    ]),
+
+    html.ol(
+      [
+        attribute.class(
+          "row-start-3 flex flex-col justify-end text-outline gap-1",
+        ),
+      ],
+      list.map(upcoming_steps, fn(step) {
+        let #(step_num, step_title) = step
+        html.li(
+          [
+            attribute.class(
+              "flex items-center whitespace-pre before:bg-current before:left:0 before:w-8 before:mr-3 before:h-px before:inline-block uppercase text-sm",
+            ),
+          ],
+          [
+            html.text(step_num <> "\t" <> step_title <> " "),
+          ],
+        )
+      }),
+    ),
+  ])
 }
 
 pub fn register_page(children: Element(a)) -> Element(a) {
@@ -268,8 +227,8 @@ pub fn get_verify_email_form() -> Form(VerifyEmailAddressForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn verify_email_page(email: String, children: Element(a)) -> Element(a) {
-  sign_up_layout(VerifyEmail(email:), "Check your inbox", children)
+pub fn verify_email_page(children: Element(a)) -> Element(a) {
+  sign_up_layout(VerifyEmail, "Check your inbox", children)
 }
 
 pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
@@ -397,8 +356,8 @@ pub fn get_set_password_form() -> Form(SetPasswordForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn set_password_page(email: String, children: Element(a)) -> Element(a) {
-  sign_up_layout(SetPassword(email:), "Set your password", children)
+pub fn set_password_page(children: Element(a)) -> Element(a) {
+  sign_up_layout(SetPassword, "Set your password", children)
 }
 
 pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {

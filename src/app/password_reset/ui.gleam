@@ -22,99 +22,54 @@ pub type SetNewPasswordForm {
 
 pub type CurrentStep {
   EnterEmail
-  VerifyEmailCode(email: String)
-  SetNewPassword(email: String)
+  VerifyEmailCode
+  SetNewPassword
 }
 
-fn step_sidebar(current_step: CurrentStep) -> Element(a) {
-  let li_base =
-    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
+fn current_step_indication(current_step: CurrentStep) {
+  let email_step = #("01", "enter your email")
+  let verify_step = #("02", "verify your email")
+  let password_step = #("03", "set new password")
 
-  html.ol(
-    [
-      attribute.class(
-        "flex gap-20 flex-col border-l justify-center pl-10 group",
-      ),
-      attribute.data("active", case current_step {
-        EnterEmail -> "enter-email"
-        VerifyEmailCode(email: _) -> "verify-email-code"
-        SetNewPassword(email: _) -> "set-new-password"
+  let #(current_info, upcoming_steps) = case current_step {
+    EnterEmail -> #(email_step, [verify_step, password_step])
+    VerifyEmailCode -> #(verify_step, [password_step])
+    SetNewPassword -> #(password_step, [])
+  }
+
+  let #(current_num, current_title) = current_info
+
+  html.div([attribute.class("grid grid-rows-[1fr_auto_1fr]")], [
+    html.h1([attribute.class("row-start-2 flex flex-col")], [
+      html.span([attribute.class("text-[15rem] font-bold leading-[0.85]")], [
+        html.text(current_num),
+      ]),
+      html.span([attribute.class("text-3xl font-bold uppercase")], [
+        html.text(current_title),
+      ]),
+    ]),
+
+    html.ol(
+      [
+        attribute.class(
+          "row-start-3 flex flex-col justify-end text-outline gap-1",
+        ),
+      ],
+      list.map(upcoming_steps, fn(step) {
+        let #(step_num, step_title) = step
+        html.li(
+          [
+            attribute.class(
+              "flex items-center whitespace-pre before:bg-current before:left:0 before:w-8 before:mr-3 before:h-px before:inline-block uppercase text-sm",
+            ),
+          ],
+          [
+            html.text(step_num <> "\t" <> step_title <> " "),
+          ],
+        )
       }),
-    ],
-    [
-      // Step 1
-      html.li(
-        [
-          attribute.class(
-            li_base
-            <> " group-data-[active=enter-email]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=enter-email]:opacity-100",
-              ),
-            ],
-            [html.text("enter your email")],
-          ),
-          case current_step {
-            VerifyEmailCode(email) | SetNewPassword(email) ->
-              html.p([attribute.class("text-sm text-outline")], [
-                html.text(email),
-              ])
-            EnterEmail -> element.none()
-          },
-        ],
-      ),
-      // Step 2
-      html.li(
-        [
-          attribute.class(
-            li_base
-            <> " group-data-[active=verify-email-code]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-email-code]:opacity-100",
-              ),
-            ],
-            [html.text("verify your email")],
-          ),
-          case current_step {
-            SetNewPassword(_) ->
-              html.p([attribute.class("text-sm text-outline")], [
-                html.text("email verified"),
-              ])
-            _ -> element.none()
-          },
-        ],
-      ),
-      // Step 3
-      html.li(
-        [
-          attribute.class(
-            li_base
-            <> " group-data-[active=set-new-password]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=set-new-password]:opacity-100",
-              ),
-            ],
-            [html.text("set new password")],
-          ),
-        ],
-      ),
-    ],
-  )
+    ),
+  ])
 }
 
 fn password_reset_layout(
@@ -138,7 +93,7 @@ fn password_reset_layout(
                 html.text("gym graphs"),
               ]),
             ]),
-            step_sidebar(current_step),
+            current_step_indication(current_step),
           ],
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
@@ -267,8 +222,8 @@ pub fn get_verify_form() -> Form(VerifyEmailCodeForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn verify_page(email: String, children: Element(a)) -> Element(a) {
-  password_reset_layout(VerifyEmailCode(email:), "Check your inbox", children)
+pub fn verify_page(children: Element(a)) -> Element(a) {
+  password_reset_layout(VerifyEmailCode, "Check your inbox", children)
 }
 
 pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
@@ -372,12 +327,8 @@ pub fn get_set_new_password_form() -> Form(SetNewPasswordForm) {
   form.new(schema) |> form.language(form.en_gb)
 }
 
-pub fn set_new_password_page(email: String, children: Element(a)) -> Element(a) {
-  password_reset_layout(
-    SetNewPassword(email:),
-    "Set a new password",
-    children,
-  )
+pub fn set_new_password_page(children: Element(a)) -> Element(a) {
+  password_reset_layout(SetNewPassword, "Set a new password", children)
 }
 
 pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {

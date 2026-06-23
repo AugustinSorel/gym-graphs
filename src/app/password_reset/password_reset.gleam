@@ -261,16 +261,11 @@ pub fn register(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_page(req: Request, ctx: Ctx) -> Response {
-  use session <- require_unverified_session(req, ctx)
-
-  let email = case select_user_by_session_id(ctx.db, session.id) {
-    Ok(user) -> user.email_address
-    Error(_) -> ""
-  }
+  use _session <- require_unverified_session(req, ctx)
 
   password_reset_ui.get_verify_form()
   |> password_reset_ui.verify_form()
-  |> password_reset_ui.verify_page(email, _)
+  |> password_reset_ui.verify_page()
   |> web.html(200)
 }
 
@@ -402,7 +397,7 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
       password_reset_ui.get_set_new_password_form()
       |> form.add_string("email_address", user.email_address)
       |> password_reset_ui.set_new_password_form()
-      |> password_reset_ui.set_new_password_page(user.email_address, _)
+      |> password_reset_ui.set_new_password_page()
       |> web.html(200)
 
     Error(ViewSetNewPasswordUserError(UserNotFound)) -> {
@@ -417,7 +412,7 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
         form.CustomError("Something went wrong, please try again."),
       )
       |> password_reset_ui.set_new_password_form()
-      |> password_reset_ui.set_new_password_page("", _)
+      |> password_reset_ui.set_new_password_page()
       |> web.html(500)
     }
     Error(ViewSetNewPasswordUserError(UserDatabaseFailure(err))) -> {
@@ -433,7 +428,7 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
         form.CustomError("Something went wrong, please try again."),
       )
       |> password_reset_ui.set_new_password_form()
-      |> password_reset_ui.set_new_password_page("", _)
+      |> password_reset_ui.set_new_password_page()
       |> web.html(500)
     }
   }

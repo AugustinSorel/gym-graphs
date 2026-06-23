@@ -9,9 +9,11 @@
       color-scheme: light dark;
       --bg:   light-dark(hsl(0 0% 97%), hsl(0 0% 6%));
       --fg:   light-dark(hsl(0 0% 4%),  hsl(0 0% 96%));
-      --grey: light-dark(hsl(0 0% 90%), hsl(0 0% 18%));
-      --mid:  light-dark(hsl(0 0% 55%), hsl(0 0% 45%));
+      --grey: light-dark(hsl(0 0% 90%), hsl(0 0% 10%));
+      --mid:  light-dark(hsl(270 4% 47%), hsl(264 5% 58%));
       --rule: light-dark(hsl(0 0% 75%), hsl(0 0% 30%));
+      --error: light-dark(hsl(3 71% 41%), hsl(3 70% 83%));
+      --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 10%));
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,7 +21,7 @@
     body {
       background: var(--bg);
       color: var(--fg);
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       padding: 4rem 2rem 8rem;
       max-width: 1100px;
       margin: 0 auto;
@@ -37,18 +39,6 @@
 
     .option { margin-bottom: 7rem; }
 
-    .section-heading {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      font-weight: 700;
-      opacity: 0.3;
-      padding-top: 4rem;
-      margin-bottom: 4rem;
-      border-top: 1px solid var(--rule);
-    }
-
     /* ── shell ── */
     .shell {
       display: grid;
@@ -61,7 +51,7 @@
     .divider { background: var(--fg); }
 
     /* ════════════════════════════════════════════════
-       RIGHT SIDE — sign in form (shared)
+       RIGHT SIDE — sign up form (shared)
     ════════════════════════════════════════════════ */
     .right {
       background: var(--bg);
@@ -70,23 +60,23 @@
       justify-content: center;
       align-items: center;
       padding: 3rem 2.5rem;
-      gap: 2.5rem;
+      gap: 3.75rem;
     }
 
-    .right h2 {
-      font-size: 2.5rem;
+    .right h1 {
+      font-size: 3rem;
       font-weight: 400;
       text-align: center;
     }
 
     .form-box {
       width: 100%;
-      max-width: 300px;
+      max-width: 340px;
       border: 2px solid var(--fg);
-      padding: 2rem 1.75rem;
+      padding: 2.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1.75rem;
+      gap: 2.5rem;
       position: relative;
     }
 
@@ -94,14 +84,16 @@
       position: absolute;
       top: -0.9em;
       left: 1rem;
-      font-size: 0.7rem;
+      font-size: 0.875rem;
       background: var(--bg);
       border: 2px solid var(--fg);
-      padding: 0.15rem 0.6rem;
+      padding: 0.15rem 1rem;
     }
 
-    .field { display: flex; flex-direction: column; gap: 0.25rem; }
-    .field label { font-size: 0.72rem; opacity: 0.55; }
+    .field {
+      display: grid;
+      gap: 0.25rem;
+    }
 
     .field input {
       border: none;
@@ -109,977 +101,1203 @@
       background: transparent;
       color: var(--fg);
       font-size: 0.9rem;
-      padding: 0.3rem 0;
+      padding: 0.25rem 0;
       outline: none;
       font-family: inherit;
       width: 100%;
     }
 
-    .btn {
+    .field input:focus {
+      box-shadow: 0 2px 0 0 var(--fg);
+    }
+
+    .btn-primary {
       background: var(--fg);
       color: var(--bg);
       border: none;
-      padding: 0.65rem;
-      font-size: 0.8rem;
-      font-weight: 700;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
       font-family: inherit;
       width: 100%;
       cursor: pointer;
-      letter-spacing: 0.04em;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--fg);
-      border: 2px solid var(--fg);
-      padding: 0.55rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: ui-monospace, monospace;
-      width: 100%;
-      cursor: pointer;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .form-links {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      opacity: 0.55;
-    }
-
-    .form-links a { color: inherit; text-decoration: underline; }
-
-    .form-hint {
-      font-family: ui-monospace, monospace;
-      font-size: 0.65rem;
-      color: var(--mid);
-      line-height: 1.65;
-      max-width: 26ch;
-      text-align: center;
-    }
-
-    .back-link {
-      font-family: ui-monospace, monospace;
-      font-size: 0.65rem;
-      color: var(--mid);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    .sent-box {
-      width: 100%;
-      max-width: 300px;
-      border: 2px solid var(--fg);
-      padding: 2rem 1.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      position: relative;
-    }
-
-    .sent-box legend {
-      position: absolute;
-      top: -0.9em;
-      left: 1rem;
-      font-size: 0.7rem;
-      background: var(--bg);
-      border: 2px solid var(--fg);
-      padding: 0.15rem 0.6rem;
-    }
-
-    .sent-addr {
-      font-family: ui-monospace, monospace;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--fg);
-      border-bottom: 2px solid var(--fg);
-      padding-bottom: 0.4rem;
-    }
-
-    .sent-body {
-      font-family: ui-monospace, monospace;
-      font-size: 0.65rem;
-      line-height: 1.65;
-      color: var(--mid);
-    }
-
-    /* ════════════════════════════════════════════════
-       LEFT PANELS — shared base
-    ════════════════════════════════════════════════ */
-    .lp {
-      background: var(--grey);
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── 01 three imperatives ── */
-    .lp-01 {
-      padding: 2rem 2.25rem;
-      justify-content: space-between;
-    }
-    .lp-01 .app-id {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-    .lp-01 .imperatives {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .lp-01 .word {
-      display: block;
-      font-family: ui-monospace, monospace;
-      font-size: clamp(2.4rem, 5.5vw, 4rem);
-      font-weight: 900;
-      line-height: 1.0;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
-      color: var(--fg);
-    }
-    .lp-01 .footer {
-      border-top: 1px solid var(--rule);
-      padding-top: 1.25rem;
-    }
-    .lp-01 .body-text {
-      font-family: ui-monospace, monospace;
-      font-size: 0.65rem;
-      line-height: 1.7;
-      color: var(--mid);
-      max-width: 28ch;
-    }
-    .lp-01 .page-num {
-      margin-top: 1.25rem;
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.14em;
-      color: var(--rule);
-    }
-
-    /* ── 02 inverted header + big number ── */
-    .lp-02 { justify-content: flex-start; }
-    .lp-02 .header-bar {
-      background: var(--fg);
-      color: var(--bg);
-      padding: 1.1rem 2rem;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .lp-02 .header-bar .name {
-      font-family: ui-monospace, monospace;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-    .lp-02 .header-bar .ver {
-      font-family: ui-monospace, monospace;
-      font-size: 0.58rem;
-      opacity: 0.45;
-      letter-spacing: 0.1em;
-    }
-    .lp-02 .body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 2rem;
-    }
-    .lp-02 .big-num {
-      font-family: ui-monospace, monospace;
-      font-size: clamp(5rem, 11vw, 8.5rem);
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      color: var(--fg);
-    }
-    .lp-02 .num-label {
-      margin-top: 0.5rem;
-      font-family: ui-monospace, monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mid);
-      border-top: 1px solid var(--rule);
-      padding-top: 0.75rem;
-    }
-
-    /* ── 03 word tile grid ── */
-    .lp-03 { padding: 0; }
-    .lp-03 .tile-grid {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      align-content: start;
-      overflow: hidden;
-    }
-    .lp-03 .tile {
-      font-family: ui-monospace, monospace;
-      font-size: clamp(0.75rem, 1.4vw, 1rem);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--fg);
-      opacity: 0.07;
-      padding: 0.6rem 0.8rem;
-      border-right: 1px solid var(--rule);
-      border-bottom: 1px solid var(--rule);
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    .lp-03 .tile:nth-child(3n) { border-right: none; }
-    .lp-03 .tile.loud {
-      opacity: 1;
-      background: var(--fg);
-      color: var(--bg);
-      border-color: transparent;
-    }
-    .lp-03 .anchor {
-      position: absolute;
-      bottom: 2rem;
-      left: 2rem;
-      right: 2rem;
-    }
-    .lp-03 .anchor .tag {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-
-    /* ── 04 progress bars ── */
-    .lp-04 {
-      padding: 2rem 2.25rem;
-      justify-content: space-between;
-    }
-    .lp-04 .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .lp-04 .top .label-text {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-    .lp-04 .bars {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      gap: 5px;
-      padding: 1.5rem 0;
-    }
-    .lp-04 .bar-row {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: center;
+      gap: 0.375rem;
     }
-    .lp-04 .bar-track {
-      flex: 1;
-      height: 8px;
-      background: var(--rule);
-      position: relative;
-    }
-    .lp-04 .bar-fill {
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      background: var(--fg);
-    }
-    .lp-04 .bar-row.current .bar-track { height: 12px; }
-    .lp-04 .bar-week {
-      font-family: ui-monospace, monospace;
-      font-size: 0.55rem;
-      color: var(--rule);
-      width: 2.2em;
+
+    .form-footer {
+      font-size: 0.875rem;
       text-align: right;
-      flex-shrink: 0;
     }
-    .lp-04 .bar-row.current .bar-week { color: var(--fg); font-weight: 700; }
-    .lp-04 .bottom {
-      border-top: 1px solid var(--rule);
-      padding-top: 1rem;
+
+    .form-footer a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    .form-actions {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-    }
-    .lp-04 .stat-val {
-      font-family: ui-monospace, monospace;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--fg);
-    }
-    .lp-04 .stat-key {
-      font-family: ui-monospace, monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mid);
+      align-items: center;
     }
 
-    /* ── 05 outline / solid split ── */
-    .lp-05 {
-      padding: 2rem 2.25rem;
-      justify-content: center;
-    }
-    .lp-05 .word-outline {
-      font-family: ui-monospace, monospace;
-      font-size: clamp(3.5rem, 7.5vw, 6rem);
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
-      color: transparent;
-      -webkit-text-stroke: 1.5px var(--fg);
-    }
-    .lp-05 .h-rule {
-      width: 100%;
-      height: 1px;
-      background: var(--rule);
-      margin: 1.25rem 0;
-    }
-    .lp-05 .word-solid {
-      font-family: ui-monospace, monospace;
-      font-size: clamp(3.5rem, 7.5vw, 6rem);
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
+    .btn-link {
+      font-size: 0.875rem;
+      font-family: inherit;
+      background: none;
+      border: none;
       color: var(--fg);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
     }
-    .lp-05 .sub {
-      margin-top: 1.75rem;
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-
 
     /* ════════════════════════════════════════════════
-       SIGN-UP STEP INDICATOR — left panel
-       Used for all 3 sign-up flow frames.
-       Vertical list of steps. Current step has a
-       filled circle. Past steps have a solid tick.
-       Future steps are empty circles.
-       A vertical line connects all circles.
+       OPTION B — Giant inverted counter (left panel)
     ════════════════════════════════════════════════ */
-    .lp-steps {
-      padding: 2.25rem;
+    .lp-b {
+      background: var(--fg);
+      color: var(--bg);
+      display: flex;
+      flex-direction: column;
       justify-content: space-between;
+      padding: 2.5rem;
+      overflow: hidden;
     }
 
-    .lp-steps .app-id {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
+    .app-id-b {
+      font-size: 0.7rem;
       text-transform: uppercase;
-      color: var(--mid);
+      letter-spacing: 0.08em;
+      opacity: 0.5;
     }
 
-    .lp-steps .steps {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 0;
-      position: relative;
-    }
-
-    /* the continuous vertical line behind the circles */
-    .lp-steps .steps::before {
-      content: '';
-      position: absolute;
-      left: calc(0.75rem - 1px); /* centre of the 1.5rem circles */
-      top: 0.75rem;              /* start at centre of first circle */
-      bottom: 0.75rem;           /* end at centre of last circle */
-      width: 1px;
-      background: var(--rule);
-    }
-
-    .lp-steps .step {
-      display: grid;
-      grid-template-columns: 1.5rem 1fr;
-      gap: 0 1.1rem;
-      align-items: start;
-      padding: 1rem 0;
-      position: relative;
-    }
-
-    /* circle marker */
-    .lp-steps .step-dot {
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      border: 1.5px solid var(--rule);
-      background: var(--grey);
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
-
-    /* future step — empty */
-    .step-dot.future {
-      border-color: var(--rule);
-    }
-
-    /* done step — filled solid */
-    .step-dot.done {
-      background: var(--fg);
-      border-color: var(--fg);
-    }
-    .step-dot.done::after {
-      content: '';
-      display: block;
-      width: 0.35rem;
-      height: 0.6rem;
-      border-right: 2px solid var(--bg);
-      border-bottom: 2px solid var(--bg);
-      transform: rotate(45deg) translate(-1px, -1px);
-    }
-
-    /* current step — ring with solid inner dot */
-    .step-dot.current {
-      border-color: var(--fg);
-      border-width: 1.5px;
-    }
-    .step-dot.current::after {
-      content: '';
-      display: block;
-      width: 0.55rem;
-      height: 0.55rem;
-      border-radius: 50%;
-      background: var(--fg);
-    }
-
-    .lp-steps .step-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    .lp-steps .step-title {
-      font-family: ui-monospace, monospace;
-      font-size: 0.82rem;
+    .b-counter {
+      font-size: 11rem;
       font-weight: 700;
+      line-height: 0.85;
+      letter-spacing: -0.05em;
+      margin-left: -0.04em;
+    }
+
+    .b-step-label {
+      font-size: 1.2rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--fg);
-      line-height: 1.5rem; /* align with circle */
+      margin-top: 0.75rem;
     }
 
-    .lp-steps .step-title.dim {
-      color: var(--rule);
-      font-weight: 400;
+    .b-step-track {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      opacity: 0.4;
     }
 
-    .lp-steps .step-desc {
-      font-family: ui-monospace, monospace;
-      font-size: 0.6rem;
-      line-height: 1.55;
-      color: var(--mid);
-      max-width: 22ch;
-    }
-
-    .lp-steps .step-desc.hidden-desc {
-      visibility: hidden;
-    }
-
-    .lp-steps .footer {
-      border-top: 1px solid var(--rule);
-      padding-top: 1rem;
-      font-family: ui-monospace, monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.14em;
+    .b-step-track-item {
+      font-size: 0.7rem;
       text-transform: uppercase;
-      color: var(--rule);
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
     }
 
+    .b-step-track-item::before {
+      content: '';
+      display: inline-block;
+      width: 1.5rem;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .b-step-track-item.done {
+      opacity: 0.6;
+      text-decoration: line-through;
+      text-decoration-color: currentColor;
+    }
   </style>
 </head>
 <body>
 
-
-  <!-- ════════════════════════════════════════════════════
-       SIGN IN — frames 01–05
-  ════════════════════════════════════════════════════ -->
-
-
   <!-- ══════════════════════════════════
-       01 — THREE IMPERATIVES
+       Step 1 — Enter email
   ══════════════════════════════════ -->
   <div class="option">
-    <p class="option-label">01 — three imperatives</p>
+    <p class="option-label">option b — step 1 of 3 · enter email</p>
     <div class="shell">
-      <div class="lp lp-01">
-        <span class="app-id">Gym Graphs</span>
-        <div class="imperatives">
-          <span class="word">Track.</span>
-          <span class="word">Lift.</span>
-          <span class="word">Grow.</span>
+
+      <div class="lp-b">
+        <span class="app-id-b">gym graphs</span>
+        <div>
+          <div class="b-counter">01</div>
+          <div class="b-step-label">enter your email</div>
         </div>
-        <div class="footer">
-          <p class="body-text">Because progress that isn't measured doesn't exist. Log every session. Own every number. See the line go up.</p>
-          <p class="page-num">01 / 01</p>
+        <div class="b-step-track">
+          <div class="b-step-track-item">02 &nbsp; verify your email</div>
+          <div class="b-step-track-item">03 &nbsp; set your password</div>
         </div>
       </div>
+
       <div class="divider"></div>
+
       <div class="right">
-        <h2>Welcome back</h2>
-        <div class="form-box">
-          <legend>sign in</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <div class="field"><label>password:</label><input type="password" placeholder="********" /></div>
-          <button class="btn">sign in</button>
-          <div class="form-links"><a href="#">forgot password?</a><a href="#">sign up</a></div>
-        </div>
+        <h1>Create an account</h1>
+        <form class="form-box" action="/sign-up" method="post">
+          <legend>sign up form</legend>
+          <label class="field">
+            email:
+            <input type="email" name="email" placeholder="hello@google.com" />
+          </label>
+          <button class="btn-primary" type="submit">continue</button>
+          <p class="form-footer">
+            already have an account? <a href="/sign-in">sign in</a>
+          </p>
+        </form>
       </div>
+
     </div>
   </div>
 
 
   <!-- ══════════════════════════════════
-       02 — INVERTED HEADER + NUMBER
+       Step 2 — Verify email
   ══════════════════════════════════ -->
   <div class="option">
-    <p class="option-label">02 — inverted header + number</p>
+    <p class="option-label">option b — step 2 of 3 · verify email</p>
     <div class="shell">
-      <div class="lp lp-02">
-        <div class="header-bar">
-          <span class="name">Gym Graphs</span>
-          <span class="ver">v2.4.1</span>
+
+      <div class="lp-b">
+        <span class="app-id-b">gym graphs</span>
+        <div>
+          <div class="b-counter">02</div>
+          <div class="b-step-label">verify your email</div>
         </div>
-        <div class="body">
-          <div class="big-num">142</div>
-          <div class="num-label">sessions logged</div>
+        <div class="b-step-track">
+          <div class="b-step-track-item done">01 &nbsp; enter your email</div>
+          <div class="b-step-track-item">03 &nbsp; set your password</div>
         </div>
       </div>
+
       <div class="divider"></div>
+
       <div class="right">
-        <h2>Welcome back</h2>
-        <div class="form-box">
-          <legend>sign in</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <div class="field"><label>password:</label><input type="password" placeholder="********" /></div>
-          <button class="btn">sign in</button>
-          <div class="form-links"><a href="#">forgot password?</a><a href="#">sign up</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════
-       03 — WORD TILE GRID
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">03 — word tile grid</p>
-    <div class="shell">
-      <div class="lp lp-03">
-        <div class="tile-grid" id="tile-grid"></div>
-        <div class="anchor">
-          <span class="tag">Gym Graphs — track your progress</span>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Welcome back</h2>
-        <div class="form-box">
-          <legend>sign in</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <div class="field"><label>password:</label><input type="password" placeholder="********" /></div>
-          <button class="btn">sign in</button>
-          <div class="form-links"><a href="#">forgot password?</a><a href="#">sign up</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════
-       04 — PROGRESS BARS
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">04 — progress as architecture</p>
-    <div class="shell">
-      <div class="lp lp-04">
-        <div class="top">
-          <span class="label-text">Weekly volume — kg lifted</span>
-          <span class="label-text">12 wk</span>
-        </div>
-        <div class="bars">
-          <div class="bar-row"><span class="bar-week">w1</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w2</span><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w3</span><div class="bar-track"><div class="bar-fill" style="width:41%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w4</span><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w5</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w6</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w7</span><div class="bar-track"><div class="bar-fill" style="width:67%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w8</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w9</span><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w10</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w11</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div></div>
-          <div class="bar-row current"><span class="bar-week">w12</span><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div></div>
-        </div>
-        <div class="bottom">
-          <div>
-            <div class="stat-val">4,820<span style="font-size:0.8rem;font-weight:400;margin-left:0.2em;color:var(--mid)">kg</span></div>
-            <div class="stat-key">this week</div>
+        <h1>Check your inbox</h1>
+        <form class="form-box" action="/sign-up/verify-email-address" method="post">
+          <legend>verify email address</legend>
+          <label class="field">
+            verification code:
+            <input type="text" inputmode="numeric" name="code" placeholder="12345678" />
+          </label>
+          <button class="btn-primary" type="submit">verify</button>
+          <div class="form-actions">
+            <button class="btn-link" type="button">resend verification code</button>
+            <button class="btn-link" type="button">cancel</button>
           </div>
-          <div style="text-align:right">
-            <div class="stat-val">+19%</div>
-            <div class="stat-key">vs. week 1</div>
-          </div>
-        </div>
+        </form>
       </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Welcome back</h2>
-        <div class="form-box">
-          <legend>sign in</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <div class="field"><label>password:</label><input type="password" placeholder="********" /></div>
-          <button class="btn">sign in</button>
-          <div class="form-links"><a href="#">forgot password?</a><a href="#">sign up</a></div>
-        </div>
-      </div>
+
     </div>
   </div>
 
 
   <!-- ══════════════════════════════════
-       05 — OUTLINE / SOLID SPLIT
+       Step 3 — Set password
   ══════════════════════════════════ -->
   <div class="option">
-    <p class="option-label">05 — outline / solid split</p>
+    <p class="option-label">option b — step 3 of 3 · set password</p>
     <div class="shell">
-      <div class="lp lp-05">
-        <span class="word-outline">Gym</span>
-        <span class="word-outline">Graphs</span>
-        <div class="h-rule"></div>
-        <span class="word-solid">Gym</span>
-        <span class="word-solid">Graphs</span>
-        <span class="sub">track · log · improve</span>
+
+      <div class="lp-b">
+        <span class="app-id-b">gym graphs</span>
+        <div>
+          <div class="b-counter">03</div>
+          <div class="b-step-label">set your password</div>
+        </div>
+        <div class="b-step-track">
+          <div class="b-step-track-item done">01 &nbsp; enter your email</div>
+          <div class="b-step-track-item done">02 &nbsp; verify your email</div>
+        </div>
       </div>
+
       <div class="divider"></div>
+
       <div class="right">
-        <h2>Welcome back</h2>
-        <div class="form-box">
-          <legend>sign in</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <div class="field"><label>password:</label><input type="password" placeholder="********" /></div>
-          <button class="btn">sign in</button>
-          <div class="form-links"><a href="#">forgot password?</a><a href="#">sign up</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ════════════════════════════════════════════════════
-       FORGOT PASSWORD — frames 06–08
-  ════════════════════════════════════════════════════ -->
-  <p class="section-heading">forgot password</p>
-
-
-  <!-- ══════════════════════════════════
-       06 — FORGOT / REQUEST
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">06 — forgot password · request</p>
-    <div class="shell">
-      <div class="lp lp-01">
-        <span class="app-id">Gym Graphs</span>
-        <div class="imperatives">
-          <span class="word">Track.</span>
-          <span class="word">Lift.</span>
-          <span class="word">Grow.</span>
-        </div>
-        <div class="footer">
-          <p class="body-text">Because progress that isn't measured doesn't exist. Log every session. Own every number. See the line go up.</p>
-          <p class="page-num">01 / 01</p>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Reset password</h2>
-        <p class="form-hint">Enter your email and we'll send a reset link. No fuss.</p>
-        <div class="form-box">
-          <legend>forgot password</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <button class="btn">send reset link</button>
-          <div class="form-links" style="justify-content:center"><a href="#">back to sign in</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════
-       07 — FORGOT / LINK SENT
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">07 — forgot password · link sent</p>
-    <div class="shell">
-      <div class="lp lp-02">
-        <div class="header-bar">
-          <span class="name">Gym Graphs</span>
-          <span class="ver">v2.4.1</span>
-        </div>
-        <div class="body">
-          <div class="big-num">142</div>
-          <div class="num-label">sessions logged</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Check your inbox</h2>
-        <div class="sent-box">
-          <legend>link sent</legend>
-          <div class="sent-addr">hello@google.com</div>
-          <p class="sent-body">A reset link is on its way. It expires in 15 minutes. Check your spam if nothing arrives.</p>
-          <button class="btn">open mail app</button>
-          <button class="btn-ghost">resend link</button>
-        </div>
-        <a class="back-link" href="#">back to sign in</a>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════
-       08 — FORGOT / SET NEW PASSWORD
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">08 — forgot password · set new password</p>
-    <div class="shell">
-      <div class="lp lp-04">
-        <div class="top">
-          <span class="label-text">Weekly volume — kg lifted</span>
-          <span class="label-text">12 wk</span>
-        </div>
-        <div class="bars">
-          <div class="bar-row"><span class="bar-week">w1</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w2</span><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w3</span><div class="bar-track"><div class="bar-fill" style="width:41%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w4</span><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w5</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w6</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w7</span><div class="bar-track"><div class="bar-fill" style="width:67%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w8</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w9</span><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w10</span><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div></div>
-          <div class="bar-row"><span class="bar-week">w11</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div></div>
-          <div class="bar-row current"><span class="bar-week">w12</span><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div></div>
-        </div>
-        <div class="bottom">
-          <div>
-            <div class="stat-val">4,820<span style="font-size:0.8rem;font-weight:400;margin-left:0.2em;color:var(--mid)">kg</span></div>
-            <div class="stat-key">this week</div>
-          </div>
-          <div style="text-align:right">
-            <div class="stat-val">+19%</div>
-            <div class="stat-key">vs. week 1</div>
-          </div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>New password</h2>
-        <div class="form-box">
+        <h1>Set your password</h1>
+        <form class="form-box" action="/sign-up/set-password" method="post">
           <legend>set password</legend>
-          <div class="field"><label>new password:</label><input type="password" placeholder="••••••••" /></div>
-          <div class="field"><label>confirm password:</label><input type="password" placeholder="••••••••" /></div>
-          <button class="btn">set new password</button>
-          <div class="form-links" style="justify-content:center"><a href="#">back to sign in</a></div>
-        </div>
+          <label class="field">
+            password:
+            <input type="password" name="password" placeholder="********" />
+          </label>
+          <button class="btn-primary" type="submit">set password</button>
+          <div class="form-actions">
+            <button class="btn-link" type="button" style="margin-left: auto;">cancel</button>
+          </div>
+        </form>
       </div>
+
     </div>
   </div>
 
 
-  <!-- ════════════════════════════════════════════════════
-       SIGN UP — frames 09–11
-       Left panel shows step indicator throughout all 3 steps.
-       Step 1: enter email
-       Step 2: verify email (8-digit code)
-       Step 3: set password
-  ════════════════════════════════════════════════════ -->
-  <p class="section-heading">sign up flow</p>
 
+  <!-- ══════════════════════════════════════════════════════════════
+       EXERCISE SCREENS
+  ══════════════════════════════════════════════════════════════ -->
 
-  <!-- ══════════════════════════════════
-       09 — SIGN UP · STEP 1 · ENTER EMAIL
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">09 — sign up · step 1 of 3 · enter email</p>
-    <div class="shell">
-      <div class="lp lp-steps">
-        <span class="app-id">Gym Graphs</span>
-        <div class="steps">
-          <div class="step">
-            <div class="step-dot current"></div>
-            <div class="step-content">
-              <span class="step-title">Enter email</span>
-              <span class="step-desc">We'll use this to identify your account.</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot future"></div>
-            <div class="step-content">
-              <span class="step-title dim">Verify email</span>
-              <span class="step-desc hidden-desc">—</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot future"></div>
-            <div class="step-content">
-              <span class="step-title dim">Set password</span>
-              <span class="step-desc hidden-desc">—</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer">step 1 / 3</div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Create account</h2>
-        <div class="form-box">
-          <legend>sign up</legend>
-          <div class="field"><label>email:</label><input type="text" placeholder="hello@google.com" /></div>
-          <button class="btn">continue</button>
-          <div class="form-links" style="justify-content:center"><a href="#">already have an account?</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <style>
 
-
-  <!-- ══════════════════════════════════
-       10 — SIGN UP · STEP 2 · VERIFY EMAIL
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">10 — sign up · step 2 of 3 · verify email</p>
-    <div class="shell">
-      <div class="lp lp-steps">
-        <span class="app-id">Gym Graphs</span>
-        <div class="steps">
-          <div class="step">
-            <div class="step-dot done"></div>
-            <div class="step-content">
-              <span class="step-title dim">Enter email</span>
-              <span class="step-desc">hello@google.com</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot current"></div>
-            <div class="step-content">
-              <span class="step-title">Verify email</span>
-              <span class="step-desc">Enter the 8-digit code we sent to your inbox.</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot future"></div>
-            <div class="step-content">
-              <span class="step-title dim">Set password</span>
-              <span class="step-desc hidden-desc">—</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer">step 2 / 3</div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Check your inbox</h2>
-        <div class="form-box">
-          <legend>verify email</legend>
-          <div class="field"><label>verification code:</label><input type="text" placeholder="12345678" /></div>
-          <button class="btn">verify</button>
-          <div class="form-links"><a href="#">resend code</a><a href="#">cancel</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════
-       11 — SIGN UP · STEP 3 · SET PASSWORD
-  ══════════════════════════════════ -->
-  <div class="option">
-    <p class="option-label">11 — sign up · step 3 of 3 · set password</p>
-    <div class="shell">
-      <div class="lp lp-steps">
-        <span class="app-id">Gym Graphs</span>
-        <div class="steps">
-          <div class="step">
-            <div class="step-dot done"></div>
-            <div class="step-content">
-              <span class="step-title dim">Enter email</span>
-              <span class="step-desc">hello@google.com</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot done"></div>
-            <div class="step-content">
-              <span class="step-title dim">Verify email</span>
-              <span class="step-desc">Address confirmed.</span>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-dot current"></div>
-            <div class="step-content">
-              <span class="step-title">Set password</span>
-              <span class="step-desc">Choose a password. At least 8 characters.</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer">step 3 / 3</div>
-      </div>
-      <div class="divider"></div>
-      <div class="right">
-        <h2>Set your password</h2>
-        <div class="form-box">
-          <legend>set password</legend>
-          <div class="field"><label>password:</label><input type="password" placeholder="••••••••" /></div>
-          <button class="btn">set password</button>
-          <div class="form-links" style="justify-content:center"><a href="#">cancel</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <script>
-    // 03 — tile grid
-    const words = ['squat','bench','deadlift','press','row','pull','dip','clean','log','lift','track','rep','set','kg','pr','wk'];
-    const grid = document.getElementById('tile-grid');
-    const total = 60;
-    const loudIndex = 17;
-    for (let i = 0; i < total; i++) {
-      const el = document.createElement('div');
-      el.className = 'tile' + (i === loudIndex ? ' loud' : '');
-      el.textContent = words[i % words.length];
-      grid.appendChild(el);
+    /* ── shared page shell ───────────────────────────────────────── */
+    .page {
+      width: 100%;
+      height: 640px;
+      border: 2px solid var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
     }
-  </script>
+
+    /* top nav bar */
+    .topbar {
+      border-bottom: 2px solid var(--fg);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 3rem;
+      flex-shrink: 0;
+    }
+
+    .topbar-left  { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .topbar-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; text-align: center; }
+    .topbar-right { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+
+    .topbar-right a,
+    .topbar-right button {
+      font-family: inherit;
+      font-size: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    /* page body scroll area */
+    .page-body {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ── exercise grid ───────────────────────────────────────────── */
+    .ex-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .ex-card {
+      border-right: 2px solid var(--fg);
+      border-bottom: 2px solid var(--fg);
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    /* kill double border on right edge */
+    .ex-card:nth-child(3n) { border-right: none; }
+
+    .ex-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .ex-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .ex-pr {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.45;
+      text-align: right;
+    }
+
+    .ex-pr strong {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      opacity: 1;
+      color: var(--fg);
+      letter-spacing: 0;
+    }
+
+    /* sparkline SVG */
+    .sparkline {
+      width: 100%;
+      height: 48px;
+      display: block;
+      overflow: visible;
+    }
+
+    .sparkline polyline {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .sparkline circle {
+      fill: var(--fg);
+    }
+
+    .ex-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.4;
+    }
+
+    /* ── exercise detail (full page) ───────────────────────────── */
+    .detail-body {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100%;
+    }
+
+    .detail-hero {
+      border-bottom: 2px solid var(--fg);
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .detail-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .detail-stats {
+      display: flex;
+      gap: 2rem;
+      flex-shrink: 0;
+    }
+
+    .detail-stat {
+      text-align: right;
+    }
+
+    .detail-stat-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.4;
+    }
+
+    .detail-stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    /* main chart area */
+    .chart-area {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chart-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.35;
+    }
+
+    .chart-svg {
+      width: 100%;
+      flex: 1;
+      display: block;
+    }
+
+    /* Y-axis grid lines */
+    .chart-grid line {
+      stroke: var(--fg);
+      stroke-opacity: 0.08;
+    }
+
+    .chart-axis text {
+      font-family: inherit;
+      font-size: 8px;
+      fill: var(--fg);
+      opacity: 0.35;
+      text-transform: uppercase;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .chart-area-fill {
+      fill: var(--fg);
+      opacity: 0.06;
+    }
+
+    .chart-dot {
+      fill: var(--bg);
+      stroke: var(--fg);
+      stroke-width: 2;
+    }
+
+    .chart-dot-pr {
+      fill: var(--fg);
+      stroke: var(--fg);
+      stroke-width: 2;
+    }
+
+    /* session log table */
+    .log-table {
+      border-top: 2px solid var(--fg);
+    }
+
+    .log-row {
+      display: grid;
+      grid-template-columns: 7rem 1fr repeat(3, 5rem);
+      border-bottom: 1px solid var(--fg);
+      font-size: 0.7rem;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 2.4rem;
+    }
+
+    .log-row.log-header {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.35;
+      font-size: 0.6rem;
+      border-bottom: 2px solid var(--fg);
+    }
+
+    .log-row.log-pr-row .log-weight {
+      font-weight: 700;
+    }
+
+    .log-pr-badge {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--fg);
+      padding: 0.1rem 0.3rem;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    /* ── log a set form ─────────────────────────────────────────── */
+    .log-layout {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      height: 100%;
+    }
+
+    .log-left {
+      background: var(--fg);
+      color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .log-exercise-name {
+      font-size: 3.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+    }
+
+    .log-last-session {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .log-last-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.5;
+    }
+
+    .log-last-sets {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .log-last-set {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .log-last-set::before {
+      content: '';
+      display: inline-block;
+      width: 1rem;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.5;
+    }
+
+    .log-right {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    .log-form {
+      width: 100%;
+      max-width: 300px;
+      border: 2px solid var(--fg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+    }
+
+    .log-form legend {
+      position: absolute;
+      top: -0.9em;
+      left: 1rem;
+      font-size: 0.75rem;
+      background: var(--bg);
+      border: 2px solid var(--fg);
+      padding: 0.15rem 0.75rem;
+    }
+
+    .log-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .log-field label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .log-field input {
+      border: none;
+      border-bottom: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: inherit;
+      width: 100%;
+      padding: 0.1rem 0;
+      outline: none;
+    }
+
+    .log-unit {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.4;
+      margin-top: 0.2rem;
+    }
+
+    /* ── PR wall ────────────────────────────────────────────────── */
+    .pr-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+    }
+
+    .pr-card {
+      border-right: 2px solid var(--fg);
+      border-bottom: 2px solid var(--fg);
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 0.5rem;
+    }
+
+    .pr-card:nth-child(2n) { border-right: none; }
+
+    .pr-card-name {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.5;
+      margin-bottom: 0.4rem;
+    }
+
+    .pr-card-weight {
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .pr-card-unit {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.45;
+    }
+
+    .pr-card-date {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.35;
+      text-align: right;
+    }
+
+    .pr-card-delta {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.5;
+      text-align: right;
+      margin-top: 0.2rem;
+    }
+
+    /* ── empty state ────────────────────────────────────────────── */
+    .empty-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 2.5rem;
+      padding: 3rem;
+      text-align: center;
+    }
+
+    .empty-ascii {
+      font-size: 0.65rem;
+      line-height: 1.4;
+      opacity: 0.15;
+      white-space: pre;
+      letter-spacing: 0.05em;
+    }
+
+    .empty-heading {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty-sub {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.4;
+      max-width: 28rem;
+      line-height: 1.8;
+    }
+
+    .btn-primary-inline {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      padding: 0.6rem 2rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+    }
+
+  </style>
+
+
+  <!-- ══════════════════════════════════
+       Exercise screen 1 — Grid overview
+       All exercises as cards, each with a sparkline and PR.
+  ══════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">exercise screen 1 — grid overview</p>
+    <div class="page">
+
+      <div class="topbar">
+        <span class="topbar-left">gym graphs</span>
+        <span class="topbar-title">exercises</span>
+        <span class="topbar-right"><button>+ add exercise</button></span>
+      </div>
+
+      <div class="page-body">
+        <div class="ex-grid">
+
+          <!-- Bench Press -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">Bench Press</span>
+              <div class="ex-pr">
+                pr
+                <strong>100 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,40 30,35 60,30 90,28 120,20 150,15 180,10"/>
+              <circle cx="180" cy="10" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>12 sessions</span>
+              <span>last: 3d ago</span>
+            </div>
+          </div>
+
+          <!-- Squat -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">Squat</span>
+              <div class="ex-pr">
+                pr
+                <strong>140 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,42 30,38 60,40 90,32 120,30 150,22 180,18"/>
+              <circle cx="180" cy="18" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>18 sessions</span>
+              <span>last: 1d ago</span>
+            </div>
+          </div>
+
+          <!-- Deadlift -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">Deadlift</span>
+              <div class="ex-pr">
+                pr
+                <strong>180 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,44 30,40 60,36 90,38 120,28 150,20 180,14"/>
+              <circle cx="180" cy="14" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>9 sessions</span>
+              <span>last: 5d ago</span>
+            </div>
+          </div>
+
+          <!-- OHP -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">OHP</span>
+              <div class="ex-pr">
+                pr
+                <strong>65 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,42 30,42 60,38 90,35 120,35 150,30 180,26"/>
+              <circle cx="180" cy="26" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>7 sessions</span>
+              <span>last: 6d ago</span>
+            </div>
+          </div>
+
+          <!-- Pull-up -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">Pull-up</span>
+              <div class="ex-pr">
+                pr
+                <strong>+25 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,44 30,40 60,42 90,36 120,30 150,26 180,20"/>
+              <circle cx="180" cy="20" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>15 sessions</span>
+              <span>last: 2d ago</span>
+            </div>
+          </div>
+
+          <!-- Barbell Row -->
+          <div class="ex-card">
+            <div class="ex-card-header">
+              <span class="ex-name">Barbell Row</span>
+              <div class="ex-pr">
+                pr
+                <strong>90 kg</strong>
+              </div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 180 48" preserveAspectRatio="none">
+              <polyline points="0,44 30,42 60,38 90,36 120,32 150,28 180,22"/>
+              <circle cx="180" cy="22" r="3"/>
+            </svg>
+            <div class="ex-meta">
+              <span>11 sessions</span>
+              <span>last: 4d ago</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       Exercise screen 2 — Exercise detail
+       Single exercise with full chart and session log.
+  ══════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">exercise screen 2 — exercise detail · bench press</p>
+    <div class="page">
+
+      <div class="topbar">
+        <span class="topbar-left"><a href="#">&larr; exercises</a></span>
+        <span class="topbar-title">bench press</span>
+        <span class="topbar-right"><button>+ log set</button></span>
+      </div>
+
+      <div class="page-body">
+        <div class="detail-body">
+
+          <!-- hero stats row -->
+          <div class="detail-hero">
+            <div class="detail-title">bench<br>press</div>
+            <div class="detail-stats">
+              <div class="detail-stat">
+                <div class="detail-stat-label">pr</div>
+                <div class="detail-stat-value">100 kg</div>
+              </div>
+              <div class="detail-stat">
+                <div class="detail-stat-label">sessions</div>
+                <div class="detail-stat-value">12</div>
+              </div>
+              <div class="detail-stat">
+                <div class="detail-stat-label">last</div>
+                <div class="detail-stat-value">3d ago</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- chart -->
+          <div class="chart-area">
+            <span class="chart-label">1 rep max (kg) — last 12 sessions</span>
+            <svg viewBox="0 0 680 160" preserveAspectRatio="none" style="width:100%;height:160px;">
+              <!-- grid lines -->
+              <g class="chart-grid">
+                <line x1="0" y1="20"  x2="680" y2="20"/>
+                <line x1="0" y1="60"  x2="680" y2="60"/>
+                <line x1="0" y1="100" x2="680" y2="100"/>
+                <line x1="0" y1="140" x2="680" y2="140"/>
+              </g>
+              <!-- y axis labels -->
+              <g class="chart-axis">
+                <text x="0" y="18"  text-anchor="start">100</text>
+                <text x="0" y="58"  text-anchor="start">90</text>
+                <text x="0" y="98"  text-anchor="start">80</text>
+                <text x="0" y="138" text-anchor="start">70</text>
+              </g>
+              <!-- area fill -->
+              <polygon class="chart-area-fill"
+                points="38,140 98,130 158,120 218,115 278,105 338,95 398,85 458,75 518,65 578,55 638,42 638,140 38,140"/>
+              <!-- line -->
+              <polyline class="chart-line"
+                points="38,140 98,130 158,120 218,115 278,105 338,95 398,85 458,75 518,65 578,55 638,42"/>
+              <!-- dots -->
+              <circle class="chart-dot" cx="38"  cy="140" r="4"/>
+              <circle class="chart-dot" cx="98"  cy="130" r="4"/>
+              <circle class="chart-dot" cx="158" cy="120" r="4"/>
+              <circle class="chart-dot" cx="218" cy="115" r="4"/>
+              <circle class="chart-dot" cx="278" cy="105" r="4"/>
+              <circle class="chart-dot" cx="338" cy="95"  r="4"/>
+              <circle class="chart-dot" cx="398" cy="85"  r="4"/>
+              <circle class="chart-dot" cx="458" cy="75"  r="4"/>
+              <circle class="chart-dot" cx="518" cy="65"  r="4"/>
+              <circle class="chart-dot" cx="578" cy="55"  r="4"/>
+              <!-- PR dot (filled) -->
+              <circle class="chart-dot-pr" cx="638" cy="42" r="5"/>
+            </svg>
+          </div>
+
+          <!-- session log -->
+          <div class="log-table">
+            <div class="log-row log-header">
+              <span>date</span>
+              <span></span>
+              <span>sets</span>
+              <span>reps</span>
+              <span>weight</span>
+            </div>
+            <div class="log-row log-pr-row">
+              <span>23 Jun 2026</span>
+              <span></span>
+              <span>4</span>
+              <span>5</span>
+              <span class="log-weight">100 kg <span class="log-pr-badge">pr</span></span>
+            </div>
+            <div class="log-row">
+              <span>18 Jun 2026</span>
+              <span></span>
+              <span>4</span>
+              <span>5</span>
+              <span class="log-weight">97.5 kg</span>
+            </div>
+            <div class="log-row">
+              <span>12 Jun 2026</span>
+              <span></span>
+              <span>3</span>
+              <span>5</span>
+              <span class="log-weight">95 kg</span>
+            </div>
+            <div class="log-row">
+              <span>06 Jun 2026</span>
+              <span></span>
+              <span>4</span>
+              <span>5</span>
+              <span class="log-weight">92.5 kg</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       Exercise screen 3 — Log a set
+       Split layout: left = inverted exercise context,
+       right = the log form.
+  ══════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">exercise screen 3 — log a set · bench press</p>
+    <div class="page">
+
+      <div class="topbar">
+        <span class="topbar-left"><a href="#">&larr; bench press</a></span>
+        <span class="topbar-title">log a set</span>
+        <span class="topbar-right"></span>
+      </div>
+
+      <div class="page-body" style="height:100%;">
+        <div class="log-layout">
+
+          <!-- left: context panel -->
+          <div class="log-left">
+            <div class="log-exercise-name">bench<br>press</div>
+            <div class="log-last-session">
+              <span class="log-last-label">last session &mdash; 3 days ago</span>
+              <div class="log-last-sets">
+                <span class="log-last-set">4 &times; 5 @ 100 kg</span>
+                <span class="log-last-set">4 &times; 5 @ 100 kg</span>
+                <span class="log-last-set">4 &times; 5 @ 97.5 kg</span>
+                <span class="log-last-set">3 &times; 5 @ 95 kg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- right: form -->
+          <div class="log-right">
+            <form class="log-form">
+              <legend>new set</legend>
+              <div class="log-inputs">
+                <div class="log-field">
+                  <label>weight</label>
+                  <input type="number" placeholder="100" />
+                  <div class="log-unit">kg</div>
+                </div>
+                <div class="log-field">
+                  <label>reps</label>
+                  <input type="number" placeholder="5" />
+                  <div class="log-unit">reps</div>
+                </div>
+              </div>
+              <button class="btn-primary" type="submit">log set</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       Exercise screen 4 — PR wall
+       All-time personal records across every exercise.
+  ══════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">exercise screen 4 — personal records</p>
+    <div class="page">
+
+      <div class="topbar">
+        <span class="topbar-left">gym graphs</span>
+        <span class="topbar-title">personal records</span>
+        <span class="topbar-right"></span>
+      </div>
+
+      <div class="page-body">
+        <div class="pr-grid">
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">Deadlift</div>
+              <div class="pr-card-weight">180<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">14 May 2026</div>
+              <div class="pr-card-delta">+15 kg this month</div>
+            </div>
+          </div>
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">Squat</div>
+              <div class="pr-card-weight">140<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">20 Jun 2026</div>
+              <div class="pr-card-delta">+10 kg this month</div>
+            </div>
+          </div>
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">Bench Press</div>
+              <div class="pr-card-weight">100<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">23 Jun 2026</div>
+              <div class="pr-card-delta">+7.5 kg this month</div>
+            </div>
+          </div>
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">Barbell Row</div>
+              <div class="pr-card-weight">90<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">09 Jun 2026</div>
+              <div class="pr-card-delta">+5 kg this month</div>
+            </div>
+          </div>
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">OHP</div>
+              <div class="pr-card-weight">65<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">17 Jun 2026</div>
+              <div class="pr-card-delta">+2.5 kg this month</div>
+            </div>
+          </div>
+
+          <div class="pr-card">
+            <div>
+              <div class="pr-card-name">Pull-up</div>
+              <div class="pr-card-weight">+25<span class="pr-card-unit"> kg</span></div>
+            </div>
+            <div>
+              <div class="pr-card-date">21 Jun 2026</div>
+              <div class="pr-card-delta">+5 kg this month</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       Exercise screen 5 — Empty state
+       First-time user, zero exercises logged.
+  ══════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">exercise screen 5 — empty state · no exercises yet</p>
+    <div class="page">
+
+      <div class="topbar">
+        <span class="topbar-left">gym graphs</span>
+        <span class="topbar-title">exercises</span>
+        <span class="topbar-right"></span>
+      </div>
+
+      <div class="page-body" style="height:100%;">
+        <div class="empty-body">
+          <pre class="empty-ascii">
+  +-------+   +-------+   +-------+
+  |       |   |   *   |   |  ***  |
+  |       |   |  **   |   | ****  |
+  |       |   | ***   |   |*****  |
+  +-------+   +-------+   +-------+
+          </pre>
+          <div class="empty-heading">no exercises yet</div>
+          <p class="empty-sub">
+            add your first exercise to start tracking<br>
+            your sets, reps, and personal records.
+          </p>
+          <button class="btn-primary-inline">+ add your first exercise</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </body>
 </html>

@@ -13,60 +13,48 @@ pub type CurrentStep {
   Confirm
 }
 
-fn step_sidebar(current_step: CurrentStep) -> Element(a) {
-  let li_base =
-    "relative before:absolute before:text-3xl before:text-current before:-left-7 before:-top-0 before:font-bold before:text-current"
+fn current_step_indication(current_step: CurrentStep) {
+  let verify_step = #("01", "verify your password")
+  let confirm_step = #("02", "confirm deletion")
 
-  html.ol(
-    [
-      attribute.class(
-        "flex gap-20 flex-col border-l justify-center pl-10 group",
-      ),
-      attribute.data("active", case current_step {
-        VerifyPassword -> "verify-password"
-        Confirm -> "confirm"
+  let #(current_info, upcoming_steps) = case current_step {
+    VerifyPassword -> #(verify_step, [confirm_step])
+    Confirm -> #(confirm_step, [])
+  }
+
+  let #(current_num, current_title) = current_info
+
+  html.div([attribute.class("grid grid-rows-[1fr_auto_1fr]")], [
+    html.h1([attribute.class("row-start-2 flex flex-col")], [
+      html.span([attribute.class("text-[15rem] font-bold leading-[0.85]")], [
+        html.text(current_num),
+      ]),
+      html.span([attribute.class("text-3xl font-bold uppercase")], [
+        html.text(current_title),
+      ]),
+    ]),
+
+    html.ol(
+      [
+        attribute.class(
+          "row-start-3 flex flex-col justify-end text-outline gap-1",
+        ),
+      ],
+      list.map(upcoming_steps, fn(step) {
+        let #(step_num, step_title) = step
+        html.li(
+          [
+            attribute.class(
+              "flex items-center whitespace-pre before:bg-current before:left:0 before:w-8 before:mr-3 before:h-px before:inline-block uppercase text-sm",
+            ),
+          ],
+          [
+            html.text(step_num <> "\t" <> step_title <> " "),
+          ],
+        )
       }),
-    ],
-    [
-      // Step 1
-      html.li(
-        [
-          attribute.class(
-            li_base
-            <> " group-data-[active=verify-password]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=verify-password]:opacity-100",
-              ),
-            ],
-            [html.text("verify your password")],
-          ),
-        ],
-      ),
-      // Step 2
-      html.li(
-        [
-          attribute.class(
-            li_base <> " group-data-[active=confirm]:before:content-['*']",
-          ),
-        ],
-        [
-          html.p(
-            [
-              attribute.class(
-                "text-xl font-semibold uppercase opacity-25 group-data-[active=confirm]:opacity-100",
-              ),
-            ],
-            [html.text("confirm deletion")],
-          ),
-        ],
-      ),
-    ],
-  )
+    ),
+  ])
 }
 
 fn account_deletion_layout(
@@ -90,7 +78,7 @@ fn account_deletion_layout(
                 html.text("gym graphs"),
               ]),
             ]),
-            step_sidebar(current_step),
+            current_step_indication(current_step),
           ],
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
