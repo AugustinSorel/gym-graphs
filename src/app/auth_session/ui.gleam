@@ -37,14 +37,14 @@ pub fn get_sign_in_form() -> Form(SignInForm) {
 }
 
 pub fn sign_in_page(children: Element(a)) -> Element(a) {
-  ui.layout(
+  ui.layout([
     html.main(
       [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
       [
         sign_in_hero_section(),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
         html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
+          [attribute.class("max-w-app w-full m-auto space-y-15 p-4")],
           [
             html.h1([attribute.class("text-5xl text-center")], [
               html.text("Welcome back"),
@@ -54,7 +54,7 @@ pub fn sign_in_page(children: Element(a)) -> Element(a) {
         ),
       ],
     ),
-  )
+  ])
 }
 
 fn sign_in_hero_section() {
@@ -68,7 +68,7 @@ fn sign_in_hero_section() {
   html.section(
     [
       attribute.class(
-        "bg-surface-container-highest hidden lg:grid p-20 grid-rows-[auto_1fr] justify-content-center",
+        "bg-surface-container-high hidden lg:grid p-20 grid-rows-[auto_1fr] justify-content-center",
       ),
     ],
     [

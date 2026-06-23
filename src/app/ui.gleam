@@ -4,7 +4,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 
-pub fn layout(children: Element(a)) -> Element(a) {
+pub fn layout(children: List(Element(a))) -> Element(a) {
   html.html([attribute.lang("en")], [
     html.head([], [
       html.meta([attribute.charset("utf-8")]),
@@ -24,9 +24,7 @@ pub fn layout(children: Element(a)) -> Element(a) {
       ),
       html.title([], "auth"),
     ]),
-    html.body([attribute.class("bg-surface text-on-surface")], [
-      children,
-    ]),
+    html.body([attribute.class("bg-surface text-on-surface")], children),
   ])
 }
 
@@ -131,7 +129,7 @@ fn button_classes(variant: ButtonVariant) -> String {
     ButtonLink ->
       "underline font-normal hover:text-current/80 focus-visible:ring-on-surface p-0"
     ButtonDestroy ->
-      "bg-error text-on-error focus-visible:ring-error hover:bg-error/90"
+      "bg-error text-on-error focus-visible:ring-error hover:bg-error/90 focus-visible:ring-offset-surface"
   }
   shared <> " " <> variant_classes
 }

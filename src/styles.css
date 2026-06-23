@@ -98,17 +98,17 @@
   :root {
     color-scheme: light dark;
 
-    --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 6%));
+    --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 8%));
     --on-surface: light-dark(hsl(0 0% 4%), hsl(0 0% 96%));
 
     --surface-variant: light-dark(hsl(275 24% 90%), hsl(264 7% 29%));
     --on-surface-variant: light-dark(hsl(264 7% 29%), hsl(270 11% 79%));
 
-    --surface-container-lowest: light-dark(hsl(0 0% 100%), hsl(0 0% 10%));
-    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 4%));
+    --surface-container-lowest: light-dark(hsl(0 0% 100%), hsl(0 0% 14%));
+    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 10%));
     --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 6%));
-    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 8%));
-    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 10%));
+    --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 4%));
+    --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 0%));
 
     --primary: light-dark(hsl(256 34% 48%), hsl(258 100% 87%));
     --on-primary: light-dark(hsl(0 0% 100%), hsl(259 58% 28%));

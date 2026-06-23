@@ -1299,5 +1299,725 @@
     </div>
   </div>
 
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SIGN-IN LEFT PANEL — 5 VARIANTS
+  ══════════════════════════════════════════════════════════════ -->
+
+  <style>
+
+    /* ── shared sign-in shell ──────────────────────────────────── */
+    .si-shell {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      height: 580px;
+      border: 2px solid var(--fg);
+      overflow: hidden;
+    }
+
+    /* ── shared right panel (form side, kept identical) ─────────── */
+    .si-right {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2.5rem;
+      gap: 3.75rem;
+    }
+    .si-right h1 {
+      font-size: 3rem;
+      font-weight: 400;
+      text-align: center;
+    }
+    .si-form-box {
+      width: 100%;
+      max-width: 340px;
+      border: 2px solid var(--fg);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      position: relative;
+    }
+    .si-form-box legend {
+      position: absolute;
+      top: -0.9em;
+      left: 1rem;
+      font-size: 0.875rem;
+      background: var(--bg);
+      border: 2px solid var(--fg);
+      padding: 0.15rem 1rem;
+    }
+    .si-field { display: grid; gap: 0.25rem; }
+    .si-field input {
+      border: none;
+      border-bottom: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      font-size: 0.9rem;
+      padding: 0.25rem 0;
+      outline: none;
+      font-family: inherit;
+      width: 100%;
+    }
+    .si-field input:focus { box-shadow: 0 2px 0 0 var(--fg); }
+    .si-btn-primary {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: inherit;
+      width: 100%;
+      cursor: pointer;
+    }
+    .si-form-footer {
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .si-form-footer a { color: inherit; text-decoration: underline; }
+
+    /* ════════════════════════════════════════════════════════════
+       VARIANT A — Inverted, giant logotype stacked vertically
+       "GYM GRAPHS" as two huge stacked words filling the panel.
+       A thin status bar at the bottom with a session stat.
+    ════════════════════════════════════════════════════════════ */
+    .lp-a {
+      background: var(--fg);
+      color: var(--bg);
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: 2.5rem;
+      overflow: hidden;
+    }
+    .lp-a-wordmark {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+    .lp-a-word {
+      font-size: 5.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: 0.88;
+    }
+    .lp-a-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-top: 1.5rem;
+      border-top: 1px solid currentColor;
+      opacity: 0.5;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       VARIANT B — Ticker / data terminal
+       ASCII-style live readout of fake PR data, like a terminal
+       spitting out numbers. Very data-forward.
+    ════════════════════════════════════════════════════════════ */
+    .lp-b2 {
+      background: var(--bg);
+      color: var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 2.5rem;
+      border-right: none; /* divider handles it */
+      overflow: hidden;
+    }
+    .lp-b2-header {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.35;
+      padding-bottom: 1.25rem;
+      border-bottom: 2px solid var(--fg);
+      display: flex;
+      justify-content: space-between;
+    }
+    .lp-b2-feed {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+      overflow: hidden;
+    }
+    .lp-b2-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: baseline;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--fg);
+      opacity: 0.15;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: opacity 0.2s;
+    }
+    .lp-b2-row:last-child { border-bottom: none; }
+    .lp-b2-row.active { opacity: 1; }
+    .lp-b2-row.recent { opacity: 0.5; }
+    .lp-b2-exercise { font-weight: 700; letter-spacing: 0.04em; }
+    .lp-b2-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .lp-b2-unit {
+      font-size: 0.6rem;
+      opacity: 0.5;
+      margin-left: 0.2rem;
+    }
+    .lp-b2-footer {
+      padding-top: 1.25rem;
+      border-top: 2px solid var(--fg);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.3;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       VARIANT C — Horizontal rule manifesto
+       A single bold claim per line, separated by hairlines.
+       No hierarchy. Raw text as texture.
+    ════════════════════════════════════════════════════════════ */
+    .lp-c {
+      background: var(--fg);
+      color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem;
+      overflow: hidden;
+    }
+    .lp-c-id {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.4;
+    }
+    .lp-c-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+      justify-content: center;
+    }
+    .lp-c-line {
+      padding: 1rem 0;
+      border-top: 1px solid currentColor;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1.1;
+      opacity: 0.9;
+    }
+    .lp-c-line:last-child { border-bottom: 1px solid currentColor; }
+    .lp-c-line span {
+      display: block;
+      font-size: 0.6rem;
+      font-weight: 400;
+      opacity: 0.45;
+      letter-spacing: 0.12em;
+      margin-top: 0.25rem;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       VARIANT D — Single stat hero
+       One enormous number dominates the panel. A lagging PR.
+       Feels like a scoreboard. Sparse and confident.
+    ════════════════════════════════════════════════════════════ */
+    .lp-d {
+      background: var(--bg);
+      color: var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 2.5rem;
+      overflow: hidden;
+    }
+    .lp-d-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.35;
+      display: flex;
+      justify-content: space-between;
+    }
+    .lp-d-hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .lp-d-exercise {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.4;
+      margin-bottom: 0.5rem;
+    }
+    .lp-d-number {
+      font-size: 9rem;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 0.85;
+      margin-left: -0.04em;
+    }
+    .lp-d-unit {
+      font-size: 1.2rem;
+      font-weight: 400;
+      opacity: 0.4;
+      letter-spacing: 0.04em;
+      margin-top: 0.5rem;
+    }
+    .lp-d-foot {
+      border-top: 2px solid var(--fg);
+      padding-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .lp-d-stat-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.35;
+      margin-bottom: 0.2rem;
+    }
+    .lp-d-stat-val {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       VARIANT E — Miniature sparkline grid
+       A 2×2 grid of exercises with tiny inline charts.
+       Data is the decoration. No illustration needed.
+    ════════════════════════════════════════════════════════════ */
+    .lp-e {
+      background: var(--bg);
+      color: var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+    .lp-e-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 2px solid var(--fg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.35;
+    }
+    .lp-e-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+    .lp-e-cell {
+      padding: 1.25rem 1.5rem 1rem;
+      border-right: 2px solid var(--fg);
+      border-bottom: 2px solid var(--fg);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow: hidden;
+    }
+    .lp-e-cell:nth-child(2n)   { border-right: none; }
+    .lp-e-cell:nth-child(3),
+    .lp-e-cell:nth-child(4)    { border-bottom: none; }
+    .lp-e-cell-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .lp-e-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .lp-e-pr {
+      text-align: right;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.4;
+      line-height: 1.6;
+    }
+    .lp-e-pr strong {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      opacity: 1;
+      letter-spacing: -0.01em;
+    }
+    .lp-e-spark {
+      width: 100%;
+      height: 36px;
+      display: block;
+      overflow: visible;
+    }
+    .lp-e-spark polyline {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .lp-e-spark circle { fill: var(--fg); }
+    .lp-e-meta {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.3;
+    }
+
+  </style>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SIGN-IN VARIANT A
+       Left: Inverted giant stacked logotype + status bar
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">sign-in variant A — giant stacked logotype (inverted)</p>
+    <div class="si-shell">
+
+      <div class="lp-a">
+        <div class="lp-a-wordmark">
+          <div class="lp-a-word">gym</div>
+          <div class="lp-a-word">gra-</div>
+          <div class="lp-a-word">phs</div>
+        </div>
+        <div class="lp-a-foot">
+          <span>track &middot; measure &middot; grow</span>
+          <span>v1.0</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="si-right">
+        <h1>Welcome back</h1>
+        <form class="si-form-box">
+          <legend>sign in</legend>
+          <label class="si-field">
+            email:
+            <input type="email" placeholder="hello@google.com" />
+          </label>
+          <label class="si-field">
+            password:
+            <input type="password" placeholder="********" />
+          </label>
+          <button class="si-btn-primary" type="submit">sign in</button>
+          <div class="si-form-footer">
+            <a href="#">forgot password?</a>
+            <p>don't have an account? <a href="#">sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SIGN-IN VARIANT B
+       Left: Data terminal — live PR feed, ASCII ticker
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">sign-in variant B — data terminal / PR ticker</p>
+    <div class="si-shell">
+
+      <div class="lp-b2">
+        <div class="lp-b2-header">
+          <span>gym graphs</span>
+          <span>personal records</span>
+        </div>
+        <div class="lp-b2-feed">
+          <div class="lp-b2-row active">
+            <div>
+              <div class="lp-b2-exercise">Deadlift</div>
+              <div style="font-size:0.55rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">14 May 2026 &mdash; +15 kg</div>
+            </div>
+            <div><span class="lp-b2-val">180</span><span class="lp-b2-unit">kg</span></div>
+          </div>
+          <div class="lp-b2-row recent">
+            <div>
+              <div class="lp-b2-exercise">Squat</div>
+              <div style="font-size:0.55rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">20 Jun 2026 &mdash; +10 kg</div>
+            </div>
+            <div><span class="lp-b2-val">140</span><span class="lp-b2-unit">kg</span></div>
+          </div>
+          <div class="lp-b2-row recent">
+            <div>
+              <div class="lp-b2-exercise">Bench Press</div>
+              <div style="font-size:0.55rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">23 Jun 2026 &mdash; +7.5 kg</div>
+            </div>
+            <div><span class="lp-b2-val">100</span><span class="lp-b2-unit">kg</span></div>
+          </div>
+          <div class="lp-b2-row">
+            <div>
+              <div class="lp-b2-exercise">OHP</div>
+              <div style="font-size:0.55rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">17 Jun 2026 &mdash; +2.5 kg</div>
+            </div>
+            <div><span class="lp-b2-val">65</span><span class="lp-b2-unit">kg</span></div>
+          </div>
+          <div class="lp-b2-row">
+            <div>
+              <div class="lp-b2-exercise">Pull-up</div>
+              <div style="font-size:0.55rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">21 Jun 2026 &mdash; +5 kg</div>
+            </div>
+            <div><span class="lp-b2-val">+25</span><span class="lp-b2-unit">kg</span></div>
+          </div>
+        </div>
+        <div class="lp-b2-footer">sign in to see your records</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="si-right">
+        <h1>Welcome back</h1>
+        <form class="si-form-box">
+          <legend>sign in</legend>
+          <label class="si-field">
+            email:
+            <input type="email" placeholder="hello@google.com" />
+          </label>
+          <label class="si-field">
+            password:
+            <input type="password" placeholder="********" />
+          </label>
+          <button class="si-btn-primary" type="submit">sign in</button>
+          <div class="si-form-footer">
+            <a href="#">forgot password?</a>
+            <p>don't have an account? <a href="#">sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SIGN-IN VARIANT C
+       Left: Inverted manifesto — one statement per ruled line
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">sign-in variant C — inverted manifesto / ruled lines</p>
+    <div class="si-shell">
+
+      <div class="lp-c">
+        <div class="lp-c-id">gym graphs</div>
+        <div class="lp-c-lines">
+          <div class="lp-c-line">
+            track
+            <span>every session. every rep. every weight.</span>
+          </div>
+          <div class="lp-c-line">
+            measure
+            <span>progress is a number. know yours.</span>
+          </div>
+          <div class="lp-c-line">
+            push
+            <span>last week's max is this week's warm-up.</span>
+          </div>
+          <div class="lp-c-line">
+            grow
+            <span>the graph doesn't lie.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="si-right">
+        <h1>Welcome back</h1>
+        <form class="si-form-box">
+          <legend>sign in</legend>
+          <label class="si-field">
+            email:
+            <input type="email" placeholder="hello@google.com" />
+          </label>
+          <label class="si-field">
+            password:
+            <input type="password" placeholder="********" />
+          </label>
+          <button class="si-btn-primary" type="submit">sign in</button>
+          <div class="si-form-footer">
+            <a href="#">forgot password?</a>
+            <p>don't have an account? <a href="#">sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SIGN-IN VARIANT D
+       Left: Single hero stat — one enormous PR number
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">sign-in variant D — single stat hero / scoreboard</p>
+    <div class="si-shell">
+
+      <div class="lp-d">
+        <div class="lp-d-label">
+          <span>gym graphs</span>
+          <span>your best lift</span>
+        </div>
+        <div class="lp-d-hero">
+          <div class="lp-d-exercise">deadlift &mdash; all time PR</div>
+          <div class="lp-d-number">180</div>
+          <div class="lp-d-unit">kilograms</div>
+        </div>
+        <div class="lp-d-foot">
+          <div>
+            <div class="lp-d-stat-label">sessions logged</div>
+            <div class="lp-d-stat-val">47</div>
+          </div>
+          <div>
+            <div class="lp-d-stat-label">last session</div>
+            <div class="lp-d-stat-val">3 days ago</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="si-right">
+        <h1>Welcome back</h1>
+        <form class="si-form-box">
+          <legend>sign in</legend>
+          <label class="si-field">
+            email:
+            <input type="email" placeholder="hello@google.com" />
+          </label>
+          <label class="si-field">
+            password:
+            <input type="password" placeholder="********" />
+          </label>
+          <button class="si-btn-primary" type="submit">sign in</button>
+          <div class="si-form-footer">
+            <a href="#">forgot password?</a>
+            <p>don't have an account? <a href="#">sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       SIGN-IN VARIANT E
+       Left: 2×2 sparkline grid — data as decoration
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">sign-in variant E — 2×2 sparkline grid</p>
+    <div class="si-shell">
+
+      <div class="lp-e">
+        <div class="lp-e-header">
+          <span>gym graphs</span>
+          <span>your progress</span>
+        </div>
+        <div class="lp-e-grid">
+
+          <div class="lp-e-cell">
+            <div class="lp-e-cell-header">
+              <span class="lp-e-name">Bench Press</span>
+              <div class="lp-e-pr">pr<strong>100 kg</strong></div>
+            </div>
+            <svg class="lp-e-spark" viewBox="0 0 160 36" preserveAspectRatio="none">
+              <polyline points="0,32 27,28 54,24 81,20 108,14 135,10 160,6"/>
+              <circle cx="160" cy="6" r="3"/>
+            </svg>
+            <div class="lp-e-meta">12 sessions &middot; 3d ago</div>
+          </div>
+
+          <div class="lp-e-cell">
+            <div class="lp-e-cell-header">
+              <span class="lp-e-name">Squat</span>
+              <div class="lp-e-pr">pr<strong>140 kg</strong></div>
+            </div>
+            <svg class="lp-e-spark" viewBox="0 0 160 36" preserveAspectRatio="none">
+              <polyline points="0,34 27,30 54,32 81,24 108,20 135,14 160,10"/>
+              <circle cx="160" cy="10" r="3"/>
+            </svg>
+            <div class="lp-e-meta">18 sessions &middot; 1d ago</div>
+          </div>
+
+          <div class="lp-e-cell">
+            <div class="lp-e-cell-header">
+              <span class="lp-e-name">Deadlift</span>
+              <div class="lp-e-pr">pr<strong>180 kg</strong></div>
+            </div>
+            <svg class="lp-e-spark" viewBox="0 0 160 36" preserveAspectRatio="none">
+              <polyline points="0,34 27,30 54,26 81,28 108,18 135,12 160,8"/>
+              <circle cx="160" cy="8" r="3"/>
+            </svg>
+            <div class="lp-e-meta">9 sessions &middot; 5d ago</div>
+          </div>
+
+          <div class="lp-e-cell">
+            <div class="lp-e-cell-header">
+              <span class="lp-e-name">OHP</span>
+              <div class="lp-e-pr">pr<strong>65 kg</strong></div>
+            </div>
+            <svg class="lp-e-spark" viewBox="0 0 160 36" preserveAspectRatio="none">
+              <polyline points="0,34 27,34 54,30 81,28 108,28 135,22 160,18"/>
+              <circle cx="160" cy="18" r="3"/>
+            </svg>
+            <div class="lp-e-meta">7 sessions &middot; 6d ago</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="si-right">
+        <h1>Welcome back</h1>
+        <form class="si-form-box">
+          <legend>sign in</legend>
+          <label class="si-field">
+            email:
+            <input type="email" placeholder="hello@google.com" />
+          </label>
+          <label class="si-field">
+            password:
+            <input type="password" placeholder="********" />
+          </label>
+          <button class="si-btn-primary" type="submit">sign in</button>
+          <div class="si-form-footer">
+            <a href="#">forgot password?</a>
+            <p>don't have an account? <a href="#">sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
 </body>
 </html>
