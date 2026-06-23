@@ -83,7 +83,7 @@ fn account_deletion_layout(
         ),
         html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
         html.section(
-          [attribute.class("max-w-app w-full m-auto space-y-15 p-4")],
+          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
           [
             html.h1([attribute.class("text-5xl text-center")], [
               html.text(heading),
