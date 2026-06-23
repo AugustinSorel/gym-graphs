@@ -1,8 +1,11 @@
+import gleam/bool
 import gleam/list
+import gleam/string
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
+import wisp.{type Request}
 
 pub fn layout(children: List(Element(a))) -> Element(a) {
   html.html([attribute.lang("en")], [
@@ -26,6 +29,47 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
     ]),
     html.body([attribute.class("bg-surface text-on-surface")], children),
   ])
+}
+
+pub fn nav_bar(req: Request) {
+  let links = [
+    #("exercises", "/exercises"),
+    #("stats", "/stats"),
+    #("account", "/account"),
+  ]
+
+  html.header(
+    [
+      attribute.class(
+        "border-b-4 py-7 px-[calc((100vw-var(--max-width-app))/2)] flex justify-between",
+      ),
+    ],
+    [
+      html.h1([attribute.class("uppercase text-sm")], [
+        html.text("gym graphs"),
+      ]),
+      html.nav(
+        [attribute.class("space-x-5")],
+        list.map(links, fn(l) {
+          let #(title, href) = l
+          link(
+            [
+              attribute.href(href),
+              attribute.class(
+                "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface",
+              ),
+              attribute.aria_current(
+                string.lowercase(bool.to_string(href == req.path)),
+              ),
+            ],
+            [
+              html.text(title),
+            ],
+          )
+        }),
+      ),
+    ],
+  )
 }
 
 pub fn spinner() -> Element(a) {

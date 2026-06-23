@@ -3,16 +3,39 @@ import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/password_reset/password_reset
 import app/sign_up/sign_up
+import app/ui
 import app/user/user
 import app/web
 import gleam/http.{Get, Post}
+import lustre/element/html
 import wisp.{type Request, type Response}
 
 pub fn handle_request(req: Request, ctx: Ctx) -> Response {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
-    [] -> user.view_account_page(req, ctx)
+    [] -> wisp.redirect(to: "/exercises")
+    ["exercises"] -> {
+      use <- wisp.require_method(req, Get)
+      web.html(
+        ui.layout([ui.nav_bar(req), html.h1([], [html.text("exercises")])]),
+        200,
+      )
+    }
+
+    ["stats"] -> {
+      use <- wisp.require_method(req, Get)
+      web.html(
+        ui.layout([ui.nav_bar(req), html.h1([], [html.text("stats")])]),
+        200,
+      )
+    }
+
+    ["account"] -> {
+      use <- wisp.require_method(req, Get)
+      user.view_account_page(req, ctx)
+    }
+
     ["sign-up"] -> {
       case req.method {
         Get -> sign_up.view_register_page(req, ctx)
