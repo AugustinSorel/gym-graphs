@@ -41,7 +41,7 @@ pub fn nav_bar(req: Request) {
   html.header(
     [
       attribute.class(
-        "border-b-4 py-7 px-[calc((100vw-var(--max-width-app))/2)] flex justify-between",
+        "border-b-4 py-7 px-[max(calc((100vw-var(--max-width-app))/2),1rem)] flex justify-between bg-surface-container-lowest",
       ),
     ],
     [
