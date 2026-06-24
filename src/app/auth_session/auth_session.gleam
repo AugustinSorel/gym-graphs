@@ -14,7 +14,7 @@ import gleam/order
 import gleam/result
 import gleam/string
 import gleam/time/duration
-import gleam/time/timestamp
+import gleam/time/timestamp.{type Timestamp}
 import lustre/element/html
 import pog.{type Connection, type QueryError}
 import wisp.{type Request, type Response}
@@ -103,6 +103,14 @@ fn refresh_auth_session(session: SelectAuthSessionByIdRow, db: Connection) {
   }
 }
 
+pub type User {
+  User(id: Int, name: String, email: String, created_at: Timestamp)
+}
+
+pub type AuthSession {
+  AuthSession(id: Int)
+}
+
 pub fn require(req: Request, ctx: Ctx, next) -> Response {
   let redirect = wisp.redirect("/sign-up") |> clear_cookie(req)
 
@@ -119,7 +127,17 @@ pub fn require(req: Request, ctx: Ctx, next) -> Response {
       verify_token(token, ctx) |> result.replace_error(redirect),
     )
 
-    let response = next(session)
+    let auth_session = AuthSession(id: session.id)
+
+    let user =
+      User(
+        id: session.user_id,
+        name: session.name,
+        email: session.email_address,
+        created_at: session.user_created_at,
+      )
+
+    let response = next(auth_session, user)
 
     refresh_auth_session(session, ctx.db)
     |> result.replace(response |> set_cookie(req, raw_token))
@@ -261,7 +279,7 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn sign_out(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use session, _user <- require(req, ctx)
 
   let result =
     auth_session_sql.delete_auth_session_by_id(ctx.db, session.id)

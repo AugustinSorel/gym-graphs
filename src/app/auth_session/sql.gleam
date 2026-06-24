@@ -96,6 +96,8 @@ pub type SelectAuthSessionByIdRow {
     created_at: Timestamp,
     last_active_at: Timestamp,
     email_address: String,
+    name: String,
+    user_created_at: Timestamp,
   )
 }
 
@@ -116,6 +118,8 @@ pub fn select_auth_session_by_id(
     use created_at <- decode.field(3, pog.timestamp_decoder())
     use last_active_at <- decode.field(4, pog.timestamp_decoder())
     use email_address <- decode.field(5, decode.string)
+    use name <- decode.field(6, decode.string)
+    use user_created_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(SelectAuthSessionByIdRow(
       id:,
       user_id:,
@@ -123,6 +127,8 @@ pub fn select_auth_session_by_id(
       created_at:,
       last_active_at:,
       email_address:,
+      name:,
+      user_created_at:,
     ))
   }
 
@@ -132,7 +138,9 @@ pub fn select_auth_session_by_id(
   s.secret_hash,
   s.created_at,
   s.last_active_at,
-  u.email_address
+  u.email_address,
+  u.name,
+  u.created_at as user_created_at
 from auth_sessions s
 join users u on u.id = s.user_id
 where s.id = $1;

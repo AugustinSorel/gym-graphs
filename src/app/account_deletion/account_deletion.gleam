@@ -1,9 +1,6 @@
-import app/account_deletion/sql.{
-  type SelectAccountDeletionSessionByIdRow,
-} as account_deletion_session_sql
+import app/account_deletion/sql.{type SelectAccountDeletionSessionByIdRow} as account_deletion_session_sql
 import app/account_deletion/ui.{type VerifyPasswordForm} as account_deletion_ui
-import app/auth_session/auth_session
-import app/auth_session/sql.{type SelectAuthSessionByIdRow}
+import app/auth_session/auth_session.{type AuthSession}
 import app/crypto
 import app/ctx.{type Ctx}
 import app/session_token
@@ -112,7 +109,7 @@ fn require(
 fn require_unverified_session(
   req: Request,
   ctx: Ctx,
-  auth_session: SelectAuthSessionByIdRow,
+  auth_session: AuthSession,
   next: fn(SelectAccountDeletionSessionByIdRow) -> Response,
 ) -> Response {
   use session <- require(req, ctx)
@@ -135,7 +132,7 @@ fn require_unverified_session(
 fn require_verified_session(
   req: Request,
   ctx: Ctx,
-  auth_session: SelectAuthSessionByIdRow,
+  auth_session: AuthSession,
   next: fn(SelectAccountDeletionSessionByIdRow) -> Response,
 ) -> Response {
   use session <- require(req, ctx)
@@ -156,11 +153,13 @@ fn require_verified_session(
 }
 
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
 
   let result =
     create_account_deletion_session(ctx.db, auth_session.id)
-    |> result.map(fn(session) { session_token.encode(session.id, session.secret) })
+    |> result.map(fn(session) {
+      session_token.encode(session.id, session.secret)
+    })
 
   case result {
     Ok(token) ->
@@ -192,12 +191,12 @@ type ViewVerifyPasswordPageError {
 }
 
 pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, user <- auth_session.require(req, ctx)
 
   use _session <- require_unverified_session(req, ctx, auth_session)
 
   let result =
-    select_user_by_id(ctx.db, auth_session.user_id)
+    select_user_by_id(ctx.db, user.id)
     |> result.map_error(ViewVerifyPasswordPageUserError)
 
   case result {
@@ -234,7 +233,7 @@ type VerifyPasswordError {
 }
 
 pub fn verify_password(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, user <- auth_session.require(req, ctx)
   use session <- require_unverified_session(req, ctx, auth_session)
 
   use form_data <- wisp.require_form(req)
@@ -248,7 +247,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
     )
 
     use user <- result.try(
-      select_user_by_id(ctx.db, auth_session.user_id)
+      select_user_by_id(ctx.db, user.id)
       |> result.map_error(VerifyPasswordUserError),
     )
 
@@ -319,7 +318,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_confirm_page(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
 
   use _session <- require_verified_session(req, ctx, auth_session)
 
@@ -334,7 +333,7 @@ type ConfirmError {
 }
 
 pub fn confirm(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
   use session <- require_verified_session(req, ctx, auth_session)
 
   let result =
@@ -363,7 +362,7 @@ type CancelError {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use auth_session <- auth_session.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
   use session <- require(req, ctx)
 
   use form_data <- wisp.require_form(req)

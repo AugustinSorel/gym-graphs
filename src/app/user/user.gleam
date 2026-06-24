@@ -1,16 +1,20 @@
-import app/auth_session/auth_session
+import app/auth_session/auth_session.{type User}
 import app/ctx.{type Ctx}
 import app/ui
 import app/web
+import gleam/int
+import gleam/string
+import gleam/time/calendar
+import gleam/time/timestamp
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 import wisp.{type Request, type Response}
 
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
-  use session <- auth_session.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
 
-  account_details(session.email_address)
+  account_details(user)
   |> account_page(req)
   |> web.html(200)
 }
@@ -27,7 +31,10 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
   ])
 }
 
-fn account_details(email: String) -> Element(a) {
+fn account_details(user: User) -> Element(a) {
+  let #(created_at_date, _) =
+    timestamp.to_calendar(user.created_at, calendar.utc_offset)
+
   element.fragment([
     html.section(
       [
@@ -44,13 +51,15 @@ fn account_details(email: String) -> Element(a) {
             ),
             attribute.aria_hidden(True),
           ],
-          [html.text("as")],
+          [
+            html.text(string.slice(from: user.name, at_index: 0, length: 2)),
+          ],
         ),
         html.h2(
           [
             attribute.class("capitalize font-semibold text-3xl truncate"),
           ],
-          [html.text("augustin sorel")],
+          [html.text(user.name)],
         ),
         html.span(
           [
@@ -58,7 +67,7 @@ fn account_details(email: String) -> Element(a) {
               "row-start-2 col-start-2 text-sm text-outline truncate",
             ),
           ],
-          [html.text(email)],
+          [html.text(user.email)],
         ),
         html.dl(
           [
@@ -69,7 +78,22 @@ fn account_details(email: String) -> Element(a) {
           [
             html.dt([attribute.class("sr-only")], [html.text("Joined")]),
             html.dd([attribute.class("text-sm text-outline truncate")], [
-              html.text("joined jan 2024"),
+              html.time(
+                [
+                  attribute.datetime(timestamp.to_rfc3339(
+                    user.created_at,
+                    calendar.utc_offset,
+                  )),
+                ],
+                [
+                  html.text(
+                    "joined "
+                    <> calendar.month_to_string(created_at_date.month)
+                    <> " "
+                    <> int.to_string(created_at_date.year),
+                  ),
+                ],
+              ),
             ]),
             html.dt([attribute.class("sr-only")], [html.text("Workouts")]),
             html.dd([attribute.class("text-sm text-outline truncate")], [
