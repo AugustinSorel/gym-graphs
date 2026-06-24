@@ -28,6 +28,7 @@ pub fn create_user(
   db: pog.Connection,
   arg_1: BitArray,
   arg_2: BitArray,
+  arg_3: String,
   id: Int,
 ) -> Result(pog.Returned(CreateUserRow), pog.QueryError) {
   let decoder = {
@@ -37,17 +38,20 @@ pub fn create_user(
   }
 
   "insert into users (
-  email_address, password_hash, 
-  password_salt 
+  email_address,
+  password_hash, 
+  password_salt,
+  name
 ) 
 select 
   email_address,
   $1,
-  $2
+  $2,
+  $3
 from 
   sign_up_sessions 
 where 
-  id = $3 
+  id = $4 
   AND email_address_verified_at is not null 
 returning 
   id, email_address
@@ -55,6 +59,7 @@ returning
   |> pog.query
   |> pog.parameter(pog.bytea(arg_1))
   |> pog.parameter(pog.bytea(arg_2))
+  |> pog.parameter(pog.text(arg_3))
   |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
@@ -73,6 +78,7 @@ pub type DeleteUserByAccountDeletionSessionIdRow {
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
+    name: String,
   )
 }
 
@@ -95,12 +101,14 @@ pub fn delete_user_by_account_deletion_session_id(
     use password_hash <- decode.field(2, decode.bit_array)
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use name <- decode.field(5, decode.string)
     decode.success(DeleteUserByAccountDeletionSessionIdRow(
       id:,
       email_address:,
       password_hash:,
       password_salt:,
       created_at:,
+      name:,
     ))
   }
 
@@ -134,6 +142,7 @@ pub type SelectUserByEmailAddressRow {
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
+    name: String,
   )
 }
 
@@ -153,12 +162,14 @@ pub fn select_user_by_email_address(
     use password_hash <- decode.field(2, decode.bit_array)
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use name <- decode.field(5, decode.string)
     decode.success(SelectUserByEmailAddressRow(
       id:,
       email_address:,
       password_hash:,
       password_salt:,
       created_at:,
+      name:,
     ))
   }
 
@@ -183,6 +194,7 @@ pub type SelectUserByIdRow {
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
+    name: String,
   )
 }
 
@@ -202,12 +214,14 @@ pub fn select_user_by_id(
     use password_hash <- decode.field(2, decode.bit_array)
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use name <- decode.field(5, decode.string)
     decode.success(SelectUserByIdRow(
       id:,
       email_address:,
       password_hash:,
       password_salt:,
       created_at:,
+      name:,
     ))
   }
 

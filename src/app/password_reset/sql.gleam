@@ -1,5 +1,5 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/password_reset_session/sql`.
+//// `./src/app/password_reset/sql`.
 //// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
@@ -10,7 +10,7 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_password_reset_session` query
-/// defined in `./src/app/password_reset_session/sql/create_password_reset_session.sql`.
+/// defined in `./src/app/password_reset/sql/create_password_reset_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -28,7 +28,7 @@ pub type CreatePasswordResetSessionRow {
 }
 
 /// Runs the `create_password_reset_session` query
-/// defined in `./src/app/password_reset_session/sql/create_password_reset_session.sql`.
+/// defined in `./src/app/password_reset/sql/create_password_reset_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -77,7 +77,7 @@ returning *
 }
 
 /// Runs the `delete_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset_session/sql/delete_password_reset_session_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/delete_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -99,7 +99,7 @@ $1;
 }
 
 /// A row you get from running the `select_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset_session/sql/select_password_reset_session_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/select_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -117,7 +117,7 @@ pub type SelectPasswordResetSessionByIdRow {
 }
 
 /// Runs the `select_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset_session/sql/select_password_reset_session_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/select_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -158,7 +158,7 @@ pub fn select_password_reset_session_by_id(
 }
 
 /// A row you get from running the `select_user_by_password_reset_session_id` query
-/// defined in `./src/app/password_reset_session/sql/select_user_by_password_reset_session_id.sql`.
+/// defined in `./src/app/password_reset/sql/select_user_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -168,7 +168,7 @@ pub type SelectUserByPasswordResetSessionIdRow {
 }
 
 /// Runs the `select_user_by_password_reset_session_id` query
-/// defined in `./src/app/password_reset_session/sql/select_user_by_password_reset_session_id.sql`.
+/// defined in `./src/app/password_reset/sql/select_user_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -199,7 +199,7 @@ $1;
 }
 
 /// A row you get from running the `set_password_reset_session_to_verified_by_id` query
-/// defined in `./src/app/password_reset_session/sql/set_password_reset_session_to_verified_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/set_password_reset_session_to_verified_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -209,7 +209,7 @@ pub type SetPasswordResetSessionToVerifiedByIdRow {
 }
 
 /// Runs the `set_password_reset_session_to_verified_by_id` query
-/// defined in `./src/app/password_reset_session/sql/set_password_reset_session_to_verified_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/set_password_reset_session_to_verified_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -240,7 +240,7 @@ returning id
 }
 
 /// A row you get from running the `update_user_password_by_id` query
-/// defined in `./src/app/password_reset_session/sql/update_user_password_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/update_user_password_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -250,7 +250,7 @@ pub type UpdateUserPasswordByIdRow {
 }
 
 /// Runs the `update_user_password_by_id` query
-/// defined in `./src/app/password_reset_session/sql/update_user_password_by_id.sql`.
+/// defined in `./src/app/password_reset/sql/update_user_password_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).

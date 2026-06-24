@@ -12,6 +12,7 @@ import app/web
 import formal/form.{type Form}
 import gleam/bool
 import gleam/float
+import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
@@ -438,10 +439,13 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
     let password_hash = crypto.hash_user_password(input.password, salt)
     let secret = crypto.generate_session_secret()
     let secret_hash = crypto.hash_session_secret(secret)
+    let name = infer_name_from_email(session.email_address)
 
     use auth_session <- result.try(
       pog.transaction(ctx.db, fn(tx) {
-        use user <- result.try(create_user(tx, password_hash, salt, session.id))
+        use user <- result.try({
+          create_user(tx, password_hash, salt, name, session.id)
+        })
         use _ <- result.try(delete_sign_up_session(tx, session.id))
         use new_auth_session <- result.try(create_auth_session(
           tx,
@@ -589,9 +593,10 @@ fn create_user(
   db: pog.Connection,
   raw_hash: BitArray,
   salt: BitArray,
+  name: String,
   session_id: Int,
 ) -> Result(_, SetPasswordError) {
-  user_sql.create_user(db, raw_hash, salt, session_id)
+  user_sql.create_user(db, raw_hash, salt, name, session_id)
   |> result.map_error(SetPasswordDatabaseFailure)
   |> result.try(fn(returned) {
     case returned {
@@ -623,4 +628,8 @@ fn create_auth_session(
       pog.Returned(_, []) -> Error(SetPasswordRecordNotFound)
     }
   })
+}
+
+fn infer_name_from_email(email: String) {
+  email |> string.split(on: "@") |> list.first() |> result.unwrap("unknown")
 }

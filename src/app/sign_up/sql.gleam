@@ -1,5 +1,5 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/sign_up_session/sql`.
+//// `./src/app/sign_up/sql`.
 //// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
@@ -10,7 +10,7 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_sign_up_session` query
-/// defined in `./src/app/sign_up_session/sql/create_sign_up_session.sql`.
+/// defined in `./src/app/sign_up/sql/create_sign_up_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -27,7 +27,7 @@ pub type CreateSignUpSessionRow {
 }
 
 /// Runs the `create_sign_up_session` query
-/// defined in `./src/app/sign_up_session/sql/create_sign_up_session.sql`.
+/// defined in `./src/app/sign_up/sql/create_sign_up_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -74,7 +74,7 @@ returning *;
 }
 
 /// Runs the `delete_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up_session/sql/delete_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up/sql/delete_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -94,7 +94,7 @@ pub fn delete_sign_up_session_by_id(
 }
 
 /// A row you get from running the `select_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up_session/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up/sql/select_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -111,7 +111,7 @@ pub type SelectSignUpSessionByIdRow {
 }
 
 /// Runs the `select_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up_session/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/app/sign_up/sql/select_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -149,7 +149,7 @@ pub fn select_sign_up_session_by_id(
 }
 
 /// A row you get from running the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
+/// defined in `./src/app/sign_up/sql/set_email_address_verified_at_to_now.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -166,7 +166,7 @@ pub type SetEmailAddressVerifiedAtToNowRow {
 }
 
 /// Runs the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/sign_up_session/sql/set_email_address_verified_at_to_now.sql`.
+/// defined in `./src/app/sign_up/sql/set_email_address_verified_at_to_now.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).

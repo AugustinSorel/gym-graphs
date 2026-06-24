@@ -1,5 +1,5 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/app/account_deletion_session/sql`.
+//// `./src/app/account_deletion/sql`.
 //// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
@@ -10,7 +10,7 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_account_deletion_session` query
-/// defined in `./src/app/account_deletion_session/sql/create_account_deletion_session.sql`.
+/// defined in `./src/app/account_deletion/sql/create_account_deletion_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -26,7 +26,7 @@ pub type CreateAccountDeletionSessionRow {
 }
 
 /// Runs the `create_account_deletion_session` query
-/// defined in `./src/app/account_deletion_session/sql/create_account_deletion_session.sql`.
+/// defined in `./src/app/account_deletion/sql/create_account_deletion_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -66,7 +66,7 @@ returning *
 }
 
 /// Runs the `delete_account_deletion_session_by_id` query
-/// defined in `./src/app/account_deletion_session/sql/delete_account_deletion_session_by_id.sql`.
+/// defined in `./src/app/account_deletion/sql/delete_account_deletion_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -86,7 +86,7 @@ pub fn delete_account_deletion_session_by_id(
 }
 
 /// A row you get from running the `select_account_deletion_session_by_id` query
-/// defined in `./src/app/account_deletion_session/sql/select_account_deletion_session_by_id.sql`.
+/// defined in `./src/app/account_deletion/sql/select_account_deletion_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -102,7 +102,7 @@ pub type SelectAccountDeletionSessionByIdRow {
 }
 
 /// Runs the `select_account_deletion_session_by_id` query
-/// defined in `./src/app/account_deletion_session/sql/select_account_deletion_session_by_id.sql`.
+/// defined in `./src/app/account_deletion/sql/select_account_deletion_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -138,7 +138,7 @@ pub fn select_account_deletion_session_by_id(
 }
 
 /// A row you get from running the `set_identity_verified_to_now` query
-/// defined in `./src/app/account_deletion_session/sql/set_identity_verified_to_now.sql`.
+/// defined in `./src/app/account_deletion/sql/set_identity_verified_to_now.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -154,7 +154,7 @@ pub type SetIdentityVerifiedToNowRow {
 }
 
 /// Runs the `set_identity_verified_to_now` query
-/// defined in `./src/app/account_deletion_session/sql/set_identity_verified_to_now.sql`.
+/// defined in `./src/app/account_deletion/sql/set_identity_verified_to_now.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
