@@ -1302,6 +1302,898 @@
 
 
   <!-- ══════════════════════════════════════════════════════════════
+       ACCOUNT PAGE — 5 VARIANTS
+  ══════════════════════════════════════════════════════════════ -->
+
+  <style>
+
+    /* ── shared account page shell ─────────────────────────────── */
+    .ac-page {
+      width: 100%;
+      height: 680px;
+      border: 2px solid var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      font-size: 0.875rem;
+    }
+
+    /* topbar — same as app shell */
+    .ac-topbar {
+      border-bottom: 2px solid var(--fg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 3.5rem;
+      flex-shrink: 0;
+      background: var(--grey);
+    }
+    .ac-topbar-brand {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .ac-topbar-nav {
+      display: flex;
+      gap: 0;
+    }
+    .ac-topbar-nav a {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      color: inherit;
+      text-decoration: none;
+      padding: 0.35rem 0.75rem;
+    }
+    .ac-topbar-nav a.active {
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    /* scrollable body */
+    .ac-body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .ac-body-centered {
+      align-items: center;
+    }
+
+    /* ── reusable primitives ────────────────────────────────────── */
+    .ac-section-title {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.35;
+      margin-bottom: 0.75rem;
+    }
+
+    .ac-box {
+      border: 2px solid var(--fg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+      width: 100%;
+    }
+    .ac-box legend,
+    .ac-box-legend {
+      position: absolute;
+      top: -0.85em;
+      left: 1rem;
+      font-size: 0.75rem;
+      background: var(--bg);
+      border: 2px solid var(--fg);
+      padding: 0.1rem 0.75rem;
+    }
+
+    .ac-field { display: grid; gap: 0.25rem; }
+    .ac-field label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+    .ac-field input {
+      border: none;
+      border-bottom: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      font-size: 0.875rem;
+      padding: 0.25rem 0;
+      outline: none;
+      font-family: inherit;
+      width: 100%;
+    }
+    .ac-field input:focus { box-shadow: 0 2px 0 0 var(--fg); }
+    .ac-field-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.25rem 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .ac-btn {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      padding: 0.4rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .ac-btn-ghost {
+      background: transparent;
+      color: var(--fg);
+      border: 2px solid var(--fg);
+    }
+    .ac-btn-destroy {
+      background: var(--error);
+      color: #fff;
+    }
+    .ac-btn-sm {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.65rem;
+    }
+    .ac-btn-full { width: 100%; justify-content: center; }
+
+    .ac-divider {
+      border: none;
+      border-top: 2px solid var(--fg);
+      margin: 0;
+      width: 100%;
+    }
+    .ac-divider-thin {
+      border-top: 1px solid var(--fg);
+      opacity: 0.15;
+    }
+
+    .ac-badge {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--fg);
+      padding: 0.1rem 0.4rem;
+      opacity: 0.5;
+    }
+    .ac-badge-active {
+      border-color: var(--fg);
+      opacity: 1;
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    .ac-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ac-row-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.45;
+    }
+    .ac-row-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    /* ── stat strip ─────────────────────────────────────────────── */
+    .ac-stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 2px solid var(--fg);
+      width: 100%;
+    }
+    .ac-stat-cell {
+      padding: 1rem 1.25rem;
+      border-right: 2px solid var(--fg);
+    }
+    .ac-stat-cell:last-child { border-right: none; }
+    .ac-stat-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.35;
+      margin-bottom: 0.35rem;
+    }
+    .ac-stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    /* ── toggle switch ──────────────────────────────────────────── */
+    .ac-toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--fg);
+    }
+    .ac-toggle-row:last-child { border-bottom: none; }
+    .ac-toggle-info { display: flex; flex-direction: column; gap: 0.15rem; }
+    .ac-toggle-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ac-toggle-desc {
+      font-size: 0.6rem;
+      opacity: 0.4;
+      letter-spacing: 0.04em;
+    }
+    .ac-toggle {
+      width: 2.2rem;
+      height: 1.1rem;
+      border: 2px solid var(--fg);
+      background: transparent;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ac-toggle::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: calc(50% - 2px);
+      height: calc(100% - 2px);
+      background: var(--mid);
+    }
+    .ac-toggle.on { background: var(--fg); }
+    .ac-toggle.on::after {
+      left: calc(50% + 1px);
+      background: var(--bg);
+    }
+
+    /* ── danger zone ────────────────────────────────────────────── */
+    .ac-danger {
+      border: 2px solid var(--error);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      position: relative;
+    }
+    .ac-danger-legend {
+      position: absolute;
+      top: -0.85em;
+      left: 1rem;
+      font-size: 0.7rem;
+      background: var(--bg);
+      border: 2px solid var(--error);
+      padding: 0.1rem 0.6rem;
+      color: var(--error);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .ac-danger-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ac-danger-desc {
+      font-size: 0.7rem;
+      opacity: 0.5;
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+
+    /* ── plan card ──────────────────────────────────────────────── */
+    .ac-plan-card {
+      border: 2px solid var(--fg);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      gap: 1.5rem;
+      width: 100%;
+    }
+    .ac-plan-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    .ac-plan-desc {
+      font-size: 0.6rem;
+      opacity: 0.4;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+    .ac-plan-price {
+      text-align: right;
+    }
+    .ac-plan-price-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .ac-plan-price-sub {
+      font-size: 0.6rem;
+      opacity: 0.35;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── activity log ───────────────────────────────────────────── */
+    .ac-log-row {
+      display: grid;
+      grid-template-columns: 7rem 1fr auto;
+      align-items: center;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--fg);
+      font-size: 0.7rem;
+      gap: 1rem;
+    }
+    .ac-log-row:last-child { border-bottom: none; }
+    .ac-log-date { opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; }
+    .ac-log-event { font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ac-log-meta { opacity: 0.35; text-align: right; letter-spacing: 0.04em; }
+
+    /* ── connected devices ──────────────────────────────────────── */
+    .ac-device-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--fg);
+      gap: 1rem;
+    }
+    .ac-device-row:last-child { border-bottom: none; }
+    .ac-device-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .ac-device-meta {
+      font-size: 0.6rem;
+      opacity: 0.35;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+
+    /* ── progress bar ───────────────────────────────────────────── */
+    .ac-progress-track {
+      width: 100%;
+      height: 4px;
+      background: var(--fg);
+      opacity: 0.12;
+      position: relative;
+    }
+    .ac-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: var(--fg);
+      opacity: 1;
+    }
+
+    /* ── export row ─────────────────────────────────────────────── */
+    .ac-export-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--fg);
+      gap: 1rem;
+    }
+    .ac-export-row:last-child { border-bottom: none; }
+    .ac-export-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .ac-export-desc {
+      font-size: 0.6rem;
+      opacity: 0.35;
+      letter-spacing: 0.04em;
+    }
+
+  </style>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       ACCOUNT VARIANT 1
+       Profile overview — email, display name, unit preference,
+       summary stats strip, sign out / delete.
+  ════════════════════════════════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">account variant 1 — profile overview</p>
+    <div class="ac-page">
+
+      <div class="ac-topbar">
+        <span class="ac-topbar-brand">gym graphs</span>
+        <nav class="ac-topbar-nav">
+          <a href="#">exercises</a>
+          <a href="#">stats</a>
+          <a href="#" class="active">account</a>
+        </nav>
+      </div>
+
+      <div class="ac-body" style="gap:2rem;">
+
+        <!-- stats strip -->
+        <div class="ac-stats-strip">
+          <div class="ac-stat-cell">
+            <div class="ac-stat-label">sessions</div>
+            <div class="ac-stat-value">47</div>
+          </div>
+          <div class="ac-stat-cell">
+            <div class="ac-stat-label">exercises</div>
+            <div class="ac-stat-value">6</div>
+          </div>
+          <div class="ac-stat-cell">
+            <div class="ac-stat-label">total sets</div>
+            <div class="ac-stat-value">312</div>
+          </div>
+          <div class="ac-stat-cell">
+            <div class="ac-stat-label">member since</div>
+            <div class="ac-stat-value" style="font-size:0.9rem;letter-spacing:-0.01em;">Jan 2026</div>
+          </div>
+        </div>
+
+        <!-- profile details -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">profile</div>
+
+          <div class="ac-field">
+            <label>display name</label>
+            <input type="text" value="augustin" />
+          </div>
+          <div class="ac-field">
+            <label>email address</label>
+            <input type="email" value="augustin@example.com" />
+          </div>
+          <div class="ac-row" style="align-items:flex-end;">
+            <div class="ac-field" style="flex:1;">
+              <label>weight unit</label>
+              <div style="display:flex;gap:0;margin-top:0.4rem;">
+                <button class="ac-btn" style="font-size:0.65rem;padding:0.3rem 0.9rem;">kg</button>
+                <button class="ac-btn ac-btn-ghost" style="font-size:0.65rem;padding:0.3rem 0.9rem;">lbs</button>
+              </div>
+            </div>
+            <button class="ac-btn">save changes</button>
+          </div>
+        </div>
+
+        <!-- actions -->
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <button class="ac-btn ac-btn-ghost">sign out</button>
+          <button class="ac-btn ac-btn-destroy" style="font-size:0.65rem;">delete account</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       ACCOUNT VARIANT 2
+       Security-focused — password change, active sessions /
+       connected devices, activity log.
+  ════════════════════════════════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">account variant 2 — security &amp; sessions</p>
+    <div class="ac-page">
+
+      <div class="ac-topbar">
+        <span class="ac-topbar-brand">gym graphs</span>
+        <nav class="ac-topbar-nav">
+          <a href="#">exercises</a>
+          <a href="#">stats</a>
+          <a href="#" class="active">account</a>
+        </nav>
+      </div>
+
+      <div class="ac-body" style="gap:2rem;">
+
+        <!-- page heading -->
+        <div style="width:100%;display:flex;justify-content:space-between;align-items:baseline;">
+          <h1 style="font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.01em;">account</h1>
+          <span style="font-size:0.65rem;opacity:0.35;text-transform:uppercase;letter-spacing:0.1em;">augustin@example.com</span>
+        </div>
+
+        <!-- password -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">change password</div>
+          <div class="ac-field">
+            <label>current password</label>
+            <input type="password" placeholder="••••••••" />
+          </div>
+          <div class="ac-field">
+            <label>new password</label>
+            <input type="password" placeholder="••••••••" />
+          </div>
+          <div class="ac-field">
+            <label>confirm new password</label>
+            <input type="password" placeholder="••••••••" />
+          </div>
+          <button class="ac-btn">update password</button>
+        </div>
+
+        <!-- active sessions -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">active sessions</div>
+          <div class="ac-device-row">
+            <div>
+              <div class="ac-device-name">macbook pro — chrome <span class="ac-badge ac-badge-active">current</span></div>
+              <div class="ac-device-meta">Paris, FR &middot; last active now</div>
+            </div>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm" disabled style="opacity:0.3;cursor:default;">revoke</button>
+          </div>
+          <div class="ac-device-row">
+            <div>
+              <div class="ac-device-name">iPhone 15 — safari</div>
+              <div class="ac-device-meta">Paris, FR &middot; last active 2h ago</div>
+            </div>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm">revoke</button>
+          </div>
+          <div class="ac-device-row">
+            <div>
+              <div class="ac-device-name">unknown device — firefox</div>
+              <div class="ac-device-meta">London, GB &middot; last active 14d ago</div>
+            </div>
+            <button class="ac-btn ac-btn-destroy ac-btn-sm">revoke</button>
+          </div>
+          <button class="ac-btn ac-btn-ghost ac-btn-full">sign out all other sessions</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       ACCOUNT VARIANT 3
+       Notifications & preferences — toggles for email alerts,
+       weekly digest, unit system, data export.
+  ════════════════════════════════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">account variant 3 — notifications &amp; preferences</p>
+    <div class="ac-page">
+
+      <div class="ac-topbar">
+        <span class="ac-topbar-brand">gym graphs</span>
+        <nav class="ac-topbar-nav">
+          <a href="#">exercises</a>
+          <a href="#">stats</a>
+          <a href="#" class="active">account</a>
+        </nav>
+      </div>
+
+      <div class="ac-body" style="gap:2rem;">
+
+        <div style="width:100%;display:flex;justify-content:space-between;align-items:baseline;">
+          <h1 style="font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.01em;">account</h1>
+          <span style="font-size:0.65rem;opacity:0.35;text-transform:uppercase;letter-spacing:0.1em;">augustin@example.com</span>
+        </div>
+
+        <!-- notifications -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">notifications</div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">PR alerts</span>
+              <span class="ac-toggle-desc">email when you set a new personal record</span>
+            </div>
+            <div class="ac-toggle on"></div>
+          </div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">weekly digest</span>
+              <span class="ac-toggle-desc">summary of your week every monday</span>
+            </div>
+            <div class="ac-toggle on"></div>
+          </div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">inactivity reminder</span>
+              <span class="ac-toggle-desc">nudge after 7 days with no session logged</span>
+            </div>
+            <div class="ac-toggle"></div>
+          </div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">milestone badges</span>
+              <span class="ac-toggle-desc">email when you hit 10, 25, 50 sessions etc.</span>
+            </div>
+            <div class="ac-toggle on"></div>
+          </div>
+        </div>
+
+        <!-- preferences -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">preferences</div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">use lbs</span>
+              <span class="ac-toggle-desc">display all weights in pounds instead of kg</span>
+            </div>
+            <div class="ac-toggle"></div>
+          </div>
+          <div class="ac-toggle-row">
+            <div class="ac-toggle-info">
+              <span class="ac-toggle-label">show 1RM estimate</span>
+              <span class="ac-toggle-desc">calculate estimated 1-rep max on charts</span>
+            </div>
+            <div class="ac-toggle on"></div>
+          </div>
+        </div>
+
+        <!-- data export -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">export data</div>
+          <div class="ac-export-row">
+            <div>
+              <div class="ac-export-name">all sessions</div>
+              <div class="ac-export-desc">every logged set, rep, and weight</div>
+            </div>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm">CSV</button>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm">JSON</button>
+          </div>
+          <div class="ac-export-row">
+            <div>
+              <div class="ac-export-name">personal records</div>
+              <div class="ac-export-desc">all-time PRs per exercise</div>
+            </div>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm">CSV</button>
+            <button class="ac-btn ac-btn-ghost ac-btn-sm">JSON</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       ACCOUNT VARIANT 4
+       Plan & billing — current plan, usage meter,
+       upgrade CTA, invoice history.
+  ════════════════════════════════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">account variant 4 — plan &amp; billing</p>
+    <div class="ac-page">
+
+      <div class="ac-topbar">
+        <span class="ac-topbar-brand">gym graphs</span>
+        <nav class="ac-topbar-nav">
+          <a href="#">exercises</a>
+          <a href="#">stats</a>
+          <a href="#" class="active">account</a>
+        </nav>
+      </div>
+
+      <div class="ac-body" style="gap:2rem;">
+
+        <div style="width:100%;display:flex;justify-content:space-between;align-items:baseline;">
+          <h1 style="font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:-0.01em;">account</h1>
+          <span style="font-size:0.65rem;opacity:0.35;text-transform:uppercase;letter-spacing:0.1em;">augustin@example.com</span>
+        </div>
+
+        <!-- current plan -->
+        <div style="max-width:480px;width:100%;display:flex;flex-direction:column;gap:0.75rem;">
+          <div class="ac-section-title">current plan</div>
+          <div class="ac-plan-card">
+            <div>
+              <div class="ac-plan-name">free <span class="ac-badge">active</span></div>
+              <div class="ac-plan-desc">up to 5 exercises &middot; 90 days of history</div>
+            </div>
+            <div class="ac-plan-price">
+              <div class="ac-plan-price-val">$0</div>
+              <div class="ac-plan-price-sub">/ month</div>
+            </div>
+          </div>
+          <div class="ac-plan-card" style="opacity:0.5;">
+            <div>
+              <div class="ac-plan-name">pro</div>
+              <div class="ac-plan-desc">unlimited exercises &middot; full history &middot; export</div>
+            </div>
+            <div class="ac-plan-price">
+              <div class="ac-plan-price-val">$4</div>
+              <div class="ac-plan-price-sub">/ month</div>
+            </div>
+          </div>
+          <button class="ac-btn ac-btn-full" style="margin-top:0.25rem;">upgrade to pro</button>
+        </div>
+
+        <!-- usage -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">usage</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+              <div class="ac-row" style="margin-bottom:0.4rem;">
+                <span class="ac-row-label">exercises</span>
+                <span class="ac-row-value">4 / 5</span>
+              </div>
+              <div class="ac-progress-track"><div class="ac-progress-fill" style="width:80%;"></div></div>
+            </div>
+            <div>
+              <div class="ac-row" style="margin-bottom:0.4rem;">
+                <span class="ac-row-label">history retained</span>
+                <span class="ac-row-value">47 sessions &middot; 72 days</span>
+              </div>
+              <div class="ac-progress-track"><div class="ac-progress-fill" style="width:80%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- invoice history -->
+        <div class="ac-box" style="max-width:480px;">
+          <div class="ac-box-legend">billing history</div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">01 Jun 2026</span>
+            <span class="ac-log-event">free plan — no charge</span>
+            <span class="ac-log-meta">$0.00</span>
+          </div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">01 May 2026</span>
+            <span class="ac-log-event">free plan — no charge</span>
+            <span class="ac-log-meta">$0.00</span>
+          </div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">01 Apr 2026</span>
+            <span class="ac-log-event">free plan — no charge</span>
+            <span class="ac-log-meta">$0.00</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════
+       ACCOUNT VARIANT 5
+       Dense single-column dashboard — all sections in one scroll.
+       Email, password, preferences, danger zone. No section
+       titles, just ruled fieldsets stacked flush.
+  ════════════════════════════════════════════════════════════ -->
+  <div class="option">
+    <p class="option-label">account variant 5 — dense single-column dashboard</p>
+    <div class="ac-page">
+
+      <div class="ac-topbar">
+        <span class="ac-topbar-brand">gym graphs</span>
+        <nav class="ac-topbar-nav">
+          <a href="#">exercises</a>
+          <a href="#">stats</a>
+          <a href="#" class="active">account</a>
+        </nav>
+      </div>
+
+      <div class="ac-body" style="gap:0;max-width:560px;margin:0 auto;padding:0;">
+
+        <!-- identity row -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;">augustin</div>
+            <div style="font-size:0.65rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.15rem;">augustin@example.com</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <span class="ac-badge ac-badge-active">free plan</span>
+            <span class="ac-badge">47 sessions</span>
+          </div>
+        </div>
+
+        <!-- email -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);">
+          <div class="ac-section-title">email address</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:end;">
+            <div class="ac-field">
+              <input type="email" value="augustin@example.com" />
+            </div>
+            <button class="ac-btn ac-btn-sm">update</button>
+          </div>
+        </div>
+
+        <!-- password -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);">
+          <div class="ac-section-title">password</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;">
+            <div class="ac-field">
+              <label>current</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <div class="ac-field">
+              <label>new</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <button class="ac-btn ac-btn-sm">update</button>
+          </div>
+        </div>
+
+        <!-- unit + 1rm -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);">
+          <div class="ac-section-title">preferences</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div>
+              <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.4;margin-bottom:0.4rem;">weight unit</div>
+              <div style="display:flex;gap:0;">
+                <button class="ac-btn" style="font-size:0.65rem;padding:0.3rem 1rem;">kg</button>
+                <button class="ac-btn ac-btn-ghost" style="font-size:0.65rem;padding:0.3rem 1rem;">lbs</button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.4;margin-bottom:0.4rem;">show 1RM estimate</div>
+              <div style="display:flex;gap:0;">
+                <button class="ac-btn" style="font-size:0.65rem;padding:0.3rem 1rem;">on</button>
+                <button class="ac-btn ac-btn-ghost" style="font-size:0.65rem;padding:0.3rem 1rem;">off</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- activity log -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);">
+          <div class="ac-section-title">recent activity</div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">24 Jun 2026</span>
+            <span class="ac-log-event">signed in</span>
+            <span class="ac-log-meta">Paris, FR</span>
+          </div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">23 Jun 2026</span>
+            <span class="ac-log-event">new PR — bench press 100 kg</span>
+            <span class="ac-log-meta"></span>
+          </div>
+          <div class="ac-log-row">
+            <span class="ac-log-date">20 Jun 2026</span>
+            <span class="ac-log-event">password changed</span>
+            <span class="ac-log-meta">Paris, FR</span>
+          </div>
+        </div>
+
+        <!-- danger zone -->
+        <div style="padding:1.5rem 2rem;display:flex;flex-direction:column;gap:1rem;">
+          <div class="ac-section-title" style="color:var(--error);opacity:1;">danger zone</div>
+          <div class="ac-danger">
+            <div class="ac-danger-legend">irreversible</div>
+            <div class="ac-danger-row">
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;">delete account</div>
+                <div class="ac-danger-desc">permanently removes your account, all exercises, and session history.</div>
+              </div>
+              <button class="ac-btn ac-btn-destroy ac-btn-sm" style="white-space:nowrap;">delete account</button>
+            </div>
+          </div>
+          <button class="ac-btn ac-btn-ghost ac-btn-sm" style="align-self:flex-start;">sign out</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
        SIGN-IN LEFT PANEL — 5 VARIANTS
   ══════════════════════════════════════════════════════════════ -->
 

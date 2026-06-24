@@ -20,9 +20,7 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
     ui.nav_bar(req),
     html.main(
       [
-        attribute.class(
-          "border-2 border-current flex flex-col p-10 gap-10 max-w-xl mx-auto m-20",
-        ),
+        attribute.class(" flex flex-col p-10 gap-10 max-w-3xl mx-auto m-20"),
       ],
       [children],
     ),
@@ -31,34 +29,86 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
 
 fn account_details(email: String) -> Element(a) {
   element.fragment([
-    html.h1([attribute.class("text-lg font-semibold")], [
-      html.text("account"),
-    ]),
-    html.dl([attribute.class("text-sm")], [
-      html.dt([], [html.text("email: ")]),
-      html.dd([attribute.class("font-semibold")], [html.text(email)]),
-    ]),
-
-    ui.button(
-      ui.ButtonPrimary,
+    html.section(
       [
-        attribute.attribute("hx-post", "/sign-out"),
-        attribute.attribute("hx-disable", "this"),
+        attribute.class(
+          "grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto] gap-x-7 items-center",
+        ),
+        attribute.aria_label("Profile"),
       ],
       [
-        html.text("sign out"),
-        ui.spinner(),
+        html.span(
+          [
+            attribute.class(
+              "uppercase size-14 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2",
+            ),
+            attribute.aria_hidden(True),
+          ],
+          [html.text("as")],
+        ),
+        html.h2(
+          [
+            attribute.class("capitalize font-semibold text-3xl truncate"),
+          ],
+          [html.text("augustin sorel")],
+        ),
+        html.span(
+          [
+            attribute.class(
+              "row-start-2 col-start-2 text-sm text-outline truncate",
+            ),
+          ],
+          [html.text(email)],
+        ),
+        html.dl(
+          [
+            attribute.class(
+              "text-right row-span-2 h-full flex justify-evenly flex-col",
+            ),
+          ],
+          [
+            html.dt([attribute.class("sr-only")], [html.text("Joined")]),
+            html.dd([attribute.class("text-sm text-outline truncate")], [
+              html.text("joined jan 2024"),
+            ]),
+            html.dt([attribute.class("sr-only")], [html.text("Workouts")]),
+            html.dd([attribute.class("text-sm text-outline truncate")], [
+              html.text("24 workouts"),
+            ]),
+          ],
+        ),
       ],
     ),
-    ui.button(
-      ui.ButtonDestroy,
+
+    html.menu(
+      [attribute.aria_label("Account actions"), attribute.class("contents")],
       [
-        attribute.attribute("hx-post", "/delete-account"),
-        attribute.attribute("hx-disable", "this"),
-      ],
-      [
-        html.text("delete account"),
-        ui.spinner(),
+        html.li([], [
+          ui.button(
+            ui.ButtonPrimary,
+            [
+              attribute.attribute("hx-post", "/sign-out"),
+              attribute.attribute("hx-disable", "this"),
+            ],
+            [
+              html.text("sign out"),
+              ui.spinner(),
+            ],
+          ),
+        ]),
+        html.li([], [
+          ui.button(
+            ui.ButtonDestroy,
+            [
+              attribute.attribute("hx-post", "/delete-account"),
+              attribute.attribute("hx-disable", "this"),
+            ],
+            [
+              html.text("delete account"),
+              ui.spinner(),
+            ],
+          ),
+        ]),
       ],
     ),
   ])
