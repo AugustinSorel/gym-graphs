@@ -194,7 +194,7 @@ fn account_details(user: User) -> Element(a) {
             [
               attribute.attribute("hx-post", "/sign-out"),
               attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto"),
+              attribute.class("my-auto ml-auto"),
             ],
             [
               html.text("sign out"),
@@ -365,7 +365,7 @@ fn account_details(user: User) -> Element(a) {
             [
               attribute.attribute("hx-post", "/delete-account"),
               attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto"),
+              attribute.class("my-auto ml-auto"),
             ],
             [
               html.text("delete account"),
