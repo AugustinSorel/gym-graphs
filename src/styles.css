@@ -130,7 +130,7 @@
     --success-container: light-dark(hsl(141 60% 90%), hsl(140 44% 22%));
     --on-success-container: light-dark(hsl(140 44% 22%), hsl(141 60% 90%));
 
-    --outline: light-dark(hsl(270 4% 47%), hsl(264 5% 58%));
+    --outline: light-dark(hsl(0 0% 50%), hsl(264 5% 58%));
   }
 }
 

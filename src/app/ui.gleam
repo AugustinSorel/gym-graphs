@@ -166,7 +166,7 @@ pub type ButtonVariant {
 
 fn button_classes(variant: ButtonVariant) -> String {
   let shared =
-    "items-center font-semibold justify-center gap-1.5 p-2 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
+    "items-center font-semibold justify-center gap-1.5 py-2 px-4 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
   let variant_classes = case variant {
     ButtonPrimary ->
       "bg-on-surface text-surface hover:bg-on-surface/90 focus-visible:ring-on-surface focus-visible:ring-offset-surface"
@@ -235,7 +235,7 @@ pub fn input(attrs: List(Attribute(a))) -> Element(a) {
   html.input(list.append(
     [
       attribute.class(
-        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_currentColor]",
+        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_currentColor] disabled:opacity-50 disabled:cursor-not-allowed",
       ),
     ],
     attrs,

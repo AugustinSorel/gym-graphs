@@ -2,10 +2,7 @@ import app/auth_session/auth_session.{type User}
 import app/ctx.{type Ctx}
 import app/ui
 import app/web
-import gleam/int
 import gleam/string
-import gleam/time/calendar
-import gleam/time/timestamp
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -24,7 +21,7 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
     ui.nav_bar(req),
     html.main(
       [
-        attribute.class(" flex flex-col p-10 gap-10 max-w-3xl mx-auto m-20"),
+        attribute.class(" flex flex-col p-10 gap-20 max-w-3xl mx-auto m-20"),
       ],
       [children],
     ),
@@ -32,108 +29,187 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
 }
 
 fn account_details(user: User) -> Element(a) {
-  let #(created_at_date, _) =
-    timestamp.to_calendar(user.created_at, calendar.utc_offset)
-
   element.fragment([
-    html.section(
-      [
-        attribute.class(
-          "grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto] gap-x-7 items-center",
-        ),
-        attribute.aria_label("Profile"),
-      ],
-      [
-        html.span(
-          [
-            attribute.class(
-              "uppercase size-14 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2",
-            ),
-            attribute.aria_hidden(True),
-          ],
-          [
-            html.text(string.slice(from: user.name, at_index: 0, length: 2)),
-          ],
-        ),
-        html.h2(
-          [
-            attribute.class("capitalize font-semibold text-3xl truncate"),
-          ],
-          [html.text(user.name)],
-        ),
-        html.span(
-          [
-            attribute.class(
-              "row-start-2 col-start-2 text-sm text-outline truncate",
-            ),
-          ],
-          [html.text(user.email)],
-        ),
-        html.dl(
-          [
-            attribute.class(
-              "text-right row-span-2 h-full flex justify-evenly flex-col",
-            ),
-          ],
-          [
-            html.dt([attribute.class("sr-only")], [html.text("Joined")]),
-            html.dd([attribute.class("text-sm text-outline truncate")], [
-              html.time(
-                [
-                  attribute.datetime(timestamp.to_rfc3339(
-                    user.created_at,
-                    calendar.utc_offset,
-                  )),
-                ],
-                [
-                  html.text(
-                    "joined "
-                    <> calendar.month_to_string(created_at_date.month)
-                    <> " "
-                    <> int.to_string(created_at_date.year),
-                  ),
-                ],
-              ),
-            ]),
-            html.dt([attribute.class("sr-only")], [html.text("Workouts")]),
-            html.dd([attribute.class("text-sm text-outline truncate")], [
-              html.text("24 workouts"),
-            ]),
-          ],
-        ),
-      ],
-    ),
+    html.section([attribute.class("space-y-1")], [
+      html.div(
+        [
+          attribute.class(
+            "uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2",
+          ),
+          attribute.aria_hidden(True),
+        ],
+        [
+          html.text(string.slice(from: user.name, at_index: 0, length: 2)),
+        ],
+      ),
+      html.h2(
+        [
+          attribute.class("capitalize font-semibold text-3xl truncate"),
+        ],
+        [html.text(user.name)],
+      ),
+      html.p(
+        [
+          attribute.class("text-sm text-outline truncate"),
+        ],
+        [html.text(user.email)],
+      ),
+    ]),
 
-    html.menu(
-      [attribute.aria_label("Account actions"), attribute.class("contents")],
-      [
-        html.li([], [
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [
+          html.text("profile"),
+        ],
+      ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+          ),
+        ],
+        [
+          html.dl([attribute.class("space-y-1")], [
+            html.dt([attribute.class("text-outline text-sm")], [
+              html.text("email"),
+            ]),
+            html.dd([], [html.text(user.email)]),
+          ]),
+        ],
+      ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+          ),
+        ],
+        [
+          html.dl([attribute.class("space-y-1")], [
+            html.dt([attribute.class("text-outline text-sm")], [
+              html.text("name"),
+            ]),
+            html.dd([], [html.text(user.name)]),
+          ]),
+          ui.link(
+            [
+              attribute.href("/account/edit/name"),
+              attribute.class("my-auto text-sm"),
+            ],
+            [html.text("edit")],
+          ),
+        ],
+      ),
+    ]),
+
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [
+          html.text("security"),
+        ],
+      ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+          ),
+        ],
+        [
+          html.dl([attribute.class("space-y-1")], [
+            html.dt([attribute.class("text-outline text-sm")], [
+              html.text("password"),
+            ]),
+            html.dd([], [html.text("***********")]),
+          ]),
+          ui.link(
+            [
+              attribute.href("/account/edit/name"),
+              attribute.class("my-auto text-sm"),
+            ],
+            [html.text("edit")],
+          ),
+        ],
+      ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+          ),
+        ],
+        [
+          html.div([attribute.class("space-y-1")], [
+            html.p([attribute.class("text-outline text-sm")], [
+              html.text("session"),
+            ]),
+            html.p([attribute.class("text-balance")], [
+              html.text("sign out from this current device."),
+            ]),
+          ]),
           ui.button(
             ui.ButtonPrimary,
             [
               attribute.attribute("hx-post", "/sign-out"),
               attribute.attribute("hx-disable", "this"),
+              attribute.class("my-auto"),
             ],
             [
               html.text("sign out"),
               ui.spinner(),
             ],
           ),
-        ]),
-        html.li([], [
+        ],
+      ),
+    ]),
+
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [
+          html.text("danger zone"),
+        ],
+      ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+          ),
+        ],
+        [
+          html.div([attribute.class("space-y-1")], [
+            html.p([attribute.class("text-outline text-sm")], [
+              html.text("remove account"),
+            ]),
+            html.p([], [
+              html.text("remove your account from all of our servers."),
+            ]),
+          ]),
           ui.button(
             ui.ButtonDestroy,
             [
               attribute.attribute("hx-post", "/delete-account"),
               attribute.attribute("hx-disable", "this"),
+              attribute.class("my-auto"),
             ],
             [
               html.text("delete account"),
               ui.spinner(),
             ],
           ),
-        ]),
-      ],
-    ),
+        ],
+      ),
+    ]),
   ])
 }
