@@ -169,11 +169,11 @@ fn button_classes(variant: ButtonVariant) -> String {
     "items-center font-semibold justify-center gap-1.5 py-2 px-4 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
   let variant_classes = case variant {
     ButtonPrimary ->
-      "bg-on-surface text-surface hover:bg-on-surface/90 focus-visible:ring-on-surface focus-visible:ring-offset-surface"
+      "bg-on-surface text-surface hover:bg-on-surface/80 focus-visible:ring-on-surface focus-visible:ring-offset-surface"
     ButtonLink ->
       "underline font-normal hover:text-current/80 focus-visible:ring-on-surface p-0"
     ButtonDestroy ->
-      "bg-error text-on-error focus-visible:ring-error hover:bg-error/90 focus-visible:ring-offset-surface"
+      "bg-error text-on-error focus-visible:ring-error hover:bg-error/80 focus-visible:ring-offset-surface"
   }
   shared <> " " <> variant_classes
 }

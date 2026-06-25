@@ -110,6 +110,35 @@ fn account_details(user: User) -> Element(a) {
           ),
         ],
       ),
+      html.div(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+          ),
+        ],
+        [
+          html.dl([attribute.class("space-y-1")], [
+            html.dt([attribute.class("text-outline text-sm")], [
+              html.text("your data"),
+            ]),
+            html.dd([attribute.class("break-all")], [
+              html.text("download your data"),
+            ]),
+          ]),
+          ui.button(
+            ui.ButtonPrimary,
+            [
+              attribute.attribute("hx-post", "#"),
+              attribute.attribute("hx-disable", "this"),
+              attribute.class("my-auto"),
+            ],
+            [
+              html.text("download"),
+              ui.spinner(),
+            ],
+          ),
+        ],
+      ),
     ]),
 
     html.section([], [
