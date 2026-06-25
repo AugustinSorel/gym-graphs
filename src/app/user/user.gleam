@@ -70,7 +70,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
           ),
         ],
         [
@@ -85,7 +85,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
           ),
         ],
         [
@@ -120,7 +120,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
           ),
         ],
         [
@@ -142,7 +142,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
           ),
         ],
         [
@@ -184,7 +184,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
           ),
         ],
         [
