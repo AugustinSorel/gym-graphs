@@ -21,7 +21,9 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
     ui.nav_bar(req),
     html.main(
       [
-        attribute.class(" flex flex-col p-10 gap-20 max-w-3xl mx-auto m-20"),
+        attribute.class(
+          " flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
+        ),
       ],
       [children],
     ),

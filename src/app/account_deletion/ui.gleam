@@ -119,7 +119,11 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
         attribute.value(email_address),
       ]),
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("verify your password"),
@@ -212,7 +216,11 @@ pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
     ],
     [
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("confirm"),

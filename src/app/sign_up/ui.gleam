@@ -150,7 +150,11 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
     ],
     [
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("sign up form"),
@@ -244,7 +248,11 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
     ],
     [
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("verify email address"),
@@ -379,7 +387,11 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
         attribute.value(email_address),
       ]),
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("set password"),

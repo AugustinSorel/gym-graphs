@@ -148,7 +148,11 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
     ],
     [
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("reset password"),
@@ -238,7 +242,11 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
     ],
     [
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("verify email address"),
@@ -350,7 +358,11 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
         attribute.value(email_address),
       ]),
       html.fieldset(
-        [attribute.class("border-2 border-current flex flex-col p-10 gap-10")],
+        [
+          attribute.class(
+            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+          ),
+        ],
         [
           html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
             html.text("set new password"),
