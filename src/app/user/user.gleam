@@ -32,8 +32,8 @@ fn account_page(children: Element(a), req: Request) -> Element(a) {
 
 fn account_details(user: User) -> Element(a) {
   element.fragment([
-    html.section([attribute.class("space-y-1")], [
-      html.div(
+    html.header([attribute.class("space-y-1")], [
+      html.span(
         [
           attribute.class(
             "uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2",
@@ -44,7 +44,7 @@ fn account_details(user: User) -> Element(a) {
           html.text(string.slice(from: user.name, at_index: 0, length: 2)),
         ],
       ),
-      html.h2(
+      html.h1(
         [
           attribute.class("capitalize font-semibold text-3xl truncate"),
         ],
