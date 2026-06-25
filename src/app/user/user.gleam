@@ -46,13 +46,13 @@ fn account_details(user: User) -> Element(a) {
       ),
       html.h1(
         [
-          attribute.class("capitalize font-semibold text-3xl truncate"),
+          attribute.class("capitalize font-semibold text-3xl break-all"),
         ],
         [html.text(user.name)],
       ),
       html.p(
         [
-          attribute.class("text-sm text-outline truncate"),
+          attribute.class("text-sm text-outline break-all"),
         ],
         [html.text(user.email)],
       ),
@@ -80,14 +80,16 @@ fn account_details(user: User) -> Element(a) {
             html.dt([attribute.class("text-outline text-sm")], [
               html.text("email"),
             ]),
-            html.dd([], [html.text(user.email)]),
+            html.dd([attribute.class("break-all")], [
+              html.text(user.email),
+            ]),
           ]),
         ],
       ),
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
           ),
         ],
         [
@@ -95,7 +97,9 @@ fn account_details(user: User) -> Element(a) {
             html.dt([attribute.class("text-outline text-sm")], [
               html.text("name"),
             ]),
-            html.dd([], [html.text(user.name)]),
+            html.dd([attribute.class("capitalize break-all")], [
+              html.text(user.name),
+            ]),
           ]),
           ui.link(
             [
@@ -122,7 +126,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
           ),
         ],
         [
@@ -130,7 +134,7 @@ fn account_details(user: User) -> Element(a) {
             html.dt([attribute.class("text-outline text-sm")], [
               html.text("password"),
             ]),
-            html.dd([], [html.text("***********")]),
+            html.dd([attribute.class("break-all")], [html.text("***********")]),
           ]),
           ui.link(
             [
@@ -144,7 +148,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
+            "grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
           ),
         ],
         [
@@ -186,7 +190,7 @@ fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
+            "grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
           ),
         ],
         [
