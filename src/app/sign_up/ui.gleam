@@ -147,71 +147,58 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
       attribute.attribute("hx-post", "/sign-up"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
     ],
     [
-      html.fieldset(
+      html.label(
         [
-          attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
-          ),
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("sign up form"),
+          html.text("email:"),
+          ui.input([
+            attribute.id("email_input"),
+            attribute.type_("email"),
+            attribute.placeholder("hello@google.com"),
+            attribute.name("email"),
+            attribute.value(form.field_value(form, "email")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(email_err))),
+            ),
           ]),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("email:"),
-              ui.input([
-                attribute.id("email_input"),
-                attribute.type_("email"),
-                attribute.placeholder("hello@google.com"),
-                attribute.name("email"),
-                attribute.value(form.field_value(form, "email")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(email_err))),
-                ),
-              ]),
-              case email_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-
-          case root_err {
-            Ok(msg) -> {
-              ui.alert([
-                ui.alert_title(element.text("something went wrong")),
-                ui.alert_description(element.text(msg)),
-              ])
-            }
+          case email_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
             Error(_) -> element.none()
           },
-
-          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-            html.text("continue"),
-            ui.spinner(),
-          ]),
-
-          html.p([attribute.class("text-right text-sm")], [
-            element.text("already have an account? "),
-            ui.link([attribute.href("/sign-in")], [element.text("sign in")]),
-          ]),
         ],
       ),
+
+      case root_err {
+        Ok(msg) -> {
+          ui.alert([
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        }
+        Error(_) -> element.none()
+      },
+
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("continue"),
+        ui.spinner(),
+      ]),
+
+      html.p([attribute.class("text-right text-sm")], [
+        element.text("already have an account? "),
+        ui.link([attribute.href("/sign-in")], [element.text("sign in")]),
+      ]),
     ],
   )
 }
@@ -245,106 +232,93 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
       attribute.attribute("hx-post", "/sign-up/verify-email-address"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
     ],
     [
-      html.fieldset(
+      html.label(
         [
-          attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
-          ),
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("verify email address"),
+          html.text("verification code:"),
+          ui.input([
+            attribute.id("code_input"),
+            attribute.type_("text"),
+            attribute.attribute("inputmode", "numeric"),
+            attribute.placeholder("12345678"),
+            attribute.name("code"),
+            attribute.value(form.field_value(form, "code")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(code_err))),
+            ),
           ]),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("verification code:"),
-              ui.input([
-                attribute.id("code_input"),
-                attribute.type_("text"),
-                attribute.attribute("inputmode", "numeric"),
-                attribute.placeholder("12345678"),
-                attribute.name("code"),
-                attribute.value(form.field_value(form, "code")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(code_err))),
-                ),
-              ]),
-              case code_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-
-          case root_err {
-            Ok(msg) -> {
-              ui.alert([
-                ui.alert_title(element.text("something went wrong")),
-                ui.alert_description(element.text(msg)),
-              ])
-            }
+          case code_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
             Error(_) -> element.none()
           },
-
-          case string.is_empty(success_msg) {
-            False -> {
-              ui.alert_variant(ui.AlertSuccess, [
-                ui.alert_title(element.text("verification code sent")),
-                ui.alert_description(element.text(success_msg)),
-              ])
-            }
-            True -> element.none()
-          },
-
-          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-            html.text("verify"),
-            ui.spinner(),
-          ]),
-          html.div([attribute.class("flex justify-between")], [
-            ui.button(
-              ui.ButtonLink,
-              [
-                attribute.type_("button"),
-                attribute.attribute(
-                  "hx-post",
-                  "/sign-up/verify-email-address/resend",
-                ),
-                attribute.attribute("hx-disable", "this"),
-                attribute.attribute("hx-target", "closest form"),
-                attribute.attribute("hx-swap", "outerHTML"),
-              ],
-              [html.text("resend verification code"), ui.spinner()],
-            ),
-            ui.button(
-              ui.ButtonLink,
-              [
-                attribute.type_("button"),
-                attribute.attribute(
-                  "hx-post",
-                  "/sign-up/verify-email-address/cancel",
-                ),
-                attribute.attribute("hx-disable", "this"),
-                attribute.class("ml-auto"),
-              ],
-              [html.text("cancel"), ui.spinner()],
-            ),
-          ]),
         ],
       ),
+
+      case root_err {
+        Ok(msg) -> {
+          ui.alert([
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        }
+        Error(_) -> element.none()
+      },
+
+      case string.is_empty(success_msg) {
+        False -> {
+          ui.alert_variant(ui.AlertSuccess, [
+            ui.alert_title(element.text("verification code sent")),
+            ui.alert_description(element.text(success_msg)),
+          ])
+        }
+        True -> element.none()
+      },
+
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("verify"),
+        ui.spinner(),
+      ]),
+      html.div([attribute.class("flex justify-between")], [
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute(
+              "hx-post",
+              "/sign-up/verify-email-address/resend",
+            ),
+            attribute.attribute("hx-disable", "this"),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
+          ],
+          [html.text("resend verification code"), ui.spinner()],
+        ),
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute(
+              "hx-post",
+              "/sign-up/verify-email-address/cancel",
+            ),
+            attribute.attribute("hx-disable", "this"),
+            attribute.class("ml-auto"),
+          ],
+          [html.text("cancel"), ui.spinner()],
+        ),
+      ]),
     ],
   )
 }
@@ -385,77 +359,61 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
         attribute.name("username"),
         attribute.attribute("autocomplete", "username"),
         attribute.value(email_address),
+        attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
       ]),
-      html.fieldset(
+      html.label(
         [
-          attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
-          ),
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("set password"),
+          html.text("password:"),
+          ui.input([
+            attribute.id("password_input"),
+            attribute.type_("password"),
+            attribute.name("password"),
+            attribute.placeholder("********"),
+            attribute.value(form.field_value(form, "password")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(password_err))),
+            ),
           ]),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("password:"),
-              ui.input([
-                attribute.id("password_input"),
-                attribute.type_("password"),
-                attribute.name("password"),
-                attribute.placeholder("********"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-
-          case root_err {
+          case password_err {
             Ok(msg) ->
-              ui.alert([
-                ui.alert_title(element.text("something went wrong")),
-                ui.alert_description(element.text(msg)),
-              ])
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
             Error(_) -> element.none()
           },
-
-          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-            html.text("set password"),
-            ui.spinner(),
-          ]),
-
-          ui.button(
-            ui.ButtonLink,
-            [
-              attribute.type_("button"),
-              attribute.attribute(
-                "hx-post",
-                "/sign-up/verify-email-address/cancel",
-              ),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("ml-auto"),
-            ],
-            [html.text("cancel"), ui.spinner()],
-          ),
         ],
+      ),
+
+      case root_err {
+        Ok(msg) ->
+          ui.alert([
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("set password"),
+        ui.spinner(),
+      ]),
+
+      ui.button(
+        ui.ButtonLink,
+        [
+          attribute.type_("button"),
+          attribute.attribute("hx-post", "/sign-up/verify-email-address/cancel"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("ml-auto"),
+        ],
+        [html.text("cancel"), ui.spinner()],
       ),
     ],
   )

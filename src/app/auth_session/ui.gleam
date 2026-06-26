@@ -122,113 +122,98 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
       attribute.attribute("hx-post", "/sign-in"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
     ],
     [
-      html.fieldset(
+      html.label(
+        [
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
+        ],
+        [
+          html.text("email:"),
+          ui.input([
+            attribute.id("email_input"),
+            attribute.type_("email"),
+            attribute.placeholder("hello@google.com"),
+            attribute.name("email"),
+            attribute.value(form.field_value(form, "email")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(email_err))),
+            ),
+          ]),
+          case email_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      html.label(
+        [
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
+        ],
+        [
+          html.text("password:"),
+          ui.input([
+            attribute.id("password_input"),
+            attribute.type_("password"),
+            attribute.placeholder("********"),
+            attribute.name("password"),
+            attribute.value(form.field_value(form, "password")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(password_err))),
+            ),
+          ]),
+          case password_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      case root_err {
+        Ok(msg) ->
+          ui.alert([
+            ui.alert_title(element.text("sign in failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("sign in"),
+        ui.spinner(),
+      ]),
+
+      html.div(
         [
           attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
+            "flex flex-col text-right text-sm lg:flex-row lg:justify-between gap-1",
           ),
         ],
         [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("sign in"),
+          ui.link(
+            [
+              attribute.href("/reset-password"),
+              attribute.class(""),
+            ],
+            [element.text("forgot password?")],
+          ),
+          html.p([attribute.class("")], [
+            element.text("don't have an account? "),
+            ui.link([attribute.href("/sign-up")], [element.text("sign up")]),
           ]),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("email:"),
-              ui.input([
-                attribute.id("email_input"),
-                attribute.type_("email"),
-                attribute.placeholder("hello@google.com"),
-                attribute.name("email"),
-                attribute.value(form.field_value(form, "email")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(email_err))),
-                ),
-              ]),
-              case email_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("password:"),
-              ui.input([
-                attribute.id("password_input"),
-                attribute.type_("password"),
-                attribute.placeholder("********"),
-                attribute.name("password"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-          case root_err {
-            Ok(msg) ->
-              ui.alert([
-                ui.alert_title(element.text("sign in failed")),
-                ui.alert_description(element.text(msg)),
-              ])
-            Error(_) -> element.none()
-          },
-          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-            html.text("sign in"),
-            ui.spinner(),
-          ]),
-
-          html.div(
-            [
-              attribute.class(
-                "flex flex-col text-right text-sm lg:flex-row lg:justify-between gap-1",
-              ),
-            ],
-            [
-              ui.link(
-                [
-                  attribute.href("/reset-password"),
-                  attribute.class(""),
-                ],
-                [element.text("forgot password?")],
-              ),
-              html.p([attribute.class("")], [
-                element.text("don't have an account? "),
-                ui.link([attribute.href("/sign-up")], [element.text("sign up")]),
-              ]),
-            ],
-          ),
         ],
       ),
     ],

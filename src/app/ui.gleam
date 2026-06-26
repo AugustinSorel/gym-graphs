@@ -235,7 +235,7 @@ pub fn input(attrs: List(Attribute(a))) -> Element(a) {
   html.input(list.append(
     [
       attribute.class(
-        "border-b-2 border-current outline-none focus-visible:shadow-[0_2px_0_0_currentColor] disabled:opacity-50 disabled:cursor-not-allowed",
+        "border-b-2 py-1 border-current outline-none focus-visible:shadow-[0_2px_0_0_currentColor] disabled:opacity-50 disabled:cursor-not-allowed",
       ),
     ],
     attrs,

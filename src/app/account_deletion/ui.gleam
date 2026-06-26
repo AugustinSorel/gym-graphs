@@ -117,76 +117,63 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
         attribute.name("username"),
         attribute.attribute("autocomplete", "username"),
         attribute.value(email_address),
+        attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
       ]),
-      html.fieldset(
+      html.label(
         [
-          attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
-          ),
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("verify your password"),
-          ]),
-          html.label(
-            [
-              attribute.class(
-                "grid gap-1 has-[>[aria-invalid=true]]:text-error",
-              ),
-            ],
-            [
-              html.text("password:"),
-              ui.input([
-                attribute.type_("password"),
-                attribute.name("password"),
-                attribute.placeholder("********"),
-                attribute.value(form.field_value(form, "password")),
-                attribute.attribute("autocomplete", "new-password"),
-                attribute.aria_invalid(
-                  string.lowercase(bool.to_string(result.is_ok(password_err))),
-                ),
-              ]),
-              case password_err {
-                Ok(msg) ->
-                  html.p(
-                    [
-                      attribute.role("alert"),
-                      attribute.class("text-error text-sm"),
-                    ],
-                    [html.text(msg)],
-                  )
-                Error(_) -> element.none()
-              },
-            ],
-          ),
-
-          case root_err {
-            Ok(msg) ->
-              ui.alert([
-                ui.alert_title(element.text("something went wrong")),
-                ui.alert_description(element.text(msg)),
-              ])
-            Error(_) -> element.none()
-          },
-
-          ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-            html.text("continue"),
-            ui.spinner(),
-          ]),
-
-          html.div([attribute.class("flex justify-end")], [
-            ui.button(
-              ui.ButtonLink,
-              [
-                attribute.type_("button"),
-                attribute.attribute("hx-post", "/delete-account/cancel"),
-                attribute.attribute("hx-disable", "this"),
-              ],
-              [html.text("cancel"), ui.spinner()],
+          html.text("password:"),
+          ui.input([
+            attribute.type_("password"),
+            attribute.name("password"),
+            attribute.placeholder("********"),
+            attribute.value(form.field_value(form, "password")),
+            attribute.attribute("autocomplete", "new-password"),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(password_err))),
             ),
           ]),
+          case password_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
         ],
       ),
+
+      case root_err {
+        Ok(msg) ->
+          ui.alert([
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("continue"),
+        ui.spinner(),
+      ]),
+
+      html.div([attribute.class("flex justify-end")], [
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute("hx-post", "/delete-account/cancel"),
+            attribute.attribute("hx-disable", "this"),
+          ],
+          [html.text("cancel"), ui.spinner()],
+        ),
+      ]),
     ],
   )
 }
@@ -213,51 +200,39 @@ pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
       attribute.attribute("hx-post", "/delete-account/confirm"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
     ],
     [
-      html.fieldset(
+      html.p([attribute.class("text-center")], [
+        html.text(
+          "Are you sure you want to permanently delete your account? This action cannot be undone.",
+        ),
+      ]),
+
+      ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
+        html.text("yes, delete my account"),
+        ui.spinner(),
+      ]),
+
+      case root_err {
+        Ok(msg) -> {
+          ui.alert([
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        }
+        Error(_) -> element.none()
+      },
+
+      ui.button(
+        ui.ButtonLink,
         [
-          attribute.class(
-            "border-2 border-current flex flex-col py-10 px-5 lg:px-10 gap-10",
-          ),
+          attribute.type_("button"),
+          attribute.attribute("hx-post", "/delete-account/cancel"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("ml-auto"),
         ],
-        [
-          html.legend([attribute.class("text-sm border-2 px-4 py-1")], [
-            html.text("confirm"),
-          ]),
-
-          html.p([attribute.class("text-center")], [
-            html.text(
-              "Are you sure you want to permanently delete your account? This action cannot be undone.",
-            ),
-          ]),
-
-          ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
-            html.text("yes, delete my account"),
-            ui.spinner(),
-          ]),
-
-          case root_err {
-            Ok(msg) -> {
-              ui.alert([
-                ui.alert_title(element.text("something went wrong")),
-                ui.alert_description(element.text(msg)),
-              ])
-            }
-            Error(_) -> element.none()
-          },
-
-          ui.button(
-            ui.ButtonLink,
-            [
-              attribute.type_("button"),
-              attribute.attribute("hx-post", "/delete-account/cancel"),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("ml-auto"),
-            ],
-            [html.text("cancel"), ui.spinner()],
-          ),
-        ],
+        [html.text("cancel"), ui.spinner()],
       ),
     ],
   )
