@@ -225,9 +225,6 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
       attribute.attribute("hx-swap", "outerHTML"),
     ],
     [
-      html.p([attribute.class("text-sm")], [
-        html.text("Check your inbox, we sent an 8-digit code."),
-      ]),
       html.label(
         [
           attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
