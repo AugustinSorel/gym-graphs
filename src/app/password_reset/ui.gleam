@@ -146,6 +146,7 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
     ],
     [
       html.label(
@@ -227,6 +228,7 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
     ],
     [
       html.p([attribute.class("text-sm")], [
@@ -323,6 +325,8 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
       attribute.attribute("hx-post", "/reset-password/set-new-password"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
     ],
     [
       html.input([
@@ -330,7 +334,6 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
         attribute.name("username"),
         attribute.attribute("autocomplete", "username"),
         attribute.value(email_address),
-        attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
       ]),
       html.label(
         [

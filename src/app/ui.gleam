@@ -21,7 +21,7 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
       ]),
       html.script(
         [
-          attribute.src("https://cdn.jsdelivr.net/npm/htmx.org@4.0.0-beta4"),
+          attribute.src("https://cdn.jsdelivr.net/npm/htmx.org@4.0.0-beta5"),
         ],
         "",
       ),

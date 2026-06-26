@@ -110,6 +110,8 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
       attribute.attribute("hx-post", "/delete-account/verify-password"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
     ],
     [
       html.input([
@@ -117,7 +119,6 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
         attribute.name("username"),
         attribute.attribute("autocomplete", "username"),
         attribute.value(email_address),
-        attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
       ]),
       html.label(
         [
@@ -201,6 +202,7 @@ pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
     ],
     [
       html.p([attribute.class("text-center")], [
