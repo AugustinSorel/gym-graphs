@@ -2312,6 +2312,579 @@
 
 
   <!-- ══════════════════════════════════════════════════════════════
+       EDIT NAME — 5 VARIANTS
+  ══════════════════════════════════════════════════════════════ -->
+
+  <style>
+
+    /* ── shared edit-name page shell ────────────────────────────── */
+    .en-page {
+      width: 100%;
+      height: 580px;
+      border: 2px solid var(--fg);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      font-size: 0.875rem;
+    }
+
+    /* topbar — identical to account shell */
+    .en-topbar {
+      border-bottom: 2px solid var(--fg);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 3.5rem;
+      flex-shrink: 0;
+      background: var(--grey);
+    }
+    .en-topbar-back {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: inherit;
+      text-decoration: underline;
+      font-family: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .en-topbar-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      text-align: center;
+      opacity: 0.5;
+    }
+    .en-topbar-brand {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* centred content area */
+    .en-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      gap: 2.5rem;
+    }
+
+    /* flush left content area */
+    .en-body-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 2.5rem;
+      gap: 2rem;
+    }
+
+    /* split layout */
+    .en-split {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      height: 100%;
+    }
+    .en-split-divider { background: var(--fg); }
+
+    /* shared form box */
+    .en-form-box {
+      width: 100%;
+      max-width: 380px;
+      border: 2px solid var(--fg);
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+    }
+    .en-form-box legend {
+      position: absolute;
+      top: -0.85em;
+      left: 1rem;
+      font-size: 0.75rem;
+      background: var(--bg);
+      border: 2px solid var(--fg);
+      padding: 0.1rem 0.75rem;
+    }
+
+    /* field */
+    .en-field { display: grid; gap: 0.3rem; }
+    .en-field label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.45;
+    }
+    .en-field input {
+      border: none;
+      border-bottom: 2px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      font-size: 0.9rem;
+      padding: 0.3rem 0;
+      outline: none;
+      font-family: inherit;
+      width: 100%;
+    }
+    .en-field input:focus { box-shadow: 0 2px 0 0 var(--fg); }
+    .en-field-hint {
+      font-size: 0.6rem;
+      opacity: 0.35;
+      letter-spacing: 0.06em;
+      margin-top: 0.15rem;
+    }
+
+    /* buttons */
+    .en-btn {
+      background: var(--fg);
+      color: var(--bg);
+      border: none;
+      padding: 0.45rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .en-btn-ghost {
+      background: transparent;
+      color: var(--fg);
+      border: 2px solid var(--fg);
+    }
+    .en-btn-full { width: 100%; }
+    .en-btn-link {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.75rem;
+      color: var(--fg);
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.5;
+    }
+
+    /* inline char counter */
+    .en-char-counter {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.3;
+      text-align: right;
+    }
+
+    /* current value display */
+    .en-current {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.35;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .en-current strong {
+      font-weight: 700;
+      opacity: 1;
+      color: var(--fg);
+    }
+
+    /* big inline editable name */
+    .en-giant-input {
+      font-size: 3.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      border: none;
+      border-bottom: 3px solid var(--fg);
+      background: transparent;
+      color: var(--fg);
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      padding: 0.1rem 0;
+    }
+    .en-giant-input::placeholder { opacity: 0.2; }
+
+    /* success state */
+    .en-success-banner {
+      background: var(--fg);
+      color: var(--bg);
+      padding: 0.6rem 1.25rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .en-success-banner::before {
+      content: '✓';
+      font-size: 0.8rem;
+    }
+
+    /* left panel for split variant */
+    .en-left-panel {
+      background: var(--fg);
+      color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem;
+      overflow: hidden;
+    }
+    .en-left-id {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.45;
+    }
+    .en-left-context {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .en-left-field-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.4;
+    }
+    .en-left-current-name {
+      font-size: 3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      word-break: break-word;
+    }
+    .en-left-foot {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.3;
+      border-top: 1px solid currentColor;
+      padding-top: 1rem;
+    }
+
+    /* right panel for split variant */
+    .en-right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2.5rem;
+      gap: 2rem;
+    }
+
+    /* step breadcrumb */
+    .en-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.35;
+    }
+    .en-breadcrumb-sep { opacity: 0.4; }
+    .en-breadcrumb-current { opacity: 1; font-weight: 700; }
+
+    /* inline edit with confirm/cancel buttons */
+    .en-inline-edit-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: end;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+  </style>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       EDIT NAME — VARIANT 1
+       Centred minimal form — fieldset card, current value shown
+       above the input, save + cancel.
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">edit name — variant 1 · centred fieldset</p>
+    <div class="en-page">
+
+      <div class="en-topbar">
+        <a class="en-topbar-back" href="#">← account</a>
+        <span class="en-topbar-title">edit name</span>
+        <span class="en-topbar-brand">gym graphs</span>
+      </div>
+
+      <div class="en-body">
+
+        <form class="en-form-box">
+          <legend>display name</legend>
+
+          <div class="en-current">
+            current:&nbsp;<strong>augustin</strong>
+          </div>
+
+          <div class="en-field">
+            <label for="en1-name">new name</label>
+            <input id="en1-name" type="text" value="augustin" autocomplete="off" />
+            <div class="en-field-hint">max 32 characters · shown on your profile</div>
+          </div>
+
+          <div style="display:flex;gap:0.75rem;align-items:center;">
+            <button class="en-btn en-btn-full" type="submit">save</button>
+            <a class="en-btn-link" href="#">cancel</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       EDIT NAME — VARIANT 2
+       Split layout — left panel shows the current name large
+       and inverted; right panel has the edit form.
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">edit name — variant 2 · split panel</p>
+    <div class="en-page">
+
+      <div class="en-topbar">
+        <a class="en-topbar-back" href="#">← account</a>
+        <span class="en-topbar-title">edit name</span>
+        <span class="en-topbar-brand">gym graphs</span>
+      </div>
+
+      <div class="en-split">
+
+        <!-- left: current name, inverted -->
+        <div class="en-left-panel">
+          <span class="en-left-id">gym graphs</span>
+          <div class="en-left-context">
+            <div class="en-left-field-label">current name</div>
+            <div class="en-left-current-name">augus-<br>tin</div>
+          </div>
+          <div class="en-left-foot">member since jan 2026 · 47 sessions</div>
+        </div>
+
+        <div class="en-split-divider"></div>
+
+        <!-- right: form -->
+        <div class="en-right-panel">
+          <form class="en-form-box">
+            <legend>edit name</legend>
+
+            <div class="en-field">
+              <label for="en2-name">display name</label>
+              <input id="en2-name" type="text" value="augustin" autocomplete="off" />
+              <div class="en-field-hint">max 32 characters</div>
+            </div>
+
+            <button class="en-btn en-btn-full" type="submit">save name</button>
+            <a class="en-btn-link" href="#" style="text-align:center;">cancel</a>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       EDIT NAME — VARIANT 3
+       Giant inline input — the name itself is the input.
+       No fieldset wrapper. Raw typographic focus.
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">edit name — variant 3 · giant inline input</p>
+    <div class="en-page">
+
+      <div class="en-topbar">
+        <a class="en-topbar-back" href="#">← account</a>
+        <span class="en-topbar-title">edit name</span>
+        <span class="en-topbar-brand">gym graphs</span>
+      </div>
+
+      <div class="en-body" style="align-items:flex-start;padding:3.5rem 3rem;gap:3rem;justify-content:flex-start;">
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;width:100%;">
+          <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;opacity:0.35;">display name</div>
+          <input
+            class="en-giant-input"
+            type="text"
+            value="augustin"
+            autocomplete="off"
+            maxlength="32"
+          />
+          <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+            <div class="en-field-hint">press save or hit enter to confirm</div>
+            <div class="en-char-counter">8 / 32</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <button class="en-btn" type="submit">save name</button>
+          <button class="en-btn-ghost en-btn" type="button">discard</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       EDIT NAME — VARIANT 4
+       Inline edit on the account page — no dedicated route.
+       The name row expands in place with confirm / cancel.
+       Shows success state after save.
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">edit name — variant 4 · inline row edit (with success state)</p>
+    <div class="en-page">
+
+      <div class="en-topbar">
+        <a class="en-topbar-back" href="#">← account</a>
+        <span class="en-topbar-title">account</span>
+        <span class="en-topbar-brand">gym graphs</span>
+      </div>
+
+      <div class="en-body-left" style="gap:0;padding:0;max-width:560px;margin:0 auto;width:100%;">
+
+        <!-- success banner -->
+        <div class="en-success-banner" style="width:100%;border-bottom:2px solid var(--fg);">
+          name updated successfully
+        </div>
+
+        <!-- identity row — locked -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;">
+              workout beast<!-- updated name -->
+            </div>
+            <div style="font-size:0.65rem;opacity:0.4;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.15rem;">augustin@example.com</div>
+          </div>
+          <span style="font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;border:1px solid var(--fg);padding:0.1rem 0.4rem;background:var(--fg);color:var(--bg);">saved</span>
+        </div>
+
+        <!-- name row — currently editing -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);background:var(--grey);">
+          <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;opacity:0.35;margin-bottom:0.75rem;">display name</div>
+          <div class="en-inline-edit-row">
+            <div class="en-field">
+              <input type="text" value="workout beast" autocomplete="off" style="font-size:1rem;font-weight:700;" />
+            </div>
+            <button class="en-btn" type="submit" style="white-space:nowrap;">save</button>
+            <a class="en-btn-link" href="#" style="white-space:nowrap;">cancel</a>
+          </div>
+        </div>
+
+        <!-- email row — static -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;opacity:0.35;margin-bottom:0.25rem;">email address</div>
+            <div style="font-size:0.875rem;font-weight:600;">augustin@example.com</div>
+          </div>
+          <a class="en-btn-link" href="#">edit</a>
+        </div>
+
+        <!-- password row — static -->
+        <div style="padding:1.5rem 2rem;border-bottom:2px solid var(--fg);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;opacity:0.35;margin-bottom:0.25rem;">password</div>
+            <div style="font-size:0.875rem;font-weight:600;letter-spacing:0.1em;">••••••••</div>
+          </div>
+          <a class="en-btn-link" href="#">edit</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ──────────────────────────────────────────────────────────
+       EDIT NAME — VARIANT 5
+       Dedicated page, step-framed — breadcrumb, validation
+       error state, character counter, save disabled until
+       the value changes.
+  ─────────────────────────────────────────────────────────── -->
+  <div class="option">
+    <p class="option-label">edit name — variant 5 · validation + error state</p>
+    <div class="en-page">
+
+      <div class="en-topbar">
+        <a class="en-topbar-back" href="#">← account</a>
+        <span class="en-topbar-title">edit name</span>
+        <span class="en-topbar-brand">gym graphs</span>
+      </div>
+
+      <div class="en-body">
+
+        <!-- breadcrumb -->
+        <div class="en-breadcrumb" style="align-self:flex-start;margin-bottom:-1rem;">
+          <span>account</span>
+          <span class="en-breadcrumb-sep">/</span>
+          <span class="en-breadcrumb-current">edit name</span>
+        </div>
+
+        <form class="en-form-box" style="max-width:420px;">
+          <legend>display name</legend>
+
+          <div class="en-field">
+            <label for="en5-name">new name</label>
+            <!-- error state: border doubled, value invalid -->
+            <input
+              id="en5-name"
+              type="text"
+              value="a!"
+              autocomplete="off"
+              aria-invalid="true"
+              style="box-shadow:0 2px 0 0 var(--error);border-bottom-color:var(--error);color:var(--error);"
+            />
+            <!-- inline error -->
+            <p role="alert" style="font-size:0.65rem;color:var(--error);margin-top:0.3rem;letter-spacing:0.04em;">
+              name must be at least 2 characters and contain only letters, numbers, spaces, hyphens, or underscores.
+            </p>
+            <div style="display:flex;justify-content:flex-end;margin-top:0.2rem;">
+              <div class="en-char-counter" style="color:var(--error);opacity:1;">2 / 32</div>
+            </div>
+          </div>
+
+          <!-- disabled save — value hasn't changed or is invalid -->
+          <button
+            class="en-btn en-btn-full"
+            type="submit"
+            disabled
+            style="opacity:0.3;cursor:not-allowed;"
+          >save name</button>
+
+          <a class="en-btn-link" href="#" style="text-align:center;">cancel — keep augustin</a>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
        ACCOUNT PAGE — 5 VARIANTS
   ══════════════════════════════════════════════════════════════ -->
 

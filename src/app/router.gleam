@@ -6,7 +6,7 @@ import app/sign_up/sign_up
 import app/ui
 import app/user/user
 import app/web
-import gleam/http.{Get, Post}
+import gleam/http.{Get, Patch, Post}
 import lustre/element/html
 import wisp.{type Request, type Response}
 
@@ -34,6 +34,14 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["account"] -> {
       use <- wisp.require_method(req, Get)
       user.view_account_page(req, ctx)
+    }
+
+    ["account", "name"] -> {
+      case req.method {
+        Get -> user.view_edit_name_page(req, ctx)
+        Patch -> user.update_name(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
     }
 
     ["sign-up"] -> {

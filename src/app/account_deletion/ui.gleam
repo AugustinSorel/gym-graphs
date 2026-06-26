@@ -63,36 +63,30 @@ fn account_deletion_layout(
   children: Element(a),
 ) -> Element(a) {
   ui.layout([
-    html.main(
-      [attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-screen")],
-      [
-        html.section(
-          [
-            attribute.class(
-              "bg-surface-container-high hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center",
-            ),
-          ],
-          [
-            html.header([], [
-              html.span([attribute.class("text-sm uppercase")], [
-                html.text("gym graphs"),
-              ]),
+    html.main([attribute.class("grid lg:grid-cols-[1fr_auto_1fr] min-h-dvh")], [
+      html.section(
+        [
+          attribute.class(
+            "bg-surface-container-high hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center",
+          ),
+        ],
+        [
+          html.header([], [
+            html.span([attribute.class("text-sm uppercase")], [
+              html.text("gym graphs"),
             ]),
-            current_step_indication(current_step),
-          ],
-        ),
-        html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
-        html.section(
-          [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
-          [
-            html.h1([attribute.class("text-xl lg:text-5xl text-center")], [
-              html.text(heading),
-            ]),
-            children,
-          ],
-        ),
-      ],
-    ),
+          ]),
+          current_step_indication(current_step),
+        ],
+      ),
+      html.hr([attribute.class("bg-current w-1 h-full hidden lg:block")]),
+      html.section([attribute.class("max-w-xl w-full m-auto space-y-15 p-4")], [
+        html.h1([attribute.class("text-xl lg:text-5xl text-center")], [
+          html.text(heading),
+        ]),
+        children,
+      ]),
+    ]),
   ])
 }
 
