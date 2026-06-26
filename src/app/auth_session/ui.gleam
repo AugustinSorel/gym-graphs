@@ -46,7 +46,7 @@ pub fn sign_in_page(children: Element(a)) -> Element(a) {
         html.section(
           [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
           [
-            html.h1([attribute.class("text-5xl text-center")], [
+            html.h1([attribute.class("text-xl lg:text-5xl text-center")], [
               html.text("Welcome back"),
             ]),
             children,
@@ -212,7 +212,7 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
           html.div(
             [
               attribute.class(
-                "flex flex-col text-right text-sm lg:flex-row lg:justify-between",
+                "flex flex-col text-right text-sm lg:flex-row lg:justify-between gap-1",
               ),
             ],
             [

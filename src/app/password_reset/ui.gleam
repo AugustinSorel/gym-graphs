@@ -100,7 +100,7 @@ fn password_reset_layout(
         html.section(
           [attribute.class("max-w-xl w-full m-auto space-y-15 p-4")],
           [
-            html.h1([attribute.class("text-5xl text-center")], [
+            html.h1([attribute.class("text-xl lg:text-5xl text-center")], [
               html.text(heading),
             ]),
             children,
