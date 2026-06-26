@@ -2,6 +2,7 @@ import app/account_deletion/account_deletion
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/password_reset/password_reset
+import app/password_update/password_update
 import app/sign_up/sign_up
 import app/ui
 import app/user/user
@@ -140,6 +141,32 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     ["delete-account", "cancel"] -> {
       case req.method {
         Post -> account_deletion.cancel(req, ctx)
+        _ -> wisp.method_not_allowed([Post])
+      }
+    }
+    ["update-password"] -> {
+      case req.method {
+        Post -> password_update.start(req, ctx)
+        _ -> wisp.method_not_allowed([Post])
+      }
+    }
+    ["update-password", "verify-password"] -> {
+      case req.method {
+        Get -> password_update.view_verify_password_page(req, ctx)
+        Post -> password_update.verify_password(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+    ["update-password", "set-new-password"] -> {
+      case req.method {
+        Get -> password_update.view_set_new_password_page(req, ctx)
+        Post -> password_update.set_new_password(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+    ["update-password", "cancel"] -> {
+      case req.method {
+        Post -> password_update.cancel(req, ctx)
         _ -> wisp.method_not_allowed([Post])
       }
     }

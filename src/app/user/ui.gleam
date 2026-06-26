@@ -255,12 +255,14 @@ pub fn account_details(user: User) -> Element(a) {
             ]),
             html.dd([attribute.class("break-all")], [html.text("***********")]),
           ]),
-          ui.link(
+          ui.button(
+            ui.ButtonPrimary,
             [
-              attribute.href("/account/edit/name"),
+              attribute.attribute("hx-post", "/update-password"),
+              attribute.attribute("hx-disable", "this"),
               attribute.class("my-auto text-sm"),
             ],
-            [html.text("edit")],
+            [html.text("update"), ui.spinner()],
           ),
         ],
       ),
