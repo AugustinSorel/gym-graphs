@@ -18,9 +18,6 @@ pub fn edit_name_page(children: Element(a), req: Request) -> Element(a) {
         ),
       ],
       [
-        html.header([], [
-          ui.link([attribute.href("/account")], [html.text("<- back")]),
-        ]),
         children,
       ],
     ),
@@ -87,6 +84,9 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
         html.text("save"),
         ui.spinner(),
+      ]),
+      ui.link([attribute.href("/account"), attribute.class("ml-auto")], [
+        html.text("cancel"),
       ]),
     ],
   )
