@@ -146,7 +146,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -212,7 +212,7 @@ pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) -> {
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])

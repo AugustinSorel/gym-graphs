@@ -205,12 +205,9 @@ pub type AlertVariant {
   AlertSuccess
 }
 
-pub fn alert(children: List(Element(a))) -> Element(a) {
-  alert_variant(AlertError, children)
-}
-
-pub fn alert_variant(
+pub fn alert(
   variant: AlertVariant,
+  attrs: List(Attribute(a)),
   children: List(Element(a)),
 ) -> Element(a) {
   let classes = case variant {
@@ -218,7 +215,10 @@ pub fn alert_variant(
     AlertSuccess ->
       "bg-success-container border-2 border-success p-3 grid gap-1"
   }
-  html.div([attribute.role("alert"), attribute.class(classes)], children)
+  html.div(
+    list.append([attribute.role("alert"), attribute.class(classes)], attrs),
+    children,
+  )
 }
 
 pub fn alert_title(children: Element(a)) -> Element(a) {

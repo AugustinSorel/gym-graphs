@@ -180,7 +180,7 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
       ),
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("sign in failed")),
             ui.alert_description(element.text(msg)),
           ])

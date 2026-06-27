@@ -177,7 +177,7 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) -> {
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -264,7 +264,7 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) -> {
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -274,7 +274,7 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
 
       case string.is_empty(success_msg) {
         False -> {
-          ui.alert_variant(ui.AlertSuccess, [
+          ui.alert(ui.AlertSuccess, [], [
             ui.alert_title(element.text("verification code sent")),
             ui.alert_description(element.text(success_msg)),
           ])
@@ -390,7 +390,7 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])

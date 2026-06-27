@@ -174,7 +174,7 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
       ),
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -257,7 +257,7 @@ pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
       ),
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -359,7 +359,7 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
 
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
