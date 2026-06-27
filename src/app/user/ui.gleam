@@ -1,5 +1,6 @@
 import app/auth_session/auth_session.{type User}
 import app/ui
+import app/user/sql as user_sql
 import formal/form.{type Form}
 import gleam/list
 import gleam/string
@@ -75,7 +76,7 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
       ),
       case root_err {
         Ok(msg) ->
-          ui.alert([
+          ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
             ui.alert_description(element.text(msg)),
           ])
@@ -308,55 +309,14 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("preferences"),
         ],
       ),
-      html.div(
-        [
-          attribute.class(
-            "py-7 border-b-2 border-outline flex justify-between items-center",
-          ),
-        ],
-        [
-          html.p([attribute.class("text-outline text-sm")], [
-            html.text("weight unit"),
-          ]),
-          html.fieldset(
-            [attribute.class("flex border-2 border-on-surface w-fit")],
-            [
-              html.input([
-                attribute.type_("radio"),
-                attribute.name("weight_unit"),
-                attribute.value("kg"),
-                attribute.id("unit-kg"),
-                attribute.checked(True),
-                attribute.class("sr-only peer/kg"),
-              ]),
-              html.label(
-                [
-                  attribute.for("unit-kg"),
-                  attribute.class(
-                    "px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/kg:bg-on-surface peer-checked/kg:text-surface peer-[:not(:checked)]/kg:hover:bg-on-surface/10 transition-colors peer-focus-visible/kg:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-                  ),
-                ],
-                [html.text("kg")],
-              ),
-              html.input([
-                attribute.type_("radio"),
-                attribute.name("weight_unit"),
-                attribute.value("lbs"),
-                attribute.id("unit-lbs"),
-                attribute.class("sr-only peer/lbs"),
-              ]),
-              html.label(
-                [
-                  attribute.for("unit-lbs"),
-                  attribute.class(
-                    "px-5 py-2 text-sm font-semibold uppercase cursor-pointer peer-checked/lbs:bg-on-surface peer-checked/lbs:text-surface peer-[:not(:checked)]/lbs:hover:bg-on-surface/10 transition-colors peer-focus-visible/lbs:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-                  ),
-                ],
-                [html.text("lbs")],
-              ),
-            ],
-          ),
-        ],
+      weight_unit_form(
+        get_weight_unit_form()
+        |> form.add_values([
+          #("weight_unit", case user.weight_unit {
+            user_sql.Lbs -> "lbs"
+            user_sql.Kg -> "kg"
+          }),
+        ]),
       ),
       html.div(
         [
@@ -468,4 +428,84 @@ pub fn account_details(user: User) -> Element(a) {
       ),
     ]),
   ])
+}
+
+pub fn get_weight_unit_form() {
+  form.new({
+    use weight_unit <- form.field("weight_unit", {
+      form.parse(fn(input) {
+        case input {
+          ["kg", ..] -> Ok(user_sql.Kg)
+          ["lbs", ..] -> Ok(user_sql.Lbs)
+          _ -> Error(#(user_sql.Kg, "weight unit must be kg or lbs"))
+        }
+      })
+    })
+
+    form.success(weight_unit)
+  })
+}
+
+pub fn weight_unit_form(form: Form(user_sql.WeightUnit)) {
+  let root_err = list.first(form.field_error_messages(form, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/weight-unit"),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.p([attribute.class("text-outline text-sm")], [
+        html.text("weight unit"),
+      ]),
+      html.fieldset([attribute.class("flex border-2 border-on-surface w-fit")], [
+        html.label(
+          [
+            attribute.class(
+              "px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:not(:checked)]:hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+            ),
+          ],
+          [
+            html.input([
+              attribute.type_("radio"),
+              attribute.name("weight_unit"),
+              attribute.value("kg"),
+              attribute.checked(form.field_value(form, "weight_unit") == "kg"),
+              attribute.class("sr-only"),
+            ]),
+            html.text("kg"),
+          ],
+        ),
+        html.label(
+          [
+            attribute.class(
+              "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:not(:checked)]:hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+            ),
+          ],
+          [
+            html.input([
+              attribute.type_("radio"),
+              attribute.name("weight_unit"),
+              attribute.value("lbs"),
+              attribute.checked(form.field_value(form, "weight_unit") == "lbs"),
+              attribute.class("sr-only"),
+            ]),
+            html.text("lbs"),
+          ],
+        ),
+      ]),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("changing weight unit failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+    ],
+  )
 }

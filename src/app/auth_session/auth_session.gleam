@@ -4,7 +4,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/session_token
 import app/ui
-import app/user/sql as user_sql
+import app/user/sql.{type WeightUnit} as user_sql
 import app/web
 import formal/form
 import gleam/bool
@@ -104,7 +104,13 @@ fn refresh_auth_session(session: SelectAuthSessionByIdRow, db: Connection) {
 }
 
 pub type User {
-  User(id: Int, name: String, email: String, created_at: Timestamp)
+  User(
+    id: Int,
+    name: String,
+    email: String,
+    created_at: Timestamp,
+    weight_unit: WeightUnit,
+  )
 }
 
 pub type AuthSession {
@@ -135,6 +141,10 @@ pub fn require(req: Request, ctx: Ctx, next) -> Response {
         name: session.name,
         email: session.email_address,
         created_at: session.user_created_at,
+        weight_unit: case session.weight_unit {
+          auth_session_sql.Kg -> user_sql.Kg
+          auth_session_sql.Lbs -> user_sql.Lbs
+        },
       )
 
     let response = next(auth_session, user)
@@ -298,7 +308,8 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
         <> "]: "
         <> string.inspect(err),
       )
-      ui.alert([
+      //FIX
+      ui.alert(ui.AlertError, [], [
         ui.alert_title(html.text("Something went wrong")),
         ui.alert_description(html.text("unexpected error")),
       ])

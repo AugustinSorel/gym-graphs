@@ -70,6 +70,7 @@ pub type DeleteUserByAccountDeletionSessionIdRow {
     password_salt: BitArray,
     created_at: Timestamp,
     name: String,
+    weight_unit: WeightUnit,
   )
 }
 
@@ -93,6 +94,7 @@ pub fn delete_user_by_account_deletion_session_id(
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
+    use weight_unit <- decode.field(6, weight_unit_decoder())
     decode.success(DeleteUserByAccountDeletionSessionIdRow(
       id:,
       email_address:,
@@ -100,6 +102,7 @@ pub fn delete_user_by_account_deletion_session_id(
       password_salt:,
       created_at:,
       name:,
+      weight_unit:,
     ))
   }
 
@@ -134,6 +137,7 @@ pub type SelectUserByEmailAddressRow {
     password_salt: BitArray,
     created_at: Timestamp,
     name: String,
+    weight_unit: WeightUnit,
   )
 }
 
@@ -154,6 +158,7 @@ pub fn select_user_by_email_address(
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
+    use weight_unit <- decode.field(6, weight_unit_decoder())
     decode.success(SelectUserByEmailAddressRow(
       id:,
       email_address:,
@@ -161,6 +166,7 @@ pub fn select_user_by_email_address(
       password_salt:,
       created_at:,
       name:,
+      weight_unit:,
     ))
   }
 
@@ -186,6 +192,7 @@ pub type SelectUserByIdRow {
     password_salt: BitArray,
     created_at: Timestamp,
     name: String,
+    weight_unit: WeightUnit,
   )
 }
 
@@ -206,6 +213,7 @@ pub fn select_user_by_id(
     use password_salt <- decode.field(3, decode.bit_array)
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
+    use weight_unit <- decode.field(6, weight_unit_decoder())
     decode.success(SelectUserByIdRow(
       id:,
       email_address:,
@@ -213,6 +221,7 @@ pub fn select_user_by_id(
       password_salt:,
       created_at:,
       name:,
+      weight_unit:,
     ))
   }
 
@@ -258,4 +267,69 @@ pub fn update_user_name(
   |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
+}
+
+/// A row you get from running the `update_weight_unit` query
+/// defined in `./src/app/user/sql/update_weight_unit.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateWeightUnitRow {
+  UpdateWeightUnitRow(id: Int, weight_unit: WeightUnit)
+}
+
+/// Runs the `update_weight_unit` query
+/// defined in `./src/app/user/sql/update_weight_unit.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_weight_unit(
+  db: pog.Connection,
+  weight_unit: WeightUnit,
+  id: Int,
+) -> Result(pog.Returned(UpdateWeightUnitRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use weight_unit <- decode.field(1, weight_unit_decoder())
+    decode.success(UpdateWeightUnitRow(id:, weight_unit:))
+  }
+
+  "update users set weight_unit = $1 where id = $2 returning id, weight_unit;
+"
+  |> pog.query
+  |> pog.parameter(weight_unit_encoder(weight_unit))
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+// --- Enums -------------------------------------------------------------------
+
+/// Corresponds to the Postgres `weight_unit` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type WeightUnit {
+  Lbs
+  Kg
+}
+
+fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
+  use weight_unit <- decode.then(decode.string)
+  case weight_unit {
+    "lbs" -> decode.success(Lbs)
+    "kg" -> decode.success(Kg)
+    _ -> decode.failure(Lbs, "WeightUnit")
+  }
+}
+
+fn weight_unit_encoder(weight_unit) -> pog.Value {
+  case weight_unit {
+    Lbs -> "lbs"
+    Kg -> "kg"
+  }
+  |> pog.text
 }

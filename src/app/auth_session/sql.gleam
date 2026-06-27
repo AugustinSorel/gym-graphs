@@ -98,6 +98,7 @@ pub type SelectAuthSessionByIdRow {
     email_address: String,
     name: String,
     user_created_at: Timestamp,
+    weight_unit: WeightUnit,
   )
 }
 
@@ -120,6 +121,7 @@ pub fn select_auth_session_by_id(
     use email_address <- decode.field(5, decode.string)
     use name <- decode.field(6, decode.string)
     use user_created_at <- decode.field(7, pog.timestamp_decoder())
+    use weight_unit <- decode.field(8, weight_unit_decoder())
     decode.success(SelectAuthSessionByIdRow(
       id:,
       user_id:,
@@ -129,6 +131,7 @@ pub fn select_auth_session_by_id(
       email_address:,
       name:,
       user_created_at:,
+      weight_unit:,
     ))
   }
 
@@ -140,7 +143,8 @@ pub fn select_auth_session_by_id(
   s.last_active_at,
   u.email_address,
   u.name,
-  u.created_at as user_created_at
+  u.created_at as user_created_at,
+  u.weight_unit
 from auth_sessions s
 join users u on u.id = s.user_id
 where s.id = $1;
@@ -169,4 +173,25 @@ pub fn update_auth_session_last_active_at(
   |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
+}
+
+// --- Enums -------------------------------------------------------------------
+
+/// Corresponds to the Postgres `weight_unit` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type WeightUnit {
+  Lbs
+  Kg
+}
+
+fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
+  use weight_unit <- decode.then(decode.string)
+  case weight_unit {
+    "lbs" -> decode.success(Lbs)
+    "kg" -> decode.success(Kg)
+    _ -> decode.failure(Lbs, "WeightUnit")
+  }
 }

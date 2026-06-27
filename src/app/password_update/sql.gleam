@@ -65,6 +65,26 @@ returning *
   |> pog.execute(db)
 }
 
+/// Runs the `delete_password_update_session_by_id` query
+/// defined in `./src/app/password_update/sql/delete_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_password_update_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from password_update_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_password_update_session_by_id` query
 /// defined in `./src/app/password_update/sql/select_password_update_session_by_id.sql`.
 ///
@@ -169,26 +189,6 @@ pub fn set_identity_verified_to_now(
   |> pog.execute(db)
 }
 
-/// Runs the `delete_password_update_session_by_id` query
-/// defined in `./src/app/password_update/sql/delete_password_update_session_by_id.sql`.
-///
-/// > 🐿️ This function was generated automatically using v4.7.0 of
-/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub fn delete_password_update_session_by_id(
-  db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(Nil), pog.QueryError) {
-  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
-
-  "delete from password_update_sessions where id = $1;
-"
-  |> pog.query
-  |> pog.parameter(pog.int(arg_1))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
 /// A row you get from running the `update_user_password_by_password_update_session_id` query
 /// defined in `./src/app/password_update/sql/update_user_password_by_password_update_session_id.sql`.
 ///
@@ -207,9 +207,9 @@ pub type UpdateUserPasswordByPasswordUpdateSessionIdRow {
 ///
 pub fn update_user_password_by_password_update_session_id(
   db: pog.Connection,
-  password_hash: BitArray,
+  arg_1: BitArray,
   password_salt: BitArray,
-  session_id: Int,
+  password_update_sessions_id: Int,
 ) -> Result(
   pog.Returned(UpdateUserPasswordByPasswordUpdateSessionIdRow),
   pog.QueryError,
@@ -232,9 +232,9 @@ where users.id = auth_sessions.user_id
 returning users.id;
 "
   |> pog.query
-  |> pog.parameter(pog.bytea(password_hash))
+  |> pog.parameter(pog.bytea(arg_1))
   |> pog.parameter(pog.bytea(password_salt))
-  |> pog.parameter(pog.int(session_id))
+  |> pog.parameter(pog.int(password_update_sessions_id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

@@ -169,7 +169,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 
     Error(SessionDatabaseFailure(err)) -> {
       wisp.log_error(req.path <> ": database failure: " <> string.inspect(err))
-      ui.alert([
+      ui.alert(ui.AlertError, [], [
         ui.alert_title(html.text("Something went wrong")),
         ui.alert_description(html.text("unexpected error")),
       ])
@@ -177,7 +177,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
     }
     Error(SessionRecordNotFound) -> {
       wisp.log_error(req.path <> ": unexpected empty result creating session")
-      ui.alert([
+      ui.alert(ui.AlertError, [], [
         ui.alert_title(html.text("Something went wrong")),
         ui.alert_description(html.text("unexpected error")),
       ])

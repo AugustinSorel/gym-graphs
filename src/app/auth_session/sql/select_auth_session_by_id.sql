@@ -6,7 +6,8 @@ select
   s.last_active_at,
   u.email_address,
   u.name,
-  u.created_at as user_created_at
+  u.created_at as user_created_at,
+  u.weight_unit
 from auth_sessions s
 join users u on u.id = s.user_id
 where s.id = $1;

@@ -45,6 +45,13 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["account", "weight-unit"] -> {
+      case req.method {
+        Patch -> user.update_weight_unit(req, ctx)
+        _ -> wisp.method_not_allowed([Patch])
+      }
+    }
+
     ["sign-up"] -> {
       case req.method {
         Get -> sign_up.view_register_page(req, ctx)
