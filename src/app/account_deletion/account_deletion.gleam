@@ -295,7 +295,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
     Error(VerifyPasswordInvalidPassword) -> {
       account_deletion_ui.get_verify_password_form()
       |> form.add_values(form_data.values)
-      |> form.add_error("password", form.CustomError("Incorrect password."))
+      |> form.add_error("root", form.CustomError("Incorrect password."))
       |> account_deletion_ui.verify_password_form()
       |> web.html(422)
     }
