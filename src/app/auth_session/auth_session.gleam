@@ -9,7 +9,6 @@ import app/web
 import formal/form
 import gleam/bool
 import gleam/float
-import gleam/int
 import gleam/order
 import gleam/result
 import gleam/string
@@ -302,13 +301,8 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
       |> clear_cookie(req)
 
     Error(err) -> {
-      wisp.log_error(
-        "sign out failed [session_id="
-        <> int.to_string(session.id)
-        <> "]: "
-        <> string.inspect(err),
-      )
-      //FIX
+      //FIX: return user_ui.sign_out_row("unexpected error");
+      wisp.log_error(req.path <> " " <> string.inspect(err))
       ui.alert(ui.AlertError, [], [
         ui.alert_title(html.text("Something went wrong")),
         ui.alert_description(html.text("unexpected error")),

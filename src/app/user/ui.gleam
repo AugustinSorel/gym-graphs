@@ -3,6 +3,7 @@ import app/ui
 import app/user/sql as user_sql
 import formal/form.{type Form}
 import gleam/list
+import gleam/option
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
@@ -267,35 +268,7 @@ pub fn account_details(user: User) -> Element(a) {
           ),
         ],
       ),
-      html.div(
-        [
-          attribute.class(
-            "grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
-          ),
-        ],
-        [
-          html.div([attribute.class("space-y-1")], [
-            html.p([attribute.class("text-outline text-sm")], [
-              html.text("session"),
-            ]),
-            html.p([attribute.class("text-balance")], [
-              html.text("sign out from this current device."),
-            ]),
-          ]),
-          ui.button(
-            ui.ButtonPrimary,
-            [
-              attribute.attribute("hx-post", "/sign-out"),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto ml-auto"),
-            ],
-            [
-              html.text("sign out"),
-              ui.spinner(),
-            ],
-          ),
-        ],
-      ),
+      sign_out_row(error: option.None),
     ]),
 
     html.section([], [
@@ -505,6 +478,46 @@ pub fn weight_unit_form(form: Form(user_sql.WeightUnit)) {
             ui.alert_description(element.text(msg)),
           ])
         Error(_) -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn sign_out_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("session"),
+        ]),
+        html.p([attribute.class("text-balance")], [
+          html.text("sign out from this current device."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.attribute("hx-post", "/sign-out"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("sign out"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
       },
     ],
   )
