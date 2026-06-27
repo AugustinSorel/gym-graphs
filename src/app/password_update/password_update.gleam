@@ -339,7 +339,24 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
     let password_hash = crypto.hash_user_password(input.password, salt)
 
     use _ <- result.try({
-      update_user_password(ctx.db, password_hash, salt, session.id)
+      pog.transaction(ctx.db, fn(tx) {
+        use _ <- result.try({
+          update_user_password(tx, password_hash, salt, session.id)
+        })
+
+        use _ <- result.try(
+          delete_password_update_session_by_id(tx, session.id)
+          |> result.map_error(SetNewPasswordDatabaseFailure),
+        )
+
+        Ok(Nil)
+      })
+      |> result.map_error(fn(err) {
+        case err {
+          pog.TransactionRolledBack(e) -> e
+          pog.TransactionQueryError(err) -> SetNewPasswordDatabaseFailure(err)
+        }
+      })
     })
 
     Ok(Nil)
@@ -391,7 +408,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   )
 
   let result =
-    cancel_password_update(ctx.db, session.id)
+    delete_password_update_session_by_id(ctx.db, session.id)
     |> result.map_error(CancelDatabaseFailure)
 
   case result {
@@ -483,7 +500,7 @@ fn update_user_password(
   })
 }
 
-fn cancel_password_update(db: Connection, id: Int) -> Result(Nil, QueryError) {
+fn delete_password_update_session_by_id(db: Connection, id: Int) {
   password_update_sql.delete_password_update_session_by_id(db, id)
   |> result.replace(Nil)
 }
