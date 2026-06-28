@@ -339,7 +339,7 @@ pub fn set_password_page(children: Element(a)) -> Element(a) {
 }
 
 pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
-  let email_address = form.field_value(form, "email_address")
+  let email_address = form.field_value(form, "email")
   let password_err = list.first(form.field_error_messages(form, "password"))
   let root_err = list.first(form.field_error_messages(form, "root"))
 

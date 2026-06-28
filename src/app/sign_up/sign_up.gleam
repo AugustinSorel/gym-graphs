@@ -403,7 +403,7 @@ pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
   use session <- require_verified_email_session(req, ctx)
 
   sign_up_ui.get_set_password_form()
-  |> form.add_string("email_address", session.email_address)
+  |> form.add_string("email", session.email_address)
   |> sign_up_ui.set_password_form()
   |> sign_up_ui.set_password_page()
   |> web.html(200)

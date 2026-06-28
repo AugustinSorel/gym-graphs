@@ -395,7 +395,7 @@ pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(user) ->
       password_reset_ui.get_set_new_password_form()
-      |> form.add_string("email_address", user.email_address)
+      |> form.add_string("email", user.email_address)
       |> password_reset_ui.set_new_password_form()
       |> password_reset_ui.set_new_password_page()
       |> web.html(200)

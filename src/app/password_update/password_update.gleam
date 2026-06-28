@@ -189,7 +189,7 @@ pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(user) ->
       password_update_ui.get_verify_password_form()
-      |> form.add_values([#("email_address", user.email_address)])
+      |> form.add_values([#("email", user.email_address)])
       |> password_update_ui.verify_password_form()
       |> password_update_ui.verify_password_page()
       |> web.html(200)
@@ -306,10 +306,11 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- auth_session.require(req, ctx)
+  use auth_session, user <- auth_session.require(req, ctx)
   use _session <- require_verified_session(req, ctx, auth_session)
 
   password_update_ui.get_set_new_password_form()
+  |> form.add_values([#("email", user.email)])
   |> password_update_ui.set_new_password_form()
   |> password_update_ui.set_new_password_page()
   |> web.html(200)
