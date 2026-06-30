@@ -133,6 +133,7 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
             attribute.placeholder("hello@google.com"),
             attribute.name("email"),
             attribute.value(form.field_value(form, "email")),
+            attribute.autocomplete("email"),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(email_err))),
             ),
@@ -161,6 +162,7 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
             attribute.type_("password"),
             attribute.placeholder("********"),
             attribute.name("password"),
+            attribute.autocomplete("current-password"),
             attribute.value(form.field_value(form, "password")),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(password_err))),

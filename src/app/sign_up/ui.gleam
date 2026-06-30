@@ -157,6 +157,7 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
             attribute.placeholder("hello@google.com"),
             attribute.name("email"),
             attribute.value(form.field_value(form, "email")),
+            attribute.autocomplete("email"),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(email_err))),
             ),
@@ -356,8 +357,8 @@ pub fn set_password_form(form: Form(SetPasswordForm)) -> Element(a) {
     [
       html.input([
         attribute.type_("hidden"),
-        attribute.name("username"),
-        attribute.attribute("autocomplete", "username"),
+        attribute.name("email"),
+        attribute.attribute("autocomplete", "email"),
         attribute.value(email_address),
       ]),
       html.label(

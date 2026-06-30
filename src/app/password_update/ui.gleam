@@ -129,8 +129,8 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
     [
       html.input([
         attribute.type_("hidden"),
-        attribute.name("username"),
-        attribute.attribute("autocomplete", "username"),
+        attribute.name("email"),
+        attribute.attribute("autocomplete", "email"),
         attribute.value(email_address),
       ]),
       html.label(
@@ -230,8 +230,8 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
     [
       html.input([
         attribute.type_("hidden"),
-        attribute.name("username"),
-        attribute.attribute("autocomplete", "username"),
+        attribute.name("email"),
+        attribute.attribute("autocomplete", "email"),
         attribute.value(email_address),
       ]),
       html.label(
