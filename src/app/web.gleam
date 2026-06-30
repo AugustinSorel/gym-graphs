@@ -19,7 +19,7 @@ pub fn middleware(
   handle_request(req)
 }
 
-pub fn get_static_directory() -> String {
+fn get_static_directory() -> String {
   let assert Ok(priv_directory) = wisp.priv_directory("gym_graphs")
 
   priv_directory <> "/static"

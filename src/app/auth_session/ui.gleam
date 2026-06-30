@@ -2,6 +2,7 @@ import app/ui
 import formal/form.{type FieldError, type Form, MustBeEmail}
 import gleam/bool
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import lustre/attribute
@@ -211,6 +212,46 @@ pub fn sign_in_form(form: Form(SignInForm)) -> Element(a) {
           ]),
         ],
       ),
+    ],
+  )
+}
+
+pub fn sign_out_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("session"),
+        ]),
+        html.p([attribute.class("text-balance")], [
+          html.text("sign out from this current device."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.attribute("hx-post", "/sign-out"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("sign out"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
     ],
   )
 }

@@ -1,6 +1,9 @@
+import app/account_deletion/ui as account_deletion_ui
 import app/auth_session/auth_session.{type User}
+import app/auth_session/ui as auth_session_ui
+import app/password_update/ui as password_update_ui
 import app/ui
-import app/user/sql as user_sql
+import app/user/sql
 import formal/form.{type Form}
 import gleam/list
 import gleam/option
@@ -244,31 +247,8 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("security"),
         ],
       ),
-      html.div(
-        [
-          attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
-          ),
-        ],
-        [
-          html.dl([attribute.class("space-y-1")], [
-            html.dt([attribute.class("text-outline text-sm")], [
-              html.text("password"),
-            ]),
-            html.dd([attribute.class("break-all")], [html.text("***********")]),
-          ]),
-          ui.button(
-            ui.ButtonPrimary,
-            [
-              attribute.attribute("hx-post", "/update-password"),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto text-sm"),
-            ],
-            [html.text("update"), ui.spinner()],
-          ),
-        ],
-      ),
-      sign_out_row(error: option.None),
+      password_update_ui.update_password_row(error: option.None),
+      auth_session_ui.sign_out_row(error: option.None),
     ]),
 
     html.section([], [
@@ -286,8 +266,8 @@ pub fn account_details(user: User) -> Element(a) {
         get_weight_unit_form()
         |> form.add_values([
           #("weight_unit", case user.weight_unit {
-            user_sql.Lbs -> "lbs"
-            user_sql.Kg -> "kg"
+            sql.Lbs -> "lbs"
+            sql.Kg -> "kg"
           }),
         ]),
       ),
@@ -370,35 +350,7 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("danger zone"),
         ],
       ),
-      html.div(
-        [
-          attribute.class(
-            "grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
-          ),
-        ],
-        [
-          html.div([attribute.class("space-y-1")], [
-            html.p([attribute.class("text-outline text-sm")], [
-              html.text("remove account"),
-            ]),
-            html.p([], [
-              html.text("remove your account from all of our servers."),
-            ]),
-          ]),
-          ui.button(
-            ui.ButtonDestroy,
-            [
-              attribute.attribute("hx-post", "/delete-account"),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto ml-auto"),
-            ],
-            [
-              html.text("delete account"),
-              ui.spinner(),
-            ],
-          ),
-        ],
-      ),
+      account_deletion_ui.remove_account_row(error: option.None),
     ]),
   ])
 }
@@ -408,9 +360,9 @@ pub fn get_weight_unit_form() {
     use weight_unit <- form.field("weight_unit", {
       form.parse(fn(input) {
         case input {
-          ["kg", ..] -> Ok(user_sql.Kg)
-          ["lbs", ..] -> Ok(user_sql.Lbs)
-          _ -> Error(#(user_sql.Kg, "weight unit must be kg or lbs"))
+          ["kg", ..] -> Ok(sql.Kg)
+          ["lbs", ..] -> Ok(sql.Lbs)
+          _ -> Error(#(sql.Kg, "weight unit must be kg or lbs"))
         }
       })
     })
@@ -419,7 +371,7 @@ pub fn get_weight_unit_form() {
   })
 }
 
-pub fn weight_unit_form(form: Form(user_sql.WeightUnit)) {
+pub fn weight_unit_form(form: Form(sql.WeightUnit)) {
   let root_err = list.first(form.field_error_messages(form, "root"))
 
   html.form(
@@ -478,46 +430,6 @@ pub fn weight_unit_form(form: Form(user_sql.WeightUnit)) {
             ui.alert_description(element.text(msg)),
           ])
         Error(_) -> element.none()
-      },
-    ],
-  )
-}
-
-pub fn sign_out_row(error error: option.Option(String)) {
-  html.div(
-    [
-      attribute.class(
-        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
-      ),
-    ],
-    [
-      html.div([attribute.class("space-y-1")], [
-        html.p([attribute.class("text-outline text-sm")], [
-          html.text("session"),
-        ]),
-        html.p([attribute.class("text-balance")], [
-          html.text("sign out from this current device."),
-        ]),
-      ]),
-      ui.button(
-        ui.ButtonPrimary,
-        [
-          attribute.attribute("hx-post", "/sign-out"),
-          attribute.attribute("hx-disable", "this"),
-          attribute.class("my-auto ml-auto"),
-        ],
-        [
-          html.text("sign out"),
-          ui.spinner(),
-        ],
-      ),
-      case error {
-        option.Some(msg) ->
-          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
-            ui.alert_title(element.text("signing out failed")),
-            ui.alert_description(element.text(msg)),
-          ])
-        option.None -> element.none()
       },
     ],
   )

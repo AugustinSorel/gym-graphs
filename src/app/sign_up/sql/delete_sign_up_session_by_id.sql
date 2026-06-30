@@ -1,1 +1,1 @@
-delete from sign_up_sessions where id = $1;
+delete from sign_up_sessions where id = $1 returning *;

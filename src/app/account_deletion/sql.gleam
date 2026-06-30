@@ -65,6 +65,22 @@ returning *
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_account_deletion_session_by_id` query
+/// defined in `./src/app/account_deletion/sql/delete_account_deletion_session_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteAccountDeletionSessionByIdRow {
+  DeleteAccountDeletionSessionByIdRow(
+    id: Int,
+    auth_session_id: Int,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+  )
+}
+
 /// Runs the `delete_account_deletion_session_by_id` query
 /// defined in `./src/app/account_deletion/sql/delete_account_deletion_session_by_id.sql`.
 ///
@@ -73,14 +89,30 @@ returning *
 ///
 pub fn delete_account_deletion_session_by_id(
   db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(Nil), pog.QueryError) {
-  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+  id: Int,
+) -> Result(pog.Returned(DeleteAccountDeletionSessionByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use auth_session_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use user_identity_verified_at <- decode.field(
+      3,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    decode.success(DeleteAccountDeletionSessionByIdRow(
+      id:,
+      auth_session_id:,
+      secret_hash:,
+      user_identity_verified_at:,
+      created_at:,
+    ))
+  }
 
-  "delete from account_deletion_sessions where id = $1;
+  "delete from account_deletion_sessions where id = $1 returning *;
 "
   |> pog.query
-  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

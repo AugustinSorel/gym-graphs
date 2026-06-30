@@ -2,6 +2,7 @@ import app/ui
 import formal/form.{type Form}
 import gleam/bool
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import lustre/attribute
@@ -125,7 +126,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
             attribute.name("password"),
             attribute.placeholder("********"),
             attribute.value(form.field_value(form, "password")),
-            attribute.attribute("autocomplete", "new-password"),
+            attribute.attribute("autocomplete", "password"),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(password_err))),
             ),
@@ -165,6 +166,8 @@ pub fn verify_password_form(form: Form(VerifyPasswordForm)) -> Element(a) {
             attribute.type_("button"),
             attribute.attribute("hx-post", "/delete-account/cancel"),
             attribute.attribute("hx-disable", "this"),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
           ],
           [html.text("cancel"), ui.spinner()],
         ),
@@ -251,4 +254,44 @@ pub fn get_verify_password_form() -> Form(VerifyPasswordForm) {
   }
 
   form.new(schema)
+}
+
+pub fn remove_account_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("remove account"),
+        ]),
+        html.p([], [
+          html.text("remove your account from all of our servers."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonDestroy,
+        [
+          attribute.attribute("hx-post", "/delete-account"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("delete account"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
 }

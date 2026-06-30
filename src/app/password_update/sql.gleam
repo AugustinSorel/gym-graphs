@@ -65,6 +65,22 @@ returning *
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_password_update_session_by_id` query
+/// defined in `./src/app/password_update/sql/delete_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeletePasswordUpdateSessionByIdRow {
+  DeletePasswordUpdateSessionByIdRow(
+    id: Int,
+    auth_session_id: Int,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+  )
+}
+
 /// Runs the `delete_password_update_session_by_id` query
 /// defined in `./src/app/password_update/sql/delete_password_update_session_by_id.sql`.
 ///
@@ -73,14 +89,30 @@ returning *
 ///
 pub fn delete_password_update_session_by_id(
   db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(Nil), pog.QueryError) {
-  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+  id: Int,
+) -> Result(pog.Returned(DeletePasswordUpdateSessionByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use auth_session_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use user_identity_verified_at <- decode.field(
+      3,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    decode.success(DeletePasswordUpdateSessionByIdRow(
+      id:,
+      auth_session_id:,
+      secret_hash:,
+      user_identity_verified_at:,
+      created_at:,
+    ))
+  }
 
-  "delete from password_update_sessions where id = $1;
+  "delete from password_update_sessions where id = $1 returning *;
 "
   |> pog.query
-  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
@@ -185,56 +217,6 @@ pub fn set_identity_verified_to_now(
 "
   |> pog.query
   |> pog.parameter(pog.int(id))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
-/// A row you get from running the `update_user_password_by_password_update_session_id` query
-/// defined in `./src/app/password_update/sql/update_user_password_by_password_update_session_id.sql`.
-///
-/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
-/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub type UpdateUserPasswordByPasswordUpdateSessionIdRow {
-  UpdateUserPasswordByPasswordUpdateSessionIdRow(id: Int)
-}
-
-/// Runs the `update_user_password_by_password_update_session_id` query
-/// defined in `./src/app/password_update/sql/update_user_password_by_password_update_session_id.sql`.
-///
-/// > 🐿️ This function was generated automatically using v4.7.0 of
-/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub fn update_user_password_by_password_update_session_id(
-  db: pog.Connection,
-  arg_1: BitArray,
-  password_salt: BitArray,
-  password_update_sessions_id: Int,
-) -> Result(
-  pog.Returned(UpdateUserPasswordByPasswordUpdateSessionIdRow),
-  pog.QueryError,
-) {
-  let decoder = {
-    use id <- decode.field(0, decode.int)
-    decode.success(UpdateUserPasswordByPasswordUpdateSessionIdRow(id:))
-  }
-
-  "update users
-set
-    password_hash = $1,
-    password_salt = $2
-from auth_sessions
-join password_update_sessions on password_update_sessions.auth_session_id = auth_sessions.id
-where users.id = auth_sessions.user_id
-  and auth_sessions.id = password_update_sessions.auth_session_id
-  and password_update_sessions.id = $3
-  and password_update_sessions.user_identity_verified_at is not null
-returning users.id;
-"
-  |> pog.query
-  |> pog.parameter(pog.bytea(arg_1))
-  |> pog.parameter(pog.bytea(password_salt))
-  |> pog.parameter(pog.int(password_update_sessions_id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

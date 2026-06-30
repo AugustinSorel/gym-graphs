@@ -2,6 +2,7 @@ import app/ui
 import formal/form.{type Form}
 import gleam/bool
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import lustre/attribute
@@ -280,11 +281,48 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
           [
             attribute.type_("button"),
             attribute.attribute("hx-post", "/update-password/cancel"),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
             attribute.attribute("hx-disable", "this"),
           ],
           [html.text("cancel"), ui.spinner()],
         ),
       ]),
+    ],
+  )
+}
+
+pub fn update_password_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+      ),
+    ],
+    [
+      html.dl([attribute.class("space-y-1")], [
+        html.dt([attribute.class("text-outline text-sm")], [
+          html.text("password"),
+        ]),
+        html.dd([attribute.class("break-all")], [html.text("***********")]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.attribute("hx-post", "/update-password"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto text-sm"),
+        ],
+        [html.text("update"), ui.spinner()],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("updating password failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
     ],
   )
 }

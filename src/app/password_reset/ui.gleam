@@ -181,7 +181,7 @@ pub fn password_reset_form(form: Form(ResetPasswordForm)) -> Element(a) {
         Error(_) -> element.none()
       },
       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-        html.text("send reset link"),
+        html.text("send code"),
         ui.spinner(),
       ]),
       html.p([attribute.class("text-right text-sm")], [
@@ -380,6 +380,8 @@ pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
               "hx-post",
               "/reset-password/verify-email-code/cancel",
             ),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
             attribute.attribute("hx-disable", "this"),
           ],
           [html.text("cancel"), ui.spinner()],
