@@ -1,6 +1,6 @@
 import app/auth_session/auth_session
-import app/auth_session/handler
 import app/crypto
+import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/email
@@ -389,9 +389,9 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
       |> session.clear_cookie(req, cookie_name)
       |> session.set_cookie(
         req,
-        handler.cookie_name,
+        guards.cookie_name,
         token,
-        handler.cookie_max_age(),
+        guards.cookie_max_age(),
       )
     }
 

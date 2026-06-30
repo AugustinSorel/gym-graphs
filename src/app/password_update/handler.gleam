@@ -1,5 +1,5 @@
-import app/auth_session/handler
 import app/crypto
+import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/password_update/password_update
@@ -50,7 +50,7 @@ fn require(req, ctx: Ctx, next) {
 }
 
 fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- handler.require(req, ctx)
+  use auth_session, user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   let session_matched = auth_session.id == session.auth_session_id
@@ -69,7 +69,7 @@ fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
 }
 
 fn require_verified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- handler.require(req, ctx)
+  use auth_session, user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   let session_matched = auth_session.id == session.auth_session_id
@@ -88,7 +88,7 @@ fn require_verified(req: Request, ctx: Ctx, next) -> Response {
 }
 
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- handler.require(req, ctx)
+  use auth_session, _user <- guards.require(req, ctx)
 
   let result = {
     use #(id, secret) <- result.try({
@@ -317,7 +317,7 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- handler.require(req, ctx)
+  use auth_session, _user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   use form_data <- wisp.require_form(req)

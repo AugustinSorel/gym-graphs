@@ -1,7 +1,7 @@
 import app/account_deletion/account_deletion
 import app/account_deletion/ui.{type VerifyPasswordForm}
-import app/auth_session/handler
 import app/crypto
+import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/session
@@ -43,7 +43,7 @@ fn require(req: Request, ctx: Ctx, next) -> Response {
 }
 
 fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- handler.require(req, ctx)
+  use auth_session, user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   let session_matched = auth_session.id == session.auth_session_id
@@ -62,7 +62,7 @@ fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
 }
 
 fn require_verified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- handler.require(req, ctx)
+  use auth_session, user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   let session_matched = auth_session.id == session.auth_session_id
@@ -87,7 +87,7 @@ fn cookie_max_age() {
 }
 
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- handler.require(req, ctx)
+  use auth_session, _user <- guards.require(req, ctx)
 
   let result = {
     use #(id, secret) <- result.try({
@@ -252,7 +252,7 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
     Ok(Nil) ->
       wisp.ok()
       |> session.clear_cookie(req, cookie_name)
-      |> session.clear_cookie(req, handler.cookie_name)
+      |> session.clear_cookie(req, guards.cookie_name)
       |> wisp.set_header("HX-Redirect", "/sign-in")
 
     Error(db.DatabaseFailure(error)) -> {
@@ -273,7 +273,7 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- handler.require(req, ctx)
+  use auth_session, _user <- guards.require(req, ctx)
   use session <- require(req, ctx)
 
   use form_data <- wisp.require_form(req)

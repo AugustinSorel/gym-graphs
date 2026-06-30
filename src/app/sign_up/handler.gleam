@@ -1,6 +1,6 @@
 import app/auth_session/auth_session
-import app/auth_session/handler
 import app/ctx.{type Ctx}
+import app/guards
 import app/db
 import app/email.{type SendEmailError}
 import app/session
@@ -79,7 +79,7 @@ fn require_verified(req: Request, ctx: Ctx, next) -> Response {
 }
 
 pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
 
   ui.get_register_form()
   |> ui.register_form()
@@ -88,7 +88,7 @@ pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_email_page(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use _session <- require_unverified(req, ctx)
 
   ui.get_verify_email_form()
@@ -105,7 +105,7 @@ type SignUpStartError {
 }
 
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -200,7 +200,7 @@ type SignUpVerifyEmailError {
 }
 
 pub fn verify_email(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use session <- require_unverified(req, ctx)
 
   use formdata <- wisp.require_form(req)
@@ -269,7 +269,7 @@ type ResendVerifyEmailCode {
 }
 
 pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use session <- require_unverified(req, ctx)
 
   use form_data <- wisp.require_form(req)
@@ -308,7 +308,7 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use session <- require(req, ctx)
 
   use form_data <- wisp.require_form(req)
@@ -341,7 +341,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use session <- require_verified(req, ctx)
 
   ui.get_set_password_form()
@@ -361,7 +361,7 @@ pub type SetPasswordError {
 }
 
 pub fn set_password(req: Request, ctx: Ctx) -> Response {
-  use <- handler.require_blank(req, ctx)
+  use <- guards.require_blank(req, ctx)
   use session <- require_verified(req, ctx)
 
   use formdata <- wisp.require_form(req)
@@ -417,9 +417,9 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
       |> session.clear_cookie(req, cookie_name)
       |> session.set_cookie(
         req,
-        handler.cookie_name,
+        guards.cookie_name,
         token,
-        handler.cookie_max_age(),
+        guards.cookie_max_age(),
       )
     }
 
