@@ -12,7 +12,7 @@ pub type CheckIfEmailIsAvailable {
 }
 
 pub fn check_if_email_is_available(db: Connection, email: String) {
-  sql.select_user_by_email_address(db, email)
+  sql.select_by_email(db, email)
   |> result.map_error(CheckIfEmailIsAvailableDatabaseFailure)
   |> result.try(fn(user) {
     case user {
@@ -31,7 +31,7 @@ pub fn create(
   let salt = crypto.generate_hashing_salt()
   let password_hash = crypto.hash_user_password(password, salt)
 
-  sql.create_user(db, password_hash, salt, name, session_id)
+  sql.create(db, password_hash, salt, name, session_id)
   |> db.extract_first_row
 }
 
@@ -40,13 +40,11 @@ pub fn infer_name_from_email(email: String) {
 }
 
 pub fn select_by_email(db: Connection, email: String) {
-  sql.select_user_by_email_address(db, email)
-  |> db.extract_first_row
+  sql.select_by_email(db, email) |> db.extract_first_row
 }
 
 pub fn update_name(db: Connection, name: String, id: Int) {
-  sql.update_user_name(db, name, id)
-  |> db.extract_first_row
+  sql.update_name(db, name, id) |> db.extract_first_row
 }
 
 pub fn update_weight_unit(
@@ -59,12 +57,11 @@ pub fn update_weight_unit(
 }
 
 pub fn select_by_id(db: Connection, id: Int) {
-  sql.select_user_by_id(db, id)
-  |> db.extract_first_row
+  sql.select_by_id(db, id) |> db.extract_first_row
 }
 
 pub fn delete_by_account_deletion_id(db: Connection, id: Int) {
-  sql.delete_user_by_account_deletion_session_id(db, id)
+  sql.delete_by_account_deletion_id(db, id)
   |> db.extract_first_row
 }
 

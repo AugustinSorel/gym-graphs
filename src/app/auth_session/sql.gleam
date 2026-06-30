@@ -8,14 +8,14 @@ import gleam/dynamic/decode
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
-/// A row you get from running the `create_auth_session` query
-/// defined in `./src/app/auth_session/sql/create_auth_session.sql`.
+/// A row you get from running the `create` query
+/// defined in `./src/app/auth_session/sql/create.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type CreateAuthSessionRow {
-  CreateAuthSessionRow(
+pub type CreateRow {
+  CreateRow(
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
@@ -24,24 +24,24 @@ pub type CreateAuthSessionRow {
   )
 }
 
-/// Runs the `create_auth_session` query
-/// defined in `./src/app/auth_session/sql/create_auth_session.sql`.
+/// Runs the `create` query
+/// defined in `./src/app/auth_session/sql/create.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn create_auth_session(
+pub fn create(
   db: pog.Connection,
   arg_1: Int,
   arg_2: BitArray,
-) -> Result(pog.Returned(CreateAuthSessionRow), pog.QueryError) {
+) -> Result(pog.Returned(CreateRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
     use secret_hash <- decode.field(2, decode.bit_array)
     use created_at <- decode.field(3, pog.timestamp_decoder())
     use last_active_at <- decode.field(4, pog.timestamp_decoder())
-    decode.success(CreateAuthSessionRow(
+    decode.success(CreateRow(
       id:,
       user_id:,
       secret_hash:,
@@ -59,22 +59,71 @@ pub fn create_auth_session(
   |> pog.execute(db)
 }
 
-/// Runs the `delete_auth_session_by_id` query
-/// defined in `./src/app/auth_session/sql/delete_auth_session_by_id.sql`.
+/// A row you get from running the `delete_by_id` query
+/// defined in `./src/app/auth_session/sql/delete_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteByIdRow {
+  DeleteByIdRow(
+    id: Int,
+    user_id: Int,
+    secret_hash: BitArray,
+    created_at: Timestamp,
+    last_active_at: Timestamp,
+  )
+}
+
+/// Runs the `delete_by_id` query
+/// defined in `./src/app/auth_session/sql/delete_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn delete_auth_session_by_id(
+pub fn delete_by_id(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(DeleteByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use user_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use created_at <- decode.field(3, pog.timestamp_decoder())
+    use last_active_at <- decode.field(4, pog.timestamp_decoder())
+    decode.success(DeleteByIdRow(
+      id:,
+      user_id:,
+      secret_hash:,
+      created_at:,
+      last_active_at:,
+    ))
+  }
+
+  "delete from auth_sessions where id = $1 returning *;
+
+
+
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `refresh_last_active_at_by_id` query
+/// defined in `./src/app/auth_session/sql/refresh_last_active_at_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn refresh_last_active_at_by_id(
   db: pog.Connection,
   arg_1: Int,
 ) -> Result(pog.Returned(Nil), pog.QueryError) {
   let decoder = decode.map(decode.dynamic, fn(_) { Nil })
 
-  "delete from auth_sessions where id = $1;
-
-
-
+  "update auth_sessions set last_active_at = now() where id = $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
@@ -82,14 +131,14 @@ pub fn delete_auth_session_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_auth_session_by_id` query
-/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
+/// A row you get from running the `select_by_id` query
+/// defined in `./src/app/auth_session/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectAuthSessionByIdRow {
-  SelectAuthSessionByIdRow(
+pub type SelectByIdRow {
+  SelectByIdRow(
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
@@ -102,16 +151,16 @@ pub type SelectAuthSessionByIdRow {
   )
 }
 
-/// Runs the `select_auth_session_by_id` query
-/// defined in `./src/app/auth_session/sql/select_auth_session_by_id.sql`.
+/// Runs the `select_by_id` query
+/// defined in `./src/app/auth_session/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_auth_session_by_id(
+pub fn select_by_id(
   db: pog.Connection,
   arg_1: Int,
-) -> Result(pog.Returned(SelectAuthSessionByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
@@ -122,7 +171,7 @@ pub fn select_auth_session_by_id(
     use name <- decode.field(6, decode.string)
     use user_created_at <- decode.field(7, pog.timestamp_decoder())
     use weight_unit <- decode.field(8, weight_unit_decoder())
-    decode.success(SelectAuthSessionByIdRow(
+    decode.success(SelectByIdRow(
       id:,
       user_id:,
       secret_hash:,
@@ -148,26 +197,6 @@ pub fn select_auth_session_by_id(
 from auth_sessions s
 join users u on u.id = s.user_id
 where s.id = $1;
-"
-  |> pog.query
-  |> pog.parameter(pog.int(arg_1))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
-/// Runs the `update_auth_session_last_active_at` query
-/// defined in `./src/app/auth_session/sql/update_auth_session_last_active_at.sql`.
-///
-/// > 🐿️ This function was generated automatically using v4.7.0 of
-/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub fn update_auth_session_last_active_at(
-  db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(Nil), pog.QueryError) {
-  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
-
-  "update auth_sessions set last_active_at = now() where id = $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))

@@ -9,14 +9,14 @@ import gleam/option.{type Option}
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
-/// A row you get from running the `create_password_reset_session` query
-/// defined in `./src/app/password_reset/sql/create_password_reset_session.sql`.
+/// A row you get from running the `create` query
+/// defined in `./src/app/password_reset/sql/create.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type CreatePasswordResetSessionRow {
-  CreatePasswordResetSessionRow(
+pub type CreateRow {
+  CreateRow(
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
@@ -27,19 +27,19 @@ pub type CreatePasswordResetSessionRow {
   )
 }
 
-/// Runs the `create_password_reset_session` query
-/// defined in `./src/app/password_reset/sql/create_password_reset_session.sql`.
+/// Runs the `create` query
+/// defined in `./src/app/password_reset/sql/create.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn create_password_reset_session(
+pub fn create(
   db: pog.Connection,
   arg_1: BitArray,
   arg_2: BitArray,
   arg_3: BitArray,
   users_email_address: String,
-) -> Result(pog.Returned(CreatePasswordResetSessionRow), pog.QueryError) {
+) -> Result(pog.Returned(CreateRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
@@ -51,7 +51,7 @@ pub fn create_password_reset_session(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
-    decode.success(CreatePasswordResetSessionRow(
+    decode.success(CreateRow(
       id:,
       user_id:,
       secret_hash:,
@@ -76,14 +76,14 @@ returning *
   |> pog.execute(db)
 }
 
-/// A row you get from running the `delete_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset/sql/delete_password_reset_session_by_id.sql`.
+/// A row you get from running the `delete_by_id` query
+/// defined in `./src/app/password_reset/sql/delete_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type DeletePasswordResetSessionByIdRow {
-  DeletePasswordResetSessionByIdRow(
+pub type DeleteByIdRow {
+  DeleteByIdRow(
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
@@ -94,16 +94,16 @@ pub type DeletePasswordResetSessionByIdRow {
   )
 }
 
-/// Runs the `delete_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset/sql/delete_password_reset_session_by_id.sql`.
+/// Runs the `delete_by_id` query
+/// defined in `./src/app/password_reset/sql/delete_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn delete_password_reset_session_by_id(
+pub fn delete_by_id(
   db: pog.Connection,
   id: Int,
-) -> Result(pog.Returned(DeletePasswordResetSessionByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(DeleteByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
@@ -115,7 +115,7 @@ pub fn delete_password_reset_session_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
-    decode.success(DeletePasswordResetSessionByIdRow(
+    decode.success(DeleteByIdRow(
       id:,
       user_id:,
       secret_hash:,
@@ -135,14 +135,14 @@ pub fn delete_password_reset_session_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset/sql/select_password_reset_session_by_id.sql`.
+/// A row you get from running the `select_by_id` query
+/// defined in `./src/app/password_reset/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectPasswordResetSessionByIdRow {
-  SelectPasswordResetSessionByIdRow(
+pub type SelectByIdRow {
+  SelectByIdRow(
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
@@ -153,16 +153,16 @@ pub type SelectPasswordResetSessionByIdRow {
   )
 }
 
-/// Runs the `select_password_reset_session_by_id` query
-/// defined in `./src/app/password_reset/sql/select_password_reset_session_by_id.sql`.
+/// Runs the `select_by_id` query
+/// defined in `./src/app/password_reset/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_password_reset_session_by_id(
+pub fn select_by_id(
   db: pog.Connection,
   id: Int,
-) -> Result(pog.Returned(SelectPasswordResetSessionByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
@@ -174,7 +174,7 @@ pub fn select_password_reset_session_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
-    decode.success(SelectPasswordResetSessionByIdRow(
+    decode.success(SelectByIdRow(
       id:,
       user_id:,
       secret_hash:,
@@ -235,32 +235,29 @@ $1;
   |> pog.execute(db)
 }
 
-/// A row you get from running the `set_password_reset_session_to_verified_by_id` query
-/// defined in `./src/app/password_reset/sql/set_password_reset_session_to_verified_by_id.sql`.
+/// A row you get from running the `verify` query
+/// defined in `./src/app/password_reset/sql/verify.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SetPasswordResetSessionToVerifiedByIdRow {
-  SetPasswordResetSessionToVerifiedByIdRow(id: Int)
+pub type VerifyRow {
+  VerifyRow(id: Int)
 }
 
-/// Runs the `set_password_reset_session_to_verified_by_id` query
-/// defined in `./src/app/password_reset/sql/set_password_reset_session_to_verified_by_id.sql`.
+/// Runs the `verify` query
+/// defined in `./src/app/password_reset/sql/verify.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn set_password_reset_session_to_verified_by_id(
+pub fn verify(
   db: pog.Connection,
   id: Int,
-) -> Result(
-  pog.Returned(SetPasswordResetSessionToVerifiedByIdRow),
-  pog.QueryError,
-) {
+) -> Result(pog.Returned(VerifyRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
-    decode.success(SetPasswordResetSessionToVerifiedByIdRow(id:))
+    decode.success(VerifyRow(id:))
   }
 
   "update password_reset_sessions

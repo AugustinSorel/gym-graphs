@@ -179,9 +179,10 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
 pub fn sign_out(req: Request, ctx: Ctx) -> Response {
   use session, _user <- require(req, ctx)
 
-  let result =
-    sql.delete_auth_session_by_id(ctx.db, session.id)
+  let result = {
+    auth_session.delete_by_id(ctx.db, session.id)
     |> result.replace(Nil)
+  }
 
   case result {
     Ok(Nil) ->

@@ -9,14 +9,14 @@ import gleam/option.{type Option}
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
-/// A row you get from running the `create_sign_up_session` query
-/// defined in `./src/app/sign_up/sql/create_sign_up_session.sql`.
+/// A row you get from running the `create` query
+/// defined in `./src/app/sign_up/sql/create.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type CreateSignUpSessionRow {
-  CreateSignUpSessionRow(
+pub type CreateRow {
+  CreateRow(
     id: Int,
     secret_hash: BitArray,
     email_address: String,
@@ -26,18 +26,18 @@ pub type CreateSignUpSessionRow {
   )
 }
 
-/// Runs the `create_sign_up_session` query
-/// defined in `./src/app/sign_up/sql/create_sign_up_session.sql`.
+/// Runs the `create` query
+/// defined in `./src/app/sign_up/sql/create.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn create_sign_up_session(
+pub fn create(
   db: pog.Connection,
   arg_1: BitArray,
   arg_2: String,
   arg_3: String,
-) -> Result(pog.Returned(CreateSignUpSessionRow), pog.QueryError) {
+) -> Result(pog.Returned(CreateRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use secret_hash <- decode.field(1, decode.bit_array)
@@ -48,7 +48,7 @@ pub fn create_sign_up_session(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
-    decode.success(CreateSignUpSessionRow(
+    decode.success(CreateRow(
       id:,
       secret_hash:,
       email_address:,
@@ -73,14 +73,14 @@ returning *;
   |> pog.execute(db)
 }
 
-/// A row you get from running the `delete_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up/sql/delete_sign_up_session_by_id.sql`.
+/// A row you get from running the `delete_by_id` query
+/// defined in `./src/app/sign_up/sql/delete_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type DeleteSignUpSessionByIdRow {
-  DeleteSignUpSessionByIdRow(
+pub type DeleteByIdRow {
+  DeleteByIdRow(
     id: Int,
     secret_hash: BitArray,
     email_address: String,
@@ -90,16 +90,16 @@ pub type DeleteSignUpSessionByIdRow {
   )
 }
 
-/// Runs the `delete_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up/sql/delete_sign_up_session_by_id.sql`.
+/// Runs the `delete_by_id` query
+/// defined in `./src/app/sign_up/sql/delete_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn delete_sign_up_session_by_id(
+pub fn delete_by_id(
   db: pog.Connection,
   id: Int,
-) -> Result(pog.Returned(DeleteSignUpSessionByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(DeleteByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use secret_hash <- decode.field(1, decode.bit_array)
@@ -110,7 +110,7 @@ pub fn delete_sign_up_session_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
-    decode.success(DeleteSignUpSessionByIdRow(
+    decode.success(DeleteByIdRow(
       id:,
       secret_hash:,
       email_address:,
@@ -128,14 +128,14 @@ pub fn delete_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up/sql/select_sign_up_session_by_id.sql`.
+/// A row you get from running the `select_by_id` query
+/// defined in `./src/app/sign_up/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectSignUpSessionByIdRow {
-  SelectSignUpSessionByIdRow(
+pub type SelectByIdRow {
+  SelectByIdRow(
     id: Int,
     secret_hash: BitArray,
     email_address: String,
@@ -145,16 +145,16 @@ pub type SelectSignUpSessionByIdRow {
   )
 }
 
-/// Runs the `select_sign_up_session_by_id` query
-/// defined in `./src/app/sign_up/sql/select_sign_up_session_by_id.sql`.
+/// Runs the `select_by_id` query
+/// defined in `./src/app/sign_up/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_sign_up_session_by_id(
+pub fn select_by_id(
   db: pog.Connection,
   id: Int,
-) -> Result(pog.Returned(SelectSignUpSessionByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use secret_hash <- decode.field(1, decode.bit_array)
@@ -165,7 +165,7 @@ pub fn select_sign_up_session_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
-    decode.success(SelectSignUpSessionByIdRow(
+    decode.success(SelectByIdRow(
       id:,
       secret_hash:,
       email_address:,
@@ -183,14 +183,14 @@ pub fn select_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/sign_up/sql/set_email_address_verified_at_to_now.sql`.
+/// A row you get from running the `verify` query
+/// defined in `./src/app/sign_up/sql/verify.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SetEmailAddressVerifiedAtToNowRow {
-  SetEmailAddressVerifiedAtToNowRow(
+pub type VerifyRow {
+  VerifyRow(
     id: Int,
     secret_hash: BitArray,
     email_address: String,
@@ -200,16 +200,16 @@ pub type SetEmailAddressVerifiedAtToNowRow {
   )
 }
 
-/// Runs the `set_email_address_verified_at_to_now` query
-/// defined in `./src/app/sign_up/sql/set_email_address_verified_at_to_now.sql`.
+/// Runs the `verify` query
+/// defined in `./src/app/sign_up/sql/verify.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn set_email_address_verified_at_to_now(
+pub fn verify(
   db: pog.Connection,
   id: Int,
-) -> Result(pog.Returned(SetEmailAddressVerifiedAtToNowRow), pog.QueryError) {
+) -> Result(pog.Returned(VerifyRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use secret_hash <- decode.field(1, decode.bit_array)
@@ -220,7 +220,7 @@ pub fn set_email_address_verified_at_to_now(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
-    decode.success(SetEmailAddressVerifiedAtToNowRow(
+    decode.success(VerifyRow(
       id:,
       secret_hash:,
       email_address:,

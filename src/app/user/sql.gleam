@@ -8,33 +8,33 @@ import gleam/dynamic/decode
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
-/// A row you get from running the `create_user` query
-/// defined in `./src/app/user/sql/create_user.sql`.
+/// A row you get from running the `create` query
+/// defined in `./src/app/user/sql/create.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type CreateUserRow {
-  CreateUserRow(id: Int, email_address: String)
+pub type CreateRow {
+  CreateRow(id: Int, email_address: String)
 }
 
-/// Runs the `create_user` query
-/// defined in `./src/app/user/sql/create_user.sql`.
+/// Runs the `create` query
+/// defined in `./src/app/user/sql/create.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn create_user(
+pub fn create(
   db: pog.Connection,
   arg_1: BitArray,
   arg_2: BitArray,
   arg_3: String,
   id: Int,
-) -> Result(pog.Returned(CreateUserRow), pog.QueryError) {
+) -> Result(pog.Returned(CreateRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
-    decode.success(CreateUserRow(id:, email_address:))
+    decode.success(CreateRow(id:, email_address:))
   }
 
   "insert into users (email_address, password_hash, password_salt, name)
@@ -56,14 +56,14 @@ where id = $4 and email_address_verified_at is not null returning
   |> pog.execute(db)
 }
 
-/// A row you get from running the `delete_user_by_account_deletion_session_id` query
-/// defined in `./src/app/user/sql/delete_user_by_account_deletion_session_id.sql`.
+/// A row you get from running the `delete_by_account_deletion_id` query
+/// defined in `./src/app/user/sql/delete_by_account_deletion_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type DeleteUserByAccountDeletionSessionIdRow {
-  DeleteUserByAccountDeletionSessionIdRow(
+pub type DeleteByAccountDeletionIdRow {
+  DeleteByAccountDeletionIdRow(
     id: Int,
     email_address: String,
     password_hash: BitArray,
@@ -74,19 +74,16 @@ pub type DeleteUserByAccountDeletionSessionIdRow {
   )
 }
 
-/// Runs the `delete_user_by_account_deletion_session_id` query
-/// defined in `./src/app/user/sql/delete_user_by_account_deletion_session_id.sql`.
+/// Runs the `delete_by_account_deletion_id` query
+/// defined in `./src/app/user/sql/delete_by_account_deletion_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn delete_user_by_account_deletion_session_id(
+pub fn delete_by_account_deletion_id(
   db: pog.Connection,
   account_deletion_sessions_id: Int,
-) -> Result(
-  pog.Returned(DeleteUserByAccountDeletionSessionIdRow),
-  pog.QueryError,
-) {
+) -> Result(pog.Returned(DeleteByAccountDeletionIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
@@ -95,7 +92,7 @@ pub fn delete_user_by_account_deletion_session_id(
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
     use weight_unit <- decode.field(6, weight_unit_decoder())
-    decode.success(DeleteUserByAccountDeletionSessionIdRow(
+    decode.success(DeleteByAccountDeletionIdRow(
       id:,
       email_address:,
       password_hash:,
@@ -123,14 +120,14 @@ returning *;
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_user_by_email_address` query
-/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
+/// A row you get from running the `select_by_email` query
+/// defined in `./src/app/user/sql/select_by_email.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectUserByEmailAddressRow {
-  SelectUserByEmailAddressRow(
+pub type SelectByEmailRow {
+  SelectByEmailRow(
     id: Int,
     email_address: String,
     password_hash: BitArray,
@@ -141,16 +138,16 @@ pub type SelectUserByEmailAddressRow {
   )
 }
 
-/// Runs the `select_user_by_email_address` query
-/// defined in `./src/app/user/sql/select_user_by_email_address.sql`.
+/// Runs the `select_by_email` query
+/// defined in `./src/app/user/sql/select_by_email.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_user_by_email_address(
+pub fn select_by_email(
   db: pog.Connection,
   arg_1: String,
-) -> Result(pog.Returned(SelectUserByEmailAddressRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectByEmailRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
@@ -159,7 +156,7 @@ pub fn select_user_by_email_address(
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
     use weight_unit <- decode.field(6, weight_unit_decoder())
-    decode.success(SelectUserByEmailAddressRow(
+    decode.success(SelectByEmailRow(
       id:,
       email_address:,
       password_hash:,
@@ -178,14 +175,14 @@ pub fn select_user_by_email_address(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_user_by_id` query
-/// defined in `./src/app/user/sql/select_user_by_id.sql`.
+/// A row you get from running the `select_by_id` query
+/// defined in `./src/app/user/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub type SelectUserByIdRow {
-  SelectUserByIdRow(
+pub type SelectByIdRow {
+  SelectByIdRow(
     id: Int,
     email_address: String,
     password_hash: BitArray,
@@ -196,16 +193,16 @@ pub type SelectUserByIdRow {
   )
 }
 
-/// Runs the `select_user_by_id` query
-/// defined in `./src/app/user/sql/select_user_by_id.sql`.
+/// Runs the `select_by_id` query
+/// defined in `./src/app/user/sql/select_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
-pub fn select_user_by_id(
+pub fn select_by_id(
   db: pog.Connection,
   arg_1: Int,
-) -> Result(pog.Returned(SelectUserByIdRow), pog.QueryError) {
+) -> Result(pog.Returned(SelectByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
@@ -214,7 +211,7 @@ pub fn select_user_by_id(
     use created_at <- decode.field(4, pog.timestamp_decoder())
     use name <- decode.field(5, decode.string)
     use weight_unit <- decode.field(6, weight_unit_decoder())
-    decode.success(SelectUserByIdRow(
+    decode.success(SelectByIdRow(
       id:,
       email_address:,
       password_hash:,
@@ -229,6 +226,42 @@ pub fn select_user_by_id(
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `update_name` query
+/// defined in `./src/app/user/sql/update_name.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateNameRow {
+  UpdateNameRow(id: Int, name: String)
+}
+
+/// Runs the `update_name` query
+/// defined in `./src/app/user/sql/update_name.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_name(
+  db: pog.Connection,
+  name: String,
+  id: Int,
+) -> Result(pog.Returned(UpdateNameRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(UpdateNameRow(id:, name:))
+  }
+
+  "update users set name = $1 where id = $2 returning id, name;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(name))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
@@ -321,42 +354,6 @@ returning users.id;
   |> pog.parameter(pog.bytea(arg_1))
   |> pog.parameter(pog.bytea(password_salt))
   |> pog.parameter(pog.int(password_update_sessions_id))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
-/// A row you get from running the `update_user_name` query
-/// defined in `./src/app/user/sql/update_user_name.sql`.
-///
-/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
-/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub type UpdateUserNameRow {
-  UpdateUserNameRow(id: Int, name: String)
-}
-
-/// Runs the `update_user_name` query
-/// defined in `./src/app/user/sql/update_user_name.sql`.
-///
-/// > 🐿️ This function was generated automatically using v4.7.0 of
-/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub fn update_user_name(
-  db: pog.Connection,
-  name: String,
-  id: Int,
-) -> Result(pog.Returned(UpdateUserNameRow), pog.QueryError) {
-  let decoder = {
-    use id <- decode.field(0, decode.int)
-    use name <- decode.field(1, decode.string)
-    decode.success(UpdateUserNameRow(id:, name:))
-  }
-
-  "update users set name = $1 where id = $2 returning id, name;
-"
-  |> pog.query
-  |> pog.parameter(pog.text(name))
-  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
