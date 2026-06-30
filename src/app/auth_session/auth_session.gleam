@@ -45,7 +45,6 @@ pub fn refresh(session: SelectAuthSessionByIdRow, db: Connection) {
   case elapsed_vs_threshold {
     order.Gt -> {
       sql.update_auth_session_last_active_at(db, session.id)
-      |> echo
       |> result.replace(Nil)
       |> result.replace_error(Nil)
     }

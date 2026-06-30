@@ -200,11 +200,8 @@ type SignUpVerifyEmailError {
 }
 
 pub fn verify_email(req: Request, ctx: Ctx) -> Response {
-  echo "HERE-0"
   use <- handler.require_blank(req, ctx)
-  echo "HERE-1"
   use session <- require_unverified(req, ctx)
-  echo "HERE-2"
 
   use formdata <- wisp.require_form(req)
 
