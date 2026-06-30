@@ -5,7 +5,6 @@ import app/ctx.{type Ctx}
 import app/db
 import app/email
 import app/password_reset/password_reset
-import app/password_reset/sql.{type SelectPasswordResetSessionByIdRow}
 import app/password_reset/template
 import app/password_reset/ui.{type ResetPasswordForm}
 import app/session
@@ -53,11 +52,7 @@ fn require(req, ctx: Ctx, next) {
   }
 }
 
-fn require_unverified_session(
-  req: Request,
-  ctx: Ctx,
-  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
-) -> Response {
+fn require_unverified_session(req: Request, ctx: Ctx, next) -> Response {
   use session <- require(req, ctx)
 
   let already_verified = option.is_some(session.user_identity_verified_at)
@@ -69,11 +64,7 @@ fn require_unverified_session(
   next(session)
 }
 
-fn require_verified_session(
-  req: Request,
-  ctx: Ctx,
-  next: fn(SelectPasswordResetSessionByIdRow) -> Response,
-) -> Response {
+fn require_verified_session(req: Request, ctx: Ctx, next) -> Response {
   use session <- require(req, ctx)
 
   let not_verified = option.is_none(session.user_identity_verified_at)
@@ -303,7 +294,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
 pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
   use session <- require_verified_session(req, ctx)
 
-  let result = password_reset.select_user_by_session_id(ctx.db, session.id)
+  let result = user.select_by_password_reset_id(ctx.db, session.id)
 
   case result {
     Ok(user) ->

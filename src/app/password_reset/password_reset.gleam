@@ -37,8 +37,3 @@ pub fn delete_by_id(db: Connection, id: Int) {
   sql.delete_by_id(db, id)
   |> db.extract_first_row
 }
-
-pub fn select_user_by_session_id(db: Connection, id: Int) {
-  sql.select_user_by_password_reset_session_id(db, id)
-  |> db.extract_first_row
-}

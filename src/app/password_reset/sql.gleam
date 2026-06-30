@@ -194,47 +194,6 @@ pub fn select_by_id(
   |> pog.execute(db)
 }
 
-/// A row you get from running the `select_user_by_password_reset_session_id` query
-/// defined in `./src/app/password_reset/sql/select_user_by_password_reset_session_id.sql`.
-///
-/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
-/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub type SelectUserByPasswordResetSessionIdRow {
-  SelectUserByPasswordResetSessionIdRow(email_address: String)
-}
-
-/// Runs the `select_user_by_password_reset_session_id` query
-/// defined in `./src/app/password_reset/sql/select_user_by_password_reset_session_id.sql`.
-///
-/// > 🐿️ This function was generated automatically using v4.7.0 of
-/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub fn select_user_by_password_reset_session_id(
-  db: pog.Connection,
-  arg_1: Int,
-) -> Result(pog.Returned(SelectUserByPasswordResetSessionIdRow), pog.QueryError) {
-  let decoder = {
-    use email_address <- decode.field(0, decode.string)
-    decode.success(SelectUserByPasswordResetSessionIdRow(email_address:))
-  }
-
-  "select users.email_address
-from password_reset_sessions
-inner join users on password_reset_sessions.user_id = users.id
-where password_reset_sessions.id
-=
-$1;
-
-
-
-"
-  |> pog.query
-  |> pog.parameter(pog.int(arg_1))
-  |> pog.returning(decoder)
-  |> pog.execute(db)
-}
-
 /// A row you get from running the `verify` query
 /// defined in `./src/app/password_reset/sql/verify.sql`.
 ///

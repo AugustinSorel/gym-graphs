@@ -94,3 +94,7 @@ pub fn update_password_by_password_reset_id(
   )
   |> db.extract_first_row
 }
+
+pub fn select_by_password_reset_id(db: Connection, id: Int) {
+  sql.select_by_password_reset_id(db, id) |> db.extract_first_row
+}
