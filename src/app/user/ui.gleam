@@ -1,7 +1,4 @@
-import app/account_deletion/ui as account_deletion_ui
 import app/auth_session/auth_session.{type User}
-import app/auth_session/ui as auth_session_ui
-import app/password_update/ui as password_update_ui
 import app/ui
 import app/user/user
 import formal/form.{type Form}
@@ -247,8 +244,8 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("security"),
         ],
       ),
-      password_update_ui.update_password_row(error: option.None),
-      auth_session_ui.sign_out_row(error: option.None),
+      update_password_row(error: option.None),
+      sign_out_row(error: option.None),
     ]),
 
     html.section([], [
@@ -350,7 +347,7 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("danger zone"),
         ],
       ),
-      account_deletion_ui.remove_account_row(error: option.None),
+      remove_account_row(error: option.None),
     ]),
   ])
 }
@@ -430,6 +427,121 @@ pub fn weight_unit_form(form: Form(user.WeightUnit)) {
             ui.alert_description(element.text(msg)),
           ])
         Error(_) -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn update_password_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+      ),
+    ],
+    [
+      html.dl([attribute.class("space-y-1")], [
+        html.dt([attribute.class("text-outline text-sm")], [
+          html.text("password"),
+        ]),
+        html.dd([attribute.class("break-all")], [html.text("***********")]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.attribute("hx-post", "/update-password"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto text-sm"),
+        ],
+        [html.text("update"), ui.spinner()],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("updating password failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn sign_out_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("session"),
+        ]),
+        html.p([attribute.class("text-balance")], [
+          html.text("sign out from this current device."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.attribute("hx-post", "/sign-out"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("sign out"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn remove_account_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("remove account"),
+        ]),
+        html.p([], [
+          html.text("remove your account from all of our servers."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonDestroy,
+        [
+          attribute.attribute("hx-post", "/delete-account"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("delete account"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
       },
     ],
   )

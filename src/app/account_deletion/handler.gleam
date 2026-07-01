@@ -5,6 +5,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/db
 import app/session
+import app/user/ui as user_ui
 import app/user/user
 import app/web
 import formal/form.{type Form}
@@ -38,12 +39,12 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 
     Error(db.DatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.remove_account_row(error: option.Some("something went wrong"))
+      user_ui.remove_account_row(error: option.Some("something went wrong"))
       |> web.html(500)
     }
     Error(db.RowNotFound) -> {
       wisp.log_error(req.path <> ": unexpected empty result creating session")
-      ui.remove_account_row(error: option.Some("something went wrong"))
+      user_ui.remove_account_row(error: option.Some("something went wrong"))
       |> web.html(500)
     }
   }

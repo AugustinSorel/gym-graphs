@@ -4,6 +4,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/db
 import app/session
+import app/user/ui as user_ui
 import app/user/user
 import app/web
 import formal/form
@@ -128,7 +129,7 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
 
     Error(err) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
-      ui.sign_out_row(error: option.Some("something went wrong"))
+      user_ui.sign_out_row(error: option.Some("something went wrong"))
       |> web.html(500)
     }
   }

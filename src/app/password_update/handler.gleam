@@ -5,6 +5,7 @@ import app/db
 import app/password_update/password_update
 import app/password_update/ui
 import app/session
+import app/user/ui as user_ui
 import app/user/user
 import app/web
 import formal/form.{type Form}
@@ -39,13 +40,13 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 
     Error(db.DatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.update_password_row(error: option.Some("something went wrong"))
+      user_ui.update_password_row(error: option.Some("something went wrong"))
       |> web.html(500)
     }
 
     Error(db.RowNotFound) -> {
       wisp.log_error(req.path <> ": unexpected empty result creating session")
-      ui.update_password_row(error: option.Some("something went wrong"))
+      user_ui.update_password_row(error: option.Some("something went wrong"))
       |> web.html(500)
     }
   }
