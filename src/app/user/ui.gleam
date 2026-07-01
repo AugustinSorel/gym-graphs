@@ -278,31 +278,7 @@ pub fn account_details(user: User) -> Element(a) {
             html.text("theme"),
           ]),
           html.fieldset(
-            [
-              attribute.class("flex border-2 border-on-surface w-fit"),
-              attribute.attribute(
-                "_",
-                "
-          	      init
-          	        set :system_theme_input to the first <input[value='system']/>
-          	        set :theme_key to 'theme'
-
-          	        get localStorage[:theme_key] then
-          	          set selected_theme to it or :system_theme_input.value
-          	          add @checked to the first <input[value=$selected_theme]/> in me
-          	        end
-
-          	      on change
-          	        if target.value is :system_theme_input.value then
-          	          remove @data-theme from <html/>
-          	          localStorage.removeItem(:theme_key)
-          	        otherwise
-          	          set <html/>'s @data-theme to target.value
-          	          set localStorage[:theme_key] to target.value
-          	        end
-               ",
-              ),
-            ],
+            [attribute.class("flex border-2 border-on-surface w-fit")],
             [
               html.input([
                 attribute.type_("radio"),

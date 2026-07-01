@@ -25,22 +25,7 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
         ],
         "",
       ),
-      html.script(
-        [
-          attribute.src("https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.93"),
-        ],
-        "",
-      ),
-      html.script(
-        [],
-        "
-          const cachedTheme = localStorage.getItem('theme')
-
-          if (cachedTheme) {
-            document.documentElement.dataset['theme'] = cachedTheme;
-          }
-        ",
-      ),
+      html.script([attribute.src("/static/theme.js")], ""),
       html.title([], "auth"),
     ]),
     html.body([attribute.class("bg-surface text-on-surface")], children),
@@ -96,7 +81,6 @@ pub fn spinner() -> Element(a) {
       attribute.attribute("width", "16"),
       attribute.attribute("height", "16"),
       attribute.class("stroke-current htmx-indicator"),
-      attribute.id("idk"),
     ],
     [
       svg.g(
