@@ -1,6 +1,5 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
-import app/guards
 import app/db
 import app/email.{type SendEmailError}
 import app/session
@@ -12,74 +11,13 @@ import app/sign_up/ui.{
 import app/user/user.{type CheckIfEmailIsAvailable}
 import app/web
 import formal/form.{type Form}
-import gleam/bool
-import gleam/float
-import gleam/option
 import gleam/result
 import gleam/string
-import gleam/time/duration
 import pog
 import wisp.{type Request, type Response}
 
-const cookie_name: String = "sign_up_session_token"
-
-fn cookie_max_age() {
-  duration.hours(24) |> duration.to_seconds() |> float.round()
-}
-
-fn require(req, ctx: Ctx, next) {
-  let result = {
-    use cookie <- result.try(session.get_cookie(req, cookie_name))
-    use token <- result.try(session.decode_token(cookie))
-
-    use session <- result.try(
-      sign_up.select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
-    )
-
-    use Nil <- result.try(
-      session.validate_token(token, session.secret_hash)
-      |> result.replace_error(Nil),
-    )
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(session) -> next(session)
-    Error(Nil) -> {
-      wisp.redirect("/sign-up") |> session.clear_cookie(req, cookie_name)
-    }
-  }
-}
-
-fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
-  use session <- require(req, ctx)
-
-  let already_verified = option.is_some(session.email_address_verified_at)
-
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/sign-up/set-password"),
-  )
-
-  next(session)
-}
-
-fn require_verified(req: Request, ctx: Ctx, next) -> Response {
-  use session <- require(req, ctx)
-
-  let not_verified = option.is_none(session.email_address_verified_at)
-
-  use <- bool.guard(
-    when: not_verified,
-    return: wisp.redirect("/sign-up/verify-email-address"),
-  )
-
-  next(session)
-}
-
 pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
 
   ui.get_register_form()
   |> ui.register_form()
@@ -88,8 +26,8 @@ pub fn view_register_page(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_email_page(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use _session <- require_unverified(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use _session <- sign_up.require_unverified(req, ctx)
 
   ui.get_verify_email_form()
   |> ui.verify_email_form()
@@ -105,7 +43,7 @@ type SignUpStartError {
 }
 
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -122,7 +60,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
       |> result.map_error(EmailAvailabilityError),
     )
 
-    use session <- result.try(
+    use #(id, secret, verification_code) <- result.try(
       sign_up.create(ctx.db, input.email)
       |> result.map_error(SessionCreationFailed),
     )
@@ -131,20 +69,25 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
       email.send(
         email: ctx.email,
         to: input.email,
-        subject: "Your verification code - " <> session.verification_code,
-        html: template.verification_code(session.verification_code),
+        subject: "Your verification code - " <> verification_code,
+        html: template.verification_code(verification_code),
       )
       |> result.map_error(VerificationCodeDeliveryFailed),
     )
 
-    Ok(session.encode_token(session.id, session.secret))
+    Ok(session.encode_token(id, secret))
   }
 
   case result {
     Ok(token) ->
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/sign-up/verify-email-address")
-      |> session.set_cookie(req, cookie_name, token, cookie_max_age())
+      |> session.set_cookie(
+        req,
+        sign_up.cookie_name,
+        token,
+        sign_up.cookie_max_age(),
+      )
 
     Error(StartValidationFailed(form)) ->
       form
@@ -200,8 +143,8 @@ type SignUpVerifyEmailError {
 }
 
 pub fn verify_email(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use session <- require_unverified(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use session <- sign_up.require_unverified(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -269,8 +212,8 @@ type ResendVerifyEmailCode {
 }
 
 pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use session <- require_unverified(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use session <- sign_up.require_unverified(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -308,8 +251,8 @@ pub fn resend_verify_email_code(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use session <- require(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use session <- sign_up.require(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -318,7 +261,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, sign_up.cookie_name)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
     Error(db.DatabaseFailure(error)) -> {
@@ -341,8 +284,8 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_set_password_page(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use session <- require_verified(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use session <- sign_up.require_verified(req, ctx)
 
   ui.get_set_password_form()
   |> form.add_string("email", session.email_address)
@@ -361,8 +304,8 @@ pub type SetPasswordError {
 }
 
 pub fn set_password(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
-  use session <- require_verified(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
+  use session <- sign_up.require_verified(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -414,12 +357,12 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
 
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/")
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, sign_up.cookie_name)
       |> session.set_cookie(
         req,
-        guards.cookie_name,
+        auth_session.cookie_name,
         token,
-        guards.cookie_max_age(),
+        auth_session.cookie_max_age(),
       )
     }
 

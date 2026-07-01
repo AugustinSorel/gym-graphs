@@ -1,5 +1,5 @@
+import app/auth_session/auth_session
 import app/ctx.{type Ctx}
-import app/guards
 import app/db
 import app/user/sql
 import app/user/ui.{type EditNameForm}
@@ -12,7 +12,7 @@ import gleam/string
 import wisp.{type Request, type Response}
 
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- guards.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
 
   ui.account_details(user)
   |> ui.account_page(req)
@@ -20,7 +20,7 @@ pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_edit_name_page(req: Request, ctx: Ctx) {
-  use _session, user <- guards.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
 
   ui.get_edit_name_form()
   |> form.add_values([#("name", user.name)])
@@ -35,7 +35,7 @@ type UpdateNameError {
 }
 
 pub fn update_name(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- guards.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
   use form_data <- wisp.require_form(req)
 
   let result = {
@@ -87,7 +87,7 @@ type UpdateWeightUnitError {
 }
 
 pub fn update_weight_unit(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- guards.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
   use form_data <- wisp.require_form(req)
 
   let result = {

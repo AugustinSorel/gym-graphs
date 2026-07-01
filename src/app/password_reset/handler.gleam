@@ -1,6 +1,5 @@
 import app/auth_session/auth_session
 import app/crypto
-import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/email
@@ -12,69 +11,10 @@ import app/user/user
 import app/web
 import formal/form.{type Form}
 import gleam/bool
-import gleam/float
-import gleam/option
 import gleam/result
 import gleam/string
-import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
-
-const cookie_name = "password_reset_session_token"
-
-fn cookie_max_age() {
-  duration.hours(1) |> duration.to_seconds() |> float.round()
-}
-
-fn require(req, ctx: Ctx, next) {
-  let result = {
-    use cookie <- result.try(session.get_cookie(req, cookie_name))
-    use token <- result.try(session.decode_token(cookie))
-
-    use session <- result.try(
-      password_reset.select_by_id(ctx.db, token.id)
-      |> result.replace_error(Nil),
-    )
-
-    use Nil <- result.try(
-      session.validate_token(token, session.secret_hash)
-      |> result.replace_error(Nil),
-    )
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(session) -> next(session)
-    Error(Nil) -> {
-      wisp.redirect("/account") |> session.clear_cookie(req, cookie_name)
-    }
-  }
-}
-
-fn require_unverified_session(req: Request, ctx: Ctx, next) -> Response {
-  use session <- require(req, ctx)
-
-  let already_verified = option.is_some(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/reset-password/set-new-password"),
-  )
-
-  next(session)
-}
-
-fn require_verified_session(req: Request, ctx: Ctx, next) -> Response {
-  use session <- require(req, ctx)
-
-  let not_verified = option.is_none(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: not_verified,
-    return: wisp.redirect("/reset-password/verify-email-code"),
-  )
-
-  next(session)
-}
 
 pub fn view_password_reset_page() -> Response {
   ui.get_password_reset_form()
@@ -128,7 +68,12 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
     Ok(token) ->
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/reset-password/verify-email-code")
-      |> session.set_cookie(req, cookie_name, token, cookie_max_age())
+      |> session.set_cookie(
+        req,
+        password_reset.cookie_name,
+        token,
+        password_reset.cookie_max_age(),
+      )
 
     Error(StartValidation(form)) ->
       form
@@ -173,7 +118,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_page(req: Request, ctx: Ctx) -> Response {
-  use _session <- require_unverified_session(req, ctx)
+  use _session <- password_reset.require_unverified(req, ctx)
 
   ui.get_verify_form()
   |> ui.verify_form()
@@ -188,7 +133,7 @@ pub type VerifyError {
 }
 
 pub fn verify(req: Request, ctx: Ctx) -> Response {
-  use session <- require_unverified_session(req, ctx)
+  use session <- password_reset.require_unverified(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -258,7 +203,7 @@ pub fn verify(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use session <- require(req, ctx)
+  use session <- password_reset.require(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -268,7 +213,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, password_reset.cookie_name)
       |> wisp.set_header("HX-Redirect", "/reset-password")
 
     Error(db.DatabaseFailure(error)) -> {
@@ -292,7 +237,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
-  use session <- require_verified_session(req, ctx)
+  use session <- password_reset.require_verified(req, ctx)
 
   let result = user.select_by_password_reset_id(ctx.db, session.id)
 
@@ -332,7 +277,7 @@ type ResetPasswordError {
 }
 
 pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
-  use session <- require_verified_session(req, ctx)
+  use session <- password_reset.require_verified(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -386,12 +331,12 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
     Ok(token) -> {
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/")
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, password_reset.cookie_name)
       |> session.set_cookie(
         req,
-        guards.cookie_name,
+        auth_session.cookie_name,
         token,
-        guards.cookie_max_age(),
+        auth_session.cookie_max_age(),
       )
     }
 

@@ -1,8 +1,70 @@
 import app/crypto
+import app/ctx.{type Ctx}
 import app/db
 import app/password_reset/sql
+import app/session
+import gleam/bool
+import gleam/float
+import gleam/option
 import gleam/result
+import gleam/time/duration
 import pog.{type Connection}
+import wisp.{type Request, type Response}
+
+pub const cookie_name = "password_reset_session_token"
+
+pub fn cookie_max_age() {
+  duration.hours(1) |> duration.to_seconds() |> float.round()
+}
+
+pub fn require(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(req, cookie_name))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/account") |> session.clear_cookie(req, cookie_name)
+    }
+  }
+}
+
+pub fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
+  use session <- require(req, ctx)
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/reset-password/set-new-password"),
+  )
+
+  next(session)
+}
+
+pub fn require_verified(req: Request, ctx: Ctx, next) -> Response {
+  use session <- require(req, ctx)
+
+  let not_verified = option.is_none(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/reset-password/verify-email-code"),
+  )
+
+  next(session)
+}
 
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id)

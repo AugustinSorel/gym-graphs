@@ -1,5 +1,5 @@
+import app/auth_session/auth_session
 import app/crypto
-import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/password_update/password_update
@@ -9,86 +9,14 @@ import app/user/user
 import app/web
 import formal/form.{type Form}
 import gleam/bool
-import gleam/float
 import gleam/option
 import gleam/result
 import gleam/string
-import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request, type Response}
 
-const cookie_name = "password_update_session_token"
-
-fn cookie_max_age() {
-  duration.hours(1) |> duration.to_seconds() |> float.round()
-}
-
-fn require(req, ctx: Ctx, next) {
-  let result = {
-    use cookie <- result.try(session.get_cookie(req, cookie_name))
-    use token <- result.try(session.decode_token(cookie))
-
-    use session <- result.try(
-      password_update.select_by_id(ctx.db, token.id)
-      |> result.replace_error(Nil),
-    )
-
-    use Nil <- result.try(
-      session.validate_token(token, session.secret_hash)
-      |> result.replace_error(Nil),
-    )
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(session) -> next(session)
-    Error(Nil) -> {
-      wisp.redirect("/account") |> session.clear_cookie(req, cookie_name)
-    }
-  }
-}
-
-fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
-
-  let session_matched = auth_session.id == session.auth_session_id
-  use <- bool.guard(
-    when: !session_matched,
-    return: wisp.redirect("/account") |> session.clear_cookie(req, cookie_name),
-  )
-
-  let already_verified = option.is_some(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/update-password/set-new-password"),
-  )
-
-  next(session, user)
-}
-
-fn require_verified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
-
-  let session_matched = auth_session.id == session.auth_session_id
-  use <- bool.guard(
-    when: !session_matched,
-    return: wisp.redirect("/account") |> session.clear_cookie(req, cookie_name),
-  )
-
-  let is_verified = option.is_some(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: !is_verified,
-    return: wisp.redirect("/update-password/verify-password"),
-  )
-
-  next(session, user)
-}
-
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- guards.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
 
   let result = {
     use #(id, secret) <- result.try({
@@ -102,7 +30,12 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
     Ok(token) ->
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/update-password/verify-password")
-      |> session.set_cookie(req, cookie_name, token, cookie_max_age())
+      |> session.set_cookie(
+        req,
+        password_update.cookie_name,
+        token,
+        password_update.cookie_max_age(),
+      )
 
     Error(db.DatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
@@ -119,7 +52,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- require_unverified(req, ctx)
+  use _session, user <- password_update.require_unverified(req, ctx)
 
   ui.get_verify_password_form()
   |> form.add_values([#("email", user.email)])
@@ -136,7 +69,7 @@ type VerifyPasswordError {
 }
 
 pub fn verify_password(req: Request, ctx: Ctx) -> Response {
-  use session, user <- require_unverified(req, ctx)
+  use session, user <- password_update.require_unverified(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -214,7 +147,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_set_new_password_page(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- require_verified(req, ctx)
+  use _session, user <- password_update.require_verified(req, ctx)
 
   ui.get_set_new_password_form()
   |> form.add_values([#("email", user.email)])
@@ -231,7 +164,7 @@ type UpdatePasswordError {
 }
 
 pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
-  use session, _user <- require_verified(req, ctx)
+  use session, _user <- password_update.require_verified(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -277,7 +210,7 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.created()
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, password_update.cookie_name)
       |> wisp.set_header("HX-Redirect", "/account")
 
     Error(UpdatePasswordValidation(form)) ->
@@ -317,15 +250,16 @@ pub fn set_new_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
+  use session <- password_update.require(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
   let session_matched = auth_session.id == session.auth_session_id
   use <- bool.guard(
     when: !session_matched,
-    return: wisp.redirect("/account") |> session.clear_cookie(req, cookie_name),
+    return: wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update.cookie_name),
   )
 
   let result = {
@@ -335,7 +269,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, password_update.cookie_name)
       |> wisp.set_header("HX-Redirect", "/account")
 
     Error(db.DatabaseFailure(error)) -> {

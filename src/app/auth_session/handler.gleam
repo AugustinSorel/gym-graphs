@@ -3,7 +3,6 @@ import app/auth_session/ui
 import app/crypto
 import app/ctx.{type Ctx}
 import app/db
-import app/guards
 import app/session
 import app/user/user
 import app/web
@@ -15,7 +14,7 @@ import gleam/string
 import wisp.{type Request, type Response}
 
 pub fn view_sign_in_page(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
 
   ui.get_sign_in_form()
   |> ui.sign_in_form()
@@ -31,7 +30,7 @@ type SignInError {
 }
 
 pub fn sign_in(req: Request, ctx: Ctx) -> Response {
-  use <- guards.require_blank(req, ctx)
+  use <- auth_session.require_blank(req, ctx)
 
   use formdata <- wisp.require_form(req)
 
@@ -65,7 +64,12 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
     Ok(token) -> {
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/")
-      |> session.set_cookie(req, guards.cookie_name, token, guards.cookie_max_age())
+      |> session.set_cookie(
+        req,
+        auth_session.cookie_name,
+        token,
+        auth_session.cookie_max_age(),
+      )
     }
 
     Error(SignInFormError(form)) ->
@@ -109,7 +113,7 @@ pub fn sign_in(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn sign_out(req: Request, ctx: Ctx) -> Response {
-  use session, _user <- guards.require(req, ctx)
+  use session, _user <- auth_session.require(req, ctx)
 
   let result = {
     auth_session.delete_by_id(ctx.db, session.id)
@@ -120,7 +124,7 @@ pub fn sign_out(req: Request, ctx: Ctx) -> Response {
     Ok(Nil) ->
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/sign-in")
-      |> session.clear_cookie(req, guards.cookie_name)
+      |> session.clear_cookie(req, auth_session.cookie_name)
 
     Error(err) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))

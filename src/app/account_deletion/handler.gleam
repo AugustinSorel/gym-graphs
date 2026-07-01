@@ -1,7 +1,7 @@
 import app/account_deletion/account_deletion
 import app/account_deletion/ui.{type VerifyPasswordForm}
+import app/auth_session/auth_session
 import app/crypto
-import app/guards
 import app/ctx.{type Ctx}
 import app/db
 import app/session
@@ -9,85 +9,13 @@ import app/user/user
 import app/web
 import formal/form.{type Form}
 import gleam/bool
-import gleam/float
 import gleam/option
 import gleam/result
 import gleam/string
-import gleam/time/duration
 import wisp.{type Request, type Response}
 
-fn require(req: Request, ctx: Ctx, next) -> Response {
-  let result = {
-    use cookie <- result.try(session.get_cookie(req, cookie_name))
-    use token <- result.try(session.decode_token(cookie))
-
-    use session <- result.try(
-      account_deletion.select_by_id(ctx.db, token.id)
-      |> result.replace_error(Nil),
-    )
-
-    use Nil <- result.try(
-      session.validate_token(token, session.secret_hash)
-      |> result.replace_error(Nil),
-    )
-
-    Ok(session)
-  }
-
-  case result {
-    Ok(session) -> next(session)
-    Error(Nil) -> {
-      wisp.redirect("/") |> session.clear_cookie(req, cookie_name)
-    }
-  }
-}
-
-fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
-
-  let session_matched = auth_session.id == session.auth_session_id
-  use <- bool.guard(
-    when: !session_matched,
-    return: wisp.redirect("/") |> session.clear_cookie(req, cookie_name),
-  )
-
-  let already_verified = option.is_some(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: already_verified,
-    return: wisp.redirect("/delete-account/confirm"),
-  )
-
-  next(session, user)
-}
-
-fn require_verified(req: Request, ctx: Ctx, next) -> Response {
-  use auth_session, user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
-
-  let session_matched = auth_session.id == session.auth_session_id
-  use <- bool.guard(
-    when: !session_matched,
-    return: wisp.redirect("/") |> session.clear_cookie(req, cookie_name),
-  )
-
-  let is_verified = option.is_some(session.user_identity_verified_at)
-  use <- bool.guard(
-    when: !is_verified,
-    return: wisp.redirect("/delete-account/verify-password"),
-  )
-
-  next(session, user)
-}
-
-const cookie_name = "account_deletion_session_token"
-
-fn cookie_max_age() {
-  duration.hours(1) |> duration.to_seconds() |> float.round()
-}
-
 pub fn start(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- guards.require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
 
   let result = {
     use #(id, secret) <- result.try({
@@ -101,7 +29,12 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
     Ok(token) ->
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/delete-account/verify-password")
-      |> session.set_cookie(req, cookie_name, token, cookie_max_age())
+      |> session.set_cookie(
+        req,
+        account_deletion.cookie_name,
+        token,
+        account_deletion.cookie_max_age(),
+      )
 
     Error(db.DatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
@@ -117,7 +50,7 @@ pub fn start(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_verify_password_page(req: Request, ctx: Ctx) -> Response {
-  use _session, user <- require_unverified(req, ctx)
+  use _session, user <- account_deletion.require_unverified(req, ctx)
 
   let result = user.select_by_id(ctx.db, user.id)
 
@@ -155,7 +88,7 @@ type VerifyPasswordError {
 }
 
 pub fn verify_password(req: Request, ctx: Ctx) -> Response {
-  use session, user <- require_unverified(req, ctx)
+  use session, user <- account_deletion.require_unverified(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
@@ -233,7 +166,7 @@ pub fn verify_password(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_confirm_page(req: Request, ctx: Ctx) -> Response {
-  use _session, _user <- require_verified(req, ctx)
+  use _session, _user <- account_deletion.require_verified(req, ctx)
 
   ui.get_account_deletion_form()
   |> ui.confirm_form()
@@ -242,7 +175,7 @@ pub fn view_confirm_page(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn confirm(req: Request, ctx: Ctx) -> Response {
-  use session, _user <- require_verified(req, ctx)
+  use session, _user <- account_deletion.require_verified(req, ctx)
 
   let result =
     user.delete_by_account_deletion_id(ctx.db, session.id)
@@ -251,8 +184,8 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie_name)
-      |> session.clear_cookie(req, guards.cookie_name)
+      |> session.clear_cookie(req, account_deletion.cookie_name)
+      |> session.clear_cookie(req, auth_session.cookie_name)
       |> wisp.set_header("HX-Redirect", "/sign-in")
 
     Error(db.DatabaseFailure(error)) -> {
@@ -273,15 +206,16 @@ pub fn confirm(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn cancel(req: Request, ctx: Ctx) -> Response {
-  use auth_session, _user <- guards.require(req, ctx)
-  use session <- require(req, ctx)
+  use auth_session, _user <- auth_session.require(req, ctx)
+  use session <- account_deletion.require(req, ctx)
 
   use form_data <- wisp.require_form(req)
 
   let session_matched = auth_session.id == session.auth_session_id
   use <- bool.guard(
     when: !session_matched,
-    return: wisp.redirect("/") |> session.clear_cookie(req, cookie_name),
+    return: wisp.redirect("/")
+      |> session.clear_cookie(req, account_deletion.cookie_name),
   )
 
   let result = {
@@ -291,7 +225,7 @@ pub fn cancel(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie_name)
+      |> session.clear_cookie(req, account_deletion.cookie_name)
       |> wisp.set_header("HX-Redirect", "/")
 
     Error(db.DatabaseFailure(error)) -> {

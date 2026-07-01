@@ -1,12 +1,71 @@
 import app/crypto
+import app/ctx.{type Ctx}
 import app/db
+import app/session
 import app/sign_up/sql
 import gleam/bool
+import gleam/float
+import gleam/option
 import gleam/result
+import gleam/time/duration
 import pog
+import wisp.{type Request, type Response}
 
-pub type Session {
-  Session(id: Int, secret: BitArray, verification_code: String)
+pub const cookie_name: String = "sign_up_session_token"
+
+pub fn cookie_max_age() {
+  duration.hours(24) |> duration.to_seconds() |> float.round()
+}
+
+pub fn require(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(req, cookie_name))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/sign-up") |> session.clear_cookie(req, cookie_name)
+    }
+  }
+}
+
+pub fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
+  use session <- require(req, ctx)
+
+  let already_verified = option.is_some(session.email_address_verified_at)
+
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/sign-up/set-password"),
+  )
+
+  next(session)
+}
+
+pub fn require_verified(req: Request, ctx: Ctx, next) -> Response {
+  use session <- require(req, ctx)
+
+  let not_verified = option.is_none(session.email_address_verified_at)
+
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/sign-up/verify-email-address"),
+  )
+
+  next(session)
 }
 
 pub fn create(db: pog.Connection, email: String) {
@@ -16,9 +75,7 @@ pub fn create(db: pog.Connection, email: String) {
 
   sql.create(db, secret_hash, email, verification_code)
   |> db.extract_first_row
-  |> result.map(fn(session) {
-    Session(id: session.id, secret:, verification_code:)
-  })
+  |> result.map(fn(session) { #(session.id, secret, verification_code) })
 }
 
 pub fn verify_code(stored_code: String, submitted_code: String) {
