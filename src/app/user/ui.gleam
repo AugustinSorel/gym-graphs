@@ -279,14 +279,37 @@ pub fn account_details(user: User) -> Element(a) {
             html.text("theme"),
           ]),
           html.fieldset(
-            [attribute.class("flex border-2 border-on-surface w-fit")],
+            [
+              attribute.class("flex border-2 border-on-surface w-fit"),
+              attribute.attribute(
+                "_",
+                "
+          	      init
+          	        set :system_theme_input to the first <input[value='system']/>
+          	        set :theme_key to 'theme'
+
+          	        get localStorage[:theme_key] then
+          	          set selected_theme to it or :system_theme_input.value
+          	          add @checked to the first <input[value=$selected_theme]/> in me
+          	        end
+
+          	      on change
+          	        if target.value is :system_theme_input.value then
+          	          remove @data-theme from <html/>
+          	          localStorage.removeItem(:theme_key)
+          	        otherwise
+          	          set <html/>'s @data-theme to target.value
+          	          set localStorage[:theme_key] to target.value
+          	        end
+               ",
+              ),
+            ],
             [
               html.input([
                 attribute.type_("radio"),
                 attribute.name("theme"),
                 attribute.value("system"),
                 attribute.id("theme-system"),
-                attribute.checked(True),
                 attribute.class("sr-only peer/system"),
               ]),
               html.label(
@@ -384,42 +407,55 @@ pub fn weight_unit_form(form: Form(user.WeightUnit)) {
       html.p([attribute.class("text-outline text-sm")], [
         html.text("weight unit"),
       ]),
-      html.fieldset([attribute.class("flex border-2 border-on-surface w-fit")], [
-        html.label(
-          [
-            attribute.class(
-              "px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:not(:checked)]:hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-            ),
-          ],
-          [
-            html.input([
-              attribute.type_("radio"),
-              attribute.name("weight_unit"),
-              attribute.value("kg"),
-              attribute.checked(form.field_value(form, "weight_unit") == "kg"),
-              attribute.class("sr-only"),
-            ]),
-            html.text("kg"),
-          ],
-        ),
-        html.label(
-          [
-            attribute.class(
-              "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:not(:checked)]:hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-            ),
-          ],
-          [
-            html.input([
-              attribute.type_("radio"),
-              attribute.name("weight_unit"),
-              attribute.value("lbs"),
-              attribute.checked(form.field_value(form, "weight_unit") == "lbs"),
-              attribute.class("sr-only"),
-            ]),
-            html.text("lbs"),
-          ],
-        ),
-      ]),
+      html.fieldset(
+        [
+          attribute.class("flex border-2 border-on-surface w-fit"),
+        ],
+        [
+          html.label(
+            [
+              attribute.class(
+                "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              ),
+            ],
+            [
+              html.input([
+                attribute.type_("radio"),
+                attribute.name("weight_unit"),
+                attribute.value("kg"),
+                attribute.checked(form.field_value(form, "weight_unit") == "kg"),
+                attribute.class("sr-only"),
+              ]),
+              html.abbr(
+                [attribute.title("kilograms"), attribute.class("no-underline")],
+                [html.text("kg")],
+              ),
+            ],
+          ),
+          html.label(
+            [
+              attribute.class(
+                "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              ),
+            ],
+            [
+              html.input([
+                attribute.type_("radio"),
+                attribute.name("weight_unit"),
+                attribute.value("lbs"),
+                attribute.checked(
+                  form.field_value(form, "weight_unit") == "lbs",
+                ),
+                attribute.class("sr-only"),
+              ]),
+              html.abbr(
+                [attribute.title("pounds"), attribute.class("no-underline")],
+                [html.text("lbs")],
+              ),
+            ],
+          ),
+        ],
+      ),
       case root_err {
         Ok(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [

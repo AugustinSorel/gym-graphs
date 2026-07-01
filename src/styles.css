@@ -132,6 +132,14 @@
 
     --outline: light-dark(hsl(0 0% 50%), hsl(264 5% 58%));
   }
+
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
 }
 
 @layer components {

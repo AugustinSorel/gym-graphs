@@ -25,6 +25,22 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
         ],
         "",
       ),
+      html.script(
+        [
+          attribute.src("https://cdn.jsdelivr.net/npm/hyperscript.org@0.9.93"),
+        ],
+        "",
+      ),
+      html.script(
+        [],
+        "
+          const cachedTheme = localStorage.getItem('theme')
+
+          if (cachedTheme) {
+            document.documentElement.dataset['theme'] = cachedTheme;
+          }
+        ",
+      ),
       html.title([], "auth"),
     ]),
     html.body([attribute.class("bg-surface text-on-surface")], children),
