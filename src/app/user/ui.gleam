@@ -271,7 +271,7 @@ pub fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "py-7 border-b-2 border-outline space-y-3 flex items-center justify-between",
+            "py-7 border-b-2 border-outline flex items-center justify-between",
           ),
         ],
         [
