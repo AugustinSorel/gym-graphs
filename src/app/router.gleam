@@ -1,6 +1,7 @@
 import app/account_deletion/handler as account_deletion_handler
 import app/auth_session/handler as auth_session_handler
 import app/ctx.{type Ctx}
+import app/exercise/handler as exercise_handler
 import app/password_reset/handler as password_reset_handler
 import app/password_update/handler as password_update_handler
 import app/sign_up/handler as sign_up_handler
@@ -22,6 +23,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
         ui.layout([ui.nav_bar(req), html.h1([], [html.text("exercises")])]),
         200,
       )
+    }
+
+    ["exercises", "new"] -> {
+      use <- wisp.require_method(req, Get)
+      exercise_handler.view_new_exercise_page(req, ctx)
     }
 
     ["stats"] -> {
