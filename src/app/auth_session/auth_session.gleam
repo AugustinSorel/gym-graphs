@@ -3,7 +3,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/db
 import app/session
-import app/user/sql as user_sql
+import app/user/user
 import gleam/float
 import gleam/order
 import gleam/result
@@ -38,8 +38,8 @@ pub fn require(req, ctx: Ctx, next) {
         email: session.email_address,
         created_at: session.user_created_at,
         weight_unit: case session.weight_unit {
-          sql.Kg -> user_sql.Kg
-          sql.Lbs -> user_sql.Lbs
+          sql.Kg -> user.Kg
+          sql.Lbs -> user.Lbs
         },
       )
 
@@ -87,7 +87,7 @@ pub type User {
     name: String,
     email: String,
     created_at: timestamp.Timestamp,
-    weight_unit: user_sql.WeightUnit,
+    weight_unit: user.WeightUnit,
   )
 }
 

@@ -3,7 +3,7 @@ import app/auth_session/auth_session.{type User}
 import app/auth_session/ui as auth_session_ui
 import app/password_update/ui as password_update_ui
 import app/ui
-import app/user/sql
+import app/user/user
 import formal/form.{type Form}
 import gleam/list
 import gleam/option
@@ -266,8 +266,8 @@ pub fn account_details(user: User) -> Element(a) {
         get_weight_unit_form()
         |> form.add_values([
           #("weight_unit", case user.weight_unit {
-            sql.Lbs -> "lbs"
-            sql.Kg -> "kg"
+            user.Lbs -> "lbs"
+            user.Kg -> "kg"
           }),
         ]),
       ),
@@ -360,9 +360,9 @@ pub fn get_weight_unit_form() {
     use weight_unit <- form.field("weight_unit", {
       form.parse(fn(input) {
         case input {
-          ["kg", ..] -> Ok(sql.Kg)
-          ["lbs", ..] -> Ok(sql.Lbs)
-          _ -> Error(#(sql.Kg, "weight unit must be kg or lbs"))
+          ["kg", ..] -> Ok(user.Kg)
+          ["lbs", ..] -> Ok(user.Lbs)
+          _ -> Error(#(user.Kg, "weight unit must be kg or lbs"))
         }
       })
     })
@@ -371,7 +371,7 @@ pub fn get_weight_unit_form() {
   })
 }
 
-pub fn weight_unit_form(form: Form(sql.WeightUnit)) {
+pub fn weight_unit_form(form: Form(user.WeightUnit)) {
   let root_err = list.first(form.field_error_messages(form, "root"))
 
   html.form(

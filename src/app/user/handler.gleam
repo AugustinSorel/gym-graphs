@@ -1,7 +1,6 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/db
-import app/user/sql
 import app/user/ui.{type EditNameForm}
 import app/user/user
 import app/web
@@ -82,7 +81,7 @@ pub fn update_name(req: Request, ctx: Ctx) -> Response {
 }
 
 type UpdateWeightUnitError {
-  UpdateWeightUnitInvalidValue(Form(sql.WeightUnit))
+  UpdateWeightUnitInvalidValue(Form(user.WeightUnit))
   UpdateWeightUnitFailed(db.DatabaseError)
 }
 

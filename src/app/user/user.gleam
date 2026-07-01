@@ -6,6 +6,29 @@ import gleam/result
 import gleam/string
 import pog.{type Connection, type QueryError}
 
+/// The canonical domain type for weight units. Defined here once;
+/// sql modules use their own generated copies internally as decode intermediaries.
+pub type WeightUnit {
+  Kg
+  Lbs
+}
+
+/// Converts the squirrel-generated sql.WeightUnit into the canonical domain type.
+pub fn weight_unit_of_sql(w: sql.WeightUnit) -> WeightUnit {
+  case w {
+    sql.Kg -> Kg
+    sql.Lbs -> Lbs
+  }
+}
+
+/// Converts the canonical domain WeightUnit back to the sql encoder value.
+fn weight_unit_to_sql(w: WeightUnit) -> sql.WeightUnit {
+  case w {
+    Kg -> sql.Kg
+    Lbs -> sql.Lbs
+  }
+}
+
 pub type CheckIfEmailIsAvailable {
   EmailConflict
   CheckIfEmailIsAvailableDatabaseFailure(QueryError)
@@ -49,10 +72,10 @@ pub fn update_name(db: Connection, name: String, id: Int) {
 
 pub fn update_weight_unit(
   db: Connection,
-  weight_unit: sql.WeightUnit,
+  weight_unit: WeightUnit,
   id: Int,
 ) {
-  sql.update_weight_unit(db, weight_unit, id)
+  sql.update_weight_unit(db, weight_unit_to_sql(weight_unit), id)
   |> db.extract_first_row
 }
 
