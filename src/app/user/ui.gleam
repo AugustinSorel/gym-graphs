@@ -48,15 +48,14 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
           attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.span([attribute.class("text-outline text-sm uppercase")], [
-            html.text("new name:"),
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("name:"),
           ]),
           ui.input([
             attribute.type_("text"),
             attribute.name("name"),
             attribute.value(form.field_value(f, "name")),
             attribute.attribute("autocomplete", "name"),
-            attribute.class("text-5xl"),
             attribute.aria_invalid(case name_err {
               Ok(_) -> "true"
               Error(_) -> "false"

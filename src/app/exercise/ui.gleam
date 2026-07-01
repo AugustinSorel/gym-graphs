@@ -42,8 +42,8 @@ pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
           attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error"),
         ],
         [
-          html.span([attribute.class("text-outline text-sm uppercase")], [
-            html.text("exercise name:"),
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("name:"),
           ]),
           ui.input([
             attribute.type_("text"),
@@ -51,7 +51,7 @@ pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
             attribute.value(form.field_value(f, "name")),
             attribute.attribute("autocomplete", "off"),
             attribute.attribute("autofocus", ""),
-            attribute.class("text-3xl"),
+            attribute.placeholder("bench press"),
             attribute.aria_invalid(case name_err {
               Ok(_) -> "true"
               Error(_) -> "false"
@@ -78,14 +78,12 @@ pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
           ])
         Error(_) -> element.none()
       },
-      html.div([attribute.class("flex gap-5 items-center")], [
-        ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-          html.text("save"),
-          ui.spinner(),
-        ]),
-        ui.link([attribute.href("/exercises")], [
-          html.text("cancel"),
-        ]),
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+        html.text("cancel"),
       ]),
     ],
   )
@@ -97,13 +95,10 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
     html.main(
       [
         attribute.class(
-          "flex flex-col py-10 px-5 lg:px-10 gap-10 max-w-3xl mx-auto",
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
         ),
       ],
       [
-        html.h1([attribute.class("text-sm uppercase")], [
-          html.text("new exercise"),
-        ]),
         children,
       ],
     ),
