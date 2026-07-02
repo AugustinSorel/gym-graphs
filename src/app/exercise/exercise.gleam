@@ -22,11 +22,7 @@ pub fn select_by_user_id(db: Connection, user_id: Int) {
   |> db.extract_rows
 }
 
-pub fn select_page(
-  db: Connection,
-  user_id: Int,
-  cursor: Int,
-) -> Result(Page, db.DatabaseError) {
+pub fn select_page(db: Connection, user_id: Int, cursor: Int) {
   sql.select_page_by_user_id(db, user_id, cursor, page_size + 1)
   |> db.extract_rows
   |> result.try(fn(rows) {

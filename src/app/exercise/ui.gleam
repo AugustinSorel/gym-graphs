@@ -1,6 +1,7 @@
 import app/exercise/exercise
 import app/ui
 import formal/form.{type Form}
+import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
@@ -123,44 +124,53 @@ pub fn exercises_list(page: exercise.Page) -> Element(a) {
         html.text("new exercise"),
       ]),
     ]),
-    case page.rows {
-      [] ->
-        html.p([attribute.class("text-outline text-sm py-7")], [
-          html.text("no exercises yet."),
-        ])
-      _ ->
-        html.ul(
-          [],
-          list.map(page.rows, fn(ex) {
-            html.li(
-              [
-                attribute.class(
-                  "grid grid-cols-[1fr_auto] items-center py-7 border-b-2 border-outline gap-3",
-                ),
-              ],
-              [
-                html.span([], [html.text(ex.name)]),
-                ui.link(
-                  [attribute.href("/exercises/" <> int.to_string(ex.id))],
-                  [html.text("view")],
-                ),
-              ],
-            )
-          }),
-        )
-    },
-    exercises_pagination(page),
+    bool.guard(
+      when: page.rows == [],
+      return: html.p([attribute.class("text-outline text-sm py-7")], [
+        html.text("no exercises yet."),
+      ]),
+      otherwise: fn() { html.ul([], exercises_rows_items(page)) },
+    ),
   ])
 }
 
-fn exercises_pagination(page: exercise.Page) -> Element(a) {
+pub fn exercises_rows(page: exercise.Page) -> Element(a) {
+  element.fragment(exercises_rows_items(page))
+}
+
+fn exercises_rows_items(page: exercise.Page) -> List(Element(a)) {
+  let rows =
+    list.map(page.rows, fn(ex) {
+      html.li(
+        [
+          attribute.class(
+            "grid grid-cols-[1fr_auto] items-center py-7 border-b-2 border-outline gap-3",
+          ),
+        ],
+        [
+          html.span([], [html.text(ex.name)]),
+          ui.link([attribute.href("/exercises/" <> int.to_string(ex.id))], [
+            html.text("view"),
+          ]),
+        ],
+      )
+    })
+
   case page.next_cursor {
-    None -> element.none()
+    None -> rows
     Some(cursor) -> {
       let next_url = "/exercises?cursor=" <> int.to_string(cursor)
-      html.nav([attribute.class("flex justify-end mt-6")], [
-        ui.link([attribute.href(next_url)], [html.text("next")]),
-      ])
+      let sentinel =
+        html.li(
+          [
+            attribute.attribute("hx-get", next_url),
+            attribute.attribute("hx-swap", "outerHTML"),
+            attribute.attribute("hx-trigger", "revealed"),
+            attribute.class("py-4 text-center text-outline text-sm"),
+          ],
+          [html.text("loading more...")],
+        )
+      list.append(rows, [sentinel])
     }
   }
 }

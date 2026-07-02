@@ -5,6 +5,7 @@ import app/exercise/exercise
 import app/exercise/ui
 import app/web
 import formal/form.{type Form}
+import gleam/http/request
 import gleam/int
 import gleam/list
 import gleam/result
@@ -21,9 +22,16 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
     |> result.try(int.parse)
     |> result.unwrap(0)
 
+  let is_htmx_request = request.get_header(req, "hx-request") == Ok("true")
+
   case exercise.select_page(ctx.db, user.id, cursor) {
-    Ok(page) ->
-      page
+    Ok(cursor) if is_htmx_request -> {
+      cursor
+      |> ui.exercises_rows()
+      |> web.html(200)
+    }
+    Ok(cursor) ->
+      cursor
       |> ui.exercises_list()
       |> ui.exercises_page(req)
       |> web.html(200)
