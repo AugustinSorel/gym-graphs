@@ -7,6 +7,7 @@ import app/web
 import formal/form.{type Form}
 import gleam/result
 import gleam/string
+import pog
 import wisp.{type Request, type Response}
 
 pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
@@ -69,6 +70,21 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       |> ui.new_exercise_form()
       |> web.html(422)
 
+    Error(CreateExerciseFailed(db.DatabaseFailure(pog.ConstraintViolated(
+      message: _,
+      constraint: _,
+      detail: _,
+    )))) -> {
+      ui.get_new_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("exercise name is already used"),
+      )
+      |> ui.new_exercise_form()
+      |> web.html(500)
+    }
+
     Error(CreateExerciseFailed(db.DatabaseFailure(error))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       ui.get_new_exercise_form()
@@ -78,7 +94,6 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(CreateExerciseFailed(db.RowNotFound)) ->
-      wisp.internal_server_error()
+    Error(CreateExerciseFailed(db.RowNotFound)) -> wisp.internal_server_error()
   }
 }
