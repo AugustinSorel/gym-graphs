@@ -110,25 +110,48 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
 }
 
 pub fn exercises_list(page: exercise.Page) -> Element(a) {
-  html.section([], [
-    html.header([], [
-      html.h2(
+  use <- bool.guard(when: page.rows == [], return: no_exercises_message())
+
+  element.fragment([
+    html.header([attribute.class("flex items-center justify-between")], [
+      html.span([attribute.class("text-outline uppercase text-sm")], [
+        html.text("exercises (" <> int.to_string(list.length(page.rows)) <> ")"),
+      ]),
+      ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
+    ]),
+    html.ul([], exercises_rows_items(page)),
+  ])
+}
+
+fn no_exercises_message() {
+  html.section(
+    [attribute.class("mt-40 gap-10 flex flex-col items-center text-center")],
+    [
+      html.h1(
         [
           attribute.class(
-            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2",
+            "uppercase font-semibold relative before:bottom-0 before:leading-none before:content-['0'] before:absolute before:text-[15rem] before:text-surface-container-highest before:translate-y-10 before:-z-1",
           ),
         ],
-        [html.text("exercises")],
+        [
+          html.text("no exercises yet"),
+        ],
       ),
-    ]),
-    bool.guard(
-      when: page.rows == [],
-      return: html.p([attribute.class("text-outline text-sm py-7")], [
-        html.text("no exercises yet."),
+      html.p(
+        [
+          attribute.class("text-balance text-outline text-sm max-w-sm"),
+        ],
+        [
+          html.text(
+            "Add your first movement and start building your training logs",
+          ),
+        ],
+      ),
+      ui.link([attribute.href("/exercises/new")], [
+        html.text("+ add exercise"),
       ]),
-      otherwise: fn() { html.ul([], exercises_rows_items(page)) },
-    ),
-  ])
+    ],
+  )
 }
 
 pub fn exercises_rows(page: exercise.Page) -> Element(a) {
@@ -178,7 +201,7 @@ pub fn exercises_page(children: Element(a), req: Request) -> Element(a) {
     html.main(
       [
         attribute.class(
-          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
+          "flex flex-col py-10 px-5 lg:px-10 gap-10 max-w-3xl mx-auto m-20",
         ),
       ],
       [children],

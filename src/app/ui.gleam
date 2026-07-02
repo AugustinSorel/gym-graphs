@@ -250,7 +250,7 @@ pub fn link(
     list.append(
       [
         attribute.class(
-          "font-semibold text-sm underline hover:text-current/80 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-offset-4 focus-visible:ring-offset-surface",
+          "font-semibold text-sm underline hover:text-current/70 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-offset-4 focus-visible:ring-offset-surface",
         ),
       ],
       attrs,
