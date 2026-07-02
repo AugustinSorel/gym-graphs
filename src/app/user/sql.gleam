@@ -66,11 +66,12 @@ pub type DeleteByAccountDeletionIdRow {
   DeleteByAccountDeletionIdRow(
     id: Int,
     email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
-    name: String,
-    weight_unit: WeightUnit,
+    updated_at: Timestamp,
   )
 }
 
@@ -87,19 +88,21 @@ pub fn delete_by_account_deletion_id(
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
-    use password_hash <- decode.field(2, decode.bit_array)
-    use password_salt <- decode.field(3, decode.bit_array)
-    use created_at <- decode.field(4, pog.timestamp_decoder())
-    use name <- decode.field(5, decode.string)
-    use weight_unit <- decode.field(6, weight_unit_decoder())
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use password_hash <- decode.field(4, decode.bit_array)
+    use password_salt <- decode.field(5, decode.bit_array)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(DeleteByAccountDeletionIdRow(
       id:,
       email_address:,
+      name:,
+      weight_unit:,
       password_hash:,
       password_salt:,
       created_at:,
-      name:,
-      weight_unit:,
+      updated_at:,
     ))
   }
 
@@ -130,11 +133,12 @@ pub type SelectByEmailRow {
   SelectByEmailRow(
     id: Int,
     email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
-    name: String,
-    weight_unit: WeightUnit,
+    updated_at: Timestamp,
   )
 }
 
@@ -151,19 +155,21 @@ pub fn select_by_email(
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
-    use password_hash <- decode.field(2, decode.bit_array)
-    use password_salt <- decode.field(3, decode.bit_array)
-    use created_at <- decode.field(4, pog.timestamp_decoder())
-    use name <- decode.field(5, decode.string)
-    use weight_unit <- decode.field(6, weight_unit_decoder())
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use password_hash <- decode.field(4, decode.bit_array)
+    use password_salt <- decode.field(5, decode.bit_array)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(SelectByEmailRow(
       id:,
       email_address:,
+      name:,
+      weight_unit:,
       password_hash:,
       password_salt:,
       created_at:,
-      name:,
-      weight_unit:,
+      updated_at:,
     ))
   }
 
@@ -185,11 +191,12 @@ pub type SelectByIdRow {
   SelectByIdRow(
     id: Int,
     email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
     password_hash: BitArray,
     password_salt: BitArray,
     created_at: Timestamp,
-    name: String,
-    weight_unit: WeightUnit,
+    updated_at: Timestamp,
   )
 }
 
@@ -206,19 +213,21 @@ pub fn select_by_id(
   let decoder = {
     use id <- decode.field(0, decode.int)
     use email_address <- decode.field(1, decode.string)
-    use password_hash <- decode.field(2, decode.bit_array)
-    use password_salt <- decode.field(3, decode.bit_array)
-    use created_at <- decode.field(4, pog.timestamp_decoder())
-    use name <- decode.field(5, decode.string)
-    use weight_unit <- decode.field(6, weight_unit_decoder())
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use password_hash <- decode.field(4, decode.bit_array)
+    use password_salt <- decode.field(5, decode.bit_array)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(SelectByIdRow(
       id:,
       email_address:,
+      name:,
+      weight_unit:,
       password_hash:,
       password_salt:,
       created_at:,
-      name:,
-      weight_unit:,
+      updated_at:,
     ))
   }
 

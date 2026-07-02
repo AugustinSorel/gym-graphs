@@ -24,6 +24,7 @@ pub type CreateRow {
     email_code_salt: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -51,6 +52,7 @@ pub fn create(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(CreateRow(
       id:,
       user_id:,
@@ -59,6 +61,7 @@ pub fn create(
       email_code_salt:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -91,6 +94,7 @@ pub type DeleteByIdRow {
     email_code_salt: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -115,6 +119,7 @@ pub fn delete_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(DeleteByIdRow(
       id:,
       user_id:,
@@ -123,6 +128,7 @@ pub fn delete_by_id(
       email_code_salt:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -150,6 +156,7 @@ pub type SelectByIdRow {
     email_code_salt: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -174,6 +181,7 @@ pub fn select_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(SelectByIdRow(
       id:,
       user_id:,
@@ -182,6 +190,7 @@ pub fn select_by_id(
       email_code_salt:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 

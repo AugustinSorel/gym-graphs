@@ -4,8 +4,14 @@ create table account_deletion_sessions (
     auth_session_id integer references auth_sessions(id) on delete cascade not null,
     secret_hash bytea not null,
     user_identity_verified_at timestamp,
-    created_at timestamp default now() not null
+    created_at timestamp default now() not null,
+    updated_at timestamp default now() not null
 );
+
+create trigger update_users_modtime
+before update on account_deletion_sessions
+for each row
+execute function update_modified_column();
 
 -- +goose Down
 drop table if exists account_deletion_sessions;

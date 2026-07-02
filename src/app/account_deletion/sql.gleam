@@ -22,6 +22,7 @@ pub type CreateRow {
     secret_hash: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -45,12 +46,14 @@ pub fn create(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(CreateRow(
       id:,
       auth_session_id:,
       secret_hash:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -78,6 +81,7 @@ pub type DeleteByIdRow {
     secret_hash: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -100,12 +104,14 @@ pub fn delete_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(DeleteByIdRow(
       id:,
       auth_session_id:,
       secret_hash:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -130,6 +136,7 @@ pub type SelectByIdRow {
     secret_hash: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -152,12 +159,14 @@ pub fn select_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(SelectByIdRow(
       id:,
       auth_session_id:,
       secret_hash:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -182,6 +191,7 @@ pub type VerifyRow {
     secret_hash: BitArray,
     user_identity_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -204,12 +214,14 @@ pub fn verify(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(VerifyRow(
       id:,
       auth_session_id:,
       secret_hash:,
       user_identity_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 

@@ -23,6 +23,7 @@ pub type CreateRow {
     email_address_verification_code: String,
     email_address_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -48,6 +49,7 @@ pub fn create(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
     decode.success(CreateRow(
       id:,
       secret_hash:,
@@ -55,6 +57,7 @@ pub fn create(
       email_address_verification_code:,
       email_address_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -87,6 +90,7 @@ pub type DeleteByIdRow {
     email_address_verification_code: String,
     email_address_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -110,6 +114,7 @@ pub fn delete_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
     decode.success(DeleteByIdRow(
       id:,
       secret_hash:,
@@ -117,6 +122,7 @@ pub fn delete_by_id(
       email_address_verification_code:,
       email_address_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -142,6 +148,7 @@ pub type SelectByIdRow {
     email_address_verification_code: String,
     email_address_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -165,6 +172,7 @@ pub fn select_by_id(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
     decode.success(SelectByIdRow(
       id:,
       secret_hash:,
@@ -172,6 +180,7 @@ pub fn select_by_id(
       email_address_verification_code:,
       email_address_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 
@@ -197,6 +206,7 @@ pub type VerifyRow {
     email_address_verification_code: String,
     email_address_verified_at: Option(Timestamp),
     created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -220,6 +230,7 @@ pub fn verify(
       decode.optional(pog.timestamp_decoder()),
     )
     use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
     decode.success(VerifyRow(
       id:,
       secret_hash:,
@@ -227,6 +238,7 @@ pub fn verify(
       email_address_verification_code:,
       email_address_verified_at:,
       created_at:,
+      updated_at:,
     ))
   }
 

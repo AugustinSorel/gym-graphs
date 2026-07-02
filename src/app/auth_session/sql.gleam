@@ -19,8 +19,9 @@ pub type CreateRow {
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
-    created_at: Timestamp,
     last_active_at: Timestamp,
+    created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -39,14 +40,16 @@ pub fn create(
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
     use secret_hash <- decode.field(2, decode.bit_array)
-    use created_at <- decode.field(3, pog.timestamp_decoder())
-    use last_active_at <- decode.field(4, pog.timestamp_decoder())
+    use last_active_at <- decode.field(3, pog.timestamp_decoder())
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(CreateRow(
       id:,
       user_id:,
       secret_hash:,
-      created_at:,
       last_active_at:,
+      created_at:,
+      updated_at:,
     ))
   }
 
@@ -70,8 +73,9 @@ pub type DeleteByIdRow {
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
-    created_at: Timestamp,
     last_active_at: Timestamp,
+    created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -89,14 +93,16 @@ pub fn delete_by_id(
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
     use secret_hash <- decode.field(2, decode.bit_array)
-    use created_at <- decode.field(3, pog.timestamp_decoder())
-    use last_active_at <- decode.field(4, pog.timestamp_decoder())
+    use last_active_at <- decode.field(3, pog.timestamp_decoder())
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(DeleteByIdRow(
       id:,
       user_id:,
       secret_hash:,
-      created_at:,
       last_active_at:,
+      created_at:,
+      updated_at:,
     ))
   }
 
