@@ -5,6 +5,8 @@ import app/exercise/exercise
 import app/exercise/ui
 import app/web
 import formal/form.{type Form}
+import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 import pog
@@ -13,9 +15,15 @@ import wisp.{type Request, type Response}
 pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
 
-  case exercise.select_by_user_id(ctx.db, user.id) {
-    Ok(exercises) ->
-      exercises
+  let cursor =
+    wisp.get_query(req)
+    |> list.key_find("cursor")
+    |> result.try(int.parse)
+    |> result.unwrap(0)
+
+  case exercise.select_page(ctx.db, user.id, cursor) {
+    Ok(page) ->
+      page
       |> ui.exercises_list()
       |> ui.exercises_page(req)
       |> web.html(200)

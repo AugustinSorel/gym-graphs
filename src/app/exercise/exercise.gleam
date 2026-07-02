@@ -1,6 +1,16 @@
 import app/db
 import app/exercise/sql
+import gleam/bool
+import gleam/list
+import gleam/option.{type Option, None}
+import gleam/result
 import pog.{type Connection}
+
+pub const page_size = 3
+
+pub type Page {
+  Page(rows: List(sql.SelectPageByUserIdRow), next_cursor: Option(Int))
+}
 
 pub fn create(db: Connection, user_id: Int, name: String) {
   sql.create(db, user_id, name)
@@ -10,4 +20,31 @@ pub fn create(db: Connection, user_id: Int, name: String) {
 pub fn select_by_user_id(db: Connection, user_id: Int) {
   sql.select_by_user_id(db, user_id)
   |> db.extract_rows
+}
+
+pub fn select_page(
+  db: Connection,
+  user_id: Int,
+  cursor: Int,
+) -> Result(Page, db.DatabaseError) {
+  sql.select_page_by_user_id(db, user_id, cursor, page_size + 1)
+  |> db.extract_rows
+  |> result.try(fn(rows) {
+    let more_result = list.length(rows) > page_size
+
+    use <- bool.guard(
+      when: !more_result,
+      return: Ok(Page(rows:, next_cursor: None)),
+    )
+
+    let visible = list.take(rows, page_size)
+
+    let cursor =
+      visible
+      |> list.last
+      |> option.from_result
+      |> option.map(fn(row) { row.index })
+
+    Ok(Page(rows: visible, next_cursor: cursor))
+  })
 }

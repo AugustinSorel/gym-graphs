@@ -1,8 +1,9 @@
-import app/exercise/sql
+import app/exercise/exercise
 import app/ui
 import formal/form.{type Form}
 import gleam/int
 import gleam/list
+import gleam/option.{None, Some}
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -107,7 +108,7 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
   ])
 }
 
-pub fn exercises_list(exercises: List(sql.SelectByUserIdRow)) -> Element(a) {
+pub fn exercises_list(page: exercise.Page) -> Element(a) {
   html.section([], [
     html.header([attribute.class("flex items-center justify-between mb-6")], [
       html.h2(
@@ -122,7 +123,7 @@ pub fn exercises_list(exercises: List(sql.SelectByUserIdRow)) -> Element(a) {
         html.text("new exercise"),
       ]),
     ]),
-    case exercises {
+    case page.rows {
       [] ->
         html.p([attribute.class("text-outline text-sm py-7")], [
           html.text("no exercises yet."),
@@ -130,7 +131,7 @@ pub fn exercises_list(exercises: List(sql.SelectByUserIdRow)) -> Element(a) {
       _ ->
         html.ul(
           [],
-          list.map(exercises, fn(ex) {
+          list.map(page.rows, fn(ex) {
             html.li(
               [
                 attribute.class(
@@ -148,7 +149,20 @@ pub fn exercises_list(exercises: List(sql.SelectByUserIdRow)) -> Element(a) {
           }),
         )
     },
+    exercises_pagination(page),
   ])
+}
+
+fn exercises_pagination(page: exercise.Page) -> Element(a) {
+  case page.next_cursor {
+    None -> element.none()
+    Some(cursor) -> {
+      let next_url = "/exercises?cursor=" <> int.to_string(cursor)
+      html.nav([attribute.class("flex justify-end mt-6")], [
+        ui.link([attribute.href(next_url)], [html.text("next")]),
+      ])
+    }
+  }
 }
 
 pub fn exercises_page(children: Element(a), req: Request) -> Element(a) {
