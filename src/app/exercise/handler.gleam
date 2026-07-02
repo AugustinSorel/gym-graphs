@@ -8,6 +8,7 @@ import formal/form.{type Form}
 import gleam/http/request
 import gleam/int
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import pog
@@ -20,7 +21,7 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
     wisp.get_query(req)
     |> list.key_find("cursor")
     |> result.try(int.parse)
-    |> result.unwrap(0)
+    |> option.from_result
 
   let is_htmx_request = request.get_header(req, "hx-request") == Ok("true")
 
