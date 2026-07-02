@@ -19,15 +19,15 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     [] -> wisp.redirect(to: "/exercises")
     ["exercises"] -> {
       use <- wisp.require_method(req, Get)
-      web.html(
-        ui.layout([ui.nav_bar(req), html.h1([], [html.text("exercises")])]),
-        200,
-      )
+      exercise_handler.view_exercises_page(req, ctx)
     }
 
     ["exercises", "new"] -> {
-      use <- wisp.require_method(req, Get)
-      exercise_handler.view_new_exercise_page(req, ctx)
+      case req.method {
+        Get -> exercise_handler.view_new_exercise_page(req, ctx)
+        Post -> exercise_handler.create_exercise(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
     }
 
     ["stats"] -> {

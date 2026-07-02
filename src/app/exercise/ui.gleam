@@ -1,5 +1,7 @@
+import app/exercise/sql
 import app/ui
 import formal/form.{type Form}
+import gleam/int
 import gleam/list
 import lustre/attribute
 import lustre/element.{type Element}
@@ -101,6 +103,64 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
       [
         children,
       ],
+    ),
+  ])
+}
+
+pub fn exercises_list(exercises: List(sql.SelectByUserIdRow)) -> Element(a) {
+  html.section([], [
+    html.header([attribute.class("flex items-center justify-between mb-6")], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 grow",
+          ),
+        ],
+        [html.text("exercises")],
+      ),
+      ui.button_link(ui.ButtonPrimary, [attribute.href("/exercises/new")], [
+        html.text("new exercise"),
+      ]),
+    ]),
+    case exercises {
+      [] ->
+        html.p([attribute.class("text-outline text-sm py-7")], [
+          html.text("no exercises yet."),
+        ])
+      _ ->
+        html.ul(
+          [],
+          list.map(exercises, fn(ex) {
+            html.li(
+              [
+                attribute.class(
+                  "grid grid-cols-[1fr_auto] items-center py-7 border-b-2 border-outline gap-3",
+                ),
+              ],
+              [
+                html.span([], [html.text(ex.name)]),
+                ui.link(
+                  [attribute.href("/exercises/" <> int.to_string(ex.id))],
+                  [html.text("view")],
+                ),
+              ],
+            )
+          }),
+        )
+    },
+  ])
+}
+
+pub fn exercises_page(children: Element(a), req: Request) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(req),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
+        ),
+      ],
+      [children],
     ),
   ])
 }
