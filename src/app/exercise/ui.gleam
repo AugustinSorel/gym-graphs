@@ -5,6 +5,7 @@ import gleam/bool
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -109,8 +110,15 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
   ])
 }
 
-pub fn exercises_list(page: exercise.Page, exercises_count: Int) -> Element(a) {
-  use <- bool.guard(when: page.rows == [], return: no_exercises_message())
+pub fn exercises_list(
+  page: exercise.Page,
+  exercises_count: Int,
+  query: String,
+) -> Element(a) {
+  use <- bool.guard(
+    when: page.rows == [] && string.is_empty(query),
+    return: no_exercises_message(),
+  )
 
   element.fragment([
     html.header([attribute.class("flex items-center justify-between")], [
@@ -119,19 +127,46 @@ pub fn exercises_list(page: exercise.Page, exercises_count: Int) -> Element(a) {
       ]),
       ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     ]),
-    html.ul([], exercises_rows_items(page)),
+    html.div([attribute.class("relative")], [
+      ui.input([
+        attribute.type_("search"),
+        attribute.name("q"),
+        attribute.value(query),
+        attribute.placeholder("search..."),
+        attribute.attribute("autocomplete", "off"),
+        attribute.attribute("hx-get", "/exercises"),
+        attribute.attribute(
+          "hx-trigger",
+          "input changed delay:200ms, keyup[key=='Enter'], load",
+        ),
+        attribute.attribute("hx-target", "ul"),
+        attribute.attribute("hx-swap", "innerHTML"),
+        attribute.attribute("hx-include", "this"),
+        attribute.class("w-full"),
+      ]),
+    ]),
+    html.ul([], exercises_rows_items(page, query)),
   ])
 }
 
 fn no_exercises_message() {
   html.section(
-    [attribute.class("mt-40 gap-10 flex flex-col items-center text-center")],
+    [attribute.class("mt-40 gap-5 flex flex-col items-center text-center")],
     [
+      html.span(
+        [
+          attribute.aria_hidden(True),
+          attribute.class(
+            "bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline",
+          ),
+        ],
+        [
+          html.text("0"),
+        ],
+      ),
       html.h1(
         [
-          attribute.class(
-            "uppercase font-semibold relative before:bottom-0 before:leading-none before:content-['0'] before:absolute before:text-[15rem] before:text-surface-container-highest before:translate-y-10 before:-z-1",
-          ),
+          attribute.class("uppercase font-semibold"),
         ],
         [
           html.text("no exercises yet"),
@@ -154,11 +189,21 @@ fn no_exercises_message() {
   )
 }
 
-pub fn exercises_rows(page: exercise.Page) -> Element(a) {
-  element.fragment(exercises_rows_items(page))
+pub fn exercises_rows(page: exercise.Page, query: String) -> Element(a) {
+  echo query
+  element.fragment(exercises_rows_items(page, query))
 }
 
-fn exercises_rows_items(page: exercise.Page) -> List(Element(a)) {
+fn exercises_rows_items(
+  page: exercise.Page,
+  query: String,
+) -> List(Element(a)) {
+  use <- bool.guard(when: page.rows == [], return: [
+    html.li([attribute.class("py-7 text-outline text-sm text-center")], [
+      html.text("no exercises found"),
+    ]),
+  ])
+
   let rows =
     list.map(page.rows, fn(ex) {
       html.li(
@@ -179,7 +224,13 @@ fn exercises_rows_items(page: exercise.Page) -> List(Element(a)) {
   case page.next_cursor {
     None -> rows
     Some(cursor) -> {
-      let next_url = "/exercises?cursor=" <> int.to_string(cursor)
+      let next_url =
+        "/exercises?cursor="
+        <> int.to_string(cursor)
+        <> case string.is_empty(query) {
+          True -> ""
+          False -> "&q=" <> query
+        }
       let sentinel =
         html.li(
           [

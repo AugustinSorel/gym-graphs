@@ -22,16 +22,21 @@ pub fn select_by_user_id(db: Connection, user_id: Int) {
   |> db.extract_rows
 }
 
-pub fn count(db: Connection, user_id: Int) {
-  sql.count_by_user_id(db, user_id)
+pub fn count(db: Connection, user_id: Int, query: String) {
+  sql.count_by_user_id(db, user_id, query)
   |> db.extract_first_row
   |> result.map(fn(row) { row.count })
 }
 
-pub fn select_page(db: Connection, user_id: Int, cursor: Option(Int)) {
+pub fn select_page(
+  db: Connection,
+  user_id: Int,
+  cursor: Option(Int),
+  query: String,
+) {
   let cursor_value = option.unwrap(cursor, -1)
 
-  sql.select_page_by_user_id(db, user_id, cursor_value, page_size + 1)
+  sql.select_page_by_user_id(db, user_id, cursor_value, page_size + 1, query)
   |> db.extract_rows
   |> result.try(fn(rows) {
     let more_result = list.length(rows) > page_size

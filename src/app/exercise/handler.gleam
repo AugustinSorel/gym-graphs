@@ -17,8 +17,15 @@ import wisp.{type Request, type Response}
 pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
 
+  let query_params = wisp.get_query(req)
+
+  let search_query =
+    query_params
+    |> list.key_find("q")
+    |> result.unwrap("")
+
   let cursor =
-    wisp.get_query(req)
+    query_params
     |> list.key_find("cursor")
     |> result.try(int.parse)
     |> option.from_result
@@ -26,21 +33,24 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   let is_htmx_request = request.get_header(req, "hx-request") == Ok("true")
 
   let result = {
-    use page <- result.try(exercise.select_page(ctx.db, user.id, cursor))
-    use count <- result.try(exercise.count(ctx.db, user.id))
+    use page <- result.try({
+      exercise.select_page(ctx.db, user.id, cursor, search_query)
+    })
+
+    use count <- result.try(exercise.count(ctx.db, user.id, search_query))
 
     Ok(#(page, count))
   }
 
   case result {
-    Ok(#(page, _exercises_count)) if is_htmx_request -> {
+    Ok(#(page, _)) if is_htmx_request ->
       page
-      |> ui.exercises_rows()
+      |> ui.exercises_rows(search_query)
       |> web.html(200)
-    }
+
     Ok(#(page, exercises_count)) ->
       page
-      |> ui.exercises_list(exercises_count)
+      |> ui.exercises_list(exercises_count, search_query)
       |> ui.exercises_page(req)
       |> web.html(200)
 

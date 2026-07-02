@@ -26,6 +26,7 @@ pub type CountByUserIdRow {
 pub fn count_by_user_id(
   db: pog.Connection,
   user_id: Int,
+  arg_2: String,
 ) -> Result(pog.Returned(CountByUserIdRow), pog.QueryError) {
   let decoder = {
     use count <- decode.field(0, decode.int)
@@ -35,9 +36,11 @@ pub fn count_by_user_id(
   "select count(*)::int as count
 from exercises
 where user_id = $1
+  and ($2 = '' or name ilike '%' || $2 || '%')
 "
   |> pog.query
   |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.text(arg_2))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
@@ -138,6 +141,7 @@ pub fn select_page_by_user_id(
   user_id: Int,
   arg_2: Int,
   arg_3: Int,
+  arg_4: String,
 ) -> Result(pog.Returned(SelectPageByUserIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -150,6 +154,7 @@ pub fn select_page_by_user_id(
 from exercises
 where user_id = $1
   and ($2 = -1 or index < $2)
+  and ($4 = '' or name ilike '%' || $4 || '%')
 order by index desc
 limit $3
 "
@@ -157,6 +162,7 @@ limit $3
   |> pog.parameter(pog.int(user_id))
   |> pog.parameter(pog.int(arg_2))
   |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.text(arg_4))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
