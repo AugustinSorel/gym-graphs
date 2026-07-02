@@ -22,6 +22,12 @@ pub fn select_by_user_id(db: Connection, user_id: Int) {
   |> db.extract_rows
 }
 
+pub fn count(db: Connection, user_id: Int) {
+  sql.count_by_user_id(db, user_id)
+  |> db.extract_first_row
+  |> result.map(fn(row) { row.count })
+}
+
 pub fn select_page(db: Connection, user_id: Int, cursor: Option(Int)) {
   let cursor_value = option.unwrap(cursor, -1)
 

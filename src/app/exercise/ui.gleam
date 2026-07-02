@@ -109,13 +109,13 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
   ])
 }
 
-pub fn exercises_list(page: exercise.Page) -> Element(a) {
+pub fn exercises_list(page: exercise.Page, exercises_count: Int) -> Element(a) {
   use <- bool.guard(when: page.rows == [], return: no_exercises_message())
 
   element.fragment([
     html.header([attribute.class("flex items-center justify-between")], [
       html.span([attribute.class("text-outline uppercase text-sm")], [
-        html.text("exercises (" <> int.to_string(list.length(page.rows)) <> ")"),
+        html.text("exercises (" <> int.to_string(exercises_count) <> ")"),
       ]),
       ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     ]),

@@ -25,15 +25,22 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
 
   let is_htmx_request = request.get_header(req, "hx-request") == Ok("true")
 
-  case exercise.select_page(ctx.db, user.id, cursor) {
-    Ok(cursor) if is_htmx_request -> {
-      cursor
+  let result = {
+    use page <- result.try(exercise.select_page(ctx.db, user.id, cursor))
+    use count <- result.try(exercise.count(ctx.db, user.id))
+
+    Ok(#(page, count))
+  }
+
+  case result {
+    Ok(#(page, _exercises_count)) if is_htmx_request -> {
+      page
       |> ui.exercises_rows()
       |> web.html(200)
     }
-    Ok(cursor) ->
-      cursor
-      |> ui.exercises_list()
+    Ok(#(page, exercises_count)) ->
+      page
+      |> ui.exercises_list(exercises_count)
       |> ui.exercises_page(req)
       |> web.html(200)
 

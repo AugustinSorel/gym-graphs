@@ -7,6 +7,41 @@
 import gleam/dynamic/decode
 import pog
 
+/// A row you get from running the `count_by_user_id` query
+/// defined in `./src/app/exercise/sql/count_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CountByUserIdRow {
+  CountByUserIdRow(count: Int)
+}
+
+/// Runs the `count_by_user_id` query
+/// defined in `./src/app/exercise/sql/count_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn count_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+) -> Result(pog.Returned(CountByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use count <- decode.field(0, decode.int)
+    decode.success(CountByUserIdRow(count:))
+  }
+
+  "select count(*)::int as count
+from exercises
+where user_id = $1
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create` query
 /// defined in `./src/app/exercise/sql/create.sql`.
 ///
