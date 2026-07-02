@@ -111,18 +111,15 @@ pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {
 
 pub fn exercises_list(page: exercise.Page) -> Element(a) {
   html.section([], [
-    html.header([attribute.class("flex items-center justify-between mb-6")], [
+    html.header([], [
       html.h2(
         [
           attribute.class(
-            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 grow",
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2",
           ),
         ],
         [html.text("exercises")],
       ),
-      ui.button_link(ui.ButtonPrimary, [attribute.href("/exercises/new")], [
-        html.text("new exercise"),
-      ]),
     ]),
     bool.guard(
       when: page.rows == [],

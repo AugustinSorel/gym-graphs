@@ -6,7 +6,7 @@ import gleam/option.{type Option, None}
 import gleam/result
 import pog.{type Connection}
 
-pub const page_size = 3
+pub const page_size = 20
 
 pub type Page {
   Page(rows: List(sql.SelectPageByUserIdRow), next_cursor: Option(Int))
