@@ -332,19 +332,6 @@ pub fn account_details(user: User) -> Element(a) {
           ),
         ],
       ),
-    ]),
-
-    html.section([], [
-      html.h2(
-        [
-          attribute.class(
-            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
-          ),
-        ],
-        [
-          html.text("one rep max algorithm"),
-        ],
-      ),
       one_rep_max_algorithm_form(
         get_one_rep_max_algorithm_form()
         |> form.add_values([
