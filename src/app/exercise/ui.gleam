@@ -127,24 +127,71 @@ pub fn exercises_list(
       ]),
       ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     ]),
-    ui.input([
-      attribute.type_("search"),
-      attribute.name("q"),
-      attribute.value(query),
-      attribute.placeholder("search..."),
-      attribute.attribute("autocomplete", "off"),
-      attribute.attribute("hx-get", "/exercises"),
-      attribute.attribute(
-        "hx-trigger",
-        "input changed delay:200ms, keyup[key=='Enter'], load",
-      ),
-      attribute.attribute("hx-target", "ul"),
-      attribute.attribute("hx-swap", "innerHTML"),
-      attribute.attribute("hx-replace-url", "true"),
-      attribute.attribute("hx-include", "this"),
-      attribute.class("w-full"),
+    // ui.input([
+    //   attribute.type_("search"),
+    //   attribute.name("q"),
+    //   attribute.value(query),
+    //   attribute.placeholder("search..."),
+    //   attribute.attribute("autocomplete", "off"),
+    //   attribute.attribute("hx-get", "/exercises"),
+    //   attribute.attribute(
+    //     "hx-trigger",
+    //     "input changed delay:200ms, keyup[key=='Enter'], load",
+    //   ),
+    //   attribute.attribute("hx-target", "tbody"),
+    //   attribute.attribute("hx-swap", "innerHTML"),
+    //   attribute.attribute("hx-replace-url", "true"),
+    //   attribute.attribute("hx-include", "this"),
+    //   attribute.class("w-full"),
+    // ]),
+    html.table([attribute.class("caption-bottom text-sm")], [
+      html.thead([attribute.class("border-b-2 text-nowrap")], [
+        html.tr([], [
+          html.th(
+            [
+              attribute.class(
+                "h-10 pr-1 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+              ),
+            ],
+            [html.text("name")],
+          ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 px-1 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+              ),
+            ],
+            [
+              html.text("last 1"),
+              html.abbr(
+                [
+                  attribute.title("rep maximum"),
+                  attribute.class("no-underline"),
+                ],
+                [html.text("rm")],
+              ),
+            ],
+          ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 px-1 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+              ),
+            ],
+            [html.text("sets")],
+          ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 pl-1 lg:pl-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+              ),
+            ],
+            [html.text("last set")],
+          ),
+        ]),
+      ]),
+      html.tbody([], exercises_rows_items(page, query)),
     ]),
-    html.ul([], exercises_rows_items(page, query)),
   ])
 }
 
@@ -233,21 +280,73 @@ fn exercises_rows_items(
   page: exercise.Page,
   query: String,
 ) -> List(Element(a)) {
-  use <- bool.guard(when: page.rows == [], return: [no_exercises_found()])
+  use <- bool.guard(when: page.rows == [], return: [
+    html.tr([], [
+      html.td(
+        [
+          attribute.attribute("colspan", "4"),
+          attribute.class("px-4 py-10 text-center text-outline"),
+        ],
+        [no_exercises_found()],
+      ),
+    ]),
+  ])
 
   let rows =
     list.map(page.rows, fn(ex) {
-      html.li(
+      html.tr(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] items-center py-7 border-b-2 border-outline gap-3",
+            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative",
           ),
         ],
         [
-          html.span([], [html.text(ex.name)]),
-          ui.link([attribute.href("/exercises/" <> int.to_string(ex.id))], [
-            html.text("view"),
-          ]),
+          html.td(
+            [
+              attribute.class(
+                "lg:pr-4 lg:py-4 pr-1 py-2 align-middle font-medium",
+              ),
+            ],
+            [
+              ui.link(
+                [
+                  attribute.href("/exercises/" <> int.to_string(ex.id)),
+                  attribute.class("before:absolute before:inset-0 before:z-1"),
+                ],
+                [
+                  html.text(ex.name),
+                ],
+              ),
+            ],
+          ),
+          html.td(
+            [attribute.class("lg:p-4 px-1 py-2 align-middle text-outline")],
+            [
+              html.text("100 "),
+              html.abbr(
+                [attribute.title("kilograms"), attribute.class("no-underline")],
+                [html.text("kg")],
+              ),
+            ],
+          ),
+          html.td(
+            [attribute.class("lg:p-4 px-1 py-2  align-middle text-outline")],
+            [
+              html.text("24"),
+            ],
+          ),
+          html.td(
+            [
+              attribute.class(
+                "lg:pl-4 lg:py-4 py-2 pl-1 align-middle text-outline",
+              ),
+            ],
+            [
+              html.time([attribute.datetime("2025-01-10")], [
+                html.text("2 days ago"),
+              ]),
+            ],
+          ),
         ],
       )
     })
@@ -263,14 +362,21 @@ fn exercises_rows_items(
           False -> "&q=" <> query
         }
       let sentinel =
-        html.li(
+        html.tr(
           [
             attribute.attribute("hx-get", next_url),
             attribute.attribute("hx-swap", "outerHTML"),
             attribute.attribute("hx-trigger", "revealed"),
-            attribute.class("py-4 text-center text-outline text-sm"),
           ],
-          [html.text("loading more...")],
+          [
+            html.td(
+              [
+                attribute.attribute("colspan", "4"),
+                attribute.class("py-4 text-center text-outline text-sm"),
+              ],
+              [html.text("loading more...")],
+            ),
+          ],
         )
       list.append(rows, [sentinel])
     }
