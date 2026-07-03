@@ -150,7 +150,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 pr-2 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
               ),
             ],
             [html.text("name")],
@@ -158,7 +158,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 px-2 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left",
               ),
             ],
             [
@@ -175,7 +175,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 px-2 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden",
               ),
             ],
             [html.text("sets")],
@@ -183,7 +183,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 pl-2 lg:pl-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden",
               ),
             ],
             [html.text("last set")],
@@ -297,13 +297,13 @@ fn exercises_rows_items(
       html.tr(
         [
           attribute.class(
-            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative lg:text-sm text-xs",
+            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative",
           ),
         ],
         [
           html.td(
             [
-              attribute.class("lg:pr-4 py-4 pr-2  align-middle font-medium"),
+              attribute.class("pl-0 p-4 align-middle font-medium"),
             ],
             [
               ui.link(
@@ -318,7 +318,11 @@ fn exercises_rows_items(
             ],
           ),
           html.td(
-            [attribute.class("lg:p-4 px-2 py-4 align-middle text-outline")],
+            [
+              attribute.class(
+                "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left",
+              ),
+            ],
             [
               html.text("100 "),
               html.abbr(
@@ -327,13 +331,20 @@ fn exercises_rows_items(
               ),
             ],
           ),
-          html.td([attribute.class("lg:p-4 px-2 align-middle text-outline")], [
-            html.text("24"),
-          ]),
           html.td(
             [
               attribute.class(
-                "lg:pl-4 py-4 pl-2 align-middle text-outline text-nowrap",
+                "p-4 align-middle text-outline lg:table-cell hidden",
+              ),
+            ],
+            [
+              html.text("24"),
+            ],
+          ),
+          html.td(
+            [
+              attribute.class(
+                "pr-0 p-4 align-middle text-outline lg:table-cell hidden",
               ),
             ],
             [
