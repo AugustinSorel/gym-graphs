@@ -150,7 +150,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 pr-1 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 pr-2 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
               ),
             ],
             [html.text("name")],
@@ -158,7 +158,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 px-1 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 px-2 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
               ),
             ],
             [
@@ -175,7 +175,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 px-1 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 px-2 lg:px-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
               ),
             ],
             [html.text("sets")],
@@ -183,7 +183,7 @@ pub fn exercises_list(
           html.th(
             [
               attribute.class(
-                "h-10 pl-1 lg:pl-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+                "h-10 pl-2 lg:pl-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
               ),
             ],
             [html.text("last set")],
@@ -297,15 +297,13 @@ fn exercises_rows_items(
       html.tr(
         [
           attribute.class(
-            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative",
+            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative lg:text-sm text-xs",
           ),
         ],
         [
           html.td(
             [
-              attribute.class(
-                "lg:pr-4 lg:py-4 pr-1 py-2 align-middle font-medium",
-              ),
+              attribute.class("lg:pr-4 py-4 pr-2  align-middle font-medium"),
             ],
             [
               ui.link(
@@ -320,7 +318,7 @@ fn exercises_rows_items(
             ],
           ),
           html.td(
-            [attribute.class("lg:p-4 px-1 py-2 align-middle text-outline")],
+            [attribute.class("lg:p-4 px-2 py-4 align-middle text-outline")],
             [
               html.text("100 "),
               html.abbr(
@@ -329,16 +327,13 @@ fn exercises_rows_items(
               ),
             ],
           ),
-          html.td(
-            [attribute.class("lg:p-4 px-1 py-2  align-middle text-outline")],
-            [
-              html.text("24"),
-            ],
-          ),
+          html.td([attribute.class("lg:p-4 px-2 align-middle text-outline")], [
+            html.text("24"),
+          ]),
           html.td(
             [
               attribute.class(
-                "lg:pl-4 lg:py-4 py-2 pl-1 align-middle text-outline",
+                "lg:pl-4 py-4 pl-2 align-middle text-outline text-nowrap",
               ),
             ],
             [
