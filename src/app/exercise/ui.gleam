@@ -297,7 +297,7 @@ fn exercises_rows_items(
       html.tr(
         [
           attribute.class(
-            "border-b-2 border-surface-container-highest border-dotted transition-colors hover:bg-surface-container/50 relative",
+            "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50 relative",
           ),
         ],
         [
