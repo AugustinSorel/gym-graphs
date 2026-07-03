@@ -169,6 +169,8 @@
     font: inherit;
     outline: none;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 0.875rem;
   }
 
   .select:focus-visible {
@@ -204,11 +206,7 @@
   .select option:hover,
   .select option:focus {
     background-color: var(--color-surface-container-highest);
-  }
-
-  .select option:focus-visible {
-    background-color: var(--color-surface-container-highest);
-    outline: none;
+    outline: 2px solid currentColor;
   }
 
   .select option:checked {
