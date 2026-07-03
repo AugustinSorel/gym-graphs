@@ -127,24 +127,22 @@ pub fn exercises_list(
       ]),
       ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     ]),
-    html.div([attribute.class("relative")], [
-      ui.input([
-        attribute.type_("search"),
-        attribute.name("q"),
-        attribute.value(query),
-        attribute.placeholder("search..."),
-        attribute.attribute("autocomplete", "off"),
-        attribute.attribute("hx-get", "/exercises"),
-        attribute.attribute(
-          "hx-trigger",
-          "input changed delay:200ms, keyup[key=='Enter'], load",
-        ),
-        attribute.attribute("hx-target", "ul"),
-        attribute.attribute("hx-swap", "innerHTML"),
-        attribute.attribute("hx-replace-url", "true"),
-        attribute.attribute("hx-include", "this"),
-        attribute.class("w-full"),
-      ]),
+    ui.input([
+      attribute.type_("search"),
+      attribute.name("q"),
+      attribute.value(query),
+      attribute.placeholder("search..."),
+      attribute.attribute("autocomplete", "off"),
+      attribute.attribute("hx-get", "/exercises"),
+      attribute.attribute(
+        "hx-trigger",
+        "input changed delay:200ms, keyup[key=='Enter'], load",
+      ),
+      attribute.attribute("hx-target", "ul"),
+      attribute.attribute("hx-swap", "innerHTML"),
+      attribute.attribute("hx-replace-url", "true"),
+      attribute.attribute("hx-include", "this"),
+      attribute.class("w-full"),
     ]),
     html.ul([], exercises_rows_items(page, query)),
   ])
@@ -190,8 +188,44 @@ fn no_exercises_message() {
   )
 }
 
+fn no_exercises_found() {
+  html.section(
+    [attribute.class("gap-5 flex flex-col items-center text-center")],
+    [
+      html.span(
+        [
+          attribute.aria_hidden(True),
+          attribute.class(
+            "bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline",
+          ),
+        ],
+        [
+          html.text("0"),
+        ],
+      ),
+      html.h1(
+        [
+          attribute.class("uppercase font-semibold"),
+        ],
+        [
+          html.text("no exercises found"),
+        ],
+      ),
+      html.p(
+        [
+          attribute.class("text-balance text-outline text-sm max-w-sm"),
+        ],
+        [
+          html.text(
+            "No exercises matched your search. Double-check your spelling or try broader terms",
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
 pub fn exercises_rows(page: exercise.Page, query: String) -> Element(a) {
-  echo query
   element.fragment(exercises_rows_items(page, query))
 }
 
@@ -199,11 +233,7 @@ fn exercises_rows_items(
   page: exercise.Page,
   query: String,
 ) -> List(Element(a)) {
-  use <- bool.guard(when: page.rows == [], return: [
-    html.li([attribute.class("py-7 text-outline text-sm text-center")], [
-      html.text("no exercises found"),
-    ]),
-  ])
+  use <- bool.guard(when: page.rows == [], return: [no_exercises_found()])
 
   let rows =
     list.map(page.rows, fn(ex) {
