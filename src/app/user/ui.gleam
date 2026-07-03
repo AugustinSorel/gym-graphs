@@ -342,6 +342,20 @@ pub fn account_details(user: User) -> Element(a) {
           ),
         ],
         [
+          html.text("one rep max algorithm"),
+        ],
+      ),
+      one_rep_max_algorithm_form(),
+    ]),
+
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [
           html.text("danger zone"),
         ],
       ),
@@ -514,6 +528,50 @@ pub fn sign_out_row(error error: option.Option(String)) {
           ])
         option.None -> element.none()
       },
+    ],
+  )
+}
+
+pub fn one_rep_max_algorithm_form() {
+  let algorithms = [
+    "adams",
+    "baechle",
+    "berger",
+    "brown",
+    "brzycki",
+    "epley",
+    "kemmler",
+    "landers",
+    "lombardi",
+    "mayhew",
+    "naclerio",
+    "oConner",
+    "wathen",
+  ]
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class(
+        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.label(
+        [attribute.for("one-rep-max-algorithm"), attribute.class("text-outline text-sm")],
+        [html.text("one rep max algorithm")],
+      ),
+      ui.select(
+        [
+          attribute.name("one_rep_max_algorithm"),
+          attribute.id("one-rep-max-algorithm"),
+        ],
+        list.map(algorithms, fn(algo) {
+          html.option([attribute.value(algo)], algo)
+        }),
+      ),
     ],
   )
 }

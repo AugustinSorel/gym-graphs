@@ -152,4 +152,68 @@
   .htmx-request.htmx-indicator {
     display: inline;
   }
+
+  .select,
+  .select::picker(select) {
+    appearance: base-select;
+  }
+
+  .select:hover {
+    background-color: color-mix(in srgb, var(--on-surface) 80%, transparent);
+  }
+
+  .select {
+    padding: 0.5rem 1rem;
+    background: var(--on-surface);
+    color: var(--surface);
+    font: inherit;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .select:focus-visible {
+    outline: 4px solid var(--on-surface);
+    outline-offset: 2px;
+  }
+
+  .select:open::picker-icon {
+    rotate: 180deg;
+  }
+
+  .select::picker(select) {
+    border: 2px solid var(--on-surface);
+    background: var(--surface);
+    color: var(--on-surface);
+    padding: 0;
+    margin-top: 4px;
+    border-radius: 0;
+  }
+
+  .select option {
+    padding: 0.5rem 1.25rem;
+    font: inherit;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--on-surface);
+  }
+
+  .select option::checkmark {
+    content: "*";
+  }
+
+  .select option:hover,
+  .select option:focus {
+    background-color: var(--color-surface-container-highest);
+  }
+
+  .select option:focus-visible {
+    background-color: var(--color-surface-container-highest);
+    outline: none;
+  }
+
+  .select option:checked {
+    background: var(--on-surface);
+    color: var(--surface);
+    font-weight: 600;
+  }
 }

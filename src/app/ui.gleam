@@ -242,6 +242,16 @@ pub fn input(attrs: List(Attribute(a))) -> Element(a) {
   ))
 }
 
+pub fn select(
+  attrs: List(Attribute(a)),
+  children: List(Element(a)),
+) -> Element(a) {
+  html.select(
+    list.append([attribute.class("select")], attrs),
+    children,
+  )
+}
+
 pub fn link(
   attrs: List(Attribute(a)),
   children: List(Element(a)),
