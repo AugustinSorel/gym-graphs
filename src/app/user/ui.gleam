@@ -345,7 +345,15 @@ pub fn account_details(user: User) -> Element(a) {
           html.text("one rep max algorithm"),
         ],
       ),
-      one_rep_max_algorithm_form(),
+      one_rep_max_algorithm_form(
+        get_one_rep_max_algorithm_form()
+        |> form.add_values([
+          #(
+            "one_rep_max_algorithm",
+            one_rep_max_algorithm_to_form_value(user.one_rep_max_algorithm),
+          ),
+        ]),
+      ),
     ]),
 
     html.section([], [
@@ -532,22 +540,75 @@ pub fn sign_out_row(error error: option.Option(String)) {
   )
 }
 
-pub fn one_rep_max_algorithm_form() {
+pub fn get_one_rep_max_algorithm_form() {
+  form.new({
+    use one_rep_max_algorithm <- form.field("one_rep_max_algorithm", {
+      form.parse(fn(input) {
+        case input {
+          ["adams", ..] -> Ok(user.Adams)
+          ["baechle", ..] -> Ok(user.Baechle)
+          ["berger", ..] -> Ok(user.Berger)
+          ["brown", ..] -> Ok(user.Brown)
+          ["brzycki", ..] -> Ok(user.Brzycki)
+          ["epley", ..] -> Ok(user.Epley)
+          ["kemmler", ..] -> Ok(user.Kemmler)
+          ["landers", ..] -> Ok(user.Landers)
+          ["lombardi", ..] -> Ok(user.Lombardi)
+          ["mayhew", ..] -> Ok(user.Mayhew)
+          ["naclerio", ..] -> Ok(user.Naclerio)
+          ["oconner", ..] -> Ok(user.OConner)
+          ["wathen", ..] -> Ok(user.Wathen)
+          _ ->
+            Error(#(
+              user.Epley,
+              "one rep max algorithm must be a valid algorithm",
+            ))
+        }
+      })
+    })
+
+    form.success(one_rep_max_algorithm)
+  })
+}
+
+fn one_rep_max_algorithm_to_form_value(algo: user.OneRepMaxAlgorithm) -> String {
+  case algo {
+    user.Adams -> "adams"
+    user.Baechle -> "baechle"
+    user.Berger -> "berger"
+    user.Brown -> "brown"
+    user.Brzycki -> "brzycki"
+    user.Epley -> "epley"
+    user.Kemmler -> "kemmler"
+    user.Landers -> "landers"
+    user.Lombardi -> "lombardi"
+    user.Mayhew -> "mayhew"
+    user.Naclerio -> "naclerio"
+    user.OConner -> "oconner"
+    user.Wathen -> "wathen"
+  }
+}
+
+pub fn one_rep_max_algorithm_form(
+  form: form.Form(user.OneRepMaxAlgorithm),
+) {
   let algorithms = [
-    "adams",
-    "baechle",
-    "berger",
-    "brown",
-    "brzycki",
-    "epley",
-    "kemmler",
-    "landers",
-    "lombardi",
-    "mayhew",
-    "naclerio",
-    "oConner",
-    "wathen",
+    #("adams", "adams"),
+    #("baechle", "baechle"),
+    #("berger", "berger"),
+    #("brown", "brown"),
+    #("brzycki", "brzycki"),
+    #("epley", "epley"),
+    #("kemmler", "kemmler"),
+    #("landers", "landers"),
+    #("lombardi", "lombardi"),
+    #("mayhew", "mayhew"),
+    #("naclerio", "naclerio"),
+    #("oconner", "oConner"),
+    #("wathen", "wathen"),
   ]
+
+  let root_err = list.first(form.field_error_messages(form, "root"))
 
   html.form(
     [
@@ -560,7 +621,10 @@ pub fn one_rep_max_algorithm_form() {
     ],
     [
       html.label(
-        [attribute.for("one-rep-max-algorithm"), attribute.class("text-outline text-sm")],
+        [
+          attribute.for("one-rep-max-algorithm"),
+          attribute.class("text-outline text-sm"),
+        ],
         [html.text("one rep max algorithm")],
       ),
       ui.select(
@@ -569,9 +633,26 @@ pub fn one_rep_max_algorithm_form() {
           attribute.id("one-rep-max-algorithm"),
         ],
         list.map(algorithms, fn(algo) {
-          html.option([attribute.value(algo)], algo)
+          let #(value, label) = algo
+          html.option(
+            [
+              attribute.value(value),
+              attribute.selected(
+                form.field_value(form, "one_rep_max_algorithm") == value,
+              ),
+            ],
+            label,
+          )
         }),
       ),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("changing algorithm failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
     ],
   )
 }

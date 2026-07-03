@@ -72,6 +72,7 @@ pub type DeleteByAccountDeletionIdRow {
     password_salt: BitArray,
     created_at: Timestamp,
     updated_at: Timestamp,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -94,6 +95,10 @@ pub fn delete_by_account_deletion_id(
     use password_salt <- decode.field(5, decode.bit_array)
     use created_at <- decode.field(6, pog.timestamp_decoder())
     use updated_at <- decode.field(7, pog.timestamp_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      8,
+      one_rep_max_algorithm_decoder(),
+    )
     decode.success(DeleteByAccountDeletionIdRow(
       id:,
       email_address:,
@@ -103,6 +108,7 @@ pub fn delete_by_account_deletion_id(
       password_salt:,
       created_at:,
       updated_at:,
+      one_rep_max_algorithm:,
     ))
   }
 
@@ -139,6 +145,7 @@ pub type SelectByEmailRow {
     password_salt: BitArray,
     created_at: Timestamp,
     updated_at: Timestamp,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -161,6 +168,10 @@ pub fn select_by_email(
     use password_salt <- decode.field(5, decode.bit_array)
     use created_at <- decode.field(6, pog.timestamp_decoder())
     use updated_at <- decode.field(7, pog.timestamp_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      8,
+      one_rep_max_algorithm_decoder(),
+    )
     decode.success(SelectByEmailRow(
       id:,
       email_address:,
@@ -170,6 +181,7 @@ pub fn select_by_email(
       password_salt:,
       created_at:,
       updated_at:,
+      one_rep_max_algorithm:,
     ))
   }
 
@@ -197,6 +209,7 @@ pub type SelectByIdRow {
     password_salt: BitArray,
     created_at: Timestamp,
     updated_at: Timestamp,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -219,6 +232,10 @@ pub fn select_by_id(
     use password_salt <- decode.field(5, decode.bit_array)
     use created_at <- decode.field(6, pog.timestamp_decoder())
     use updated_at <- decode.field(7, pog.timestamp_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      8,
+      one_rep_max_algorithm_decoder(),
+    )
     decode.success(SelectByIdRow(
       id:,
       email_address:,
@@ -228,6 +245,7 @@ pub fn select_by_id(
       password_salt:,
       created_at:,
       updated_at:,
+      one_rep_max_algorithm:,
     ))
   }
 
@@ -311,6 +329,48 @@ pub fn update_name(
 "
   |> pog.query
   |> pog.parameter(pog.text(name))
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `update_one_rep_max_algorithm` query
+/// defined in `./src/app/user/sql/update_one_rep_max_algorithm.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateOneRepMaxAlgorithmRow {
+  UpdateOneRepMaxAlgorithmRow(
+    id: Int,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
+  )
+}
+
+/// Runs the `update_one_rep_max_algorithm` query
+/// defined in `./src/app/user/sql/update_one_rep_max_algorithm.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_one_rep_max_algorithm(
+  db: pog.Connection,
+  one_rep_max_algorithm: OneRepMaxAlgorithm,
+  id: Int,
+) -> Result(pog.Returned(UpdateOneRepMaxAlgorithmRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use one_rep_max_algorithm <- decode.field(
+      1,
+      one_rep_max_algorithm_decoder(),
+    )
+    decode.success(UpdateOneRepMaxAlgorithmRow(id:, one_rep_max_algorithm:))
+  }
+
+  "update users set one_rep_max_algorithm = $1 where id = $2 returning id, one_rep_max_algorithm;
+"
+  |> pog.query
+  |> pog.parameter(one_rep_max_algorithm_encoder(one_rep_max_algorithm))
   |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
@@ -445,6 +505,66 @@ pub fn update_weight_unit(
 }
 
 // --- Enums -------------------------------------------------------------------
+
+/// Corresponds to the Postgres `one_rep_max_algorithm` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type OneRepMaxAlgorithm {
+  Wathen
+  Oconner
+  Naclerio
+  Mayhew
+  Lombardi
+  Landers
+  Kemmler
+  Epley
+  Brzycki
+  Brown
+  Berger
+  Baechle
+  Adams
+}
+
+fn one_rep_max_algorithm_decoder() -> decode.Decoder(OneRepMaxAlgorithm) {
+  use one_rep_max_algorithm <- decode.then(decode.string)
+  case one_rep_max_algorithm {
+    "wathen" -> decode.success(Wathen)
+    "oconner" -> decode.success(Oconner)
+    "naclerio" -> decode.success(Naclerio)
+    "mayhew" -> decode.success(Mayhew)
+    "lombardi" -> decode.success(Lombardi)
+    "landers" -> decode.success(Landers)
+    "kemmler" -> decode.success(Kemmler)
+    "epley" -> decode.success(Epley)
+    "brzycki" -> decode.success(Brzycki)
+    "brown" -> decode.success(Brown)
+    "berger" -> decode.success(Berger)
+    "baechle" -> decode.success(Baechle)
+    "adams" -> decode.success(Adams)
+    _ -> decode.failure(Wathen, "OneRepMaxAlgorithm")
+  }
+}
+
+fn one_rep_max_algorithm_encoder(one_rep_max_algorithm) -> pog.Value {
+  case one_rep_max_algorithm {
+    Wathen -> "wathen"
+    Oconner -> "oconner"
+    Naclerio -> "naclerio"
+    Mayhew -> "mayhew"
+    Lombardi -> "lombardi"
+    Landers -> "landers"
+    Kemmler -> "kemmler"
+    Epley -> "epley"
+    Brzycki -> "brzycki"
+    Brown -> "brown"
+    Berger -> "berger"
+    Baechle -> "baechle"
+    Adams -> "adams"
+  }
+  |> pog.text
+}
 
 /// Corresponds to the Postgres `weight_unit` enum.
 ///

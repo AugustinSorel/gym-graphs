@@ -154,6 +154,7 @@ pub type SelectByIdRow {
     name: String,
     user_created_at: Timestamp,
     weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -177,6 +178,10 @@ pub fn select_by_id(
     use name <- decode.field(6, decode.string)
     use user_created_at <- decode.field(7, pog.timestamp_decoder())
     use weight_unit <- decode.field(8, weight_unit_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      9,
+      one_rep_max_algorithm_decoder(),
+    )
     decode.success(SelectByIdRow(
       id:,
       user_id:,
@@ -187,6 +192,7 @@ pub fn select_by_id(
       name:,
       user_created_at:,
       weight_unit:,
+      one_rep_max_algorithm:,
     ))
   }
 
@@ -199,7 +205,8 @@ pub fn select_by_id(
   u.email_address,
   u.name,
   u.created_at as user_created_at,
-  u.weight_unit
+  u.weight_unit,
+  u.one_rep_max_algorithm
 from auth_sessions s
 join users u on u.id = s.user_id
 where s.id = $1;
@@ -211,6 +218,47 @@ where s.id = $1;
 }
 
 // --- Enums -------------------------------------------------------------------
+
+/// Corresponds to the Postgres `one_rep_max_algorithm` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type OneRepMaxAlgorithm {
+  Wathen
+  Oconner
+  Naclerio
+  Mayhew
+  Lombardi
+  Landers
+  Kemmler
+  Epley
+  Brzycki
+  Brown
+  Berger
+  Baechle
+  Adams
+}
+
+fn one_rep_max_algorithm_decoder() -> decode.Decoder(OneRepMaxAlgorithm) {
+  use one_rep_max_algorithm <- decode.then(decode.string)
+  case one_rep_max_algorithm {
+    "wathen" -> decode.success(Wathen)
+    "oconner" -> decode.success(Oconner)
+    "naclerio" -> decode.success(Naclerio)
+    "mayhew" -> decode.success(Mayhew)
+    "lombardi" -> decode.success(Lombardi)
+    "landers" -> decode.success(Landers)
+    "kemmler" -> decode.success(Kemmler)
+    "epley" -> decode.success(Epley)
+    "brzycki" -> decode.success(Brzycki)
+    "brown" -> decode.success(Brown)
+    "berger" -> decode.success(Berger)
+    "baechle" -> decode.success(Baechle)
+    "adams" -> decode.success(Adams)
+    _ -> decode.failure(Wathen, "OneRepMaxAlgorithm")
+  }
+}
 
 /// Corresponds to the Postgres `weight_unit` enum.
 ///

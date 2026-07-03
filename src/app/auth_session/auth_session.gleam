@@ -41,6 +41,21 @@ pub fn require(req, ctx: Ctx, next) {
           sql.Kg -> user.Kg
           sql.Lbs -> user.Lbs
         },
+        one_rep_max_algorithm: case session.one_rep_max_algorithm {
+          sql.Adams -> user.Adams
+          sql.Baechle -> user.Baechle
+          sql.Berger -> user.Berger
+          sql.Brown -> user.Brown
+          sql.Brzycki -> user.Brzycki
+          sql.Epley -> user.Epley
+          sql.Kemmler -> user.Kemmler
+          sql.Landers -> user.Landers
+          sql.Lombardi -> user.Lombardi
+          sql.Mayhew -> user.Mayhew
+          sql.Naclerio -> user.Naclerio
+          sql.Oconner -> user.OConner
+          sql.Wathen -> user.Wathen
+        },
       )
 
     use Nil <- result.try(refresh(session, ctx.db))
@@ -88,6 +103,7 @@ pub type User {
     email: String,
     created_at: timestamp.Timestamp,
     weight_unit: user.WeightUnit,
+    one_rep_max_algorithm: user.OneRepMaxAlgorithm,
   )
 }
 

@@ -136,3 +136,64 @@ pub fn update_weight_unit(req: Request, ctx: Ctx) -> Response {
     }
   }
 }
+
+type UpdateOneRepMaxAlgorithmError {
+  UpdateOneRepMaxAlgorithmInvalidValue(Form(user.OneRepMaxAlgorithm))
+  UpdateOneRepMaxAlgorithmFailed(db.DatabaseError)
+}
+
+pub fn update_one_rep_max_algorithm(req: Request, ctx: Ctx) -> Response {
+  use _session, current_user <- auth_session.require(req, ctx)
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use algorithm <- result.try(
+      ui.get_one_rep_max_algorithm_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(UpdateOneRepMaxAlgorithmInvalidValue),
+    )
+
+    use <- bool.guard(
+      when: algorithm == current_user.one_rep_max_algorithm,
+      return: Ok(Nil),
+    )
+
+    user.update_one_rep_max_algorithm(ctx.db, algorithm, current_user.id)
+    |> result.replace(Nil)
+    |> result.map_error(UpdateOneRepMaxAlgorithmFailed)
+  }
+
+  case result {
+    Ok(Nil) -> {
+      ui.get_one_rep_max_algorithm_form()
+      |> form.add_values(form_data.values)
+      |> ui.one_rep_max_algorithm_form()
+      |> web.html(200)
+      |> wisp.set_header("HX-Reswap", "none")
+    }
+
+    Error(UpdateOneRepMaxAlgorithmInvalidValue(invalid_form)) -> {
+      invalid_form
+      |> ui.one_rep_max_algorithm_form()
+      |> web.html(422)
+    }
+
+    Error(UpdateOneRepMaxAlgorithmFailed(db.DatabaseFailure(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_one_rep_max_algorithm_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.one_rep_max_algorithm_form()
+      |> web.html(500)
+    }
+
+    Error(UpdateOneRepMaxAlgorithmFailed(db.RowNotFound)) -> {
+      ui.get_one_rep_max_algorithm_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("user not found"))
+      |> ui.one_rep_max_algorithm_form()
+      |> web.html(404)
+    }
+  }
+}

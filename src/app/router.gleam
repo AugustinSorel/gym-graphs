@@ -58,6 +58,13 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["account", "one-rep-max-algorithm"] -> {
+      case req.method {
+        Patch -> user_handler.update_one_rep_max_algorithm(req, ctx)
+        _ -> wisp.method_not_allowed([Patch])
+      }
+    }
+
     ["sign-up"] -> {
       case req.method {
         Get -> sign_up_handler.view_register_page(req, ctx)

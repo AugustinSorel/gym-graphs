@@ -29,6 +29,62 @@ fn weight_unit_to_sql(w: WeightUnit) -> sql.WeightUnit {
   }
 }
 
+pub type OneRepMaxAlgorithm {
+  Adams
+  Baechle
+  Berger
+  Brown
+  Brzycki
+  Epley
+  Kemmler
+  Landers
+  Lombardi
+  Mayhew
+  Naclerio
+  OConner
+  Wathen
+}
+
+pub fn one_rep_max_algorithm_of_sql(
+  a: sql.OneRepMaxAlgorithm,
+) -> OneRepMaxAlgorithm {
+  case a {
+    sql.Adams -> Adams
+    sql.Baechle -> Baechle
+    sql.Berger -> Berger
+    sql.Brown -> Brown
+    sql.Brzycki -> Brzycki
+    sql.Epley -> Epley
+    sql.Kemmler -> Kemmler
+    sql.Landers -> Landers
+    sql.Lombardi -> Lombardi
+    sql.Mayhew -> Mayhew
+    sql.Naclerio -> Naclerio
+    sql.Oconner -> OConner
+    sql.Wathen -> Wathen
+  }
+}
+
+fn one_rep_max_algorithm_to_sql(
+  a: OneRepMaxAlgorithm,
+) -> sql.OneRepMaxAlgorithm {
+  case a {
+    Adams -> sql.Adams
+    Baechle -> sql.Baechle
+    Berger -> sql.Berger
+    Brown -> sql.Brown
+    Brzycki -> sql.Brzycki
+    Epley -> sql.Epley
+    Kemmler -> sql.Kemmler
+    Landers -> sql.Landers
+    Lombardi -> sql.Lombardi
+    Mayhew -> sql.Mayhew
+    Naclerio -> sql.Naclerio
+    OConner -> sql.Oconner
+    Wathen -> sql.Wathen
+  }
+}
+
 pub type CheckIfEmailIsAvailable {
   EmailConflict
   CheckIfEmailIsAvailableDatabaseFailure(QueryError)
@@ -70,12 +126,21 @@ pub fn update_name(db: Connection, name: String, id: Int) {
   sql.update_name(db, name, id) |> db.extract_first_row
 }
 
-pub fn update_weight_unit(
+pub fn update_weight_unit(db: Connection, weight_unit: WeightUnit, id: Int) {
+  sql.update_weight_unit(db, weight_unit_to_sql(weight_unit), id)
+  |> db.extract_first_row
+}
+
+pub fn update_one_rep_max_algorithm(
   db: Connection,
-  weight_unit: WeightUnit,
+  algorithm: OneRepMaxAlgorithm,
   id: Int,
 ) {
-  sql.update_weight_unit(db, weight_unit_to_sql(weight_unit), id)
+  sql.update_one_rep_max_algorithm(
+    db,
+    one_rep_max_algorithm_to_sql(algorithm),
+    id,
+  )
   |> db.extract_first_row
 }
 
