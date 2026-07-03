@@ -16,7 +16,7 @@ pub fn edit_name_page(children: Element(a), req: Request) -> Element(a) {
     html.main(
       [
         attribute.class(
-          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20",
         ),
       ],
       [
@@ -113,7 +113,7 @@ pub fn account_page(children: Element(a), req: Request) -> Element(a) {
     html.main(
       [
         attribute.class(
-          " flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-20",
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto m-10 lg:m-20",
         ),
       ],
       [children],
@@ -558,7 +558,9 @@ pub fn get_one_rep_max_algorithm_form() {
   })
 }
 
-fn one_rep_max_algorithm_to_form_value(algo: user.OneRepMaxAlgorithm) -> String {
+fn one_rep_max_algorithm_to_form_value(
+  algo: user.OneRepMaxAlgorithm,
+) -> String {
   case algo {
     user.Adams -> "adams"
     user.Baechle -> "baechle"
@@ -576,9 +578,7 @@ fn one_rep_max_algorithm_to_form_value(algo: user.OneRepMaxAlgorithm) -> String 
   }
 }
 
-pub fn one_rep_max_algorithm_form(
-  form: form.Form(user.OneRepMaxAlgorithm),
-) {
+pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
   let algorithms = [
     #("adams", "adams"),
     #("baechle", "baechle"),

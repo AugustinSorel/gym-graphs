@@ -28,7 +28,10 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
       html.script([attribute.src("/static/theme.js")], ""),
       html.title([], "auth"),
     ]),
-    html.body([attribute.class("bg-surface text-on-surface")], children),
+    html.body(
+      [attribute.class("bg-surface text-on-surface pb-20 lg:pb-0")],
+      children,
+    ),
   ])
 }
 
@@ -39,38 +42,60 @@ pub fn nav_bar(req: Request) {
     #("account", "/account"),
   ]
 
-  html.header(
-    [
-      attribute.class(
-        "border-b-4 py-7 px-[max(calc((100vw-var(--max-width-app))/2),1rem)] flex justify-between bg-surface-container-lowest",
-      ),
-    ],
-    [
-      html.h1([attribute.class("uppercase text-sm")], [
-        html.text("gym graphs"),
-      ]),
-      html.nav(
-        [attribute.class("space-x-5")],
-        list.map(links, fn(l) {
-          let #(title, href) = l
-          link(
-            [
-              attribute.href(href),
-              attribute.class(
-                "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface",
-              ),
-              attribute.aria_current(
-                string.lowercase(bool.to_string(href == req.path)),
-              ),
-            ],
-            [
-              html.text(title),
-            ],
-          )
-        }),
-      ),
-    ],
-  )
+  html.div([], [
+    html.header(
+      [
+        attribute.class(
+          "border-b-4 py-7 px-[max(calc((100vw-var(--max-width-app))/2),1rem)] hidden lg:flex justify-between bg-surface-container-lowest",
+        ),
+      ],
+      [
+        html.h1([attribute.class("uppercase text-sm")], [
+          html.text("gym graphs"),
+        ]),
+        html.nav(
+          [attribute.class("space-x-5")],
+          list.map(links, fn(l) {
+            let #(title, href) = l
+            link(
+              [
+                attribute.href(href),
+                attribute.class(
+                  "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface",
+                ),
+                attribute.aria_current(
+                  string.lowercase(bool.to_string(href == req.path)),
+                ),
+              ],
+              [html.text(title)],
+            )
+          }),
+        ),
+      ],
+    ),
+    html.nav(
+      [
+        attribute.class(
+          "lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t-4 bg-surface-container-lowest flex justify-around py-3",
+        ),
+      ],
+      list.map(links, fn(l) {
+        let #(title, href) = l
+        link(
+          [
+            attribute.href(href),
+            attribute.class(
+              "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface",
+            ),
+            attribute.aria_current(
+              string.lowercase(bool.to_string(href == req.path)),
+            ),
+          ],
+          [html.text(title)],
+        )
+      }),
+    ),
+  ])
 }
 
 pub fn spinner() -> Element(a) {
@@ -246,10 +271,7 @@ pub fn select(
   attrs: List(Attribute(a)),
   children: List(Element(a)),
 ) -> Element(a) {
-  html.select(
-    list.append([attribute.class("select")], attrs),
-    children,
-  )
+  html.select(list.append([attribute.class("select")], attrs), children)
 }
 
 pub fn link(
