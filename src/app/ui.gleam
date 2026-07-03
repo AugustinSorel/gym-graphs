@@ -42,7 +42,7 @@ pub fn nav_bar(req: Request) {
     #("account", "/account"),
   ]
 
-  html.div([], [
+  element.fragment([
     html.header(
       [
         attribute.class(
