@@ -141,6 +141,7 @@ pub fn exercises_list(
         ),
         attribute.attribute("hx-target", "ul"),
         attribute.attribute("hx-swap", "innerHTML"),
+        attribute.attribute("hx-replace-url", "true"),
         attribute.attribute("hx-include", "this"),
         attribute.class("w-full"),
       ]),

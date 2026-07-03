@@ -42,11 +42,17 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
     Ok(#(page, count))
   }
 
+  let replace_url = case string.is_empty(search_query) {
+    True -> "/exercises"
+    False -> "/exercises?q=" <> search_query
+  }
+
   case result {
     Ok(#(page, _)) if is_htmx_request ->
       page
       |> ui.exercises_rows(search_query)
       |> web.html(200)
+      |> wisp.set_header("HX-Replace-Url", replace_url)
 
     Ok(#(page, exercises_count)) ->
       page
