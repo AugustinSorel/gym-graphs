@@ -10,6 +10,13 @@ import gleam/result
 import gleam/string
 import wisp.{type Request, type Response}
 
+pub fn graph_svg(req: Request, ctx: Ctx) -> Response {
+  use _session, _user <- auth_session.require(req, ctx)
+
+  ui.graph_svg()
+  |> web.svg(200)
+}
+
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
 

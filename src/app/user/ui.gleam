@@ -602,36 +602,6 @@ pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
 
   let root_err = list.first(form.field_error_messages(form, "root"))
 
-  let data = [
-    #(0.0, 0.0),
-    #(1.0, 25.0),
-    #(2.0, 15.0),
-    #(3.0, 40.0),
-    #(4.0, 35.0),
-    #(5.0, 60.0),
-  ]
-
-  let height = 200.0
-  let width = 688.0
-
-  let #(xs, ys) = list.unzip(data)
-
-  let min_x = list.reduce(xs, float.min) |> result.unwrap(0.0)
-  let max_x = list.reduce(xs, float.max) |> result.unwrap(0.0)
-
-  let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
-  let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
-
-  let scale_x = scale.linear(domain: #(min_x, max_x), range: #(0.0, width))
-  let scale_y = scale.linear(domain: #(min_y, max_y), range: #(height, 0.0))
-
-  let path_d =
-    data
-    |> line.new()
-    |> line.x(fn(d) { scale_x(d.0) })
-    |> line.y(fn(d) { scale_y(d.1) })
-    |> line.to_path
-
   html.div(
     [
       attribute.class(
@@ -682,23 +652,57 @@ pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
           },
         ],
       ),
-      svg.svg(
-        [
-          attribute.attribute("width", "100%"),
-          attribute.class("outline-2"),
-          attribute.height(200),
-        ],
-        [
-          svg.path([
-            attribute.attribute("d", path_d),
-            attribute.attribute("fill", "none"),
-            attribute.attribute("stroke", "red"),
-            attribute.attribute("strokeWidth", "2"),
-            attribute.attribute("strokeLinejoin", "round"),
-            attribute.attribute("strokeLinecap", "round"),
-          ]),
-        ],
-      ),
+      graph_svg(),
+    ],
+  )
+}
+
+pub fn graph_svg() -> Element(a) {
+  let data = [
+    #(0.0, 0.0),
+    #(1.0, 25.0),
+    #(2.0, 15.0),
+    #(3.0, 40.0),
+    #(4.0, 35.0),
+    #(5.0, 60.0),
+  ]
+
+  let height = 200.0
+  let width = 688.0
+
+  let #(xs, ys) = list.unzip(data)
+
+  let min_x = list.reduce(xs, float.min) |> result.unwrap(0.0)
+  let max_x = list.reduce(xs, float.max) |> result.unwrap(0.0)
+
+  let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
+  let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
+
+  let scale_x = scale.linear(domain: #(min_x, max_x), range: #(0.0, width))
+  let scale_y = scale.linear(domain: #(min_y, max_y), range: #(height, 0.0))
+
+  let path_d =
+    data
+    |> line.new()
+    |> line.x(fn(d) { scale_x(d.0) })
+    |> line.y(fn(d) { scale_y(d.1) })
+    |> line.to_path
+
+  svg.svg(
+    [
+      attribute.attribute("width", "100%"),
+      attribute.class("outline-2"),
+      attribute.height(200),
+    ],
+    [
+      svg.path([
+        attribute.attribute("d", path_d),
+        attribute.attribute("fill", "none"),
+        attribute.attribute("stroke", "red"),
+        attribute.attribute("strokeWidth", "2"),
+        attribute.attribute("strokeLinejoin", "round"),
+        attribute.attribute("strokeLinecap", "round"),
+      ]),
     ],
   )
 }

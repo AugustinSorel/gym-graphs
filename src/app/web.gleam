@@ -30,3 +30,9 @@ pub fn html(el: Element(a), status: Int) -> Response {
   |> wisp.set_header("content-type", "text/html")
   |> wisp.string_tree_body(element.to_string_tree(el))
 }
+
+pub fn svg(el: Element(a), status: Int) -> Response {
+  wisp.response(status)
+  |> wisp.set_header("content-type", "image/svg+xml")
+  |> wisp.string_tree_body(element.to_string_tree(el))
+}

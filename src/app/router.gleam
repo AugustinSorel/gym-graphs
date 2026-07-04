@@ -43,6 +43,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       user_handler.view_account_page(req, ctx)
     }
 
+    ["account", "graph.svg"] -> {
+      use <- wisp.require_method(req, Get)
+      user_handler.graph_svg(req, ctx)
+    }
+
     ["account", "name"] -> {
       case req.method {
         Get -> user_handler.view_edit_name_page(req, ctx)
