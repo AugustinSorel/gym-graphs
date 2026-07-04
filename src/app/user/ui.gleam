@@ -163,7 +163,7 @@ pub fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-dotted border-outline/50",
           ),
         ],
         [
@@ -180,7 +180,7 @@ pub fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
           ),
         ],
         [
@@ -204,7 +204,7 @@ pub fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
           ),
         ],
         [
@@ -270,7 +270,7 @@ pub fn account_details(user: User) -> Element(a) {
       html.div(
         [
           attribute.class(
-            "py-7 border-b-2 border-outline flex items-center justify-between",
+            "py-7 border-b-2 border-outline/50 border-dotted flex items-center justify-between",
           ),
         ],
         [
@@ -384,7 +384,7 @@ pub fn weight_unit_form(form: Form(user.WeightUnit)) {
       attribute.attribute("hx-trigger", "change"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class(
-        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
       ),
     ],
     [
@@ -456,7 +456,7 @@ pub fn update_password_row(error error: option.Option(String)) {
   html.div(
     [
       attribute.class(
-        "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline gap-3",
+        "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
       ),
     ],
     [
@@ -491,7 +491,7 @@ pub fn sign_out_row(error error: option.Option(String)) {
   html.div(
     [
       attribute.class(
-        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
       ),
     ],
     [
@@ -603,7 +603,7 @@ pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
       attribute.attribute("hx-trigger", "change"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class(
-        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
       ),
     ],
     [
@@ -648,7 +648,7 @@ pub fn remove_account_row(error error: option.Option(String)) {
   html.div(
     [
       attribute.class(
-        "py-7 border-b-2 border-outline grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
       ),
     ],
     [
