@@ -5,6 +5,7 @@ import chart/line
 import chart/scale
 import formal/form.{type Form}
 import gleam/float
+import gleam/int
 import gleam/list
 import gleam/option
 import gleam/result
@@ -652,12 +653,24 @@ pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
           },
         ],
       ),
-      graph_svg(),
+      html.div(
+        [
+          attribute.attribute("data-graph-container", ""),
+          attribute.attribute("hx-get", "/account/one-rep-max-algorithm.svg"),
+          attribute.attribute("hx-trigger", "graph-resize"),
+          attribute.attribute("hx-swap", "innerHTML"),
+          attribute.class("h-[200px]"),
+        ],
+        [],
+      ),
     ],
   )
 }
 
-pub fn graph_svg() -> Element(a) {
+pub fn one_rep_max_algorithm_graph(
+  width width: Int,
+  height height: Int,
+) -> Element(a) {
   let data = [
     #(0.0, 0.0),
     #(1.0, 25.0),
@@ -667,9 +680,6 @@ pub fn graph_svg() -> Element(a) {
     #(5.0, 60.0),
   ]
 
-  let height = 200.0
-  let width = 688.0
-
   let #(xs, ys) = list.unzip(data)
 
   let min_x = list.reduce(xs, float.min) |> result.unwrap(0.0)
@@ -678,8 +688,10 @@ pub fn graph_svg() -> Element(a) {
   let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
   let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
 
-  let scale_x = scale.linear(domain: #(min_x, max_x), range: #(0.0, width))
-  let scale_y = scale.linear(domain: #(min_y, max_y), range: #(height, 0.0))
+  let scale_x =
+    scale.linear(domain: #(min_x, max_x), range: #(0.0, int.to_float(width)))
+  let scale_y =
+    scale.linear(domain: #(min_y, max_y), range: #(int.to_float(height), 0.0))
 
   let path_d =
     data
@@ -690,9 +702,9 @@ pub fn graph_svg() -> Element(a) {
 
   svg.svg(
     [
-      attribute.attribute("width", "100%"),
+      attribute.attribute("width", int.to_string(width)),
+      attribute.attribute("height", int.to_string(height)),
       attribute.class("outline-2"),
-      attribute.height(200),
     ],
     [
       svg.path([

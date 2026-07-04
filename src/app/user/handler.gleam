@@ -6,15 +6,28 @@ import app/user/user
 import app/web
 import formal/form.{type Form}
 import gleam/bool
+import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 import wisp.{type Request, type Response}
 
-pub fn graph_svg(req: Request, ctx: Ctx) -> Response {
+pub fn view_one_rep_max_algorithm_graph(req: Request, ctx: Ctx) -> Response {
   use _session, _user <- auth_session.require(req, ctx)
 
-  ui.graph_svg()
-  |> web.svg(200)
+  let query = wisp.get_query(req)
+
+  let width =
+    list.key_find(query, "width")
+    |> result.try(int.parse)
+    |> result.unwrap(400)
+
+  let height =
+    list.key_find(query, "height")
+    |> result.try(int.parse)
+    |> result.unwrap(200)
+
+  ui.one_rep_max_algorithm_graph(width:, height:) |> web.svg(200)
 }
 
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {

@@ -43,9 +43,9 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       user_handler.view_account_page(req, ctx)
     }
 
-    ["account", "graph.svg"] -> {
+    ["account", "one-rep-max-algorithm.svg"] -> {
       use <- wisp.require_method(req, Get)
-      user_handler.graph_svg(req, ctx)
+      user_handler.view_one_rep_max_algorithm_graph(req, ctx)
     }
 
     ["account", "name"] -> {
