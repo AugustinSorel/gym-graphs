@@ -1,13 +1,18 @@
 import app/auth_session/auth_session.{type User}
 import app/ui
 import app/user/user
+import chart/line
+import chart/scale
 import formal/form.{type Form}
+import gleam/float
 import gleam/list
 import gleam/option
+import gleam/result
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
+import lustre/element/svg
 import wisp.{type Request}
 
 pub fn edit_name_page(children: Element(a), req: Request) -> Element(a) {
@@ -597,49 +602,103 @@ pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
 
   let root_err = list.first(form.field_error_messages(form, "root"))
 
-  html.form(
+  let data = [
+    #(0.0, 0.0),
+    #(1.0, 25.0),
+    #(2.0, 15.0),
+    #(3.0, 40.0),
+    #(4.0, 35.0),
+    #(5.0, 60.0),
+  ]
+
+  let height = 200.0
+  let width = 688.0
+
+  let #(xs, ys) = list.unzip(data)
+
+  let min_x = list.reduce(xs, float.min) |> result.unwrap(0.0)
+  let max_x = list.reduce(xs, float.max) |> result.unwrap(0.0)
+
+  let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
+  let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
+
+  let scale_x = scale.linear(domain: #(min_x, max_x), range: #(0.0, width))
+  let scale_y = scale.linear(domain: #(min_y, max_y), range: #(height, 0.0))
+
+  let path_d =
+    data
+    |> line.new()
+    |> line.x(fn(d) { scale_x(d.0) })
+    |> line.y(fn(d) { scale_y(d.1) })
+    |> line.to_path
+
+  html.div(
     [
-      attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
-      attribute.attribute("hx-trigger", "change"),
-      attribute.attribute("hx-swap", "outerHTML"),
       attribute.class(
-        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted space-y-5",
       ),
     ],
     [
-      html.label(
+      html.form(
         [
-          attribute.for("one-rep-max-algorithm"),
-          attribute.class("text-outline text-sm"),
+          attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
+          attribute.attribute("hx-trigger", "change"),
+          attribute.attribute("hx-swap", "outerHTML"),
+          attribute.class("grid grid-cols-[1fr_auto] gap-y-3 items-center"),
         ],
-        [html.text("one rep max algorithm")],
-      ),
-      ui.select(
         [
-          attribute.name("one_rep_max_algorithm"),
-          attribute.id("one-rep-max-algorithm"),
-        ],
-        list.map(algorithms, fn(algo) {
-          let #(value, label) = algo
-          html.option(
+          html.label(
             [
-              attribute.value(value),
-              attribute.selected(
-                form.field_value(form, "one_rep_max_algorithm") == value,
-              ),
+              attribute.for("one-rep-max-algorithm"),
+              attribute.class("text-outline text-sm"),
             ],
-            label,
-          )
-        }),
+            [html.text("one rep max algorithm")],
+          ),
+          ui.select(
+            [
+              attribute.name("one_rep_max_algorithm"),
+              attribute.id("one-rep-max-algorithm"),
+            ],
+            list.map(algorithms, fn(algo) {
+              let #(value, label) = algo
+              html.option(
+                [
+                  attribute.value(value),
+                  attribute.selected(
+                    form.field_value(form, "one_rep_max_algorithm") == value,
+                  ),
+                ],
+                label,
+              )
+            }),
+          ),
+          case root_err {
+            Ok(msg) ->
+              ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+                ui.alert_title(element.text("changing algorithm failed")),
+                ui.alert_description(element.text(msg)),
+              ])
+            Error(_) -> element.none()
+          },
+        ],
       ),
-      case root_err {
-        Ok(msg) ->
-          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
-            ui.alert_title(element.text("changing algorithm failed")),
-            ui.alert_description(element.text(msg)),
-          ])
-        Error(_) -> element.none()
-      },
+      svg.svg(
+        [
+          attribute.attribute("width", "100%"),
+          attribute.class("outline-2"),
+          attribute.height(200),
+        ],
+        [
+          svg.path([
+            attribute.attribute("d", path_d),
+            attribute.attribute("fill", "none"),
+            attribute.attribute("stroke", "red"),
+            attribute.attribute("strokeWidth", "2"),
+            attribute.attribute("strokeLinejoin", "round"),
+            attribute.attribute("strokeLinecap", "round"),
+          ]),
+        ],
+      ),
     ],
   )
 }
