@@ -14,7 +14,7 @@ import gleam/string
 import wisp.{type Request, type Response}
 
 pub fn view_one_rep_max_algorithm_graph(req: Request, ctx: Ctx) -> Response {
-  use _session, _user <- auth_session.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
 
   let query = wisp.get_query(req)
 
@@ -28,7 +28,12 @@ pub fn view_one_rep_max_algorithm_graph(req: Request, ctx: Ctx) -> Response {
     |> result.try(int.parse)
     |> result.unwrap(200)
 
-  ui.one_rep_max_algorithm_graph(width:, height:) |> web.svg(200)
+  ui.one_rep_max_algorithm_graph(
+    width:,
+    height:,
+    algorithm: user.one_rep_max_algorithm,
+  )
+  |> web.svg(200)
 }
 
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
@@ -192,6 +197,7 @@ pub fn update_one_rep_max_algorithm(req: Request, ctx: Ctx) -> Response {
       |> ui.one_rep_max_algorithm_form()
       |> web.html(200)
       |> wisp.set_header("HX-Reswap", "none")
+      |> wisp.set_header("HX-Trigger", "one-rep-max-algorithm-changed")
     }
 
     Error(UpdateOneRepMaxAlgorithmInvalidValue(invalid_form)) -> {

@@ -656,7 +656,10 @@ pub fn one_rep_max_algorithm_form(form: form.Form(one_rep_max.Algorithm)) {
         [
           attribute.attribute("data-graph-container", ""),
           attribute.attribute("hx-get", "/account/one-rep-max-algorithm.svg"),
-          attribute.attribute("hx-trigger", "graph-resize"),
+          attribute.attribute(
+            "hx-trigger",
+            "graph-resize, one-rep-max-algorithm-changed from:body",
+          ),
           attribute.attribute("hx-swap", "innerHTML"),
           attribute.class("h-[200px]"),
         ],
@@ -669,49 +672,95 @@ pub fn one_rep_max_algorithm_form(form: form.Form(one_rep_max.Algorithm)) {
 pub fn one_rep_max_algorithm_graph(
   width width: Int,
   height height: Int,
+  algorithm algorithm: one_rep_max.Algorithm,
 ) -> Element(a) {
-  let data = [
-    #(0.0, 0.0),
-    #(1.0, 25.0),
-    #(2.0, 15.0),
-    #(3.0, 40.0),
-    #(4.0, 35.0),
-    #(5.0, 60.0),
+  let algorithms = [
+    one_rep_max.Adams,
+    one_rep_max.Baechle,
+    one_rep_max.Berger,
+    one_rep_max.Brown,
+    one_rep_max.Brzycki,
+    one_rep_max.Epley,
+    one_rep_max.Kemmler,
+    one_rep_max.Landers,
+    one_rep_max.Lombardi,
+    one_rep_max.Mayhew,
+    one_rep_max.Naclerio,
+    one_rep_max.OConner,
+    one_rep_max.Wathen,
   ]
 
-  let #(xs, ys) = list.unzip(data)
+  // Mock data: #(repetitions, weight) pairs from logged sets
+  let mock_points = [
+    #(1, 1),
+    #(5, 5),
+    #(10, 10),
+    #(15, 15),
+    #(20, 20),
+    #(25, 25),
+  ]
 
-  let min_x = list.reduce(xs, float.min) |> result.unwrap(0.0)
-  let max_x = list.reduce(xs, float.max) |> result.unwrap(0.0)
+  let all_data =
+    list.map(algorithms, fn(algo) {
+      let points =
+        list.map(mock_points, fn(p) {
+          let #(reps, weight) = p
+          let orm =
+            one_rep_max.calculate(algo: algo, weight: weight, repetitions: reps)
+          #(int.to_float(reps), orm)
+        })
+      #(algo, points)
+    })
 
-  let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
-  let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
+  let all_ys =
+    list.flat_map(all_data, fn(entry) {
+      let #(_, points) = entry
+      list.map(points, fn(p) { p.1 })
+    })
 
+  let min_x = 1.0
+  let max_x = 25.0
+  let min_y = list.reduce(all_ys, float.min) |> result.unwrap(0.0)
+  let max_y = list.reduce(all_ys, float.max) |> result.unwrap(0.0)
+
+  let padding = 8.0
   let scale_x =
-    scale.linear(domain: #(min_x, max_x), range: #(0.0, int.to_float(width)))
+    scale.linear(domain: #(min_x, max_x), range: #(
+      padding,
+      int.to_float(width) -. padding,
+    ))
   let scale_y =
-    scale.linear(domain: #(min_y, max_y), range: #(int.to_float(height), 0.0))
+    scale.linear(domain: #(min_y, max_y), range: #(
+      int.to_float(height) -. padding,
+      padding,
+    ))
 
-  let path_d =
-    data
-    |> line.new()
-    |> line.x(fn(d) { scale_x(d.0) })
-    |> line.y(fn(d) { scale_y(d.1) })
-    |> line.curve(line.MonotoneX)
-    |> line.to_path
+  let paths =
+    list.map(all_data, fn(entry) {
+      let #(algo, points) = entry
+      let is_active = algo == algorithm
+      let path_d =
+        points
+        |> line.new()
+        |> line.x(fn(d) { scale_x(d.0) })
+        |> line.y(fn(d) { scale_y(d.1) })
+        |> line.curve(line.MonotoneX)
+        |> line.to_path
+      svg.path([
+        attribute.attribute("d", path_d),
+        attribute.class(case is_active {
+          True -> "stroke-on-surface fill-none stroke-2"
+          False -> "stroke-outline/40 fill-none stroke-1"
+        }),
+      ])
+    })
 
   svg.svg(
     [
       attribute.attribute("width", int.to_string(width)),
       attribute.attribute("height", int.to_string(height)),
-      attribute.class("outline-2"),
     ],
-    [
-      svg.path([
-        attribute.attribute("d", path_d),
-        attribute.class("stroke-red-500 fill-none"),
-      ]),
-    ],
+    paths,
   )
 }
 
