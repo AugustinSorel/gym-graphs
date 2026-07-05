@@ -1,6 +1,7 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/db
+import app/one_rep_max
 import app/user/ui.{type EditNameForm}
 import app/user/user
 import app/web
@@ -158,7 +159,7 @@ pub fn update_weight_unit(req: Request, ctx: Ctx) -> Response {
 }
 
 type UpdateOneRepMaxAlgorithmError {
-  UpdateOneRepMaxAlgorithmInvalidValue(Form(user.OneRepMaxAlgorithm))
+  UpdateOneRepMaxAlgorithmInvalidValue(Form(one_rep_max.Algorithm))
   UpdateOneRepMaxAlgorithmFailed(db.DatabaseError)
 }
 

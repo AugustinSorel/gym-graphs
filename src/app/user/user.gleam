@@ -1,19 +1,35 @@
 import app/crypto
 import app/db
+import app/one_rep_max
 import app/user/sql
 import gleam/list
 import gleam/result
 import gleam/string
 import pog.{type Connection, type QueryError}
 
-/// The canonical domain type for weight units. Defined here once;
-/// sql modules use their own generated copies internally as decode intermediaries.
+fn one_rep_max_algorithm_to_sql(algo: one_rep_max.Algorithm) {
+  case algo {
+    one_rep_max.Wathen -> sql.Wathen
+    one_rep_max.OConner -> sql.Oconner
+    one_rep_max.Naclerio -> sql.Naclerio
+    one_rep_max.Mayhew -> sql.Mayhew
+    one_rep_max.Lombardi -> sql.Lombardi
+    one_rep_max.Landers -> sql.Landers
+    one_rep_max.Kemmler -> sql.Kemmler
+    one_rep_max.Epley -> sql.Epley
+    one_rep_max.Brzycki -> sql.Brzycki
+    one_rep_max.Brown -> sql.Brown
+    one_rep_max.Berger -> sql.Berger
+    one_rep_max.Baechle -> sql.Baechle
+    one_rep_max.Adams -> sql.Adams
+  }
+}
+
 pub type WeightUnit {
   Kg
   Lbs
 }
 
-/// Converts the squirrel-generated sql.WeightUnit into the canonical domain type.
 pub fn weight_unit_of_sql(w: sql.WeightUnit) -> WeightUnit {
   case w {
     sql.Kg -> Kg
@@ -21,67 +37,10 @@ pub fn weight_unit_of_sql(w: sql.WeightUnit) -> WeightUnit {
   }
 }
 
-/// Converts the canonical domain WeightUnit back to the sql encoder value.
 fn weight_unit_to_sql(w: WeightUnit) -> sql.WeightUnit {
   case w {
     Kg -> sql.Kg
     Lbs -> sql.Lbs
-  }
-}
-
-pub type OneRepMaxAlgorithm {
-  Adams
-  Baechle
-  Berger
-  Brown
-  Brzycki
-  Epley
-  Kemmler
-  Landers
-  Lombardi
-  Mayhew
-  Naclerio
-  OConner
-  Wathen
-}
-
-pub fn one_rep_max_algorithm_of_sql(
-  a: sql.OneRepMaxAlgorithm,
-) -> OneRepMaxAlgorithm {
-  case a {
-    sql.Adams -> Adams
-    sql.Baechle -> Baechle
-    sql.Berger -> Berger
-    sql.Brown -> Brown
-    sql.Brzycki -> Brzycki
-    sql.Epley -> Epley
-    sql.Kemmler -> Kemmler
-    sql.Landers -> Landers
-    sql.Lombardi -> Lombardi
-    sql.Mayhew -> Mayhew
-    sql.Naclerio -> Naclerio
-    sql.Oconner -> OConner
-    sql.Wathen -> Wathen
-  }
-}
-
-fn one_rep_max_algorithm_to_sql(
-  a: OneRepMaxAlgorithm,
-) -> sql.OneRepMaxAlgorithm {
-  case a {
-    Adams -> sql.Adams
-    Baechle -> sql.Baechle
-    Berger -> sql.Berger
-    Brown -> sql.Brown
-    Brzycki -> sql.Brzycki
-    Epley -> sql.Epley
-    Kemmler -> sql.Kemmler
-    Landers -> sql.Landers
-    Lombardi -> sql.Lombardi
-    Mayhew -> sql.Mayhew
-    Naclerio -> sql.Naclerio
-    OConner -> sql.Oconner
-    Wathen -> sql.Wathen
   }
 }
 
@@ -133,7 +92,7 @@ pub fn update_weight_unit(db: Connection, weight_unit: WeightUnit, id: Int) {
 
 pub fn update_one_rep_max_algorithm(
   db: Connection,
-  algorithm: OneRepMaxAlgorithm,
+  algorithm: one_rep_max.Algorithm,
   id: Int,
 ) {
   sql.update_one_rep_max_algorithm(

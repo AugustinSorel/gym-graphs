@@ -1,4 +1,5 @@
 import app/auth_session/auth_session.{type User}
+import app/one_rep_max
 import app/ui
 import app/user/user
 import chart/line
@@ -538,22 +539,22 @@ pub fn get_one_rep_max_algorithm_form() {
     use one_rep_max_algorithm <- form.field("one_rep_max_algorithm", {
       form.parse(fn(input) {
         case input {
-          ["adams", ..] -> Ok(user.Adams)
-          ["baechle", ..] -> Ok(user.Baechle)
-          ["berger", ..] -> Ok(user.Berger)
-          ["brown", ..] -> Ok(user.Brown)
-          ["brzycki", ..] -> Ok(user.Brzycki)
-          ["epley", ..] -> Ok(user.Epley)
-          ["kemmler", ..] -> Ok(user.Kemmler)
-          ["landers", ..] -> Ok(user.Landers)
-          ["lombardi", ..] -> Ok(user.Lombardi)
-          ["mayhew", ..] -> Ok(user.Mayhew)
-          ["naclerio", ..] -> Ok(user.Naclerio)
-          ["oconner", ..] -> Ok(user.OConner)
-          ["wathen", ..] -> Ok(user.Wathen)
+          ["adams", ..] -> Ok(one_rep_max.Adams)
+          ["baechle", ..] -> Ok(one_rep_max.Baechle)
+          ["berger", ..] -> Ok(one_rep_max.Berger)
+          ["brown", ..] -> Ok(one_rep_max.Brown)
+          ["brzycki", ..] -> Ok(one_rep_max.Brzycki)
+          ["epley", ..] -> Ok(one_rep_max.Epley)
+          ["kemmler", ..] -> Ok(one_rep_max.Kemmler)
+          ["landers", ..] -> Ok(one_rep_max.Landers)
+          ["lombardi", ..] -> Ok(one_rep_max.Lombardi)
+          ["mayhew", ..] -> Ok(one_rep_max.Mayhew)
+          ["naclerio", ..] -> Ok(one_rep_max.Naclerio)
+          ["oconner", ..] -> Ok(one_rep_max.OConner)
+          ["wathen", ..] -> Ok(one_rep_max.Wathen)
           _ ->
             Error(#(
-              user.Epley,
+              one_rep_max.Epley,
               "one rep max algorithm must be a valid algorithm",
             ))
         }
@@ -564,27 +565,25 @@ pub fn get_one_rep_max_algorithm_form() {
   })
 }
 
-fn one_rep_max_algorithm_to_form_value(
-  algo: user.OneRepMaxAlgorithm,
-) -> String {
+fn one_rep_max_algorithm_to_form_value(algo: one_rep_max.Algorithm) -> String {
   case algo {
-    user.Adams -> "adams"
-    user.Baechle -> "baechle"
-    user.Berger -> "berger"
-    user.Brown -> "brown"
-    user.Brzycki -> "brzycki"
-    user.Epley -> "epley"
-    user.Kemmler -> "kemmler"
-    user.Landers -> "landers"
-    user.Lombardi -> "lombardi"
-    user.Mayhew -> "mayhew"
-    user.Naclerio -> "naclerio"
-    user.OConner -> "oconner"
-    user.Wathen -> "wathen"
+    one_rep_max.Adams -> "adams"
+    one_rep_max.Baechle -> "baechle"
+    one_rep_max.Berger -> "berger"
+    one_rep_max.Brown -> "brown"
+    one_rep_max.Brzycki -> "brzycki"
+    one_rep_max.Epley -> "epley"
+    one_rep_max.Kemmler -> "kemmler"
+    one_rep_max.Landers -> "landers"
+    one_rep_max.Lombardi -> "lombardi"
+    one_rep_max.Mayhew -> "mayhew"
+    one_rep_max.Naclerio -> "naclerio"
+    one_rep_max.OConner -> "oconner"
+    one_rep_max.Wathen -> "wathen"
   }
 }
 
-pub fn one_rep_max_algorithm_form(form: form.Form(user.OneRepMaxAlgorithm)) {
+pub fn one_rep_max_algorithm_form(form: form.Form(one_rep_max.Algorithm)) {
   let algorithms = [
     #("adams", "adams"),
     #("baechle", "baechle"),
@@ -698,6 +697,7 @@ pub fn one_rep_max_algorithm_graph(
     |> line.new()
     |> line.x(fn(d) { scale_x(d.0) })
     |> line.y(fn(d) { scale_y(d.1) })
+    |> line.curve(line.MonotoneX)
     |> line.to_path
 
   svg.svg(
@@ -709,11 +709,7 @@ pub fn one_rep_max_algorithm_graph(
     [
       svg.path([
         attribute.attribute("d", path_d),
-        attribute.attribute("fill", "none"),
-        attribute.attribute("stroke", "red"),
-        attribute.attribute("strokeWidth", "2"),
-        attribute.attribute("strokeLinejoin", "round"),
-        attribute.attribute("strokeLinecap", "round"),
+        attribute.class("stroke-red-500 fill-none"),
       ]),
     ],
   )

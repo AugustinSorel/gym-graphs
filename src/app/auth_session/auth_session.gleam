@@ -2,6 +2,7 @@ import app/auth_session/sql
 import app/crypto
 import app/ctx.{type Ctx}
 import app/db
+import app/one_rep_max
 import app/session
 import app/user/user
 import gleam/float
@@ -16,6 +17,24 @@ pub const cookie_name: String = "auth_session_token"
 
 pub fn cookie_max_age() {
   duration.hours(24) |> duration.to_seconds() |> float.round()
+}
+
+fn one_rep_max_algorithm_sql(algorithm: sql.OneRepMaxAlgorithm) {
+  case algorithm {
+    sql.Adams -> one_rep_max.Adams
+    sql.Baechle -> one_rep_max.Baechle
+    sql.Berger -> one_rep_max.Berger
+    sql.Brown -> one_rep_max.Brown
+    sql.Brzycki -> one_rep_max.Brzycki
+    sql.Epley -> one_rep_max.Epley
+    sql.Kemmler -> one_rep_max.Kemmler
+    sql.Landers -> one_rep_max.Landers
+    sql.Lombardi -> one_rep_max.Lombardi
+    sql.Mayhew -> one_rep_max.Mayhew
+    sql.Naclerio -> one_rep_max.Naclerio
+    sql.Oconner -> one_rep_max.OConner
+    sql.Wathen -> one_rep_max.Wathen
+  }
 }
 
 pub fn require(req, ctx: Ctx, next) {
@@ -41,21 +60,9 @@ pub fn require(req, ctx: Ctx, next) {
           sql.Kg -> user.Kg
           sql.Lbs -> user.Lbs
         },
-        one_rep_max_algorithm: case session.one_rep_max_algorithm {
-          sql.Adams -> user.Adams
-          sql.Baechle -> user.Baechle
-          sql.Berger -> user.Berger
-          sql.Brown -> user.Brown
-          sql.Brzycki -> user.Brzycki
-          sql.Epley -> user.Epley
-          sql.Kemmler -> user.Kemmler
-          sql.Landers -> user.Landers
-          sql.Lombardi -> user.Lombardi
-          sql.Mayhew -> user.Mayhew
-          sql.Naclerio -> user.Naclerio
-          sql.Oconner -> user.OConner
-          sql.Wathen -> user.Wathen
-        },
+        one_rep_max_algorithm: one_rep_max_algorithm_sql(
+          session.one_rep_max_algorithm,
+        ),
       )
 
     use Nil <- result.try(refresh(session, ctx.db))
@@ -103,7 +110,7 @@ pub type User {
     email: String,
     created_at: timestamp.Timestamp,
     weight_unit: user.WeightUnit,
-    one_rep_max_algorithm: user.OneRepMaxAlgorithm,
+    one_rep_max_algorithm: one_rep_max.Algorithm,
   )
 }
 
