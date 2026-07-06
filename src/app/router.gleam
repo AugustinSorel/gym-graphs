@@ -5,6 +5,7 @@ import app/exercise/handler as exercise_handler
 import app/password_reset/handler as password_reset_handler
 import app/password_update/handler as password_update_handler
 import app/sign_up/handler as sign_up_handler
+import app/tag/handler as tag_handler
 import app/ui
 import app/user/handler as user_handler
 import app/web
@@ -28,6 +29,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
         Post -> exercise_handler.create_exercise(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
+    }
+
+    ["tags", "new"] -> {
+      use <- wisp.require_method(req, Get)
+      tag_handler.view_new_tag_page(req, ctx)
     }
 
     ["stats"] -> {
