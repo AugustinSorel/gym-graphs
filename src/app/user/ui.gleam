@@ -723,17 +723,10 @@ pub fn one_rep_max_algorithm_graph(
   let min_y = list.reduce(all_ys, float.min) |> result.unwrap(0.0)
   let max_y = list.reduce(all_ys, float.max) |> result.unwrap(0.0)
 
-  let padding = 8.0
   let scale_x =
-    scale.linear(domain: #(min_x, max_x), range: #(
-      padding,
-      int.to_float(width) -. padding,
-    ))
+    scale.linear(domain: #(min_x, max_x), range: #(0.0, int.to_float(width)))
   let scale_y =
-    scale.linear(domain: #(min_y, max_y), range: #(
-      int.to_float(height) -. padding,
-      padding,
-    ))
+    scale.linear(domain: #(min_y, max_y), range: #(int.to_float(height), 0.0))
 
   let paths =
     list.map(all_data, fn(entry) {
