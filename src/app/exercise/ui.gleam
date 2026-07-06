@@ -190,7 +190,7 @@ pub fn exercises_list(
           ),
         ]),
       ]),
-      html.tbody([], exercises_rows_items(page, query)),
+      element.fragment(exercises_row_tbodies(page, query)),
     ]),
   ])
 }
@@ -273,22 +273,24 @@ fn no_exercises_found() {
 }
 
 pub fn exercises_rows(page: exercise.Page, query: String) -> Element(a) {
-  element.fragment(exercises_rows_items(page, query))
+  element.fragment(exercises_row_tbodies(page, query))
 }
 
-fn exercises_rows_items(
+fn exercises_row_tbodies(
   page: exercise.Page,
   query: String,
 ) -> List(Element(a)) {
   use <- bool.guard(when: page.rows == [], return: [
-    html.tr([], [
-      html.td(
-        [
-          attribute.attribute("colspan", "4"),
-          attribute.class("px-4 py-10 text-center text-outline"),
-        ],
-        [no_exercises_found()],
-      ),
+    html.tbody([], [
+      html.tr([], [
+        html.td(
+          [
+            attribute.attribute("colspan", "4"),
+            attribute.class("px-4 py-10 text-center text-outline"),
+          ],
+          [no_exercises_found()],
+        ),
+      ]),
     ]),
   ])
 
@@ -357,8 +359,10 @@ fn exercises_rows_items(
       )
     })
 
+  let rows_tbody = html.tbody([], rows)
+
   case page.next_cursor {
-    None -> rows
+    None -> [rows_tbody]
     Some(cursor) -> {
       let next_url =
         "/exercises?cursor="
@@ -367,24 +371,31 @@ fn exercises_rows_items(
           True -> ""
           False -> "&q=" <> query
         }
-      let sentinel =
-        html.tr(
+      let skeleton_rows =
+        list.repeat(
+          html.tr([], [
+            html.td(
+              [
+                attribute.attribute("colspan", "4"),
+                attribute.class(
+                  "animate-pulse h-13 bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x ",
+                ),
+              ],
+              [],
+            ),
+          ]),
+          20,
+        )
+      let skeleton_tbody =
+        html.tbody(
           [
             attribute.attribute("hx-get", next_url),
             attribute.attribute("hx-swap", "outerHTML"),
             attribute.attribute("hx-trigger", "revealed"),
           ],
-          [
-            html.td(
-              [
-                attribute.attribute("colspan", "4"),
-                attribute.class("py-4 text-center text-outline text-sm"),
-              ],
-              [html.text("loading more...")],
-            ),
-          ],
+          skeleton_rows,
         )
-      list.append(rows, [sentinel])
+      [rows_tbody, skeleton_tbody]
     }
   }
 }
