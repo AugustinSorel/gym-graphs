@@ -32,8 +32,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     }
 
     ["tags", "new"] -> {
-      use <- wisp.require_method(req, Get)
-      tag_handler.view_new_tag_page(req, ctx)
+      case req.method {
+        Get -> tag_handler.view_new_tag_page(req, ctx)
+        Post -> tag_handler.create_tag(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
     }
 
     ["stats"] -> {
