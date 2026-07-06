@@ -158,6 +158,11 @@
     appearance: base-select;
   }
 
+  .select:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
   .select:hover {
     background-color: color-mix(in srgb, var(--on-surface) 80%, transparent);
   }
