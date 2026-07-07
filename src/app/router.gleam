@@ -31,6 +31,28 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["exercises", id, "name"] -> {
+      case req.method {
+        Get -> exercise_handler.view_rename_exercise_page(req, ctx, id)
+        Patch -> exercise_handler.rename_exercise(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get, Patch])
+      }
+    }
+
+    ["exercises", id, "remove"] -> {
+      case req.method {
+        Get -> exercise_handler.view_remove_exercise_page(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get])
+      }
+    }
+
+    ["exercises", id] -> {
+      case req.method {
+        Delete -> exercise_handler.remove_exercise(req, ctx, id)
+        _ -> wisp.method_not_allowed([Delete])
+      }
+    }
+
     ["tags", "new"] -> {
       case req.method {
         Get -> tag_handler.view_new_tag_page(req, ctx)

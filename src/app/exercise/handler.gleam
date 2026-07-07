@@ -103,6 +103,234 @@ pub fn view_new_exercise_page(req: Request, ctx: Ctx) -> Response {
   }
 }
 
+type ViewRenameExercisePageError {
+  ViewRenameInvalidId
+  ViewRenameSelectFailed(db.DatabaseError)
+}
+
+pub fn view_rename_exercise_page(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(ViewRenameInvalidId),
+    )
+
+    exercise.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(ViewRenameSelectFailed)
+  }
+
+  case result {
+    Error(ViewRenameInvalidId) ->
+      ui.get_rename_exercise_form()
+      |> form.add_error("root", form.CustomError("invalid exercise id"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> ui.rename_exercise_page(req)
+      |> web.html(422)
+
+    Error(ViewRenameSelectFailed(db.RowNotFound)) ->
+      ui.get_rename_exercise_form()
+      |> form.add_error("root", form.CustomError("exercise not found"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> ui.rename_exercise_page(req)
+      |> web.html(404)
+
+    Error(ViewRenameSelectFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      ui.get_rename_exercise_form()
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> ui.rename_exercise_page(req)
+      |> web.html(500)
+    }
+
+    Ok(ex) ->
+      ui.get_rename_exercise_form()
+      |> form.add_values([#("name", ex.name)])
+      |> ui.rename_exercise_form(exercise_id)
+      |> ui.rename_exercise_page(req)
+      |> web.html(200)
+  }
+}
+
+type RenameExerciseError {
+  RenameExerciseInvalidId
+  RenameExerciseValidation(Form(ui.RenameExerciseForm))
+  RenameExerciseFailed(db.DatabaseError)
+}
+
+pub fn rename_exercise(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(RenameExerciseInvalidId),
+    )
+
+    use input <- result.try(
+      ui.get_rename_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(RenameExerciseValidation),
+    )
+
+    exercise.rename(ctx.db, id, user.id, input.name)
+    |> result.map_error(RenameExerciseFailed)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/exercises")
+
+    Error(RenameExerciseInvalidId) ->
+      ui.get_rename_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("invalid exercise id"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> web.html(422)
+
+    Error(RenameExerciseValidation(invalid_form)) ->
+      invalid_form
+      |> ui.rename_exercise_form(exercise_id)
+      |> web.html(422)
+
+    Error(RenameExerciseFailed(db.RowNotFound)) ->
+      ui.get_rename_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("exercise not found"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> web.html(404)
+
+    Error(RenameExerciseFailed(db.DatabaseFailure(pog.ConstraintViolated(
+      message: _,
+      constraint: _,
+      detail: _,
+    )))) ->
+      ui.get_rename_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("exercise name is already used"),
+      )
+      |> ui.rename_exercise_form(exercise_id)
+      |> web.html(422)
+
+    Error(RenameExerciseFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      ui.get_rename_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.rename_exercise_form(exercise_id)
+      |> web.html(500)
+    }
+  }
+}
+
+type ViewRemoveExercisePageError {
+  ViewRemoveInvalidId
+  ViewRemoveSelectFailed(db.DatabaseError)
+}
+
+pub fn view_remove_exercise_page(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(ViewRemoveInvalidId),
+    )
+
+    exercise.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(ViewRemoveSelectFailed)
+  }
+
+  case result {
+    Error(ViewRemoveInvalidId) ->
+      "invalid exercise id"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(422)
+
+    Error(ViewRemoveSelectFailed(db.RowNotFound)) ->
+      "exercise not found"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(404)
+
+    Error(ViewRemoveSelectFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      "something went wrong"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(500)
+    }
+
+    Ok(ex) ->
+      ui.remove_exercise_dialog(ex)
+      |> ui.remove_exercise_page(req)
+      |> web.html(200)
+  }
+}
+
+type RemoveExerciseError {
+  RemoveExerciseInvalidId
+  RemoveExerciseFailed(db.DatabaseError)
+}
+
+pub fn remove_exercise(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(RemoveExerciseInvalidId),
+    )
+
+    exercise.delete(ctx.db, id, user.id)
+    |> result.map_error(RemoveExerciseFailed)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/exercises")
+
+    Error(RemoveExerciseInvalidId) ->
+      "invalid exercise id"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(422)
+
+    Error(RemoveExerciseFailed(db.RowNotFound)) ->
+      "exercise not found"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(404)
+
+    Error(RemoveExerciseFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      "something went wrong"
+      |> ui.remove_exercise_alert()
+      |> ui.remove_exercise_page(req)
+      |> web.html(500)
+    }
+  }
+}
+
 type CreateExerciseError {
   CreateExerciseValidation(Form(ui.NewExerciseForm))
   CreateExerciseFailed(db.DatabaseError)

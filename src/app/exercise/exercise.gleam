@@ -30,6 +30,25 @@ pub fn select_by_user_id(db: Connection, user_id: Int) {
   |> db.extract_rows
 }
 
+pub fn select_by_id_and_user_id(
+  db: Connection,
+  exercise_id: Int,
+  user_id: Int,
+) {
+  sql.select_by_id_and_user_id(db, exercise_id, user_id)
+  |> db.extract_first_row
+}
+
+pub fn rename(db: Connection, exercise_id: Int, user_id: Int, name: String) {
+  sql.update(db, exercise_id, user_id, name)
+  |> db.extract_first_row
+}
+
+pub fn delete(db: Connection, exercise_id: Int, user_id: Int) {
+  sql.delete(db, exercise_id, user_id)
+  |> db.extract_first_row
+}
+
 pub fn count(db: Connection, user_id: Int, query: String) {
   sql.count_by_user_id(db, user_id, query)
   |> db.extract_first_row

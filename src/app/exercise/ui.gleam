@@ -1,4 +1,5 @@
 import app/exercise/exercise
+import app/exercise/sql as exercise_sql
 import app/tag/sql as tag_sql
 import app/ui
 import formal/form.{type Form}
@@ -453,6 +454,145 @@ pub fn exercises_page(children: Element(a), req: Request) -> Element(a) {
         ),
       ],
       [children],
+    ),
+  ])
+}
+
+pub type RenameExerciseForm {
+  RenameExerciseForm(name: String)
+}
+
+pub fn get_rename_exercise_form() -> Form(RenameExerciseForm) {
+  let schema = {
+    use name <- form.field("name", {
+      form.parse_string
+      |> form.map(string.trim)
+      |> form.check_not_empty
+      |> form.check_string_length_less_than(100)
+    })
+
+    form.success(RenameExerciseForm(name:))
+  }
+
+  form.new(schema)
+}
+
+pub fn rename_exercise_form(f: Form(RenameExerciseForm), id: String) {
+  let name_err = list.first(form.field_error_messages(f, "name"))
+  let root_err = list.first(form.field_error_messages(f, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/exercises/" <> id <> "/name"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.label([attribute.class("grid gap-2")], [
+        html.span([attribute.class("text-outline text-sm")], [
+          html.text("name:"),
+        ]),
+        ui.input([
+          attribute.type_("text"),
+          attribute.name("name"),
+          attribute.value(form.field_value(f, "name")),
+          attribute.attribute("autocomplete", "off"),
+          attribute.attribute("autofocus", ""),
+        ]),
+        case name_err {
+          Ok(msg) ->
+            html.p(
+              [
+                attribute.role("alert"),
+                attribute.class("text-error text-sm"),
+              ],
+              [html.text(msg)],
+            )
+          Error(_) -> element.none()
+        },
+      ]),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("Renaming exercise failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
+}
+
+pub fn rename_exercise_page(children: Element(a), req: Request) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(req),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [children],
+    ),
+  ])
+}
+
+pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(req),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-10 max-w-3xl mx-auto my-10 lg:my-20 text-center",
+        ),
+      ],
+      [
+        html.h1([attribute.class("capitalize font-semibold text-3xl")], [
+          html.text("remove exercise"),
+        ]),
+        children,
+        ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+          html.text("cancel"),
+        ]),
+      ],
+    ),
+  ])
+}
+
+pub fn remove_exercise_alert(msg: String) -> Element(a) {
+  ui.alert(ui.AlertError, [], [
+    ui.alert_title(element.text("Removing exercise failed")),
+    ui.alert_description(element.text(msg)),
+  ])
+}
+
+pub fn remove_exercise_dialog(
+  ex: exercise_sql.SelectByIdAndUserIdRow,
+) -> Element(a) {
+  element.fragment([
+    html.p([attribute.class("text-outline text-balance")], [
+      html.text(
+        "are you sure you want to remove the exercise \""
+        <> ex.name
+        <> "\"? This action cannot be undone.",
+      ),
+    ]),
+    ui.button(
+      ui.ButtonDestroy,
+      [
+        attribute.attribute("hx-delete", "/exercises/" <> int.to_string(ex.id)),
+        attribute.attribute("hx-disable", "this"),
+      ],
+      [html.text("yes remove exercise"), ui.spinner()],
     ),
   ])
 }
