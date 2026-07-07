@@ -112,7 +112,7 @@ fn tag_checkboxes(tags: List(tag_sql.SelectByUserIdRow)) -> Element(a) {
         html.label(
           [
             attribute.class(
-              "border-2 border-on-surface px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
             ),
           ],
           [
@@ -228,6 +228,13 @@ pub fn exercises_list(
       ]),
       element.fragment(exercises_row_tbodies(page, query)),
     ]),
+  ])
+}
+
+pub fn exercises_list_error(error: String) -> Element(a) {
+  ui.alert(ui.AlertError, [], [
+    ui.alert_title(element.text("listing exercises failed")),
+    ui.alert_description(element.text(error)),
   ])
 }
 

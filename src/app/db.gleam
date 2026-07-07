@@ -19,10 +19,12 @@ pub fn extract_first_row(
   })
 }
 
-pub fn extract_rows(
-  rows: Result(Returned(a), QueryError),
-) -> Result(List(a), DatabaseError) {
+pub type ExtractRowsError {
+  ExtractRowsFailure(QueryError)
+}
+
+pub fn extract_rows(rows: Result(Returned(a), QueryError)) {
   rows
-  |> result.map_error(DatabaseFailure)
+  |> result.map_error(ExtractRowsFailure)
   |> result.map(fn(returned) { returned.rows })
 }

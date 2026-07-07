@@ -17,11 +17,7 @@ pub fn create(db: Connection, user_id: Int, name: String) {
   |> db.extract_first_row
 }
 
-pub fn attach_tags(
-  db: Connection,
-  exercise_id: Int,
-  tag_ids: List(Int),
-) -> Result(Nil, db.DatabaseError) {
+pub fn attach_tags(db: Connection, exercise_id: Int, tag_ids: List(Int)) {
   list.try_each(tag_ids, fn(tag_id) {
     sql.insert_exercise_tag(db, exercise_id, tag_id)
     |> db.extract_rows

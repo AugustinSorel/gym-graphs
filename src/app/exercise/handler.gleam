@@ -15,6 +15,11 @@ import gleam/string
 import pog
 import wisp.{type Request, type Response}
 
+type ViewExercisesPageError {
+  SelectExercisesPageFailed(db.ExtractRowsError)
+  CountingExercisesFailed(db.DatabaseError)
+}
+
 pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
 
@@ -36,9 +41,13 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   let result = {
     use page <- result.try({
       exercise.select_page(ctx.db, user.id, cursor, search_query)
+      |> result.map_error(SelectExercisesPageFailed)
     })
 
-    use count <- result.try(exercise.count(ctx.db, user.id, search_query))
+    use count <- result.try(
+      exercise.count(ctx.db, user.id, search_query)
+      |> result.map_error(CountingExercisesFailed),
+    )
 
     Ok(#(page, count))
   }
@@ -61,12 +70,19 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
       |> ui.exercises_page(req)
       |> web.html(200)
 
-    Error(db.DatabaseFailure(error)) -> {
+    Error(SelectExercisesPageFailed(db.ExtractRowsFailure(error)))
+    | Error(CountingExercisesFailed(db.DatabaseFailure(error))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      wisp.internal_server_error()
+      ui.exercises_list_error("something went wrong")
+      |> ui.exercises_page(req)
+      |> web.html(500)
     }
-
-    Error(db.RowNotFound) -> wisp.internal_server_error()
+    Error(CountingExercisesFailed(db.RowNotFound) as e) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(e))
+      ui.exercises_list_error("something went wrong")
+      |> ui.exercises_page(req)
+      |> web.html(500)
+    }
   }
 }
 
@@ -80,18 +96,17 @@ pub fn view_new_exercise_page(req: Request, ctx: Ctx) -> Response {
       |> ui.new_exercise_page(req)
       |> web.html(200)
 
-    Error(db.DatabaseFailure(error)) -> {
+    Error(db.ExtractRowsFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       wisp.internal_server_error()
     }
-
-    Error(db.RowNotFound) -> wisp.internal_server_error()
   }
 }
 
 type CreateExerciseError {
   CreateExerciseValidation(Form(ui.NewExerciseForm))
   CreateExerciseFailed(db.DatabaseError)
+  AttachTagsFailed(db.ExtractRowsError)
 }
 
 pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
@@ -121,7 +136,7 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
     )
 
     exercise.attach_tags(ctx.db, created.id, tag_ids)
-    |> result.map_error(CreateExerciseFailed)
+    |> result.map_error(AttachTagsFailed)
     |> result.replace(Nil)
   }
 
@@ -150,7 +165,8 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(CreateExerciseFailed(db.DatabaseFailure(error))) -> {
+    Error(CreateExerciseFailed(db.DatabaseFailure(error)))
+    | Error(AttachTagsFailed(db.ExtractRowsFailure(error))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       ui.get_new_exercise_form()
       |> form.add_values(form_data.values)
@@ -159,6 +175,12 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       |> web.html(500)
     }
 
-    Error(CreateExerciseFailed(db.RowNotFound)) -> wisp.internal_server_error()
+    Error(CreateExerciseFailed(db.RowNotFound)) -> {
+      ui.get_new_exercise_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.new_exercise_form(tags)
+      |> web.html(500)
+    }
   }
 }
