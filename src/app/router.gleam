@@ -9,7 +9,7 @@ import app/tag/handler as tag_handler
 import app/ui
 import app/user/handler as user_handler
 import app/web
-import gleam/http.{Get, Patch, Post}
+import gleam/http.{Delete, Get, Patch, Post}
 import lustre/element/html
 import wisp.{type Request, type Response}
 
@@ -39,12 +39,21 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
-    ["tags", id, "remove"] -> {
-      use <- wisp.require_method(req, Get)
-      tag_handler.view_remove_tag_page(req, ctx, id)
+    ["tags", id] -> {
+      case req.method {
+        Delete -> tag_handler.remove_tag(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
     }
 
-    ["tags", id, "rename"] -> {
+    ["tags", id, "remove"] -> {
+      case req.method {
+        Get -> tag_handler.view_remove_tag_page(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+
+    ["tags", id, "name"] -> {
       case req.method {
         Get -> tag_handler.view_rename_tag_page(req, ctx, id)
         Patch -> tag_handler.rename_tag(req, ctx, id)

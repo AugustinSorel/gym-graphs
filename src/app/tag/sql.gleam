@@ -87,6 +87,45 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete` query
+/// defined in `./src/app/tag/sql/delete.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteRow {
+  DeleteRow(id: Int, name: String)
+}
+
+/// Runs the `delete` query
+/// defined in `./src/app/tag/sql/delete.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete(
+  db: pog.Connection,
+  tag_id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(DeleteRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(DeleteRow(id:, name:))
+  }
+
+  "delete from tags
+where id = $1
+  and user_id = $2
+returning id, name
+"
+  |> pog.query
+  |> pog.parameter(pog.int(tag_id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_id_and_user_id` query
 /// defined in `./src/app/tag/sql/select_by_id_and_user_id.sql`.
 ///

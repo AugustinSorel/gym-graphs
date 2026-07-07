@@ -173,7 +173,7 @@ fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
             html.span([], [html.text(tag.name)]),
             ui.link(
               [
-                attribute.href("/tags/" <> int.to_string(tag.id) <> "/rename"),
+                attribute.href("/tags/" <> int.to_string(tag.id) <> "/name"),
                 attribute.class(
                   "text-xs text-outline hover:text-on-surface !font-normal",
                 ),

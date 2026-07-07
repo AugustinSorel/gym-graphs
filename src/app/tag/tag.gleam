@@ -21,3 +21,8 @@ pub fn rename(db: Connection, tag_id: Int, user_id: Int, name: String) {
   sql.update(db, tag_id, user_id, name)
   |> db.extract_first_row
 }
+
+pub fn delete(db: Connection, tag_id: Int, user_id: Int) {
+  sql.delete(db, tag_id, user_id)
+  |> db.extract_first_row
+}

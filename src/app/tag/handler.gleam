@@ -112,6 +112,49 @@ pub fn view_rename_tag_page(
   }
 }
 
+type RemoveTagError {
+  RemoveTagInvalidId
+  RemoveTagFailed(db.DatabaseError)
+}
+
+pub fn remove_tag(req: Request, ctx: Ctx, tag_id: String) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(tag_id) |> result.replace_error(RemoveTagInvalidId),
+    )
+
+    tag.delete(ctx.db, id, user.id)
+    |> result.map_error(RemoveTagFailed)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/account")
+
+    Error(RemoveTagInvalidId) ->
+      "invalid tag id"
+      |> ui.remove_tag_alert()
+      |> ui.remove_tag_page(req)
+      |> web.html(422)
+
+    Error(RemoveTagFailed(db.RowNotFound)) ->
+      "tag not found"
+      |> ui.remove_tag_alert()
+      |> ui.remove_tag_page(req)
+      |> web.html(404)
+
+    Error(RemoveTagFailed(db.DatabaseFailure(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      "something went wrong"
+      |> ui.remove_tag_alert()
+      |> ui.remove_tag_page(req)
+      |> web.html(500)
+    }
+  }
+}
+
 type RenameTagError {
   RenameTagInvalidId
   RenameTagValidation(Form(ui.RenameForm))
@@ -206,9 +249,7 @@ pub fn create_tag(req: Request, ctx: Ctx) -> Response {
   }
 
   case result {
-    Ok(Nil) ->
-      wisp.created()
-      |> wisp.set_header("HX-Redirect", "/tags")
+    Ok(Nil) -> wisp.created() |> wisp.set_header("HX-Redirect", "/account")
 
     Error(CreateTagValidation(invalid_form)) ->
       invalid_form

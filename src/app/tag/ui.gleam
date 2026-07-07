@@ -147,10 +147,7 @@ pub fn remove_tag_dialog(tag: tag_sql.SelectByIdAndUserIdRow) {
     ui.button(
       ui.ButtonDestroy,
       [
-        attribute.attribute(
-          "hx-post",
-          "/tags/" <> int.to_string(tag.id) <> "/remove",
-        ),
+        attribute.attribute("hx-delete", "/tags/" <> int.to_string(tag.id)),
         attribute.attribute("hx-disable", "this"),
       ],
       [html.text("yes remove tag"), ui.spinner()],
@@ -199,7 +196,7 @@ pub fn rename_tag_form(form: Form(RenameForm), id: String) {
 
   html.form(
     [
-      attribute.attribute("hx-patch", "/tags/" <> id <> "/rename"),
+      attribute.attribute("hx-patch", "/tags/" <> id <> "/name"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.attribute("hx-swap", "outerHTML"),
