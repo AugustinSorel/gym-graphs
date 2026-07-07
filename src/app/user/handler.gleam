@@ -2,6 +2,7 @@ import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/db
 import app/one_rep_max
+import app/tag/tag
 import app/user/ui.{type EditNameForm}
 import app/user/user
 import app/web
@@ -39,7 +40,9 @@ pub fn view_one_rep_max_algorithm_graph(req: Request, ctx: Ctx) -> Response {
 pub fn view_account_page(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
 
-  ui.account_details(user)
+  let tags = tag.select_by_user_id(ctx.db, user.id) |> result.unwrap([])
+
+  ui.account_details(user, tags)
   |> ui.account_page(req)
   |> web.html(200)
 }

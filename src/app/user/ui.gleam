@@ -1,10 +1,12 @@
 import app/auth_session/auth_session.{type User}
 import app/one_rep_max
+import app/tag/sql as tag_sql
 import app/ui
 import app/user/user
 import chart/line
 import chart/scale
 import formal/form.{type Form}
+import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/list
@@ -128,7 +130,98 @@ pub fn account_page(children: Element(a), req: Request) -> Element(a) {
   ])
 }
 
-pub fn account_details(user: User) -> Element(a) {
+pub fn tags_section(tags: List(tag_sql.SelectByUserIdRow)) -> Element(a) {
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [html.text("tags")],
+    ),
+    list_of_tags(tags),
+  ])
+}
+
+fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
+  use <- bool.guard(when: tags == [], return: no_tags_message())
+
+  element.fragment([
+    html.header(
+      [
+        attribute.class("pt-7 pb-3 flex items-center justify-between"),
+      ],
+      [
+        html.span([attribute.class("text-outline text-sm")], [
+          html.text("tags (" <> int.to_string(list.length(tags)) <> ")"),
+        ]),
+        ui.link([attribute.href("/tags/new")], [html.text("+ add")]),
+      ],
+    ),
+
+    html.ul(
+      [attribute.class("list-decimal list-inside")],
+      list.map(tags, fn(tag) {
+        html.li(
+          [
+            attribute.class(
+              "border-b-2 border-dotted border-outline/50 py-3 marker:text-sm marker:text-outline",
+            ),
+          ],
+          [html.text(tag.name)],
+        )
+      }),
+    ),
+  ])
+}
+
+fn no_tags_message() {
+  html.section(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center",
+      ),
+    ],
+    [
+      html.span(
+        [
+          attribute.aria_hidden(True),
+          attribute.class(
+            "bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline",
+          ),
+        ],
+        [
+          html.text("0"),
+        ],
+      ),
+      html.h1(
+        [
+          attribute.class("uppercase font-semibold"),
+        ],
+        [
+          html.text("no tags yet"),
+        ],
+      ),
+      html.p(
+        [
+          attribute.class("text-balance text-outline text-sm max-w-sm"),
+        ],
+        [
+          html.text("Add your first tag and start sorting your exercises"),
+        ],
+      ),
+      ui.link([attribute.href("/tag/new")], [
+        html.text("+ add tag"),
+      ]),
+    ],
+  )
+}
+
+pub fn account_details(
+  user: User,
+  tags: List(tag_sql.SelectByUserIdRow),
+) -> Element(a) {
   element.fragment([
     html.header([attribute.class("space-y-1")], [
       html.span(
@@ -349,6 +442,8 @@ pub fn account_details(user: User) -> Element(a) {
         ]),
       ),
     ]),
+
+    tags_section(tags),
 
     html.section([], [
       html.h2(
