@@ -4,6 +4,7 @@ import app/ctx.{type Ctx}
 import app/exercise/handler as exercise_handler
 import app/password_reset/handler as password_reset_handler
 import app/password_update/handler as password_update_handler
+import app/set/handler as set_handler
 import app/sign_up/handler as sign_up_handler
 import app/tag/handler as tag_handler
 import app/ui
@@ -43,6 +44,14 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       case req.method {
         Get -> exercise_handler.view_remove_exercise_page(req, ctx, id)
         _ -> wisp.method_not_allowed([Get])
+      }
+    }
+
+    ["exercises", id, "sets", "new"] -> {
+      case req.method {
+        Get -> set_handler.view_new_set_page(req, ctx, id)
+        Post -> set_handler.create_set(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get, Post])
       }
     }
 
