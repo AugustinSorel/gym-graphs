@@ -112,9 +112,80 @@ pub fn view_rename_tag_page(
   }
 }
 
+type RenameTagError {
+  RenameTagInvalidId
+  RenameTagValidation(Form(ui.RenameForm))
+  RenameTagFailed(db.DatabaseError)
+}
+
 type CreateTagError {
   CreateTagValidation(Form(ui.NewTagForm))
   CreateTagFailed(db.DatabaseError)
+}
+
+pub fn rename_tag(req: Request, ctx: Ctx, tag_id: String) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use id <- result.try(
+      int.parse(tag_id) |> result.replace_error(RenameTagInvalidId),
+    )
+
+    use input <- result.try(
+      ui.get_rename_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(RenameTagValidation),
+    )
+
+    tag.rename(ctx.db, id, user.id, input.name)
+    |> result.map_error(RenameTagFailed)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/account")
+
+    Error(RenameTagInvalidId) ->
+      ui.get_rename_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("invalid tag id"))
+      |> ui.rename_tag_form(tag_id)
+      |> web.html(422)
+
+    Error(RenameTagValidation(invalid_form)) ->
+      invalid_form
+      |> ui.rename_tag_form(tag_id)
+      |> web.html(422)
+
+    Error(RenameTagFailed(db.RowNotFound)) ->
+      ui.get_rename_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("tag not found"))
+      |> ui.rename_tag_form(tag_id)
+      |> web.html(404)
+
+    Error(RenameTagFailed(db.DatabaseFailure(pog.ConstraintViolated(
+      message: _,
+      constraint: _,
+      detail: _,
+    )))) ->
+      ui.get_rename_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("tag name is already used"))
+      |> ui.rename_tag_form(tag_id)
+      |> web.html(422)
+
+    Error(RenameTagFailed(db.DatabaseFailure(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_rename_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.rename_tag_form(tag_id)
+      |> web.html(500)
+    }
+  }
 }
 
 pub fn create_tag(req: Request, ctx: Ctx) -> Response {

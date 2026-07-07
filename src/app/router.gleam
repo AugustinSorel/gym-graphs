@@ -45,8 +45,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
     }
 
     ["tags", id, "rename"] -> {
-      use <- wisp.require_method(req, Get)
-      tag_handler.view_rename_tag_page(req, ctx, id)
+      case req.method {
+        Get -> tag_handler.view_rename_tag_page(req, ctx, id)
+        Patch -> tag_handler.rename_tag(req, ctx, id)
+        _ -> wisp.method_not_allowed([Get, Patch])
+      }
     }
 
     ["stats"] -> {

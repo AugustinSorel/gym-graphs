@@ -45,6 +45,48 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// A row you get from running the `update` query
+/// defined in `./src/app/tag/sql/update.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateRow {
+  UpdateRow(id: Int, name: String)
+}
+
+/// Runs the `update` query
+/// defined in `./src/app/tag/sql/update.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update(
+  db: pog.Connection,
+  tag_id: Int,
+  user_id: Int,
+  name: String,
+) -> Result(pog.Returned(UpdateRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(UpdateRow(id:, name:))
+  }
+
+  "update tags
+set name = $3
+where id = $1
+  and user_id = $2
+returning id, name
+"
+  |> pog.query
+  |> pog.parameter(pog.int(tag_id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.text(name))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_id_and_user_id` query
 /// defined in `./src/app/tag/sql/select_by_id_and_user_id.sql`.
 ///

@@ -16,3 +16,8 @@ pub fn select_by_id_and_user_id(db: Connection, tag_id: Int, user_id: Int) {
   sql.select_by_id_and_user_id(db, tag_id, user_id)
   |> db.extract_first_row
 }
+
+pub fn rename(db: Connection, tag_id: Int, user_id: Int, name: String) {
+  sql.update(db, tag_id, user_id, name)
+  |> db.extract_first_row
+}

@@ -181,7 +181,7 @@ pub type RenameForm {
 pub fn get_rename_form() -> Form(RenameForm) {
   let schema = {
     use name <- form.field("name", {
-      form.parse_email
+      form.parse_string
       |> form.map(string.trim)
       |> form.check_not_empty
       |> form.check_string_length_less_than(100)
