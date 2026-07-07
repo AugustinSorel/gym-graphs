@@ -5,6 +5,7 @@ import app/tag/tag
 import app/tag/ui
 import app/web
 import formal/form.{type Form}
+import gleam/int
 import gleam/result
 import gleam/string
 import pog
@@ -17,6 +18,98 @@ pub fn view_new_tag_page(req: Request, ctx: Ctx) -> Response {
   |> ui.new_tag_form()
   |> ui.new_tag_page(req)
   |> web.html(200)
+}
+
+pub fn view_remove_tag_page(
+  req: Request,
+  ctx: Ctx,
+  tag_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(int.parse(tag_id) |> result.replace_error(InvalidId))
+
+    tag.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(SelectFailed)
+  }
+
+  case result {
+    Error(InvalidId) -> {
+      "invalid tag id"
+      |> ui.remove_tag_alert
+      |> ui.remove_tag_page(req)
+      |> web.html(422)
+    }
+    Error(SelectFailed(db.RowNotFound)) -> {
+      "tag not found"
+      |> ui.remove_tag_alert()
+      |> ui.remove_tag_page(req)
+      |> web.html(404)
+    }
+    Error(SelectFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      "something went wrong"
+      |> ui.remove_tag_alert()
+      |> ui.remove_tag_page(req)
+      |> web.html(500)
+    }
+    Ok(t) ->
+      ui.remove_tag_dialog(t)
+      |> ui.remove_tag_page(req)
+      |> web.html(200)
+  }
+}
+
+type ViewRenameTagPageError {
+  InvalidId
+  SelectFailed(db.DatabaseError)
+}
+
+pub fn view_rename_tag_page(
+  req: Request,
+  ctx: Ctx,
+  tag_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(int.parse(tag_id) |> result.replace_error(InvalidId))
+
+    tag.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(SelectFailed)
+  }
+
+  case result {
+    Error(InvalidId) -> {
+      ui.get_rename_form()
+      |> form.add_error("root", form.CustomError("invalid tag id"))
+      |> ui.rename_tag_form(tag_id)
+      |> ui.rename_tag_page(req)
+      |> web.html(422)
+    }
+    Error(SelectFailed(db.RowNotFound)) -> {
+      ui.get_rename_form()
+      |> form.add_error("root", form.CustomError("tag not found"))
+      |> ui.rename_tag_form(tag_id)
+      |> ui.rename_tag_page(req)
+      |> web.html(404)
+    }
+    Error(SelectFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      ui.get_rename_form()
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.rename_tag_form(tag_id)
+      |> ui.rename_tag_page(req)
+      |> web.html(500)
+    }
+    Ok(t) ->
+      ui.get_rename_form()
+      |> form.add_values([#("name", t.name)])
+      |> ui.rename_tag_form(tag_id)
+      |> ui.rename_tag_page(req)
+      |> web.html(200)
+  }
 }
 
 type CreateTagError {

@@ -39,6 +39,16 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["tags", id, "remove"] -> {
+      use <- wisp.require_method(req, Get)
+      tag_handler.view_remove_tag_page(req, ctx, id)
+    }
+
+    ["tags", id, "rename"] -> {
+      use <- wisp.require_method(req, Get)
+      tag_handler.view_rename_tag_page(req, ctx, id)
+    }
+
     ["stats"] -> {
       use <- wisp.require_method(req, Get)
       web.html(

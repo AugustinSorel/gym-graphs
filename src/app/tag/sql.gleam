@@ -45,6 +45,45 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_by_id_and_user_id` query
+/// defined in `./src/app/tag/sql/select_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectByIdAndUserIdRow {
+  SelectByIdAndUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_by_id_and_user_id` query
+/// defined in `./src/app/tag/sql/select_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_by_id_and_user_id(
+  db: pog.Connection,
+  tag_id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(SelectByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectByIdAndUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from tags
+where id = $1
+  and user_id = $2
+"
+  |> pog.query
+  |> pog.parameter(pog.int(tag_id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_user_id` query
 /// defined in `./src/app/tag/sql/select_by_user_id.sql`.
 ///

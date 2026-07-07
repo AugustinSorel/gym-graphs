@@ -161,15 +161,35 @@ fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
     ),
 
     html.ul(
-      [attribute.class("list-decimal list-inside")],
+      [attribute.class("list-none [counter-reset:my-list]")],
       list.map(tags, fn(tag) {
         html.li(
           [
             attribute.class(
-              "border-b-2 border-dotted border-outline/50 py-3 marker:text-sm marker:text-outline",
+              "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:my-list] grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 before:content-[counter(my-list)_'.'] before:text-outline before:text-sm",
             ),
           ],
-          [html.text(tag.name)],
+          [
+            html.span([], [html.text(tag.name)]),
+            ui.link(
+              [
+                attribute.href("/tags/" <> int.to_string(tag.id) <> "/rename"),
+                attribute.class(
+                  "text-xs text-outline hover:text-on-surface !font-normal",
+                ),
+              ],
+              [html.text("rename")],
+            ),
+            ui.link(
+              [
+                attribute.href("/tags/" <> int.to_string(tag.id) <> "/remove"),
+                attribute.class(
+                  "text-xs text-outline hover:text-on-surface !font-normal",
+                ),
+              ],
+              [html.text("remove")],
+            ),
+          ],
         )
       }),
     ),
