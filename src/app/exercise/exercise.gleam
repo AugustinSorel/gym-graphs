@@ -17,6 +17,18 @@ pub fn create(db: Connection, user_id: Int, name: String) {
   |> db.extract_first_row
 }
 
+pub fn attach_tags(
+  db: Connection,
+  exercise_id: Int,
+  tag_ids: List(Int),
+) -> Result(Nil, db.DatabaseError) {
+  list.try_each(tag_ids, fn(tag_id) {
+    sql.insert_exercise_tag(db, exercise_id, tag_id)
+    |> db.extract_rows
+    |> result.replace(Nil)
+  })
+}
+
 pub fn select_by_user_id(db: Connection, user_id: Int) {
   sql.select_by_user_id(db, user_id)
   |> db.extract_rows

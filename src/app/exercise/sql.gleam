@@ -83,6 +83,29 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// Runs the `insert_exercise_tag` query
+/// defined in `./src/app/exercise/sql/insert_exercise_tag.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn insert_exercise_tag(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into exercise_tags (exercise_id, tag_id)
+values ($1, $2)
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_user_id` query
 /// defined in `./src/app/exercise/sql/select_by_user_id.sql`.
 ///

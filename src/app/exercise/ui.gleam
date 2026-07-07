@@ -1,4 +1,5 @@
 import app/exercise/exercise
+import app/tag/sql as tag_sql
 import app/ui
 import formal/form.{type Form}
 import gleam/bool
@@ -29,7 +30,10 @@ pub fn get_new_exercise_form() -> Form(NewExerciseForm) {
   form.new(schema)
 }
 
-pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
+pub fn new_exercise_form(
+  f: Form(NewExerciseForm),
+  tags: List(tag_sql.SelectByUserIdRow),
+) -> Element(a) {
   let name_err = list.first(form.field_error_messages(f, "name"))
   let root_err = list.first(form.field_error_messages(f, "root"))
 
@@ -75,6 +79,7 @@ pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
           },
         ],
       ),
+      tag_checkboxes(tags),
       case root_err {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
@@ -92,6 +97,37 @@ pub fn new_exercise_form(f: Form(NewExerciseForm)) -> Element(a) {
       ]),
     ],
   )
+}
+
+fn tag_checkboxes(tags: List(tag_sql.SelectByUserIdRow)) -> Element(a) {
+  use <- bool.guard(when: tags == [], return: element.none())
+
+  html.fieldset([attribute.class("grid gap-3")], [
+    html.legend([attribute.class("text-outline text-sm mb-3")], [
+      html.text("tags:"),
+    ]),
+    html.div(
+      [attribute.class("flex flex-wrap gap-2")],
+      list.map(tags, fn(tag) {
+        html.label(
+          [
+            attribute.class(
+              "border-2 border-on-surface px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+            ),
+          ],
+          [
+            html.input([
+              attribute.type_("checkbox"),
+              attribute.name("tag_ids"),
+              attribute.value(int.to_string(tag.id)),
+              attribute.class("sr-only"),
+            ]),
+            html.text(tag.name),
+          ],
+        )
+      }),
+    ),
+  ])
 }
 
 pub fn new_exercise_page(children: Element(a), req: Request) -> Element(a) {

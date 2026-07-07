@@ -3,6 +3,7 @@ import app/ctx.{type Ctx}
 import app/db
 import app/exercise/exercise
 import app/exercise/ui
+import app/tag/tag
 import app/web
 import formal/form.{type Form}
 import gleam/http/request
@@ -70,12 +71,22 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
 }
 
 pub fn view_new_exercise_page(req: Request, ctx: Ctx) -> Response {
-  use _session, _user <- auth_session.require(req, ctx)
+  use _session, user <- auth_session.require(req, ctx)
 
-  ui.get_new_exercise_form()
-  |> ui.new_exercise_form()
-  |> ui.new_exercise_page(req)
-  |> web.html(200)
+  case tag.select_by_user_id(ctx.db, user.id) {
+    Ok(tags) ->
+      ui.get_new_exercise_form()
+      |> ui.new_exercise_form(tags)
+      |> ui.new_exercise_page(req)
+      |> web.html(200)
+
+    Error(db.DatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      wisp.internal_server_error()
+    }
+
+    Error(db.RowNotFound) -> wisp.internal_server_error()
+  }
 }
 
 type CreateExerciseError {
@@ -87,6 +98,15 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
   use _session, user <- auth_session.require(req, ctx)
   use form_data <- wisp.require_form(req)
 
+  let tags = tag.select_by_user_id(ctx.db, user.id) |> result.unwrap([])
+
+  let tag_ids =
+    form_data.values
+    |> list.filter_map(fn(pair) {
+      let #(_, value) = pair
+      int.parse(value)
+    })
+
   let result = {
     use input <- result.try(
       ui.get_new_exercise_form()
@@ -95,7 +115,12 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       |> result.map_error(CreateExerciseValidation),
     )
 
-    exercise.create(ctx.db, user.id, input.name)
+    use created <- result.try(
+      exercise.create(ctx.db, user.id, input.name)
+      |> result.map_error(CreateExerciseFailed),
+    )
+
+    exercise.attach_tags(ctx.db, created.id, tag_ids)
     |> result.map_error(CreateExerciseFailed)
     |> result.replace(Nil)
   }
@@ -107,7 +132,7 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
 
     Error(CreateExerciseValidation(invalid_form)) ->
       invalid_form
-      |> ui.new_exercise_form()
+      |> ui.new_exercise_form(tags)
       |> web.html(422)
 
     Error(CreateExerciseFailed(db.DatabaseFailure(pog.ConstraintViolated(
@@ -121,7 +146,7 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
         "root",
         form.CustomError("exercise name is already used"),
       )
-      |> ui.new_exercise_form()
+      |> ui.new_exercise_form(tags)
       |> web.html(500)
     }
 
@@ -130,7 +155,7 @@ pub fn create_exercise(req: Request, ctx: Ctx) -> Response {
       ui.get_new_exercise_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.new_exercise_form()
+      |> ui.new_exercise_form(tags)
       |> web.html(500)
     }
 
