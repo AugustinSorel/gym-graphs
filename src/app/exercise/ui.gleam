@@ -518,8 +518,9 @@ fn last_one_rep_max_cell(
 
 fn time_ago(ts: timestamp.Timestamp) -> String {
   let now = timestamp.system_time()
-  let diff = timestamp.difference(now, ts)
+  let diff = timestamp.difference(ts, now)
   let secs = duration.to_seconds(diff) |> float.round()
+
   case secs {
     s if s < 60 -> "just now"
     s if s < 3600 -> {
