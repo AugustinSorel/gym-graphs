@@ -4,7 +4,6 @@ import app/exercise/sql as exercise_sql
 import app/one_rep_max
 import app/tag/sql as tag_sql
 import app/ui
-import app/user/user
 import formal/form.{type Form}
 import gleam/bool
 import gleam/float
@@ -659,6 +658,28 @@ pub fn rename_exercise_page(children: Element(a), req: Request) -> Element(a) {
         ),
       ],
       [children],
+    ),
+  ])
+}
+
+pub fn exercise_detail_page(
+  ex: exercise_sql.SelectByIdAndUserIdRow,
+  req: Request,
+) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(req),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [
+        html.h1(
+          [attribute.class("text-3xl font-semibold capitalize")],
+          [html.text(ex.name)],
+        ),
+      ],
     ),
   ])
 }

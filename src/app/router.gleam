@@ -57,8 +57,9 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
 
     ["exercises", id] -> {
       case req.method {
+        Get -> exercise_handler.view_exercise_page(req, ctx, id)
         Delete -> exercise_handler.remove_exercise(req, ctx, id)
-        _ -> wisp.method_not_allowed([Delete])
+        _ -> wisp.method_not_allowed([Get, Delete])
       }
     }
 

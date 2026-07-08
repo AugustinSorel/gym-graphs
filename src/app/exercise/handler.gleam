@@ -235,6 +235,46 @@ pub fn rename_exercise(
   }
 }
 
+type ViewExercisePageError {
+  ViewExerciseInvalidId
+  ViewExerciseSelectFailed(db.DatabaseError)
+}
+
+pub fn view_exercise_page(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(ViewExerciseInvalidId),
+    )
+
+    exercise.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(ViewExerciseSelectFailed)
+  }
+
+  case result {
+    Error(ViewExerciseInvalidId) ->
+      wisp.not_found()
+
+    Error(ViewExerciseSelectFailed(db.RowNotFound)) ->
+      wisp.not_found()
+
+    Error(ViewExerciseSelectFailed(db.DatabaseFailure(err))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      wisp.internal_server_error()
+    }
+
+    Ok(ex) ->
+      ex
+      |> ui.exercise_detail_page(req)
+      |> web.html(200)
+  }
+}
+
 type ViewRemoveExercisePageError {
   ViewRemoveInvalidId
   ViewRemoveSelectFailed(db.DatabaseError)
