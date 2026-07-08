@@ -1,13 +1,20 @@
+import app/auth_session/auth_session
 import app/exercise/exercise
 import app/exercise/sql as exercise_sql
+import app/one_rep_max
 import app/tag/sql as tag_sql
 import app/ui
+import app/user/user
 import formal/form.{type Form}
 import gleam/bool
+import gleam/float
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/order
 import gleam/string
+import gleam/time/duration
+import gleam/time/timestamp
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -151,6 +158,7 @@ pub fn exercises_list(
   page: exercise.Page,
   exercises_count: Int,
   query: String,
+  user: auth_session.User,
 ) -> Element(a) {
   use <- bool.guard(
     when: page.rows == [] && string.is_empty(query),
@@ -227,7 +235,7 @@ pub fn exercises_list(
           ),
         ]),
       ]),
-      element.fragment(exercises_row_tbodies(page, query)),
+      element.fragment(exercises_row_tbodies(page, query, user)),
     ]),
   ])
 }
@@ -316,13 +324,18 @@ fn no_exercises_found() {
   )
 }
 
-pub fn exercises_rows(page: exercise.Page, query: String) -> Element(a) {
-  element.fragment(exercises_row_tbodies(page, query))
+pub fn exercises_rows(
+  page: exercise.Page,
+  query: String,
+  user: auth_session.User,
+) -> Element(a) {
+  element.fragment(exercises_row_tbodies(page, query, user))
 }
 
 fn exercises_row_tbodies(
   page: exercise.Page,
   query: String,
+  user: auth_session.User,
 ) -> List(Element(a)) {
   use <- bool.guard(when: page.rows == [], return: [
     html.tbody([], [
@@ -363,20 +376,7 @@ fn exercises_row_tbodies(
               ),
             ],
           ),
-          html.td(
-            [
-              attribute.class(
-                "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left",
-              ),
-            ],
-            [
-              html.text("100 "),
-              html.abbr(
-                [attribute.title("kilograms"), attribute.class("no-underline")],
-                [html.text("kg")],
-              ),
-            ],
-          ),
+          last_one_rep_max_cell(ex, user.one_rep_max_algorithm),
           html.td(
             [
               attribute.class(
@@ -384,7 +384,10 @@ fn exercises_row_tbodies(
               ),
             ],
             [
-              html.text("24"),
+              html.text(case ex.sets_count {
+                Some(n) if n > 0 -> int.to_string(n)
+                _ -> "-"
+              }),
             ],
           ),
           html.td(
@@ -394,9 +397,10 @@ fn exercises_row_tbodies(
               ),
             ],
             [
-              html.time([attribute.datetime("2025-01-10")], [
-                html.text("2 days ago"),
-              ]),
+              case ex.last_set_at {
+                Some(ts) -> html.text(time_ago(ts))
+                None -> html.text("-")
+              },
             ],
           ),
         ],
@@ -440,6 +444,118 @@ fn exercises_row_tbodies(
           skeleton_rows,
         )
       [rows_tbody, skeleton_tbody]
+    }
+  }
+}
+
+fn last_one_rep_max_cell(
+  ex: exercise_sql.SelectPageByUserIdRow,
+  algo: one_rep_max.Algorithm,
+) {
+  case ex.last_reps, ex.last_weight_in_g {
+    Some(reps), Some(weight_in_g) -> {
+      let orm =
+        one_rep_max.calculate(algo:, weight: weight_in_g, repetitions: reps)
+      let trend = case ex.prev_reps, ex.prev_weight_in_g {
+        Some(prev_reps), Some(prev_weight_in_g) -> {
+          let prev_orm = {
+            one_rep_max.calculate(
+              algo,
+              weight: prev_weight_in_g,
+              repetitions: prev_reps,
+            )
+          }
+          case float.compare(prev_orm, orm) {
+            order.Gt ->
+              html.span(
+                [
+                  attribute.aria_label("up"),
+                ],
+                [html.text(" ↑")],
+              )
+            order.Lt ->
+              html.span(
+                [
+                  attribute.aria_label("down"),
+                ],
+                [html.text(" ↓")],
+              )
+            order.Eq -> html.text(" -")
+          }
+        }
+        _, _ -> html.text("-")
+      }
+      html.td(
+        [
+          attribute.class(
+            "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left",
+          ),
+        ],
+        [
+          html.text(float.to_string(float.to_precision(orm /. 1000.0, 3))),
+          html.abbr(
+            [
+              attribute.title("kilograms"),
+              attribute.class("no-underline"),
+            ],
+            [html.text("kg")],
+          ),
+          trend,
+        ],
+      )
+    }
+    _, _ ->
+      html.td(
+        [
+          attribute.class(
+            "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left",
+          ),
+        ],
+        [html.text("-")],
+      )
+  }
+}
+
+fn time_ago(ts: timestamp.Timestamp) -> String {
+  let now = timestamp.system_time()
+  let diff = timestamp.difference(now, ts)
+  let secs = duration.to_seconds(diff) |> float.round()
+  case secs {
+    s if s < 60 -> "just now"
+    s if s < 3600 -> {
+      let mins = s / 60
+      case mins {
+        1 -> "1 minute ago"
+        _ -> int.to_string(mins) <> " minutes ago"
+      }
+    }
+    s if s < 86_400 -> {
+      let hours = s / 3600
+      case hours {
+        1 -> "1 hour ago"
+        _ -> int.to_string(hours) <> " hours ago"
+      }
+    }
+    s if s < 2_592_000 -> {
+      let days = s / 86_400
+      case days {
+        1 -> "yesterday"
+        _ -> int.to_string(days) <> " days ago"
+      }
+    }
+    s if s < 31_536_000 -> {
+      let months = s / 2_592_000
+      case months {
+        1 -> "1 month ago"
+        _ -> int.to_string(months) <> " months ago"
+      }
+    }
+    s -> {
+      let years = s / 31_536_000
+      case years {
+        1 -> "1 year ago"
+        _ -> int.to_string(years) <> " years ago"
+      }
     }
   }
 }

@@ -5,6 +5,8 @@
 ////
 
 import gleam/dynamic/decode
+import gleam/option.{type Option}
+import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `count_by_user_id` query
@@ -228,7 +230,17 @@ order by name asc
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SelectPageByUserIdRow {
-  SelectPageByUserIdRow(id: Int, name: String, index: Int)
+  SelectPageByUserIdRow(
+    id: Int,
+    name: String,
+    index: Int,
+    last_reps: Option(Int),
+    last_weight_in_g: Option(Int),
+    prev_reps: Option(Int),
+    prev_weight_in_g: Option(Int),
+    sets_count: Option(Int),
+    last_set_at: Option(Timestamp),
+  )
 }
 
 /// Runs the `select_page_by_user_id` query
@@ -239,7 +251,7 @@ pub type SelectPageByUserIdRow {
 ///
 pub fn select_page_by_user_id(
   db: pog.Connection,
-  user_id: Int,
+  e_user_id: Int,
   arg_2: Int,
   arg_3: Int,
   arg_4: String,
@@ -248,19 +260,66 @@ pub fn select_page_by_user_id(
     use id <- decode.field(0, decode.int)
     use name <- decode.field(1, decode.string)
     use index <- decode.field(2, decode.int)
-    decode.success(SelectPageByUserIdRow(id:, name:, index:))
+    use last_reps <- decode.field(3, decode.optional(decode.int))
+    use last_weight_in_g <- decode.field(4, decode.optional(decode.int))
+    use prev_reps <- decode.field(5, decode.optional(decode.int))
+    use prev_weight_in_g <- decode.field(6, decode.optional(decode.int))
+    use sets_count <- decode.field(7, decode.optional(decode.int))
+    use last_set_at <- decode.field(
+      8,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    decode.success(SelectPageByUserIdRow(
+      id:,
+      name:,
+      index:,
+      last_reps:,
+      last_weight_in_g:,
+      prev_reps:,
+      prev_weight_in_g:,
+      sets_count:,
+      last_set_at:,
+    ))
   }
 
-  "select id, name, index
-from exercises
-where user_id = $1
-  and ($2 = -1 or index < $2)
-  and ($4 = '' or name ilike '%' || $4 || '%')
-order by index desc
+  "select
+  e.id,
+  e.name,
+  e.index,
+  s1.repetitions as last_reps,
+  s1.weight_in_g as last_weight_in_g,
+  s2.repetitions as prev_reps,
+  s2.weight_in_g as prev_weight_in_g,
+  sc.sets_count,
+  sc.last_set_at
+from exercises e
+left join lateral (
+  select repetitions, weight_in_g
+  from sets
+  where exercise_id = e.id
+  order by created_at desc
+  limit 1
+) s1 on true
+left join lateral (
+  select repetitions, weight_in_g
+  from sets
+  where exercise_id = e.id
+  order by created_at desc
+  limit 1 offset 1
+) s2 on true
+left join lateral (
+  select count(*)::int as sets_count, max(created_at) as last_set_at
+  from sets
+  where exercise_id = e.id
+) sc on true
+where e.user_id = $1
+  and ($2 = -1 or e.index < $2)
+  and ($4 = '' or e.name ilike '%' || $4 || '%')
+order by e.index desc
 limit $3
 "
   |> pog.query
-  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.int(e_user_id))
   |> pog.parameter(pog.int(arg_2))
   |> pog.parameter(pog.int(arg_3))
   |> pog.parameter(pog.text(arg_4))

@@ -60,13 +60,13 @@ pub fn view_exercises_page(req: Request, ctx: Ctx) -> Response {
   case result {
     Ok(#(page, _)) if is_htmx_request ->
       page
-      |> ui.exercises_rows(search_query)
+      |> ui.exercises_rows(search_query, user)
       |> web.html(200)
       |> wisp.set_header("HX-Replace-Url", replace_url)
 
     Ok(#(page, exercises_count)) ->
       page
-      |> ui.exercises_list(exercises_count, search_query)
+      |> ui.exercises_list(exercises_count, search_query, user)
       |> ui.exercises_page(req)
       |> web.html(200)
 
