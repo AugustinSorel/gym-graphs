@@ -55,6 +55,11 @@ pub fn count(db: Connection, user_id: Int, query: String) {
   |> result.map(fn(row) { row.count })
 }
 
+pub fn select_stats(db: Connection, exercise_id: Int, user_id: Int) {
+  sql.select_stats_by_exercise_id(db, exercise_id, user_id)
+  |> db.extract_first_row
+}
+
 pub fn select_page(
   db: Connection,
   user_id: Int,

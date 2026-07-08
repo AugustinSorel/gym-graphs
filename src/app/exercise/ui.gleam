@@ -664,8 +664,33 @@ pub fn rename_exercise_page(children: Element(a), req: Request) -> Element(a) {
 
 pub fn exercise_detail_page(
   ex: exercise_sql.SelectByIdAndUserIdRow,
+  stats: exercise_sql.SelectStatsByExerciseIdRow,
+  user: auth_session.User,
   req: Request,
 ) -> Element(a) {
+  let best_1rm_value = case stats.best_1rm_weight_in_g, stats.best_1rm_reps {
+    Some(w), Some(r) -> {
+      let orm = one_rep_max.calculate(user.one_rep_max_algorithm, weight: w, repetitions: r)
+      float.to_string(float.to_precision(orm /. 1000.0, 3)) <> "kg"
+    }
+    _, _ -> "-"
+  }
+
+  let max_weight_value = case stats.max_weight_in_g {
+    Some(w) -> float.to_string(float.to_precision(int.to_float(w) /. 1000.0, 3)) <> "kg"
+    None -> "-"
+  }
+
+  let total_volume_value = case stats.total_volume_in_g {
+    Some(v) -> float.to_string(float.to_precision(int.to_float(v) /. 1000.0, 1)) <> "kg"
+    None -> "-"
+  }
+
+  let total_sets_value = case stats.total_sets {
+    Some(n) -> int.to_string(n)
+    None -> "-"
+  }
+
   ui.layout([
     ui.nav_bar(req),
     html.main(
@@ -679,9 +704,38 @@ pub fn exercise_detail_page(
           [attribute.class("text-3xl font-semibold capitalize")],
           [html.text(ex.name)],
         ),
+        html.div(
+          [attribute.class("grid grid-cols-2 lg:grid-cols-4 gap-3")],
+          [
+            stat_square("best 1rm", best_1rm_value),
+            stat_square("highest weight", max_weight_value),
+            stat_square("total volume", total_volume_value),
+            stat_square("total sets", total_sets_value),
+          ],
+        ),
       ],
     ),
   ])
+}
+
+fn stat_square(label: String, value: String) -> Element(a) {
+  html.div(
+    [
+      attribute.class(
+        "border-2 border-on-surface/20 p-4 flex flex-col gap-1",
+      ),
+    ],
+    [
+      html.span(
+        [attribute.class("text-outline text-xs uppercase tracking-wide")],
+        [html.text(label)],
+      ),
+      html.span(
+        [attribute.class("text-xl font-semibold tabular-nums")],
+        [html.text(value)],
+      ),
+    ],
+  )
 }
 
 pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {
