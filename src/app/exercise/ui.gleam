@@ -678,26 +678,32 @@ pub fn exercise_detail_page(
           weight: w,
           repetitions: r,
         )
-      float.to_string(float.to_precision(orm /. 1000.0, 3)) <> "kg"
+      let #(value_str, unit_abbr) =
+        ui.display_weight(float.round(orm), user.weight_unit)
+      [html.text(value_str), unit_abbr]
     }
-    _, _ -> "-"
+    _, _ -> [html.text("-")]
   }
 
   let max_weight_value = case stats.max_weight_in_g {
-    Some(w) ->
-      float.to_string(float.to_precision(int.to_float(w) /. 1000.0, 3)) <> "kg"
-    None -> "-"
+    Some(w) -> {
+      let #(value_str, unit_abbr) = ui.display_weight(w, user.weight_unit)
+      [html.text(value_str), unit_abbr]
+    }
+    None -> [html.text("-")]
   }
 
   let total_volume_value = case stats.total_volume_in_g {
-    Some(v) ->
-      float.to_string(float.to_precision(int.to_float(v) /. 1000.0, 1)) <> "kg"
-    None -> "-"
+    Some(v) -> {
+      let #(value_str, unit_abbr) = ui.display_weight(v, user.weight_unit)
+      [html.text(value_str), unit_abbr]
+    }
+    None -> [html.text("-")]
   }
 
   let total_sets_value = case stats.total_sets {
-    Some(n) -> int.to_string(n)
-    None -> "-"
+    Some(n) -> [html.text(int.to_string(n))]
+    None -> [html.text("-")]
   }
 
   ui.layout([
@@ -723,7 +729,7 @@ pub fn exercise_detail_page(
   ])
 }
 
-fn stat_square(label: String, value: String) -> Element(a) {
+fn stat_square(label: String, value: List(Element(a))) -> Element(a) {
   html.div(
     [
       attribute.class("border-2 border-on-surface/20 p-4 flex flex-col gap-1"),
@@ -733,9 +739,7 @@ fn stat_square(label: String, value: String) -> Element(a) {
         [attribute.class("text-outline text-xs uppercase tracking-wide")],
         [html.text(label)],
       ),
-      html.span([attribute.class("text-xl font-semibold tabular-nums")], [
-        html.text(value),
-      ]),
+      html.span([attribute.class("text-xl font-semibold tabular-nums")], value),
     ],
   )
 }
