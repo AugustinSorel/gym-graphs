@@ -1,4 +1,7 @@
+import app/user/user
 import gleam/bool
+import gleam/float
+import gleam/int
 import gleam/list
 import gleam/string
 import lustre/attribute.{type Attribute}
@@ -6,6 +9,33 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 import wisp.{type Request}
+
+pub fn display_weight(
+  weight_in_g: Int,
+  weight_unit: user.WeightUnit,
+) -> #(String, Element(a)) {
+  case weight_unit {
+    user.Kg -> {
+      let value = float.to_precision(int.to_float(weight_in_g) /. 1000.0, 3)
+      #(
+        float.to_string(value),
+        html.abbr(
+          [attribute.title("kilograms"), attribute.class("no-underline")],
+          [html.text("kg")],
+        ),
+      )
+    }
+    user.Lbs -> {
+      let value = float.to_precision(int.to_float(weight_in_g) /. 453.592, 3)
+      #(
+        float.to_string(value),
+        html.abbr([attribute.title("pounds"), attribute.class("no-underline")], [
+          html.text("lbs"),
+        ]),
+      )
+    }
+  }
+}
 
 pub fn layout(children: List(Element(a))) -> Element(a) {
   html.html([attribute.lang("en")], [

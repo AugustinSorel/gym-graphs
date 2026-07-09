@@ -4,6 +4,7 @@ import app/exercise/sql as exercise_sql
 import app/one_rep_max
 import app/tag/sql as tag_sql
 import app/ui
+import app/user/user
 import formal/form.{type Form}
 import gleam/bool
 import gleam/float
@@ -375,7 +376,11 @@ fn exercises_row_tbodies(
               ),
             ],
           ),
-          last_one_rep_max_cell(ex, user.one_rep_max_algorithm),
+          last_one_rep_max_cell(
+            ex,
+            user.one_rep_max_algorithm,
+            user.weight_unit,
+          ),
           html.td(
             [
               attribute.class(
@@ -450,6 +455,7 @@ fn exercises_row_tbodies(
 fn last_one_rep_max_cell(
   ex: exercise_sql.SelectPageByUserIdRow,
   algo: one_rep_max.Algorithm,
+  weight_unit: user.WeightUnit,
 ) {
   case ex.last_reps, ex.last_weight_in_g {
     Some(reps), Some(weight_in_g) -> {
@@ -464,7 +470,7 @@ fn last_one_rep_max_cell(
               repetitions: prev_reps,
             )
           }
-          case float.compare(prev_orm, orm) {
+          case float.compare(orm, prev_orm) {
             order.Gt ->
               html.span(
                 [
@@ -482,8 +488,10 @@ fn last_one_rep_max_cell(
             order.Eq -> html.text(" -")
           }
         }
-        _, _ -> html.text("-")
+        _, _ -> html.text(" -")
       }
+      let orm_in_g = float.round(orm)
+      let #(value_str, unit_abbr) = ui.display_weight(orm_in_g, weight_unit)
       html.td(
         [
           attribute.class(
@@ -491,14 +499,8 @@ fn last_one_rep_max_cell(
           ),
         ],
         [
-          html.text(float.to_string(float.to_precision(orm /. 1000.0, 3))),
-          html.abbr(
-            [
-              attribute.title("kilograms"),
-              attribute.class("no-underline"),
-            ],
-            [html.text("kg")],
-          ),
+          html.text(value_str),
+          unit_abbr,
           trend,
         ],
       )
@@ -670,19 +672,26 @@ pub fn exercise_detail_page(
 ) -> Element(a) {
   let best_1rm_value = case stats.best_1rm_weight_in_g, stats.best_1rm_reps {
     Some(w), Some(r) -> {
-      let orm = one_rep_max.calculate(user.one_rep_max_algorithm, weight: w, repetitions: r)
+      let orm =
+        one_rep_max.calculate(
+          user.one_rep_max_algorithm,
+          weight: w,
+          repetitions: r,
+        )
       float.to_string(float.to_precision(orm /. 1000.0, 3)) <> "kg"
     }
     _, _ -> "-"
   }
 
   let max_weight_value = case stats.max_weight_in_g {
-    Some(w) -> float.to_string(float.to_precision(int.to_float(w) /. 1000.0, 3)) <> "kg"
+    Some(w) ->
+      float.to_string(float.to_precision(int.to_float(w) /. 1000.0, 3)) <> "kg"
     None -> "-"
   }
 
   let total_volume_value = case stats.total_volume_in_g {
-    Some(v) -> float.to_string(float.to_precision(int.to_float(v) /. 1000.0, 1)) <> "kg"
+    Some(v) ->
+      float.to_string(float.to_precision(int.to_float(v) /. 1000.0, 1)) <> "kg"
     None -> "-"
   }
 
@@ -700,19 +709,15 @@ pub fn exercise_detail_page(
         ),
       ],
       [
-        html.h1(
-          [attribute.class("text-3xl font-semibold capitalize")],
-          [html.text(ex.name)],
-        ),
-        html.div(
-          [attribute.class("grid grid-cols-2 lg:grid-cols-4 gap-3")],
-          [
-            stat_square("best 1rm", best_1rm_value),
-            stat_square("highest weight", max_weight_value),
-            stat_square("total volume", total_volume_value),
-            stat_square("total sets", total_sets_value),
-          ],
-        ),
+        html.h1([attribute.class("text-3xl font-semibold capitalize")], [
+          html.text(ex.name),
+        ]),
+        html.div([attribute.class("grid grid-cols-2 lg:grid-cols-4 gap-3")], [
+          stat_square("best 1rm", best_1rm_value),
+          stat_square("highest weight", max_weight_value),
+          stat_square("total volume", total_volume_value),
+          stat_square("total sets", total_sets_value),
+        ]),
       ],
     ),
   ])
@@ -721,19 +726,16 @@ pub fn exercise_detail_page(
 fn stat_square(label: String, value: String) -> Element(a) {
   html.div(
     [
-      attribute.class(
-        "border-2 border-on-surface/20 p-4 flex flex-col gap-1",
-      ),
+      attribute.class("border-2 border-on-surface/20 p-4 flex flex-col gap-1"),
     ],
     [
       html.span(
         [attribute.class("text-outline text-xs uppercase tracking-wide")],
         [html.text(label)],
       ),
-      html.span(
-        [attribute.class("text-xl font-semibold tabular-nums")],
-        [html.text(value)],
-      ),
+      html.span([attribute.class("text-xl font-semibold tabular-nums")], [
+        html.text(value),
+      ]),
     ],
   )
 }
