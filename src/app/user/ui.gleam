@@ -163,31 +163,62 @@ fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
     html.ul(
       [attribute.class("list-none [counter-reset:my-list]")],
       list.map(tags, fn(tag) {
+        let popover_id = "tag-menu-" <> int.to_string(tag.id)
+        let anchor_name = "--tag-anchor-" <> int.to_string(tag.id)
         html.li(
           [
             attribute.class(
-              "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:my-list] grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 before:content-[counter(my-list)_'.'] before:text-outline before:text-sm",
+              "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:my-list] grid grid-cols-[auto_1fr_auto] items-center gap-2 before:content-[counter(my-list)_'.'] before:text-outline before:text-sm",
             ),
           ],
           [
             html.span([], [html.text(tag.name)]),
-            ui.link(
+            ui.button(
+              ui.ButtonGhost,
               [
-                attribute.href("/tags/" <> int.to_string(tag.id) <> "/name"),
-                attribute.class(
-                  "text-xs text-outline hover:text-on-surface !font-normal",
-                ),
+                attribute.class("size-10 text-outline "),
+                attribute.attribute("popovertarget", popover_id),
+                attribute.attribute("aria-label", "Tag options"),
+                attribute.attribute("style", "anchor-name: " <> anchor_name),
               ],
-              [html.text("rename")],
+              [html.text("⋮")],
             ),
-            ui.link(
+            html.div(
               [
-                attribute.href("/tags/" <> int.to_string(tag.id) <> "/remove"),
+                attribute.id(popover_id),
+                attribute.attribute("popover", ""),
                 attribute.class(
-                  "text-xs text-outline hover:text-on-surface !font-normal",
+                  "tag-popover m-0 mt-0.5 bg-surface-container border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm",
+                ),
+                attribute.attribute(
+                  "style",
+                  "position-anchor: "
+                    <> anchor_name
+                    <> "; position-area: bottom span-right; position-try-fallbacks: flip-block;",
                 ),
               ],
-              [html.text("remove")],
+              [
+                html.a(
+                  [
+                    attribute.href("/tags/" <> int.to_string(tag.id) <> "/name"),
+                    attribute.class(
+                      "underline py-2 font-semibold hover:bg-surface-container-highest focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface",
+                    ),
+                  ],
+                  [html.text("rename")],
+                ),
+                html.a(
+                  [
+                    attribute.href(
+                      "/tags/" <> int.to_string(tag.id) <> "/remove",
+                    ),
+                    attribute.class(
+                      "text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface",
+                    ),
+                  ],
+                  [html.text("remove")],
+                ),
+              ],
             ),
           ],
         )

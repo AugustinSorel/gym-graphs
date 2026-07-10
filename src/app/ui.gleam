@@ -218,11 +218,12 @@ pub type ButtonVariant {
   ButtonPrimary
   ButtonLink
   ButtonDestroy
+  ButtonGhost
 }
 
 fn button_classes(variant: ButtonVariant) -> String {
   let shared =
-    "items-center font-semibold justify-center gap-1.5 py-2 px-4 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none focus-visible:ring-4 focus-visible:ring-offset-2"
+    "items-center font-semibold justify-center gap-1.5 py-2 px-4 inline-flex text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none outline-none ring-on-surface focus-visible:ring-4 focus-visible:ring-offset-2"
   let variant_classes = case variant {
     ButtonPrimary ->
       "bg-on-surface text-surface hover:bg-on-surface/80 focus-visible:ring-on-surface focus-visible:ring-offset-surface"
@@ -230,6 +231,7 @@ fn button_classes(variant: ButtonVariant) -> String {
       "underline font-normal hover:text-current/80 focus-visible:ring-on-surface p-0"
     ButtonDestroy ->
       "bg-error text-on-error focus-visible:ring-error hover:bg-error/80 focus-visible:ring-offset-surface"
+    ButtonGhost -> "hover:bg-surface-container-highest"
   }
   shared <> " " <> variant_classes
 }
