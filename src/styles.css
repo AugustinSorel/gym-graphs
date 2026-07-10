@@ -98,14 +98,14 @@
   :root {
     color-scheme: light dark;
 
-    --surface: light-dark(hsl(0 0% 97%), hsl(0 0% 8%));
+    --surface: light-dark(hsl(0 0% 96%), hsl(0 0% 8%));
     --on-surface: light-dark(hsl(0 0% 4%), hsl(0 0% 96%));
 
     --surface-variant: light-dark(hsl(275 24% 90%), hsl(264 7% 29%));
     --on-surface-variant: light-dark(hsl(264 7% 29%), hsl(270 11% 79%));
 
-    --surface-container-lowest: light-dark(hsl(0 0% 100%), hsl(0 0% 14%));
-    --surface-container-low: light-dark(hsl(0 0% 96%), hsl(0 0% 10%));
+    --surface-container-lowest: light-dark(hsl(0 0% 99%), hsl(0 0% 14%));
+    --surface-container-low: light-dark(hsl(0 0% 98%), hsl(0 0% 10%));
     --surface-container: light-dark(hsl(0 0% 94%), hsl(0 0% 6%));
     --surface-container-high: light-dark(hsl(0 0% 92%), hsl(0 0% 4%));
     --surface-container-highest: light-dark(hsl(0 0% 90%), hsl(0 0% 0%));
@@ -200,7 +200,7 @@
     padding: 0.5rem 1.25rem;
     font: inherit;
     cursor: pointer;
-    background: var(--surface);
+    background: var(--color-surface-container-low);
     color: var(--on-surface);
   }
 
@@ -210,7 +210,7 @@
 
   .select option:hover,
   .select option:focus {
-    background-color: var(--color-surface-container-highest);
+    background-color: var(--color-surface-container-high);
     outline: 2px solid currentColor;
   }
 

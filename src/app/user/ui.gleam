@@ -188,7 +188,7 @@ fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
                 attribute.id(popover_id),
                 attribute.attribute("popover", ""),
                 attribute.class(
-                  "tag-popover m-0 mt-0.5 bg-surface-container border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm",
+                  "tag-popover m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm",
                 ),
                 attribute.attribute(
                   "style",
@@ -202,7 +202,7 @@ fn list_of_tags(tags: List(tag_sql.SelectByUserIdRow)) {
                   [
                     attribute.href("/tags/" <> int.to_string(tag.id) <> "/name"),
                     attribute.class(
-                      "underline py-2 font-semibold hover:bg-surface-container-highest focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface",
+                      "underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface",
                     ),
                   ],
                   [html.text("rename")],
