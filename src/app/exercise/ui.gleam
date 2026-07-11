@@ -788,7 +788,7 @@ pub fn exercise_detail_page(
             ],
           ),
         ]),
-        html.section([attribute.class("flex flex-col gap-4")], [
+        html.section([attribute.class("flex flex-col")], [
           html.h2(
             [
               attribute.class(
@@ -816,7 +816,8 @@ pub fn exercise_detail_page(
               ),
               attribute.attribute("hx-trigger", "graph-resize"),
               attribute.attribute("hx-swap", "innerHTML"),
-              attribute.class("h-[200px]"),
+              attribute.class("h-[300px]"),
+              attribute.class("py-7 border-b-2 border-dotted border-outline/50"),
             ],
             [],
           ),
@@ -902,7 +903,7 @@ pub fn one_rep_max_graph(
   }
 
   // padding_left: tick mark (4) + gap (4) + widest y label
-  let y_tick_count = 3
+  let y_tick_count = 5
   let y_label_fixed_overhead = 8.0
   let padding_left =
     axis.new(axis.Left, fn(v) { v }, y_domain)
