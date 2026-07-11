@@ -18,8 +18,7 @@ pub type Algorithm {
   Wathen
 }
 
-pub fn calculate(algo algo: Algorithm, weight w: Int, repetitions r: Int) {
-  let w = int.to_float(w)
+pub fn calculate(weight w: Float, repetitions r: Int, algo algo: Algorithm) {
   let r = int.to_float(r)
 
   case algo {

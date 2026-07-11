@@ -466,15 +466,14 @@ fn last_one_rep_max_cell(
   case ex.last_reps, ex.last_weight_in_g {
     Some(reps), Some(weight_in_g) -> {
       let orm =
-        one_rep_max.calculate(algo:, weight: weight_in_g, repetitions: reps)
+        user.grams_to_unit(weight_in_g, weight_unit)
+        |> one_rep_max.calculate(algo:, repetitions: reps)
+
       let trend = case ex.prev_reps, ex.prev_weight_in_g {
         Some(prev_reps), Some(prev_weight_in_g) -> {
           let prev_orm = {
-            one_rep_max.calculate(
-              algo,
-              weight: prev_weight_in_g,
-              repetitions: prev_reps,
-            )
+            user.grams_to_unit(prev_weight_in_g, weight_unit)
+            |> one_rep_max.calculate(algo, repetitions: prev_reps)
           }
           case float.compare(orm, prev_orm) {
             order.Gt ->
@@ -496,8 +495,6 @@ fn last_one_rep_max_cell(
         }
         _, _ -> html.text(" -")
       }
-      let orm_in_g = float.round(orm)
-      let #(value_str, unit_abbr) = ui.display_weight(orm_in_g, weight_unit)
       html.td(
         [
           attribute.class(
@@ -505,8 +502,8 @@ fn last_one_rep_max_cell(
           ),
         ],
         [
-          html.text(value_str),
-          unit_abbr,
+          html.text(ui.display_weight_value(orm)),
+          ui.display_weight_unit(weight_unit),
           trend,
         ],
       )
@@ -676,34 +673,50 @@ pub fn exercise_detail_page(
   user: auth_session.User,
   req: Request,
 ) -> Element(a) {
-  let best_1rm_value = case stats.best_1rm_weight_in_g, stats.best_1rm_reps {
-    Some(w), Some(r) -> {
-      let orm =
-        one_rep_max.calculate(
-          user.one_rep_max_algorithm,
-          weight: w,
-          repetitions: r,
-        )
-      let #(value_str, unit_abbr) =
-        ui.display_weight(float.round(orm), user.weight_unit)
-      [html.text(value_str), unit_abbr]
+  let #(one_rep_max, one_rep_max_unit) = case
+    stats.best_1rm_weight_in_g,
+    stats.best_1rm_reps
+  {
+    Some(weight), Some(repetitions) -> {
+      #(
+        weight
+          |> user.grams_to_unit(user.weight_unit)
+          |> one_rep_max.calculate(user.one_rep_max_algorithm, repetitions:)
+          |> ui.display_weight_value(),
+        ui.display_weight_unit(user.weight_unit),
+      )
     }
-    _, _ -> [html.text("-")]
+    _, _ -> #("-", element.none())
   }
 
-  let max_weight_value = {
-    let #(value_str, unit_abbr) =
-      ui.display_weight(stats.max_weight_in_g, user.weight_unit)
-    [html.text(value_str), unit_abbr]
+  let #(max_weight_value, max_weight_unit) = case stats.max_weight_in_g {
+    0 -> #("-", element.none())
+    max_weight -> {
+      #(
+        max_weight
+          |> user.grams_to_unit(user.weight_unit)
+          |> ui.display_weight_value(),
+        ui.display_weight_unit(user.weight_unit),
+      )
+    }
   }
 
-  let total_volume_value = {
-    let #(value_str, unit_abbr) =
-      ui.display_weight(stats.total_volume_in_g, user.weight_unit)
-    [html.text(value_str), unit_abbr]
+  let #(volume, volume_weight_unit) = case stats.total_volume_in_g {
+    0 -> #("-", element.none())
+    volume -> {
+      #(
+        volume
+          |> user.grams_to_unit(user.weight_unit)
+          |> ui.display_weight_value(),
+        ui.display_weight_unit(user.weight_unit),
+      )
+    }
   }
 
-  let total_sets_value = [html.text(int.to_string(stats.total_sets))]
+  let set_count = case stats.total_sets {
+    0 -> "-"
+    count -> int.to_string(count)
+  }
 
   ui.layout([
     ui.nav_bar(req),
@@ -746,37 +759,36 @@ pub fn exercise_detail_page(
                     ],
                   ),
                 ]),
-                html.dd(
-                  [attribute.class("text-xl font-semibold")],
-                  best_1rm_value,
-                ),
+                html.dd([attribute.class("text-xl font-semibold")], [
+                  html.text(one_rep_max),
+                  one_rep_max_unit,
+                ]),
               ]),
               html.div([], [
                 html.dt([attribute.class("text-outline text-xs")], [
                   html.text("highest weight"),
                 ]),
-                html.dd(
-                  [attribute.class("text-xl font-semibold")],
-                  max_weight_value,
-                ),
+                html.dd([attribute.class("text-xl font-semibold")], [
+                  html.text(max_weight_value),
+                  max_weight_unit,
+                ]),
               ]),
               html.div([], [
                 html.dt([attribute.class("text-outline text-xs")], [
                   html.text("total volume"),
                 ]),
-                html.dd(
-                  [attribute.class("text-xl font-semibold")],
-                  total_volume_value,
-                ),
+                html.dd([attribute.class("text-xl font-semibold")], [
+                  html.text(volume),
+                  volume_weight_unit,
+                ]),
               ]),
               html.div([], [
                 html.dt([attribute.class("text-outline text-xs")], [
                   html.text("total sets"),
                 ]),
-                html.dd(
-                  [attribute.class("text-xl font-semibold")],
-                  total_sets_value,
-                ),
+                html.dd([attribute.class("text-xl font-semibold")], [
+                  html.text(set_count),
+                ]),
               ]),
             ],
           ),
@@ -874,14 +886,14 @@ pub fn one_rep_max_graph(
 
   // Compute 1RM for each set. x is Unix seconds (Float) so the x scale is
   // a true time axis; y is the computed 1RM value in grams.
+
   let orm_points =
     list.map(sets, fn(s) {
-      let orm =
-        one_rep_max.calculate(
-          algorithm,
-          weight: s.weight_in_g,
-          repetitions: s.repetitions,
-        )
+      let orm = {
+        s.weight_in_g
+        |> user.grams_to_unit(weight_unit)
+        |> one_rep_max.calculate(algorithm, repetitions: s.repetitions)
+      }
       #(timestamp.to_unix_seconds(s.created_at), orm)
     })
 
@@ -902,12 +914,12 @@ pub fn one_rep_max_graph(
   let char_width_estimate = 6.0
 
   let y_format = fn(v: Float) -> String {
-    let #(value_str, _unit_el) = ui.display_weight(float.round(v), weight_unit)
     let unit_str = case weight_unit {
       user.Kg -> "kg"
       user.Lbs -> "lbs"
     }
-    value_str <> unit_str
+
+    ui.display_weight_value(v) <> unit_str
   }
 
   let x_tick_count = 3

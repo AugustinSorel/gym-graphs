@@ -74,9 +74,7 @@ pub fn select_page(
   let cursor_value = option.unwrap(cursor, -1)
 
   sql.select_page_by_user_id(db, user_id, cursor_value, page_size + 1, query)
-  |> echo
   |> db.extract_rows
-  |> echo
   |> result.try(fn(rows) {
     let more_result = list.length(rows) > page_size
 

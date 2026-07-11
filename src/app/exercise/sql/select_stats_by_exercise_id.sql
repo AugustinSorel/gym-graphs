@@ -14,8 +14,8 @@ left join lateral (
 ) s_best on true
 left join lateral (
   select
-    max(weight_in_g) as max_weight_in_g,
-    sum(weight_in_g * repetitions)::bigint as total_volume_in_g,
+    coalesce(max(weight_in_g), 0) as max_weight_in_g,
+    coalesce(sum(weight_in_g * repetitions), 0)::bigint as total_volume_in_g,
     count(*)::int as total_sets
   from sets
   where exercise_id = e.id

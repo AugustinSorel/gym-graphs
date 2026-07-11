@@ -9,27 +9,21 @@ import lustre/element/html
 import lustre/element/svg
 import wisp.{type Request}
 
-pub fn display_weight(
-  weight_in_g: Int,
-  weight_unit: user.WeightUnit,
-) -> #(String, Element(a)) {
-  let value =
-    float.to_precision(user.grams_to_unit(weight_in_g, weight_unit), 3)
-  case weight_unit {
-    user.Kg -> #(
-      float.to_string(value),
-      html.abbr(
-        [attribute.title("kilograms"), attribute.class("no-underline")],
-        [html.text("kg")],
-      ),
-    )
-    user.Lbs -> #(
-      float.to_string(value),
-      html.abbr([attribute.title("pounds"), attribute.class("no-underline")], [
-        html.text("lbs"),
-      ]),
-    )
+pub fn display_weight_value(weight: Float) {
+  weight
+  |> float.to_precision(3)
+  |> float.to_string()
+}
+
+pub fn display_weight_unit(weight_unit: user.WeightUnit) {
+  let #(title, sign) = case weight_unit {
+    user.Kg -> #("kilograms", "kg")
+    user.Lbs -> #("pounds", "lbs")
   }
+
+  html.abbr([attribute.title(title), attribute.class("no-underline")], [
+    html.text(sign),
+  ])
 }
 
 pub fn layout(children: List(Element(a))) -> Element(a) {

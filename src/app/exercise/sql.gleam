@@ -375,7 +375,7 @@ from sets s
 join exercises e on e.id = s.exercise_id
 where s.exercise_id = $1
   and e.user_id = $2
-order by s.created_at::date asc, (s.weight_in_g * (1 + s.repetitions / 30)) desc
+order by s.created_at::date asc, (s.weight_in_g::float * (1.0 + s.repetitions::float / 30.0)) desc
 "
   |> pog.query
   |> pog.parameter(pog.int(s_exercise_id))
@@ -442,8 +442,8 @@ left join lateral (
 ) s_best on true
 left join lateral (
   select
-    max(weight_in_g) as max_weight_in_g,
-    sum(weight_in_g * repetitions)::bigint as total_volume_in_g,
+    coalesce(max(weight_in_g), 0) as max_weight_in_g,
+    coalesce(sum(weight_in_g * repetitions), 0)::bigint as total_volume_in_g,
     count(*)::int as total_sets
   from sets
   where exercise_id = e.id

@@ -836,14 +836,13 @@ pub fn one_rep_max_algorithm_graph(
     one_rep_max.Wathen,
   ]
 
-  // Mock data: #(repetitions, weight) pairs from logged sets
   let mock_points = [
-    #(1, 1),
-    #(5, 5),
-    #(10, 10),
-    #(15, 15),
-    #(20, 20),
-    #(25, 25),
+    #(1, 1.0),
+    #(5, 5.0),
+    #(10, 10.0),
+    #(15, 15.0),
+    #(20, 20.0),
+    #(25, 25.0),
   ]
 
   let all_data =
