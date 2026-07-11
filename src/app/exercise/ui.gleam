@@ -832,6 +832,7 @@ pub fn one_rep_max_graph(
   width width: Int,
   height height: Int,
   algorithm algorithm: one_rep_max.Algorithm,
+  weight_unit weight_unit: user.WeightUnit,
 ) -> Element(a) {
   // Mock data: #(ordinal_index, #(reps, weight_in_g)) for each logged set
   let mock_sets = [
@@ -879,8 +880,7 @@ pub fn one_rep_max_graph(
   let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
 
   // Pad the y domain so the line isn't flush with the top/bottom edges
-  let y_padding = { max_y -. min_y } *. 0.1
-  let y_domain = #(float.max(0.0, min_y -. y_padding), max_y +. y_padding)
+  let y_domain = #(float.max(0.0, min_y), max_y)
   let x_domain = #(min_x, max_x)
 
   // Scales — both expressed in inner-plot coordinates (0,0 = top-left of plot)
@@ -912,7 +912,15 @@ pub fn one_rep_max_graph(
   let y_ticks =
     axis.new(axis.Left, scale_y, y_domain)
     |> axis.ticks(3)
-    |> axis.format(fn(v) { int.to_string(float.round(v /. 1000.0)) <> "kg" })
+    |> axis.format(fn(v) {
+      let #(value_str, _unit_el) =
+        ui.display_weight(float.round(v), weight_unit)
+      let unit_str = case weight_unit {
+        user.Kg -> "kg"
+        user.Lbs -> "lbs"
+      }
+      value_str <> unit_str
+    })
     |> axis.grid(inner_w)
     |> axis.to_ticks
 

@@ -40,6 +40,7 @@ pub fn view_one_rep_max_graph(
     width:,
     height:,
     algorithm: user.one_rep_max_algorithm,
+    weight_unit: user.weight_unit,
   )
   |> web.svg(200)
 }
