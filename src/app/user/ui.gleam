@@ -883,7 +883,6 @@ pub fn one_rep_max_algorithm_graph(
         |> line.new()
         |> line.x(fn(d) { scale_x(d.0) })
         |> line.y(fn(d) { scale_y(d.1) })
-        |> line.curve(line.MonotoneX)
         |> line.to_path
       svg.path([
         attribute.attribute("d", path_d),

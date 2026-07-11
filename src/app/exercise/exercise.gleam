@@ -60,6 +60,11 @@ pub fn select_stats(db: Connection, exercise_id: Int, user_id: Int) {
   |> db.extract_first_row
 }
 
+pub fn select_sets_for_graph(db: Connection, exercise_id: Int, user_id: Int) {
+  sql.select_sets_for_graph_by_exercise_id(db, exercise_id, user_id)
+  |> db.extract_rows
+}
+
 pub fn select_page(
   db: Connection,
   user_id: Int,
@@ -69,7 +74,9 @@ pub fn select_page(
   let cursor_value = option.unwrap(cursor, -1)
 
   sql.select_page_by_user_id(db, user_id, cursor_value, page_size + 1, query)
+  |> echo
   |> db.extract_rows
+  |> echo
   |> result.try(fn(rows) {
     let more_result = list.length(rows) > page_size
 

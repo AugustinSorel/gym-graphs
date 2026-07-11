@@ -15,14 +15,17 @@ import gleam/string
 import pog
 import wisp.{type Request, type Response}
 
+pub type ViewOneRepMaxGraphError {
+  ViewOneRepMaxGraphInvalidExerciseId
+  SelectingSetsForGraphFailed(db: db.ExtractRowsError)
+}
+
 pub fn view_one_rep_max_graph(
   req: Request,
   ctx: Ctx,
   exercise_id: String,
 ) -> Response {
   use _session, user <- auth_session.require(req, ctx)
-
-  use _id <- result_or_not_found(int.parse(exercise_id))
 
   let query = wisp.get_query(req)
 
@@ -36,22 +39,38 @@ pub fn view_one_rep_max_graph(
     |> result.try(int.parse)
     |> result.unwrap(200)
 
-  ui.one_rep_max_graph(
-    width:,
-    height:,
-    algorithm: user.one_rep_max_algorithm,
-    weight_unit: user.weight_unit,
-  )
-  |> web.svg(200)
-}
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id)
+      |> result.replace_error(ViewOneRepMaxGraphInvalidExerciseId),
+    )
 
-fn result_or_not_found(
-  r: Result(a, e),
-  next: fn(a) -> Response,
-) -> Response {
-  case r {
-    Ok(v) -> next(v)
-    Error(_) -> wisp.not_found()
+    use sets <- result.try(
+      exercise.select_sets_for_graph(ctx.db, id, user.id)
+      |> result.map_error(SelectingSetsForGraphFailed),
+    )
+
+    Ok(sets)
+  }
+
+  case result {
+    Ok(sets) -> {
+      ui.one_rep_max_graph(
+        width:,
+        height:,
+        algorithm: user.one_rep_max_algorithm,
+        weight_unit: user.weight_unit,
+        sets:,
+      )
+      |> web.svg(200)
+    }
+    Error(ViewOneRepMaxGraphInvalidExerciseId) -> {
+      ui.one_rep_max_graph_alert("something went wrong") |> web.html(422)
+    }
+    Error(SelectingSetsForGraphFailed(db.ExtractRowsFailure(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.one_rep_max_graph_alert("something went wrong") |> web.html(500)
+    }
   }
 }
 
@@ -307,11 +326,9 @@ pub fn view_exercise_page(
   }
 
   case result {
-    Error(ViewExerciseInvalidId) ->
-      wisp.not_found()
+    Error(ViewExerciseInvalidId) -> wisp.not_found()
 
-    Error(ViewExerciseSelectFailed(db.RowNotFound)) ->
-      wisp.not_found()
+    Error(ViewExerciseSelectFailed(db.RowNotFound)) -> wisp.not_found()
 
     Error(ViewExerciseSelectFailed(db.DatabaseFailure(err)))
     | Error(ViewExerciseStatsFailed(db.DatabaseFailure(err))) -> {
@@ -319,8 +336,7 @@ pub fn view_exercise_page(
       wisp.internal_server_error()
     }
 
-    Error(ViewExerciseStatsFailed(db.RowNotFound)) ->
-      wisp.not_found()
+    Error(ViewExerciseStatsFailed(db.RowNotFound)) -> wisp.not_found()
 
     Ok(#(ex, stats)) ->
       ui.exercise_detail_page(ex, stats, user, req)

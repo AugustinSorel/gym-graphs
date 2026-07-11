@@ -407,10 +407,10 @@ fn exercises_row_tbodies(
               ),
             ],
             [
-              case ex.last_set_at {
-                Some(ts) -> html.text(time_ago(ts))
-                None -> html.text("-")
-              },
+              html.text(case ex.last_set_at {
+                Some(time) -> time_ago(time)
+                None -> "-"
+              }),
             ],
           ),
         ],
@@ -820,31 +820,48 @@ pub fn exercise_detail_page(
   ])
 }
 
-/// Renders an SVG line graph of 1RM over time.
-/// x is the ordinal set index (1, 2, 3…), y is the computed 1RM value.
-/// Uses mock data until real per-set history is wired up.
+pub fn one_rep_max_graph_alert(msg: String) {
+  ui.alert(ui.AlertError, [], [
+    ui.alert_title(element.text("something went wrong")),
+    ui.alert_description(element.text(msg)),
+  ])
+}
+
 pub fn one_rep_max_graph(
   width width: Int,
   height height: Int,
   algorithm algorithm: one_rep_max.Algorithm,
   weight_unit weight_unit: user.WeightUnit,
+  sets sets: List(exercise_sql.SelectSetsForGraphByExerciseIdRow),
 ) -> Element(a) {
-  // Mock data: #(created_at, #(reps, weight_in_g)) for each logged set.
-  // Timestamps are Unix seconds; these span roughly 3 months of training.
-  let mock_sets = [
-    #(timestamp.from_unix_seconds(1_740_000_000), #(5, 80_000)),
-    #(timestamp.from_unix_seconds(1_740_604_800), #(3, 85_000)),
-    #(timestamp.from_unix_seconds(1_741_209_600), #(8, 75_000)),
-    #(timestamp.from_unix_seconds(1_741_814_400), #(1, 90_000)),
-    #(timestamp.from_unix_seconds(1_742_419_200), #(5, 87_500)),
-    #(timestamp.from_unix_seconds(1_743_024_000), #(3, 92_500)),
-    #(timestamp.from_unix_seconds(1_743_628_800), #(6, 87_500)),
-    #(timestamp.from_unix_seconds(1_744_233_600), #(1, 95_000)),
-    #(timestamp.from_unix_seconds(1_744_838_400), #(4, 92_500)),
-    #(timestamp.from_unix_seconds(1_745_443_200), #(2, 97_500)),
-    #(timestamp.from_unix_seconds(1_746_048_000), #(5, 92_500)),
-    #(timestamp.from_unix_seconds(1_746_652_800), #(1, 100_000)),
-  ]
+  use <- bool.lazy_guard(when: list.is_empty(sets), return: fn() {
+    svg.svg(
+      [
+        attribute.attribute("width", int.to_string(width)),
+        attribute.attribute("height", int.to_string(height)),
+        attribute.attribute("aria-label", "no data yet"),
+      ],
+      [
+        svg.text(
+          [
+            attribute.attribute(
+              "x",
+              float.to_string(int.to_float(width) /. 2.0),
+            ),
+            attribute.attribute(
+              "y",
+              float.to_string(int.to_float(height) /. 2.0),
+            ),
+            attribute.attribute("text-anchor", "middle"),
+            attribute.attribute("dominant-baseline", "middle"),
+            attribute.attribute("font-size", "12"),
+            attribute.class("fill-outline"),
+          ],
+          "no sets logged yet",
+        ),
+      ],
+    )
+  })
 
   let padding_top = 12.0
   let x_tick_length = 4.0
@@ -858,11 +875,14 @@ pub fn one_rep_max_graph(
   // Compute 1RM for each set. x is Unix seconds (Float) so the x scale is
   // a true time axis; y is the computed 1RM value in grams.
   let orm_points =
-    list.map(mock_sets, fn(entry) {
-      let #(ts, #(reps, weight_in_g)) = entry
+    list.map(sets, fn(s) {
       let orm =
-        one_rep_max.calculate(algorithm, weight: weight_in_g, repetitions: reps)
-      #(timestamp.to_unix_seconds(ts), orm)
+        one_rep_max.calculate(
+          algorithm,
+          weight: s.weight_in_g,
+          repetitions: s.repetitions,
+        )
+      #(timestamp.to_unix_seconds(s.created_at), orm)
     })
 
   let xs = list.map(orm_points, fn(p) { p.0 })
@@ -952,7 +972,6 @@ pub fn one_rep_max_graph(
     |> line.new()
     |> line.x(fn(d) { scale_x(d.0) })
     |> line.y(fn(d) { scale_y(d.1) })
-    |> line.curve(line.MonotoneX)
     |> line.to_path
 
   let final_dot =

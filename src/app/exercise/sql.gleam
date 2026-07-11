@@ -331,6 +331,59 @@ limit $3
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_sets_for_graph_by_exercise_id` query
+/// defined in `./src/app/exercise/sql/select_sets_for_graph_by_exercise_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectSetsForGraphByExerciseIdRow {
+  SelectSetsForGraphByExerciseIdRow(
+    created_at: Timestamp,
+    repetitions: Int,
+    weight_in_g: Int,
+  )
+}
+
+/// Runs the `select_sets_for_graph_by_exercise_id` query
+/// defined in `./src/app/exercise/sql/select_sets_for_graph_by_exercise_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_sets_for_graph_by_exercise_id(
+  db: pog.Connection,
+  s_exercise_id: Int,
+  e_user_id: Int,
+) -> Result(pog.Returned(SelectSetsForGraphByExerciseIdRow), pog.QueryError) {
+  let decoder = {
+    use created_at <- decode.field(0, pog.timestamp_decoder())
+    use repetitions <- decode.field(1, decode.int)
+    use weight_in_g <- decode.field(2, decode.int)
+    decode.success(SelectSetsForGraphByExerciseIdRow(
+      created_at:,
+      repetitions:,
+      weight_in_g:,
+    ))
+  }
+
+  "select
+  s.created_at,
+  s.repetitions,
+  s.weight_in_g
+from sets s
+join exercises e on e.id = s.exercise_id
+where s.exercise_id = $1
+  and e.user_id = $2
+order by s.created_at asc
+"
+  |> pog.query
+  |> pog.parameter(pog.int(s_exercise_id))
+  |> pog.parameter(pog.int(e_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_stats_by_exercise_id` query
 /// defined in `./src/app/exercise/sql/select_stats_by_exercise_id.sql`.
 ///
