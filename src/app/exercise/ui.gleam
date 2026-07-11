@@ -852,15 +852,9 @@ pub fn one_rep_max_graph(
 
   let padding_top = 12.0
   let padding_bottom = 28.0
-  let padding_left = 48.0
-  let padding_right = 12.0
 
   let w = int.to_float(width)
   let h = int.to_float(height)
-
-  // Inner chart dimensions (the plot area, without padding)
-  let inner_w = w -. padding_left -. padding_right
-  let inner_h = h -. padding_top -. padding_bottom
 
   // Compute 1RM for each set
   let orm_points =
@@ -879,9 +873,62 @@ pub fn one_rep_max_graph(
   let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
   let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
 
-  // Pad the y domain so the line isn't flush with the top/bottom edges
   let y_domain = #(float.max(0.0, min_y), max_y)
   let x_domain = #(min_x, max_x)
+
+  // Both formatters defined early so we can measure labels before committing
+  // to padding values.  SVG has no server-side text measurement, so we use a
+  // conservative per-character estimate at font-size 10 (≈ 6 px/char).
+  let char_width_estimate = 6.0
+
+  let y_format = fn(v: Float) -> String {
+    let #(value_str, _unit_el) = ui.display_weight(float.round(v), weight_unit)
+    let unit_str = case weight_unit {
+      user.Kg -> "kg"
+      user.Lbs -> "lbs"
+    }
+    value_str <> unit_str
+  }
+
+  let x_tick_count = 3
+  let x_format = fn(v: Float) -> String {
+    "set " <> int.to_string(float.round(v))
+  }
+
+  // padding_left: tick mark (4) + gap (4) + widest y label
+  let y_tick_count = 3
+  let y_label_fixed_overhead = 8.0
+  let padding_left =
+    axis.new(axis.Left, fn(v) { v }, y_domain)
+    |> axis.ticks(y_tick_count)
+    |> axis.format(y_format)
+    |> axis.to_ticks
+    |> list.map(fn(t) { string.length(t.label) })
+    |> list.reduce(int.max)
+    |> result.unwrap(0)
+    |> int.to_float
+    |> fn(chars) { chars *. char_width_estimate +. y_label_fixed_overhead }
+
+  // padding_right / extra padding_left: x-axis labels are centred on their
+  // tick, so the first and last labels each overflow by half their own width.
+  // We measure the widest x label and reserve that much on each side.
+  let x_half_label_width =
+    axis.new(axis.Bottom, fn(v) { v }, x_domain)
+    |> axis.ticks(x_tick_count)
+    |> axis.format(x_format)
+    |> axis.to_ticks
+    |> list.map(fn(t) { string.length(t.label) })
+    |> list.reduce(int.max)
+    |> result.unwrap(0)
+    |> int.to_float
+    |> fn(chars) { chars *. char_width_estimate /. 2.0 }
+
+  let padding_left = float.max(padding_left, x_half_label_width)
+  let padding_right = x_half_label_width
+
+  // Inner chart dimensions (the plot area, without padding)
+  let inner_w = w -. padding_left -. padding_right
+  let inner_h = h -. padding_top -. padding_bottom
 
   // Scales — both expressed in inner-plot coordinates (0,0 = top-left of plot)
   let scale_x = scale.linear(domain: x_domain, range: #(0.0, inner_w))
@@ -911,16 +958,8 @@ pub fn one_rep_max_graph(
   // Y axis ticks — grid lines extend rightward across the full inner width
   let y_ticks =
     axis.new(axis.Left, scale_y, y_domain)
-    |> axis.ticks(3)
-    |> axis.format(fn(v) {
-      let #(value_str, _unit_el) =
-        ui.display_weight(float.round(v), weight_unit)
-      let unit_str = case weight_unit {
-        user.Kg -> "kg"
-        user.Lbs -> "lbs"
-      }
-      value_str <> unit_str
-    })
+    |> axis.ticks(y_tick_count)
+    |> axis.format(y_format)
     |> axis.grid(inner_w)
     |> axis.to_ticks
 
@@ -971,8 +1010,8 @@ pub fn one_rep_max_graph(
   // X axis ticks — no grid lines, labels sit below the axis line
   let x_ticks =
     axis.new(axis.Bottom, scale_x, x_domain)
-    |> axis.ticks(3)
-    |> axis.format(fn(v) { "set " <> int.to_string(float.round(v)) })
+    |> axis.ticks(x_tick_count)
+    |> axis.format(x_format)
     |> axis.to_ticks
 
   let x_axis_elements =
