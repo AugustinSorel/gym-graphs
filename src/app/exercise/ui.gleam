@@ -902,19 +902,27 @@ pub fn one_rep_max_graph(
     month <> " " <> int.to_string(date.day)
   }
 
-  // padding_left: tick mark (4) + gap (4) + widest y label
+  // Below this pixel width the y-axis labels are hidden to recover space.
+  let mobile_breakpoint = 400
+  let show_y_labels = width >= mobile_breakpoint
+
+  // padding_left: when labels are visible → tick (4) + gap (4) + widest label.
+  // When hidden → just the tick length (4) so grid lines still have an anchor.
   let y_tick_count = 5
   let y_label_fixed_overhead = 8.0
-  let padding_left =
-    axis.new(axis.Left, fn(v) { v }, y_domain)
-    |> axis.ticks(y_tick_count)
-    |> axis.format(y_format)
-    |> axis.to_ticks
-    |> list.map(fn(t) { string.length(t.label) })
-    |> list.reduce(int.max)
-    |> result.unwrap(0)
-    |> int.to_float
-    |> fn(chars) { chars *. char_width_estimate +. y_label_fixed_overhead }
+  let padding_left = case show_y_labels {
+    False -> 4.0
+    True ->
+      axis.new(axis.Left, fn(v) { v }, y_domain)
+      |> axis.ticks(y_tick_count)
+      |> axis.format(y_format)
+      |> axis.to_ticks
+      |> list.map(fn(t) { string.length(t.label) })
+      |> list.reduce(int.max)
+      |> result.unwrap(0)
+      |> int.to_float
+      |> fn(chars) { chars *. char_width_estimate +. y_label_fixed_overhead }
+  }
 
   // padding_right / extra padding_left: x-axis labels are centred on their
   // tick, so the first and last labels each overflow by half their own width.
@@ -988,17 +996,9 @@ pub fn one_rep_max_graph(
       }
       let tick_end = float.to_string(0.0 -. t.tick_length)
       let label_x = float.to_string(0.0 -. t.tick_length -. t.label_offset)
-      list.flatten([
-        grid,
-        [
-          svg.line([
-            attribute.attribute("x1", tick_end),
-            attribute.attribute("y1", py),
-            attribute.attribute("x2", "0"),
-            attribute.attribute("y2", py),
-            attribute.class("stroke-outline"),
-            attribute.attribute("stroke-width", "1"),
-          ]),
+      let label = case show_y_labels {
+        False -> []
+        True -> [
           svg.text(
             [
               attribute.attribute("x", label_x),
@@ -1010,8 +1010,24 @@ pub fn one_rep_max_graph(
             ],
             t.label,
           ),
-        ],
-      ])
+        ]
+      }
+
+      let marker = case show_y_labels {
+        False -> []
+        True -> [
+          svg.line([
+            attribute.attribute("x1", tick_end),
+            attribute.attribute("y1", py),
+            attribute.attribute("x2", "0"),
+            attribute.attribute("y2", py),
+            attribute.class("stroke-outline"),
+            attribute.attribute("stroke-width", "1"),
+          ]),
+        ]
+      }
+
+      list.flatten([grid, marker, label])
     })
 
   // X axis ticks — no grid lines, labels sit below the axis line
