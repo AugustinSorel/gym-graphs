@@ -47,6 +47,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["exercises", id, "one-rep-max.svg"] -> {
+      use <- wisp.require_method(req, Get)
+      exercise_handler.view_one_rep_max_graph(req, ctx, id)
+    }
+
     ["exercises", id, "sets", "new"] -> {
       case req.method {
         Get -> set_handler.view_new_set_page(req, ctx, id)

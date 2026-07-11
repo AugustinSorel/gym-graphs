@@ -5,6 +5,9 @@ import app/one_rep_max
 import app/tag/sql as tag_sql
 import app/ui
 import app/user/user
+import chart/axis
+import chart/line
+import chart/scale
 import formal/form.{type Form}
 import gleam/bool
 import gleam/float
@@ -12,12 +15,14 @@ import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/order
+import gleam/result
 import gleam/string
 import gleam/time/duration
 import gleam/time/timestamp
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
+import lustre/element/svg
 import wisp.{type Request}
 
 pub type NewExerciseForm {
@@ -782,9 +787,257 @@ pub fn exercise_detail_page(
             ],
           ),
         ]),
+        html.section([attribute.class("flex flex-col gap-4")], [
+          html.h2(
+            [
+              attribute.class(
+                "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+              ),
+            ],
+            [
+              html.text("1"),
+              html.abbr(
+                [
+                  attribute.title("repetition maximum"),
+                  attribute.class("no-underline"),
+                ],
+                [html.text("rm")],
+              ),
+              html.text(" over time"),
+            ],
+          ),
+          html.div(
+            [
+              attribute.attribute("data-graph-container", ""),
+              attribute.attribute(
+                "hx-get",
+                "/exercises/" <> int.to_string(ex.id) <> "/one-rep-max.svg",
+              ),
+              attribute.attribute("hx-trigger", "graph-resize"),
+              attribute.attribute("hx-swap", "innerHTML"),
+              attribute.class("h-[200px]"),
+            ],
+            [],
+          ),
+        ]),
       ],
     ),
   ])
+}
+
+/// Renders an SVG line graph of 1RM over time.
+/// x is the ordinal set index (1, 2, 3…), y is the computed 1RM value.
+/// Uses mock data until real per-set history is wired up.
+pub fn one_rep_max_graph(
+  width width: Int,
+  height height: Int,
+  algorithm algorithm: one_rep_max.Algorithm,
+) -> Element(a) {
+  // Mock data: #(ordinal_index, #(reps, weight_in_g)) for each logged set
+  let mock_sets = [
+    #(1, #(5, 80_000)),
+    #(2, #(3, 85_000)),
+    #(3, #(8, 75_000)),
+    #(4, #(1, 90_000)),
+    #(5, #(5, 87_500)),
+    #(6, #(3, 92_500)),
+    #(7, #(6, 87_500)),
+    #(8, #(1, 95_000)),
+    #(9, #(4, 92_500)),
+    #(10, #(2, 97_500)),
+    #(11, #(5, 92_500)),
+    #(12, #(1, 100_000)),
+  ]
+
+  let padding_top = 12.0
+  let padding_bottom = 28.0
+  let padding_left = 48.0
+  let padding_right = 12.0
+
+  let w = int.to_float(width)
+  let h = int.to_float(height)
+
+  // Inner chart dimensions (the plot area, without padding)
+  let inner_w = w -. padding_left -. padding_right
+  let inner_h = h -. padding_top -. padding_bottom
+
+  // Compute 1RM for each set
+  let orm_points =
+    list.map(mock_sets, fn(entry) {
+      let #(idx, #(reps, weight_in_g)) = entry
+      let orm =
+        one_rep_max.calculate(algorithm, weight: weight_in_g, repetitions: reps)
+      #(int.to_float(idx), orm)
+    })
+
+  let xs = list.map(orm_points, fn(p) { p.0 })
+  let ys = list.map(orm_points, fn(p) { p.1 })
+
+  let min_x = list.reduce(xs, float.min) |> result.unwrap(1.0)
+  let max_x = list.reduce(xs, float.max) |> result.unwrap(1.0)
+  let min_y = list.reduce(ys, float.min) |> result.unwrap(0.0)
+  let max_y = list.reduce(ys, float.max) |> result.unwrap(0.0)
+
+  // Pad the y domain so the line isn't flush with the top/bottom edges
+  let y_padding = { max_y -. min_y } *. 0.1
+  let y_domain = #(float.max(0.0, min_y -. y_padding), max_y +. y_padding)
+  let x_domain = #(min_x, max_x)
+
+  // Scales — both expressed in inner-plot coordinates (0,0 = top-left of plot)
+  let scale_x = scale.linear(domain: x_domain, range: #(0.0, inner_w))
+  let scale_y = scale.linear(domain: y_domain, range: #(inner_h, 0.0))
+
+  let path_d =
+    orm_points
+    |> line.new()
+    |> line.x(fn(d) { scale_x(d.0) })
+    |> line.y(fn(d) { scale_y(d.1) })
+    |> line.curve(line.MonotoneX)
+    |> line.to_path
+
+  let final_dot =
+    list.last(orm_points)
+    |> result.map(fn(point) {
+      let #(x, y) = point
+      svg.circle([
+        attribute.attribute("cx", float.to_string(scale_x(x))),
+        attribute.attribute("cy", float.to_string(scale_y(y))),
+        attribute.attribute("r", "4"),
+        attribute.class("fill-on-surface stroke-surface stroke-2"),
+      ])
+    })
+    |> result.unwrap(element.none())
+
+  // Y axis ticks — grid lines extend rightward across the full inner width
+  let y_ticks =
+    axis.new(axis.Left, scale_y, y_domain)
+    |> axis.ticks(3)
+    |> axis.format(fn(v) { int.to_string(float.round(v /. 1000.0)) <> "kg" })
+    |> axis.grid(inner_w)
+    |> axis.to_ticks
+
+  let y_axis_elements =
+    list.flat_map(y_ticks, fn(t) {
+      let py = float.to_string(t.position)
+      let grid = case t.grid_length >. 0.0 {
+        False -> []
+        True -> [
+          svg.line([
+            attribute.attribute("x1", "0"),
+            attribute.attribute("y1", py),
+            attribute.attribute("x2", float.to_string(t.grid_length)),
+            attribute.attribute("y2", py),
+            attribute.class("stroke-outline/20"),
+            attribute.attribute("stroke-width", "1"),
+          ]),
+        ]
+      }
+      let tick_end = float.to_string(0.0 -. t.tick_length)
+      let label_x = float.to_string(0.0 -. t.tick_length -. t.label_offset)
+      list.flatten([
+        grid,
+        [
+          svg.line([
+            attribute.attribute("x1", tick_end),
+            attribute.attribute("y1", py),
+            attribute.attribute("x2", "0"),
+            attribute.attribute("y2", py),
+            attribute.class("stroke-outline"),
+            attribute.attribute("stroke-width", "1"),
+          ]),
+          svg.text(
+            [
+              attribute.attribute("x", label_x),
+              attribute.attribute("y", py),
+              attribute.attribute("text-anchor", "end"),
+              attribute.attribute("dominant-baseline", "middle"),
+              attribute.attribute("font-size", "10"),
+              attribute.class("fill-outline"),
+            ],
+            t.label,
+          ),
+        ],
+      ])
+    })
+
+  // X axis ticks — no grid lines, labels sit below the axis line
+  let x_ticks =
+    axis.new(axis.Bottom, scale_x, x_domain)
+    |> axis.ticks(3)
+    |> axis.format(fn(v) { "set " <> int.to_string(float.round(v)) })
+    |> axis.to_ticks
+
+  let x_axis_elements =
+    list.flat_map(x_ticks, fn(t) {
+      let px = float.to_string(t.position)
+      let label_y = float.to_string(t.tick_length +. t.label_offset)
+      [
+        svg.line([
+          attribute.attribute("x1", px),
+          attribute.attribute("y1", "0"),
+          attribute.attribute("x2", px),
+          attribute.attribute("y2", float.to_string(t.tick_length)),
+          attribute.class("stroke-outline"),
+          attribute.attribute("stroke-width", "1"),
+        ]),
+        svg.text(
+          [
+            attribute.attribute("x", px),
+            attribute.attribute("y", label_y),
+            attribute.attribute("text-anchor", "middle"),
+            attribute.attribute("dominant-baseline", "hanging"),
+            attribute.attribute("font-size", "10"),
+            attribute.class("fill-outline"),
+          ],
+          t.label,
+        ),
+      ]
+    })
+
+  svg.svg(
+    [
+      attribute.attribute("width", int.to_string(width)),
+      attribute.attribute("height", int.to_string(height)),
+      attribute.attribute("aria-label", "one rep max over time"),
+    ],
+    [
+      svg.g(
+        [
+          attribute.attribute(
+            "transform",
+            "translate("
+              <> float.to_string(padding_left)
+              <> ","
+              <> float.to_string(padding_top)
+              <> ")",
+          ),
+        ],
+        list.flatten([
+          y_axis_elements,
+          [
+            svg.path([
+              attribute.attribute("d", path_d),
+              attribute.class("stroke-on-surface fill-none stroke-2"),
+              attribute.attribute("stroke-linejoin", "round"),
+              attribute.attribute("stroke-linecap", "round"),
+            ]),
+          ],
+          [final_dot],
+          [
+            svg.g(
+              [
+                attribute.attribute(
+                  "transform",
+                  "translate(0," <> float.to_string(inner_h) <> ")",
+                ),
+              ],
+              x_axis_elements,
+            ),
+          ],
+        ]),
+      ),
+    ],
+  )
 }
 
 pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {

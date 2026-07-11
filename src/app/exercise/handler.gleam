@@ -15,6 +15,45 @@ import gleam/string
 import pog
 import wisp.{type Request, type Response}
 
+pub fn view_one_rep_max_graph(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  use _id <- result_or_not_found(int.parse(exercise_id))
+
+  let query = wisp.get_query(req)
+
+  let width =
+    list.key_find(query, "width")
+    |> result.try(int.parse)
+    |> result.unwrap(400)
+
+  let height =
+    list.key_find(query, "height")
+    |> result.try(int.parse)
+    |> result.unwrap(200)
+
+  ui.one_rep_max_graph(
+    width:,
+    height:,
+    algorithm: user.one_rep_max_algorithm,
+  )
+  |> web.svg(200)
+}
+
+fn result_or_not_found(
+  r: Result(a, e),
+  next: fn(a) -> Response,
+) -> Response {
+  case r {
+    Ok(v) -> next(v)
+    Error(_) -> wisp.not_found()
+  }
+}
+
 type ViewExercisesPageError {
   SelectExercisesPageFailed(db.ExtractRowsError)
   CountingExercisesFailed(db.DatabaseError)
