@@ -718,30 +718,73 @@ pub fn exercise_detail_page(
         html.h1([attribute.class("text-3xl font-semibold capitalize")], [
           html.text(ex.name),
         ]),
-        html.div([attribute.class("grid grid-cols-2 lg:grid-cols-4 gap-3")], [
-          stat_square("best 1rm", best_1rm_value),
-          stat_square("highest weight", max_weight_value),
-          stat_square("total volume", total_volume_value),
-          stat_square("total sets", total_sets_value),
+        html.section([], [
+          html.h2(
+            [
+              attribute.class(
+                "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+              ),
+            ],
+            [html.text("facts")],
+          ),
+          html.dl(
+            [
+              attribute.class(
+                "py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-2",
+              ),
+            ],
+            [
+              html.div([attribute.class("grid gap-1")], [
+                html.dt([attribute.class("text-outline text-xs")], [
+                  html.text("best 1"),
+                  html.abbr(
+                    [
+                      attribute.title("repetition maximum"),
+                      attribute.class("no-underline"),
+                    ],
+                    [
+                      html.text("rm"),
+                    ],
+                  ),
+                ]),
+                html.dd(
+                  [attribute.class("text-xl font-semibold")],
+                  best_1rm_value,
+                ),
+              ]),
+              html.div([], [
+                html.dt([attribute.class("text-outline text-xs")], [
+                  html.text("highest weight"),
+                ]),
+                html.dd(
+                  [attribute.class("text-xl font-semibold")],
+                  max_weight_value,
+                ),
+              ]),
+              html.div([], [
+                html.dt([attribute.class("text-outline text-xs")], [
+                  html.text("total volume"),
+                ]),
+                html.dd(
+                  [attribute.class("text-xl font-semibold")],
+                  total_volume_value,
+                ),
+              ]),
+              html.div([], [
+                html.dt([attribute.class("text-outline text-xs")], [
+                  html.text("total sets"),
+                ]),
+                html.dd(
+                  [attribute.class("text-xl font-semibold")],
+                  total_sets_value,
+                ),
+              ]),
+            ],
+          ),
         ]),
       ],
     ),
   ])
-}
-
-fn stat_square(label: String, value: List(Element(a))) -> Element(a) {
-  html.div(
-    [
-      attribute.class("border-2 border-on-surface/20 p-4 flex flex-col gap-1"),
-    ],
-    [
-      html.span(
-        [attribute.class("text-outline text-xs uppercase tracking-wide")],
-        [html.text(label)],
-      ),
-      html.span([attribute.class("text-xl font-semibold tabular-nums")], value),
-    ],
-  )
 }
 
 pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {
