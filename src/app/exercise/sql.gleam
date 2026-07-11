@@ -238,7 +238,7 @@ pub type SelectPageByUserIdRow {
     last_weight_in_g: Option(Int),
     prev_reps: Option(Int),
     prev_weight_in_g: Option(Int),
-    sets_count: Option(Int),
+    sets_count: Int,
     last_set_at: Option(Timestamp),
   )
 }
@@ -264,11 +264,8 @@ pub fn select_page_by_user_id(
     use last_weight_in_g <- decode.field(4, decode.optional(decode.int))
     use prev_reps <- decode.field(5, decode.optional(decode.int))
     use prev_weight_in_g <- decode.field(6, decode.optional(decode.int))
-    use sets_count <- decode.field(7, decode.optional(decode.int))
-    use last_set_at <- decode.field(
-      8,
-      decode.optional(pog.timestamp_decoder()),
-    )
+    use sets_count <- decode.field(7, decode.int)
+    use last_set_at <- decode.field(8, decode.optional(pog.timestamp_decoder()))
     decode.success(SelectPageByUserIdRow(
       id:,
       name:,
@@ -291,7 +288,7 @@ pub fn select_page_by_user_id(
   s2.repetitions as prev_reps,
   s2.weight_in_g as prev_weight_in_g,
   sc.sets_count,
-  sc.last_set_at
+  sl.last_set_at
 from exercises e
 left join lateral (
   select repetitions, weight_in_g
@@ -308,10 +305,17 @@ left join lateral (
   limit 1 offset 1
 ) s2 on true
 left join lateral (
-  select count(*)::int as sets_count, max(created_at) as last_set_at
+  select count(*)::int as sets_count
   from sets
   where exercise_id = e.id
 ) sc on true
+left join lateral (
+  select created_at as last_set_at
+  from sets
+  where exercise_id = e.id
+  order by created_at desc
+  limit 1
+) sl on true
 where e.user_id = $1
   and ($2 = -1 or e.index < $2)
   and ($4 = '' or e.name ilike '%' || $4 || '%')
@@ -330,30 +334,36 @@ limit $3
 /// A row you get from running the `select_stats_by_exercise_id` query
 /// defined in `./src/app/exercise/sql/select_stats_by_exercise_id.sql`.
 ///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
 pub type SelectStatsByExerciseIdRow {
   SelectStatsByExerciseIdRow(
     best_1rm_weight_in_g: Option(Int),
     best_1rm_reps: Option(Int),
-    max_weight_in_g: Option(Int),
-    total_volume_in_g: Option(Int),
-    total_sets: Option(Int),
+    max_weight_in_g: Int,
+    total_volume_in_g: Int,
+    total_sets: Int,
   )
 }
 
 /// Runs the `select_stats_by_exercise_id` query
 /// defined in `./src/app/exercise/sql/select_stats_by_exercise_id.sql`.
 ///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
 pub fn select_stats_by_exercise_id(
   db: pog.Connection,
-  exercise_id: Int,
-  user_id: Int,
+  e_id: Int,
+  e_user_id: Int,
 ) -> Result(pog.Returned(SelectStatsByExerciseIdRow), pog.QueryError) {
   let decoder = {
     use best_1rm_weight_in_g <- decode.field(0, decode.optional(decode.int))
     use best_1rm_reps <- decode.field(1, decode.optional(decode.int))
-    use max_weight_in_g <- decode.field(2, decode.optional(decode.int))
-    use total_volume_in_g <- decode.field(3, decode.optional(decode.int))
-    use total_sets <- decode.field(4, decode.optional(decode.int))
+    use max_weight_in_g <- decode.field(2, decode.int)
+    use total_volume_in_g <- decode.field(3, decode.int)
+    use total_sets <- decode.field(4, decode.int)
     decode.success(SelectStatsByExerciseIdRow(
       best_1rm_weight_in_g:,
       best_1rm_reps:,
@@ -389,8 +399,8 @@ where e.id = $1
   and e.user_id = $2
 "
   |> pog.query
-  |> pog.parameter(pog.int(exercise_id))
-  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.int(e_id))
+  |> pog.parameter(pog.int(e_user_id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

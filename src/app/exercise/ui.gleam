@@ -395,7 +395,7 @@ fn exercises_row_tbodies(
             ],
             [
               html.text(case ex.sets_count {
-                Some(n) if n > 0 -> int.to_string(n)
+                n if n > 0 -> int.to_string(n)
                 _ -> "-"
               }),
             ],
@@ -691,26 +691,19 @@ pub fn exercise_detail_page(
     _, _ -> [html.text("-")]
   }
 
-  let max_weight_value = case stats.max_weight_in_g {
-    Some(w) -> {
-      let #(value_str, unit_abbr) = ui.display_weight(w, user.weight_unit)
-      [html.text(value_str), unit_abbr]
-    }
-    None -> [html.text("-")]
+  let max_weight_value = {
+    let #(value_str, unit_abbr) =
+      ui.display_weight(stats.max_weight_in_g, user.weight_unit)
+    [html.text(value_str), unit_abbr]
   }
 
-  let total_volume_value = case stats.total_volume_in_g {
-    Some(v) -> {
-      let #(value_str, unit_abbr) = ui.display_weight(v, user.weight_unit)
-      [html.text(value_str), unit_abbr]
-    }
-    None -> [html.text("-")]
+  let total_volume_value = {
+    let #(value_str, unit_abbr) =
+      ui.display_weight(stats.total_volume_in_g, user.weight_unit)
+    [html.text(value_str), unit_abbr]
   }
 
-  let total_sets_value = case stats.total_sets {
-    Some(n) -> [html.text(int.to_string(n))]
-    None -> [html.text("-")]
-  }
+  let total_sets_value = [html.text(int.to_string(stats.total_sets))]
 
   ui.layout([
     ui.nav_bar(req),
