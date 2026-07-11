@@ -35,28 +35,28 @@ pub fn view_new_set_page(
 
   case result {
     Error(ViewNewSetInvalidExerciseId) ->
-      ui.get_new_set_form()
-      |> ui.new_set_form(exercise_id)
+      ui.get_new_set_form(user.weight_unit)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> ui.new_set_page(req)
       |> web.html(422)
 
     Error(ViewNewSetExerciseNotFound(db.RowNotFound)) ->
-      ui.get_new_set_form()
-      |> ui.new_set_form(exercise_id)
+      ui.get_new_set_form(user.weight_unit)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> ui.new_set_page(req)
       |> web.html(404)
 
     Error(ViewNewSetExerciseNotFound(db.DatabaseFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
-      ui.get_new_set_form()
-      |> ui.new_set_form(exercise_id)
+      ui.get_new_set_form(user.weight_unit)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> ui.new_set_page(req)
       |> web.html(500)
     }
 
     Ok(_exercise) ->
-      ui.get_new_set_form()
-      |> ui.new_set_form(exercise_id)
+      ui.get_new_set_form(user.weight_unit)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> ui.new_set_page(req)
       |> web.html(200)
   }
@@ -85,7 +85,7 @@ pub fn create_set(req: Request, ctx: Ctx, exercise_id: String) -> Response {
     )
 
     use input <- result.try(
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.run()
       |> result.map_error(CreateSetValidation),
@@ -102,47 +102,47 @@ pub fn create_set(req: Request, ctx: Ctx, exercise_id: String) -> Response {
       |> wisp.set_header("HX-Redirect", "/exercises/" <> exercise_id)
 
     Error(CreateSetInvalidExerciseId) ->
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("invalid exercise id"))
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(422)
 
     Error(CreateSetExerciseNotFound(db.RowNotFound)) ->
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("exercise not found"))
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(404)
 
     Error(CreateSetExerciseNotFound(db.DatabaseFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(500)
     }
 
     Error(CreateSetValidation(invalid_form)) ->
       invalid_form
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(422)
 
     Error(CreateSetFailed(db.DatabaseFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(500)
     }
 
     Error(CreateSetFailed(db.RowNotFound)) -> {
-      ui.get_new_set_form()
+      ui.get_new_set_form(user.weight_unit)
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("something went wrong"))
-      |> ui.new_set_form(exercise_id)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
       |> web.html(500)
     }
   }

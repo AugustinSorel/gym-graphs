@@ -1,6 +1,6 @@
 import app/ui
+import app/user/user
 import formal/form.{type Form}
-import gleam/float
 import gleam/list
 import lustre/attribute
 import lustre/element.{type Element}
@@ -11,7 +11,7 @@ pub type NewSetForm {
   NewSetForm(repetitions: Int, weight_in_g: Int)
 }
 
-pub fn get_new_set_form() -> Form(NewSetForm) {
+pub fn get_new_set_form(weight_unit: user.WeightUnit) -> Form(NewSetForm) {
   let schema = {
     use repetitions <- form.field("repetitions", {
       form.parse_int
@@ -20,10 +20,14 @@ pub fn get_new_set_form() -> Form(NewSetForm) {
     })
 
     use weight_in_g <- form.field("weight_in_g", {
+      let max = case weight_unit {
+        user.Kg -> 1000.0
+        user.Lbs -> 2204.0
+      }
       form.parse_float
       |> form.check_float_more_than(-0.001)
-      |> form.check_float_less_than(1000.0)
-      |> form.map(fn(kg) { float.round(kg *. 1000.0) })
+      |> form.check_float_less_than(max)
+      |> form.map(fn(value) { user.unit_to_grams(value, weight_unit) })
     })
 
     form.success(NewSetForm(repetitions:, weight_in_g:))
@@ -32,10 +36,18 @@ pub fn get_new_set_form() -> Form(NewSetForm) {
   form.new(schema)
 }
 
-pub fn new_set_form(f: Form(NewSetForm), exercise_id: String) -> Element(a) {
+pub fn new_set_form(
+  f: Form(NewSetForm),
+  exercise_id: String,
+  weight_unit: user.WeightUnit,
+) -> Element(a) {
   let repetitions_err = list.first(form.field_error_messages(f, "repetitions"))
   let weight_err = list.first(form.field_error_messages(f, "weight_in_g"))
   let root_err = list.first(form.field_error_messages(f, "root"))
+  let #(weight_label, weight_placeholder) = case weight_unit {
+    user.Kg -> #("weight (kg):", "80")
+    user.Lbs -> #("weight (lbs):", "176")
+  }
 
   html.form(
     [
@@ -88,14 +100,14 @@ pub fn new_set_form(f: Form(NewSetForm), exercise_id: String) -> Element(a) {
         ],
         [
           html.span([attribute.class("text-outline text-sm")], [
-            html.text("weight (kg):"),
+            html.text(weight_label),
           ]),
           ui.input([
             attribute.type_("number"),
             attribute.name("weight_in_g"),
             attribute.value(form.field_value(f, "weight_in_g")),
             attribute.attribute("autocomplete", "off"),
-            attribute.placeholder("80"),
+            attribute.placeholder(weight_placeholder),
             attribute.aria_invalid(case weight_err {
               Ok(_) -> "true"
               Error(_) -> "false"

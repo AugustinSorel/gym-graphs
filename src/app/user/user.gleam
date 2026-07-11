@@ -2,6 +2,8 @@ import app/crypto
 import app/db
 import app/one_rep_max
 import app/user/sql
+import gleam/float
+import gleam/int
 import gleam/list
 import gleam/result
 import gleam/string
@@ -41,6 +43,22 @@ fn weight_unit_to_sql(w: WeightUnit) -> sql.WeightUnit {
   case w {
     Kg -> sql.Kg
     Lbs -> sql.Lbs
+  }
+}
+
+/// Converts a weight in grams to a Float in the user's preferred unit.
+pub fn grams_to_unit(weight_in_g: Int, weight_unit: WeightUnit) -> Float {
+  case weight_unit {
+    Kg -> int.to_float(weight_in_g) /. 1000.0
+    Lbs -> int.to_float(weight_in_g) /. 453.592
+  }
+}
+
+/// Converts a Float in the user's preferred unit to an Int in grams.
+pub fn unit_to_grams(value: Float, weight_unit: WeightUnit) -> Int {
+  case weight_unit {
+    Kg -> float.round(value *. 1000.0)
+    Lbs -> float.round(value *. 453.592)
   }
 }
 
