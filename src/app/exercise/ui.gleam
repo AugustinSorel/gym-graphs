@@ -854,7 +854,10 @@ pub fn one_rep_max_graph(
   ]
 
   let padding_top = 12.0
-  let padding_bottom = 28.0
+  let x_tick_length = 4.0
+  let x_label_offset = 10.0
+  let x_label_height = 10.0
+  let padding_bottom = x_tick_length +. x_label_offset +. x_label_height
 
   let w = int.to_float(width)
   let h = int.to_float(height)
@@ -906,12 +909,14 @@ pub fn one_rep_max_graph(
   let mobile_breakpoint = 400
   let show_y_labels = width >= mobile_breakpoint
 
-  // padding_left: when labels are visible → tick (4) + gap (4) + widest label.
-  // When hidden → just the tick length (4) so grid lines still have an anchor.
+  // padding_left: when labels are visible → tick_length + label_offset + widest label.
+  // When hidden → just tick_length so grid lines still have a clean anchor.
   let y_tick_count = 5
-  let y_label_fixed_overhead = 8.0
+  let y_tick_length = 4.0
+  let y_label_offset = 10.0
+  let y_label_fixed_overhead = y_tick_length +. y_label_offset
   let padding_left = case show_y_labels {
-    False -> 4.0
+    False -> y_tick_length
     True ->
       axis.new(axis.Left, fn(v) { v }, y_domain)
       |> axis.ticks(y_tick_count)
@@ -975,6 +980,8 @@ pub fn one_rep_max_graph(
     axis.new(axis.Left, scale_y, y_domain)
     |> axis.ticks(y_tick_count)
     |> axis.format(y_format)
+    |> axis.tick_length(y_tick_length)
+    |> axis.label_offset(y_label_offset)
     |> axis.grid(inner_w)
     |> axis.to_ticks
 
@@ -1035,6 +1042,8 @@ pub fn one_rep_max_graph(
     axis.new(axis.Bottom, scale_x, x_domain)
     |> axis.ticks(x_tick_count)
     |> axis.format(x_format)
+    |> axis.tick_length(x_tick_length)
+    |> axis.label_offset(x_label_offset)
     |> axis.to_ticks
 
   let x_axis_elements =
