@@ -11,3 +11,8 @@ pub fn create(
   sql.create(db, exercise_id, repetitions, weight_in_g)
   |> db.extract_first_row
 }
+
+pub fn select_latest(db: Connection, exercise_id: Int) {
+  sql.select_latest_by_exercise_id(db, exercise_id)
+  |> db.extract_optional
+}

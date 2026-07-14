@@ -19,7 +19,7 @@ pub fn get_new_set_form(weight_unit: user.WeightUnit) -> Form(NewSetForm) {
       |> form.check_int_less_than(1000)
     })
 
-    use weight_in_g <- form.field("weight_in_g", {
+    use weight_in_g <- form.field("weight", {
       let max = case weight_unit {
         user.Kg -> 1000.0
         user.Lbs -> 2204.0
@@ -42,12 +42,15 @@ pub fn new_set_form(
   weight_unit: user.WeightUnit,
 ) -> Element(a) {
   let repetitions_err = list.first(form.field_error_messages(f, "repetitions"))
-  let weight_err = list.first(form.field_error_messages(f, "weight_in_g"))
+  let weight_err = list.first(form.field_error_messages(f, "weight"))
   let root_err = list.first(form.field_error_messages(f, "root"))
-  let #(weight_label, weight_placeholder) = case weight_unit {
-    user.Kg -> #("weight (kg):", "80")
-    user.Lbs -> #("weight (lbs):", "176")
+  let #(weight_col_label, weight_placeholder) = case weight_unit {
+    user.Kg -> #("weight (kg)", "80")
+    user.Lbs -> #("weight (lbs)", "176")
   }
+
+  let th_class =
+    "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide"
 
   html.form(
     [
@@ -61,71 +64,94 @@ pub fn new_set_form(
       attribute.class("flex flex-col gap-10"),
     ],
     [
-      html.label(
-        [
-          attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error"),
-        ],
-        [
-          html.span([attribute.class("text-outline text-sm")], [
-            html.text("repetitions:"),
+      html.table([attribute.class("caption-bottom text-sm w-full")], [
+        html.thead([attribute.class("border-b-2 text-nowrap")], [
+          html.tr([], [
+            html.th([attribute.class(th_class <> " pl-0")], [
+              html.text(weight_col_label),
+            ]),
+            html.th([attribute.class(th_class <> " pr-0")], [
+              html.text("repetitions"),
+            ]),
           ]),
-          ui.input([
-            attribute.type_("number"),
-            attribute.name("repetitions"),
-            attribute.value(form.field_value(f, "repetitions")),
-            attribute.attribute("autocomplete", "off"),
-            attribute.attribute("autofocus", ""),
-            attribute.placeholder("10"),
-            attribute.aria_invalid(case repetitions_err {
-              Ok(_) -> "true"
-              Error(_) -> "false"
-            }),
-          ]),
-          case repetitions_err {
-            Ok(msg) ->
-              html.p(
+        ]),
+        html.tbody([], [
+          html.tr(
+            [
+              attribute.class(
+                "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x",
+              ),
+            ],
+            [
+              html.td(
                 [
-                  attribute.role("alert"),
-                  attribute.class("text-error text-sm"),
+                  attribute.class(
+                    "pl-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
+                  ),
                 ],
-                [html.text(msg)],
-              )
-            Error(_) -> element.none()
-          },
-        ],
-      ),
-      html.label(
-        [
-          attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error"),
-        ],
-        [
-          html.span([attribute.class("text-outline text-sm")], [
-            html.text(weight_label),
-          ]),
-          ui.input([
-            attribute.type_("number"),
-            attribute.name("weight_in_g"),
-            attribute.value(form.field_value(f, "weight_in_g")),
-            attribute.attribute("autocomplete", "off"),
-            attribute.placeholder(weight_placeholder),
-            attribute.aria_invalid(case weight_err {
-              Ok(_) -> "true"
-              Error(_) -> "false"
-            }),
-          ]),
-          case weight_err {
-            Ok(msg) ->
-              html.p(
                 [
-                  attribute.role("alert"),
-                  attribute.class("text-error text-sm"),
+                  html.input([
+                    attribute.type_("number"),
+                    attribute.name("weight"),
+                    attribute.value(form.field_value(f, "weight")),
+                    attribute.attribute("autocomplete", "off"),
+                    attribute.attribute("autofocus", ""),
+                    attribute.placeholder(weight_placeholder),
+                    attribute.class("w-full text-lg py-1 px-2"),
+                    attribute.aria_invalid(case weight_err {
+                      Ok(_) -> "true"
+                      Error(_) -> "false"
+                    }),
+                  ]),
+                  case weight_err {
+                    Ok(msg) ->
+                      html.p(
+                        [
+                          attribute.role("alert"),
+                          attribute.class("text-error text-sm mt-1"),
+                        ],
+                        [html.text(msg)],
+                      )
+                    Error(_) -> element.none()
+                  },
                 ],
-                [html.text(msg)],
-              )
-            Error(_) -> element.none()
-          },
-        ],
-      ),
+              ),
+              html.td(
+                [
+                  attribute.class(
+                    "pr-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
+                  ),
+                ],
+                [
+                  html.input([
+                    attribute.type_("number"),
+                    attribute.name("repetitions"),
+                    attribute.value(form.field_value(f, "repetitions")),
+                    attribute.attribute("autocomplete", "off"),
+                    attribute.placeholder("10"),
+                    attribute.class("w-full text-lg py-1 px-2"),
+                    attribute.aria_invalid(case repetitions_err {
+                      Ok(_) -> "true"
+                      Error(_) -> "false"
+                    }),
+                  ]),
+                  case repetitions_err {
+                    Ok(msg) ->
+                      html.p(
+                        [
+                          attribute.role("alert"),
+                          attribute.class("text-error text-sm mt-1"),
+                        ],
+                        [html.text(msg)],
+                      )
+                    Error(_) -> element.none()
+                  },
+                ],
+              ),
+            ],
+          ),
+        ]),
+      ]),
       case root_err {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [

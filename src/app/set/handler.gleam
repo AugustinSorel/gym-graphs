@@ -4,9 +4,12 @@ import app/db
 import app/exercise/exercise
 import app/set/set
 import app/set/ui
+import app/ui as app_ui
+import app/user/user
 import app/web
 import formal/form.{type Form}
 import gleam/int
+import gleam/option
 import gleam/result
 import gleam/string
 import wisp.{type Request, type Response}
@@ -14,6 +17,7 @@ import wisp.{type Request, type Response}
 type ViewNewSetPageError {
   ViewNewSetInvalidExerciseId
   ViewNewSetExerciseNotFound(db.DatabaseError)
+  SelectLastestSetFailed(db.ExtractOptionalError)
 }
 
 pub fn view_new_set_page(
@@ -29,8 +33,31 @@ pub fn view_new_set_page(
       |> result.replace_error(ViewNewSetInvalidExerciseId),
     )
 
-    exercise.select_by_id_and_user_id(ctx.db, id, user.id)
-    |> result.map_error(ViewNewSetExerciseNotFound)
+    use exercise <- result.try(
+      exercise.select_by_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewNewSetExerciseNotFound),
+    )
+
+    use latest_set <- result.try(
+      set.select_latest(ctx.db, exercise.id)
+      |> result.map_error(SelectLastestSetFailed),
+    )
+
+    let latest_set = {
+      option.map(latest_set, fn(a) {
+        let weight =
+          user.grams_to_unit(a.weight_in_g, user.weight_unit)
+          |> app_ui.display_weight_value()
+
+        [
+          #("weight", weight),
+          #("repetitions", int.to_string(a.repetitions)),
+        ]
+      })
+      |> option.unwrap([])
+    }
+
+    Ok(latest_set)
   }
 
   case result {
@@ -46,7 +73,8 @@ pub fn view_new_set_page(
       |> ui.new_set_page(req)
       |> web.html(404)
 
-    Error(ViewNewSetExerciseNotFound(db.DatabaseFailure(err))) -> {
+    Error(ViewNewSetExerciseNotFound(db.DatabaseFailure(err)))
+    | Error(SelectLastestSetFailed(db.ExtractOptionalError(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
       ui.get_new_set_form(user.weight_unit)
       |> ui.new_set_form(exercise_id, user.weight_unit)
@@ -54,11 +82,13 @@ pub fn view_new_set_page(
       |> web.html(500)
     }
 
-    Ok(_exercise) ->
+    Ok(values) -> {
       ui.get_new_set_form(user.weight_unit)
+      |> form.add_values(values)
       |> ui.new_set_form(exercise_id, user.weight_unit)
       |> ui.new_set_page(req)
       |> web.html(200)
+    }
   }
 }
 
