@@ -187,32 +187,31 @@ pub fn new_set_form(
           ])
         Error(_) -> element.none()
       },
-      html.div([attribute.class("flex items-center gap-4")], [
-        ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-          html.text("save"),
-          ui.spinner(),
-        ]),
-        ui.button(
-          ui.ButtonGhost,
-          [
-            attribute.type_("button"),
-            attribute.attribute(
-              "hx-get",
-              "/exercises/" <> exercise_id <> "/sets/row",
-            ),
-            attribute.attribute("hx-target", "#set-rows"),
-            attribute.attribute("hx-swap", "beforeend"),
-          ],
-          [html.text("+ add set")],
-        ),
-        ui.link(
-          [
-            attribute.href("/exercises/" <> exercise_id),
-            attribute.class("ml-auto"),
-          ],
-          [html.text("cancel")],
-        ),
+      ui.button(
+        ui.ButtonLink,
+        [
+          attribute.type_("button"),
+          attribute.attribute(
+            "hx-get",
+            "/exercises/" <> exercise_id <> "/sets/row",
+          ),
+          attribute.attribute("hx-target", "#set-rows"),
+          attribute.attribute("hx-swap", "beforeend"),
+          attribute.class("ml-auto"),
+        ],
+        [html.text("+ add set")],
+      ),
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
       ]),
+      ui.link(
+        [
+          attribute.href("/exercises/" <> exercise_id),
+          attribute.class("ml-auto"),
+        ],
+        [html.text("cancel")],
+      ),
     ],
   )
 }
