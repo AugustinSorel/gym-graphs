@@ -14,6 +14,67 @@ import gleam/result
 import gleam/string
 import wisp.{type Request, type Response}
 
+pub type ViewNewSetRowError {
+  ViewNewSetRowInvalidId
+  SelectingLastSetFailed(db.ExtractOptionalError)
+}
+
+pub fn view_new_set_row(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id) |> result.replace_error(ViewNewSetRowInvalidId),
+    )
+
+    use latest_set <- result.try(
+      set.select_latest(ctx.db, id) |> result.map_error(SelectingLastSetFailed),
+    )
+
+    option.map(latest_set, fn(a) {
+      let weight =
+        user.grams_to_unit(a.weight_in_g, user.weight_unit)
+        |> app_ui.display_weight_value()
+
+      [
+        #("weight", weight),
+        #("repetitions", int.to_string(a.repetitions)),
+      ]
+    })
+    |> option.unwrap([])
+    |> Ok
+  }
+
+  case result {
+    Ok(values) -> {
+      ui.get_new_set_form(user.weight_unit)
+      |> form.add_values(values)
+      |> ui.new_set_row(user.weight_unit)
+      |> web.html(200)
+    }
+
+    Error(ViewNewSetRowInvalidId) -> {
+      ui.get_new_set_form(user.weight_unit)
+      |> form.add_error("root", form.CustomError("invalid exercise id"))
+      |> ui.new_set_form(exercise_id, user.weight_unit)
+      |> ui.new_set_page(req)
+      |> web.html(422)
+    }
+
+    Error(SelectingLastSetFailed(db.ExtractOptionalError(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_new_set_form(user.weight_unit)
+      |> ui.new_set_form(exercise_id, user.weight_unit)
+      |> ui.new_set_page(req)
+      |> web.html(500)
+    }
+  }
+}
+
 type ViewNewSetPageError {
   ViewNewSetInvalidExerciseId
   ViewNewSetExerciseNotFound(db.DatabaseError)
@@ -43,21 +104,18 @@ pub fn view_new_set_page(
       |> result.map_error(SelectLastestSetFailed),
     )
 
-    let latest_set = {
-      option.map(latest_set, fn(a) {
-        let weight =
-          user.grams_to_unit(a.weight_in_g, user.weight_unit)
-          |> app_ui.display_weight_value()
+    option.map(latest_set, fn(a) {
+      let weight =
+        user.grams_to_unit(a.weight_in_g, user.weight_unit)
+        |> app_ui.display_weight_value()
 
-        [
-          #("weight", weight),
-          #("repetitions", int.to_string(a.repetitions)),
-        ]
-      })
-      |> option.unwrap([])
-    }
-
-    Ok(latest_set)
+      [
+        #("weight", weight),
+        #("repetitions", int.to_string(a.repetitions)),
+      ]
+    })
+    |> option.unwrap([])
+    |> Ok
   }
 
   case result {

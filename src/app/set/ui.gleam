@@ -27,7 +27,7 @@ pub fn get_new_set_form(weight_unit: user.WeightUnit) -> Form(NewSetForm) {
       form.parse_float
       |> form.check_float_more_than(-0.001)
       |> form.check_float_less_than(max)
-      |> form.map(fn(value) { user.unit_to_grams(value, weight_unit) })
+      |> form.map(user.unit_to_grams(_, weight_unit))
     })
 
     form.success(NewSetForm(repetitions:, weight_in_g:))
@@ -36,18 +36,100 @@ pub fn get_new_set_form(weight_unit: user.WeightUnit) -> Form(NewSetForm) {
   form.new(schema)
 }
 
+pub fn new_set_row(
+  f: Form(NewSetForm),
+  weight_unit: user.WeightUnit,
+) -> Element(a) {
+  let weight_placeholder = case weight_unit {
+    user.Kg -> "80"
+    user.Lbs -> "176"
+  }
+
+  let repetitions_err = list.first(form.field_error_messages(f, "repetitions"))
+  let weight_err = list.first(form.field_error_messages(f, "weight"))
+
+  html.tr(
+    [
+      attribute.class(
+        "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x",
+      ),
+    ],
+    [
+      html.td(
+        [
+          attribute.class(
+            "pl-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
+          ),
+        ],
+        [
+          html.input([
+            attribute.type_("number"),
+            attribute.name("weight"),
+            attribute.value(form.field_value(f, "weight")),
+            attribute.attribute("autocomplete", "off"),
+            attribute.attribute("autofocus", ""),
+            attribute.placeholder(weight_placeholder),
+            attribute.class("w-full text-lg py-1 px-2"),
+            attribute.aria_invalid(case weight_err {
+              Ok(_) -> "true"
+              Error(_) -> "false"
+            }),
+          ]),
+          case weight_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm mt-1"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "pr-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
+          ),
+        ],
+        [
+          html.input([
+            attribute.type_("number"),
+            attribute.name("repetitions"),
+            attribute.value(form.field_value(f, "repetitions")),
+            attribute.attribute("autocomplete", "off"),
+            attribute.placeholder("10"),
+            attribute.class("w-full text-lg py-1 px-2"),
+            attribute.aria_invalid(case repetitions_err {
+              Ok(_) -> "true"
+              Error(_) -> "false"
+            }),
+          ]),
+          case repetitions_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm mt-1"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+    ],
+  )
+}
+
 pub fn new_set_form(
   f: Form(NewSetForm),
   exercise_id: String,
   weight_unit: user.WeightUnit,
 ) -> Element(a) {
-  let repetitions_err = list.first(form.field_error_messages(f, "repetitions"))
-  let weight_err = list.first(form.field_error_messages(f, "weight"))
   let root_err = list.first(form.field_error_messages(f, "root"))
-  let #(weight_col_label, weight_placeholder) = case weight_unit {
-    user.Kg -> #("weight (kg)", "80")
-    user.Lbs -> #("weight (lbs)", "176")
-  }
 
   let th_class =
     "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide"
@@ -68,89 +150,16 @@ pub fn new_set_form(
         html.thead([attribute.class("border-b-2 text-nowrap")], [
           html.tr([], [
             html.th([attribute.class(th_class <> " pl-0")], [
-              html.text(weight_col_label),
+              html.text("weight ("),
+              ui.display_weight_unit(weight_unit),
+              html.text(")"),
             ]),
             html.th([attribute.class(th_class <> " pr-0")], [
               html.text("repetitions"),
             ]),
           ]),
         ]),
-        html.tbody([], [
-          html.tr(
-            [
-              attribute.class(
-                "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x",
-              ),
-            ],
-            [
-              html.td(
-                [
-                  attribute.class(
-                    "pl-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
-                  ),
-                ],
-                [
-                  html.input([
-                    attribute.type_("number"),
-                    attribute.name("weight"),
-                    attribute.value(form.field_value(f, "weight")),
-                    attribute.attribute("autocomplete", "off"),
-                    attribute.attribute("autofocus", ""),
-                    attribute.placeholder(weight_placeholder),
-                    attribute.class("w-full text-lg py-1 px-2"),
-                    attribute.aria_invalid(case weight_err {
-                      Ok(_) -> "true"
-                      Error(_) -> "false"
-                    }),
-                  ]),
-                  case weight_err {
-                    Ok(msg) ->
-                      html.p(
-                        [
-                          attribute.role("alert"),
-                          attribute.class("text-error text-sm mt-1"),
-                        ],
-                        [html.text(msg)],
-                      )
-                    Error(_) -> element.none()
-                  },
-                ],
-              ),
-              html.td(
-                [
-                  attribute.class(
-                    "pr-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
-                  ),
-                ],
-                [
-                  html.input([
-                    attribute.type_("number"),
-                    attribute.name("repetitions"),
-                    attribute.value(form.field_value(f, "repetitions")),
-                    attribute.attribute("autocomplete", "off"),
-                    attribute.placeholder("10"),
-                    attribute.class("w-full text-lg py-1 px-2"),
-                    attribute.aria_invalid(case repetitions_err {
-                      Ok(_) -> "true"
-                      Error(_) -> "false"
-                    }),
-                  ]),
-                  case repetitions_err {
-                    Ok(msg) ->
-                      html.p(
-                        [
-                          attribute.role("alert"),
-                          attribute.class("text-error text-sm mt-1"),
-                        ],
-                        [html.text(msg)],
-                      )
-                    Error(_) -> element.none()
-                  },
-                ],
-              ),
-            ],
-          ),
-        ]),
+        html.tbody([attribute.id("set-rows")], [new_set_row(f, weight_unit)]),
       ]),
       case root_err {
         Ok(msg) ->
@@ -160,17 +169,32 @@ pub fn new_set_form(
           ])
         Error(_) -> element.none()
       },
-      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-        html.text("save"),
-        ui.spinner(),
+      html.div([attribute.class("flex items-center gap-4")], [
+        ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+          html.text("save"),
+          ui.spinner(),
+        ]),
+        ui.button(
+          ui.ButtonGhost,
+          [
+            attribute.type_("button"),
+            attribute.attribute(
+              "hx-get",
+              "/exercises/" <> exercise_id <> "/sets/row",
+            ),
+            attribute.attribute("hx-target", "#set-rows"),
+            attribute.attribute("hx-swap", "beforeend"),
+          ],
+          [html.text("+ add set")],
+        ),
+        ui.link(
+          [
+            attribute.href("/exercises/" <> exercise_id),
+            attribute.class("ml-auto"),
+          ],
+          [html.text("cancel")],
+        ),
       ]),
-      ui.link(
-        [
-          attribute.href("/exercises/" <> exercise_id),
-          attribute.class("ml-auto"),
-        ],
-        [html.text("cancel")],
-      ),
     ],
   )
 }
