@@ -136,11 +136,14 @@ pub fn new_set_row(
 }
 
 pub fn new_set_form(
-  f: Form(NewSetForm),
+  rows: List(Form(NewSetForm)),
   exercise_id: String,
   weight_unit: user.WeightUnit,
 ) -> Element(a) {
-  let root_err = list.first(form.field_error_messages(f, "root"))
+  let root_err =
+    list.find_map(rows, fn(f) {
+      f |> form.field_error_messages("root") |> list.first()
+    })
 
   let th_class =
     "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide"
@@ -171,7 +174,10 @@ pub fn new_set_form(
             html.th([attribute.class(th_class <> " pr-0 w-0")], []),
           ]),
         ]),
-        html.tbody([attribute.id("set-rows")], [new_set_row(f, weight_unit)]),
+        html.tbody(
+          [attribute.id("set-rows")],
+          list.map(rows, new_set_row(_, weight_unit)),
+        ),
       ]),
       case root_err {
         Ok(msg) ->
