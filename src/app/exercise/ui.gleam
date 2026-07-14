@@ -502,7 +502,7 @@ fn last_one_rep_max_cell(
           ),
         ],
         [
-          html.text(ui.display_weight_value(orm)),
+          html.text(ui.display_weight_value(orm) <> " "),
           ui.display_weight_unit(weight_unit),
           trend,
         ],
@@ -760,7 +760,7 @@ pub fn exercise_detail_page(
                   ),
                 ]),
                 html.dd([attribute.class("text-xl font-semibold")], [
-                  html.text(one_rep_max),
+                  html.text(one_rep_max <> " "),
                   one_rep_max_unit,
                 ]),
               ]),
@@ -769,7 +769,7 @@ pub fn exercise_detail_page(
                   html.text("highest weight"),
                 ]),
                 html.dd([attribute.class("text-xl font-semibold")], [
-                  html.text(max_weight_value),
+                  html.text(max_weight_value <> " "),
                   max_weight_unit,
                 ]),
               ]),
@@ -778,7 +778,7 @@ pub fn exercise_detail_page(
                   html.text("total volume"),
                 ]),
                 html.dd([attribute.class("text-xl font-semibold")], [
-                  html.text(volume),
+                  html.text(volume <> " "),
                   volume_weight_unit,
                 ]),
               ]),
@@ -919,7 +919,7 @@ pub fn one_rep_max_graph(
       user.Lbs -> "lbs"
     }
 
-    ui.display_weight_value(v) <> unit_str
+    ui.display_weight_value(v) <> " " <> unit_str
   }
 
   let x_tick_count = 3
