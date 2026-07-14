@@ -63,6 +63,7 @@ pub fn new_set_row(
         ],
         [
           html.input([
+            attribute.step("any"),
             attribute.type_("number"),
             attribute.name("weight"),
             attribute.value(form.field_value(f, "weight")),
@@ -91,7 +92,7 @@ pub fn new_set_row(
       html.td(
         [
           attribute.class(
-            "pr-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error",
+            "p-4 align-middle has-[>[aria-invalid=true]]:text-error",
           ),
         ],
         [
@@ -120,6 +121,16 @@ pub fn new_set_row(
           },
         ],
       ),
+      html.td([attribute.class("pr-0 p-4 align-middle w-0")], [
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute("hx-on:click", "this.closest('tr').remove()"),
+          ],
+          [html.text("remove")],
+        ),
+      ]),
     ],
   )
 }
@@ -154,9 +165,10 @@ pub fn new_set_form(
               ui.display_weight_unit(weight_unit),
               html.text(")"),
             ]),
-            html.th([attribute.class(th_class <> " pr-0")], [
+            html.th([attribute.class(th_class)], [
               html.text("repetitions"),
             ]),
+            html.th([attribute.class(th_class <> " pr-0 w-0")], []),
           ]),
         ]),
         html.tbody([attribute.id("set-rows")], [new_set_row(f, weight_unit)]),
