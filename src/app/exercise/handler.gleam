@@ -299,6 +299,7 @@ type ViewExercisePageError {
   ViewExerciseInvalidId
   ViewExerciseSelectFailed(db.DatabaseError)
   ViewExerciseStatsFailed(db.DatabaseError)
+  SelectExerciseTagsFailed(db.ExtractRowsError)
 }
 
 pub fn view_exercise_page(
@@ -323,7 +324,12 @@ pub fn view_exercise_page(
       |> result.map_error(ViewExerciseStatsFailed),
     )
 
-    Ok(#(ex, stats))
+    use tags <- result.try(
+      tag.select_by_exercise_id(ctx.db, id, user.id)
+      |> result.map_error(SelectExerciseTagsFailed),
+    )
+
+    Ok(#(ex, stats, tags))
   }
 
   case result {
@@ -332,15 +338,16 @@ pub fn view_exercise_page(
     Error(ViewExerciseSelectFailed(db.RowNotFound)) -> wisp.not_found()
 
     Error(ViewExerciseSelectFailed(db.DatabaseFailure(err)))
-    | Error(ViewExerciseStatsFailed(db.DatabaseFailure(err))) -> {
+    | Error(ViewExerciseStatsFailed(db.DatabaseFailure(err)))
+    | Error(SelectExerciseTagsFailed(db.ExtractRowsFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
       wisp.internal_server_error()
     }
 
     Error(ViewExerciseStatsFailed(db.RowNotFound)) -> wisp.not_found()
 
-    Ok(#(ex, stats)) ->
-      ui.exercise_detail_page(ex, stats, user, req)
+    Ok(#(ex, stats, tags)) ->
+      ui.exercise_detail_page(ex, stats, tags, user, req)
       |> web.html(200)
   }
 }

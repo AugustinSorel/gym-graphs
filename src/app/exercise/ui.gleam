@@ -403,7 +403,7 @@ fn exercises_row_tbodies(
           html.td(
             [
               attribute.class(
-                "pr-0 p-4 align-middle text-outline lg:table-cell hidden",
+                "pr-0 p-4 align-middle text-outline lg:table-cell hidden whitespace-nowrap",
               ),
             ],
             [
@@ -673,6 +673,7 @@ pub fn rename_exercise_page(children: Element(a), req: Request) -> Element(a) {
 pub fn exercise_detail_page(
   ex: exercise_sql.SelectByIdAndUserIdRow,
   stats: exercise_sql.SelectStatsByExerciseIdRow,
+  tags: List(tag_sql.SelectByExerciseIdRow),
   user: auth_session.User,
   req: Request,
 ) -> Element(a) {
@@ -837,6 +838,17 @@ pub fn exercise_detail_page(
                 "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
               ),
             ],
+            [html.text("tags")],
+          ),
+          tags_list(tags),
+        ]),
+        html.section([], [
+          html.h2(
+            [
+              attribute.class(
+                "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+              ),
+            ],
             [html.text("manage")],
           ),
           html.div(
@@ -904,6 +916,38 @@ pub fn exercise_detail_page(
       ],
     ),
   ])
+}
+
+fn tags_list(tags: List(tag_sql.SelectByExerciseIdRow)) {
+  use <- bool.guard(
+    when: list.is_empty(tags),
+    return: html.p(
+      [
+        attribute.class(
+          "text-xs text-outline text-center py-12 border-b-2 border-dotted border-outline/50",
+        ),
+      ],
+      [
+        html.text("no tags"),
+      ],
+    ),
+  )
+
+  html.ul(
+    [
+      attribute.class(
+        "flex flex-wrap gap-2 border-b-2 border-dotted border-outline/50 py-7",
+      ),
+    ],
+    list.map(tags, fn(tag) {
+      html.li(
+        [
+          attribute.class("border-2 border-on-surface px-3 py-1 text-sm"),
+        ],
+        [html.text(tag.name)],
+      )
+    }),
+  )
 }
 
 pub fn one_rep_max_graph_alert(msg: String) {

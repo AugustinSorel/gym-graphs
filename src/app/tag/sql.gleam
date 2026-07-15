@@ -84,6 +84,47 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_by_exercise_id` query
+/// defined in `./src/app/tag/sql/select_by_exercise_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectByExerciseIdRow {
+  SelectByExerciseIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_by_exercise_id` query
+/// defined in `./src/app/tag/sql/select_by_exercise_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_by_exercise_id(
+  db: pog.Connection,
+  et_exercise_id: Int,
+  t_user_id: Int,
+) -> Result(pog.Returned(SelectByExerciseIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectByExerciseIdRow(id:, name:))
+  }
+
+  "select t.id, t.name
+from tags t
+join exercise_tags et on et.tag_id = t.id
+where et.exercise_id = $1
+  and t.user_id = $2
+order by t.name asc
+"
+  |> pog.query
+  |> pog.parameter(pog.int(et_exercise_id))
+  |> pog.parameter(pog.int(t_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_id_and_user_id` query
 /// defined in `./src/app/tag/sql/select_by_id_and_user_id.sql`.
 ///

@@ -12,6 +12,15 @@ pub fn select_by_user_id(db: Connection, user_id: Int) {
   |> db.extract_rows
 }
 
+pub fn select_by_exercise_id(
+  db: Connection,
+  exercise_id: Int,
+  user_id: Int,
+) {
+  sql.select_by_exercise_id(db, exercise_id, user_id)
+  |> db.extract_rows
+}
+
 pub fn select_by_id_and_user_id(db: Connection, tag_id: Int, user_id: Int) {
   sql.select_by_id_and_user_id(db, tag_id, user_id)
   |> db.extract_first_row
