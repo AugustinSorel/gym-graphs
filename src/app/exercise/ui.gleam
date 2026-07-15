@@ -646,9 +646,12 @@ pub fn rename_exercise_form(f: Form(RenameExerciseForm), id: String) {
         html.text("save"),
         ui.spinner(),
       ]),
-      ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
-        html.text("cancel"),
-      ]),
+      ui.link(
+        [attribute.href("/exercises/" <> id), attribute.class("ml-auto")],
+        [
+          html.text("cancel"),
+        ],
+      ),
     ],
   )
 }
@@ -825,6 +828,72 @@ pub fn exercise_detail_page(
               attribute.class("py-7 border-b-2 border-dotted border-outline/50"),
             ],
             [],
+          ),
+        ]),
+        html.section([], [
+          html.h2(
+            [
+              attribute.class(
+                "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+              ),
+            ],
+            [html.text("manage")],
+          ),
+          html.div(
+            [
+              attribute.class(
+                "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
+              ),
+            ],
+            [
+              html.dl([attribute.class("space-y-1")], [
+                html.dt([attribute.class("text-outline text-sm")], [
+                  html.text("name"),
+                ]),
+                html.dd([attribute.class("capitalize break-all")], [
+                  html.text(ex.name),
+                ]),
+              ]),
+              ui.link(
+                [
+                  attribute.href(
+                    "/exercises/" <> int.to_string(ex.id) <> "/name",
+                  ),
+                  attribute.class("my-auto text-sm"),
+                ],
+                [html.text("rename")],
+              ),
+            ],
+          ),
+          html.div(
+            [
+              attribute.class(
+                "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+              ),
+            ],
+            [
+              html.div([attribute.class("space-y-1")], [
+                html.p([attribute.class("text-outline text-sm")], [
+                  html.text("remove exercise"),
+                ]),
+                html.p([], [
+                  html.text(
+                    "permanently delete this exercise and all its sets.",
+                  ),
+                ]),
+              ]),
+              ui.link(
+                [
+                  attribute.href(
+                    "/exercises/" <> int.to_string(ex.id) <> "/remove",
+                  ),
+                  attribute.class(
+                    "my-auto ml-auto text-sm font-semibold text-error underline hover:opacity-70 transition-opacity hover:text-error/80",
+                  ),
+                ],
+                [html.text("delete")],
+              ),
+            ],
           ),
         ]),
       ],
@@ -1143,7 +1212,11 @@ pub fn one_rep_max_graph(
   )
 }
 
-pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {
+pub fn remove_exercise_page(
+  children: Element(a),
+  id: String,
+  req: Request,
+) -> Element(a) {
   ui.layout([
     ui.nav_bar(req),
     html.main(
@@ -1157,9 +1230,15 @@ pub fn remove_exercise_page(children: Element(a), req: Request) -> Element(a) {
           html.text("remove exercise"),
         ]),
         children,
-        ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
-          html.text("cancel"),
-        ]),
+        ui.link(
+          [
+            attribute.href("/exercises/" <> id),
+            attribute.class("ml-auto"),
+          ],
+          [
+            html.text("cancel"),
+          ],
+        ),
       ],
     ),
   ])

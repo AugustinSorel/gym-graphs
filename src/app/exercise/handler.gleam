@@ -369,26 +369,26 @@ pub fn view_remove_exercise_page(
     Error(ViewRemoveInvalidId) ->
       "invalid exercise id"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(422)
 
     Error(ViewRemoveSelectFailed(db.RowNotFound)) ->
       "exercise not found"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(404)
 
     Error(ViewRemoveSelectFailed(db.DatabaseFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
       "something went wrong"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(500)
     }
 
     Ok(ex) ->
       ui.remove_exercise_dialog(ex)
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(200)
   }
 }
@@ -421,20 +421,20 @@ pub fn remove_exercise(
     Error(RemoveExerciseInvalidId) ->
       "invalid exercise id"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(422)
 
     Error(RemoveExerciseFailed(db.RowNotFound)) ->
       "exercise not found"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(404)
 
     Error(RemoveExerciseFailed(db.DatabaseFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
       "something went wrong"
       |> ui.remove_exercise_alert()
-      |> ui.remove_exercise_page(req)
+      |> ui.remove_exercise_page(exercise_id, req)
       |> web.html(500)
     }
   }
