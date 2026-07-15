@@ -248,7 +248,8 @@ pub fn rename_exercise(
   }
 
   case result {
-    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/exercises")
+    Ok(Nil) ->
+      wisp.ok() |> wisp.set_header("HX-Redirect", "/exercises/" <> exercise_id)
 
     Error(RenameExerciseInvalidId) ->
       ui.get_rename_exercise_form()
