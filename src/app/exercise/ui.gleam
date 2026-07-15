@@ -498,7 +498,7 @@ fn last_one_rep_max_cell(
       html.td(
         [
           attribute.class(
-            "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left",
+            "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left whitespace-nowrap",
           ),
         ],
         [
@@ -850,9 +850,14 @@ pub fn exercise_detail_page(
                 html.dt([attribute.class("text-outline text-sm")], [
                   html.text("name"),
                 ]),
-                html.dd([attribute.class("capitalize break-all")], [
-                  html.text(ex.name),
-                ]),
+                html.dd(
+                  [
+                    attribute.class("capitalize break-all text-balance"),
+                  ],
+                  [
+                    html.text(ex.name),
+                  ],
+                ),
               ]),
               ui.link(
                 [
@@ -876,7 +881,7 @@ pub fn exercise_detail_page(
                 html.p([attribute.class("text-outline text-sm")], [
                   html.text("remove exercise"),
                 ]),
-                html.p([], [
+                html.p([attribute.class("text-balance")], [
                   html.text(
                     "permanently delete this exercise and all its sets.",
                   ),

@@ -913,7 +913,7 @@ pub fn remove_account_row(error error: option.Option(String)) {
         html.p([attribute.class("text-outline text-sm")], [
           html.text("remove account"),
         ]),
-        html.p([], [
+        html.p([attribute.class("text-balance")], [
           html.text("remove your account from all of our servers."),
         ]),
       ]),
