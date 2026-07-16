@@ -396,7 +396,8 @@ pub fn update_exercise_tags(
 
     use Nil <- result.try(
       exercise.attach_tags(ctx.db, id, tag_ids)
-      |> result.map_error(UpdateExerciseTagsExtractRowsError),
+      |> result.map_error(UpdateExerciseTagsExtractRowsError)
+      |> result.replace(Nil),
     )
 
     use exercise_tags <- result.try({

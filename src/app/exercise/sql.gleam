@@ -127,6 +127,9 @@ returning id, name
 /// Runs the `delete_exercise_tags` query
 /// defined in `./src/app/exercise/sql/delete_exercise_tags.sql`.
 ///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
 pub fn delete_exercise_tags(
   db: pog.Connection,
   exercise_id: Int,
@@ -151,16 +154,16 @@ where exercise_id = $1
 pub fn insert_exercise_tag(
   db: pog.Connection,
   arg_1: Int,
-  arg_2: Int,
+  arg_2: List(Int),
 ) -> Result(pog.Returned(Nil), pog.QueryError) {
   let decoder = decode.map(decode.dynamic, fn(_) { Nil })
 
   "insert into exercise_tags (exercise_id, tag_id)
-values ($1, $2)
+select $1, unnest($2::int[])
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
-  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

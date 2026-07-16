@@ -18,11 +18,8 @@ pub fn create(db: Connection, user_id: Int, name: String) {
 }
 
 pub fn attach_tags(db: Connection, exercise_id: Int, tag_ids: List(Int)) {
-  list.try_each(tag_ids, fn(tag_id) {
-    sql.insert_exercise_tag(db, exercise_id, tag_id)
-    |> db.extract_rows
-    |> result.replace(Nil)
-  })
+  sql.insert_exercise_tag(db, exercise_id, tag_ids)
+  |> db.extract_rows
 }
 
 pub fn delete_tags(db: Connection, exercise_id: Int) {

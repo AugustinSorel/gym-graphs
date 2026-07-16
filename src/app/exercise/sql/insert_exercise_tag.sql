@@ -1,2 +1,2 @@
 insert into exercise_tags (exercise_id, tag_id)
-values ($1, $2)
+select $1, unnest($2::int[])
