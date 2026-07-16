@@ -47,3 +47,6 @@ pub fn main() -> Nil {
 
   process.sleep_forever()
 }
+//TODO: home page
+//TODO: search
+//TODO: filter by tags
