@@ -673,7 +673,8 @@ pub fn rename_exercise_page(children: Element(a), req: Request) -> Element(a) {
 pub fn exercise_detail_page(
   ex: exercise_sql.SelectByIdAndUserIdRow,
   stats: exercise_sql.SelectStatsByExerciseIdRow,
-  tags: List(tag_sql.SelectByExerciseIdRow),
+  exercise_tags: List(tag_sql.SelectByExerciseIdRow),
+  all_tags: List(tag_sql.SelectByUserIdRow),
   user: auth_session.User,
   req: Request,
 ) -> Element(a) {
@@ -831,17 +832,7 @@ pub fn exercise_detail_page(
             [],
           ),
         ]),
-        html.section([], [
-          html.h2(
-            [
-              attribute.class(
-                "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
-              ),
-            ],
-            [html.text("tags")],
-          ),
-          tags_list(tags),
-        ]),
+        exercise_tags_section(tags_options(exercise_tags, all_tags, ex.id)),
         html.section([], [
           html.h2(
             [
@@ -918,36 +909,88 @@ pub fn exercise_detail_page(
   ])
 }
 
-fn tags_list(tags: List(tag_sql.SelectByExerciseIdRow)) {
+pub fn exercise_tags_section(children: Element(a)) -> Element(a) {
+  html.section(
+    [
+      attribute.class("exercise-tags-section"),
+    ],
+    [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [html.text("tags")],
+      ),
+      children,
+    ],
+  )
+}
+
+pub fn tags_options(
+  exercise_tags: List(tag_sql.SelectByExerciseIdRow),
+  all_tags: List(tag_sql.SelectByUserIdRow),
+  exercise_id: Int,
+) {
+  let exercise_tag_ids = list.map(exercise_tags, fn(t) { t.id })
+
   use <- bool.guard(
-    when: list.is_empty(tags),
+    when: list.is_empty(all_tags),
     return: html.p(
       [
         attribute.class(
           "text-xs text-outline text-center py-12 border-b-2 border-dotted border-outline/50",
         ),
       ],
-      [
-        html.text("no tags"),
-      ],
+      [html.text("no tags")],
     ),
   )
 
-  html.ul(
+  html.form(
     [
-      attribute.class(
-        "flex flex-wrap gap-2 border-b-2 border-dotted border-outline/50 py-7",
+      attribute.attribute(
+        "hx-patch",
+        "/exercises/" <> int.to_string(exercise_id) <> "/tags",
+      ),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-target", "#exercise-tags-section"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("py-7 border-b-2 border-dotted border-outline/50"),
+    ],
+    [
+      html.fieldset(
+        [attribute.class("flex flex-wrap gap-2")],
+        list.map(all_tags, fn(tag) {
+          let checked = list.contains(exercise_tag_ids, tag.id)
+          html.label(
+            [
+              attribute.class(
+                "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              ),
+            ],
+            [
+              html.input([
+                attribute.type_("checkbox"),
+                attribute.name("tag_ids"),
+                attribute.value(int.to_string(tag.id)),
+                attribute.checked(checked),
+                attribute.class("sr-only"),
+              ]),
+              html.text(tag.name),
+            ],
+          )
+        }),
       ),
     ],
-    list.map(tags, fn(tag) {
-      html.li(
-        [
-          attribute.class("border-2 border-on-surface px-3 py-1 text-sm"),
-        ],
-        [html.text(tag.name)],
-      )
-    }),
   )
+}
+
+pub fn tags_options_alert(msg: String) {
+  ui.alert(ui.AlertError, [attribute.class("mt-7")], [
+    ui.alert_title(element.text("something went wrong")),
+    ui.alert_description(element.text(msg)),
+  ])
 }
 
 pub fn one_rep_max_graph_alert(msg: String) {

@@ -124,6 +124,24 @@ returning id, name
   |> pog.execute(db)
 }
 
+/// Runs the `delete_exercise_tags` query
+/// defined in `./src/app/exercise/sql/delete_exercise_tags.sql`.
+///
+pub fn delete_exercise_tags(
+  db: pog.Connection,
+  exercise_id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from exercise_tags
+where exercise_id = $1
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercise_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `insert_exercise_tag` query
 /// defined in `./src/app/exercise/sql/insert_exercise_tag.sql`.
 ///

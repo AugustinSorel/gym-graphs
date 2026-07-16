@@ -300,6 +300,7 @@ type ViewExercisePageError {
   ViewExerciseSelectFailed(db.DatabaseError)
   ViewExerciseStatsFailed(db.DatabaseError)
   SelectExerciseTagsFailed(db.ExtractRowsError)
+  SelectAllUserTagsFailed(db.ExtractRowsError)
 }
 
 pub fn view_exercise_page(
@@ -324,12 +325,17 @@ pub fn view_exercise_page(
       |> result.map_error(ViewExerciseStatsFailed),
     )
 
-    use tags <- result.try(
+    use exercise_tags <- result.try(
       tag.select_by_exercise_id(ctx.db, id, user.id)
       |> result.map_error(SelectExerciseTagsFailed),
     )
 
-    Ok(#(ex, stats, tags))
+    use all_tags <- result.try(
+      tag.select_by_user_id(ctx.db, user.id)
+      |> result.map_error(SelectAllUserTagsFailed),
+    )
+
+    Ok(#(ex, stats, exercise_tags, all_tags))
   }
 
   case result {
@@ -339,16 +345,93 @@ pub fn view_exercise_page(
 
     Error(ViewExerciseSelectFailed(db.DatabaseFailure(err)))
     | Error(ViewExerciseStatsFailed(db.DatabaseFailure(err)))
-    | Error(SelectExerciseTagsFailed(db.ExtractRowsFailure(err))) -> {
+    | Error(SelectExerciseTagsFailed(db.ExtractRowsFailure(err)))
+    | Error(SelectAllUserTagsFailed(db.ExtractRowsFailure(err))) -> {
       wisp.log_error(req.path <> " " <> string.inspect(err))
       wisp.internal_server_error()
     }
 
     Error(ViewExerciseStatsFailed(db.RowNotFound)) -> wisp.not_found()
 
-    Ok(#(ex, stats, tags)) ->
-      ui.exercise_detail_page(ex, stats, tags, user, req)
+    Ok(#(ex, stats, exercise_tags, all_tags)) ->
+      ui.exercise_detail_page(ex, stats, exercise_tags, all_tags, user, req)
       |> web.html(200)
+  }
+}
+
+type UpdateExerciseTagsError {
+  UpdateExerciseTagsInvalidId
+  UpdateExerciseTagsExerciseNotFound
+  UpdateExerciseTagsExtractRowsError(db.ExtractRowsError)
+}
+
+pub fn update_exercise_tags(
+  req: Request,
+  ctx: Ctx,
+  exercise_id: String,
+) -> Response {
+  use _session, user <- auth_session.require(req, ctx)
+  use form_data <- wisp.require_form(req)
+
+  let tag_ids =
+    list.filter_map(form_data.values, fn(pair) {
+      let #(key, value) = pair
+      case key {
+        "tag_ids" -> int.parse(value)
+        _ -> Error(Nil)
+      }
+    })
+
+  let result = {
+    use id <- result.try(
+      int.parse(exercise_id)
+      |> result.replace_error(UpdateExerciseTagsInvalidId),
+    )
+
+    use Nil <- result.try(
+      exercise.delete_tags(ctx.db, id)
+      |> result.map_error(UpdateExerciseTagsExtractRowsError)
+      |> result.replace(Nil),
+    )
+
+    use Nil <- result.try(
+      exercise.attach_tags(ctx.db, id, tag_ids)
+      |> result.map_error(UpdateExerciseTagsExtractRowsError),
+    )
+
+    use exercise_tags <- result.try({
+      tag.select_by_exercise_id(ctx.db, id, user.id)
+      |> result.map_error(UpdateExerciseTagsExtractRowsError)
+    })
+
+    use all_tags <- result.try({
+      tag.select_by_user_id(ctx.db, user.id)
+      |> result.map_error(UpdateExerciseTagsExtractRowsError)
+    })
+
+    Ok(#(exercise_tags, all_tags, id))
+  }
+
+  case result {
+    Error(UpdateExerciseTagsInvalidId) ->
+      ui.tags_options_alert("invalid exercise id")
+      |> web.html(422)
+
+    Error(UpdateExerciseTagsExerciseNotFound) ->
+      ui.tags_options_alert("exercise not found")
+      |> web.html(404)
+
+    Error(UpdateExerciseTagsExtractRowsError(err)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(err))
+      ui.tags_options_alert("something went wrong")
+      |> web.html(500)
+    }
+
+    Ok(#(exercise_tags, all_tags, id)) -> {
+      ui.tags_options(exercise_tags, all_tags, id)
+      |> ui.exercise_tags_section()
+      |> web.html(200)
+    }
   }
 }
 

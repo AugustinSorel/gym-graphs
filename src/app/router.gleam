@@ -65,6 +65,13 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["exercises", id, "tags"] -> {
+      case req.method {
+        Patch -> exercise_handler.update_exercise_tags(req, ctx, id)
+        _ -> wisp.method_not_allowed([Patch])
+      }
+    }
+
     ["exercises", id] -> {
       case req.method {
         Get -> exercise_handler.view_exercise_page(req, ctx, id)

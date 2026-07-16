@@ -25,6 +25,11 @@ pub fn attach_tags(db: Connection, exercise_id: Int, tag_ids: List(Int)) {
   })
 }
 
+pub fn delete_tags(db: Connection, exercise_id: Int) {
+  sql.delete_exercise_tags(db, exercise_id)
+  |> db.extract_rows
+}
+
 pub fn select_by_user_id(db: Connection, user_id: Int) {
   sql.select_by_user_id(db, user_id)
   |> db.extract_rows
