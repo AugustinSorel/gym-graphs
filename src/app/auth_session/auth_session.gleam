@@ -16,7 +16,7 @@ import wisp.{type Request, type Response}
 pub const cookie_name: String = "auth_session_token"
 
 pub fn cookie_max_age() {
-  duration.hours(24) |> duration.to_seconds() |> float.round()
+  duration.hours(24 * 7) |> duration.to_seconds() |> float.round()
 }
 
 fn one_rep_max_algorithm_sql(algorithm: sql.OneRepMaxAlgorithm) {
