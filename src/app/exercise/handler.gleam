@@ -430,7 +430,6 @@ pub fn update_exercise_tags(
 
     Ok(#(exercise_tags, all_tags, id)) -> {
       ui.tags_options(exercise_tags, all_tags, id)
-      |> ui.exercise_tags_section()
       |> web.html(200)
     }
   }
