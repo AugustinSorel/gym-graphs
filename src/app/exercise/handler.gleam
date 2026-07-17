@@ -431,6 +431,7 @@ pub fn update_exercise_tags(
     Ok(#(exercise_tags, all_tags, id)) -> {
       ui.tags_options(exercise_tags, all_tags, id)
       |> web.html(200)
+      |> wisp.set_header("HX-Reswap", "none")
     }
   }
 }

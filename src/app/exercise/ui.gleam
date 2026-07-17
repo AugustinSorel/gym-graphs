@@ -973,7 +973,6 @@ pub fn tags_options(
         "/exercises/" <> int.to_string(exercise_id) <> "/tags",
       ),
       attribute.attribute("hx-trigger", "change"),
-      attribute.attribute("hx-target", "#exercise-tags-section"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class("py-7 border-b-2 border-dotted border-outline/50"),
     ],
