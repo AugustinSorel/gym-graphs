@@ -1,4 +1,8 @@
 import app/ctx.{type Ctx}
+import gleam/http
+import gleam/http/response.{Response as HttpResponse}
+import gleam/list
+import gleam/string
 import lustre/element.{type Element}
 import wisp.{type Response}
 
@@ -17,6 +21,39 @@ pub fn middleware(
   use <- wisp.serve_static(req, under: "/static", from: static_dir)
 
   handle_request(req)
+  |> strip_secure_flag(req)
+}
+
+/// Dev-only: when serving over plain HTTP from a non-localhost host (e.g. a
+/// LAN IP accessed from a phone), Wisp unconditionally sets the Secure flag on
+/// cookies. Browsers silently discard Secure cookies received over HTTP, so
+/// auth never works. This strips "; Secure" from every Set-Cookie header when
+/// the request arrived over plain HTTP on a non-localhost host.
+fn strip_secure_flag(response: wisp.Response, req: wisp.Request) -> wisp.Response {
+  let is_plain_http_lan =
+    req.scheme == http.Http
+    && req.host != "localhost"
+    && req.host != "127.0.0.1"
+    && req.host != "[::1]"
+
+  case is_plain_http_lan {
+    False -> response
+    True -> {
+      let patched_headers =
+        list.map(response.headers, fn(header) {
+          case header {
+            #("set-cookie", value) -> #(
+              "set-cookie",
+              value
+                |> string.replace("; Secure", "")
+                |> string.replace(";Secure", ""),
+            )
+            _ -> header
+          }
+        })
+      HttpResponse(..response, headers: patched_headers)
+    }
+  }
 }
 
 fn get_static_directory() -> String {
