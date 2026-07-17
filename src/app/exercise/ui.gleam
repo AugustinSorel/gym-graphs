@@ -732,9 +732,28 @@ pub fn exercise_detail_page(
         ),
       ],
       [
-        html.h1([attribute.class("text-3xl font-semibold capitalize")], [
-          html.text(ex.name),
-        ]),
+        html.header(
+          [attribute.class("grid grid-cols-[1fr_auto] gap-y-10 lg:gap-y-7")],
+          [
+            html.h1(
+              [attribute.class("text-3xl font-semibold capitalize col-span-2")],
+              [
+                html.text(ex.name),
+              ],
+            ),
+            html.span([attribute.class("uppercase text-outline text-sm")], [
+              html.text("sets (" <> set_count <> ")"),
+            ]),
+            ui.link(
+              [
+                attribute.href(
+                  "/exercises/" <> int.to_string(ex.id) <> "/sets/new",
+                ),
+              ],
+              [html.text("+ add")],
+            ),
+          ],
+        ),
         html.section([], [
           html.h2(
             [
