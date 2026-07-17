@@ -50,4 +50,4 @@ pub fn main() -> Nil {
 //TODO: home page
 //TODO: search
 //TODO: filter by tags
-//TODO: seed account
+

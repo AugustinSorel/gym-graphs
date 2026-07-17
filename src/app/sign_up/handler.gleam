@@ -1,4 +1,5 @@
 import app/auth_session/auth_session
+import app/seed
 import app/ctx.{type Ctx}
 import app/db
 import app/email.{type SendEmailError}
@@ -300,6 +301,7 @@ pub type SetPasswordError {
   CreateUserFailed(db.DatabaseError)
   DeleteSignUpSessionFailed(db.DatabaseError)
   CreateAuthSessionFailed(db.DatabaseError)
+  SeedAccountFailed(seed.SeedError)
   TransactionFailed(pog.QueryError)
 }
 
@@ -334,6 +336,11 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
         sign_up.delete_by_id(tx, session.id)
         |> result.replace(Nil)
         |> result.map_error(DeleteSignUpSessionFailed),
+      )
+
+      use _ <- result.try(
+        seed.seed_user(tx, user.id)
+        |> result.map_error(SeedAccountFailed),
       )
 
       use session <- result.try(
@@ -395,6 +402,15 @@ pub fn set_password(req: Request, ctx: Ctx) -> Response {
     Error(CreateUserFailed(error))
     | Error(DeleteSignUpSessionFailed(error))
     | Error(CreateAuthSessionFailed(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> ui.set_password_form()
+      |> web.html(500)
+    }
+
+    Error(SeedAccountFailed(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       ui.get_set_password_form()
       |> form.add_values(formdata.values)
