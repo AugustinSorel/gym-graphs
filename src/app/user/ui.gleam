@@ -352,35 +352,7 @@ pub fn account_details(
           ),
         ],
       ),
-      html.div(
-        [
-          attribute.class(
-            "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
-          ),
-        ],
-        [
-          html.dl([attribute.class("space-y-1")], [
-            html.dt([attribute.class("text-outline text-sm")], [
-              html.text("your data"),
-            ]),
-            html.dd([attribute.class("break-all")], [
-              html.text("download your data"),
-            ]),
-          ]),
-          ui.button(
-            ui.ButtonPrimary,
-            [
-              attribute.attribute("hx-post", "#"),
-              attribute.attribute("hx-disable", "this"),
-              attribute.class("my-auto"),
-            ],
-            [
-              html.text("download"),
-              ui.spinner(),
-            ],
-          ),
-        ],
-      ),
+      download_user_data(option.None),
     ]),
 
     html.section([], [
@@ -510,6 +482,43 @@ pub fn account_details(
       remove_account_row(error: option.None),
     ]),
   ])
+}
+
+pub fn download_user_data(error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
+      ),
+    ],
+    [
+      html.dl([attribute.class("space-y-1")], [
+        html.dt([attribute.class("text-outline text-sm")], [
+          html.text("your data"),
+        ]),
+        html.dd([attribute.class("break-all")], [
+          html.text("download your data"),
+        ]),
+      ]),
+      ui.button_link(
+        ui.ButtonPrimary,
+        [
+          attribute.href("/account/data"),
+          attribute.class("my-auto"),
+        ],
+        [html.text("download")],
+      ),
+
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("downloading data failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
 }
 
 pub fn get_weight_unit_form() {

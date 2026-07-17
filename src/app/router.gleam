@@ -150,6 +150,11 @@ pub fn handle_request(req: Request, ctx: Ctx) -> Response {
       }
     }
 
+    ["account", "data"] -> {
+      use <- wisp.require_method(req, Get)
+      user_handler.download_data(req, ctx)
+    }
+
     ["sign-up"] -> {
       case req.method {
         Get -> sign_up_handler.view_register_page(req, ctx)

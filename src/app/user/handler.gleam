@@ -1,7 +1,9 @@
 import app/auth_session/auth_session
 import app/ctx.{type Ctx}
 import app/db
+import app/exercise/exercise
 import app/one_rep_max
+import app/set/set
 import app/tag/tag
 import app/user/ui.{type EditNameForm}
 import app/user/user
@@ -9,9 +11,12 @@ import app/web
 import formal/form.{type Form}
 import gleam/bool
 import gleam/int
+import gleam/json
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/timestamp
 import wisp.{type Request, type Response}
 
 pub fn view_one_rep_max_algorithm_graph(req: Request, ctx: Ctx) -> Response {
@@ -224,6 +229,93 @@ pub fn update_one_rep_max_algorithm(req: Request, ctx: Ctx) -> Response {
       |> form.add_error("root", form.CustomError("user not found"))
       |> ui.one_rep_max_algorithm_form()
       |> web.html(404)
+    }
+  }
+}
+
+pub fn download_data(req: Request, ctx: Ctx) -> Response {
+  use _session, current_user <- auth_session.require(req, ctx)
+
+  let result = {
+    use exercises <- result.try({
+      exercise.select_by_user_id(ctx.db, current_user.id)
+    })
+
+    use tags <- result.try(tag.select_by_user_id(ctx.db, current_user.id))
+
+    use sets <- result.try(set.select_for_export(ctx.db, current_user.id))
+
+    let weight_unit_string = case current_user.weight_unit {
+      user.Kg -> "kg"
+      user.Lbs -> "lbs"
+    }
+
+    let profile_json =
+      json.object([
+        #("name", json.string(current_user.name)),
+        #("email", json.string(current_user.email)),
+        #("weight_unit", json.string(weight_unit_string)),
+        #(
+          "created_at",
+          json.float(timestamp.to_unix_seconds(current_user.created_at)),
+        ),
+      ])
+
+    let exercises_json =
+      json.array(exercises, fn(e) {
+        json.object([#("id", json.int(e.id)), #("name", json.string(e.name))])
+      })
+
+    let tags_json =
+      json.array(tags, fn(t) {
+        json.object([#("id", json.int(t.id)), #("name", json.string(t.name))])
+      })
+
+    let sets_json =
+      json.array(sets, fn(s) {
+        json.object([
+          #("id", json.int(s.id)),
+          #("exercise_id", json.int(s.exercise_id)),
+          #("exercise_name", json.string(s.exercise_name)),
+          #("repetitions", json.int(s.repetitions)),
+          #("weight_in_g", json.int(s.weight_in_g)),
+          #("created_at", json.float(timestamp.to_unix_seconds(s.created_at))),
+        ])
+      })
+
+    let body =
+      json.object([
+        #("profile", profile_json),
+        #("exercises", exercises_json),
+        #("tags", tags_json),
+        #("sets", sets_json),
+      ])
+      |> json.to_string
+
+    let name = string.replace(current_user.name, " ", "_")
+
+    let filename = "gym_data_" <> name <> ".json"
+
+    Ok(#(body, filename))
+  }
+
+  case result {
+    Ok(#(body, filename)) -> {
+      wisp.response(200)
+      |> wisp.set_header("content-type", "application/json")
+      |> wisp.set_header(
+        "content-disposition",
+        "attachment; filename=\"" <> filename <> "\"",
+      )
+      |> wisp.string_body(body)
+    }
+
+    Error(db.ExtractRowsFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+
+      option.Some("something went wrong")
+      |> ui.download_user_data()
+      |> web.html(500)
     }
   }
 }

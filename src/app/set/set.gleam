@@ -16,3 +16,8 @@ pub fn select_latest(db: Connection, exercise_id: Int) {
   sql.select_latest_by_exercise_id(db, exercise_id)
   |> db.extract_optional
 }
+
+pub fn select_for_export(db: Connection, user_id: Int) {
+  sql.select_for_export_by_user_id(db, user_id)
+  |> db.extract_rows
+}
