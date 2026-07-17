@@ -1,10 +1,12 @@
 import app/db
 import app/exercise/exercise
-import app/set/set
+import app/set/sql as set_sql
 import app/tag/tag
 import gleam/list
 import gleam/option
 import gleam/result
+import gleam/time/duration
+import gleam/time/timestamp
 import pog.{type Connection}
 
 // ---- Tags -------------------------------------------------------------------
@@ -147,9 +149,19 @@ fn create_sets(
   exercise_id: Int,
   entries: List(#(Int, Int)),
 ) -> Result(Nil, SeedError) {
-  list.try_map(entries, fn(entry) {
-    let #(reps, weight_in_g) = entry
-    set.create(db, exercise_id, reps, weight_in_g)
+  let total = list.length(entries)
+  let now = timestamp.system_time()
+
+  list.index_map(entries, fn(entry, index) { #(entry, index) })
+  |> list.try_map(fn(item) {
+    let #(#(reps, weight_in_g), index) = item
+    // Each set is 3 days apart; oldest set is furthest back
+    let days_ago = { total - 1 - index } * 3
+    let created_at =
+      timestamp.add(now, duration.seconds(-{ days_ago * 24 * 60 * 60 }))
+
+    set_sql.create_with_timestamp(db, exercise_id, reps, weight_in_g, created_at)
+    |> db.extract_first_row
     |> result.map(fn(_) { Nil })
     |> result.map_error(fn(e) { SeedSetFailed(exercise_id, e) })
   })
