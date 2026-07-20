@@ -1,10 +1,11 @@
-node_modules
-dist
-
 .env
 
-.output
-.tanstack
-.nitro
+*.test
+*.out
 
-tsconfig.tsbuildinfo
+go.work
+tmp/
+
+# Project build
+main
+*templ.go
