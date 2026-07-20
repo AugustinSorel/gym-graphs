@@ -13,14 +13,13 @@
     {
       devShells = {
         ${system} = {
-          default = pkgs.mkShell
-            {
-              buildInputs = with pkgs;[
-                nodejs
-                pnpm
-                typescript
-              ];
-            };
+          default =
+            pkgs.mkShell
+              {
+                buildInputs = with pkgs;[
+                  go
+                ];
+              };
         };
       };
     };
