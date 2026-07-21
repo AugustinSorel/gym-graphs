@@ -9,7 +9,7 @@
     GOOSE_MIGRATION_DIR = ./migrations;
   };
 
-  packages = with pkgs; [ goose tailwindcss_4 ];
+  packages = with pkgs; [ goose tailwindcss_4 templ ];
 
   languages.go = {
     enable = true;
@@ -30,6 +30,14 @@
     watch = {
       paths = [ ./cmd ./internal ];
       extensions = [ "go" ];
+    };
+  };
+
+  processes.html = {
+    exec = "templ generate";
+    watch = {
+      paths = [ ./internal ];
+      extensions = [ "templ" ];
     };
   };
 }
