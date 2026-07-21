@@ -437,11 +437,6 @@
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
   }
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
   .transition-colors {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -646,28 +641,28 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2") format("woff2"), url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff") format("woff");
+  src: url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2") format("woff2"), url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff") format("woff");
 }
 @font-face {
   font-family: "DejaVu Sans Mono";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2") format("woff2"), url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff") format("woff");
+  src: url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2") format("woff2"), url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff") format("woff");
 }
 @font-face {
   font-family: "DejaVu Sans Mono";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2") format("woff2"), url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff") format("woff");
+  src: url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2") format("woff2"), url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff") format("woff");
 }
 @font-face {
   font-family: "DejaVu Sans Mono";
   font-style: italic;
   font-weight: 700;
   font-display: swap;
-  src: url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2") format("woff2"), url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff") format("woff");
+  src: url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2") format("woff2"), url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff") format("woff");
 }
 @layer base {
   :root {

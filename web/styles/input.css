@@ -6,9 +6,9 @@
   font-weight: 400;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff2")
       format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-normal.woff")
       format("woff");
 }
 
@@ -18,9 +18,9 @@
   font-weight: 400;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff2")
       format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-400-italic.woff")
       format("woff");
 }
 
@@ -30,9 +30,9 @@
   font-weight: 700;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff2")
       format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-normal.woff")
       format("woff");
 }
 
@@ -42,9 +42,9 @@
   font-weight: 700;
   font-display: swap;
   src:
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff2")
       format("woff2"),
-    url("/static/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff")
+    url("/assets/fonts/dejavu-mono_5.2.5/webfonts/dejavu-mono-latin-700-italic.woff")
       format("woff");
 }
 
