@@ -2,6 +2,7 @@
 
 *.test
 *.out
+/web/assets/css/styles.css
 
 go.work
 tmp/
