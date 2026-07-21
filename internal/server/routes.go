@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -13,27 +14,34 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.FS(web.Files))
-	mux.Handle("/assets/", fileServer)
-	mux.HandleFunc("/sign-up", func(w http.ResponseWriter, r *http.Request) {
 
-		ctx := templ.WithChildren(r.Context(), signup.SignUpPage())
+	mux.Handle("/assets/", fileServer)
+	mux.HandleFunc("GET /sign-up", func(w http.ResponseWriter, r *http.Request) {
+		page := signup.SignUpPage()
+
+		ctx := templ.WithChildren(r.Context(), page)
 
 		err := layout.Layout().Render(ctx, w)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-
-			ctx := templ.WithChildren(r.Context(), signup.SignUpPageError("something went wrong"))
-
-			fallbackErr := layout.Layout().Render(ctx, w)
-
-			if fallbackErr != nil {
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			}
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	})
 
-	// Wrap the mux with CORS middleware
+	mux.HandleFunc("POST /sign-up", func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "bad request", http.StatusBadRequest)
+			return
+		}
+
+		slog.Info("sign-up form submitted", "email", r.FormValue("email"))
+
+		w.Header().Set("HX-Redirect", "/sign-up/verify-email")
+		w.WriteHeader(http.StatusCreated)
+	})
+
 	return s.corsMiddleware(mux)
 }
 

@@ -4,25 +4,11 @@ import "github.com/augustinsorel/gym-graphs/web/ui/button"
 import "github.com/augustinsorel/gym-graphs/web/ui/spinner"
 import "github.com/augustinsorel/gym-graphs/web/ui/input"
 import "github.com/augustinsorel/gym-graphs/web/ui/link"
-import "github.com/augustinsorel/gym-graphs/web/ui/alert"
 
 templ SignUpPage() {
 	@Layout(EmailStepIndicator()) {
 		<h1 class="text-xl lg:text-5xl text-center">create an account</h1>
-		@RegisterForm()
-	}
-}
-
-templ SignUpPageError(reason string) {
-	@Layout(EmailStepIndicator()) {
-		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
-			@alert.Title() {
-				rendering sign up page failed
-			}
-			@alert.Description() {
-				{ reason }
-			}
-		}
+		@SignUpForm()
 	}
 }
 
@@ -85,7 +71,7 @@ templ upcomingSteps() {
 	</ol>
 }
 
-templ RegisterForm() {
+templ SignUpForm() {
 	<form
 		hx-post="/sign-up"
 		hx-disable="find button[type='submit']"
