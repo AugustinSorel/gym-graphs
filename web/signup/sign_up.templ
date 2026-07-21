@@ -4,8 +4,29 @@ import "github.com/augustinsorel/gym-graphs/web/ui/button"
 import "github.com/augustinsorel/gym-graphs/web/ui/spinner"
 import "github.com/augustinsorel/gym-graphs/web/ui/input"
 import "github.com/augustinsorel/gym-graphs/web/ui/link"
+import "github.com/augustinsorel/gym-graphs/web/ui/alert"
 
-templ Page(currentStep templ.Component) {
+templ SignUpPage() {
+	@Layout(EmailStepIndicator()) {
+		<h1 class="text-xl lg:text-5xl text-center">create an account</h1>
+		@RegisterForm()
+	}
+}
+
+templ SignUpPageError(reason string) {
+	@Layout(EmailStepIndicator()) {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				rendering sign up page failed
+			}
+			@alert.Description() {
+				{ reason }
+			}
+		}
+	}
+}
+
+templ Layout(currentStep templ.Component) {
 	<main class="grid lg:grid-cols-[1fr_auto_1fr] min-h-dvh">
 		<section class="bg-surface-container-high hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center">
 			<header>
@@ -17,8 +38,7 @@ templ Page(currentStep templ.Component) {
 		</section>
 		<hr class="bg-current w-1 h-full hidden lg:block"/>
 		<section class="max-w-xl w-full m-auto space-y-15 p-4">
-			<h1 class="text-xl lg:text-5xl text-center">create an account</h1>
-			@RegisterForm()
+			{ children... }
 		</section>
 	</main>
 }

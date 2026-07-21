@@ -15,8 +15,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("/sign-up", func(w http.ResponseWriter, r *http.Request) {
-		ctx := templ.WithChildren(r.Context(), signup.Page(signup.EmailStepIndicator()))
-		_ = layout.Layout().Render(ctx, w)
+
+		ctx := templ.WithChildren(r.Context(), signup.SignUpPage())
+
+		err := layout.Layout().Render(ctx, w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+
+			ctx := templ.WithChildren(r.Context(), signup.SignUpPageError("something went wrong"))
+
+			fallbackErr := layout.Layout().Render(ctx, w)
+
+			if fallbackErr != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+		}
 	})
 
 	// Wrap the mux with CORS middleware
