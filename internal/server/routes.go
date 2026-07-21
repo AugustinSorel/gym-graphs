@@ -1,27 +1,22 @@
 package server
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/web"
 	"github.com/augustinsorel/gym-graphs/web/signup"
-	"github.com/augustinsorel/gym-graphs/web/ui"
+	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	// Register routes
-	mux.HandleFunc("/", s.HelloWorldHandler)
-
 	fileServer := http.FileServer(http.FS(web.Files))
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("/sign-up", func(w http.ResponseWriter, r *http.Request) {
 		ctx := templ.WithChildren(r.Context(), signup.Page(signup.EmailStepIndicator()))
-		_ = ui.Layout().Render(ctx, w)
+		_ = layout.Layout().Render(ctx, w)
 	})
 
 	// Wrap the mux with CORS middleware
@@ -45,17 +40,4 @@ func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 		// Proceed with the next handler
 		next.ServeHTTP(w, r)
 	})
-}
-
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]string{"message": "super cool"}
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(jsonResp); err != nil {
-		log.Printf("Failed to write response: %v", err)
-	}
 }
