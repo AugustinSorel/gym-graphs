@@ -9,7 +9,7 @@
     GOOSE_MIGRATION_DIR = ./migrations;
   };
 
-  packages = with pkgs; [ goose ];
+  packages = with pkgs; [ goose tailwindcss_4 ];
 
   languages.go = {
     enable = true;
