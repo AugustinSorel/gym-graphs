@@ -7,6 +7,8 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/web"
+	"github.com/augustinsorel/gym-graphs/web/signup"
+	"github.com/augustinsorel/gym-graphs/web/ui"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -17,8 +19,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	fileServer := http.FileServer(http.FS(web.Files))
 	mux.Handle("/assets/", fileServer)
-	mux.Handle("/web", templ.Handler(web.HelloForm()))
-	mux.HandleFunc("/hello", web.HelloWebHandler)
+	mux.HandleFunc("/sign-up", func(w http.ResponseWriter, r *http.Request) {
+		ctx := templ.WithChildren(r.Context(), signup.Page(signup.EmailStepIndicator()))
+		_ = ui.Layout().Render(ctx, w)
+	})
 
 	// Wrap the mux with CORS middleware
 	return s.corsMiddleware(mux)

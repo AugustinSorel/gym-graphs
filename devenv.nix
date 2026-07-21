@@ -28,7 +28,7 @@
   processes.api = {
     exec = "go run ./cmd/api/main.go";
     watch = {
-      paths = [ ./cmd ./internal ];
+      paths = [ ./cmd ./internal ./web ];
       extensions = [ "go" ];
     };
   };
@@ -36,7 +36,7 @@
   processes.html = {
     exec = "templ generate";
     watch = {
-      paths = [ ./internal ];
+      paths = [ ./web ];
       extensions = [ "templ" ];
     };
   };
