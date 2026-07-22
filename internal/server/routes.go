@@ -12,7 +12,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	fileServer := http.FileServer(http.FS(web.Files))
 
-	signUp := handler.NewSignUpHandler()
+	signUp := handler.NewSignUpHandler(s.queries)
 
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("GET /sign-up", signUp.Get)

@@ -1,24 +1,30 @@
 package handler
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
+	"github.com/augustinsorel/gym-graphs/internal/db"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
+	"github.com/jackc/pgx/v5"
 )
 
-type SignUpHandler struct{}
+type SignUpHandler struct {
+	queries *db.Queries
+}
 
-func NewSignUpHandler() *SignUpHandler {
-	return &SignUpHandler{}
+func NewSignUpHandler(queries *db.Queries) *SignUpHandler {
+	return &SignUpHandler{queries: queries}
 }
 
 func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth
 	page := signup.SignUpPage()
 
 	ctx := templ.WithChildren(r.Context(), page)
@@ -34,6 +40,7 @@ func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth
 	var input schema.SignUpSchema
 
 	errs := schema.SignUp.Parse(zhttp.Request(r), &input)
@@ -64,6 +71,52 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("sign-up form submitted", "email", input.Email)
+
+	_, err := h.queries.GetUserByEmail(r.Context(), input.Email)
+
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		slog.Error("failed to check email availability", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.SignUpFormErr{
+			Root: "something went wrong, please try again",
+		}
+
+		input := signup.SignUpFormValues{Email: input.Email}
+
+		err := signup.SignUpForm(input, formErrs).Render(r.Context(), w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if err == nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		formErrs := signup.SignUpFormErr{
+			Email: "an account with this email already exists",
+		}
+
+		input := signup.SignUpFormValues{Email: input.Email}
+
+		err := signup.SignUpForm(input, formErrs).Render(r.Context(), w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	//TODO: create sign up
+	//TODO: send email
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email")
 	w.WriteHeader(http.StatusCreated)

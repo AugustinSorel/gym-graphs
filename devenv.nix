@@ -7,9 +7,21 @@
     GOOSE_DRIVER = "postgres";
     GOOSE_DBSTRING = "postgres://localhost:5432/gym_graphs";
     GOOSE_MIGRATION_DIR = ./migrations;
+
+    DB_HOST = "localhost";
+    DB_PORT = "5432";
+    DB_DATABASE = "gym_graphs";
+    DB_USERNAME = "";
+    DB_PASSWORD = "";
+    DB_SCHEMA = "public";
   };
 
-  packages = with pkgs; [ goose tailwindcss_4 templ ];
+  packages = with pkgs; [
+    goose
+    tailwindcss_4
+    templ
+    sqlc
+  ];
 
   languages.go = {
     enable = true;
