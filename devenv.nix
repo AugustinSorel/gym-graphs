@@ -60,4 +60,12 @@
       extensions = [ "sql" ];
     };
   };
+
+  processes.styles = {
+    exec = "tailwindcss -i web/styles/styles.css -o web/assets/css/styles.css";
+    watch = {
+      paths = [ ./web ];
+      extensions = [ "templ" ];
+    };
+  };
 }
