@@ -52,4 +52,12 @@
       extensions = [ "templ" ];
     };
   };
+
+  processes.sql = {
+    exec = "sqlc generate";
+    watch = {
+      paths = [ ./internal/db/queries ];
+      extensions = [ "sql" ];
+    };
+  };
 }

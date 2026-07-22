@@ -92,7 +92,7 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		formErrs := signup.SignUpFormErr{
-			Email: "an account with this email already exists",
+			Root: "an account with this email already exists",
 		}
 
 		formValues := signup.SignUpFormValues{Email: input.Email}

@@ -108,7 +108,7 @@ templ SignUpForm(form SignUpFormValues, err SignUpFormErr) {
 		if err.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
-					invalid email
+					creating your account failed
 				}
 				@alert.Description() {
 					{ err.Root }
