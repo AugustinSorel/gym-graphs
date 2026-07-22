@@ -12,15 +12,15 @@ type SignUpSession struct {
 	VerificationCode string
 }
 
-type SignUpSessionService struct {
+type SignUpService struct {
 	queries *sqlc.Queries
 }
 
-func NewSignUpSessionService(queries *sqlc.Queries) *SignUpSessionService {
-	return &SignUpSessionService{queries: queries}
+func NewSignUpService(queries *sqlc.Queries) *SignUpService {
+	return &SignUpService{queries: queries}
 }
 
-func (s *SignUpSessionService) Create(ctx context.Context, email string) (SignUpSession, error) {
+func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession, error) {
 	secret := generateSessionSecret()
 	secretHash := hashSessionSecret(secret)
 	verificationCode := generateEmailAddressVerificationCode()

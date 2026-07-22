@@ -14,12 +14,12 @@ import (
 )
 
 type SignUpHandler struct {
-	userSvc          *service.UserService
-	signUpSessionSvc *service.SignUpSessionService
+	userSvc   *service.UserService
+	signUpSvc *service.SignUpService
 }
 
-func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpSessionService) *SignUpHandler {
-	return &SignUpHandler{userSvc: userSvc, signUpSessionSvc: signUpSessionSvc}
+func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService) *SignUpHandler {
+	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc}
 }
 
 func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +108,7 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.signUpSessionSvc.Create(r.Context(), input.Email)
+	_, err = h.signUpSvc.Create(r.Context(), input.Email)
 
 	if err != nil {
 		slog.Error("failed to create sign up session", "error", err)
