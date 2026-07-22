@@ -72,6 +72,105 @@ templ upcomingSteps() {
 	</ol>
 }
 
+templ VerifyEmailPage() {
+	@Layout(VerifyEmailStepIndicator()) {
+		<h1 class="text-xl lg:text-5xl text-center">verify your email</h1>
+		@VerifyEmailForm(VerifyEmailFormValues{}, VerifyEmailFormErr{})
+	}
+}
+
+type VerifyEmailFormValues struct {
+	Code       string
+	SuccessMsg string
+}
+
+type VerifyEmailFormErr struct {
+	Code string
+	Root string
+}
+
+templ VerifyEmailForm(form VerifyEmailFormValues, err VerifyEmailFormErr) {
+	<form
+		hx-post="/sign-up/verify-email-address"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		class="flex flex-col py-10 px-5 lg:px-10 gap-10"
+		hx-swap="outerHTML"
+	>
+		<label class="grid gap-1 has-[>[aria-invalid=true]]:text-error">
+			verification code:
+			@input.Input(input.Props{
+				Type:        "text",
+				Placeholder: "12345678",
+				Name:        "code",
+				Value:       form.Code,
+				HasError:    err.Code != "",
+				Attributes: templ.Attributes{
+					"inputmode": "numeric",
+				},
+			})
+			if err.Code != "" {
+				<p class="text-error text-sm">
+					{ err.Code }
+				</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		if form.SuccessMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantSuccess}) {
+				@alert.Title() {
+					verification code sent
+				}
+				@alert.Description() {
+					{ form.SuccessMsg }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: "submit"}) {
+			verify
+			@spinner.Spinner()
+		}
+		<div class="flex justify-between">
+			@button.Button(button.Props{
+				Variant: button.VariantLink,
+				Type:    button.TypeButton,
+				Attributes: templ.Attributes{
+					"hx-post":    "/sign-up/verify-email-address/resend",
+					"hx-disable": "this",
+					"hx-target":  "closest form",
+					"hx-swap":    "outerHTML",
+				},
+			}) {
+				resend verification code
+				@spinner.Spinner()
+			}
+			@button.Button(button.Props{
+				Variant: button.VariantLink,
+				Type:    button.TypeButton,
+				Class:   "ml-auto",
+				Attributes: templ.Attributes{
+					"hx-post":    "/sign-up/verify-email-address/cancel",
+					"hx-disable": "this",
+					"hx-target":  "closest form",
+					"hx-swap":    "outerHTML",
+				},
+			}) {
+				cancel
+				@spinner.Spinner()
+			}
+		</div>
+	</form>
+}
+
 type SignUpFormValues struct {
 	Email string
 }

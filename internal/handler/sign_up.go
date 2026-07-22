@@ -22,7 +22,7 @@ func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.Si
 	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc}
 }
 
-func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
 	//TODO: auth
 	page := signup.SignUpPage()
 
@@ -38,7 +38,7 @@ func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
+func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	//TODO: auth
 	var input schema.SignUpSchema
 
@@ -131,4 +131,20 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email")
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth
+	page := signup.VerifyEmailPage()
+
+	ctx := templ.WithChildren(r.Context(), page)
+
+	err := layout.Layout().Render(ctx, w)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		slog.Error(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }

@@ -118,7 +118,7 @@ func (b Props) variantClasses() string {
 	case VariantGhost:
 		return "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
 	case VariantLink:
-		return "text-primary underline-offset-4 hover:underline"
+		return "font-semibold text-sm underline hover:text-current/70 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
 	default:
 		return "bg-on-surface text-surface  hover:bg-on-surface/80"
 	}

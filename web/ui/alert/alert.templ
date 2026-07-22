@@ -7,6 +7,7 @@ type Variant string
 const (
 	VariantDefault     Variant = "default"
 	VariantDestructive Variant = "destructive"
+	VariantSuccess     Variant = "success"
 )
 
 type Props struct {
@@ -100,6 +101,8 @@ func variantClasses(variant Variant) string {
 	switch variant {
 	case VariantDestructive:
 		return "bg-error-container border-error"
+	case VariantSuccess:
+		return "bg-success-container border-success"
 	default:
 		return "bg-card text-card-foreground"
 	}

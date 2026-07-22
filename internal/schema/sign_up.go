@@ -14,3 +14,13 @@ var SignUp = z.Struct(z.Shape{
 		Min(3, z.Message("email must be at least 3 characters.")).
 		Max(255, z.Message("email must be at most 255 characters.")),
 })
+
+type VerifyEmailSchema struct {
+	Code string
+}
+
+var VerifyEmail = z.Struct(z.Shape{
+	"code": z.String().Required(z.Message("verification code is required.")).
+		Min(8, z.Message("verification code must be 8 digits.")).
+		Max(8, z.Message("verification code must be 8 digits.")),
+})

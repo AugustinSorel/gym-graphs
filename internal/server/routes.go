@@ -14,12 +14,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 
 	userSvc := service.NewUserService(s.queries)
-	signUpSessionSvc := service.NewSignUpSessionService(s.queries)
+	signUpSessionSvc := service.NewSignUpService(s.queries)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 
 	mux.Handle("/assets/", fileServer)
-	mux.HandleFunc("GET /sign-up", signUp.Get)
-	mux.HandleFunc("POST /sign-up", signUp.Post)
+	mux.HandleFunc("GET /sign-up", signUp.ViewStartPage)
+	mux.HandleFunc("POST /sign-up", signUp.Start)
+	mux.HandleFunc("GET /sign-up/verify-email-address", signUp.ViewVerifyEmailPage)
+
 
 	return s.corsMiddleware(mux)
 }
