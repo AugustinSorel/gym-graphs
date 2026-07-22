@@ -4,7 +4,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Oudwins/zog"
+	zhttp "github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
+	"github.com/augustinsorel/gym-graphs/internal/domain"
 	"github.com/augustinsorel/gym-graphs/web"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
@@ -31,12 +34,33 @@ func (s *Server) RegisterRoutes() http.Handler {
 	})
 
 	mux.HandleFunc("POST /sign-up", func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "bad request", http.StatusBadRequest)
-			return
+		var u domain.User
+
+		err := domain.UserSchema.Parse(zhttp.Request(r), &u)
+
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+
+			form := signup.SignUpFormValues{
+				Email: r.FormValue("email"),
+			}
+
+			fieldErrors := zog.Issues.Flatten(err)
+
+			errs := signup.SignUpFormErr{
+				Email: fieldErrors["email"][0],
+			}
+
+			err := signup.SignUpForm(form, errs).Render(r.Context(), w)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				slog.Error(err.Error())
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 		}
 
-		slog.Info("sign-up form submitted", "email", r.FormValue("email"))
+		slog.Info("sign-up form submitted", "email", u.Email)
 
 		w.Header().Set("HX-Redirect", "/sign-up/verify-email")
 		w.WriteHeader(http.StatusCreated)

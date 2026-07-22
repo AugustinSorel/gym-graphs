@@ -1,5 +1,6 @@
 package signup
 
+import "github.com/augustinsorel/gym-graphs/web/ui/alert"
 import "github.com/augustinsorel/gym-graphs/web/ui/button"
 import "github.com/augustinsorel/gym-graphs/web/ui/spinner"
 import "github.com/augustinsorel/gym-graphs/web/ui/input"
@@ -8,7 +9,7 @@ import "github.com/augustinsorel/gym-graphs/web/ui/link"
 templ SignUpPage() {
 	@Layout(EmailStepIndicator()) {
 		<h1 class="text-xl lg:text-5xl text-center">create an account</h1>
-		@SignUpForm()
+		@SignUpForm(SignUpFormValues{}, SignUpFormErr{})
 	}
 }
 
@@ -71,7 +72,16 @@ templ upcomingSteps() {
 	</ol>
 }
 
-templ SignUpForm() {
+type SignUpFormValues struct {
+	Email string
+}
+
+type SignUpFormErr struct {
+	Email string
+	Root  string
+}
+
+templ SignUpForm(form SignUpFormValues, err SignUpFormErr) {
 	<form
 		hx-post="/sign-up"
 		hx-disable="find button[type='submit']"
@@ -86,14 +96,31 @@ templ SignUpForm() {
 				Placeholder:  "hello@google.com",
 				Name:         "email",
 				Autocomplete: "email",
+				Value:        form.Email,
+				HasError:     err.Email != "",
 			})
+			if err.Email != "" {
+				<p class="text-error text-sm">
+					{ err.Email }
+				</p>
+			}
 		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					invalid email
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
 		@button.Button(button.Props{Type: "submit"}) {
 			continue
 			@spinner.Spinner()
 		}
 		<p class="text-right text-sm">
-			already have an account? 
+			already have an account?
 			@link.Link(link.Props{
 				Href: "/sign-in",
 			}) {
