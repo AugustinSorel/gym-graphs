@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/Oudwins/zog"
-	zhttp "github.com/Oudwins/zog/zhttp"
+	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
-	"github.com/augustinsorel/gym-graphs/internal/domain"
+	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
@@ -34,24 +34,25 @@ func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
-	var input domain.SignUpInput
+	var input schema.SignUpSchema
 
-	err := domain.SignUpSchema.Parse(zhttp.Request(r), &input)
+	errs := schema.SignUp.Parse(zhttp.Request(r), &input)
 
-	if err != nil {
+	if errs != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		form := signup.SignUpFormValues{
-			Email: r.FormValue("email"),
+			Email: input.Email,
 		}
 
-		fieldErrors := zog.Issues.Flatten(err)
+		fieldErrors := zog.Issues.Flatten(errs)
 
-		errs := signup.SignUpFormErr{
-			Email: fieldErrors["email"][0],
+		formErrs := signup.SignUpFormErr{
+			Email: firstErr(fieldErrors, "email"),
+			Root:  firstErr(fieldErrors, "root"),
 		}
 
-		err := signup.SignUpForm(form, errs).Render(r.Context(), w)
+		err := signup.SignUpForm(form, formErrs).Render(r.Context(), w)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
