@@ -34,9 +34,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	})
 
 	mux.HandleFunc("POST /sign-up", func(w http.ResponseWriter, r *http.Request) {
-		var u domain.User
+		var input domain.SignUpInput
 
-		err := domain.UserSchema.Parse(zhttp.Request(r), &u)
+		err := domain.SignUpSchema.Parse(zhttp.Request(r), &input)
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
@@ -60,7 +60,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 			}
 		}
 
-		slog.Info("sign-up form submitted", "email", u.Email)
+		slog.Info("sign-up form submitted", "email", input.Email)
 
 		w.Header().Set("HX-Redirect", "/sign-up/verify-email")
 		w.WriteHeader(http.StatusCreated)
