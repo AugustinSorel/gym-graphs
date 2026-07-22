@@ -8,7 +8,7 @@ import (
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
-	"github.com/augustinsorel/gym-graphs/internal/db"
+	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
@@ -16,10 +16,10 @@ import (
 )
 
 type SignUpHandler struct {
-	queries *db.Queries
+	queries *sqlc.Queries
 }
 
-func NewSignUpHandler(queries *db.Queries) *SignUpHandler {
+func NewSignUpHandler(queries *sqlc.Queries) *SignUpHandler {
 	return &SignUpHandler{queries: queries}
 }
 
