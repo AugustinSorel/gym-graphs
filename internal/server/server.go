@@ -1,45 +1,54 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/augustinsorel/gym-graphs/internal/database"
 	"github.com/augustinsorel/gym-graphs/internal/db"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Server struct {
 	port    int
-	db      database.Service
 	queries *db.Queries
 }
 
 func NewServer() *http.Server {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
-
 	if err != nil {
 		panic(err)
 	}
 
-	dbService := database.New()
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s",
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DATABASE"),
+		os.Getenv("DB_SCHEMA"),
+	)
 
-	NewServer := &Server{
-		port:    port,
-		db:      dbService,
-		queries: db.New(dbService.Pool()),
+	pool, err := pgxpool.New(context.Background(), connStr)
+	if err != nil {
+		log.Fatalf("unable to connect to database: %v", err)
 	}
 
-	// Declare Server config
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+	s := &Server{
+		port:    port,
+		queries: db.New(pool),
+	}
+
+	return &http.Server{
+		Addr:         fmt.Sprintf(":%d", s.port),
+		Handler:      s.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-
-	return server
 }
