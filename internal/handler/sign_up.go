@@ -40,9 +40,9 @@ func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	//TODO: auth
-	var input schema.SignUpSchema
+	var input schema.Start
 
-	errs := schema.SignUp.Parse(zhttp.Request(r), &input)
+	errs := schema.StartInput.Parse(zhttp.Request(r), &input)
 
 	if errs != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -147,4 +147,64 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth
+	var input schema.VerifyEmail
+
+	errs := schema.VerifyEmailInput.Parse(zhttp.Request(r), &input)
+
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		form := signup.VerifyEmailFormValues{
+			Code: input.Code,
+		}
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Code: firstErr(fieldErrors, "code"),
+			Root: firstErr(fieldErrors, "root"),
+		}
+
+		err := signup.VerifyEmailForm(form, formErrs).Render(r.Context(), w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	//TODO: verify code against session
+
+	w.Header().Set("HX-Redirect", "/sign-up/set-password")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth + resend email
+
+	form := signup.VerifyEmailFormValues{
+		SuccessMsg: "a new verification code has been sent to your email address.",
+	}
+
+	err := signup.VerifyEmailForm(form, signup.VerifyEmailFormErr{}).Render(r.Context(), w)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		slog.Error(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth + cancel session
+
+	w.Header().Set("HX-Redirect", "/sign-up")
+	w.WriteHeader(http.StatusOK)
 }
