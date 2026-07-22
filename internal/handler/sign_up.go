@@ -14,11 +14,12 @@ import (
 )
 
 type SignUpHandler struct {
-	userSvc *service.UserService
+	userSvc          *service.UserService
+	signUpSessionSvc *service.SignUpSessionService
 }
 
-func NewSignUpHandler(userSvc *service.UserService) *SignUpHandler {
-	return &SignUpHandler{userSvc: userSvc}
+func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpSessionService) *SignUpHandler {
+	return &SignUpHandler{userSvc: userSvc, signUpSessionSvc: signUpSessionSvc}
 }
 
 func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +108,25 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: create sign up
+	_, err = h.signUpSessionSvc.Create(r.Context(), input.Email)
+
+	if err != nil {
+		slog.Error("failed to create sign up session", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.SignUpFormErr{
+			Root: "something went wrong, please try again",
+		}
+
+		formValues := signup.SignUpFormValues{Email: input.Email}
+
+		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+		}
+
+		return
+	}
+
 	//TODO: send email
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email")

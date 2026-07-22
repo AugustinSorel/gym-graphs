@@ -14,7 +14,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 
 	userSvc := service.NewUserService(s.queries)
-	signUp := handler.NewSignUpHandler(userSvc)
+	signUpSessionSvc := service.NewSignUpSessionService(s.queries)
+	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("GET /sign-up", signUp.Get)
