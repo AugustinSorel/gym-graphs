@@ -1,26 +1,24 @@
 package handler
 
 import (
-	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
+	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
-	"github.com/jackc/pgx/v5"
 )
 
 type SignUpHandler struct {
-	queries *sqlc.Queries
+	userSvc *service.UserService
 }
 
-func NewSignUpHandler(queries *sqlc.Queries) *SignUpHandler {
-	return &SignUpHandler{queries: queries}
+func NewSignUpHandler(userSvc *service.UserService) *SignUpHandler {
+	return &SignUpHandler{userSvc: userSvc}
 }
 
 func (h *SignUpHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -70,11 +68,9 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slog.Info("sign-up form submitted", "email", input.Email)
+	taken, err := h.userSvc.IsEmailTaken(r.Context(), input.Email)
 
-	_, err := h.queries.GetUserByEmail(r.Context(), input.Email)
-
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	if err != nil {
 		slog.Error("failed to check email availability", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -82,29 +78,25 @@ func (h *SignUpHandler) Post(w http.ResponseWriter, r *http.Request) {
 			Root: "something went wrong, please try again",
 		}
 
-		input := signup.SignUpFormValues{Email: input.Email}
+		formValues := signup.SignUpFormValues{Email: input.Email}
 
-		err := signup.SignUpForm(input, formErrs).Render(r.Context(), w)
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
 		}
 
 		return
 	}
 
-	if err == nil {
+	if taken {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		formErrs := signup.SignUpFormErr{
 			Email: "an account with this email already exists",
 		}
 
-		input := signup.SignUpFormValues{Email: input.Email}
+		formValues := signup.SignUpFormValues{Email: input.Email}
 
-		err := signup.SignUpForm(input, formErrs).Render(r.Context(), w)
+		err := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

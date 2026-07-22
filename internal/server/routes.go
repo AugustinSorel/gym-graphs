@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/augustinsorel/gym-graphs/internal/handler"
+	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web"
 )
 
@@ -12,7 +13,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	fileServer := http.FileServer(http.FS(web.Files))
 
-	signUp := handler.NewSignUpHandler(s.queries)
+	userSvc := service.NewUserService(s.queries)
+	signUp := handler.NewSignUpHandler(userSvc)
 
 	mux.Handle("/assets/", fileServer)
 	mux.HandleFunc("GET /sign-up", signUp.Get)
