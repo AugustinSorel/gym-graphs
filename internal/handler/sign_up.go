@@ -216,6 +216,22 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 	}
 }
 
+func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Request) {
+	//TODO: auth
+	page := signup.SetPasswordPage()
+
+	ctx := templ.WithChildren(r.Context(), page)
+
+	err := layout.Layout().Render(ctx, w)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		slog.Error(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
 	sessionToken, err := cookies.GetSignUpSession(r)
 	if err != nil {

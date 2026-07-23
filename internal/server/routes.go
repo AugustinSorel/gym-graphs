@@ -25,6 +25,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("POST /sign-up/verify-email-address", signUp.VerifyEmail)
 	mux.HandleFunc("POST /sign-up/verify-email-address/resend", signUp.ResendVerificationCode)
 	mux.HandleFunc("POST /sign-up/verify-email-address/cancel", signUp.CancelVerifyEmail)
+	mux.HandleFunc("GET /sign-up/set-password", signUp.ViewSetPasswordPage)
 
 	return s.corsMiddleware(mux)
 }
