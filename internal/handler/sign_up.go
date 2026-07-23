@@ -188,7 +188,6 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Validate form input ---
 	var input schema.VerifyEmail
 
 	errs := schema.VerifyEmailInput.Parse(zhttp.Request(r), &input)
@@ -379,7 +378,6 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Delegate the transaction to the service ---
 	authSession, err := h.signUpSvc.Complete(r.Context(), session, input.Password)
 	if err != nil {
 		slog.Error("failed to complete sign up", "error", err)
