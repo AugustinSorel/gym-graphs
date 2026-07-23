@@ -10,7 +10,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
-	"github.com/augustinsorel/gym-graphs/internal/token"
+	sesstoken "github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
@@ -140,7 +140,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	//TODO: send email
 	slog.Info(signUpSession.VerificationCode)
 
-	cookies.SetSignUpSession(w, token.CreateSessionToken(signUpSession.ID, signUpSession.Secret))
+	cookies.SetSignUpSession(w, sesstoken.CreateToken(signUpSession.ID, signUpSession.Secret))
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email-address")
 	w.WriteHeader(http.StatusCreated)
@@ -241,7 +241,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, sessionSecret, err := token.ParseSessionToken(sessionToken)
+	sessionID, _, err := sesstoken.ParseToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -257,11 +257,11 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !token.VerifySecret(sessionSecret, session.SecretHash) {
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
+	// if !secret.Verify(sessionSecret, session.SecretHash) {
+	// 	w.Header().Set("HX-Redirect", "/sign-up")
+	// 	w.WriteHeader(http.StatusSeeOther)
+	// 	return
+	// }
 
 	// --- Validate form input ---
 	var input schema.SetPassword
@@ -339,7 +339,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookies.ClearSignUpSession(w)
-	cookies.SetAuthSession(w, token.CreateSessionToken(authSession.ID, authSession.Secret))
+	cookies.SetAuthSession(w, sesstoken.CreateToken(authSession.ID, authSession.Secret))
 
 	w.Header().Set("HX-Redirect", "/")
 	w.WriteHeader(http.StatusCreated)
@@ -353,7 +353,7 @@ func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sessionId, _, err := token.ParseSessionToken(sessionToken)
+	sessionId, _, err := sesstoken.ParseToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")

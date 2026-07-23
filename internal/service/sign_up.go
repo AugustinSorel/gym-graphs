@@ -5,7 +5,8 @@ import (
 
 	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
 	"github.com/augustinsorel/gym-graphs/internal/domain"
-	"github.com/augustinsorel/gym-graphs/internal/token"
+	"github.com/augustinsorel/gym-graphs/internal/otp"
+	"github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -25,9 +26,10 @@ func NewSignUpService(queries *sqlc.Queries, pool *pgxpool.Pool) *SignUpService 
 }
 
 func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession, error) {
-	secret := token.GenerateSecret()
-	secretHash := token.HashSecret(secret)
-	verificationCode := token.GenerateEmailVerificationCode()
+	rawSecret := session.GenerateSecret()
+	secretHash := session.HashSecret(rawSecret)
+
+	verificationCode := otp.GenerateEmailAddressVerificationCode()
 
 	params := sqlc.CreateSignUpSessionParams{
 		SecretHash:                   secretHash,
@@ -43,7 +45,7 @@ func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession
 
 	signUpSession := SignUpSession{
 		ID:               row.ID,
-		Secret:           secret,
+		Secret:           rawSecret,
 		VerificationCode: verificationCode,
 	}
 

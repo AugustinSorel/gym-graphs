@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
-	"github.com/augustinsorel/gym-graphs/internal/token"
+	"github.com/augustinsorel/gym-graphs/internal/session"
 )
 
 type AuthSession struct {
@@ -22,8 +22,8 @@ func NewAuthSessionService(queries *sqlc.Queries) *AuthSessionService {
 }
 
 func (s *AuthSessionService) Create(ctx context.Context, userID int32) (AuthSession, error) {
-	secret := token.GenerateSecret()
-	secretHash := token.HashSecret(secret)
+	rawSecret := session.GenerateSecret()
+	secretHash := session.HashSecret(rawSecret)
 
 	row, err := s.queries.CreateAuthSession(ctx, sqlc.CreateAuthSessionParams{
 		UserID:     userID,
@@ -37,6 +37,6 @@ func (s *AuthSessionService) Create(ctx context.Context, userID int32) (AuthSess
 	return AuthSession{
 		ID:     row.ID,
 		UserID: row.UserID,
-		Secret: secret,
+		Secret: rawSecret,
 	}, nil
 }
