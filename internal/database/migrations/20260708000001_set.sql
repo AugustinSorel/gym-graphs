@@ -4,8 +4,8 @@ create table sets(
     exercise_id integer references exercises(id) on delete cascade not null,
     repetitions integer not null,
     weight_in_g integer not null,
-    updated_at timestamp default now() not null,
-    created_at timestamp default now() not null
+    updated_at timestamptz default now() not null,
+    created_at timestamptz default now() not null
 );
 
 create trigger update_sets_modtime

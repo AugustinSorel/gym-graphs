@@ -4,8 +4,8 @@ create table exercises(
     user_id integer references users(id) on delete cascade not null,
     name text not null,
     index serial not null,
-    updated_at timestamp default now() not null,
-    created_at timestamp default now() not null,
+    updated_at timestamptz default now() not null,
+    created_at timestamptz default now() not null,
     unique (user_id, name)
 );
 

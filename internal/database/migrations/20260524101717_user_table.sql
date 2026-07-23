@@ -8,8 +8,8 @@ create table users (
     weight_unit weight_unit not null default 'kg',
     password_hash bytea not null,
     password_salt bytea not null,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
+    created_at timestamptz default now() not null,
+    updated_at timestamptz default now() not null
 );
 
 create trigger update_users_modtime

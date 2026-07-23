@@ -4,9 +4,9 @@ create table sign_up_sessions (
     secret_hash bytea not null,
     email_address text not null,
     email_address_verification_code text not null,
-    email_address_verified_at timestamp,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
+    email_address_verified_at timestamptz,
+    created_at timestamptz default now() not null,
+    updated_at timestamptz default now() not null
 );
 
 create trigger update_users_modtime

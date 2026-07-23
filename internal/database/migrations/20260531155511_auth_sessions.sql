@@ -3,9 +3,9 @@ create table auth_sessions (
     id integer generated always as identity primary key not null,
     user_id integer references users(id) on delete cascade not null,
     secret_hash bytea not null,
-    last_active_at timestamp default now() not null,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
+    last_active_at timestamptz default now() not null,
+    created_at timestamptz default now() not null,
+    updated_at timestamptz default now() not null
 );
 
 create trigger update_users_modtime

@@ -5,9 +5,9 @@ create table password_reset_sessions (
     secret_hash bytea not null,
     email_code_hash bytea not null,
     email_code_salt bytea not null,
-    user_identity_verified_at timestamp,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
+    user_identity_verified_at timestamptz,
+    created_at timestamptz default now() not null,
+    updated_at timestamptz default now() not null
 );
 
 create trigger update_users_modtime
