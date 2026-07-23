@@ -2,20 +2,8 @@ package service
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/binary"
 )
-
-func generateSessionSecret() []byte {
-	secret := make([]byte, 32)
-	rand.Read(secret)
-	return secret
-}
-
-func hashSessionSecret(secret []byte) []byte {
-	secretHash := sha256.Sum256(secret)
-	return secretHash[:]
-}
 
 func generateEmailAddressVerificationCode() string {
 	for {

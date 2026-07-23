@@ -3,6 +3,7 @@ package handler
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
@@ -108,7 +109,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.signUpSvc.Create(r.Context(), input.Email)
+	signUpSession, err := h.signUpSvc.Create(r.Context(), input.Email)
 
 	if err != nil {
 		slog.Error("failed to create sign up session", "error", err)
@@ -128,6 +129,19 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: send email
+
+	cookie := &http.Cookie{
+		Name:     "sign_up_session_token",
+		Value:    service.CreateSessionToken(signUpSession.ID, signUpSession.Secret),
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		MaxAge:   86400,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	}
+
+	http.SetCookie(w, cookie)
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email")
 	w.WriteHeader(http.StatusCreated)
