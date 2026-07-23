@@ -56,11 +56,38 @@ func (q *Queries) DeleteSignUpSession(ctx context.Context, id int32) (SignUpSess
 }
 
 const getSignUpSessionByID = `-- name: GetSignUpSessionByID :one
-select id, secret_hash, email_address, email_address_verification_code, email_address_verified_at, created_at, updated_at from sign_up_sessions where id = $1
+select id, secret_hash, email_address, email_address_verification_code, email_address_verified_at, created_at, updated_at from sign_up_sessions where id = $1 and created_at > now() - interval '24 hours'
 `
 
 func (q *Queries) GetSignUpSessionByID(ctx context.Context, id int32) (SignUpSession, error) {
 	row := q.db.QueryRow(ctx, getSignUpSessionByID, id)
+	var i SignUpSession
+	err := row.Scan(
+		&i.ID,
+		&i.SecretHash,
+		&i.EmailAddress,
+		&i.EmailAddressVerificationCode,
+		&i.EmailAddressVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const verifySignUpSession = `-- name: VerifySignUpSession :one
+update 
+  sign_up_sessions 
+set 
+  email_address_verified_at = now() 
+where 
+  id = $1 
+  and email_address_verified_at is null 
+returning 
+  id, secret_hash, email_address, email_address_verification_code, email_address_verified_at, created_at, updated_at
+`
+
+func (q *Queries) VerifySignUpSession(ctx context.Context, id int32) (SignUpSession, error) {
+	row := q.db.QueryRow(ctx, verifySignUpSession, id)
 	var i SignUpSession
 	err := row.Scan(
 		&i.ID,

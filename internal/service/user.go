@@ -33,15 +33,13 @@ func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, err
 	return true, nil
 }
 
-func CreateUser(ctx context.Context, q *sqlc.Queries, email string, pw string, name string) (sqlc.User, error) {
+func CreateUser(ctx context.Context, q *sqlc.Queries, email string, pw string, name string, sessionID int32) (sqlc.CreateUserRow, error) {
 	salt := password.GenerateSalt()
-
 	hash := password.Hash(pw, salt)
 
 	return q.CreateUser(ctx, sqlc.CreateUserParams{
-		EmailAddress: email,
+		ID:           sessionID,
 		Name:         name,
-		WeightUnit:   sqlc.WeightUnitKg,
 		PasswordHash: hash,
 		PasswordSalt: salt,
 	})

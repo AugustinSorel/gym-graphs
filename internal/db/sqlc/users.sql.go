@@ -10,39 +10,38 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-insert into users (email_address, name, weight_unit, password_hash, password_salt)
-values ($1, $2, $3, $4, $5)
-returning id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm
+insert into users (email_address, password_hash, password_salt, name)
+select
+    email_address,
+    $1,
+    $2,
+    $3
+from sign_up_sessions
+where sign_up_sessions.id = $4 and email_address_verified_at is not null returning
+    id, email_address
 `
 
 type CreateUserParams struct {
-	EmailAddress string
-	Name         string
-	WeightUnit   WeightUnit
 	PasswordHash []byte
 	PasswordSalt []byte
+	Name         string
+	ID           int32
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+type CreateUserRow struct {
+	ID           int32
+	EmailAddress string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRow(ctx, createUser,
-		arg.EmailAddress,
-		arg.Name,
-		arg.WeightUnit,
 		arg.PasswordHash,
 		arg.PasswordSalt,
+		arg.Name,
+		arg.ID,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.EmailAddress,
-		&i.Name,
-		&i.WeightUnit,
-		&i.PasswordHash,
-		&i.PasswordSalt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.OneRepMaxAlgorithm,
-	)
+	var i CreateUserRow
+	err := row.Scan(&i.ID, &i.EmailAddress)
 	return i, err
 }
 

@@ -72,7 +72,7 @@ func (s *SignUpService) Complete(ctx context.Context, session sqlc.SignUpSession
 
 	name := domain.InferNameFromEmail(session.EmailAddress)
 
-	user, err := CreateUser(ctx, txq, session.EmailAddress, password, name)
+	user, err := CreateUser(ctx, txq, session.EmailAddress, password, name, session.ID)
 	if err != nil {
 		return AuthSession{}, err
 	}
