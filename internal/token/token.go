@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -22,21 +23,30 @@ func HashSecret(secret []byte) []byte {
 
 func CreateSessionToken(sessionId int32, sessionSecret []byte) string {
 	encodedSessionSecret := base64.StdEncoding.EncodeToString(sessionSecret)
-	sessionToken := string(sessionId) + "." + encodedSessionSecret
+	sessionToken := fmt.Sprintf("%d.%s", sessionId, encodedSessionSecret)
 	return sessionToken
 }
 
-func ParseSessionToken(sessionToken string) (string, []byte, error) {
+func ParseSessionToken(sessionToken string) (int32, []byte, error) {
 	sessionTokenParts := strings.Split(sessionToken, ".")
 	if len(sessionTokenParts) != 2 {
-		return "", nil, errors.New("invalid part count")
+		return -1, nil, errors.New("invalid part count")
 	}
-	sessioId := sessionTokenParts[0]
+	sessionIdStr := sessionTokenParts[0]
 	encodedSessionSecret := sessionTokenParts[1]
 	sessionSecret, err := base64.StdEncoding.DecodeString(encodedSessionSecret)
 	if err != nil {
-		return "", nil, fmt.Errorf("failed to decode secret: %s", err.Error())
+		return -1, nil, fmt.Errorf("failed to decode secret: %s", err.Error())
 	}
 
-	return sessioId, sessionSecret, nil
+	fmt.Println("HELLLOOOO")
+	fmt.Printf("hello: %s", sessionIdStr)
+	fmt.Println("HELLLOOOO")
+
+	sessionId, err := strconv.ParseInt(sessionIdStr, 10, 32)
+	if err != nil {
+		return -1, nil, fmt.Errorf("invalid session id: %s", err.Error())
+	}
+
+	return int32(sessionId), sessionSecret, nil
 }

@@ -35,3 +35,22 @@ func (q *Queries) CreateSignUpSession(ctx context.Context, arg CreateSignUpSessi
 	)
 	return i, err
 }
+
+const deleteSignUpSession = `-- name: DeleteSignUpSession :one
+delete from sign_up_sessions where id = $1 returning id, secret_hash, email_address, email_address_verification_code, email_address_verified_at, created_at, updated_at
+`
+
+func (q *Queries) DeleteSignUpSession(ctx context.Context, id int32) (SignUpSession, error) {
+	row := q.db.QueryRow(ctx, deleteSignUpSession, id)
+	var i SignUpSession
+	err := row.Scan(
+		&i.ID,
+		&i.SecretHash,
+		&i.EmailAddress,
+		&i.EmailAddressVerificationCode,
+		&i.EmailAddressVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

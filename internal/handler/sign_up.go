@@ -214,6 +214,7 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 
 	form := signup.VerifyEmailFormValues{
 		SuccessMsg: "a new verification code has been sent to your email address.",
+		Code:       r.FormValue("code"),
 	}
 
 	err := signup.VerifyEmailForm(form, signup.VerifyEmailFormErr{}).Render(r.Context(), w)
@@ -226,7 +227,34 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 }
 
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth + cancel session
+	cookie, err := r.Cookie("sign_up_session_token")
+	if err != nil {
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	sessionId, _, err := token.ParseSessionToken(cookie.Value)
+	if err != nil {
+		slog.Error("failed to parse sign up session token", "error", err)
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if err := h.signUpSvc.Cancel(r.Context(), sessionId); err != nil {
+		slog.Error("failed to cancel sign up session", "error", err)
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "sign_up_session_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
 
 	w.Header().Set("HX-Redirect", "/sign-up")
 	w.WriteHeader(http.StatusOK)

@@ -49,6 +49,11 @@ func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession
 	return signUpSession, nil
 }
 
+func (s *SignUpService) Cancel(ctx context.Context, id int32) error {
+	_, err := s.queries.DeleteSignUpSession(ctx, id)
+	return err
+}
+
 func generateEmailAddressVerificationCode() string {
 	for {
 		randomBytes := make([]byte, 4)
