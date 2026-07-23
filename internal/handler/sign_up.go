@@ -164,6 +164,31 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 
 func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	//TODO: auth
+
+	sessionToken, err := cookies.GetSignUpSession(r)
+	if err != nil {
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	sessionID, _, err := sesstoken.ParseToken(sessionToken)
+	if err != nil {
+		slog.Error("failed to parse sign up session token", "error", err)
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	session, err := h.signUpSvc.GetByID(r.Context(), sessionID)
+	if err != nil {
+		slog.Error("failed to get sign up session", "error", err)
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	// --- Validate form input ---
 	var input schema.VerifyEmail
 
 	errs := schema.VerifyEmailInput.Parse(zhttp.Request(r), &input)
@@ -193,7 +218,40 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: verify code against session
+	if err := h.signUpSvc.VerifyCode(session.EmailAddressVerificationCode, input.Code); err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Code: "invalid verification code",
+		}
+
+		formValues := signup.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if _, err := h.signUpSvc.MarkEmailAsVerified(r.Context(), session.ID); err != nil {
+		slog.Error("failed to mark email as verified", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Root: "something went wrong, please try again",
+		}
+
+		formValues := signup.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	w.Header().Set("HX-Redirect", "/sign-up/set-password")
 	w.WriteHeader(http.StatusOK)

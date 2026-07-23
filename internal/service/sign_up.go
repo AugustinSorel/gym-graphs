@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/domain"
@@ -9,6 +10,8 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrInvalidVerificationCode = errors.New("invalid verification code")
 
 type SignUpSession struct {
 	ID               int32
@@ -59,6 +62,17 @@ func (s *SignUpService) Cancel(ctx context.Context, id int32) error {
 
 func (s *SignUpService) GetByID(ctx context.Context, id int32) (db.SignUpSession, error) {
 	return s.queries.GetSignUpSessionByID(ctx, id)
+}
+
+func (s *SignUpService) VerifyCode(storedCode, inputCode string) error {
+	if storedCode != inputCode {
+		return ErrInvalidVerificationCode
+	}
+	return nil
+}
+
+func (s *SignUpService) MarkEmailAsVerified(ctx context.Context, id int32) (db.SignUpSession, error) {
+	return s.queries.VerifySignUpSession(ctx, id)
 }
 
 func (s *SignUpService) Complete(ctx context.Context, session db.SignUpSession, password string) (AuthSession, error) {
