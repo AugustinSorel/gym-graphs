@@ -10,7 +10,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
-	sesstoken "github.com/augustinsorel/gym-graphs/internal/session"
+	"github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
@@ -140,7 +140,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	//TODO: send email
 	slog.Info(signUpSession.VerificationCode)
 
-	cookies.SetSignUpSession(w, sesstoken.CreateToken(signUpSession.ID, signUpSession.Secret))
+	cookies.SetSignUpSession(w, session.CreateToken(signUpSession.ID, signUpSession.Secret))
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email-address")
 	w.WriteHeader(http.StatusCreated)
@@ -172,7 +172,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, _, err := sesstoken.ParseToken(sessionToken)
+	sessionID, _, err := session.ParseToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -298,7 +298,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, _, err := sesstoken.ParseToken(sessionToken)
+	sessionID, _, err := session.ParseToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -306,7 +306,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := h.signUpSvc.GetByID(r.Context(), sessionID)
+	signUpSession, err := h.signUpSvc.GetByID(r.Context(), sessionID)
 	if err != nil {
 		slog.Error("failed to get sign up session", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -335,7 +335,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		}
 
 		formValues := signup.SetPasswordFormValues{
-			Email:    session.EmailAddress,
+			Email:    signUpSession.EmailAddress,
 			Password: input.Password,
 		}
 
@@ -348,13 +348,13 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// --- Check email is still available ---
-	taken, err := h.userSvc.IsEmailTaken(r.Context(), session.EmailAddress)
+	taken, err := h.userSvc.IsEmailTaken(r.Context(), signUpSession.EmailAddress)
 	if err != nil {
 		slog.Error("failed to check email availability", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
 		formErrs := signup.SetPasswordFormErr{Root: "something went wrong, please try again"}
-		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error(renderErr.Error())
@@ -368,7 +368,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		formErrs := signup.SetPasswordFormErr{Root: "an account with this email already exists"}
-		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error(renderErr.Error())
@@ -378,13 +378,13 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authSession, err := h.signUpSvc.Complete(r.Context(), session, input.Password)
+	authSession, err := h.signUpSvc.Complete(r.Context(), signUpSession, input.Password)
 	if err != nil {
 		slog.Error("failed to complete sign up", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
 		formErrs := signup.SetPasswordFormErr{Root: "something went wrong, please try again"}
-		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error(renderErr.Error())
@@ -395,7 +395,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookies.ClearSignUpSession(w)
-	cookies.SetAuthSession(w, sesstoken.CreateToken(authSession.ID, authSession.Secret))
+	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.Secret))
 
 	w.Header().Set("HX-Redirect", "/")
 	w.WriteHeader(http.StatusCreated)
@@ -409,7 +409,7 @@ func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sessionId, _, err := sesstoken.ParseToken(sessionToken)
+	sessionId, _, err := session.ParseToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
