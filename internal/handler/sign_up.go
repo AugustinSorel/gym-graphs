@@ -82,8 +82,12 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		formValues := signup.SignUpFormValues{Email: input.Email}
 
-		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+		err := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
 		return
@@ -121,8 +125,12 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		formValues := signup.SignUpFormValues{Email: input.Email}
 
-		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+		err := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			slog.Error(err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
 		return
