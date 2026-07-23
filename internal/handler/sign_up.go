@@ -151,7 +151,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 
-	w.Header().Set("HX-Redirect", "/sign-up/verify-email")
+	w.Header().Set("HX-Redirect", "/sign-up/verify-email-address")
 	w.WriteHeader(http.StatusCreated)
 }
 
