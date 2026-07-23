@@ -1,4 +1,4 @@
-package service
+package token
 
 import (
 	"crypto/rand"
@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func generateSessionSecret() []byte {
+func GenerateSecret() []byte {
 	secret := make([]byte, 32)
 	rand.Read(secret)
 	return secret
 }
 
-func hashSessionSecret(secret []byte) []byte {
+func HashSecret(secret []byte) []byte {
 	secretHash := sha256.Sum256(secret)
 	return secretHash[:]
 }
@@ -26,7 +26,7 @@ func CreateSessionToken(sessionId int32, sessionSecret []byte) string {
 	return sessionToken
 }
 
-func parseSessionToken(sessionToken string) (string, []byte, error) {
+func ParseSessionToken(sessionToken string) (string, []byte, error) {
 	sessionTokenParts := strings.Split(sessionToken, ".")
 	if len(sessionTokenParts) != 2 {
 		return "", nil, errors.New("invalid part count")

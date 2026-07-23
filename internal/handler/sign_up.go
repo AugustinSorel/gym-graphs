@@ -10,6 +10,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/token"
 	"github.com/augustinsorel/gym-graphs/web/signup"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
@@ -140,7 +141,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 	cookie := &http.Cookie{
 		Name:     "sign_up_session_token",
-		Value:    service.CreateSessionToken(signUpSession.ID, signUpSession.Secret),
+		Value:    token.CreateSessionToken(signUpSession.ID, signUpSession.Secret),
 		Path:     "/",
 		Expires:  time.Now().Add(24 * time.Hour),
 		MaxAge:   86400,
