@@ -232,6 +232,119 @@ func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
+	// --- Validate the sign-up session cookie ---
+	sessionToken, err := cookies.GetSignUpSession(r)
+	if err != nil {
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	sessionID, sessionSecret, err := token.ParseSessionToken(sessionToken)
+	if err != nil {
+		slog.Error("failed to parse sign up session token", "error", err)
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	session, err := h.signUpSvc.GetByID(r.Context(), sessionID)
+	if err != nil {
+		slog.Error("failed to get sign up session", "error", err)
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	if !token.VerifySecret(sessionSecret, session.SecretHash) {
+		w.Header().Set("HX-Redirect", "/sign-up")
+		w.WriteHeader(http.StatusSeeOther)
+		return
+	}
+
+	// --- Validate form input ---
+	var input schema.SetPassword
+
+	errs := schema.SetPasswordInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := signup.SetPasswordFormErr{
+			Password: firstErr(fieldErrors, "password"),
+			Root:     firstErr(fieldErrors, "root"),
+		}
+
+		formValues := signup.SetPasswordFormValues{
+			Email:    session.EmailAddress,
+			Password: input.Password,
+		}
+
+		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	// --- Check email is still available ---
+	taken, err := h.userSvc.IsEmailTaken(r.Context(), session.EmailAddress)
+	if err != nil {
+		slog.Error("failed to check email availability", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.SetPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+
+		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if taken {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		formErrs := signup.SetPasswordFormErr{Root: "an account with this email already exists"}
+		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+
+		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	// --- Delegate the transaction to the service ---
+	authSession, err := h.signUpSvc.Complete(r.Context(), session, input.Password)
+	if err != nil {
+		slog.Error("failed to complete sign up", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.SetPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := signup.SetPasswordFormValues{Email: session.EmailAddress, Password: input.Password}
+
+		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error(renderErr.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearSignUpSession(w)
+	cookies.SetAuthSession(w, token.CreateSessionToken(authSession.ID, authSession.Secret))
+
+	w.Header().Set("HX-Redirect", "/")
+	w.WriteHeader(http.StatusCreated)
+}
+
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
 	sessionToken, err := cookies.GetSignUpSession(r)
 	if err != nil {

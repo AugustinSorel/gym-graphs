@@ -14,7 +14,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 
 	userSvc := service.NewUserService(s.queries)
-	signUpSessionSvc := service.NewSignUpService(s.queries)
+	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 
 	mux.Handle("/assets/", fileServer)
@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("POST /sign-up/verify-email-address/resend", signUp.ResendVerificationCode)
 	mux.HandleFunc("POST /sign-up/verify-email-address/cancel", signUp.CancelVerifyEmail)
 	mux.HandleFunc("GET /sign-up/set-password", signUp.ViewSetPasswordPage)
+	mux.HandleFunc("POST /sign-up/set-password", signUp.SetPassword)
 
 	return s.corsMiddleware(mux)
 }

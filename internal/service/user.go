@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/token"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -30,4 +31,17 @@ func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, err
 	}
 
 	return true, nil
+}
+
+func CreateUser(ctx context.Context, q *sqlc.Queries, email string, password string, name string) (sqlc.User, error) {
+	salt := token.GenerateHashingSalt()
+	hash := token.HashUserPassword(password, salt)
+
+	return q.CreateUser(ctx, sqlc.CreateUserParams{
+		EmailAddress: email,
+		Name:         name,
+		WeightUnit:   sqlc.WeightUnitKg,
+		PasswordHash: hash,
+		PasswordSalt: salt,
+	})
 }

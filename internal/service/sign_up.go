@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/binary"
 
 	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/domain"
 	"github.com/augustinsorel/gym-graphs/internal/token"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type SignUpSession struct {
@@ -17,16 +17,17 @@ type SignUpSession struct {
 
 type SignUpService struct {
 	queries *sqlc.Queries
+	pool    *pgxpool.Pool
 }
 
-func NewSignUpService(queries *sqlc.Queries) *SignUpService {
-	return &SignUpService{queries: queries}
+func NewSignUpService(queries *sqlc.Queries, pool *pgxpool.Pool) *SignUpService {
+	return &SignUpService{queries: queries, pool: pool}
 }
 
 func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession, error) {
 	secret := token.GenerateSecret()
 	secretHash := token.HashSecret(secret)
-	verificationCode := generateEmailAddressVerificationCode()
+	verificationCode := token.GenerateEmailVerificationCode()
 
 	params := sqlc.CreateSignUpSessionParams{
 		SecretHash:                   secretHash,
@@ -54,23 +55,45 @@ func (s *SignUpService) Cancel(ctx context.Context, id int32) error {
 	return err
 }
 
-func generateEmailAddressVerificationCode() string {
-	for {
-		randomBytes := make([]byte, 4)
-		rand.Read(randomBytes)
-		randomUint := binary.BigEndian.Uint32(randomBytes)
-		randomUint >>= 5
-		if randomUint < 100_000_000 {
-			stringBytes := make([]byte, 8)
-			stringBytes[0] = byte((randomUint/10_000_000)%10 + '0')
-			stringBytes[1] = byte((randomUint/1_000_000)%10 + '0')
-			stringBytes[2] = byte((randomUint/100_000)%10 + '0')
-			stringBytes[3] = byte((randomUint/10_000)%10 + '0')
-			stringBytes[4] = byte((randomUint/1_000)%10 + '0')
-			stringBytes[5] = byte((randomUint/100)%10 + '0')
-			stringBytes[6] = byte((randomUint/10)%10 + '0')
-			stringBytes[7] = byte((randomUint)%10 + '0')
-			return string(stringBytes)
-		}
+func (s *SignUpService) GetByID(ctx context.Context, id int32) (sqlc.SignUpSession, error) {
+	return s.queries.GetSignUpSessionByID(ctx, id)
+}
+
+func (s *SignUpService) Complete(ctx context.Context, session sqlc.SignUpSession, password string) (AuthSession, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return AuthSession{}, err
 	}
+	defer tx.Rollback(ctx)
+
+	txq := sqlc.New(tx)
+
+	name := domain.InferNameFromEmail(session.EmailAddress)
+
+	user, err := CreateUser(ctx, txq, session.EmailAddress, password, name)
+	if err != nil {
+		return AuthSession{}, err
+	}
+
+	if _, err := txq.DeleteSignUpSession(ctx, session.ID); err != nil {
+		return AuthSession{}, err
+	}
+
+	seedSvc := &SeedService{queries: txq}
+	if err := seedSvc.SeedUser(ctx, user.ID); err != nil {
+		return AuthSession{}, err
+	}
+
+	authSvc := &AuthSessionService{queries: txq}
+	authSession, err := authSvc.Create(ctx, user.ID)
+
+	if err != nil {
+		return AuthSession{}, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return AuthSession{}, err
+	}
+
+	return authSession, nil
 }

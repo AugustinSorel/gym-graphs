@@ -25,3 +25,13 @@ type VerifyEmail struct {
 }
 
 var VerifyEmailInput = SignUpSession.Pick("code")
+
+type SetPassword struct {
+	Password string
+}
+
+var SetPasswordInput = z.Struct(z.Shape{
+	"password": z.String().Required(z.Message("password is required.")).
+		Min(8, z.Message("password must be at least 8 characters.")).
+		Max(255, z.Message("password must be at most 255 characters.")),
+})

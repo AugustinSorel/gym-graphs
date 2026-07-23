@@ -16,6 +16,7 @@ import (
 type Server struct {
 	port    int
 	queries *sqlc.Queries
+	pool    *pgxpool.Pool
 }
 
 func NewServer() *http.Server {
@@ -42,6 +43,7 @@ func NewServer() *http.Server {
 	s := &Server{
 		port:    port,
 		queries: sqlc.New(pool),
+		pool:    pool,
 	}
 
 	return &http.Server{
