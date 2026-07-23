@@ -3,11 +3,11 @@ package handler
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
+	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/token"
@@ -138,19 +138,9 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: send email
+	slog.Info(signUpSession.VerificationCode)
 
-	cookie := &http.Cookie{
-		Name:     "sign_up_session_token",
-		Value:    token.CreateSessionToken(signUpSession.ID, signUpSession.Secret),
-		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
-		MaxAge:   86400,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-	}
-
-	http.SetCookie(w, cookie)
+	cookies.SetSignUpSession(w, token.CreateSessionToken(signUpSession.ID, signUpSession.Secret))
 
 	w.Header().Set("HX-Redirect", "/sign-up/verify-email-address")
 	w.WriteHeader(http.StatusCreated)
@@ -227,14 +217,14 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 }
 
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("sign_up_session_token")
+	sessionToken, err := cookies.GetSignUpSession(r)
 	if err != nil {
 		w.Header().Set("HX-Redirect", "/sign-up")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	sessionId, _, err := token.ParseSessionToken(cookie.Value)
+	sessionId, _, err := token.ParseSessionToken(sessionToken)
 	if err != nil {
 		slog.Error("failed to parse sign up session token", "error", err)
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -246,15 +236,7 @@ func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request
 		slog.Error("failed to cancel sign up session", "error", err)
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "sign_up_session_token",
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-	})
+	cookies.ClearSignUpSession(w)
 
 	w.Header().Set("HX-Redirect", "/sign-up")
 	w.WriteHeader(http.StatusOK)
