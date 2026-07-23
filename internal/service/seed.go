@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 )
 
 type SeedService struct {
-	queries *sqlc.Queries
+	queries *db.Queries
 }
 
-func NewSeedService(queries *sqlc.Queries) *SeedService {
+func NewSeedService(queries *db.Queries) *SeedService {
 	return &SeedService{queries: queries}
 }
 
@@ -19,5 +19,3 @@ func NewSeedService(queries *sqlc.Queries) *SeedService {
 func (s *SeedService) SeedUser(ctx context.Context, userID int32) error {
 	return nil
 }
-
-

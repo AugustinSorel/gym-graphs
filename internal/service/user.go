@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/jackc/pgx/v5"
 )
@@ -12,10 +12,10 @@ import (
 var ErrEmailTaken = errors.New("email already taken")
 
 type UserService struct {
-	queries *sqlc.Queries
+	queries *db.Queries
 }
 
-func NewUserService(queries *sqlc.Queries) *UserService {
+func NewUserService(queries *db.Queries) *UserService {
 	return &UserService{queries: queries}
 }
 
@@ -33,11 +33,11 @@ func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, err
 	return true, nil
 }
 
-func CreateUser(ctx context.Context, q *sqlc.Queries, email string, pw string, name string, sessionID int32) (sqlc.CreateUserRow, error) {
+func CreateUser(ctx context.Context, q *db.Queries, email string, pw string, name string, sessionID int32) (db.CreateUserRow, error) {
 	salt := password.GenerateSalt()
 	hash := password.Hash(pw, salt)
 
-	return q.CreateUser(ctx, sqlc.CreateUserParams{
+	return q.CreateUser(ctx, db.CreateUserParams{
 		ID:           sessionID,
 		Name:         name,
 		PasswordHash: hash,

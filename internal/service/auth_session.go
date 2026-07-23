@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/session"
 )
 
@@ -14,10 +14,10 @@ type AuthSession struct {
 }
 
 type AuthSessionService struct {
-	queries *sqlc.Queries
+	queries *db.Queries
 }
 
-func NewAuthSessionService(queries *sqlc.Queries) *AuthSessionService {
+func NewAuthSessionService(queries *db.Queries) *AuthSessionService {
 	return &AuthSessionService{queries: queries}
 }
 
@@ -25,7 +25,7 @@ func (s *AuthSessionService) Create(ctx context.Context, userID int32) (AuthSess
 	rawSecret := session.GenerateSecret()
 	secretHash := session.HashSecret(rawSecret)
 
-	row, err := s.queries.CreateAuthSession(ctx, sqlc.CreateAuthSessionParams{
+	row, err := s.queries.CreateAuthSession(ctx, db.CreateAuthSessionParams{
 		UserID:     userID,
 		SecretHash: secretHash,
 	})

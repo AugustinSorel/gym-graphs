@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Server struct {
 	port    int
-	queries *sqlc.Queries
+	queries *db.Queries
 	pool    *pgxpool.Pool
 }
 
@@ -42,7 +42,7 @@ func NewServer() *http.Server {
 
 	s := &Server{
 		port:    port,
-		queries: sqlc.New(pool),
+		queries: db.New(pool),
 		pool:    pool,
 	}
 

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/augustinsorel/gym-graphs/internal/db/sqlc"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/domain"
 	"github.com/augustinsorel/gym-graphs/internal/otp"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -17,11 +17,11 @@ type SignUpSession struct {
 }
 
 type SignUpService struct {
-	queries *sqlc.Queries
+	queries *db.Queries
 	pool    *pgxpool.Pool
 }
 
-func NewSignUpService(queries *sqlc.Queries, pool *pgxpool.Pool) *SignUpService {
+func NewSignUpService(queries *db.Queries, pool *pgxpool.Pool) *SignUpService {
 	return &SignUpService{queries: queries, pool: pool}
 }
 
@@ -31,7 +31,7 @@ func (s *SignUpService) Create(ctx context.Context, email string) (SignUpSession
 
 	verificationCode := otp.GenerateEmailAddressVerificationCode()
 
-	params := sqlc.CreateSignUpSessionParams{
+	params := db.CreateSignUpSessionParams{
 		SecretHash:                   secretHash,
 		EmailAddress:                 email,
 		EmailAddressVerificationCode: verificationCode,
@@ -57,18 +57,18 @@ func (s *SignUpService) Cancel(ctx context.Context, id int32) error {
 	return err
 }
 
-func (s *SignUpService) GetByID(ctx context.Context, id int32) (sqlc.SignUpSession, error) {
+func (s *SignUpService) GetByID(ctx context.Context, id int32) (db.SignUpSession, error) {
 	return s.queries.GetSignUpSessionByID(ctx, id)
 }
 
-func (s *SignUpService) Complete(ctx context.Context, session sqlc.SignUpSession, password string) (AuthSession, error) {
+func (s *SignUpService) Complete(ctx context.Context, session db.SignUpSession, password string) (AuthSession, error) {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return AuthSession{}, err
 	}
 	defer tx.Rollback(ctx)
 
-	txq := sqlc.New(tx)
+	txq := db.New(tx)
 
 	name := domain.InferNameFromEmail(session.EmailAddress)
 
