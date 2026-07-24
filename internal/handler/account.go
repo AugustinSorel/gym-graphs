@@ -26,6 +26,7 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
 	if err != nil {
+		//FIX
 		slog.Error("failed to get user", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -44,6 +45,7 @@ func (h *AccountHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
 	if err := h.authSessionSvc.Delete(r.Context(), authSession.ID); err != nil {
+		//FIX
 		slog.Error("failed to delete auth session", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
