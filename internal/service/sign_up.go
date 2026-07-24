@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"crypto/subtle"
 	"errors"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
@@ -93,7 +94,9 @@ func (s *SignUpService) ValidateToken(ctx context.Context, token string) (db.Sig
 }
 
 func (s *SignUpService) VerifyCode(storedCode, inputCode string) error {
-	if storedCode != inputCode {
+	ok := subtle.ConstantTimeCompare([]byte(storedCode), []byte(inputCode)) == 1
+
+	if !ok {
 		return ErrInvalidVerificationCode
 	}
 	return nil
