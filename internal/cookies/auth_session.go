@@ -19,7 +19,7 @@ func SetAuthSession(w http.ResponseWriter, token string) {
 		MaxAge:   int(authSessionTTL.Seconds()),
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -39,6 +39,6 @@ func ClearAuthSession(w http.ResponseWriter) {
 		MaxAge:   -1,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	})
 }

@@ -17,8 +17,6 @@ import (
 )
 
 //FIX: time interval
-//TODO: architecture skill
-//TODO: ai code review
 
 type SignUpHandler struct {
 	userSvc   *service.UserService

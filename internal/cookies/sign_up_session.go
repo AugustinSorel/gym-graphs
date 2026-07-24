@@ -19,7 +19,7 @@ func SetSignUpSession(w http.ResponseWriter, token string) {
 		MaxAge:   int(signUpSessionTTL.Seconds()),
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -39,6 +39,6 @@ func ClearSignUpSession(w http.ResponseWriter) {
 		MaxAge:   -1,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
