@@ -17,7 +17,6 @@ import (
 )
 
 //FIX: time interval
-//FIX: logs
 //TODO: architecture skill
 //TODO: ai code review
 
@@ -39,7 +38,7 @@ func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		slog.Error(err.Error())
+		slog.Error("failed to render sign up page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +67,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
+			slog.Error("failed to render sign up form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -91,7 +90,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
+			slog.Error("failed to render sign up form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -111,7 +110,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
+			slog.Error("failed to render sign up form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -134,7 +133,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
+			slog.Error("failed to render sign up form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -142,7 +141,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: send email
-	slog.Info(signUpSession.VerificationCode)
+	slog.Info("verification code created", "code", signUpSession.VerificationCode)
 
 	cookies.SetSignUpSession(w, session.CreateToken(signUpSession.ID, signUpSession.Secret))
 
@@ -159,7 +158,7 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		slog.Error(err.Error())
+		slog.Error("failed to render verify email page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -190,7 +189,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			slog.Error(err.Error())
+			slog.Error("failed to render verify email form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -207,7 +206,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		formValues := signup.VerifyEmailFormValues{Code: input.Code}
 
 		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+			slog.Error("failed to render verify email form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -225,7 +224,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		formValues := signup.VerifyEmailFormValues{Code: input.Code}
 
 		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+			slog.Error("failed to render verify email form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -246,13 +245,13 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 		Code:       r.FormValue("code"),
 	}
 
-	slog.Info(signUpSession.EmailAddressVerificationCode)
+	slog.Info("verification code resent", "code", signUpSession.EmailAddressVerificationCode)
 
 	err := signup.VerifyEmailForm(form, signup.VerifyEmailFormErr{}).Render(r.Context(), w)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		slog.Error(err.Error())
+		slog.Error("failed to render verify email form", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
@@ -266,7 +265,7 @@ func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Reque
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		slog.Error(err.Error())
+		slog.Error("failed to render set password page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -295,7 +294,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 
 		err := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w)
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to render set password form", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -311,7 +310,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+			slog.Error("failed to render set password form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -325,7 +324,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+			slog.Error("failed to render set password form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -341,7 +340,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 		formValues := signup.SetPasswordFormValues{Email: signUpSession.EmailAddress, Password: input.Password}
 
 		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+			slog.Error("failed to render set password form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
