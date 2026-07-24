@@ -18,7 +18,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	authSessionSvc := service.NewAuthSessionService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
-	signIn := handler.NewSignInHandler()
+	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)

@@ -10,6 +10,7 @@ import (
 )
 
 var ErrEmailTaken = errors.New("email already taken")
+var ErrUserNotFound = errors.New("user not found")
 
 type UserService struct {
 	queries *db.Queries
@@ -17,6 +18,17 @@ type UserService struct {
 
 func NewUserService(queries *db.Queries) *UserService {
 	return &UserService{queries: queries}
+}
+
+func (s *UserService) GetByEmail(ctx context.Context, email string) (db.User, error) {
+	user, err := s.queries.GetUserByEmail(ctx, email)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return db.User{}, ErrUserNotFound
+	}
+	if err != nil {
+		return db.User{}, err
+	}
+	return user, nil
 }
 
 func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, error) {
