@@ -82,7 +82,8 @@ func (h *SignInHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 
 		formValues := signin.SignInFormValues{
-			Email: input.Email,
+			Email:    input.Email,
+			Password: input.Password,
 		}
 
 		if renderErr := signin.SignInForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
@@ -102,7 +103,8 @@ func (h *SignInHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 
 		formValues := signin.SignInFormValues{
-			Email: input.Email,
+			Email:    input.Email,
+			Password: input.Password,
 		}
 
 		if renderErr := signin.SignInForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
@@ -124,7 +126,8 @@ func (h *SignInHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 
 		formValues := signin.SignInFormValues{
-			Email: input.Email,
+			Email:    input.Email,
+			Password: input.Password,
 		}
 
 		if renderErr := signin.SignInForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
