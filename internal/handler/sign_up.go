@@ -348,7 +348,7 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookies.ClearSignUpSession(w)
-	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.Secret))
+	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.RawSecret))
 
 	w.Header().Set("HX-Redirect", "/")
 	w.WriteHeader(http.StatusCreated)

@@ -12,9 +12,9 @@ import (
 var ErrInvalidAuthSession = errors.New("auth session: invalid or not found")
 
 type AuthSession struct {
-	ID     int32
-	UserID int32
-	Secret []byte
+	ID        int32
+	UserID    int32
+	RawSecret []byte
 }
 
 type AuthSessionService struct {
@@ -39,28 +39,24 @@ func (s *AuthSessionService) Create(ctx context.Context, userID int32) (AuthSess
 	}
 
 	return AuthSession{
-		ID:     row.ID,
-		UserID: row.UserID,
-		Secret: rawSecret,
+		ID:        row.ID,
+		UserID:    row.UserID,
+		RawSecret: rawSecret,
 	}, nil
 }
 
-func (s *AuthSessionService) GetByID(ctx context.Context, sessionID int32) (AuthSession, error) {
+func (s *AuthSessionService) GetByID(ctx context.Context, sessionID int32) (db.AuthSession, error) {
 	row, err := s.queries.GetAuthSessionByID(ctx, sessionID)
 	if err != nil {
-		return AuthSession{}, ErrInvalidAuthSession
+		return db.AuthSession{}, ErrInvalidAuthSession
 	}
 
-	return AuthSession{
-		ID:     row.ID,
-		UserID: row.UserID,
-		Secret: row.SecretHash,
-	}, nil
+	return row, nil
 }
 
-func (s *AuthSessionService) ValidateSecret(authSession AuthSession, rawSecret []byte) error {
+func (s *AuthSessionService) ValidateSecret(authSession db.AuthSession, rawSecret []byte) error {
 	secretHash := session.HashSecret(rawSecret)
-	if !bytes.Equal(secretHash, authSession.Secret) {
+	if !bytes.Equal(secretHash, authSession.SecretHash) {
 		return ErrInvalidAuthSession
 	}
 	return nil
