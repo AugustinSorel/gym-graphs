@@ -25,7 +25,6 @@ func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.Si
 }
 
 func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth
 	page := signup.SignUpPage()
 
 	ctx := templ.WithChildren(r.Context(), page)

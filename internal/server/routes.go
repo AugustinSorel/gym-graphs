@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/augustinsorel/gym-graphs/internal/handler"
+	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web"
 )
@@ -14,12 +15,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	fileServer := http.FileServer(http.FS(web.Files))
 
 	userSvc := service.NewUserService(s.queries)
+	authSessionSvc := service.NewAuthSessionService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 
+	guestOnly := func(next http.Handler) http.Handler {
+		return middleware.GuestOnly(authSessionSvc, next)
+	}
+
 	mux.Handle("/assets/", fileServer)
-	mux.HandleFunc("GET /sign-up", signUp.ViewStartPage)
-	mux.HandleFunc("POST /sign-up", signUp.Start)
+	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
+	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
 	mux.HandleFunc("GET /sign-up/verify-email-address", signUp.ViewVerifyEmailPage)
 
 	mux.HandleFunc("POST /sign-up/verify-email-address", signUp.VerifyEmail)
