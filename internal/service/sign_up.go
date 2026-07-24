@@ -74,6 +74,24 @@ func (s *SignUpService) ValidateSecret(signUpSession db.SignUpSession, rawSecret
 	return nil
 }
 
+func (s *SignUpService) ValidateToken(ctx context.Context, token string) (db.SignUpSession, error) {
+	sessionID, rawSecret, err := session.ParseToken(token)
+	if err != nil {
+		return db.SignUpSession{}, ErrInvalidSignUpSession
+	}
+
+	signUpSession, err := s.queries.GetSignUpSessionByID(ctx, sessionID)
+	if err != nil {
+		return db.SignUpSession{}, ErrInvalidSignUpSession
+	}
+
+	if err := s.ValidateSecret(signUpSession, rawSecret); err != nil {
+		return db.SignUpSession{}, err
+	}
+
+	return signUpSession, nil
+}
+
 func (s *SignUpService) VerifyCode(storedCode, inputCode string) error {
 	if storedCode != inputCode {
 		return ErrInvalidVerificationCode

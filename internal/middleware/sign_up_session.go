@@ -7,7 +7,6 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/service"
-	"github.com/augustinsorel/gym-graphs/internal/session"
 )
 
 type contextKey string
@@ -31,19 +30,8 @@ func RequireVerifiedSignUpSession(signUpSvc *service.SignUpService, next http.Ha
 			return
 		}
 
-		sessionID, rawSecret, err := session.ParseToken(token)
+		signUpSession, err := signUpSvc.ValidateToken(r.Context(), token)
 		if err != nil {
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-			return
-		}
-
-		signUpSession, err := signUpSvc.GetByID(r.Context(), sessionID)
-		if err != nil {
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-			return
-		}
-
-		if err := signUpSvc.ValidateSecret(signUpSession, rawSecret); err != nil {
 			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
 			return
 		}
@@ -66,19 +54,8 @@ func RequireUnverifiedSignUpSession(signUpSvc *service.SignUpService, next http.
 			return
 		}
 
-		sessionID, rawSecret, err := session.ParseToken(token)
+		signUpSession, err := signUpSvc.ValidateToken(r.Context(), token)
 		if err != nil {
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-			return
-		}
-
-		signUpSession, err := signUpSvc.GetByID(r.Context(), sessionID)
-		if err != nil {
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-			return
-		}
-
-		if err := signUpSvc.ValidateSecret(signUpSession, rawSecret); err != nil {
 			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
 			return
 		}
