@@ -110,18 +110,18 @@ type AccountDeletionSession struct {
 	ID                     int32
 	AuthSessionID          int32
 	SecretHash             []byte
-	UserIdentityVerifiedAt pgtype.Timestamp
-	CreatedAt              pgtype.Timestamp
-	UpdatedAt              pgtype.Timestamp
+	UserIdentityVerifiedAt pgtype.Timestamptz
+	CreatedAt              pgtype.Timestamptz
+	UpdatedAt              pgtype.Timestamptz
 }
 
 type AuthSession struct {
 	ID           int32
 	UserID       int32
 	SecretHash   []byte
-	LastActiveAt pgtype.Timestamp
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	LastActiveAt pgtype.Timestamptz
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
 
 type Exercise struct {
@@ -129,14 +129,14 @@ type Exercise struct {
 	UserID    int32
 	Name      string
 	Index     int32
-	UpdatedAt pgtype.Timestamp
-	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
 }
 
 type ExerciseTag struct {
 	ExerciseID int32
 	TagID      int32
-	CreatedAt  pgtype.Timestamp
+	CreatedAt  pgtype.Timestamptz
 }
 
 type PasswordResetSession struct {
@@ -145,18 +145,18 @@ type PasswordResetSession struct {
 	SecretHash             []byte
 	EmailCodeHash          []byte
 	EmailCodeSalt          []byte
-	UserIdentityVerifiedAt pgtype.Timestamp
-	CreatedAt              pgtype.Timestamp
-	UpdatedAt              pgtype.Timestamp
+	UserIdentityVerifiedAt pgtype.Timestamptz
+	CreatedAt              pgtype.Timestamptz
+	UpdatedAt              pgtype.Timestamptz
 }
 
 type PasswordUpdateSession struct {
 	ID                     int32
 	AuthSessionID          int32
 	SecretHash             []byte
-	UserIdentityVerifiedAt pgtype.Timestamp
-	CreatedAt              pgtype.Timestamp
-	UpdatedAt              pgtype.Timestamp
+	UserIdentityVerifiedAt pgtype.Timestamptz
+	CreatedAt              pgtype.Timestamptz
+	UpdatedAt              pgtype.Timestamptz
 }
 
 type Set struct {
@@ -164,8 +164,8 @@ type Set struct {
 	ExerciseID  int32
 	Repetitions int32
 	WeightInG   int32
-	UpdatedAt   pgtype.Timestamp
-	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   pgtype.Timestamptz
 }
 
 type SignUpSession struct {
@@ -173,17 +173,17 @@ type SignUpSession struct {
 	SecretHash                   []byte
 	EmailAddress                 string
 	EmailAddressVerificationCode string
-	EmailAddressVerifiedAt       pgtype.Timestamp
-	CreatedAt                    pgtype.Timestamp
-	UpdatedAt                    pgtype.Timestamp
+	EmailAddressVerifiedAt       pgtype.Timestamptz
+	CreatedAt                    pgtype.Timestamptz
+	UpdatedAt                    pgtype.Timestamptz
 }
 
 type Tag struct {
 	ID        int32
 	UserID    int32
 	Name      string
-	UpdatedAt pgtype.Timestamp
-	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
 }
 
 type User struct {
@@ -193,7 +193,7 @@ type User struct {
 	WeightUnit         WeightUnit
 	PasswordHash       []byte
 	PasswordSalt       []byte
-	CreatedAt          pgtype.Timestamp
-	UpdatedAt          pgtype.Timestamp
+	CreatedAt          pgtype.Timestamptz
+	UpdatedAt          pgtype.Timestamptz
 	OneRepMaxAlgorithm OneRepMaxAlgorithm
 }

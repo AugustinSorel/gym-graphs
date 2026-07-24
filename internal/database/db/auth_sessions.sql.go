@@ -33,3 +33,21 @@ func (q *Queries) CreateAuthSession(ctx context.Context, arg CreateAuthSessionPa
 	)
 	return i, err
 }
+
+const getAuthSessionByID = `-- name: GetAuthSessionByID :one
+select id, user_id, secret_hash, last_active_at, created_at, updated_at from auth_sessions where id = $1
+`
+
+func (q *Queries) GetAuthSessionByID(ctx context.Context, id int32) (AuthSession, error) {
+	row := q.db.QueryRow(ctx, getAuthSessionByID, id)
+	var i AuthSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.SecretHash,
+		&i.LastActiveAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
