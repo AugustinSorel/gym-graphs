@@ -61,3 +61,7 @@ func (s *AuthSessionService) ValidateSecret(authSession db.AuthSession, rawSecre
 	}
 	return nil
 }
+
+func (s *AuthSessionService) Delete(ctx context.Context, sessionID int32) error {
+	return s.queries.DeleteAuthSession(ctx, sessionID)
+}

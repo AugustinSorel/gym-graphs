@@ -5,3 +5,6 @@ returning *;
 
 -- name: GetAuthSessionByID :one
 select * from auth_sessions where id = $1;
+
+-- name: DeleteAuthSession :exec
+delete from auth_sessions where id = $1;

@@ -1,10 +1,17 @@
 package account
 
+import "github.com/augustinsorel/gym-graphs/web/ui/button"
+
 templ AccountPage(email string) {
 	<main class="max-w-xl w-full m-auto space-y-15 p-4">
 		<h1 class="text-xl lg:text-5xl text-center">account</h1>
 		<section class="flex flex-col gap-4">
 			<p>email: <span>{ email }</span></p>
+			<form method="POST" action="/sign-out">
+				@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantDestructive}) {
+					sign out
+				}
+			</form>
 		</section>
 	</main>
 }
