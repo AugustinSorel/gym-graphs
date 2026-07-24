@@ -1,12 +1,27 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
 )
+
+type contextKey string
+
+const signUpSessionKey contextKey = "sign_up_session"
+
+func SetSignUpSession(ctx context.Context, s db.SignUpSession) context.Context {
+	return context.WithValue(ctx, signUpSessionKey, s)
+}
+
+func GetSignUpSession(ctx context.Context) (db.SignUpSession, bool) {
+	s, ok := ctx.Value(signUpSessionKey).(db.SignUpSession)
+	return s, ok
+}
 
 func RequireVerifiedSignUpSession(signUpSvc *service.SignUpService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +53,8 @@ func RequireVerifiedSignUpSession(signUpSvc *service.SignUpService, next http.Ha
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := SetSignUpSession(r.Context(), signUpSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -72,6 +88,7 @@ func RequireUnverifiedSignUpSession(signUpSvc *service.SignUpService, next http.
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := SetSignUpSession(r.Context(), signUpSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

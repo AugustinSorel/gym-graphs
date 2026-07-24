@@ -8,6 +8,7 @@ import (
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -16,6 +17,7 @@ import (
 )
 
 //FIX: time interval
+//FIX: logs
 //TODO: architecture skill
 //TODO: ai code review
 
@@ -164,28 +166,7 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
-	sessionToken := cookies.GetSignUpSession(r)
-	if sessionToken == "" {
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
-
-	sessionID, _, err := session.ParseToken(sessionToken)
-	if err != nil {
-		slog.Error("failed to parse sign up session token", "error", err)
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
-
-	session, err := h.signUpSvc.GetByID(r.Context(), sessionID)
-	if err != nil {
-		slog.Error("failed to get sign up session", "error", err)
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
+	signUpSession, _ := middleware.GetSignUpSession(r.Context())
 
 	var input schema.VerifyEmail
 
@@ -216,7 +197,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.signUpSvc.VerifyCode(session.EmailAddressVerificationCode, input.Code); err != nil {
+	if err := h.signUpSvc.VerifyCode(signUpSession.EmailAddressVerificationCode, input.Code); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
 		formErrs := signup.VerifyEmailFormErr{
@@ -233,7 +214,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := h.signUpSvc.MarkEmailAsVerified(r.Context(), session.ID); err != nil {
+	if _, err := h.signUpSvc.MarkEmailAsVerified(r.Context(), signUpSession.ID); err != nil {
 		slog.Error("failed to mark email as verified", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -256,12 +237,16 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
+	signUpSession, _ := middleware.GetSignUpSession(r.Context())
+
 	//TODO: resend email
 
 	form := signup.VerifyEmailFormValues{
 		SuccessMsg: "a new verification code has been sent to your email address.",
 		Code:       r.FormValue("code"),
 	}
+
+	slog.Info(signUpSession.EmailAddressVerificationCode)
 
 	err := signup.VerifyEmailForm(form, signup.VerifyEmailFormErr{}).Render(r.Context(), w)
 
@@ -288,36 +273,8 @@ func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
-	sessionToken := cookies.GetSignUpSession(r)
-	if sessionToken == "" {
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
+	signUpSession, _ := middleware.GetSignUpSession(r.Context())
 
-	sessionID, _, err := session.ParseToken(sessionToken)
-	if err != nil {
-		slog.Error("failed to parse sign up session token", "error", err)
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
-
-	signUpSession, err := h.signUpSvc.GetByID(r.Context(), sessionID)
-	if err != nil {
-		slog.Error("failed to get sign up session", "error", err)
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusSeeOther)
-		return
-	}
-
-	// if !secret.Verify(sessionSecret, session.SecretHash) {
-	// 	w.Header().Set("HX-Redirect", "/sign-up")
-	// 	w.WriteHeader(http.StatusSeeOther)
-	// 	return
-	// }
-
-	// --- Validate form input ---
 	var input schema.SetPassword
 
 	errs := schema.SetPasswordInput.Parse(zhttp.Request(r), &input)
@@ -336,15 +293,15 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 			Password: input.Password,
 		}
 
-		if renderErr := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
-			slog.Error(renderErr.Error())
+		err := signup.SetPasswordForm(formValues, formErrs).Render(r.Context(), w)
+		if err != nil {
+			slog.Error(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
 		return
 	}
 
-	// --- Check email is still available ---
 	taken, err := h.userSvc.IsEmailTaken(r.Context(), signUpSession.EmailAddress)
 	if err != nil {
 		slog.Error("failed to check email availability", "error", err)
@@ -399,22 +356,11 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
-	sessionToken := cookies.GetSignUpSession(r)
-	if sessionToken == "" {
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusOK)
-		return
-	}
+	signUpSession, _ := middleware.GetSignUpSession(r.Context())
 
-	sessionId, _, err := session.ParseToken(sessionToken)
+	err := h.signUpSvc.Cancel(r.Context(), signUpSession.ID)
+
 	if err != nil {
-		slog.Error("failed to parse sign up session token", "error", err)
-		w.Header().Set("HX-Redirect", "/sign-up")
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	if err := h.signUpSvc.Cancel(r.Context(), sessionId); err != nil {
 		slog.Error("failed to cancel sign up session", "error", err)
 	}
 
