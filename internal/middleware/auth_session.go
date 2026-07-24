@@ -1,12 +1,25 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
 )
+
+const authSessionKey contextKey = "auth_session"
+
+func SetAuthSession(ctx context.Context, s db.AuthSession) context.Context {
+	return context.WithValue(ctx, authSessionKey, s)
+}
+
+func GetAuthSession(ctx context.Context) (db.AuthSession, bool) {
+	s, ok := ctx.Value(authSessionKey).(db.AuthSession)
+	return s, ok
+}
 
 func GuestOnly(authSessionSvc *service.AuthSessionService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +75,7 @@ func RequireAuthSession(authSessionSvc *service.AuthSessionService, next http.Ha
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := SetAuthSession(r.Context(), authSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

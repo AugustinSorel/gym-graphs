@@ -2,6 +2,10 @@
 select * from users
 where email_address = $1;
 
+-- name: GetUserByID :one
+select * from users
+where id = $1;
+
 -- name: CreateUser :one
 insert into users (email_address, password_hash, password_salt, name)
 select
