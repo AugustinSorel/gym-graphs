@@ -61,7 +61,7 @@ func RequireUnverifiedSignUpSession(signUpSvc *service.SignUpService, next http.
 		}
 
 		if signUpSession.EmailAddressVerifiedAt.Valid {
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			http.Redirect(w, r, "/sign-up/set-password", http.StatusSeeOther)
 			return
 		}
 
