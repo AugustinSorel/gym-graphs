@@ -15,6 +15,10 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
 
+//FIX: time interval
+//TODO: architecture skill
+//TODO: ai code review
+
 type SignUpHandler struct {
 	userSvc   *service.UserService
 	signUpSvc *service.SignUpService
@@ -40,7 +44,6 @@ func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth
 	var input schema.Start
 
 	errs := schema.StartInput.Parse(zhttp.Request(r), &input)
