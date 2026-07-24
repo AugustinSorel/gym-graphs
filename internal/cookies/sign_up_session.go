@@ -1,7 +1,6 @@
 package cookies
 
 import (
-	"errors"
 	"net/http"
 	"time"
 )
@@ -24,12 +23,12 @@ func SetSignUpSession(w http.ResponseWriter, token string) {
 	})
 }
 
-func GetSignUpSession(r *http.Request) (string, error) {
+func GetSignUpSession(r *http.Request) string {
 	cookie, err := r.Cookie(signUpSessionCookieName)
 	if err != nil {
-		return "", errors.Join(err, http.ErrNoCookie)
+		return ""
 	}
-	return cookie.Value, nil
+	return cookie.Value
 }
 
 func ClearSignUpSession(w http.ResponseWriter) {

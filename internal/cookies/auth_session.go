@@ -1,7 +1,6 @@
 package cookies
 
 import (
-	"errors"
 	"net/http"
 	"time"
 )
@@ -24,12 +23,12 @@ func SetAuthSession(w http.ResponseWriter, token string) {
 	})
 }
 
-func GetAuthSession(r *http.Request) (string, error) {
+func GetAuthSession(r *http.Request) string {
 	cookie, err := r.Cookie(authSessionCookieName)
 	if err != nil {
-		return "", errors.Join(err, http.ErrNoCookie)
+		return ""
 	}
-	return cookie.Value, nil
+	return cookie.Value
 }
 
 func ClearAuthSession(w http.ResponseWriter) {

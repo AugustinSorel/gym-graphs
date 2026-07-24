@@ -164,8 +164,8 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	//TODO: auth
 
-	sessionToken, err := cookies.GetSignUpSession(r)
-	if err != nil {
+	sessionToken := cookies.GetSignUpSession(r)
+	if sessionToken == "" {
 		w.Header().Set("HX-Redirect", "/sign-up")
 		w.WriteHeader(http.StatusSeeOther)
 		return
@@ -290,8 +290,8 @@ func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Reque
 
 func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 	// --- Validate the sign-up session cookie ---
-	sessionToken, err := cookies.GetSignUpSession(r)
-	if err != nil {
+	sessionToken := cookies.GetSignUpSession(r)
+	if sessionToken == "" {
 		w.Header().Set("HX-Redirect", "/sign-up")
 		w.WriteHeader(http.StatusSeeOther)
 		return
@@ -401,8 +401,8 @@ func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
-	sessionToken, err := cookies.GetSignUpSession(r)
-	if err != nil {
+	sessionToken := cookies.GetSignUpSession(r)
+	if sessionToken == "" {
 		w.Header().Set("HX-Redirect", "/sign-up")
 		w.WriteHeader(http.StatusOK)
 		return

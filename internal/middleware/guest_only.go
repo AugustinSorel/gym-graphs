@@ -10,8 +10,8 @@ import (
 
 func GuestOnly(authSessionSvc *service.AuthSessionService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token, err := cookies.GetAuthSession(r)
-		if err != nil {
+		token := cookies.GetAuthSession(r)
+		if token == "" {
 			next.ServeHTTP(w, r)
 			return
 		}
