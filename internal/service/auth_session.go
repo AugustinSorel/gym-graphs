@@ -45,19 +45,23 @@ func (s *AuthSessionService) Create(ctx context.Context, userID int32) (AuthSess
 	}, nil
 }
 
-func (s *AuthSessionService) Validate(ctx context.Context, sessionID int32, rawSecret []byte) (AuthSession, error) {
+func (s *AuthSessionService) GetByID(ctx context.Context, sessionID int32) (AuthSession, error) {
 	row, err := s.queries.GetAuthSessionByID(ctx, sessionID)
 	if err != nil {
-		return AuthSession{}, ErrInvalidAuthSession
-	}
-
-	secretHash := session.HashSecret(rawSecret)
-	if !bytes.Equal(secretHash, row.SecretHash) {
 		return AuthSession{}, ErrInvalidAuthSession
 	}
 
 	return AuthSession{
 		ID:     row.ID,
 		UserID: row.UserID,
+		Secret: row.SecretHash,
 	}, nil
+}
+
+func (s *AuthSessionService) ValidateSecret(authSession AuthSession, rawSecret []byte) error {
+	secretHash := session.HashSecret(rawSecret)
+	if !bytes.Equal(secretHash, authSession.Secret) {
+		return ErrInvalidAuthSession
+	}
+	return nil
 }

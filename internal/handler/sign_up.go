@@ -149,7 +149,6 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth
 	page := signup.VerifyEmailPage()
 
 	ctx := templ.WithChildren(r.Context(), page)

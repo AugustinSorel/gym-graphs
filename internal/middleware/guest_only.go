@@ -22,8 +22,13 @@ func GuestOnly(authSessionSvc *service.AuthSessionService, next http.Handler) ht
 			return
 		}
 
-		_, err = authSessionSvc.Validate(r.Context(), sessionID, rawSecret)
+		authSession, err := authSessionSvc.GetByID(r.Context(), sessionID)
 		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		if err := authSessionSvc.ValidateSecret(authSession, rawSecret); err != nil {
 			next.ServeHTTP(w, r)
 			return
 		}

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"errors"
 
@@ -12,6 +13,7 @@ import (
 )
 
 var ErrInvalidVerificationCode = errors.New("invalid verification code")
+var ErrInvalidSignUpSession = errors.New("sign up session: invalid or not found")
 
 type SignUpSession struct {
 	ID               int32
@@ -62,6 +64,14 @@ func (s *SignUpService) Cancel(ctx context.Context, id int32) error {
 
 func (s *SignUpService) GetByID(ctx context.Context, id int32) (db.SignUpSession, error) {
 	return s.queries.GetSignUpSessionByID(ctx, id)
+}
+
+func (s *SignUpService) ValidateSecret(signUpSession db.SignUpSession, rawSecret []byte) error {
+	secretHash := session.HashSecret(rawSecret)
+	if !bytes.Equal(secretHash, signUpSession.SecretHash) {
+		return ErrInvalidSignUpSession
+	}
+	return nil
 }
 
 func (s *SignUpService) VerifyCode(storedCode, inputCode string) error {

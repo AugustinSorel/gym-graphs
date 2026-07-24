@@ -23,11 +23,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
 	}
 
+	requireUnverifiedSignUpSession := func(next http.Handler) http.Handler {
+		return middleware.RequireUnverifiedSignUpSession(signUpSessionSvc, next)
+	}
+
 	mux.Handle("/assets/", fileServer)
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
-	mux.HandleFunc("GET /sign-up/verify-email-address", signUp.ViewVerifyEmailPage)
+	mux.Handle("GET /sign-up/verify-email-address", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.ViewVerifyEmailPage))))
 	mux.HandleFunc("POST /sign-up/verify-email-address", signUp.VerifyEmail)
 	mux.HandleFunc("POST /sign-up/verify-email-address/resend", signUp.ResendVerificationCode)
 	mux.HandleFunc("POST /sign-up/verify-email-address/cancel", signUp.CancelVerifyEmail)
