@@ -27,16 +27,20 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireUnverifiedSignUpSession(signUpSessionSvc, next)
 	}
 
+	requireVerifiedSignUpSession := func(next http.Handler) http.Handler {
+		return middleware.RequireVerifiedSignUpSession(signUpSessionSvc, next)
+	}
+
 	mux.Handle("/assets/", fileServer)
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
 	mux.Handle("GET /sign-up/verify-email-address", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.ViewVerifyEmailPage))))
-	mux.HandleFunc("POST /sign-up/verify-email-address", signUp.VerifyEmail)
-	mux.HandleFunc("POST /sign-up/verify-email-address/resend", signUp.ResendVerificationCode)
-	mux.HandleFunc("POST /sign-up/verify-email-address/cancel", signUp.CancelVerifyEmail)
-	mux.HandleFunc("GET /sign-up/set-password", signUp.ViewSetPasswordPage)
-	mux.HandleFunc("POST /sign-up/set-password", signUp.SetPassword)
+	mux.Handle("POST /sign-up/verify-email-address", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.VerifyEmail))))
+	mux.Handle("POST /sign-up/verify-email-address/resend", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.ResendVerificationCode))))
+	mux.Handle("POST /sign-up/verify-email-address/cancel", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.CancelVerifyEmail))))
+	mux.Handle("GET /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.ViewSetPasswordPage))))
+	mux.Handle("POST /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.SetPassword))))
 
 	return s.corsMiddleware(mux)
 }

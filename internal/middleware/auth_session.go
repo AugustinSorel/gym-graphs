@@ -36,3 +36,32 @@ func GuestOnly(authSessionSvc *service.AuthSessionService, next http.Handler) ht
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 }
+
+func RequireAuthSession(authSessionSvc *service.AuthSessionService, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := cookies.GetAuthSession(r)
+		if token == "" {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		sessionID, rawSecret, err := session.ParseToken(token)
+		if err != nil {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		authSession, err := authSessionSvc.GetByID(r.Context(), sessionID)
+		if err != nil {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		if err := authSessionSvc.ValidateSecret(authSession, rawSecret); err != nil {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}

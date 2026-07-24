@@ -164,8 +164,6 @@ func (h *SignUpHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth
-
 	sessionToken := cookies.GetSignUpSession(r)
 	if sessionToken == "" {
 		w.Header().Set("HX-Redirect", "/sign-up")
@@ -258,7 +256,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth + resend email
+	//TODO: resend email
 
 	form := signup.VerifyEmailFormValues{
 		SuccessMsg: "a new verification code has been sent to your email address.",
@@ -275,7 +273,6 @@ func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Re
 }
 
 func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Request) {
-	//TODO: auth
 	page := signup.SetPasswordPage()
 
 	ctx := templ.WithChildren(r.Context(), page)
@@ -291,7 +288,6 @@ func (h *SignUpHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *SignUpHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
-	// --- Validate the sign-up session cookie ---
 	sessionToken := cookies.GetSignUpSession(r)
 	if sessionToken == "" {
 		w.Header().Set("HX-Redirect", "/sign-up")
