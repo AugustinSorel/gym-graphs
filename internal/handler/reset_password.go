@@ -9,6 +9,7 @@ import (
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -23,6 +24,19 @@ type ResetPasswordHandler struct {
 
 func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService) *ResetPasswordHandler {
 	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc}
+}
+
+func (h *ResetPasswordHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
+	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
+
+	if err := h.passwordResetSvc.Cancel(r.Context(), resetSession.ID); err != nil {
+		slog.Error("failed to cancel password reset session", "error", err)
+	}
+
+	cookies.ClearPasswordResetSession(w)
+
+	w.Header().Set("HX-Redirect", "/reset-password")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *ResetPasswordHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Request) {

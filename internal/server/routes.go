@@ -54,6 +54,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.HandleFunc("GET /reset-password", resetPassword.ViewPage)
 	mux.HandleFunc("POST /reset-password", resetPassword.Start)
 	mux.Handle("GET /reset-password/verify-email-code", requireUnverifiedPasswordResetSession(http.HandlerFunc(resetPassword.ViewVerifyEmailPage)))
+	mux.Handle("POST /reset-password/verify-email/cancel", requireUnverifiedPasswordResetSession(http.HandlerFunc(resetPassword.CancelVerifyEmail)))
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
