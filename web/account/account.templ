@@ -80,34 +80,14 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 
 templ AccountDetails(user db.User, tags []db.Tag) {
 	<header class="space-y-1">
-		<span
-			class="uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2"
-			aria-hidden="true"
-		>
-			if len(user.Name) >= 2 {
-				{ user.Name[:2] }
-			} else {
-				{ user.Name }
-			}
-		</span>
+		@avatar(user.Name)
 		<h1 class="capitalize font-semibold text-3xl break-all">{ user.Name }</h1>
 		<p class="text-sm text-outline break-all">{ user.EmailAddress }</p>
 	</header>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">profile</h2>
-		<dl class="flex flex-col gap-1 py-7 border-b-2 border-dotted border-outline/50">
-			<dt class="text-outline text-sm">email</dt>
-			<dd class="break-all">{ user.EmailAddress }</dd>
-		</dl>
-		<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
-			<dl class="space-y-1">
-				<dt class="text-outline text-sm">name</dt>
-				<dd class="capitalize break-all">{ user.Name }</dd>
-			</dl>
-			@link.Link(link.Props{Href: "/account/name", Class: "my-auto text-sm"}) {
-				edit
-			}
-		</div>
+		@userEmail(user.EmailAddress)
+		@userName(user.Name)
 		@DownloadUserData("")
 	</section>
 	<section>
@@ -118,33 +98,76 @@ templ AccountDetails(user db.User, tags []db.Tag) {
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">preferences</h2>
 		@WeightUnitForm(WeightUnitFormValues{WeightUnit: string(user.WeightUnit)}, WeightUnitFormErr{})
-		<div class="py-7 border-b-2 border-outline/50 border-dotted flex items-center justify-between">
-			<p class="text-outline text-sm">theme</p>
-			<fieldset class="flex border-2 border-on-surface w-fit">
-				<input type="radio" name="theme" value="system" id="theme-system" class="sr-only peer/system"/>
-				<label
-					for="theme-system"
-					class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/system:bg-on-surface peer-checked/system:text-surface peer-[:not(:checked)]/system:hover:bg-on-surface/10 transition-colors peer-focus-visible/system:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
-				>system</label>
-				<input type="radio" name="theme" value="light" id="theme-light" class="sr-only peer/light"/>
-				<label
-					for="theme-light"
-					class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/light:bg-on-surface peer-checked/light:text-surface peer-[:not(:checked)]/light:hover:bg-on-surface/10 transition-colors peer-focus-visible/light:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
-				>light</label>
-				<input type="radio" name="theme" value="dark" id="theme-dark" class="sr-only peer/dark"/>
-				<label
-					for="theme-dark"
-					class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer peer-checked/dark:bg-on-surface peer-checked/dark:text-surface peer-[:not(:checked)]/dark:hover:bg-on-surface/10 transition-colors peer-focus-visible/dark:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
-				>dark</label>
-			</fieldset>
-		</div>
+		@themeSwitcher()
 		@OneRepMaxAlgorithmForm(OneRepMaxAlgorithmFormValues{Algorithm: string(user.OneRepMaxAlgorithm)}, OneRepMaxAlgorithmFormErr{})
 	</section>
-	@TagsSection(tags)
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">tags</h2>
+		@TagsSection(tags)
+	</section>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">danger zone</h2>
 		@RemoveAccountRow("")
 	</section>
+}
+
+templ avatar(name string) {
+	<span
+		class="uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2"
+		aria-hidden="true"
+	>
+		if len(name) >= 2 {
+			{ name[:2] }
+		} else {
+			{ name }
+		}
+	</span>
+}
+
+templ userEmail(email string) {
+	<dl class="flex flex-col gap-1 py-7 border-b-2 border-dotted border-outline/50">
+		<dt class="text-outline text-sm">email</dt>
+		<dd class="break-all">
+			{ email }
+		</dd>
+	</dl>
+}
+
+templ userName(name string) {
+	<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">name</dt>
+			<dd class="capitalize break-all">
+				{ name }
+			</dd>
+		</dl>
+		@link.Link(link.Props{Href: "/account/name", Class: "my-auto text-sm"}) {
+			edit
+		}
+	</div>
+}
+
+templ themeSwitcher() {
+	<div class="py-7 border-b-2 border-outline/50 border-dotted flex items-center justify-between">
+		<p class="text-outline text-sm">theme</p>
+		<fieldset class="flex border-2 border-on-surface w-fit">
+			<input type="radio" name="theme" value="system" id="theme-system" class="sr-only peer/system"/>
+			<label
+				for="theme-system"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/system:bg-on-surface peer-checked/system:text-surface peer-[:not(:checked)]/system:hover:bg-on-surface/10 transition-colors peer-focus-visible/system:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>system</label>
+			<input type="radio" name="theme" value="light" id="theme-light" class="sr-only peer/light"/>
+			<label
+				for="theme-light"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/light:bg-on-surface peer-checked/light:text-surface peer-[:not(:checked)]/light:hover:bg-on-surface/10 transition-colors peer-focus-visible/light:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>light</label>
+			<input type="radio" name="theme" value="dark" id="theme-dark" class="sr-only peer/dark"/>
+			<label
+				for="theme-dark"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer peer-checked/dark:bg-on-surface peer-checked/dark:text-surface peer-[:not(:checked)]/dark:hover:bg-on-surface/10 transition-colors peer-focus-visible/dark:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>dark</label>
+		</fieldset>
+	</div>
 }
 
 templ DownloadUserData(errMsg string) {
@@ -353,24 +376,21 @@ templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlg
 }
 
 templ TagsSection(tags []db.Tag) {
-	<section>
-		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">tags</h2>
-		if len(tags) == 0 {
-			@noTagsMessage()
-		} else {
-			<header class="pt-7 pb-3 flex items-center justify-between">
-				<span class="text-outline text-sm">tags ({ fmt.Sprintf("%d", len(tags)) })</span>
-				@link.Link(link.Props{Href: "/tags/new"}) {
-					+ add
-				}
-			</header>
-			<ul class="list-none [counter-reset:my-list]">
-				for _, tag := range tags {
-					@tagItem(tag)
-				}
-			</ul>
-		}
-	</section>
+	if len(tags) == 0 {
+		@noTagsMessage()
+	} else {
+		<header class="pt-7 pb-3 flex items-center justify-between">
+			<span class="text-outline text-sm">tags ({ fmt.Sprintf("%d", len(tags)) })</span>
+			@link.Link(link.Props{Href: "/tags/new"}) {
+				+ add
+			}
+		</header>
+		<ul class="list-none [counter-reset:my-list]">
+			for _, tag := range tags {
+				@tagItem(tag)
+			}
+		</ul>
+	}
 }
 
 templ tagItem(tag db.Tag) {
