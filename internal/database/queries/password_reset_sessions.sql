@@ -9,3 +9,10 @@ select * from password_reset_sessions where id = $1 and created_at > now() - int
 
 -- name: DeletePasswordResetSession :one
 delete from password_reset_sessions where id = $1 returning *;
+
+-- name: MarkPasswordResetSessionAsVerified :one
+update password_reset_sessions
+set user_identity_verified_at = now()
+where id = $1
+  and user_identity_verified_at is null
+returning *;

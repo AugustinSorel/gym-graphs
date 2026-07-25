@@ -83,3 +83,27 @@ func (q *Queries) GetPasswordResetSessionByID(ctx context.Context, id int32) (Pa
 	)
 	return i, err
 }
+
+const markPasswordResetSessionAsVerified = `-- name: MarkPasswordResetSessionAsVerified :one
+update password_reset_sessions
+set user_identity_verified_at = now()
+where id = $1
+  and user_identity_verified_at is null
+returning id, user_id, secret_hash, email_code_hash, email_code_salt, user_identity_verified_at, created_at, updated_at
+`
+
+func (q *Queries) MarkPasswordResetSessionAsVerified(ctx context.Context, id int32) (PasswordResetSession, error) {
+	row := q.db.QueryRow(ctx, markPasswordResetSessionAsVerified, id)
+	var i PasswordResetSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.SecretHash,
+		&i.EmailCodeHash,
+		&i.EmailCodeSalt,
+		&i.UserIdentityVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

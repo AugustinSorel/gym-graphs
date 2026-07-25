@@ -32,7 +32,7 @@ func (s *PasswordResetService) Create(ctx context.Context, emailAddress string) 
 	rawSecret := session.GenerateSecret()
 	secretHash := session.HashSecret(rawSecret)
 
-	emailCode := otp.GenerateEmailAddressVerificationCode()
+	emailCode := otp.GeneratePasswordResetEmailCode()
 	emailCodeSalt := password.GenerateSalt()
 	emailCodeHash := password.Hash(emailCode, emailCodeSalt)
 
@@ -62,6 +62,10 @@ func (s *PasswordResetService) GetByID(ctx context.Context, id int32) (db.Passwo
 func (s *PasswordResetService) Cancel(ctx context.Context, id int32) error {
 	_, err := s.queries.DeletePasswordResetSession(ctx, id)
 	return err
+}
+
+func (s *PasswordResetService) MarkAsVerified(ctx context.Context, id int32) (db.PasswordResetSession, error) {
+	return s.queries.MarkPasswordResetSessionAsVerified(ctx, id)
 }
 
 func (s *PasswordResetService) ValidateToken(ctx context.Context, token string) (db.PasswordResetSession, error) {

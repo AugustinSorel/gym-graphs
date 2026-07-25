@@ -2,6 +2,7 @@ package otp
 
 import (
 	"crypto/rand"
+	"encoding/base32"
 	"encoding/binary"
 )
 
@@ -24,4 +25,11 @@ func GenerateEmailAddressVerificationCode() string {
 			return string(stringBytes)
 		}
 	}
+}
+
+func GeneratePasswordResetEmailCode() string {
+	emailCodeBytes := make([]byte, 5)
+	rand.Read(emailCodeBytes)
+	emailCode := base32.NewEncoding("ABCDEFGHJKLMNPQRSTUVWXYZ23456789").EncodeToString(emailCodeBytes)
+	return emailCode
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
+	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -24,6 +25,66 @@ type ResetPasswordHandler struct {
 
 func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService) *ResetPasswordHandler {
 	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc}
+}
+
+func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
+
+	var input schema.VerifyPasswordResetCode
+
+	errs := schema.VerifyPasswordResetCodeInput.Parse(zhttp.Request(r), &input)
+
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := resetpassword.VerifyEmailFormErr{
+			Code: firstErr(fieldErrors, "code"),
+			Root: firstErr(fieldErrors, "root"),
+		}
+
+		formValues := resetpassword.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := resetpassword.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if !password.Verify(input.Code, resetSession.EmailCodeHash, resetSession.EmailCodeSalt) {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		formErrs := resetpassword.VerifyEmailFormErr{Code: "invalid verification code"}
+		formValues := resetpassword.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := resetpassword.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if _, err := h.passwordResetSvc.MarkAsVerified(r.Context(), resetSession.ID); err != nil {
+		slog.Error("failed to mark password reset session as verified", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := resetpassword.VerifyEmailFormErr{Root: "something went wrong, please try again"}
+		formValues := resetpassword.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := resetpassword.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/reset-password/set-password")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *ResetPasswordHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -146,6 +207,6 @@ func (h *ResetPasswordHandler) Start(w http.ResponseWriter, r *http.Request) {
 
 	cookies.SetPasswordResetSession(w, session.CreateToken(resetSession.ID, resetSession.Secret))
 
-	w.Header().Set("HX-Redirect", "/reset-password/verify-email")
+	w.Header().Set("HX-Redirect", "/reset-password/verify-email-code")
 	w.WriteHeader(http.StatusCreated)
 }
