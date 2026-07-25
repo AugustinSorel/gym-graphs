@@ -47,6 +47,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireUnverifiedPasswordResetSession(passwordResetSvc, next)
 	}
 
+	requireVerifiedPasswordResetSession := func(next http.Handler) http.Handler {
+		return middleware.RequireVerifiedPasswordResetSession(passwordResetSvc, next)
+	}
+
 	mux.Handle("/assets/", fileServer)
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
@@ -60,6 +64,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /reset-password/verify-email-code", requireUnverifiedPasswordResetSession(http.HandlerFunc(resetPassword.ViewVerifyEmailPage)))
 	mux.Handle("POST /reset-password/verify-email-code", requireUnverifiedPasswordResetSession(http.HandlerFunc(resetPassword.VerifyEmail)))
 	mux.Handle("POST /reset-password/verify-email-code/cancel", requirePasswordResetSession(http.HandlerFunc(resetPassword.CancelVerifyEmail)))
+	mux.Handle("GET /reset-password/set-password", requireVerifiedPasswordResetSession(http.HandlerFunc(resetPassword.ViewSetPasswordPage)))
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
@@ -75,19 +80,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins if needed
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
 		w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
 
-		// Handle preflight OPTIONS requests
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 
-		// Proceed with the next handler
 		next.ServeHTTP(w, r)
 	})
 }

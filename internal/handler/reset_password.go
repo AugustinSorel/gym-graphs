@@ -101,6 +101,41 @@ func (h *ResetPasswordHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *ResetPasswordHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Request) {
+	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
+
+	user, err := h.userSvc.GetByPasswordResetSessionID(r.Context(), resetSession.ID)
+
+	if err != nil {
+		slog.Error("failed to get user by password reset session id", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		page := resetpassword.SetPasswordPage(
+			resetpassword.SetPasswordFormValues{},
+			resetpassword.SetPasswordFormErr{Root: "something went wrong, please try again"},
+		)
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render set password page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	page := resetpassword.SetPasswordPage(
+		resetpassword.SetPasswordFormValues{Email: user.EmailAddress},
+		resetpassword.SetPasswordFormErr{},
+	)
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		slog.Error("failed to render set password page", "error", renderErr)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func (h *ResetPasswordHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Request) {
 	page := resetpassword.VerifyEmailPage()
 

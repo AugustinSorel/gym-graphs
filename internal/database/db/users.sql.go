@@ -88,3 +88,26 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 	)
 	return i, err
 }
+
+const getUserByPasswordResetSessionID = `-- name: GetUserByPasswordResetSessionID :one
+select users.id, users.email_address, users.name, users.weight_unit, users.password_hash, users.password_salt, users.created_at, users.updated_at, users.one_rep_max_algorithm from users
+join password_reset_sessions on password_reset_sessions.user_id = users.id
+where password_reset_sessions.id = $1
+`
+
+func (q *Queries) GetUserByPasswordResetSessionID(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByPasswordResetSessionID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.EmailAddress,
+		&i.Name,
+		&i.WeightUnit,
+		&i.PasswordHash,
+		&i.PasswordSalt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.OneRepMaxAlgorithm,
+	)
+	return i, err
+}

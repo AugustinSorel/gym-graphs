@@ -42,6 +42,17 @@ func (s *UserService) GetByID(ctx context.Context, id int32) (db.User, error) {
 	return user, nil
 }
 
+func (s *UserService) GetByPasswordResetSessionID(ctx context.Context, sessionID int32) (db.User, error) {
+	user, err := s.queries.GetUserByPasswordResetSessionID(ctx, sessionID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return db.User{}, ErrUserNotFound
+	}
+	if err != nil {
+		return db.User{}, err
+	}
+	return user, nil
+}
+
 func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, error) {
 	_, err := s.queries.GetUserByEmail(ctx, email)
 

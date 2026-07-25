@@ -6,6 +6,11 @@ where email_address = $1;
 select * from users
 where id = $1;
 
+-- name: GetUserByPasswordResetSessionID :one
+select users.* from users
+join password_reset_sessions on password_reset_sessions.user_id = users.id
+where password_reset_sessions.id = $1;
+
 -- name: CreateUser :one
 insert into users (email_address, password_hash, password_salt, name)
 select
