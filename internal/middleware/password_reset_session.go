@@ -20,6 +20,25 @@ func GetPasswordResetSession(ctx context.Context) (db.PasswordResetSession, bool
 	return s, ok
 }
 
+func RequirePasswordResetSession(passwordResetSvc *service.PasswordResetService, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := cookies.GetPasswordResetSession(r)
+		if token == "" {
+			http.Redirect(w, r, "/reset-password", http.StatusSeeOther)
+			return
+		}
+
+		resetSession, err := passwordResetSvc.ValidateToken(r.Context(), token)
+		if err != nil {
+			http.Redirect(w, r, "/reset-password", http.StatusSeeOther)
+			return
+		}
+
+		ctx := SetPasswordResetSession(r.Context(), resetSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func RequireUnverifiedPasswordResetSession(passwordResetSvc *service.PasswordResetService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := cookies.GetPasswordResetSession(r)
