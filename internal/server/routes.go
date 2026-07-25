@@ -39,6 +39,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireVerifiedSignUpSession(signUpSessionSvc, next)
 	}
 
+	requireUnverifiedPasswordResetSession := func(next http.Handler) http.Handler {
+		return middleware.RequireUnverifiedPasswordResetSession(passwordResetSvc, next)
+	}
+
 	mux.Handle("/assets/", fileServer)
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
@@ -47,8 +51,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
 
-	mux.Handle("GET /reset-password", http.HandlerFunc(resetPassword.ViewPage))
-	mux.Handle("POST /reset-password", http.HandlerFunc(resetPassword.Start))
+	mux.HandleFunc("GET /reset-password", resetPassword.ViewPage)
+	mux.HandleFunc("POST /reset-password", resetPassword.Start)
+	mux.Handle("GET /reset-password/verify-email-code", requireUnverifiedPasswordResetSession(http.HandlerFunc(resetPassword.ViewVerifyEmailPage)))
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))

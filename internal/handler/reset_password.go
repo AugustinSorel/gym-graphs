@@ -25,6 +25,20 @@ func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *ser
 	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc}
 }
 
+func (h *ResetPasswordHandler) ViewVerifyEmailPage(w http.ResponseWriter, r *http.Request) {
+	page := resetpassword.VerifyEmailPage()
+
+	ctx := templ.WithChildren(r.Context(), page)
+
+	err := layout.Layout().Render(ctx, w)
+
+	if err != nil {
+		slog.Error("failed to render reset password verify email page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *ResetPasswordHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	page := resetpassword.ResetPasswordPage()
 
