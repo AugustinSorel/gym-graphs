@@ -16,11 +16,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	userSvc := service.NewUserService(s.queries)
 	authSessionSvc := service.NewAuthSessionService(s.queries)
+	tagSvc := service.NewTagService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
-	account := handler.NewAccountHandler(userSvc, authSessionSvc)
+	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
@@ -54,6 +55,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("/assets/", fileServer)
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
+	mux.Handle("GET /account/name", requireAuthSession(http.HandlerFunc(account.ViewEditNamePage)))
+	mux.Handle("PATCH /account/name", requireAuthSession(http.HandlerFunc(account.UpdateName)))
+	mux.Handle("PATCH /account/weight-unit", requireAuthSession(http.HandlerFunc(account.UpdateWeightUnit)))
+	mux.Handle("PATCH /account/one-rep-max-algorithm", requireAuthSession(http.HandlerFunc(account.UpdateOneRepMaxAlgorithm)))
+	mux.Handle("GET /account/data", requireAuthSession(http.HandlerFunc(account.DownloadData)))
+	mux.Handle("POST /delete-account", requireAuthSession(http.HandlerFunc(account.DeleteAccount)))
 	mux.Handle("POST /sign-out", requireAuthSession(http.HandlerFunc(account.SignOut)))
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
