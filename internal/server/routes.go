@@ -17,10 +17,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	userSvc := service.NewUserService(s.queries)
 	authSessionSvc := service.NewAuthSessionService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
+	passwordResetSvc := service.NewPasswordResetService(s.queries)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc)
-	resetPassword := handler.NewResetPasswordHandler()
+	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -46,7 +47,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
 
-	mux.HandleFunc("GET /reset-password", resetPassword.ViewPage)
+	mux.Handle("GET /reset-password", http.HandlerFunc(resetPassword.ViewPage))
+	mux.Handle("POST /reset-password", http.HandlerFunc(resetPassword.Start))
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))

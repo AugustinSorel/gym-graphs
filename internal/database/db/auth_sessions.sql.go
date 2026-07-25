@@ -34,6 +34,15 @@ func (q *Queries) CreateAuthSession(ctx context.Context, arg CreateAuthSessionPa
 	return i, err
 }
 
+const deleteAuthSession = `-- name: DeleteAuthSession :exec
+delete from auth_sessions where id = $1
+`
+
+func (q *Queries) DeleteAuthSession(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteAuthSession, id)
+	return err
+}
+
 const getAuthSessionByID = `-- name: GetAuthSessionByID :one
 select id, user_id, secret_hash, last_active_at, created_at, updated_at from auth_sessions where id = $1
 `
@@ -50,13 +59,4 @@ func (q *Queries) GetAuthSessionByID(ctx context.Context, id int32) (AuthSession
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const deleteAuthSession = `-- name: DeleteAuthSession :exec
-delete from auth_sessions where id = $1
-`
-
-func (q *Queries) DeleteAuthSession(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteAuthSession, id)
-	return err
 }
