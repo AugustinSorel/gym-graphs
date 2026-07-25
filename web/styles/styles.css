@@ -153,21 +153,21 @@
     display: inline;
   }
 
-  .select,
-  .select::picker(select) {
+  select,
+  select::picker(select) {
     appearance: base-select;
   }
 
-  .select:disabled {
+  select:disabled {
     opacity: 0.5;
     pointer-events: none;
   }
 
-  .select:hover {
+  select:hover {
     background-color: color-mix(in srgb, var(--on-surface) 80%, transparent);
   }
 
-  .select {
+  select {
     padding: 0.5rem 1rem;
     background: var(--on-surface);
     color: var(--surface);
@@ -178,16 +178,16 @@
     font-size: 0.875rem;
   }
 
-  .select:focus-visible {
+  select:focus-visible {
     outline: 4px solid var(--on-surface);
     outline-offset: 2px;
   }
 
-  .select:open::picker-icon {
+  select:open::picker-icon {
     rotate: 180deg;
   }
 
-  .select::picker(select) {
+  select::picker(select) {
     border: 2px solid var(--on-surface);
     background: var(--surface);
     color: var(--on-surface);
@@ -196,7 +196,7 @@
     border-radius: 0;
   }
 
-  .select option {
+  select option {
     padding: 0.5rem 1.25rem;
     font: inherit;
     cursor: pointer;
@@ -204,17 +204,17 @@
     color: var(--on-surface);
   }
 
-  .select option::checkmark {
+  select option::checkmark {
     content: "*";
   }
 
-  .select option:hover,
-  .select option:focus {
+  select option:hover,
+  select option:focus {
     background-color: var(--color-surface-container-high);
     outline: 2px solid currentColor;
   }
 
-  .select option:checked {
+  select option:checked {
     background: var(--on-surface);
     color: var(--surface);
     font-weight: 600;
