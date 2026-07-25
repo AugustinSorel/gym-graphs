@@ -9,23 +9,24 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/otp"
 	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/augustinsorel/gym-graphs/internal/session"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var ErrPasswordResetSessionNotFound = errors.New("password reset session: invalid or not found")
 
 type PasswordResetSession struct {
-	ID     int32
-	Secret []byte
-	// EmailCode is the plaintext OTP — only available at creation time, used for sending the email.
+	ID        int32
+	Secret    []byte
 	EmailCode string
 }
 
 type PasswordResetService struct {
 	queries *db.Queries
+	pool    *pgxpool.Pool
 }
 
-func NewPasswordResetService(queries *db.Queries) *PasswordResetService {
-	return &PasswordResetService{queries: queries}
+func NewPasswordResetService(queries *db.Queries, pool *pgxpool.Pool) *PasswordResetService {
+	return &PasswordResetService{queries: queries, pool: pool}
 }
 
 func (s *PasswordResetService) Create(ctx context.Context, emailAddress string) (PasswordResetSession, error) {
@@ -66,6 +67,43 @@ func (s *PasswordResetService) Cancel(ctx context.Context, id int32) error {
 
 func (s *PasswordResetService) MarkAsVerified(ctx context.Context, id int32) (db.PasswordResetSession, error) {
 	return s.queries.MarkPasswordResetSessionAsVerified(ctx, id)
+}
+
+func (s *PasswordResetService) Complete(ctx context.Context, resetSessionID int32, userID int32, newPassword string) (AuthSession, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return AuthSession{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	txq := db.New(tx)
+
+	salt := password.GenerateSalt()
+	hash := password.Hash(newPassword, salt)
+
+	if err := txq.UpdateUserPasswordByPasswordResetSessionID(ctx, db.UpdateUserPasswordByPasswordResetSessionIDParams{
+		PasswordHash: hash,
+		PasswordSalt: salt,
+		ID:           resetSessionID,
+	}); err != nil {
+		return AuthSession{}, err
+	}
+
+	if _, err := txq.DeletePasswordResetSession(ctx, resetSessionID); err != nil {
+		return AuthSession{}, err
+	}
+
+	authSvc := &AuthSessionService{queries: txq}
+	authSession, err := authSvc.Create(ctx, userID)
+	if err != nil {
+		return AuthSession{}, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return AuthSession{}, err
+	}
+
+	return authSession, nil
 }
 
 func (s *PasswordResetService) ValidateToken(ctx context.Context, token string) (db.PasswordResetSession, error) {

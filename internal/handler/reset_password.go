@@ -101,6 +101,63 @@ func (h *ResetPasswordHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *ResetPasswordHandler) SetPassword(w http.ResponseWriter, r *http.Request) {
+	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
+
+	var input schema.SetPassword
+
+	errs := schema.SetPasswordInput.Parse(zhttp.Request(r), &input)
+
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := resetpassword.SetPasswordFormErr{
+			Password: firstErr(fieldErrors, "password"),
+			Root:     firstErr(fieldErrors, "root"),
+		}
+
+		formValues := resetpassword.SetPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := resetpassword.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render set password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	authSession, err := h.passwordResetSvc.Complete(r.Context(), resetSession.ID, resetSession.UserID, input.Password)
+
+	if err != nil {
+		slog.Error("failed to complete password reset", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := resetpassword.SetPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := resetpassword.SetPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := resetpassword.SetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render set password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearPasswordResetSession(w)
+	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.RawSecret))
+
+	w.Header().Set("HX-Redirect", "/")
+	w.WriteHeader(http.StatusCreated)
+}
+
 func (h *ResetPasswordHandler) ViewSetPasswordPage(w http.ResponseWriter, r *http.Request) {
 	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
 
