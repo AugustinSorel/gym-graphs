@@ -78,7 +78,7 @@ func RequireUnverifiedPasswordResetSession(passwordResetSvc *service.PasswordRes
 		}
 
 		if resetSession.UserIdentityVerifiedAt.Valid {
-			http.Redirect(w, r, "/reset-password/set-password", http.StatusSeeOther)
+			http.Redirect(w, r, "/reset-password/set-new-password", http.StatusSeeOther)
 			return
 		}
 

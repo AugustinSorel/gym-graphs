@@ -83,7 +83,7 @@ func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Header().Set("HX-Redirect", "/reset-password/set-password")
+	w.Header().Set("HX-Redirect", "/reset-password/set-new-password")
 	w.WriteHeader(http.StatusOK)
 }
 
