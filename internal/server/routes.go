@@ -20,6 +20,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc)
+	resetPassword := handler.NewResetPasswordHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -44,6 +45,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
+
+	mux.HandleFunc("GET /reset-password", resetPassword.ViewPage)
 
 	mux.Handle("GET /sign-up", guestOnly(http.HandlerFunc(signUp.ViewStartPage)))
 	mux.Handle("POST /sign-up", guestOnly(http.HandlerFunc(signUp.Start)))
