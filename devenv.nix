@@ -7,6 +7,7 @@
     GOOSE_DRIVER = "postgres";
     GOOSE_DBSTRING = "postgres://localhost:5432/gym_graphs";
     GOOSE_MIGRATION_DIR = ./internal/database/migrations;
+
     SOPS_AGE_KEY_FILE = ./keys.txt;
   };
 

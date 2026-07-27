@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 
+	"github.com/augustinsorel/gym-graphs/internal/config"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,26 +20,19 @@ type Server struct {
 	emailSvc *email.Service
 }
 
-func NewServer() *http.Server {
-	port, err := strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		panic(err)
-	}
-
-	connStr := os.Getenv("DATABASE_URL")
-
-	pool, err := pgxpool.New(context.Background(), connStr)
+func NewServer(cfg *config.Config) *http.Server {
+	pool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
 
-	emailSvc, err := email.NewService()
+	emailSvc, err := email.NewService(cfg)
 	if err != nil {
 		log.Fatalf("unable to create email service: %v", err)
 	}
 
 	s := &Server{
-		port:     port,
+		port:     cfg.Port,
 		queries:  db.New(pool),
 		pool:     pool,
 		emailSvc: emailSvc,
@@ -55,7 +47,6 @@ func NewServer() *http.Server {
 	}
 }
 
-//FIX: env
 //TODO: monitoring
 //TODO: analytics
 //TODO: rate limiter

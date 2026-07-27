@@ -3,13 +3,13 @@ package email
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
+	"github.com/augustinsorel/gym-graphs/internal/config"
 )
 
 type Service struct {
@@ -17,17 +17,12 @@ type Service struct {
 	fromAddress string
 }
 
-func NewService() (*Service, error) {
-	region := os.Getenv("AWS_REGION")
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
-	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-	fromAddress := os.Getenv("SES_FROM_ADDRESS")
-
-	cfg, err := config.LoadDefaultConfig(
+func NewService(cfg *config.Config) (*Service, error) {
+	awsCfg, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
-		config.WithRegion(region),
-		config.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, ""),
+		awsconfig.WithRegion(cfg.AWSRegion),
+		awsconfig.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(cfg.AWSAccessKeyID, cfg.AWSSecretKey, ""),
 		),
 	)
 	if err != nil {
@@ -35,8 +30,8 @@ func NewService() (*Service, error) {
 	}
 
 	return &Service{
-		client:      sesv2.NewFromConfig(cfg),
-		fromAddress: fromAddress,
+		client:      sesv2.NewFromConfig(awsCfg),
+		fromAddress: cfg.SESFromAddress,
 	}, nil
 }
 
