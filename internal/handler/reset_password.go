@@ -9,6 +9,7 @@ import (
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
@@ -21,10 +22,11 @@ import (
 type ResetPasswordHandler struct {
 	userSvc          *service.UserService
 	passwordResetSvc *service.PasswordResetService
+	emailSvc         *email.Service
 }
 
-func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService) *ResetPasswordHandler {
-	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc}
+func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService, emailSvc *email.Service) *ResetPasswordHandler {
+	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc, emailSvc: emailSvc}
 }
 
 func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -294,8 +296,20 @@ func (h *ResetPasswordHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: send email with resetSession.EmailCode
-	slog.Info("password reset code created", "code", resetSession.EmailCode)
+	if err := h.emailSvc.SendPasswordResetCode(r.Context(), input.Email, resetSession.EmailCode); err != nil {
+		slog.Error("failed to send password reset email", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := resetpassword.ResetPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := resetpassword.ResetPasswordFormValues{Email: input.Email}
+
+		if renderErr := resetpassword.ResetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render reset password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	cookies.SetPasswordResetSession(w, session.CreateToken(resetSession.ID, resetSession.Secret))
 

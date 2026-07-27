@@ -7,13 +7,7 @@
     GOOSE_DRIVER = "postgres";
     GOOSE_DBSTRING = "postgres://localhost:5432/gym_graphs";
     GOOSE_MIGRATION_DIR = ./internal/database/migrations;
-
-    DB_HOST = "localhost";
-    DB_PORT = "5432";
-    DB_DATABASE = "gym_graphs";
-    DB_USERNAME = "";
-    DB_PASSWORD = "";
-    DB_SCHEMA = "public";
+    SOPS_AGE_KEY_FILE = ./keys.txt;
   };
 
   packages = with pkgs; [
@@ -21,7 +15,26 @@
     tailwindcss_4
     templ
     sqlc
+    age
+    sops
   ];
+
+  enterShell = ''
+    if [ -f .env ]; then
+      echo "🔒 Decrypting secrets directly into memory..."
+
+      # 'set -a' automatically exports any variables that get defined
+      set -a
+
+      # Process substitution reads the SOPS output like a file, without writing to disk
+      source <(sops -d --output-type dotenv .env)
+
+      # Turn off auto-export
+      set +a
+
+      echo "✅ Secrets loaded into environment variables"
+    fi
+  '';
 
   languages.go = {
     enable = true;

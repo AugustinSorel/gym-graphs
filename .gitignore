@@ -1,4 +1,4 @@
-.env
+keys.txt
 
 *.test
 *.out

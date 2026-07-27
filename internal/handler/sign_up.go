@@ -8,6 +8,7 @@ import (
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
@@ -21,10 +22,11 @@ import (
 type SignUpHandler struct {
 	userSvc   *service.UserService
 	signUpSvc *service.SignUpService
+	emailSvc  *email.Service
 }
 
-func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService) *SignUpHandler {
-	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc}
+func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService, emailSvc *email.Service) *SignUpHandler {
+	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc, emailSvc: emailSvc}
 }
 
 func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
@@ -138,8 +140,23 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: send email
-	slog.Info("verification code created", "code", signUpSession.VerificationCode)
+	if err := h.emailSvc.SendSignUpVerificationCode(r.Context(), input.Email, signUpSession.VerificationCode); err != nil {
+		slog.Error("failed to send sign up verification email", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.SignUpFormErr{
+			Root: "something went wrong, please try again",
+		}
+
+		formValues := signup.SignUpFormValues{Email: input.Email}
+
+		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render sign up form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	cookies.SetSignUpSession(w, session.CreateToken(signUpSession.ID, signUpSession.Secret))
 
@@ -236,14 +253,28 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
 	signUpSession, _ := middleware.GetSignUpSession(r.Context())
 
-	//TODO: resend email
+	if err := h.emailSvc.SendSignUpVerificationCode(r.Context(), signUpSession.EmailAddress, signUpSession.EmailAddressVerificationCode); err != nil {
+		slog.Error("failed to resend sign up verification email", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Root: "failed to resend verification code, please try again",
+		}
+
+		formValues := signup.VerifyEmailFormValues{Code: r.FormValue("code")}
+
+		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	form := signup.VerifyEmailFormValues{
 		SuccessMsg: "a new verification code has been sent to your email address.",
 		Code:       r.FormValue("code"),
 	}
-
-	slog.Info("verification code resent", "code", signUpSession.EmailAddressVerificationCode)
 
 	err := signup.VerifyEmailForm(form, signup.VerifyEmailFormErr{}).Render(r.Context(), w)
 
