@@ -58,7 +58,7 @@
     };
     watch = {
       paths = [ ./cmd ./internal ./web ];
-      extensions = [ "go" ];
+      extensions = [ "go" "templ" ];
     };
   };
 
