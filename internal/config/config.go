@@ -18,6 +18,8 @@ type Config struct {
 	SMTPHost       string
 	SMTPPort       string
 	SMTPFrom       string
+	UmamiHref      string
+	UmamiWebsiteID string
 }
 
 func Load() (*Config, error) {
@@ -100,6 +102,8 @@ func Load() (*Config, error) {
 		SMTPHost:       smtpHost,
 		SMTPPort:       smtpPort,
 		SMTPFrom:       smtpFrom,
+		UmamiHref:      os.Getenv("UMAMI_HREF"),
+		UmamiWebsiteID: os.Getenv("UMAMI_WEBSITE_ID"),
 	}, nil
 }
 

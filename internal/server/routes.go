@@ -87,7 +87,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.ViewSetPasswordPage))))
 	mux.Handle("POST /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.SetPassword))))
 
-	return s.corsMiddleware(mux)
+	return s.analyticsMiddleware(s.corsMiddleware(mux))
+}
+
+func (s *Server) analyticsMiddleware(next http.Handler) http.Handler {
+	return s.tracker.Middleware(next)
 }
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {

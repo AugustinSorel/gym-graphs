@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/augustinsorel/gym-graphs/internal/analytics"
 	"github.com/augustinsorel/gym-graphs/internal/config"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/email"
@@ -18,6 +19,7 @@ type Server struct {
 	queries *db.Queries
 	pool    *pgxpool.Pool
 	mailer  email.Mailer
+	tracker analytics.Tracker
 }
 
 func NewServer(cfg *config.Config) *http.Server {
@@ -36,6 +38,7 @@ func NewServer(cfg *config.Config) *http.Server {
 		queries: db.New(pool),
 		pool:    pool,
 		mailer:  mailer,
+		tracker: newTracker(cfg),
 	}
 
 	return &http.Server{
@@ -54,6 +57,12 @@ func newMailer(cfg *config.Config) (email.Mailer, error) {
 	return email.NewSMTPMailer(cfg), nil
 }
 
+func newTracker(cfg *config.Config) analytics.Tracker {
+	if cfg.UmamiHref != "" && cfg.UmamiWebsiteID != "" {
+		return analytics.NewUmamiTracker(cfg.UmamiHref, cfg.UmamiWebsiteID)
+	}
+	return analytics.NoopTracker{}
+}
+
 //TODO: monitoring
-//TODO: analytics
 //TODO: rate limiter
