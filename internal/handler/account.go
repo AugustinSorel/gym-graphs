@@ -95,5 +95,5 @@ func (h *AccountHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookies.ClearAuthSession(w)
-	http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+	w.Header().Set("HX-Redirect", "/sign-in")
 }
