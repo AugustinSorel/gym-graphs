@@ -93,7 +93,6 @@ func (h *ResetPasswordHandler) CancelVerifyEmail(w http.ResponseWriter, r *http.
 	resetSession, _ := middleware.GetPasswordResetSession(r.Context())
 
 	if err := h.passwordResetSvc.Cancel(r.Context(), resetSession.ID); err != nil {
-		//FIX
 		slog.Error("failed to cancel password reset session", "error", err)
 	}
 
