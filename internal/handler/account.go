@@ -27,16 +27,29 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
 	if err != nil {
-		//FIX
-		slog.Error("failed to get user", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		page := account.AccountErrorPage("loading the account page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to get user", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
 	tags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 	if err != nil {
-		slog.Error("failed to get tags", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		page := account.AccountErrorPage("loading the account page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to get user", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
@@ -44,8 +57,16 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout().Render(ctx, w); err != nil {
-		slog.Error("failed to render account page", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		page := account.AccountErrorPage("loading the account page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to get user", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
 	}
 }
 
