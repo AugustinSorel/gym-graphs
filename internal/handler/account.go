@@ -75,9 +75,16 @@ func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout().Render(ctx, w); err != nil {
-		//FIXME
-		slog.Error("failed to render edit name page", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		page := account.EditNamePageError("loading the edit name page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to render edit name page", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
 	}
 }
 
