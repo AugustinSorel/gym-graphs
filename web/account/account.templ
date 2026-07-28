@@ -253,6 +253,8 @@ templ SignOutRow(errMsg string) {
 			Attributes: templ.Attributes{
 				"hx-post":    "/sign-out",
 				"hx-disable": "this",
+				"hx-target":  "closest div",
+				"hx-swap":    "outerHTML",
 			},
 		}) {
 			sign out

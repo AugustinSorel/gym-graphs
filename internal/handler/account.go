@@ -75,6 +75,7 @@ func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout().Render(ctx, w); err != nil {
+		//FIXME
 		slog.Error("failed to render edit name page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -109,9 +110,15 @@ func (h *AccountHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
 	if err := h.authSessionSvc.Delete(r.Context(), authSession.ID); err != nil {
-		//FIX
-		slog.Error("failed to delete auth session", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		page := account.SignOutRow("something went wrong")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to delete auth session", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
