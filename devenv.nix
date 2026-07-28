@@ -62,7 +62,7 @@
   processes.sql = {
     exec = "sqlc generate";
     watch = {
-      paths = [ ./internal/db/queries ];
+      paths = [ ./internal/database/queries ];
       extensions = [ "sql" ];
     };
   };
