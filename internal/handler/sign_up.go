@@ -17,8 +17,6 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
 
-//FIX: time interval
-
 type SignUpHandler struct {
 	userSvc   *service.UserService
 	signUpSvc *service.SignUpService

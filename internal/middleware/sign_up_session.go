@@ -69,3 +69,22 @@ func RequireUnverifiedSignUpSession(signUpSvc *service.SignUpService, next http.
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func RequireSignUpSession(signUpSvc *service.SignUpService, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := cookies.GetSignUpSession(r)
+		if token == "" {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		signUpSession, err := signUpSvc.ValidateToken(r.Context(), token)
+		if err != nil {
+			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		}
+
+		ctx := SetSignUpSession(r.Context(), signUpSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}

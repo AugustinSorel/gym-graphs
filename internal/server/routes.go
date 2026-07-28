@@ -36,6 +36,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireUnverifiedSignUpSession(signUpSessionSvc, next)
 	}
 
+	requireSignUpSession := func(next http.Handler) http.Handler {
+		return middleware.RequireSignUpSession(signUpSessionSvc, next)
+	}
+
 	requireVerifiedSignUpSession := func(next http.Handler) http.Handler {
 		return middleware.RequireVerifiedSignUpSession(signUpSessionSvc, next)
 	}
@@ -79,7 +83,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-up/verify-email-address", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.ViewVerifyEmailPage))))
 	mux.Handle("POST /sign-up/verify-email-address", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.VerifyEmail))))
 	mux.Handle("POST /sign-up/verify-email-address/resend", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.ResendVerificationCode))))
-	mux.Handle("POST /sign-up/verify-email-address/cancel", guestOnly(requireUnverifiedSignUpSession(http.HandlerFunc(signUp.CancelVerifyEmail))))
+	mux.Handle("POST /sign-up/verify-email-address/cancel", guestOnly(requireSignUpSession(http.HandlerFunc(signUp.CancelVerifyEmail))))
 	mux.Handle("GET /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.ViewSetPasswordPage))))
 	mux.Handle("POST /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.SetPassword))))
 
