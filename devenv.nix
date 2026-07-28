@@ -53,6 +53,9 @@
 
   processes.api = {
     exec = "go run ./cmd/api/main.go";
+    restart = {
+      on = "always";
+    };
     watch = {
       paths = [ ./cmd ./internal ./web ];
       extensions = [ "go" ];
