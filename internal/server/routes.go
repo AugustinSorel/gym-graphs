@@ -19,10 +19,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	tagSvc := service.NewTagService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
-	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.emailSvc)
+	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
-	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.emailSvc)
+	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)

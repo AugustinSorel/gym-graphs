@@ -22,11 +22,11 @@ import (
 type ResetPasswordHandler struct {
 	userSvc          *service.UserService
 	passwordResetSvc *service.PasswordResetService
-	emailSvc         *email.Service
+	mailer           email.Mailer
 }
 
-func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService, emailSvc *email.Service) *ResetPasswordHandler {
-	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc, emailSvc: emailSvc}
+func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService, mailer email.Mailer) *ResetPasswordHandler {
+	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc, mailer: mailer}
 }
 
 func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -296,7 +296,7 @@ func (h *ResetPasswordHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.emailSvc.SendPasswordResetCode(r.Context(), input.Email, resetSession.EmailCode); err != nil {
+	if err := h.mailer.Send(r.Context(), email.NewPasswordResetEmail(input.Email, resetSession.EmailCode)); err != nil {
 		slog.Error("failed to send password reset email", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 

@@ -20,11 +20,11 @@ import (
 type SignUpHandler struct {
 	userSvc   *service.UserService
 	signUpSvc *service.SignUpService
-	emailSvc  *email.Service
+	mailer    email.Mailer
 }
 
-func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService, emailSvc *email.Service) *SignUpHandler {
-	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc, emailSvc: emailSvc}
+func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService, mailer email.Mailer) *SignUpHandler {
+	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc, mailer: mailer}
 }
 
 func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +138,7 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.emailSvc.SendSignUpVerificationCode(r.Context(), input.Email, signUpSession.VerificationCode); err != nil {
+	if err := h.mailer.Send(r.Context(), email.NewSignUpVerificationEmail(input.Email, signUpSession.VerificationCode)); err != nil {
 		slog.Error("failed to send sign up verification email", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -251,7 +251,7 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
 	signUpSession, _ := middleware.GetSignUpSession(r.Context())
 
-	if err := h.emailSvc.SendSignUpVerificationCode(r.Context(), signUpSession.EmailAddress, signUpSession.EmailAddressVerificationCode); err != nil {
+	if err := h.mailer.Send(r.Context(), email.NewSignUpVerificationEmail(signUpSession.EmailAddress, signUpSession.EmailAddressVerificationCode)); err != nil {
 		slog.Error("failed to resend sign up verification email", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 

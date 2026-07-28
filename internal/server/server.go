@@ -14,10 +14,10 @@ import (
 )
 
 type Server struct {
-	port     int
-	queries  *db.Queries
-	pool     *pgxpool.Pool
-	emailSvc *email.Service
+	port    int
+	queries *db.Queries
+	pool    *pgxpool.Pool
+	mailer  email.Mailer
 }
 
 func NewServer(cfg *config.Config) *http.Server {
@@ -26,16 +26,16 @@ func NewServer(cfg *config.Config) *http.Server {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
 
-	emailSvc, err := email.NewService(cfg)
+	mailer, err := newMailer(cfg)
 	if err != nil {
-		log.Fatalf("unable to create email service: %v", err)
+		log.Fatalf("unable to create mailer: %v", err)
 	}
 
 	s := &Server{
-		port:     cfg.Port,
-		queries:  db.New(pool),
-		pool:     pool,
-		emailSvc: emailSvc,
+		port:    cfg.Port,
+		queries: db.New(pool),
+		pool:    pool,
+		mailer:  mailer,
 	}
 
 	return &http.Server{
@@ -45,6 +45,13 @@ func NewServer(cfg *config.Config) *http.Server {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+}
+
+func newMailer(cfg *config.Config) (email.Mailer, error) {
+	if cfg.AppEnv == "production" {
+		return email.NewSESMailer(cfg)
+	}
+	return email.NewSMTPMailer(cfg), nil
 }
 
 //TODO: monitoring
