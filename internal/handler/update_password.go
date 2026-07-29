@@ -205,3 +205,56 @@ func (h *UpdatePasswordHandler) VerifyPassword(w http.ResponseWriter, r *http.Re
 	w.Header().Set("HX-Redirect", "/update-password/set-new-password")
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (h *UpdatePasswordHandler) SetNewPassword(w http.ResponseWriter, r *http.Request) {
+	updateSession, _ := middleware.GetPasswordUpdateSession(r.Context())
+
+	var input schema.SetNewPassword
+
+	errs := schema.SetNewPasswordInput.Parse(zhttp.Request(r), &input)
+
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := updatepassword.SetNewPasswordFormErr{
+			Password: firstErr(fieldErrors, "password"),
+			Root:     firstErr(fieldErrors, "root"),
+		}
+		formValues := updatepassword.SetNewPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := updatepassword.SetNewPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render set new password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if err := h.passwordUpdateSvc.Complete(r.Context(), updateSession.ID, input.Password); err != nil {
+		slog.Error("failed to complete password update", "path", r.URL.Path, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := updatepassword.SetNewPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := updatepassword.SetNewPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := updatepassword.SetNewPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render set new password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearPasswordUpdateSession(w)
+
+	w.Header().Set("HX-Redirect", "/account")
+	w.WriteHeader(http.StatusCreated)
+}

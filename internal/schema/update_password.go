@@ -5,3 +5,9 @@ type VerifyCurrentPassword struct {
 }
 
 var VerifyCurrentPasswordInput = UserSchema.Pick("password")
+
+type SetNewPassword struct {
+	Password string
+}
+
+var SetNewPasswordInput = UserSchema.Pick("password")

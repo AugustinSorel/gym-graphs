@@ -6,7 +6,9 @@ import (
 	"errors"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/augustinsorel/gym-graphs/internal/session"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var ErrPasswordUpdateSessionNotFound = errors.New("password update session: invalid or not found")
@@ -18,10 +20,11 @@ type PasswordUpdateSession struct {
 
 type PasswordUpdateService struct {
 	queries *db.Queries
+	pool    *pgxpool.Pool
 }
 
-func NewPasswordUpdateService(queries *db.Queries) *PasswordUpdateService {
-	return &PasswordUpdateService{queries: queries}
+func NewPasswordUpdateService(queries *db.Queries, pool *pgxpool.Pool) *PasswordUpdateService {
+	return &PasswordUpdateService{queries: queries, pool: pool}
 }
 
 func (s *PasswordUpdateService) Create(ctx context.Context, authSessionID int32) (PasswordUpdateSession, error) {
@@ -53,6 +56,33 @@ func (s *PasswordUpdateService) Cancel(ctx context.Context, id int32) error {
 
 func (s *PasswordUpdateService) MarkAsVerified(ctx context.Context, id int32) (db.PasswordUpdateSession, error) {
 	return s.queries.MarkPasswordUpdateSessionAsVerified(ctx, id)
+}
+
+func (s *PasswordUpdateService) Complete(ctx context.Context, updateSessionID int32, newPassword string) error {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	txq := db.New(tx)
+
+	salt := password.GenerateSalt()
+	hash := password.Hash(newPassword, salt)
+
+	if err := txq.UpdateUserPasswordByPasswordUpdateSessionID(ctx, db.UpdateUserPasswordByPasswordUpdateSessionIDParams{
+		PasswordHash: hash,
+		PasswordSalt: salt,
+		ID:           updateSessionID,
+	}); err != nil {
+		return err
+	}
+
+	if _, err := txq.DeletePasswordUpdateSession(ctx, updateSessionID); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (s *PasswordUpdateService) ValidateToken(ctx context.Context, token string) (db.PasswordUpdateSession, error) {

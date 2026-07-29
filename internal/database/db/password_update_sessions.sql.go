@@ -34,12 +34,12 @@ func (q *Queries) CreatePasswordUpdateSession(ctx context.Context, arg CreatePas
 	return i, err
 }
 
-const getPasswordUpdateSessionByID = `-- name: GetPasswordUpdateSessionByID :one
-select id, auth_session_id, secret_hash, user_identity_verified_at, created_at, updated_at from password_update_sessions where id = $1 and created_at > now() - interval '1 hour'
+const deletePasswordUpdateSession = `-- name: DeletePasswordUpdateSession :one
+delete from password_update_sessions where id = $1 returning id, auth_session_id, secret_hash, user_identity_verified_at, created_at, updated_at
 `
 
-func (q *Queries) GetPasswordUpdateSessionByID(ctx context.Context, id int32) (PasswordUpdateSession, error) {
-	row := q.db.QueryRow(ctx, getPasswordUpdateSessionByID, id)
+func (q *Queries) DeletePasswordUpdateSession(ctx context.Context, id int32) (PasswordUpdateSession, error) {
+	row := q.db.QueryRow(ctx, deletePasswordUpdateSession, id)
 	var i PasswordUpdateSession
 	err := row.Scan(
 		&i.ID,
@@ -52,12 +52,12 @@ func (q *Queries) GetPasswordUpdateSessionByID(ctx context.Context, id int32) (P
 	return i, err
 }
 
-const deletePasswordUpdateSession = `-- name: DeletePasswordUpdateSession :one
-delete from password_update_sessions where id = $1 returning id, auth_session_id, secret_hash, user_identity_verified_at, created_at, updated_at
+const getPasswordUpdateSessionByID = `-- name: GetPasswordUpdateSessionByID :one
+select id, auth_session_id, secret_hash, user_identity_verified_at, created_at, updated_at from password_update_sessions where id = $1 and created_at > now() - interval '1 hour'
 `
 
-func (q *Queries) DeletePasswordUpdateSession(ctx context.Context, id int32) (PasswordUpdateSession, error) {
-	row := q.db.QueryRow(ctx, deletePasswordUpdateSession, id)
+func (q *Queries) GetPasswordUpdateSessionByID(ctx context.Context, id int32) (PasswordUpdateSession, error) {
+	row := q.db.QueryRow(ctx, getPasswordUpdateSessionByID, id)
 	var i PasswordUpdateSession
 	err := row.Scan(
 		&i.ID,

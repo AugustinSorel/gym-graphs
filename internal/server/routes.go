@@ -19,7 +19,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	tagSvc := service.NewTagService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
-	passwordUpdateSvc := service.NewPasswordUpdateService(s.queries)
+	passwordUpdateSvc := service.NewPasswordUpdateService(s.queries, s.pool)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
@@ -81,6 +81,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /update-password/verify-password", requireAuthSession(requireUnverifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.ViewVerifyPasswordPage))))
 	mux.Handle("POST /update-password/verify-password", requireAuthSession(requireUnverifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.VerifyPassword))))
 	mux.Handle("GET /update-password/set-new-password", requireAuthSession(requireVerifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.ViewSetNewPasswordPage))))
+	mux.Handle("POST /update-password/set-new-password", requireAuthSession(requireVerifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.SetNewPassword))))
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
