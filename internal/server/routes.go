@@ -20,9 +20,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
 	passwordUpdateSvc := service.NewPasswordUpdateService(s.queries, s.pool)
+	accountDeletionSvc := service.NewAccountDeletionService(s.queries)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
-	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
+	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc, accountDeletionSvc)
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 
@@ -69,6 +70,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	requireVerifiedPasswordUpdateSession := func(next http.Handler) http.Handler {
 		return middleware.RequireVerifiedPasswordUpdateSession(passwordUpdateSvc, next)
 	}
+
+	requireAccountDeletionSession := func(next http.Handler) http.Handler {
+		return middleware.RequireAccountDeletionSession(accountDeletionSvc, next)
+	}
+
+	requireUnverifiedAccountDeletionSession := func(next http.Handler) http.Handler {
+		return middleware.RequireUnverifiedAccountDeletionSession(accountDeletionSvc, next)
+	}
+
+	requireVerifiedAccountDeletionSession := func(next http.Handler) http.Handler {
+		return middleware.RequireVerifiedAccountDeletionSession(accountDeletionSvc, next)
+	}
+
+	_ = requireAccountDeletionSession
+	_ = requireUnverifiedAccountDeletionSession
+	_ = requireVerifiedAccountDeletionSession
 
 	mux.Handle("/assets/", fileServer)
 

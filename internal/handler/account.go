@@ -8,18 +8,20 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/augustinsorel/gym-graphs/web/account"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
 )
 
 type AccountHandler struct {
-	userSvc        *service.UserService
-	authSessionSvc *service.AuthSessionService
-	tagSvc         *service.TagService
+	userSvc            *service.UserService
+	authSessionSvc     *service.AuthSessionService
+	tagSvc             *service.TagService
+	accountDeletionSvc *service.AccountDeletionService
 }
 
-func NewAccountHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService, tagSvc *service.TagService) *AccountHandler {
-	return &AccountHandler{userSvc: userSvc, authSessionSvc: authSessionSvc, tagSvc: tagSvc}
+func NewAccountHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService, tagSvc *service.TagService, accountDeletionSvc *service.AccountDeletionService) *AccountHandler {
+	return &AccountHandler{userSvc: userSvc, authSessionSvc: authSessionSvc, tagSvc: tagSvc, accountDeletionSvc: accountDeletionSvc}
 }
 
 func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
@@ -109,8 +111,25 @@ func (h *AccountHandler) DownloadData(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	// stub – account deletion to be implemented
-	w.WriteHeader(http.StatusNoContent)
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	deletionSession, err := h.accountDeletionSvc.Create(r.Context(), authSession.ID)
+	if err != nil {
+		slog.Error("failed to create account deletion session", "path", r.URL.Path, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		if renderErr := account.RemoveAccountRow("something went wrong").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render remove account row", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.SetAccountDeletionSession(w, session.CreateToken(deletionSession.ID, deletionSession.Secret))
+
+	w.Header().Set("HX-Redirect", "/delete-account/verify-password")
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *AccountHandler) SignOut(w http.ResponseWriter, r *http.Request) {
