@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc, accountDeletionSvc)
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
+	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -84,7 +85,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	_ = requireAccountDeletionSession
-	_ = requireUnverifiedAccountDeletionSession
 	_ = requireVerifiedAccountDeletionSession
 
 	mux.Handle("/assets/", fileServer)
@@ -96,6 +96,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("PATCH /account/one-rep-max-algorithm", requireAuthSession(http.HandlerFunc(account.UpdateOneRepMaxAlgorithm)))
 	mux.Handle("GET /account/data", requireAuthSession(http.HandlerFunc(account.DownloadData)))
 	mux.Handle("POST /delete-account", requireAuthSession(http.HandlerFunc(account.DeleteAccount)))
+	mux.Handle("GET /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewVerifyPasswordPage))))
 	mux.Handle("POST /sign-out", requireAuthSession(http.HandlerFunc(account.SignOut)))
 
 	mux.Handle("POST /update-password", requireAuthSession(http.HandlerFunc(updatePassword.Start)))
