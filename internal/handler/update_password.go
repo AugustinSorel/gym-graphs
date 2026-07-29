@@ -83,6 +83,40 @@ func (h *UpdatePasswordHandler) ViewVerifyPasswordPage(w http.ResponseWriter, r 
 	}
 }
 
+func (h *UpdatePasswordHandler) ViewSetNewPasswordPage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to get user for set new password page", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		page := updatepassword.SetNewPasswordPage(
+			updatepassword.SetNewPasswordFormValues{},
+			updatepassword.SetNewPasswordFormErr{Root: "something went wrong, please try again"},
+		)
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render set new password page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	page := updatepassword.SetNewPasswordPage(
+		updatepassword.SetNewPasswordFormValues{Email: user.EmailAddress},
+		updatepassword.SetNewPasswordFormErr{},
+	)
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		slog.Error("failed to render set new password page", "error", renderErr)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func (h *UpdatePasswordHandler) VerifyPassword(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 	updateSession, _ := middleware.GetPasswordUpdateSession(r.Context())

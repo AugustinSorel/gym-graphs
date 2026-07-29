@@ -54,7 +54,31 @@ func RequireUnverifiedPasswordUpdateSession(passwordUpdateSvc *service.PasswordU
 		}
 
 		if updateSession.UserIdentityVerifiedAt.Valid {
-			http.Redirect(w, r, "/update-password/set-password", http.StatusSeeOther)
+			http.Redirect(w, r, "/update-password/set-new-password", http.StatusSeeOther)
+			return
+		}
+
+		ctx := SetPasswordUpdateSession(r.Context(), updateSession)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func RequireVerifiedPasswordUpdateSession(passwordUpdateSvc *service.PasswordUpdateService, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := cookies.GetPasswordUpdateSession(r)
+		if token == "" {
+			http.Redirect(w, r, "/account", http.StatusSeeOther)
+			return
+		}
+
+		updateSession, err := passwordUpdateSvc.ValidateToken(r.Context(), token)
+		if err != nil {
+			http.Redirect(w, r, "/account", http.StatusSeeOther)
+			return
+		}
+
+		if !updateSession.UserIdentityVerifiedAt.Valid {
+			http.Redirect(w, r, "/update-password/verify-password", http.StatusSeeOther)
 			return
 		}
 
