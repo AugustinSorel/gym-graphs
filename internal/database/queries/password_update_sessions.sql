@@ -8,3 +8,10 @@ select * from password_update_sessions where id = $1 and created_at > now() - in
 
 -- name: DeletePasswordUpdateSession :one
 delete from password_update_sessions where id = $1 returning *;
+
+-- name: MarkPasswordUpdateSessionAsVerified :one
+update password_update_sessions
+set user_identity_verified_at = now()
+where id = $1
+  and user_identity_verified_at is null
+returning *;

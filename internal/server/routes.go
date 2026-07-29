@@ -75,6 +75,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.Handle("POST /update-password", requireAuthSession(http.HandlerFunc(updatePassword.Start)))
 	mux.Handle("GET /update-password/verify-password", requireAuthSession(requireUnverifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.ViewVerifyPasswordPage))))
+	mux.Handle("POST /update-password/verify-password", requireAuthSession(requireUnverifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.VerifyPassword))))
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))

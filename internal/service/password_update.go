@@ -51,6 +51,10 @@ func (s *PasswordUpdateService) Cancel(ctx context.Context, id int32) error {
 	return err
 }
 
+func (s *PasswordUpdateService) MarkAsVerified(ctx context.Context, id int32) (db.PasswordUpdateSession, error) {
+	return s.queries.MarkPasswordUpdateSessionAsVerified(ctx, id)
+}
+
 func (s *PasswordUpdateService) ValidateToken(ctx context.Context, token string) (db.PasswordUpdateSession, error) {
 	sessionID, rawSecret, err := session.ParseToken(token)
 	if err != nil {

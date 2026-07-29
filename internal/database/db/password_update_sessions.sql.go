@@ -69,3 +69,25 @@ func (q *Queries) DeletePasswordUpdateSession(ctx context.Context, id int32) (Pa
 	)
 	return i, err
 }
+
+const markPasswordUpdateSessionAsVerified = `-- name: MarkPasswordUpdateSessionAsVerified :one
+update password_update_sessions
+set user_identity_verified_at = now()
+where id = $1
+  and user_identity_verified_at is null
+returning id, auth_session_id, secret_hash, user_identity_verified_at, created_at, updated_at
+`
+
+func (q *Queries) MarkPasswordUpdateSessionAsVerified(ctx context.Context, id int32) (PasswordUpdateSession, error) {
+	row := q.db.QueryRow(ctx, markPasswordUpdateSessionAsVerified, id)
+	var i PasswordUpdateSession
+	err := row.Scan(
+		&i.ID,
+		&i.AuthSessionID,
+		&i.SecretHash,
+		&i.UserIdentityVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
