@@ -206,6 +206,37 @@ func (h *UpdatePasswordHandler) VerifyPassword(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *UpdatePasswordHandler) Cancel(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+	updateSession, _ := middleware.GetPasswordUpdateSession(r.Context())
+
+	if authSession.ID != updateSession.AuthSessionID {
+		cookies.ClearPasswordUpdateSession(w)
+		w.Header().Set("HX-Redirect", "/account")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if err := h.passwordUpdateSvc.Cancel(r.Context(), updateSession.ID); err != nil {
+		slog.Error("failed to cancel password update session", "path", r.URL.Path, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := updatepassword.SetNewPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := updatepassword.SetNewPasswordFormValues{Email: r.FormValue("email")}
+
+		if renderErr := updatepassword.SetNewPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render set new password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearPasswordUpdateSession(w)
+	w.Header().Set("HX-Redirect", "/account")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *UpdatePasswordHandler) SetNewPassword(w http.ResponseWriter, r *http.Request) {
 	updateSession, _ := middleware.GetPasswordUpdateSession(r.Context())
 

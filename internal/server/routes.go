@@ -58,6 +58,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireVerifiedPasswordResetSession(passwordResetSvc, next)
 	}
 
+	requirePasswordUpdateSession := func(next http.Handler) http.Handler {
+		return middleware.RequirePasswordUpdateSession(passwordUpdateSvc, next)
+	}
+
 	requireUnverifiedPasswordUpdateSession := func(next http.Handler) http.Handler {
 		return middleware.RequireUnverifiedPasswordUpdateSession(passwordUpdateSvc, next)
 	}
@@ -82,6 +86,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("POST /update-password/verify-password", requireAuthSession(requireUnverifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.VerifyPassword))))
 	mux.Handle("GET /update-password/set-new-password", requireAuthSession(requireVerifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.ViewSetNewPasswordPage))))
 	mux.Handle("POST /update-password/set-new-password", requireAuthSession(requireVerifiedPasswordUpdateSession(http.HandlerFunc(updatePassword.SetNewPassword))))
+	mux.Handle("POST /update-password/cancel", requireAuthSession(requirePasswordUpdateSession(http.HandlerFunc(updatePassword.Cancel))))
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
