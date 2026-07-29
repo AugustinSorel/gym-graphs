@@ -85,7 +85,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	_ = requireAccountDeletionSession
-	_ = requireVerifiedAccountDeletionSession
 
 	mux.Handle("/assets/", fileServer)
 
@@ -97,6 +96,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /account/data", requireAuthSession(http.HandlerFunc(account.DownloadData)))
 	mux.Handle("POST /delete-account", requireAuthSession(http.HandlerFunc(account.DeleteAccount)))
 	mux.Handle("GET /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewVerifyPasswordPage))))
+	mux.Handle("POST /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.VerifyPassword))))
+	mux.Handle("GET /delete-account/confirm", requireAuthSession(requireVerifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewConfirmPage))))
 	mux.Handle("POST /sign-out", requireAuthSession(http.HandlerFunc(account.SignOut)))
 
 	mux.Handle("POST /update-password", requireAuthSession(http.HandlerFunc(updatePassword.Start)))

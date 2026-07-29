@@ -4,7 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Oudwins/zog"
+	"github.com/Oudwins/zog/zhttp"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
+	"github.com/augustinsorel/gym-graphs/internal/password"
+	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web/deleteaccount"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
@@ -19,6 +23,103 @@ type DeleteAccountHandler struct {
 
 func NewDeleteAccountHandler(userSvc *service.UserService, accountDeletionSvc *service.AccountDeletionService) *DeleteAccountHandler {
 	return &DeleteAccountHandler{userSvc: userSvc, accountDeletionSvc: accountDeletionSvc}
+}
+
+func (h *DeleteAccountHandler) VerifyPassword(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+	deletionSession, _ := middleware.GetAccountDeletionSession(r.Context())
+
+	var input schema.VerifyCurrentPassword
+
+	errs := schema.VerifyCurrentPasswordInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		fieldErrors := zog.Issues.Flatten(errs)
+
+		formErrs := deleteaccount.VerifyPasswordFormErr{
+			Password: firstErr(fieldErrors, "password"),
+			Root:     firstErr(fieldErrors, "root"),
+		}
+		formValues := deleteaccount.VerifyPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := deleteaccount.VerifyPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account verify password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to get user during delete account password verification", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := deleteaccount.VerifyPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := deleteaccount.VerifyPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := deleteaccount.VerifyPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account verify password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if !password.Verify(input.Password, user.PasswordHash, user.PasswordSalt) {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		formErrs := deleteaccount.VerifyPasswordFormErr{Root: "incorrect password"}
+		formValues := deleteaccount.VerifyPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := deleteaccount.VerifyPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account verify password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if _, err := h.accountDeletionSvc.MarkAsVerified(r.Context(), deletionSession.ID); err != nil {
+		slog.Error("failed to mark account deletion session as verified", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formErrs := deleteaccount.VerifyPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := deleteaccount.VerifyPasswordFormValues{
+			Email:    r.FormValue("email"),
+			Password: input.Password,
+		}
+
+		if renderErr := deleteaccount.VerifyPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account verify password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/delete-account/confirm")
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *DeleteAccountHandler) ViewConfirmPage(w http.ResponseWriter, r *http.Request) {
+	page := deleteaccount.ConfirmPage(deleteaccount.ConfirmFormErr{})
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		slog.Error("failed to render delete account confirm page", "error", renderErr)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func (h *DeleteAccountHandler) ViewVerifyPasswordPage(w http.ResponseWriter, r *http.Request) {
