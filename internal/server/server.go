@@ -11,6 +11,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/config"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/email"
+	"github.com/augustinsorel/gym-graphs/internal/ratelimit"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -20,6 +21,11 @@ type Server struct {
 	pool    *pgxpool.Pool
 	mailer  email.Mailer
 	tracker analytics.Tracker
+
+	passwordAuthRateLimit          *ratelimit.Limit
+	emailRateLimit                 *ratelimit.Limit
+	emailCodeVerificationRateLimit *ratelimit.Limit
+	requestRateLimit               *ratelimit.Limit
 }
 
 func NewServer(cfg *config.Config) *http.Server {
@@ -39,6 +45,11 @@ func NewServer(cfg *config.Config) *http.Server {
 		pool:    pool,
 		mailer:  mailer,
 		tracker: newTracker(cfg),
+
+		passwordAuthRateLimit:          ratelimit.NewLimit(1_000, 5, time.Minute),
+		emailRateLimit:                 ratelimit.NewLimit(1_000, 5, 30*time.Minute),
+		emailCodeVerificationRateLimit: ratelimit.NewLimit(1_000, 5, time.Minute),
+		requestRateLimit:               ratelimit.NewLimit(10_000, 100, time.Second),
 	}
 
 	return &http.Server{
@@ -65,4 +76,3 @@ func newTracker(cfg *config.Config) analytics.Tracker {
 }
 
 //TODO: monitoring
-//TODO: rate limiter

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/password"
+	"github.com/augustinsorel/gym-graphs/internal/ratelimit"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -20,13 +22,21 @@ import (
 )
 
 type ResetPasswordHandler struct {
-	userSvc          *service.UserService
-	passwordResetSvc *service.PasswordResetService
-	mailer           email.Mailer
+	userSvc                        *service.UserService
+	passwordResetSvc               *service.PasswordResetService
+	mailer                         email.Mailer
+	emailRateLimit                 *ratelimit.Limit
+	emailCodeVerificationRateLimit *ratelimit.Limit
 }
 
-func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService, mailer email.Mailer) *ResetPasswordHandler {
-	return &ResetPasswordHandler{userSvc: userSvc, passwordResetSvc: passwordResetSvc, mailer: mailer}
+func NewResetPasswordHandler(userSvc *service.UserService, passwordResetSvc *service.PasswordResetService, mailer email.Mailer, emailRateLimit *ratelimit.Limit, emailCodeVerificationRateLimit *ratelimit.Limit) *ResetPasswordHandler {
+	return &ResetPasswordHandler{
+		userSvc:                        userSvc,
+		passwordResetSvc:               passwordResetSvc,
+		mailer:                         mailer,
+		emailRateLimit:                 emailRateLimit,
+		emailCodeVerificationRateLimit: emailCodeVerificationRateLimit,
+	}
 }
 
 func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +56,20 @@ func (h *ResetPasswordHandler) VerifyEmail(w http.ResponseWriter, r *http.Reques
 			Root: firstErr(fieldErrors, "root"),
 		}
 
+		formValues := resetpassword.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := resetpassword.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if !h.emailCodeVerificationRateLimit.Consume(fmt.Sprintf("%d", resetSession.ID)) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := resetpassword.VerifyEmailFormErr{Root: "too many attempts, please try again later"}
 		formValues := resetpassword.VerifyEmailFormValues{Code: input.Code}
 
 		if renderErr := resetpassword.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
@@ -268,6 +292,20 @@ func (h *ResetPasswordHandler) Start(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 
 		formErrs := resetpassword.ResetPasswordFormErr{Root: "something went wrong, please try again"}
+		formValues := resetpassword.ResetPasswordFormValues{Email: input.Email}
+
+		if renderErr := resetpassword.ResetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render reset password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if !h.emailRateLimit.Consume(user.EmailAddress) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := resetpassword.ResetPasswordFormErr{Root: "too many attempts, please try again later"}
 		formValues := resetpassword.ResetPasswordFormValues{Email: input.Email}
 
 		if renderErr := resetpassword.ResetPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {

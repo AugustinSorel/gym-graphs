@@ -19,10 +19,10 @@ func (s *Server) RegisterRoutes() http.Handler {
 	tagSvc := service.NewTagService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
-	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer)
-	signIn := handler.NewSignInHandler(userSvc, authSessionSvc)
+	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
+	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
-	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer)
+	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -87,7 +87,23 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.ViewSetPasswordPage))))
 	mux.Handle("POST /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.SetPassword))))
 
-	return s.analyticsMiddleware(s.corsMiddleware(mux))
+	return s.analyticsMiddleware(s.corsMiddleware(s.requestRateLimitMiddleware(mux)))
+}
+
+func (s *Server) requestRateLimitMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip := r.Header.Get("X-Real-IP")
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
+
+		if !s.requestRateLimit.Consume(ip) {
+			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) analyticsMiddleware(next http.Handler) http.Handler {

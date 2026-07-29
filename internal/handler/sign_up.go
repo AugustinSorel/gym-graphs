@@ -10,6 +10,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
+	"github.com/augustinsorel/gym-graphs/internal/ratelimit"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -18,13 +19,21 @@ import (
 )
 
 type SignUpHandler struct {
-	userSvc   *service.UserService
-	signUpSvc *service.SignUpService
-	mailer    email.Mailer
+	userSvc                        *service.UserService
+	signUpSvc                      *service.SignUpService
+	mailer                         email.Mailer
+	emailRateLimit                 *ratelimit.Limit
+	emailCodeVerificationRateLimit *ratelimit.Limit
 }
 
-func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService, mailer email.Mailer) *SignUpHandler {
-	return &SignUpHandler{userSvc: userSvc, signUpSvc: signUpSessionSvc, mailer: mailer}
+func NewSignUpHandler(userSvc *service.UserService, signUpSessionSvc *service.SignUpService, mailer email.Mailer, emailRateLimit *ratelimit.Limit, emailCodeVerificationRateLimit *ratelimit.Limit) *SignUpHandler {
+	return &SignUpHandler{
+		userSvc:                        userSvc,
+		signUpSvc:                      signUpSessionSvc,
+		mailer:                         mailer,
+		emailRateLimit:                 emailRateLimit,
+		emailCodeVerificationRateLimit: emailCodeVerificationRateLimit,
+	}
 }
 
 func (h *SignUpHandler) ViewStartPage(w http.ResponseWriter, r *http.Request) {
@@ -109,6 +118,23 @@ func (h *SignUpHandler) Start(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			slog.Error("failed to render sign up form", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	if !h.emailRateLimit.Consume(input.Email) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := signup.SignUpFormErr{
+			Root: "too many attempts, please try again later",
+		}
+
+		formValues := signup.SignUpFormValues{Email: input.Email}
+
+		if renderErr := signup.SignUpForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render sign up form", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
@@ -209,6 +235,23 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !h.emailCodeVerificationRateLimit.Consume(signUpSession.EmailAddress) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Root: "too many attempts, please try again later",
+		}
+
+		formValues := signup.VerifyEmailFormValues{Code: input.Code}
+
+		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
 	if err := h.signUpSvc.VerifyCode(signUpSession.EmailAddressVerificationCode, input.Code); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 
@@ -250,6 +293,23 @@ func (h *SignUpHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 func (h *SignUpHandler) ResendVerificationCode(w http.ResponseWriter, r *http.Request) {
 	signUpSession, _ := middleware.GetSignUpSession(r.Context())
+
+	if !h.emailRateLimit.Consume(signUpSession.EmailAddress) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := signup.VerifyEmailFormErr{
+			Root: "too many attempts, please try again later",
+		}
+
+		formValues := signup.VerifyEmailFormValues{Code: r.FormValue("code")}
+
+		if renderErr := signup.VerifyEmailForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render verify email form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	if err := h.mailer.Send(r.Context(), email.NewSignUpVerificationEmail(signUpSession.EmailAddress, signUpSession.EmailAddressVerificationCode)); err != nil {
 		slog.Error("failed to resend sign up verification email", "error", err)

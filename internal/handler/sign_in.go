@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/password"
+	"github.com/augustinsorel/gym-graphs/internal/ratelimit"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -18,12 +20,13 @@ import (
 )
 
 type SignInHandler struct {
-	userSvc        *service.UserService
-	authSessionSvc *service.AuthSessionService
+	userSvc               *service.UserService
+	authSessionSvc        *service.AuthSessionService
+	passwordAuthRateLimit *ratelimit.Limit
 }
 
-func NewSignInHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService) *SignInHandler {
-	return &SignInHandler{userSvc: userSvc, authSessionSvc: authSessionSvc}
+func NewSignInHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService, passwordAuthRateLimit *ratelimit.Limit) *SignInHandler {
+	return &SignInHandler{userSvc: userSvc, authSessionSvc: authSessionSvc, passwordAuthRateLimit: passwordAuthRateLimit}
 }
 
 func (h *SignInHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +76,26 @@ func (h *SignInHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.userSvc.GetByEmail(r.Context(), input.Email)
+
+	if err == nil && !h.passwordAuthRateLimit.Consume(fmt.Sprintf("%d", user.ID)) {
+		w.WriteHeader(http.StatusTooManyRequests)
+
+		formErrs := signin.SignInFormErr{
+			Root: "too many attempts, please try again later",
+		}
+
+		formValues := signin.SignInFormValues{
+			Email:    input.Email,
+			Password: input.Password,
+		}
+
+		if renderErr := signin.SignInForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render sign in form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
 
 	if errors.Is(err, service.ErrUserNotFound) || (err == nil && !password.Verify(input.Password, user.PasswordHash, user.PasswordSalt)) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
