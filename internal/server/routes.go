@@ -19,10 +19,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	tagSvc := service.NewTagService(s.queries)
 	signUpSessionSvc := service.NewSignUpService(s.queries, s.pool)
 	passwordResetSvc := service.NewPasswordResetService(s.queries, s.pool)
+	passwordUpdateSvc := service.NewPasswordUpdateService(s.queries)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc)
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
+	updatePassword := handler.NewUpdatePasswordHandler(passwordUpdateSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -66,6 +68,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /account/data", requireAuthSession(http.HandlerFunc(account.DownloadData)))
 	mux.Handle("POST /delete-account", requireAuthSession(http.HandlerFunc(account.DeleteAccount)))
 	mux.Handle("POST /sign-out", requireAuthSession(http.HandlerFunc(account.SignOut)))
+
+	mux.Handle("POST /update-password", requireAuthSession(http.HandlerFunc(updatePassword.Start)))
 
 	mux.Handle("GET /sign-in", guestOnly(http.HandlerFunc(signIn.ViewPage)))
 	mux.Handle("POST /sign-in", guestOnly(http.HandlerFunc(signIn.SignIn)))
