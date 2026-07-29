@@ -113,6 +113,37 @@ func (h *DeleteAccountHandler) VerifyPassword(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *DeleteAccountHandler) Cancel(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+	deletionSession, _ := middleware.GetAccountDeletionSession(r.Context())
+
+	if authSession.ID != deletionSession.AuthSessionID {
+		cookies.ClearAccountDeletionSession(w)
+		w.Header().Set("HX-Redirect", "/account")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if err := h.accountDeletionSvc.Cancel(r.Context(), deletionSession.ID); err != nil {
+		slog.Error("failed to cancel account deletion session", "path", r.URL.Path, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		formValues := deleteaccount.VerifyPasswordFormValues{Email: r.FormValue("email")}
+		formErrs := deleteaccount.VerifyPasswordFormErr{Root: "something went wrong"}
+
+		if renderErr := deleteaccount.VerifyPasswordForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account verify password form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearAccountDeletionSession(w)
+	w.Header().Set("HX-Redirect", "/account")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *DeleteAccountHandler) Confirm(w http.ResponseWriter, r *http.Request) {
 	deletionSession, _ := middleware.GetAccountDeletionSession(r.Context())
 
