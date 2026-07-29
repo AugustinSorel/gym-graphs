@@ -6,6 +6,7 @@ import (
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
+	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/password"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
@@ -110,6 +111,28 @@ func (h *DeleteAccountHandler) VerifyPassword(w http.ResponseWriter, r *http.Req
 
 	w.Header().Set("HX-Redirect", "/delete-account/confirm")
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *DeleteAccountHandler) Confirm(w http.ResponseWriter, r *http.Request) {
+	deletionSession, _ := middleware.GetAccountDeletionSession(r.Context())
+
+	if err := h.userSvc.DeleteByAccountDeletionSessionID(r.Context(), deletionSession.ID); err != nil {
+		slog.Error("failed to delete user by account deletion session", "path", r.URL.Path, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		if renderErr := deleteaccount.ConfirmForm(deleteaccount.ConfirmFormErr{Root: "something went wrong"}).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render delete account confirm form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	cookies.ClearAccountDeletionSession(w)
+	cookies.ClearAuthSession(w)
+
+	w.Header().Set("HX-Redirect", "/sign-in")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *DeleteAccountHandler) ViewConfirmPage(w http.ResponseWriter, r *http.Request) {

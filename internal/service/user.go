@@ -67,6 +67,14 @@ func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, err
 	return true, nil
 }
 
+func (s *UserService) DeleteByAccountDeletionSessionID(ctx context.Context, deletionSessionID int32) error {
+	_, err := s.queries.DeleteUserByAccountDeletionSessionID(ctx, deletionSessionID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrUserNotFound
+	}
+	return err
+}
+
 func CreateUser(ctx context.Context, q *db.Queries, email string, pw string, name string, sessionID int32) (db.CreateUserRow, error) {
 	salt := password.GenerateSalt()
 	hash := password.Hash(pw, salt)

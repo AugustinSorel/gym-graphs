@@ -72,10 +72,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 		return middleware.RequireVerifiedPasswordUpdateSession(passwordUpdateSvc, next)
 	}
 
-	requireAccountDeletionSession := func(next http.Handler) http.Handler {
-		return middleware.RequireAccountDeletionSession(accountDeletionSvc, next)
-	}
-
 	requireUnverifiedAccountDeletionSession := func(next http.Handler) http.Handler {
 		return middleware.RequireUnverifiedAccountDeletionSession(accountDeletionSvc, next)
 	}
@@ -83,8 +79,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	requireVerifiedAccountDeletionSession := func(next http.Handler) http.Handler {
 		return middleware.RequireVerifiedAccountDeletionSession(accountDeletionSvc, next)
 	}
-
-	_ = requireAccountDeletionSession
 
 	mux.Handle("/assets/", fileServer)
 
@@ -98,6 +92,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewVerifyPasswordPage))))
 	mux.Handle("POST /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.VerifyPassword))))
 	mux.Handle("GET /delete-account/confirm", requireAuthSession(requireVerifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewConfirmPage))))
+	mux.Handle("POST /delete-account/confirm", requireAuthSession(requireVerifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.Confirm))))
 	mux.Handle("POST /sign-out", requireAuthSession(http.HandlerFunc(account.SignOut)))
 
 	mux.Handle("POST /update-password", requireAuthSession(http.HandlerFunc(updatePassword.Start)))

@@ -45,6 +45,36 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	return i, err
 }
 
+const deleteUserByAccountDeletionSessionID = `-- name: DeleteUserByAccountDeletionSessionID :one
+delete from users
+where id in (
+    select auth_sessions.user_id
+    from auth_sessions
+    inner join account_deletion_sessions
+        on auth_sessions.id = account_deletion_sessions.auth_session_id
+    where account_deletion_sessions.id = $1
+    and account_deletion_sessions.user_identity_verified_at is not null
+)
+returning id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm
+`
+
+func (q *Queries) DeleteUserByAccountDeletionSessionID(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, deleteUserByAccountDeletionSessionID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.EmailAddress,
+		&i.Name,
+		&i.WeightUnit,
+		&i.PasswordHash,
+		&i.PasswordSalt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.OneRepMaxAlgorithm,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 select id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm from users
 where email_address = $1
