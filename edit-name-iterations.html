@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Account Name — Iterations</title>
+    <style>
+      @font-face {
+        font-family: "DejaVu Sans Mono";
+        src: url("web/assets/fonts/DejaVuSansMono.woff2") format("woff2"),
+          url("web/assets/fonts/DejaVuSansMono.woff") format("woff");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "DejaVu Sans Mono";
+        src: url("web/assets/fonts/DejaVuSansMono-Bold.woff2") format("woff2"),
+          url("web/assets/fonts/DejaVuSansMono-Bold.woff") format("woff");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* ── Design tokens ── */
+      :root {
+        --surface: hsl(0 0% 96%);
+        --on-surface: hsl(0 0% 4%);
+        --surface-container-low: hsl(0 0% 98%);
+        --surface-container: hsl(0 0% 94%);
+        --surface-container-high: hsl(0 0% 92%);
+        --primary: hsl(256 34% 48%);
+        --on-primary: hsl(0 0% 100%);
+        --outline: hsl(0 0% 50%);
+        --error: hsl(3 71% 41%);
+        --on-error: hsl(0 0% 100%);
+        --font: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, monospace;
+      }
+
+      /* ── Reset ── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      button,
+      input {
+        border-radius: 0;
+        font-family: inherit;
+        font-size: inherit;
+      }
+      a {
+        color: inherit;
+      }
+
+      /* ── Page shell ── */
+      body {
+        font-family: var(--font);
+        background: var(--surface);
+        color: var(--on-surface);
+        min-height: 100vh;
+        padding: 3rem 1rem 6rem;
+      }
+
+      .page-title {
+        text-align: center;
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--outline);
+        margin-bottom: 0.5rem;
+      }
+      .page-subtitle {
+        text-align: center;
+        font-size: 0.7rem;
+        color: var(--outline);
+        margin-bottom: 4rem;
+      }
+
+      /* ── Iteration wrapper ── */
+      .iterations {
+        display: flex;
+        flex-direction: column;
+        gap: 6rem;
+        max-width: 56rem;
+        margin: 0 auto;
+      }
+
+      .iteration {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .iteration-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--outline);
+        border-bottom: 1px solid var(--outline);
+        padding-bottom: 0.5rem;
+      }
+      .iteration-label strong {
+        color: var(--on-surface);
+        font-weight: 700;
+      }
+
+      .iteration-desc {
+        font-size: 0.75rem;
+        color: var(--outline);
+        line-height: 1.6;
+      }
+
+      /* ── Shared form utility classes ── */
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--on-surface);
+        color: var(--surface);
+        font-family: var(--font);
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+        text-transform: lowercase;
+      }
+      .btn-primary:hover {
+        opacity: 0.8;
+      }
+
+      .btn-ghost {
+        background: none;
+        border: none;
+        font-family: var(--font);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+        color: var(--on-surface);
+        transition: opacity 0.15s;
+        padding: 0;
+      }
+      .btn-ghost:hover {
+        opacity: 0.6;
+      }
+
+      .field-label {
+        font-size: 0.75rem;
+        text-transform: lowercase;
+        color: var(--outline);
+      }
+
+      .underline-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--on-surface);
+        outline: none;
+        padding: 0.375rem 0;
+        font-size: 1rem;
+        color: var(--on-surface);
+      }
+      .underline-input:focus {
+        box-shadow: 0 2px 0 0 var(--on-surface);
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 1 — Auth-style split layout (hero + form)
+         Mirrors the sign-in / sign-up split panel approach
+      ═══════════════════════════════════════════════════════ */
+      .v1-shell {
+        display: grid;
+        grid-template-columns: 1fr 4px 1fr;
+        min-height: 420px;
+        border: 2px solid var(--on-surface);
+      }
+
+      .v1-hero {
+        background: var(--surface-container-high);
+        padding: 3rem;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 1rem;
+      }
+
+      .v1-hero-brand {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .v1-hero-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .v1-hero-number {
+        font-size: clamp(5rem, 12vw, 9rem);
+        font-weight: 700;
+        line-height: 0.85;
+        color: var(--on-surface);
+        opacity: 0.08;
+        user-select: none;
+      }
+
+      .v1-hero-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        line-height: 1.1;
+        margin-top: 0.75rem;
+      }
+
+      .v1-hero-sub {
+        font-size: 0.75rem;
+        color: var(--outline);
+        margin-top: 0.5rem;
+      }
+
+      .v1-divider {
+        background: var(--on-surface);
+        width: 4px;
+      }
+
+      .v1-form-panel {
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2.5rem;
+      }
+
+      .v1-form-heading {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .v1-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .v1-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 2 — Inline account-row expansion
+         Expands in-place like an accordion on the account page
+      ═══════════════════════════════════════════════════════ */
+      .v2-shell {
+        max-width: 40rem;
+      }
+
+      .v2-section-head {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--outline);
+        border-bottom: 4px solid var(--on-surface);
+        padding-bottom: 0.5rem;
+        margin-bottom: 0;
+      }
+
+      .v2-row-context {
+        border-bottom: 2px dotted rgba(0, 0, 0, 0.2);
+        padding: 1.75rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .v2-row-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .v2-row-dt {
+        font-size: 0.75rem;
+        color: var(--outline);
+        margin-bottom: 0.25rem;
+      }
+
+      .v2-row-dd {
+        font-size: 1rem;
+      }
+
+      .v2-expanded-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        border-left: 4px solid var(--on-surface);
+        padding-left: 1rem;
+      }
+
+      .v2-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+      }
+
+      .v2-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 3 — Full-page minimal centered
+         Single column, lots of negative space, brutalist
+      ═══════════════════════════════════════════════════════ */
+      .v3-shell {
+        max-width: 28rem;
+      }
+
+      .v3-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        color: var(--outline);
+        margin-bottom: 3rem;
+        transition: color 0.15s;
+      }
+      .v3-back:hover {
+        color: var(--on-surface);
+      }
+
+      .v3-heading {
+        font-size: 2.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        line-height: 1;
+        margin-bottom: 0.375rem;
+      }
+
+      .v3-sub {
+        font-size: 0.8rem;
+        color: var(--outline);
+        margin-bottom: 3rem;
+      }
+
+      .v3-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+
+      .v3-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .v3-field-label {
+        font-size: 0.75rem;
+        text-transform: lowercase;
+        color: var(--outline);
+        letter-spacing: 0.05em;
+      }
+
+      .v3-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .v3-btn-full {
+        width: 100%;
+        justify-content: center;
+        height: 3rem;
+        font-size: 0.875rem;
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 4 — Terminal / command-line aesthetic
+         Monospace input prompt, very raw brutalist
+      ═══════════════════════════════════════════════════════ */
+      .v4-shell {
+        max-width: 36rem;
+        border: 2px solid var(--on-surface);
+        padding: 2rem;
+      }
+
+      .v4-terminal-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--on-surface);
+      }
+
+      .v4-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--on-surface);
+        opacity: 0.3;
+      }
+
+      .v4-terminal-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--outline);
+        margin-left: auto;
+      }
+
+      .v4-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .v4-line {
+        font-size: 0.875rem;
+        color: var(--outline);
+      }
+
+      .v4-prompt-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .v4-prompt-symbol {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--on-surface);
+        flex-shrink: 0;
+      }
+
+      .v4-prompt-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--on-surface);
+        outline: none;
+        font-family: var(--font);
+        font-size: 1rem;
+        color: var(--on-surface);
+        padding: 0.25rem 0;
+        caret-color: var(--on-surface);
+      }
+      .v4-prompt-input:focus {
+        box-shadow: 0 2px 0 0 var(--on-surface);
+      }
+
+      .v4-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1.5rem;
+        border-top: 2px solid var(--on-surface);
+        padding-top: 1.5rem;
+      }
+
+      .v4-hint {
+        font-size: 0.7rem;
+        color: var(--outline);
+        margin-top: 0.5rem;
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 5 — Large type / editorial layout
+         Name displayed large, underline input replaces it
+      ═══════════════════════════════════════════════════════ */
+      .v5-shell {
+        max-width: 40rem;
+      }
+
+      .v5-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        border-bottom: 2px solid var(--on-surface);
+        padding-bottom: 1rem;
+      }
+
+      .v5-nav-brand {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .v5-nav-back {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: underline;
+        color: var(--outline);
+      }
+      .v5-nav-back:hover {
+        color: var(--on-surface);
+      }
+
+      .v5-context {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--outline);
+        margin-bottom: 0.75rem;
+      }
+
+      .v5-name-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 4px solid var(--on-surface);
+        outline: none;
+        font-family: var(--font);
+        font-size: clamp(2rem, 6vw, 3rem);
+        font-weight: 700;
+        text-transform: capitalize;
+        color: var(--on-surface);
+        padding: 0.25rem 0 0.5rem;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+      }
+      .v5-name-input:focus {
+        box-shadow: 0 4px 0 0 var(--on-surface);
+      }
+      .v5-name-input::placeholder {
+        color: var(--outline);
+        opacity: 0.5;
+      }
+
+      .v5-char-count {
+        font-size: 0.7rem;
+        color: var(--outline);
+        text-align: right;
+        margin-bottom: 3rem;
+      }
+
+      .v5-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      /* ═══════════════════════════════════════════════════════
+         ITERATION 6 — Avatar-centric / profile card
+         Avatar prominent, name input beneath it
+      ═══════════════════════════════════════════════════════ */
+      .v6-shell {
+        max-width: 32rem;
+      }
+
+      .v6-back {
+        display: inline-flex;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        color: var(--outline);
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .v6-back:hover {
+        color: var(--on-surface);
+        border-color: var(--on-surface);
+      }
+
+      .v6-avatar-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+
+      .v6-avatar {
+        width: 5rem;
+        height: 5rem;
+        background: var(--on-surface);
+        color: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        margin-bottom: 0.75rem;
+      }
+
+      .v6-avatar-hint {
+        font-size: 0.7rem;
+        color: var(--outline);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .v6-divider {
+        border: none;
+        border-top: 4px solid var(--on-surface);
+        margin: 0 0 2.5rem;
+      }
+
+      .v6-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .v6-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .v6-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+
+      /* ── Responsive note ── */
+      @media (max-width: 640px) {
+        .v1-shell {
+          grid-template-columns: 1fr;
+        }
+        .v1-hero {
+          display: none;
+        }
+        .v1-divider {
+          display: none;
+        }
+      }
+
+      /* ── Dark mode ── */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface: hsl(0 0% 8%);
+          --on-surface: hsl(0 0% 96%);
+          --surface-container-low: hsl(0 0% 10%);
+          --surface-container: hsl(0 0% 6%);
+          --surface-container-high: hsl(0 0% 4%);
+          --outline: hsl(264 5% 58%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <p class="page-title">gym graphs — edit account name</p>
+    <p class="page-subtitle">
+      6 layout iterations &nbsp;/&nbsp; pick your favourite
+    </p>
+
+    <div class="iterations">
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 1 — Auth-style split layout
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>01 — split panel</strong> &nbsp; mirrors the sign-in /
+          sign-up page structure. hero on the left, form on the right.
+        </p>
+        <p class="iteration-desc">
+          Consistent with the auth flow. The hero side uses the same giant
+          faded number + uppercase title pattern already in the codebase.
+          The divider bar is an exact match of the existing pattern.
+        </p>
+
+        <div class="v1-shell">
+          <!-- hero -->
+          <div class="v1-hero">
+            <span class="v1-hero-brand">gym graphs</span>
+            <div class="v1-hero-center">
+              <div class="v1-hero-number">gg</div>
+              <h1 class="v1-hero-title">edit<br />name</h1>
+              <p class="v1-hero-sub">update how you appear across the app</p>
+            </div>
+            <span></span>
+          </div>
+
+          <!-- divider -->
+          <div class="v1-divider"></div>
+
+          <!-- form panel -->
+          <div class="v1-form-panel">
+            <h2 class="v1-form-heading">your name</h2>
+
+            <form class="v1-form" onsubmit="return false">
+              <div style="display:flex;flex-direction:column;gap:0.375rem">
+                <label class="field-label" for="i1-name">name</label>
+                <input
+                  class="underline-input"
+                  id="i1-name"
+                  type="text"
+                  value="augustin"
+                  autocomplete="name"
+                />
+              </div>
+
+              <div class="v1-actions">
+                <button class="btn-primary" type="submit">save</button>
+                <a href="#" class="btn-ghost">cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 2 — Inline accordion expansion
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>02 — inline accordion</strong> &nbsp; the account row expands
+          in-place. no page navigation needed.
+        </p>
+        <p class="iteration-desc">
+          The form lives directly inside the account page, appearing below the
+          name row when "edit" is clicked. Uses a left border accent to signal
+          the active state. Avoids a separate route entirely — pure HTMX swap.
+        </p>
+
+        <div class="v2-shell">
+          <h2 class="v2-section-head">profile</h2>
+
+          <!-- email row (context) -->
+          <div class="v2-row-context">
+            <div class="v2-row-header">
+              <dl>
+                <dt class="v2-row-dt">email</dt>
+                <dd class="v2-row-dd">augustin@example.com</dd>
+              </dl>
+            </div>
+          </div>
+
+          <!-- name row — expanded -->
+          <div
+            class="v2-row-context"
+            style="border-bottom-color: var(--on-surface); border-bottom-style: solid;"
+          >
+            <div class="v2-row-header">
+              <dl>
+                <dt class="v2-row-dt">name</dt>
+                <dd class="v2-row-dd" style="opacity:0.35">augustin</dd>
+              </dl>
+              <button
+                class="btn-ghost"
+                style="font-size:0.75rem;color:var(--outline)"
+              >
+                cancel
+              </button>
+            </div>
+
+            <!-- expanded form -->
+            <div class="v2-expanded-form">
+              <form onsubmit="return false" style="display:flex;flex-direction:column;gap:1.25rem">
+                <div class="v2-field">
+                  <label class="field-label" for="i2-name">new name</label>
+                  <input
+                    class="underline-input"
+                    id="i2-name"
+                    type="text"
+                    value="augustin"
+                    autocomplete="name"
+                  />
+                </div>
+                <div class="v2-actions">
+                  <button class="btn-primary" type="submit">save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- download row (context) -->
+          <div class="v2-row-context">
+            <div class="v2-row-header">
+              <dl>
+                <dt class="v2-row-dt">your data</dt>
+                <dd class="v2-row-dd">download your data</dd>
+              </dl>
+              <button class="btn-primary" style="font-size:0.75rem">
+                download
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 3 — Full-page minimal centered
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>03 — minimal centered</strong> &nbsp; full dedicated page,
+          maximum negative space. one field, two actions.
+        </p>
+        <p class="iteration-desc">
+          Cleanest and most focused. All attention on the single input. The back
+          arrow keeps orientation. Works well as its own route (/account/name).
+        </p>
+
+        <div class="v3-shell">
+          <a href="#" class="v3-back">← account</a>
+
+          <h1 class="v3-heading">edit name</h1>
+          <p class="v3-sub">this name is shown across your profile.</p>
+
+          <form class="v3-form" onsubmit="return false">
+            <div class="v3-field">
+              <label class="v3-field-label" for="i3-name">name</label>
+              <input
+                class="underline-input"
+                id="i3-name"
+                type="text"
+                value="augustin"
+                autocomplete="name"
+              />
+            </div>
+
+            <div class="v3-actions">
+              <button class="btn-primary v3-btn-full" type="submit">
+                save changes
+              </button>
+              <a
+                href="#"
+                class="btn-ghost v3-btn-full"
+                style="display:flex;justify-content:center;align-items:center;height:3rem"
+                >cancel</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 4 — Terminal / command-line
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>04 — terminal prompt</strong> &nbsp; leans into the monospace
+          identity. the input is a command-line prompt.
+        </p>
+        <p class="iteration-desc">
+          The most distinctive and brutalist option. Uses a "> " prompt symbol,
+          a terminal-bar chrome, and minimal decoration. Matches the DejaVu Mono
+          identity completely. Could feel too quirky — judge it in context.
+        </p>
+
+        <div class="v4-shell">
+          <!-- title bar -->
+          <div class="v4-terminal-bar">
+            <div class="v4-dot"></div>
+            <div class="v4-dot"></div>
+            <div class="v4-dot"></div>
+            <span class="v4-terminal-title">gym-graphs — account/name</span>
+          </div>
+
+          <!-- output lines -->
+          <div class="v4-lines">
+            <span class="v4-line">$ whoami</span>
+            <span class="v4-line" style="color: var(--on-surface)"
+              >augustin</span
+            >
+            <span class="v4-line" style="margin-top:0.5rem"
+              >$ update-name</span
+            >
+            <span class="v4-line"
+              >enter your new display name and press enter to confirm.</span
+            >
+          </div>
+
+          <!-- prompt input -->
+          <form onsubmit="return false">
+            <div class="v4-prompt-row">
+              <span class="v4-prompt-symbol">&gt;</span>
+              <div
+                style="flex:1;display:flex;flex-direction:column;gap:0.375rem"
+              >
+                <input
+                  class="v4-prompt-input"
+                  id="i4-name"
+                  type="text"
+                  value="augustin"
+                  autocomplete="name"
+                  placeholder="your name…"
+                  aria-label="new display name"
+                />
+                <span class="v4-hint">press enter or click save</span>
+              </div>
+            </div>
+
+            <div class="v4-actions">
+              <a href="#" class="btn-ghost" style="font-size:0.75rem"
+                >← back</a
+              >
+              <button class="btn-primary" type="submit">save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 5 — Large-type editorial
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>05 — large type</strong> &nbsp; the name IS the hero. the
+          input is displayed at heading scale.
+        </p>
+        <p class="iteration-desc">
+          The name itself is rendered at a large typographic scale — the user
+          edits text that looks like a display heading. A character counter
+          reinforces the constraint. Bold and direct.
+        </p>
+
+        <div class="v5-shell">
+          <div class="v5-nav">
+            <span class="v5-nav-brand">gym graphs</span>
+            <a href="#" class="v5-nav-back">← back to account</a>
+          </div>
+
+          <p class="v5-context">editing display name</p>
+
+          <form onsubmit="return false">
+            <input
+              class="v5-name-input"
+              id="i5-name"
+              type="text"
+              value="augustin"
+              autocomplete="name"
+              placeholder="your name"
+              maxlength="64"
+              oninput="document.getElementById('i5-count').textContent = this.value.length"
+            />
+            <p class="v5-char-count">
+              <span id="i5-count">8</span>/64
+            </p>
+
+            <div class="v5-actions">
+              <button class="btn-primary" type="submit">save</button>
+              <a href="#" class="btn-ghost">cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           ITERATION 6 — Avatar-centric
+      ═══════════════════════════════════════════════════════ -->
+      <div class="iteration">
+        <p class="iteration-label">
+          <strong>06 — avatar-centric</strong> &nbsp; the avatar previews the
+          initials as the user types. personality-driven layout.
+        </p>
+        <p class="iteration-desc">
+          The square avatar (matching the existing component) is shown above the
+          form. As the user types, the avatar updates live showing the first 2
+          characters. Adds a micro-interaction without any JS framework.
+        </p>
+
+        <div class="v6-shell">
+          <a href="#" class="v6-back">← account</a>
+
+          <div class="v6-avatar-block">
+            <div class="v6-avatar" id="v6-avatar">au</div>
+            <span class="v6-avatar-hint">preview</span>
+          </div>
+
+          <hr class="v6-divider" />
+
+          <form class="v6-form" onsubmit="return false">
+            <div class="v6-field">
+              <label class="field-label" for="i6-name">display name</label>
+              <input
+                class="underline-input"
+                id="i6-name"
+                type="text"
+                value="augustin"
+                autocomplete="name"
+                oninput="
+                  const v = this.value.trim();
+                  document.getElementById('v6-avatar').textContent =
+                    v.length >= 2 ? v.slice(0,2).toUpperCase() :
+                    v.length === 1 ? v.toUpperCase() : '??';
+                "
+              />
+            </div>
+
+            <div class="v6-actions">
+              <a href="#" class="btn-ghost">cancel</a>
+              <button class="btn-primary" type="submit">save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- /iterations -->
+  </body>
+</html>

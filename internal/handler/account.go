@@ -73,7 +73,23 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request) {
-	page := account.EditNamePageWithForm(account.EditNameFormValues{}, account.EditNameFormErr{})
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		page := account.EditNamePageError("loading the edit name page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout().Render(ctx, w); err != nil {
+			slog.Error("failed to render edit name page", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	page := account.EditNamePageWithForm(account.EditNameFormValues{Name: user.Name}, account.EditNameFormErr{})
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout().Render(ctx, w); err != nil {

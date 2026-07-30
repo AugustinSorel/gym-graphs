@@ -31,7 +31,12 @@ templ AccountErrorPage(msg string) {
 
 templ EditNamePage() {
 	@main() {
-		{ children... }
+		<div class="flex flex-col max-w-sm mx-auto w-full gap-0 gap-20">
+			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
+				← account
+			}
+			{ children... }
+		</div>
 	}
 }
 
@@ -70,6 +75,20 @@ type EditNameFormErr struct {
 }
 
 templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
+	{{ avatarText := form.Name }}
+	{{
+		if len(avatarText) >= 2 {
+			avatarText = avatarText[:2]
+		}
+	}}
+	<div class="flex flex-col items-center gap-2 mb-4">
+		<span
+			id="edit-name-avatar"
+			class="uppercase size-16 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold"
+			aria-hidden="true"
+		>{ avatarText }</span>
+		<span class="text-outline text-xs uppercase tracking-widest">preview</span>
+	</div>
 	<form
 		hx-patch="/account/name"
 		hx-disable="find button[type='submit']"
@@ -78,13 +97,23 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 		class="flex flex-col gap-10"
 	>
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
-			<span class="text-outline text-sm">name:</span>
+			<span class="text-outline text-sm">display name</span>
 			@input.Input(input.Props{
 				Type:         input.TypeText,
 				Name:         "name",
 				Value:        form.Name,
 				Autocomplete: "name",
 				HasError:     err.Name != "",
+				Attributes: templ.Attributes{
+					"oninput": `
+						var v = this.value.trim();
+						var a = document.getElementById('edit-name-avatar');
+						if (!a) return;
+						if (v.length >= 2) { a.textContent = v.slice(0,2).toUpperCase(); }
+						else if (v.length === 1) { a.textContent = v.toUpperCase(); }
+						else { a.textContent = '??'; }
+					`,
+				},
 			})
 			if err.Name != "" {
 				<p class="text-error text-sm" role="alert">{ err.Name }</p>
@@ -103,9 +132,6 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 		@button.Button(button.Props{Type: button.TypeSubmit}) {
 			save
 			@spinner.Spinner()
-		}
-		@link.Link(link.Props{Href: "/account", Class: "ml-auto"}) {
-			cancel
 		}
 	</form>
 }
