@@ -47,6 +47,11 @@ where id in (
 )
 returning *;
 
+-- name: UpdateUserName :exec
+update users
+set name = $1
+where id = $2;
+
 -- name: CreateUser :one
 insert into users (email_address, password_hash, password_salt, name)
 select

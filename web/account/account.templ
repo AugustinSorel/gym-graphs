@@ -31,7 +31,7 @@ templ AccountErrorPage(msg string) {
 
 templ EditNamePage() {
 	@main() {
-		<div class="flex flex-col max-w-sm mx-auto w-full gap-0 gap-20">
+		<div class="flex flex-col mx-auto w-full gap-0 gap-20">
 			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
 				← account
 			}

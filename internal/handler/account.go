@@ -4,9 +4,12 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Oudwins/zog"
+	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
+	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
 	"github.com/augustinsorel/gym-graphs/web/account"
@@ -107,8 +110,38 @@ func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request
 }
 
 func (h *AccountHandler) UpdateName(w http.ResponseWriter, r *http.Request) {
-	// stub – form validation and DB update to be implemented
-	http.Redirect(w, r, "/account", http.StatusSeeOther)
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	var input schema.UpdateName
+	errs := schema.UpdateNameInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fieldErrors := zog.Issues.Flatten(errs)
+		formErrs := account.EditNameFormErr{
+			Name: firstErr(fieldErrors, "name"),
+			Root: firstErr(fieldErrors, "root"),
+		}
+		formValues := account.EditNameFormValues{Name: r.FormValue("name")}
+		if renderErr := account.EditNameForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render edit name form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if err := h.userSvc.UpdateName(r.Context(), authSession.UserID, input.Name); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formErrs := account.EditNameFormErr{Root: "something went wrong, please try again."}
+		formValues := account.EditNameFormValues{Name: input.Name}
+		if renderErr := account.EditNameForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render edit name form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/account")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *AccountHandler) UpdateWeightUnit(w http.ResponseWriter, r *http.Request) {

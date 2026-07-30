@@ -67,6 +67,13 @@ func (s *UserService) IsEmailTaken(ctx context.Context, email string) (bool, err
 	return true, nil
 }
 
+func (s *UserService) UpdateName(ctx context.Context, userID int32, name string) error {
+	return s.queries.UpdateUserName(ctx, db.UpdateUserNameParams{
+		ID:   userID,
+		Name: name,
+	})
+}
+
 func (s *UserService) DeleteByAccountDeletionSessionID(ctx context.Context, deletionSessionID int32) error {
 	_, err := s.queries.DeleteUserByAccountDeletionSessionID(ctx, deletionSessionID)
 	if errors.Is(err, pgx.ErrNoRows) {

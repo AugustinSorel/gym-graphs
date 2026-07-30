@@ -142,6 +142,22 @@ func (q *Queries) GetUserByPasswordResetSessionID(ctx context.Context, id int32)
 	return i, err
 }
 
+const updateUserName = `-- name: UpdateUserName :exec
+update users
+set name = $1
+where id = $2
+`
+
+type UpdateUserNameParams struct {
+	Name string
+	ID   int32
+}
+
+func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error {
+	_, err := q.db.Exec(ctx, updateUserName, arg.Name, arg.ID)
+	return err
+}
+
 const updateUserPasswordByPasswordResetSessionID = `-- name: UpdateUserPasswordByPasswordResetSessionID :exec
 update users
 set

@@ -12,4 +12,7 @@ var UserSchema = z.Struct(z.Shape{
 	"password": z.String().Required(z.Message("password is required.")).
 		Min(8, z.Message("password must be at least 8 characters.")).
 		Max(255, z.Message("password must be at most 255 characters.")),
+	"name": z.String().Required(z.Message("name is required.")).
+		Min(1, z.Message("name must be at least 1 character.")).
+		Max(255, z.Message("name must be at most 255 characters.")),
 })
