@@ -8,6 +8,7 @@ import (
 	"github.com/Oudwins/zog/zhttp"
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
@@ -145,8 +146,37 @@ func (h *AccountHandler) UpdateName(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AccountHandler) UpdateWeightUnit(w http.ResponseWriter, r *http.Request) {
-	// stub – form validation and DB update to be implemented
-	w.WriteHeader(http.StatusNoContent)
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	var input schema.UpdateWeightUnit
+	errs := schema.UpdateWeightUnitInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fieldErrors := zog.Issues.Flatten(errs)
+		formErrs := account.WeightUnitFormErr{Root: firstErr(fieldErrors, "weightUnit")}
+		formValues := account.WeightUnitFormValues{WeightUnit: r.FormValue("weight_unit")}
+		if renderErr := account.WeightUnitForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render weight unit form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if err := h.userSvc.UpdateWeightUnit(r.Context(), authSession.UserID, db.WeightUnit(input.WeightUnit)); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formErrs := account.WeightUnitFormErr{Root: "something went wrong, please try again."}
+		formValues := account.WeightUnitFormValues{WeightUnit: input.WeightUnit}
+		if renderErr := account.WeightUnitForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render weight unit form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if renderErr := account.WeightUnitForm(account.WeightUnitFormValues{WeightUnit: input.WeightUnit}, account.WeightUnitFormErr{}).Render(r.Context(), w); renderErr != nil {
+		slog.Error("failed to render weight unit form", "error", renderErr)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func (h *AccountHandler) UpdateOneRepMaxAlgorithm(w http.ResponseWriter, r *http.Request) {

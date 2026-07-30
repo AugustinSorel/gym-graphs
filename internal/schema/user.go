@@ -15,4 +15,6 @@ var UserSchema = z.Struct(z.Shape{
 	"name": z.String().Required(z.Message("name is required.")).
 		Min(1, z.Message("name must be at least 1 character.")).
 		Max(255, z.Message("name must be at most 255 characters.")),
+	"weightUnit": z.String().Required(z.Message("weight unit is required.")).
+		OneOf([]string{"kg", "lbs"}, z.Message("weight unit must be kg or lbs.")),
 })

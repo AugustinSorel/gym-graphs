@@ -205,3 +205,19 @@ func (q *Queries) UpdateUserPasswordByPasswordUpdateSessionID(ctx context.Contex
 	_, err := q.db.Exec(ctx, updateUserPasswordByPasswordUpdateSessionID, arg.PasswordHash, arg.PasswordSalt, arg.ID)
 	return err
 }
+
+const updateUserWeightUnit = `-- name: UpdateUserWeightUnit :exec
+update users
+set weight_unit = $1
+where id = $2
+`
+
+type UpdateUserWeightUnitParams struct {
+	WeightUnit WeightUnit
+	ID         int32
+}
+
+func (q *Queries) UpdateUserWeightUnit(ctx context.Context, arg UpdateUserWeightUnitParams) error {
+	_, err := q.db.Exec(ctx, updateUserWeightUnit, arg.WeightUnit, arg.ID)
+	return err
+}

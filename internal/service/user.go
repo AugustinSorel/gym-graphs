@@ -74,6 +74,13 @@ func (s *UserService) UpdateName(ctx context.Context, userID int32, name string)
 	})
 }
 
+func (s *UserService) UpdateWeightUnit(ctx context.Context, userID int32, unit db.WeightUnit) error {
+	return s.queries.UpdateUserWeightUnit(ctx, db.UpdateUserWeightUnitParams{
+		ID:         userID,
+		WeightUnit: unit,
+	})
+}
+
 func (s *UserService) DeleteByAccountDeletionSessionID(ctx context.Context, deletionSessionID int32) error {
 	_, err := s.queries.DeleteUserByAccountDeletionSessionID(ctx, deletionSessionID)
 	if errors.Is(err, pgx.ErrNoRows) {
