@@ -17,4 +17,6 @@ var UserSchema = z.Struct(z.Shape{
 		Max(255, z.Message("name must be at most 255 characters.")),
 	"weightUnit": z.String().Required(z.Message("weight unit is required.")).
 		OneOf([]string{"kg", "lbs"}, z.Message("weight unit must be kg or lbs.")),
+	"oneRepMaxAlgorithm": z.String().Required(z.Message("algorithm is required.")).
+		OneOf([]string{"adams", "baechle", "berger", "brown", "brzycki", "epley", "kemmler", "landers", "lombardi", "mayhew", "naclerio", "oconner", "wathen"}, z.Message("invalid algorithm.")),
 })

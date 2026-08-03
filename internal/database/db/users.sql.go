@@ -158,6 +158,22 @@ func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) 
 	return err
 }
 
+const updateUserOneRepMaxAlgorithm = `-- name: UpdateUserOneRepMaxAlgorithm :exec
+update users
+set one_rep_max_algorithm = $1
+where id = $2
+`
+
+type UpdateUserOneRepMaxAlgorithmParams struct {
+	OneRepMaxAlgorithm OneRepMaxAlgorithm
+	ID                 int32
+}
+
+func (q *Queries) UpdateUserOneRepMaxAlgorithm(ctx context.Context, arg UpdateUserOneRepMaxAlgorithmParams) error {
+	_, err := q.db.Exec(ctx, updateUserOneRepMaxAlgorithm, arg.OneRepMaxAlgorithm, arg.ID)
+	return err
+}
+
 const updateUserPasswordByPasswordResetSessionID = `-- name: UpdateUserPasswordByPasswordResetSessionID :exec
 update users
 set

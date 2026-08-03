@@ -180,8 +180,40 @@ func (h *AccountHandler) UpdateWeightUnit(w http.ResponseWriter, r *http.Request
 }
 
 func (h *AccountHandler) UpdateOneRepMaxAlgorithm(w http.ResponseWriter, r *http.Request) {
-	// stub – form validation and DB update to be implemented
-	w.WriteHeader(http.StatusNoContent)
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	var input schema.UpdateOneRepMaxAlgorithm
+	errs := schema.UpdateOneRepMaxAlgorithmInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fieldErrors := zog.Issues.Flatten(errs)
+		formErrs := account.OneRepMaxAlgorithmFormErr{Root: firstErr(fieldErrors, "oneRepMaxAlgorithm")}
+		formValues := account.OneRepMaxAlgorithmFormValues{Algorithm: r.FormValue("one_rep_max_algorithm")}
+		if renderErr := account.OneRepMaxAlgorithmForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render one rep max algorithm form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if err := h.userSvc.UpdateOneRepMaxAlgorithm(r.Context(), authSession.UserID, db.OneRepMaxAlgorithm(input.OneRepMaxAlgorithm)); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formErrs := account.OneRepMaxAlgorithmFormErr{Root: "something went wrong, please try again."}
+		formValues := account.OneRepMaxAlgorithmFormValues{Algorithm: input.OneRepMaxAlgorithm}
+		if renderErr := account.OneRepMaxAlgorithmForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render one rep max algorithm form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if renderErr := account.OneRepMaxAlgorithmForm(account.OneRepMaxAlgorithmFormValues{Algorithm: input.OneRepMaxAlgorithm}, account.OneRepMaxAlgorithmFormErr{}).Render(r.Context(), w); renderErr != nil {
+		slog.Error("failed to render one rep max algorithm form", "error", renderErr)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
+		return
+	}
+
 }
 
 func (h *AccountHandler) DownloadData(w http.ResponseWriter, r *http.Request) {

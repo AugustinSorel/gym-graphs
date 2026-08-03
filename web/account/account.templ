@@ -396,7 +396,7 @@ templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlg
 		<form
 			hx-patch="/account/one-rep-max-algorithm"
 			hx-trigger="change"
-			hx-swap="outerHTML"
+			hx-swap="none"
 			class="grid grid-cols-[1fr_auto] gap-y-3 items-center"
 		>
 			<label for="one-rep-max-algorithm" class="text-outline text-sm">one rep max algorithm</label>
@@ -424,13 +424,6 @@ templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlg
 				}
 			}
 		</form>
-		<div
-			data-graph-container=""
-			hx-get="/account/one-rep-max-algorithm.svg"
-			hx-trigger="graph-resize, one-rep-max-algorithm-changed from:body"
-			hx-swap="innerHTML"
-			class="h-[200px]"
-		></div>
 	</div>
 }
 

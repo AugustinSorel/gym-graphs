@@ -81,6 +81,13 @@ func (s *UserService) UpdateWeightUnit(ctx context.Context, userID int32, unit d
 	})
 }
 
+func (s *UserService) UpdateOneRepMaxAlgorithm(ctx context.Context, userID int32, algorithm db.OneRepMaxAlgorithm) error {
+	return s.queries.UpdateUserOneRepMaxAlgorithm(ctx, db.UpdateUserOneRepMaxAlgorithmParams{
+		ID:                 userID,
+		OneRepMaxAlgorithm: algorithm,
+	})
+}
+
 func (s *UserService) DeleteByAccountDeletionSessionID(ctx context.Context, deletionSessionID int32) error {
 	_, err := s.queries.DeleteUserByAccountDeletionSessionID(ctx, deletionSessionID)
 	if errors.Is(err, pgx.ErrNoRows) {

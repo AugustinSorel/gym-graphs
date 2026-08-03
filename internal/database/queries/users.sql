@@ -57,6 +57,11 @@ update users
 set weight_unit = $1
 where id = $2;
 
+-- name: UpdateUserOneRepMaxAlgorithm :exec
+update users
+set one_rep_max_algorithm = $1
+where id = $2;
+
 -- name: CreateUser :one
 insert into users (email_address, password_hash, password_salt, name)
 select
