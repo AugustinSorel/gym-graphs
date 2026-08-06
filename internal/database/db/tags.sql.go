@@ -33,6 +33,24 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 	return i, err
 }
 
+const getTagByID = `-- name: GetTagByID :one
+select id, user_id, name, updated_at, created_at from tags
+where id = $1
+`
+
+func (q *Queries) GetTagByID(ctx context.Context, id int32) (Tag, error) {
+	row := q.db.QueryRow(ctx, getTagByID, id)
+	var i Tag
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getTagsByUserID = `-- name: GetTagsByUserID :many
 select id, user_id, name, updated_at, created_at from tags
 where user_id = $1
@@ -63,4 +81,30 @@ func (q *Queries) GetTagsByUserID(ctx context.Context, userID int32) ([]Tag, err
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTagName = `-- name: UpdateTagName :one
+update tags
+set name = $1, updated_at = now()
+where id = $2 and user_id = $3
+returning id, user_id, name, updated_at, created_at
+`
+
+type UpdateTagNameParams struct {
+	Name   string
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) UpdateTagName(ctx context.Context, arg UpdateTagNameParams) (Tag, error) {
+	row := q.db.QueryRow(ctx, updateTagName, arg.Name, arg.ID, arg.UserID)
+	var i Tag
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }

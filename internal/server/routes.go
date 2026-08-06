@@ -89,6 +89,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))
 	mux.Handle("POST /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.Create)))
+	mux.Handle("GET /tags/{id}/name", requireAuthSession(http.HandlerFunc(tagHandler.ViewRenamePage)))
+	mux.Handle("PATCH /tags/{id}/name", requireAuthSession(http.HandlerFunc(tagHandler.Rename)))
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
 	mux.Handle("GET /account/name", requireAuthSession(http.HandlerFunc(account.ViewEditNamePage)))

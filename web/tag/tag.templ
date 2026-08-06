@@ -1,6 +1,7 @@
 package tag
 
 import (
+	"fmt"
 	"github.com/augustinsorel/gym-graphs/web/ui/alert"
 	"github.com/augustinsorel/gym-graphs/web/ui/button"
 	"github.com/augustinsorel/gym-graphs/web/ui/input"
@@ -51,6 +52,84 @@ type CreateTagFormValues struct {
 type CreateTagFormErr struct {
 	Name string
 	Root string
+}
+
+templ RenameTagPage(tagID int32) {
+	@main() {
+		<div class="flex flex-col mx-auto w-full gap-20">
+			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
+				← account
+			}
+			{ children... }
+		</div>
+	}
+}
+
+templ RenameTagErrorPage(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Rename tag error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ RenameTagPageWithForm(tagID int32, form RenameTagFormValues, err RenameTagFormErr) {
+	@RenameTagPage(tagID) {
+		@RenameTagForm(tagID, form, err)
+	}
+}
+
+type RenameTagFormValues struct {
+	Name string
+}
+
+type RenameTagFormErr struct {
+	Name string
+	Root string
+}
+
+templ RenameTagForm(tagID int32, form RenameTagFormValues, err RenameTagFormErr) {
+	<form
+		hx-patch={ fmt.Sprintf("/tags/%d/name", tagID) }
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<h1 class="font-semibold text-3xl">rename tag</h1>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">tag name</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Autocomplete: "off",
+				HasError:     err.Name != "",
+			})
+			if err.Name != "" {
+				<p class="text-error text-sm" role="alert">{ err.Name }</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit}) {
+			save
+			@spinner.Spinner()
+		}
+	</form>
 }
 
 templ CreateTagForm(form CreateTagFormValues, err CreateTagFormErr) {

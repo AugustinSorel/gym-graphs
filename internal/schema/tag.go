@@ -8,6 +8,10 @@ type CreateTag struct {
 	Name string
 }
 
+type RenameTag struct {
+	Name string
+}
+
 var tagSchema = z.Struct(z.Shape{
 	"name": z.String().Required(z.Message("name is required.")).
 		Min(1, z.Message("name must be at least 1 character.")).
@@ -15,3 +19,4 @@ var tagSchema = z.Struct(z.Shape{
 })
 
 var CreateTagInput = tagSchema.Pick("name")
+var RenameTagInput = tagSchema.Pick("name")

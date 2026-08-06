@@ -31,3 +31,15 @@ func (s *TagService) Create(ctx context.Context, userID int32, name string) (db.
 		Name:   name,
 	})
 }
+
+func (s *TagService) GetByID(ctx context.Context, id int32) (db.Tag, error) {
+	return s.queries.GetTagByID(ctx, id)
+}
+
+func (s *TagService) UpdateName(ctx context.Context, id int32, userID int32, name string) (db.Tag, error) {
+	return s.queries.UpdateTagName(ctx, db.UpdateTagNameParams{
+		ID:     id,
+		UserID: userID,
+		Name:   name,
+	})
+}
