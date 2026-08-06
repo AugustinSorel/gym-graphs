@@ -43,3 +43,10 @@ func (s *TagService) UpdateName(ctx context.Context, id int32, userID int32, nam
 		Name:   name,
 	})
 }
+
+func (s *TagService) Delete(ctx context.Context, id int32, userID int32) error {
+	return s.queries.DeleteTag(ctx, db.DeleteTagParams{
+		ID:     id,
+		UserID: userID,
+	})
+}

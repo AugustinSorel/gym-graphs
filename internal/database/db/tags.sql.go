@@ -33,6 +33,21 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 	return i, err
 }
 
+const deleteTag = `-- name: DeleteTag :exec
+delete from tags
+where id = $1 and user_id = $2
+`
+
+type DeleteTagParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) DeleteTag(ctx context.Context, arg DeleteTagParams) error {
+	_, err := q.db.Exec(ctx, deleteTag, arg.ID, arg.UserID)
+	return err
+}
+
 const getTagByID = `-- name: GetTagByID :one
 select id, user_id, name, updated_at, created_at from tags
 where id = $1

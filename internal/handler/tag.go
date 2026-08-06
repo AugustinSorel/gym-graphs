@@ -58,6 +58,65 @@ func (h *TagHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *TagHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	tagID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	existingTag, err := h.tagSvc.GetByID(r.Context(), int32(tagID))
+	if err != nil {
+		page := tag.RemoveTagErrorPage("loading the remove tag page failed")
+		ctx := templ.WithChildren(r.Context(), page)
+		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render remove tag error page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if existingTag.UserID != authSession.UserID {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	page := tag.RemoveTagPage(existingTag.ID, existingTag.Name)
+	ctx := templ.WithChildren(r.Context(), page)
+	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		page := tag.RemoveTagErrorPage("loading the remove tag page failed")
+		ctx := templ.WithChildren(r.Context(), page)
+		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render remove tag page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}
+}
+
+func (h *TagHandler) Remove(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	tagID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.tagSvc.Delete(r.Context(), int32(tagID), authSession.UserID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if renderErr := tag.RemoveTagFormErr("something went wrong, please try again.").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render remove tag error", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/account")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *TagHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
