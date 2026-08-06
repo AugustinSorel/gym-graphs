@@ -24,3 +24,10 @@ func (s *TagService) GetByUserID(ctx context.Context, userID int32) ([]db.Tag, e
 	}
 	return tags, nil
 }
+
+func (s *TagService) Create(ctx context.Context, userID int32, name string) (db.Tag, error) {
+	return s.queries.CreateTag(ctx, db.CreateTagParams{
+		UserID: userID,
+		Name:   name,
+	})
+}

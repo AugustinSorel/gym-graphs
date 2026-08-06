@@ -9,6 +9,30 @@ import (
 	"context"
 )
 
+const createTag = `-- name: CreateTag :one
+insert into tags (user_id, name)
+values ($1, $2)
+returning id, user_id, name, updated_at, created_at
+`
+
+type CreateTagParams struct {
+	UserID int32
+	Name   string
+}
+
+func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, error) {
+	row := q.db.QueryRow(ctx, createTag, arg.UserID, arg.Name)
+	var i Tag
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getTagsByUserID = `-- name: GetTagsByUserID :many
 select id, user_id, name, updated_at, created_at from tags
 where user_id = $1
