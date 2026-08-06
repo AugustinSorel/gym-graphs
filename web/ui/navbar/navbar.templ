@@ -1,13 +1,16 @@
 package navbar
 
-import "strings"
+import (
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"strings"
+)
 
-type link struct {
+type navLink struct {
 	title string
 	href  string
 }
 
-var links = []link{
+var links = []navLink{
 	{"exercises", "/exercises"},
 	{"stats", "/stats"},
 	{"account", "/account"},
@@ -24,15 +27,20 @@ templ NavBar(currentPath string) {
 		<h1 class="uppercase text-sm">gym graphs</h1>
 		<nav class="space-x-5">
 			for _, l := range links {
-				<a
-					href={ templ.SafeURL(l.href) }
-					class="text-sm uppercase font-semibold aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface outline-none"
-					if isActive(l.href, currentPath) {
-						aria-current="true"
-					} else {
-						aria-current="false"
-					}
-				>{ l.title }</a>
+				@link.Link(link.Props{
+					Href:  l.href,
+					Class: "uppercase aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface no-underline",
+					Attributes: templ.Attributes{
+						"aria-current": func() string {
+							if isActive(l.href, currentPath) {
+								return "true"
+							}
+							return "false"
+						}(),
+					},
+				}) {
+					{ l.title }
+				}
 			}
 		</nav>
 	</header>
@@ -40,15 +48,20 @@ templ NavBar(currentPath string) {
 		class="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t-4 bg-surface-container-lowest flex justify-around py-3"
 	>
 		for _, l := range links {
-			<a
-				href={ templ.SafeURL(l.href) }
-				class="text-sm uppercase font-semibold aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface outline-none"
-				if isActive(l.href, currentPath) {
-					aria-current="true"
-				} else {
-					aria-current="false"
-				}
-			>{ l.title }</a>
+			@link.Link(link.Props{
+				Href:  l.href,
+				Class: "uppercase aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface no-underline",
+				Attributes: templ.Attributes{
+					"aria-current": func() string {
+						if isActive(l.href, currentPath) {
+							return "true"
+						}
+						return "false"
+					}(),
+				},
+			}) {
+				{ l.title }
+			}
 		}
 	</nav>
 }
