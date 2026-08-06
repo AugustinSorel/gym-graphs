@@ -80,8 +80,39 @@ const renderOneRepMaxChart = (container) => {
     algoLines.find((l) => l.name === selectedAlgorithm),
   ].filter(Boolean);
 
+  // Tooltip element — one shared div per container
+  let tooltip = container.querySelector(".orm-tooltip");
+  if (!tooltip) {
+    tooltip = document.createElement("div");
+    tooltip.className = "orm-tooltip";
+    tooltip.style.cssText =
+      "position:absolute;pointer-events:none;padding:2px 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;opacity:0;transition:opacity 0.1s;background:var(--color-on-surface,#000);color:var(--color-surface,#fff);";
+    container.style.position = "relative";
+    container.appendChild(tooltip);
+  }
+
+  const showTooltip = (name, event) => {
+    tooltip.textContent = name;
+    tooltip.style.opacity = "1";
+    moveTooltip(event);
+  };
+
+  const moveTooltip = (event) => {
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left + 10;
+    const y = event.clientY - rect.top - 24;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+  };
+
+  const hideTooltip = () => {
+    tooltip.style.opacity = "0";
+  };
+
   for (const line of sorted) {
     const isSelected = line.name === selectedAlgorithm;
+
+    // Visible path
     g.append("path")
       .datum(line.data)
       .attr("fill", "none")
@@ -89,6 +120,26 @@ const renderOneRepMaxChart = (container) => {
       .attr("stroke-width", isSelected ? 2 : 1)
       .attr("opacity", isSelected ? 1 : 0.2)
       .attr("d", lineGen);
+
+    // Wide highlight path, shown on hover
+    const highlight = g
+      .append("path")
+      .datum(line.data)
+      .attr("fill", "none")
+      .attr("stroke", colorOnSurface)
+      .attr("stroke-width", 4)
+      .attr("opacity", 0)
+      .attr("d", lineGen)
+      .style("cursor", "default")
+      .on("mouseenter", (event) => {
+        highlight.attr("opacity", 0.1);
+        showTooltip(line.name, event);
+      })
+      .on("mousemove", moveTooltip)
+      .on("mouseleave", () => {
+        highlight.attr("opacity", 0);
+        hideTooltip();
+      });
   }
 };
 
