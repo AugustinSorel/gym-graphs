@@ -460,8 +460,9 @@ templ tagItem(tag db.Tag) {
 	<li class="border-b-2 border-dotted border-outline/50 py-3 [counter-increment:my-list] grid grid-cols-[auto_1fr_auto] items-center gap-2 before:content-[counter(my-list)_'.'] before:text-outline before:text-sm">
 		<span>{ tag.Name }</span>
 		@button.Button(button.Props{
-			Type:  button.TypeButton,
-			Class: "size-10 text-outline",
+			Type:    button.TypeButton,
+			Variant: button.VariantGhost,
+			Class:   "size-10 text-outline",
 			Attributes: templ.Attributes{
 				"popovertarget": popoverID,
 				"aria-label":    "Tag options",
