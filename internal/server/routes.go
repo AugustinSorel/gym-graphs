@@ -91,7 +91,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("PATCH /account/name", requireAuthSession(http.HandlerFunc(account.UpdateName)))
 	mux.Handle("PATCH /account/weight-unit", requireAuthSession(http.HandlerFunc(account.UpdateWeightUnit)))
 	mux.Handle("PATCH /account/one-rep-max-algorithm", requireAuthSession(http.HandlerFunc(account.UpdateOneRepMaxAlgorithm)))
-	mux.Handle("GET /account/one-rep-max-chart-data", requireAuthSession(http.HandlerFunc(account.GetOneRepMaxChartData)))
 	mux.Handle("GET /account/data", requireAuthSession(http.HandlerFunc(account.DownloadData)))
 	mux.Handle("POST /delete-account", requireAuthSession(http.HandlerFunc(account.DeleteAccount)))
 	mux.Handle("GET /delete-account/verify-password", requireAuthSession(requireUnverifiedAccountDeletionSession(http.HandlerFunc(deleteAccount.ViewVerifyPasswordPage))))

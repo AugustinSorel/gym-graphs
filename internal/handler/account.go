@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/cookies"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
-	"github.com/augustinsorel/gym-graphs/internal/onerepmax"
 	"github.com/augustinsorel/gym-graphs/internal/schema"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/session"
@@ -61,15 +59,7 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	points := onerepmax.Calculate(string(user.OneRepMaxAlgorithm), 100)
-	pointsJSON, err := json.Marshal(points)
-	if err != nil {
-		slog.Error("failed to marshal one rep max points", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	page := account.AccountPage(user, tags, string(pointsJSON))
+	page := account.AccountPage(user, tags)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout().Render(ctx, w); err != nil {
@@ -217,35 +207,15 @@ func (h *AccountHandler) UpdateOneRepMaxAlgorithm(w http.ResponseWriter, r *http
 		return
 	}
 
-	points := onerepmax.Calculate(input.OneRepMaxAlgorithm, 100)
-	pointsJSON, err := json.Marshal(points)
-	if err != nil {
-		slog.Error("failed to marshal one rep max points", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	w.Header().Set("HX-Trigger", `{"one-rep-max-algorithm-changed":"`+input.OneRepMaxAlgorithm+`"}`)
 
 	if renderErr := account.OneRepMaxAlgorithmForm(
-		account.OneRepMaxAlgorithmFormValues{Algorithm: input.OneRepMaxAlgorithm, ChartDataJSON: string(pointsJSON)},
+		account.OneRepMaxAlgorithmFormValues{Algorithm: input.OneRepMaxAlgorithm},
 		account.OneRepMaxAlgorithmFormErr{},
 	).Render(r.Context(), w); renderErr != nil {
 		slog.Error("failed to render one rep max algorithm form", "error", renderErr)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
-	}
-}
-
-func (h *AccountHandler) GetOneRepMaxChartData(w http.ResponseWriter, r *http.Request) {
-	algorithm := r.URL.Query().Get("algorithm")
-	points := onerepmax.Calculate(algorithm, 100)
-	if points == nil {
-		http.Error(w, "unknown algorithm", http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(points); err != nil {
-		slog.Error("failed to encode one rep max chart data", "error", err)
 	}
 }
 

@@ -10,9 +10,9 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
 )
 
-templ AccountPage(user db.User, tags []db.Tag, chartDataJSON string) {
+templ AccountPage(user db.User, tags []db.Tag) {
 	@main() {
-		@AccountDetails(user, tags, chartDataJSON)
+		@AccountDetails(user, tags)
 	}
 }
 
@@ -136,7 +136,7 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 	</form>
 }
 
-templ AccountDetails(user db.User, tags []db.Tag, chartDataJSON string) {
+templ AccountDetails(user db.User, tags []db.Tag) {
 	<header class="space-y-1">
 		@avatar(user.Name)
 		<h1 class="capitalize font-semibold text-3xl break-all">{ user.Name }</h1>
@@ -157,7 +157,7 @@ templ AccountDetails(user db.User, tags []db.Tag, chartDataJSON string) {
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">preferences</h2>
 		@WeightUnitForm(WeightUnitFormValues{WeightUnit: string(user.WeightUnit)}, WeightUnitFormErr{})
 		@themeSwitcher()
-		@OneRepMaxAlgorithmForm(OneRepMaxAlgorithmFormValues{Algorithm: string(user.OneRepMaxAlgorithm), ChartDataJSON: chartDataJSON}, OneRepMaxAlgorithmFormErr{})
+		@OneRepMaxAlgorithmForm(OneRepMaxAlgorithmFormValues{Algorithm: string(user.OneRepMaxAlgorithm)}, OneRepMaxAlgorithmFormErr{})
 	</section>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">tags</h2>
@@ -368,8 +368,7 @@ templ WeightUnitForm(form WeightUnitFormValues, err WeightUnitFormErr) {
 }
 
 type OneRepMaxAlgorithmFormValues struct {
-	Algorithm     string
-	ChartDataJSON string
+	Algorithm string
 }
 
 type OneRepMaxAlgorithmFormErr struct {
@@ -397,8 +396,7 @@ templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlg
 		<form
 			hx-patch="/account/one-rep-max-algorithm"
 			hx-trigger="change"
-			hx-swap="outerHTML"
-			hx-target="closest div"
+			hx-swap="none"
 			class="grid grid-cols-[1fr_auto] gap-y-3 items-center"
 		>
 			<label for="one-rep-max-algorithm" class="text-outline text-sm">one rep max algorithm</label>
@@ -426,15 +424,15 @@ templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlg
 				}
 			}
 		</form>
-		@oneRepMaxChart(form.ChartDataJSON)
+		@oneRepMaxChart(form.Algorithm)
 	</div>
 }
 
-templ oneRepMaxChart(chartDataJSON string) {
+templ oneRepMaxChart(selectedAlgorithm string) {
 	<div
 		id="one-rep-max-chart"
 		class="w-full h-48"
-		data-one-rep-max-chart={ chartDataJSON }
+		data-one-rep-max-algorithm={ selectedAlgorithm }
 	></div>
 }
 
