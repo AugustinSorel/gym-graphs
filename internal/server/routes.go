@@ -24,6 +24,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc, accountDeletionSvc)
+	tagHandler := handler.NewTagHandler(tagSvc)
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
@@ -85,6 +86,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	mux.Handle("/assets/", fileServer)
+
+	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
 	mux.Handle("GET /account/name", requireAuthSession(http.HandlerFunc(account.ViewEditNamePage)))
