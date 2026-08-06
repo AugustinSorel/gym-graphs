@@ -1,0 +1,54 @@
+package navbar
+
+import "strings"
+
+type link struct {
+	title string
+	href  string
+}
+
+var links = []link{
+	{"exercises", "/exercises"},
+	{"stats", "/stats"},
+	{"account", "/account"},
+}
+
+func isActive(href, currentPath string) bool {
+	return strings.HasPrefix(currentPath, href)
+}
+
+templ NavBar(currentPath string) {
+	<header
+		class="border-b-4 py-7 px-[max(calc((100vw-var(--max-width-app))/2),1rem)] hidden lg:flex justify-between bg-surface-container-lowest"
+	>
+		<h1 class="uppercase text-sm">gym graphs</h1>
+		<nav class="space-x-5">
+			for _, l := range links {
+				<a
+					href={ templ.SafeURL(l.href) }
+					class="text-sm uppercase font-semibold aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface outline-none"
+					if isActive(l.href, currentPath) {
+						aria-current="true"
+					} else {
+						aria-current="false"
+					}
+				>{ l.title }</a>
+			}
+		</nav>
+	</header>
+	<nav
+		class="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t-4 bg-surface-container-lowest flex justify-around py-3"
+	>
+		for _, l := range links {
+			<a
+				href={ templ.SafeURL(l.href) }
+				class="text-sm uppercase font-semibold aria-[current=true]:bg-on-surface aria-[current=true]:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface outline-none"
+				if isActive(l.href, currentPath) {
+					aria-current="true"
+				} else {
+					aria-current="false"
+				}
+			>{ l.title }</a>
+		}
+	</nav>
+}

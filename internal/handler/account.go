@@ -37,7 +37,7 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to get user", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -51,7 +51,7 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to get user", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -62,12 +62,12 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	page := account.AccountPage(user, tags)
 	ctx := templ.WithChildren(r.Context(), page)
 
-	if err := layout.Layout().Render(ctx, w); err != nil {
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 		page := account.AccountErrorPage("loading the account page failed")
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to get user", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -85,7 +85,7 @@ func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to render edit name page", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -96,12 +96,12 @@ func (h *AccountHandler) ViewEditNamePage(w http.ResponseWriter, r *http.Request
 	page := account.EditNamePageWithForm(account.EditNameFormValues{Name: user.Name}, account.EditNameFormErr{})
 	ctx := templ.WithChildren(r.Context(), page)
 
-	if err := layout.Layout().Render(ctx, w); err != nil {
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 		page := account.EditNamePageError("loading the edit name page failed")
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to render edit name page", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -254,7 +254,7 @@ func (h *AccountHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to delete auth session", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}

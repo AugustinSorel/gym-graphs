@@ -28,6 +28,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
+	exercisesHandler := handler.NewExercisesHandler()
+	statsHandler := handler.NewStatsHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -86,6 +88,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}
 
 	mux.Handle("/assets/", fileServer)
+
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/exercises", http.StatusFound)
+	})
+
+	mux.Handle("GET /exercises", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewPage)))
+	mux.Handle("GET /stats", requireAuthSession(http.HandlerFunc(statsHandler.ViewPage)))
 
 	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))
 	mux.Handle("POST /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.Create)))

@@ -63,7 +63,7 @@ func (h *UpdatePasswordHandler) ViewVerifyPasswordPage(w http.ResponseWriter, r 
 		)
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render verify password page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -77,7 +77,7 @@ func (h *UpdatePasswordHandler) ViewVerifyPasswordPage(w http.ResponseWriter, r 
 	)
 	ctx := templ.WithChildren(r.Context(), page)
 
-	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+	if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 		slog.Error("failed to render verify password page", "error", renderErr)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -97,7 +97,7 @@ func (h *UpdatePasswordHandler) ViewSetNewPasswordPage(w http.ResponseWriter, r 
 		)
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render set new password page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -111,7 +111,7 @@ func (h *UpdatePasswordHandler) ViewSetNewPasswordPage(w http.ResponseWriter, r 
 	)
 	ctx := templ.WithChildren(r.Context(), page)
 
-	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+	if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 		slog.Error("failed to render set new password page", "error", renderErr)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

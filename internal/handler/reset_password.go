@@ -179,7 +179,7 @@ func (h *ResetPasswordHandler) SetPassword(w http.ResponseWriter, r *http.Reques
 	cookies.ClearPasswordResetSession(w)
 	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.RawSecret))
 
-	w.Header().Set("HX-Redirect", "/")
+	w.Header().Set("HX-Redirect", "/exercises")
 	w.WriteHeader(http.StatusCreated)
 }
 

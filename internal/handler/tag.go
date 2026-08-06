@@ -71,7 +71,7 @@ func (h *TagHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		page := tag.RemoveTagErrorPage("loading the remove tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render remove tag error page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -85,10 +85,10 @@ func (h *TagHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
 
 	page := tag.RemoveTagPage(existingTag.ID, existingTag.Name)
 	ctx := templ.WithChildren(r.Context(), page)
-	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+	if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 		page := tag.RemoveTagErrorPage("loading the remove tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render remove tag page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -130,7 +130,7 @@ func (h *TagHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		page := tag.RenameTagErrorPage("loading the rename tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render rename tag error page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -144,10 +144,10 @@ func (h *TagHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
 
 	page := tag.RenameTagPageWithForm(existingTag.ID, tag.RenameTagFormValues{Name: existingTag.Name}, tag.RenameTagFormErr{})
 	ctx := templ.WithChildren(r.Context(), page)
-	if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+	if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 		page := tag.RenameTagErrorPage("loading the rename tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
-		if renderErr := layout.Layout().Render(ctx, w); renderErr != nil {
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
 			slog.Error("failed to render rename tag page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
@@ -199,12 +199,12 @@ func (h *TagHandler) ViewCreatePage(w http.ResponseWriter, r *http.Request) {
 	page := tag.CreateTagPageWithForm(tag.CreateTagFormValues{}, tag.CreateTagFormErr{})
 	ctx := templ.WithChildren(r.Context(), page)
 
-	if err := layout.Layout().Render(ctx, w); err != nil {
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 		page := tag.CreateTagErrorPage("loading the create tag page failed")
 
 		ctx := templ.WithChildren(r.Context(), page)
 
-		if err := layout.Layout().Render(ctx, w); err != nil {
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
 			slog.Error("failed to render create tag page", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}

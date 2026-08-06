@@ -163,6 +163,6 @@ func (h *SignInHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	cookies.SetAuthSession(w, session.CreateToken(authSession.ID, authSession.RawSecret))
 
-	w.Header().Set("HX-Redirect", "/")
+	w.Header().Set("HX-Redirect", "/exercises")
 	w.WriteHeader(http.StatusOK)
 }

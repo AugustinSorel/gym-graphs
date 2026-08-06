@@ -1,6 +1,12 @@
 package layout
 
-templ Layout() {
+import "github.com/augustinsorel/gym-graphs/web/ui/navbar"
+
+templ Layout(currentPath ...string) {
+	{{ path := "" }}
+	if len(currentPath) > 0 {
+		{{ path = currentPath[0] }}
+	}
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -14,6 +20,9 @@ templ Layout() {
 			<script src="/assets/js/line-chart.js"></script>
 		</head>
 		<body class="bg-surface text-on-surface pb-20 lg:pb-0">
+			if path != "" {
+				@navbar.NavBar(path)
+			}
 			{ children... }
 		</body>
 	</html>
