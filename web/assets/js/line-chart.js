@@ -44,13 +44,11 @@ const renderOneRepMaxChart = (container) => {
   const style = getComputedStyle(document.documentElement);
   const colorOnSurface =
     style.getPropertyValue("--color-on-surface").trim() || "#000";
-  const colorOutline =
-    style.getPropertyValue("--color-outline").trim() || "#888";
 
   const rect = container.getBoundingClientRect();
   const width = rect.width || 400;
   const height = rect.height || 192;
-  const margin = { top: 12, right: 16, bottom: 32, left: 44 };
+  const margin = { top: 8, right: 8, bottom: 8, left: 8 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -70,34 +68,6 @@ const renderOneRepMaxChart = (container) => {
 
   const x = d3.scaleLinear().domain([0, maxX]).range([0, innerW]);
   const y = d3.scaleLinear().domain([0, maxY]).range([innerH, 0]);
-
-  g.append("g")
-    .attr("transform", `translate(0,${innerH})`)
-    .call(
-      d3
-        .axisBottom(x)
-        .ticks(mockPoints.length - 1)
-        .tickFormat((d) => `${mockPoints[d]?.repetitions ?? ""}`),
-    )
-    .call((axis) => {
-      axis.select(".domain").attr("stroke", colorOutline);
-      axis.selectAll(".tick line").attr("stroke", colorOutline);
-      axis
-        .selectAll(".tick text")
-        .attr("fill", colorOutline)
-        .style("font-size", "11px");
-    });
-
-  g.append("g")
-    .call(d3.axisLeft(y).ticks(4).tickFormat(d3.format(".0f")))
-    .call((axis) => {
-      axis.select(".domain").attr("stroke", colorOutline);
-      axis.selectAll(".tick line").attr("stroke", colorOutline);
-      axis
-        .selectAll(".tick text")
-        .attr("fill", colorOutline)
-        .style("font-size", "11px");
-    });
 
   const lineGen = d3
     .line()
