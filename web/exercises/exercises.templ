@@ -2,6 +2,7 @@ package exercises
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
@@ -26,26 +27,46 @@ templ noExercisesMessage() {
 }
 
 templ ExerciseRows(page service.ExercisesPage) {
-	for _, exercise := range page.Rows {
-		<tr class="border-b-2 border-dotted border-outline/50">
-			<td class="py-4">{ exercise.Name }</td>
-			if exercise.SetsCount == 0 {
-				<td class="py-4 text-outline">-</td>
-			} else {
-				<td class="py-4">{ fmt.Sprintf("%d", exercise.SetsCount) }</td>
-			}
-		</tr>
-	}
+	<tbody>
+		for _, exercise := range page.Rows {
+			<tr class="bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50 relative">
+				<td class="pl-0 p-4 align-middle font-medium">
+					@link.Link(link.Props{
+						Href:  fmt.Sprintf("/exercises/%d", exercise.ID),
+						Class: "before:absolute before:inset-0 before:z-1",
+					}) {
+						{ exercise.Name }
+					}
+				</td>
+				<td class="p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left">-</td>
+				<td class="p-4 align-middle text-outline lg:table-cell hidden">
+					if exercise.SetsCount == 0 {
+						-
+					} else {
+						{ fmt.Sprintf("%d", exercise.SetsCount) }
+					}
+				</td>
+				<td class="pr-0 p-4 align-middle text-outline lg:table-cell hidden whitespace-nowrap">
+					{ timeAgo(exercise.UpdatedAt.Time) }
+				</td>
+			</tr>
+		}
+	</tbody>
 	if page.HasNextPage {
-		<tr
+		<tbody
 			hx-get={ fmt.Sprintf("/exercises?cursor=%d", page.NextCursor) }
 			hx-swap="outerHTML"
 			hx-trigger="revealed"
-			class="text-outline text-sm"
 		>
-			<td class="py-4">loading...</td>
-			<td></td>
-		</tr>
+			for range 20 {
+				<tr>
+					<td
+						colspan="4"
+						class="animate-pulse h-13 bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x"
+					></td>
+				</tr>
+			}
+		</tbody>
 	}
 }
 
@@ -58,25 +79,68 @@ templ exercisesList(page service.ExercisesPage, totalCount int64) {
 			+ add
 		}
 	</header>
-	<table class="w-full text-sm border-collapse">
-		<thead>
-			<tr class="border-b-2">
-				<th class="text-left font-semibold py-2 text-outline uppercase text-xs">name</th>
-				<th class="text-left font-semibold py-2 text-outline uppercase text-xs">sets</th>
+	<table class="caption-bottom text-sm">
+		<thead class="border-b-2 text-nowrap">
+			<tr>
+				<th class="h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide">name</th>
+				<th class="h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left">
+					last 1<abbr title="rep maximum" class="no-underline">rm</abbr>
+				</th>
+				<th class="h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden">sets</th>
+				<th class="h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden">last set</th>
 			</tr>
 		</thead>
-		<tbody>
-			@ExerciseRows(page)
-		</tbody>
+		@ExerciseRows(page)
 	</table>
 }
 
 templ ExercisesPage(page service.ExercisesPage) {
-	<main class="flex flex-col py-10 px-5 lg:px-10 gap-5 max-w-3xl mx-auto my-10 lg:my-20">
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		if page.TotalCount == 0 {
 			@noExercisesMessage()
 		} else {
 			@exercisesList(page, page.TotalCount)
 		}
 	</main>
+}
+
+func timeAgo(t time.Time) string {
+	if t.IsZero() {
+		return "-"
+	}
+	secs := int(time.Since(t).Seconds())
+	switch {
+	case secs < 60:
+		return "just now"
+	case secs < 3600:
+		mins := secs / 60
+		if mins == 1 {
+			return "1 minute ago"
+		}
+		return fmt.Sprintf("%d minutes ago", mins)
+	case secs < 86400:
+		hours := secs / 3600
+		if hours == 1 {
+			return "1 hour ago"
+		}
+		return fmt.Sprintf("%d hours ago", hours)
+	case secs < 2592000:
+		days := secs / 86400
+		if days == 1 {
+			return "yesterday"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	case secs < 31536000:
+		months := secs / 2592000
+		if months == 1 {
+			return "1 month ago"
+		}
+		return fmt.Sprintf("%d months ago", months)
+	default:
+		years := secs / 31536000
+		if years == 1 {
+			return "1 year ago"
+		}
+		return fmt.Sprintf("%d years ago", years)
+	}
 }
