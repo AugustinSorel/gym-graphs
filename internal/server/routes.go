@@ -28,7 +28,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	resetPassword := handler.NewResetPasswordHandler(userSvc, passwordResetSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
-	exercisesHandler := handler.NewExercisesHandler(tagSvc)
+	exerciseSvc := service.NewExerciseService(s.queries, s.pool)
+	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc)
 	statsHandler := handler.NewStatsHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {
@@ -95,6 +96,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.Handle("GET /exercises", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewPage)))
 	mux.Handle("GET /exercises/new", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewNewPage)))
+	mux.Handle("POST /exercises/new", requireAuthSession(http.HandlerFunc(exercisesHandler.Create)))
 	mux.Handle("GET /stats", requireAuthSession(http.HandlerFunc(statsHandler.ViewPage)))
 
 	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))
