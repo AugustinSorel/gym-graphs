@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createExercise = `-- name: CreateExercise :one
@@ -62,10 +64,15 @@ func (q *Queries) GetExercisesCountByUserID(ctx context.Context, userID int32) (
 }
 
 const getExercisesPageByUserID = `-- name: GetExercisesPageByUserID :many
-select id, user_id, name, index, updated_at, created_at from exercises
-where user_id = $1
-  and index < $2
-order by index desc
+select
+    e.id, e.user_id, e.name, e.index, e.updated_at, e.created_at,
+    count(s.id)::int as sets_count
+from exercises e
+left join sets s on s.exercise_id = e.id
+where e.user_id = $1
+  and e.index < $2
+group by e.id
+order by e.index desc
 limit $3
 `
 
@@ -75,15 +82,25 @@ type GetExercisesPageByUserIDParams struct {
 	Limit  int32
 }
 
-func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercisesPageByUserIDParams) ([]Exercise, error) {
+type GetExercisesPageByUserIDRow struct {
+	ID        int32
+	UserID    int32
+	Name      string
+	Index     int32
+	UpdatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+	SetsCount int32
+}
+
+func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercisesPageByUserIDParams) ([]GetExercisesPageByUserIDRow, error) {
 	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.Index, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Exercise
+	var items []GetExercisesPageByUserIDRow
 	for rows.Next() {
-		var i Exercise
+		var i GetExercisesPageByUserIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
@@ -91,6 +108,7 @@ func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercises
 			&i.Index,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.SetsCount,
 		); err != nil {
 			return nil, err
 		}

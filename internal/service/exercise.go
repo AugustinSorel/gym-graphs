@@ -19,8 +19,10 @@ func NewExerciseService(queries *db.Queries, pool *pgxpool.Pool) *ExerciseServic
 
 const ExercisesPageSize = 30
 
+type ExerciseRow = db.GetExercisesPageByUserIDRow
+
 type ExercisesPage struct {
-	Rows        []db.Exercise
+	Rows        []ExerciseRow
 	TotalCount  int64
 	NextCursor  int32
 	HasNextPage bool
@@ -30,7 +32,7 @@ type ExercisesPage struct {
 const InitialCursor = math.MaxInt32
 
 func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int32) (ExercisesPage, error) {
-	rows, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
+	exercises, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
 		UserID: userID,
 		Index:  cursor,
 		Limit:  ExercisesPageSize + 1,
@@ -39,15 +41,15 @@ func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int3
 		return ExercisesPage{}, err
 	}
 
-	hasNextPage := len(rows) > ExercisesPageSize
+	hasNextPage := len(exercises) > ExercisesPageSize
 	if hasNextPage {
-		rows = rows[:ExercisesPageSize]
+		exercises = exercises[:ExercisesPageSize]
 	}
 
 	// NextCursor is the smallest index on this page; the next page fetches index < that.
 	var nextCursor int32
 	if hasNextPage {
-		nextCursor = rows[len(rows)-1].Index
+		nextCursor = exercises[len(exercises)-1].Index
 	}
 
 	count, err := s.queries.GetExercisesCountByUserID(ctx, userID)
@@ -56,12 +58,12 @@ func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int3
 	}
 
 	var firstIndex int32
-	if len(rows) > 0 {
-		firstIndex = rows[0].Index
+	if len(exercises) > 0 {
+		firstIndex = exercises[0].Index
 	}
 
 	return ExercisesPage{
-		Rows:        rows,
+		Rows:        exercises,
 		TotalCount:  count,
 		NextCursor:  nextCursor,
 		HasNextPage: hasNextPage,

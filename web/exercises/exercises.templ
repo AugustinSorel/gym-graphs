@@ -29,6 +29,11 @@ templ ExerciseRows(page service.ExercisesPage) {
 	for _, exercise := range page.Rows {
 		<tr class="border-b-2 border-dotted border-outline/50">
 			<td class="py-4">{ exercise.Name }</td>
+			if exercise.SetsCount == 0 {
+				<td class="py-4 text-outline">-</td>
+			} else {
+				<td class="py-4">{ fmt.Sprintf("%d", exercise.SetsCount) }</td>
+			}
 		</tr>
 	}
 	if page.HasNextPage {
@@ -39,6 +44,7 @@ templ ExerciseRows(page service.ExercisesPage) {
 			class="text-outline text-sm"
 		>
 			<td class="py-4">loading...</td>
+			<td></td>
 		</tr>
 	}
 }
@@ -56,6 +62,7 @@ templ exercisesList(page service.ExercisesPage, totalCount int64) {
 		<thead>
 			<tr class="border-b-2">
 				<th class="text-left font-semibold py-2 text-outline uppercase text-xs">name</th>
+				<th class="text-left font-semibold py-2 text-outline uppercase text-xs">sets</th>
 			</tr>
 		</thead>
 		<tbody>
