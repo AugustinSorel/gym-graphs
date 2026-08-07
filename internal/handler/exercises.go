@@ -27,16 +27,36 @@ func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.Exerci
 func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
-	query := r.URL.Query().Get("query")
+	if r.Header.Get("HX-Request") == "true" {
+		var cursor int32 = service.InitialCursor
+		if raw := r.URL.Query().Get("cursor"); raw != "" {
+			if v, err := strconv.ParseInt(raw, 10, 32); err == nil {
+				cursor = int32(v)
+			}
+		}
 
-	rows, err := h.exerciseSvc.GetAllByUserID(r.Context(), authSession.UserID)
+		exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), authSession.UserID, cursor)
+		if err != nil {
+			slog.Error("failed to fetch exercises rows", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		if err := exercises.ExerciseRows(exercisesPage).Render(r.Context(), w); err != nil {
+			slog.Error("failed to render exercises rows", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), authSession.UserID, service.InitialCursor)
 	if err != nil {
 		slog.Error("failed to fetch exercises", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	page := exercises.ExercisesPage(rows, query)
+	page := exercises.ExercisesPage(exercisesPage)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {

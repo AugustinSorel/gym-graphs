@@ -49,14 +49,34 @@ func (q *Queries) CreateExerciseTags(ctx context.Context, arg CreateExerciseTags
 	return err
 }
 
-const getAllExercisesByUserID = `-- name: GetAllExercisesByUserID :many
-select id, user_id, name, index, updated_at, created_at from exercises
+const getExercisesCountByUserID = `-- name: GetExercisesCountByUserID :one
+select count(*) from exercises
 where user_id = $1
-order by index asc
 `
 
-func (q *Queries) GetAllExercisesByUserID(ctx context.Context, userID int32) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, getAllExercisesByUserID, userID)
+func (q *Queries) GetExercisesCountByUserID(ctx context.Context, userID int32) (int64, error) {
+	row := q.db.QueryRow(ctx, getExercisesCountByUserID, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getExercisesPageByUserID = `-- name: GetExercisesPageByUserID :many
+select id, user_id, name, index, updated_at, created_at from exercises
+where user_id = $1
+  and index < $2
+order by index desc
+limit $3
+`
+
+type GetExercisesPageByUserIDParams struct {
+	UserID int32
+	Index  int32
+	Limit  int32
+}
+
+func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercisesPageByUserIDParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.Index, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

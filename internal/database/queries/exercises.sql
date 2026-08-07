@@ -7,7 +7,13 @@ returning *;
 insert into exercise_tags (exercise_id, tag_id)
 select $1, unnest($2::int[]);
 
--- name: GetAllExercisesByUserID :many
+-- name: GetExercisesPageByUserID :many
 select * from exercises
 where user_id = $1
-order by index asc;
+  and index < $2
+order by index desc
+limit $3;
+
+-- name: GetExercisesCountByUserID :one
+select count(*) from exercises
+where user_id = $1;
