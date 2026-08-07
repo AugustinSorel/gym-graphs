@@ -173,6 +173,8 @@ func (h *AccountHandler) UpdateWeightUnit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	w.Header().Set("HX-Reswap", "none")
+
 	if renderErr := account.WeightUnitForm(account.WeightUnitFormValues{WeightUnit: input.WeightUnit}, account.WeightUnitFormErr{}).Render(r.Context(), w); renderErr != nil {
 		slog.Error("failed to render weight unit form", "error", renderErr)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
