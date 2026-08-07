@@ -1,8 +1,27 @@
 package exercises
 
+import "github.com/augustinsorel/gym-graphs/web/ui/link"
+
+templ noExercisesMessage() {
+	<section class="mt-40 gap-5 flex flex-col items-center text-center">
+		<span
+			aria-hidden="true"
+			class="bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline"
+		>
+			0
+		</span>
+		<h1 class="uppercase font-semibold">no exercises yet</h1>
+		<p class="text-balance text-outline text-sm max-w-sm">
+			Add your first movement and start building your training logs
+		</p>
+		@link.Link(link.Props{Href: "/exercises/new"}) {
+			+ add exercise
+		}
+	</section>
+}
+
 templ ExercisesPage() {
-	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		<h1 class="uppercase font-semibold text-3xl">exercises</h1>
-		<p class="text-outline">coming soon</p>
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		@noExercisesMessage()
 	</main>
 }
