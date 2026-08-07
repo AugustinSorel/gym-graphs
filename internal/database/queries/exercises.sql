@@ -6,3 +6,8 @@ returning *;
 -- name: CreateExerciseTags :exec
 insert into exercise_tags (exercise_id, tag_id)
 select $1, unnest($2::int[]);
+
+-- name: GetAllExercisesByUserID :many
+select * from exercises
+where user_id = $1
+order by index asc;

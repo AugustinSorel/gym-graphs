@@ -1,6 +1,12 @@
 package exercises
 
-import "github.com/augustinsorel/gym-graphs/web/ui/link"
+import (
+	"strconv"
+	"strings"
+
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+)
 
 templ noExercisesMessage() {
 	<section class="mt-40 gap-5 flex flex-col items-center text-center">
@@ -20,8 +26,23 @@ templ noExercisesMessage() {
 	</section>
 }
 
-templ ExercisesPage() {
+templ exercisesList(rows []db.Exercise, query string) {
+	<header class="flex items-center justify-between">
+		<span class="text-outline uppercase text-sm">
+			exercises ({ strconv.Itoa(len(rows)) })
+		</span>
+		@link.Link(link.Props{Href: "/exercises/new"}) {
+			+ add
+		}
+	</header>
+}
+
+templ ExercisesPage(rows []db.Exercise, query string) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		@noExercisesMessage()
+		if len(rows) == 0 && strings.TrimSpace(query) == "" {
+			@noExercisesMessage()
+		} else {
+			@exercisesList(rows, query)
+		}
 	</main>
 }

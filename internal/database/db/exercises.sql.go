@@ -48,3 +48,36 @@ func (q *Queries) CreateExerciseTags(ctx context.Context, arg CreateExerciseTags
 	_, err := q.db.Exec(ctx, createExerciseTags, arg.ExerciseID, arg.Column2)
 	return err
 }
+
+const getAllExercisesByUserID = `-- name: GetAllExercisesByUserID :many
+select id, user_id, name, index, updated_at, created_at from exercises
+where user_id = $1
+order by index asc
+`
+
+func (q *Queries) GetAllExercisesByUserID(ctx context.Context, userID int32) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, getAllExercisesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.Index,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

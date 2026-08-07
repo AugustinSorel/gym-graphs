@@ -16,6 +16,10 @@ func NewExerciseService(queries *db.Queries, pool *pgxpool.Pool) *ExerciseServic
 	return &ExerciseService{queries: queries, pool: pool}
 }
 
+func (s *ExerciseService) GetAllByUserID(ctx context.Context, userID int32) ([]db.Exercise, error) {
+	return s.queries.GetAllExercisesByUserID(ctx, userID)
+}
+
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {

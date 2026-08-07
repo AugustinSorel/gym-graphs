@@ -25,7 +25,18 @@ func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.Exerci
 }
 
 func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
-	page := exercises.ExercisesPage()
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	query := r.URL.Query().Get("query")
+
+	rows, err := h.exerciseSvc.GetAllByUserID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch exercises", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	page := exercises.ExercisesPage(rows, query)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
