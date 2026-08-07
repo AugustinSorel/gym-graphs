@@ -1,0 +1,97 @@
+package exercises
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+type NewExerciseFormValues struct {
+	Name string
+}
+
+type NewExerciseFormErr struct {
+	Name string
+	Root string
+}
+
+templ NewExercisePage() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		{ children... }
+	</main>
+}
+
+templ NewExercisePageWithForm(form NewExerciseFormValues, formErr NewExerciseFormErr, tags []db.Tag) {
+	@NewExercisePage() {
+		@NewExerciseForm(form, formErr, tags)
+	}
+}
+
+templ NewExerciseForm(form NewExerciseFormValues, formErr NewExerciseFormErr, tags []db.Tag) {
+	<form
+		hx-post="/exercises/new"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">name:</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Autocomplete: "off",
+				Placeholder:  "bench press",
+				HasError:     formErr.Name != "",
+				Attributes:   templ.Attributes{"autofocus": ""},
+			})
+			if formErr.Name != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Name }</p>
+			}
+		</label>
+		@tagCheckboxes(tags)
+		if formErr.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ formErr.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/exercises", Class: "ml-auto"}) {
+			cancel
+		}
+	</form>
+}
+
+templ tagCheckboxes(tags []db.Tag) {
+	if len(tags) > 0 {
+		<fieldset class="grid gap-3">
+			<legend class="text-outline text-sm mb-3">tags:</legend>
+			<div class="flex flex-wrap gap-2">
+				for _, tag := range tags {
+					<label class="border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">
+						<input
+							type="checkbox"
+							name="tag_ids"
+							value={ fmt.Sprintf("%d", tag.ID) }
+							class="sr-only"
+						/>
+						{ tag.Name }
+					</label>
+				}
+			</div>
+		</fieldset>
+	}
+}
