@@ -7,6 +7,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/onerm"
 	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
 
@@ -108,22 +109,6 @@ templ ExercisesPage(page service.ExercisesPage) {
 	</main>
 }
 
-// convertWeight converts a weight in grams to the user's preferred unit.
-func convertWeight(weightInG float64, unit db.WeightUnit) float64 {
-	if unit == db.WeightUnitLbs {
-		return weightInG / 453.592
-	}
-	return weightInG / 1000
-}
-
-// weightUnitLabel returns the display label for the user's preferred weight unit.
-func weightUnitLabel(unit db.WeightUnit) string {
-	if unit == db.WeightUnitLbs {
-		return "lbs"
-	}
-	return "kg"
-}
-
 func formatOneRepMax(exercise service.ExerciseRow, algorithm db.OneRepMaxAlgorithm, unit db.WeightUnit) string {
 	if exercise.LastSetWeightInG == 0 || exercise.LastSetRepetitions == 0 {
 		return "-"
@@ -134,7 +119,7 @@ func formatOneRepMax(exercise service.ExerciseRow, algorithm db.OneRepMaxAlgorit
 		return "-"
 	}
 
-	formatted := fmt.Sprintf("%.1f %s", convertWeight(last1rm, unit), weightUnitLabel(unit))
+	formatted := fmt.Sprintf("%.1f %s", weightunit.Convert(last1rm, unit), weightunit.Label(unit))
 
 	if exercise.PrevSetWeightInG != 0 && exercise.PrevSetRepetitions != 0 {
 		prev1rm := onerm.Compute(float64(exercise.PrevSetWeightInG), float64(exercise.PrevSetRepetitions), algorithm)

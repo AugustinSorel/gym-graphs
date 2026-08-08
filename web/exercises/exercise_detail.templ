@@ -2,19 +2,16 @@ package exercises
 
 import (
 	"fmt"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
 
 type ExerciseDetailData struct {
-	ID            int32
-	Name          string
-	OneRepMax     string
-	OneRepMaxUnit string
-	MaxWeight     string
-	MaxWeightUnit string
-	Volume        string
-	VolumeUnit    string
-	SetCount      string
+	ID         int32
+	Name       string
+	Best1RMInG float64
+	WeightUnit db.WeightUnit
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -30,7 +27,7 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 			{ ex.Name }
 		</h1>
 		<span class="uppercase text-outline text-sm">
-			{ fmt.Sprintf("sets (%s)", ex.SetCount) }
+			sets (-)
 		</span>
 		@link.Link(link.Props{
 			Href: fmt.Sprintf("/exercises/%d/sets/new", ex.ID),
@@ -51,26 +48,25 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 					best 1<abbr title="repetition maximum" class="no-underline">rm</abbr>
 				</dt>
 				<dd class="text-xl font-semibold">
-					{ ex.OneRepMax } <span class="text-sm font-normal text-outline">{ ex.OneRepMaxUnit }</span>
+					if ex.Best1RMInG > 0 {
+						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.Best1RMInG, ex.WeightUnit)) }
+						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+					} else {
+						-
+					}
 				</dd>
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">highest weight</dt>
-				<dd class="text-xl font-semibold">
-					{ ex.MaxWeight } <span class="text-sm font-normal text-outline">{ ex.MaxWeightUnit }</span>
-				</dd>
+				<dd class="text-xl font-semibold">-</dd>
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">total volume</dt>
-				<dd class="text-xl font-semibold">
-					{ ex.Volume } <span class="text-sm font-normal text-outline">{ ex.VolumeUnit }</span>
-				</dd>
+				<dd class="text-xl font-semibold">-</dd>
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">total sets</dt>
-				<dd class="text-xl font-semibold">
-					{ ex.SetCount }
-				</dd>
+				<dd class="text-xl font-semibold">-</dd>
 			</div>
 		</dl>
 	</section>

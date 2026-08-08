@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/onerm"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -80,6 +81,27 @@ func (s *ExerciseService) GetByIDAndUserID(ctx context.Context, id int32, userID
 		ID:     id,
 		UserID: userID,
 	})
+}
+
+// Best1RM returns the highest computed 1RM across all sets for the exercise,
+// expressed in grams. Returns 0 if the exercise has no sets.
+func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (float64, error) {
+	sets, err := s.queries.GetSetsByExerciseID(ctx, exerciseID)
+	if err != nil {
+		return 0, err
+	}
+
+	var best float64
+	for _, set := range sets {
+		if set.WeightInG <= 0 || set.Repetitions <= 0 {
+			continue
+		}
+		v := onerm.Compute(float64(set.WeightInG), float64(set.Repetitions), algorithm)
+		if v > best {
+			best = v
+		}
+	}
+	return best, nil
 }
 
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {
