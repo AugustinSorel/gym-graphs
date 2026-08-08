@@ -12,9 +12,6 @@ import (
 templ CreateTagPage() {
 	@main() {
 		<div class="flex flex-col mx-auto w-full gap-20">
-			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
-				← account
-			}
 			{ children... }
 		</div>
 	}
@@ -57,9 +54,6 @@ type CreateTagFormErr struct {
 templ RemoveTagPage(tagID int32, tagName string) {
 	@main() {
 		<div class="flex flex-col mx-auto w-full gap-20">
-			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
-				← account
-			}
 			<form
 				hx-post={ fmt.Sprintf("/tags/%d/remove", tagID) }
 				hx-disable="find button[type='submit']"
@@ -75,6 +69,9 @@ templ RemoveTagPage(tagID int32, tagName string) {
 				@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantDestructive}) {
 					yes, remove tag
 					@spinner.Spinner()
+				}
+				@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+					cancel
 				}
 			</form>
 		</div>
@@ -110,9 +107,6 @@ templ RemoveTagFormErr(errMsg string) {
 templ RenameTagPage(tagID int32) {
 	@main() {
 		<div class="flex flex-col mx-auto w-full gap-20">
-			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
-				← account
-			}
 			{ children... }
 		</div>
 	}
@@ -182,6 +176,9 @@ templ RenameTagForm(tagID int32, form RenameTagFormValues, err RenameTagFormErr)
 			save
 			@spinner.Spinner()
 		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
+		}
 	</form>
 }
 
@@ -221,6 +218,9 @@ templ CreateTagForm(form CreateTagFormValues, err CreateTagFormErr) {
 		@button.Button(button.Props{Type: button.TypeSubmit}) {
 			create tag
 			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
 		}
 	</form>
 }

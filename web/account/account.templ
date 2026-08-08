@@ -31,12 +31,7 @@ templ AccountErrorPage(msg string) {
 
 templ EditNamePage() {
 	@main() {
-		<div class="flex flex-col mx-auto w-full gap-0 gap-20">
-			@link.Link(link.Props{Href: "/account", Class: "text-outline text-xs uppercase tracking-widest self-start"}) {
-				← account
-			}
-			{ children... }
-		</div>
+		{ children... }
 	}
 }
 
@@ -132,6 +127,9 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 		@button.Button(button.Props{Type: button.TypeSubmit}) {
 			save
 			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
 		}
 	</form>
 }
