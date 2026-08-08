@@ -18,6 +18,7 @@ templ ExerciseDetailPage(ex ExerciseDetailData) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		@exerciseDetailHeader(ex)
 		@exerciseFunFacts(ex)
+		@exerciseManage(ex)
 	</main>
 }
 
@@ -35,6 +36,38 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 			+ add
 		}
 	</header>
+}
+
+templ exerciseManage(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			manage
+		</h2>
+		<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+			<dl class="space-y-1">
+				<dt class="text-outline text-sm">name</dt>
+				<dd class="capitalize break-all text-balance">{ ex.Name }</dd>
+			</dl>
+			@link.Link(link.Props{
+				Href:  fmt.Sprintf("/exercises/%d/name", ex.ID),
+				Class: "my-auto text-sm",
+			}) {
+				rename
+			}
+		</div>
+		<div class="py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center">
+			<div class="space-y-1">
+				<p class="text-outline text-sm">remove exercise</p>
+				<p class="text-balance">permanently delete this exercise and all its sets.</p>
+			</div>
+			@link.Link(link.Props{
+				Href:  fmt.Sprintf("/exercises/%d/remove", ex.ID),
+				Class: "my-auto ml-auto text-sm font-semibold text-error underline hover:opacity-70 transition-opacity hover:text-error/80",
+			}) {
+				delete
+			}
+		</div>
+	</section>
 }
 
 templ exerciseFunFacts(ex ExerciseDetailData) {
