@@ -118,6 +118,36 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *ExercisesHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	exercise, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch exercise for rename page", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	page := exercises.RenameExercisePageWithForm(
+		exercise.ID,
+		exercises.RenameExerciseFormValues{Name: exercise.Name},
+		exercises.RenameExerciseFormErr{},
+	)
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
+		slog.Error("failed to render rename exercise page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func (h *ExercisesHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
