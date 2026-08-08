@@ -86,7 +86,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.Best1RMInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.Best1RMInG, ex.WeightUnit)) }
-						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
+						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}
@@ -97,7 +97,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.HighestWeightInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.HighestWeightInG, ex.WeightUnit)) }
-						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
+						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}
@@ -108,7 +108,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.TotalVolumeInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.TotalVolumeInG, ex.WeightUnit)) }
-						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
+						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}

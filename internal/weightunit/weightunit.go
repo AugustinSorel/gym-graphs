@@ -9,14 +9,14 @@ func Convert(weightInG float64, unit db.WeightUnit) float64 {
 	return weightInG / 1000
 }
 
-func Label(unit db.WeightUnit) string {
+func Abbr(unit db.WeightUnit) string {
 	if unit == db.WeightUnitLbs {
 		return "lbs"
 	}
 	return "kg"
 }
 
-func FullLabel(unit db.WeightUnit) string {
+func Name(unit db.WeightUnit) string {
 	if unit == db.WeightUnitLbs {
 		return "pounds"
 	}
