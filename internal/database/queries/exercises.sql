@@ -47,3 +47,7 @@ LIMIT $3;
 -- name: GetExercisesCountByUserID :one
 select count(*) from exercises
 where user_id = $1;
+
+-- name: GetExerciseByIDAndUserID :one
+select id, user_id, name, index, updated_at, created_at from exercises
+where id = $1 and user_id = $2;

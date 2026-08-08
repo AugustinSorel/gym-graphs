@@ -51,6 +51,30 @@ func (q *Queries) CreateExerciseTags(ctx context.Context, arg CreateExerciseTags
 	return err
 }
 
+const getExerciseByIDAndUserID = `-- name: GetExerciseByIDAndUserID :one
+select id, user_id, name, index, updated_at, created_at from exercises
+where id = $1 and user_id = $2
+`
+
+type GetExerciseByIDAndUserIDParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) GetExerciseByIDAndUserID(ctx context.Context, arg GetExerciseByIDAndUserIDParams) (Exercise, error) {
+	row := q.db.QueryRow(ctx, getExerciseByIDAndUserID, arg.ID, arg.UserID)
+	var i Exercise
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Index,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getExercisesCountByUserID = `-- name: GetExercisesCountByUserID :one
 select count(*) from exercises
 where user_id = $1

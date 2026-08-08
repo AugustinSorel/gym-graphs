@@ -25,6 +25,42 @@ func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.Exerci
 	return &ExercisesHandler{tagSvc: tagSvc, exerciseSvc: exerciseSvc, userSvc: userSvc}
 }
 
+func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	exercise, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch exercise", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	page := exercises.ExerciseDetailPage(exercises.ExerciseDetailData{
+		ID:            exercise.ID,
+		Name:          exercise.Name,
+		OneRepMax:     "-",
+		OneRepMaxUnit: "",
+		MaxWeight:     "-",
+		MaxWeightUnit: "",
+		Volume:        "-",
+		VolumeUnit:    "",
+		SetCount:      "-",
+	})
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
+		slog.Error("failed to render exercise detail page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 

@@ -75,6 +75,13 @@ func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int3
 	}, nil
 }
 
+func (s *ExerciseService) GetByIDAndUserID(ctx context.Context, id int32, userID int32) (db.Exercise, error) {
+	return s.queries.GetExerciseByIDAndUserID(ctx, db.GetExerciseByIDAndUserIDParams{
+		ID:     id,
+		UserID: userID,
+	})
+}
+
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
