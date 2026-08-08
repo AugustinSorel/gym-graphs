@@ -29,7 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
 	exerciseSvc := service.NewExerciseService(s.queries, s.pool)
-	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc)
+	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc)
 	statsHandler := handler.NewStatsHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {

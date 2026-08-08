@@ -18,14 +18,22 @@ import (
 type ExercisesHandler struct {
 	tagSvc      *service.TagService
 	exerciseSvc *service.ExerciseService
+	userSvc     *service.UserService
 }
 
-func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.ExerciseService) *ExercisesHandler {
-	return &ExercisesHandler{tagSvc: tagSvc, exerciseSvc: exerciseSvc}
+func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.ExerciseService, userSvc *service.UserService) *ExercisesHandler {
+	return &ExercisesHandler{tagSvc: tagSvc, exerciseSvc: exerciseSvc, userSvc: userSvc}
 }
 
 func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch user", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	if r.Header.Get("HX-Request") == "true" {
 		var cursor int32 = service.InitialCursor
@@ -35,7 +43,7 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), authSession.UserID, cursor)
+		exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), user, cursor)
 		if err != nil {
 			slog.Error("failed to fetch exercises rows", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -49,7 +57,7 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), authSession.UserID, service.InitialCursor)
+	exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), user, service.InitialCursor)
 	if err != nil {
 		slog.Error("failed to fetch exercises", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

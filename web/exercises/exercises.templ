@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/onerm"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
@@ -38,7 +40,9 @@ templ ExerciseRows(page service.ExercisesPage) {
 						{ exercise.Name }
 					}
 				</td>
-				<td class="p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left">-</td>
+				<td class="p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left">
+					{ formatOneRepMax(exercise, page.OneRepMaxAlgorithm, page.WeightUnit) }
+				</td>
 				<td class="p-4 align-middle text-outline lg:table-cell hidden">
 					if exercise.SetsCount == 0 {
 						-
@@ -102,6 +106,49 @@ templ ExercisesPage(page service.ExercisesPage) {
 			@exercisesList(page, page.TotalCount)
 		}
 	</main>
+}
+
+// convertWeight converts a weight in grams to the user's preferred unit.
+func convertWeight(weightInG float64, unit db.WeightUnit) float64 {
+	if unit == db.WeightUnitLbs {
+		return weightInG / 453.592
+	}
+	return weightInG / 1000
+}
+
+// weightUnitLabel returns the display label for the user's preferred weight unit.
+func weightUnitLabel(unit db.WeightUnit) string {
+	if unit == db.WeightUnitLbs {
+		return "lbs"
+	}
+	return "kg"
+}
+
+func formatOneRepMax(exercise service.ExerciseRow, algorithm db.OneRepMaxAlgorithm, unit db.WeightUnit) string {
+	if exercise.LastSetWeightInG == 0 || exercise.LastSetRepetitions == 0 {
+		return "-"
+	}
+
+	last1rm := onerm.Compute(float64(exercise.LastSetWeightInG), float64(exercise.LastSetRepetitions), algorithm)
+	if last1rm <= 0 {
+		return "-"
+	}
+
+	formatted := fmt.Sprintf("%.1f %s", convertWeight(last1rm, unit), weightUnitLabel(unit))
+
+	if exercise.PrevSetWeightInG != 0 && exercise.PrevSetRepetitions != 0 {
+		prev1rm := onerm.Compute(float64(exercise.PrevSetWeightInG), float64(exercise.PrevSetRepetitions), algorithm)
+		switch {
+		case last1rm > prev1rm:
+			return formatted + " ↑"
+		case last1rm < prev1rm:
+			return formatted + " ↓"
+		default:
+			return formatted + " -"
+		}
+	}
+
+	return formatted
 }
 
 func timeAgo(t time.Time) string {

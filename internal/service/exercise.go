@@ -22,18 +22,20 @@ const ExercisesPageSize = 30
 type ExerciseRow = db.GetExercisesPageByUserIDRow
 
 type ExercisesPage struct {
-	Rows        []ExerciseRow
-	TotalCount  int64
-	NextCursor  int32
-	HasNextPage bool
-	FirstIndex  int32
+	Rows               []ExerciseRow
+	TotalCount         int64
+	NextCursor         int32
+	HasNextPage        bool
+	FirstIndex         int32
+	WeightUnit         db.WeightUnit
+	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
 }
 
 const InitialCursor = math.MaxInt32
 
-func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int32) (ExercisesPage, error) {
+func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int32) (ExercisesPage, error) {
 	exercises, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
-		UserID: userID,
+		UserID: user.ID,
 		Index:  cursor,
 		Limit:  ExercisesPageSize + 1,
 	})
@@ -52,7 +54,7 @@ func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int3
 		nextCursor = exercises[len(exercises)-1].Index
 	}
 
-	count, err := s.queries.GetExercisesCountByUserID(ctx, userID)
+	count, err := s.queries.GetExercisesCountByUserID(ctx, user.ID)
 	if err != nil {
 		return ExercisesPage{}, err
 	}
@@ -63,11 +65,13 @@ func (s *ExerciseService) GetPage(ctx context.Context, userID int32, cursor int3
 	}
 
 	return ExercisesPage{
-		Rows:        exercises,
-		TotalCount:  count,
-		NextCursor:  nextCursor,
-		HasNextPage: hasNextPage,
-		FirstIndex:  firstIndex,
+		Rows:               exercises,
+		TotalCount:         count,
+		NextCursor:         nextCursor,
+		HasNextPage:        hasNextPage,
+		FirstIndex:         firstIndex,
+		WeightUnit:         user.WeightUnit,
+		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
 	}, nil
 }
 
