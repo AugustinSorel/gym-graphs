@@ -57,3 +57,7 @@ update exercises
 set name = $1, updated_at = now()
 where id = $2 and user_id = $3
 returning *;
+
+-- name: DeleteExercise :exec
+delete from exercises
+where id = $1 and user_id = $2;

@@ -91,6 +91,13 @@ func (s *ExerciseService) UpdateName(ctx context.Context, id int32, userID int32
 	})
 }
 
+func (s *ExerciseService) Delete(ctx context.Context, id int32, userID int32) error {
+	return s.queries.DeleteExercise(ctx, db.DeleteExerciseParams{
+		ID:     id,
+		UserID: userID,
+	})
+}
+
 // Best1RM returns the highest computed 1RM across all sets for the exercise,
 // expressed in grams. Returns 0 if the exercise has no sets.
 func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (float64, error) {

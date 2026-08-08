@@ -190,6 +190,62 @@ func (h *ExercisesHandler) Rename(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *ExercisesHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	exercise, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID)
+	if err != nil {
+		page := exercises.RemoveExerciseErrorPage("loading the remove exercise page failed")
+		ctx := templ.WithChildren(r.Context(), page)
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render remove exercise error page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	page := exercises.RemoveExercisePage(exercise.ID, exercise.Name)
+	ctx := templ.WithChildren(r.Context(), page)
+	if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
+		page := exercises.RemoveExerciseErrorPage("loading the remove exercise page failed")
+		ctx := templ.WithChildren(r.Context(), page)
+		if renderErr := layout.Layout(r.URL.Path).Render(ctx, w); renderErr != nil {
+			slog.Error("failed to render remove exercise page", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}
+}
+
+func (h *ExercisesHandler) Remove(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.exerciseSvc.Delete(r.Context(), int32(id), authSession.UserID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if renderErr := exercises.RemoveExerciseFormErr("something went wrong, please try again.").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render remove exercise error", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/exercises")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *ExercisesHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 

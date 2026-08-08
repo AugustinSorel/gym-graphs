@@ -51,6 +51,21 @@ func (q *Queries) CreateExerciseTags(ctx context.Context, arg CreateExerciseTags
 	return err
 }
 
+const deleteExercise = `-- name: DeleteExercise :exec
+delete from exercises
+where id = $1 and user_id = $2
+`
+
+type DeleteExerciseParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) DeleteExercise(ctx context.Context, arg DeleteExerciseParams) error {
+	_, err := q.db.Exec(ctx, deleteExercise, arg.ID, arg.UserID)
+	return err
+}
+
 const getExerciseByIDAndUserID = `-- name: GetExerciseByIDAndUserID :one
 select id, user_id, name, index, updated_at, created_at from exercises
 where id = $1 and user_id = $2
