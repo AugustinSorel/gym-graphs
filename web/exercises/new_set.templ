@@ -1,0 +1,163 @@
+package exercises
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+type NewSetRowValues struct {
+	Weight      string
+	Repetitions string
+}
+
+type NewSetRowErr struct {
+	Weight      string
+	Repetitions string
+}
+
+type NewSetFormErr struct {
+	Root string
+}
+
+templ NewSetPage() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		{ children... }
+	</main>
+}
+
+templ NewSetPageWithForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowErr, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+	@NewSetPage() {
+		@NewSetForm(exerciseID, rows, rowErrs, formErr, weightUnit)
+	}
+}
+
+templ NewSetRow(row NewSetRowValues, rowErr NewSetRowErr, weightUnit db.WeightUnit) {
+	{{ weightPlaceholder := "80" }}
+	if weightUnit == db.WeightUnitLbs {
+		{{ weightPlaceholder = "176" }}
+	}
+	<tr
+		class="bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x"
+	>
+		<td
+			class="pl-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error"
+		>
+			<input
+				step="any"
+				type="number"
+				name="weight"
+				if row.Weight != "" {
+					value={ row.Weight }
+				}
+				autocomplete="off"
+				autofocus
+				placeholder={ weightPlaceholder }
+				class="w-full text-lg py-1 px-2"
+				if rowErr.Weight != "" {
+					aria-invalid="true"
+				}
+			/>
+			if rowErr.Weight != "" {
+				<p role="alert" class="text-error text-sm mt-1">{ rowErr.Weight }</p>
+			}
+		</td>
+		<td
+			class="p-4 align-middle has-[>[aria-invalid=true]]:text-error"
+		>
+			<input
+				type="number"
+				name="repetitions"
+				if row.Repetitions != "" {
+					value={ row.Repetitions }
+				}
+				autocomplete="off"
+				placeholder="10"
+				class="w-full text-lg py-1 px-2"
+				if rowErr.Repetitions != "" {
+					aria-invalid="true"
+				}
+			/>
+			if rowErr.Repetitions != "" {
+				<p role="alert" class="text-error text-sm mt-1">{ rowErr.Repetitions }</p>
+			}
+		</td>
+		<td class="pr-0 p-4 align-middle w-0">
+			@button.Button(button.Props{Variant: button.VariantLink, Type: button.TypeButton, Attributes: templ.Attributes{"hx-on:click": "this.closest('tr').remove()"}}) {
+				remove
+			}
+		</td>
+	</tr>
+}
+
+templ emptyNewSetRow(weightUnit db.WeightUnit) {
+	@NewSetRow(NewSetRowValues{}, NewSetRowErr{}, weightUnit)
+}
+
+templ NewSetForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowErr, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+	{{ thClass := "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide" }}
+	<form
+		hx-post={ fmt.Sprintf("/exercises/%d/sets/new", exerciseID) }
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<table class="caption-bottom text-sm w-full">
+			<thead class="border-b-2 text-nowrap">
+				<tr>
+					<th class={ thClass + " pl-0" }>
+						weight ({ weightunit.Label(weightUnit) })
+					</th>
+					<th class={ thClass }>repetitions</th>
+					<th class={ thClass + " pr-0 w-0" }></th>
+				</tr>
+			</thead>
+			<tbody id="set-rows">
+				for i, row := range rows {
+					if i < len(rowErrs) {
+						@NewSetRow(row, rowErrs[i], weightUnit)
+					} else {
+						@NewSetRow(row, NewSetRowErr{}, weightUnit)
+					}
+				}
+			</tbody>
+		</table>
+		if formErr.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ formErr.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{
+			Variant: button.VariantLink,
+			Type:    button.TypeButton,
+			Class:   "ml-auto",
+			Attributes: templ.Attributes{
+				"hx-get":    fmt.Sprintf("/exercises/%d/sets/row", exerciseID),
+				"hx-target": "#set-rows",
+				"hx-swap":   "beforeend",
+			},
+		}) {
+			+ add set
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{
+			Href:  fmt.Sprintf("/exercises/%d", exerciseID),
+			Class: "ml-auto",
+		}) {
+			cancel
+		}
+	</form>
+}

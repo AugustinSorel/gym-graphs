@@ -29,7 +29,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	updatePassword := handler.NewUpdatePasswordHandler(userSvc, passwordUpdateSvc)
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
 	exerciseSvc := service.NewExerciseService(s.queries, s.pool)
+	setSvc := service.NewSetService(s.queries)
 	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc)
+	setsHandler := handler.NewSetsHandler(exerciseSvc, setSvc, userSvc)
 	statsHandler := handler.NewStatsHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {
@@ -102,6 +104,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("PATCH /exercises/{id}/name", requireAuthSession(http.HandlerFunc(exercisesHandler.Rename)))
 	mux.Handle("GET /exercises/{id}/remove", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewRemovePage)))
 	mux.Handle("POST /exercises/{id}/remove", requireAuthSession(http.HandlerFunc(exercisesHandler.Remove)))
+	mux.Handle("GET /exercises/{id}/sets/new", requireAuthSession(http.HandlerFunc(setsHandler.ViewNewPage)))
+	mux.Handle("POST /exercises/{id}/sets/new", requireAuthSession(http.HandlerFunc(setsHandler.Create)))
+	mux.Handle("GET /exercises/{id}/sets/row", requireAuthSession(http.HandlerFunc(setsHandler.NewSetRow)))
 	mux.Handle("GET /stats", requireAuthSession(http.HandlerFunc(statsHandler.ViewPage)))
 
 	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))

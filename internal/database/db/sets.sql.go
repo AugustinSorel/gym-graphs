@@ -9,6 +9,45 @@ import (
 	"context"
 )
 
+const createSets = `-- name: CreateSets :many
+insert into sets (exercise_id, repetitions, weight_in_g)
+select unnest($1::int[]), unnest($2::int[]), unnest($3::int[])
+returning id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+`
+
+type CreateSetsParams struct {
+	Column1 []int32
+	Column2 []int32
+	Column3 []int32
+}
+
+func (q *Queries) CreateSets(ctx context.Context, arg CreateSetsParams) ([]Set, error) {
+	rows, err := q.db.Query(ctx, createSets, arg.Column1, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Set
+	for rows.Next() {
+		var i Set
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExerciseID,
+			&i.Repetitions,
+			&i.WeightInG,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSetsByExerciseID = `-- name: GetSetsByExerciseID :many
 select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
 from sets
