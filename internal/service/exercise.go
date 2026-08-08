@@ -98,8 +98,6 @@ func (s *ExerciseService) Delete(ctx context.Context, id int32, userID int32) er
 	})
 }
 
-// Best1RM returns the highest computed 1RM across all sets for the exercise,
-// expressed in grams. Returns 0 if the exercise has no sets.
 func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (float64, error) {
 	sets, err := s.queries.GetSetsByExerciseID(ctx, exerciseID)
 	if err != nil {
@@ -117,6 +115,32 @@ func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorit
 		}
 	}
 	return best, nil
+}
+
+type ExerciseFunFacts struct {
+	Best1RMInG       float64
+	HighestWeightInG float64
+	TotalVolumeInG   float64
+	TotalSets        int
+}
+
+func (s *ExerciseService) FunFacts(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (ExerciseFunFacts, error) {
+	stats, err := s.queries.GetExerciseStatsByID(ctx, exerciseID)
+	if err != nil {
+		return ExerciseFunFacts{}, err
+	}
+
+	best1rm, err := s.Best1RM(ctx, exerciseID, algorithm)
+	if err != nil {
+		return ExerciseFunFacts{}, err
+	}
+
+	return ExerciseFunFacts{
+		Best1RMInG:       best1rm,
+		HighestWeightInG: float64(stats.HighestWeightInG),
+		TotalVolumeInG:   float64(stats.TotalVolumeInG),
+		TotalSets:        int(stats.TotalSets),
+	}, nil
 }
 
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {

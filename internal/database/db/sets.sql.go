@@ -48,6 +48,28 @@ func (q *Queries) CreateSets(ctx context.Context, arg CreateSetsParams) ([]Set, 
 	return items, nil
 }
 
+const getExerciseStatsByID = `-- name: GetExerciseStatsByID :one
+select
+    count(*)::int                               as total_sets,
+    coalesce(max(weight_in_g), 0)::int          as highest_weight_in_g,
+    coalesce(sum(weight_in_g::bigint * repetitions::bigint), 0)::bigint as total_volume_in_g
+from sets
+where exercise_id = $1
+`
+
+type GetExerciseStatsByIDRow struct {
+	TotalSets        int32
+	HighestWeightInG int32
+	TotalVolumeInG   int64
+}
+
+func (q *Queries) GetExerciseStatsByID(ctx context.Context, exerciseID int32) (GetExerciseStatsByIDRow, error) {
+	row := q.db.QueryRow(ctx, getExerciseStatsByID, exerciseID)
+	var i GetExerciseStatsByIDRow
+	err := row.Scan(&i.TotalSets, &i.HighestWeightInG, &i.TotalVolumeInG)
+	return i, err
+}
+
 const getSetsByExerciseID = `-- name: GetSetsByExerciseID :many
 select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
 from sets

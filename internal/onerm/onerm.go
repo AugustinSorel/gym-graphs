@@ -6,8 +6,6 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 )
 
-// Compute calculates the one-rep max from weight (in any unit) and repetitions
-// using the given algorithm. Returns 0 if reps is 0.
 func Compute(weightInG float64, reps float64, algorithm db.OneRepMaxAlgorithm) float64 {
 	if reps <= 0 || weightInG <= 0 {
 		return 0
@@ -42,7 +40,6 @@ func Compute(weightInG float64, reps float64, algorithm db.OneRepMaxAlgorithm) f
 	case db.OneRepMaxAlgorithmWathen:
 		return (100 * w) / (48.8 + 53.8*math.Exp(-0.075*r))
 	default:
-		// fallback to Epley
 		return w * (1 + r/30)
 	}
 }

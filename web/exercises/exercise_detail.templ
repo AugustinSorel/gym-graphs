@@ -8,10 +8,13 @@ import (
 )
 
 type ExerciseDetailData struct {
-	ID         int32
-	Name       string
-	Best1RMInG float64
-	WeightUnit db.WeightUnit
+	ID                int32
+	Name              string
+	Best1RMInG        float64
+	HighestWeightInG  float64
+	TotalVolumeInG    float64
+	TotalSets         int
+	WeightUnit        db.WeightUnit
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -28,7 +31,7 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 			{ ex.Name }
 		</h1>
 		<span class="uppercase text-outline text-sm">
-			sets (-)
+			sets ({ fmt.Sprintf("%d", ex.TotalSets) })
 		</span>
 		@link.Link(link.Props{
 			Href: fmt.Sprintf("/exercises/%d/sets/new", ex.ID),
@@ -91,15 +94,35 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">highest weight</dt>
-				<dd class="text-xl font-semibold">-</dd>
+				<dd class="text-xl font-semibold">
+					if ex.HighestWeightInG > 0 {
+						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.HighestWeightInG, ex.WeightUnit)) }
+						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+					} else {
+						-
+					}
+				</dd>
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">total volume</dt>
-				<dd class="text-xl font-semibold">-</dd>
+				<dd class="text-xl font-semibold">
+					if ex.TotalVolumeInG > 0 {
+						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.TotalVolumeInG, ex.WeightUnit)) }
+						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+					} else {
+						-
+					}
+				</dd>
 			</div>
 			<div class="grid gap-1">
 				<dt class="text-outline text-xs">total sets</dt>
-				<dd class="text-xl font-semibold">-</dd>
+				<dd class="text-xl font-semibold">
+					if ex.TotalSets > 0 {
+						{ fmt.Sprintf("%d", ex.TotalSets) }
+					} else {
+						-
+					}
+				</dd>
 			</div>
 		</dl>
 	</section>

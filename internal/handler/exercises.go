@@ -49,18 +49,21 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	best1rmInG, err := h.exerciseSvc.Best1RM(r.Context(), exercise.ID, user.OneRepMaxAlgorithm)
+	funFacts, err := h.exerciseSvc.FunFacts(r.Context(), exercise.ID, user.OneRepMaxAlgorithm)
 	if err != nil {
-		slog.Error("failed to compute best 1rm", "error", err)
+		slog.Error("failed to compute exercise fun facts", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	page := exercises.ExerciseDetailPage(exercises.ExerciseDetailData{
-		ID:         exercise.ID,
-		Name:       exercise.Name,
-		Best1RMInG: best1rmInG,
-		WeightUnit: user.WeightUnit,
+		ID:               exercise.ID,
+		Name:             exercise.Name,
+		Best1RMInG:       funFacts.Best1RMInG,
+		HighestWeightInG: funFacts.HighestWeightInG,
+		TotalVolumeInG:   funFacts.TotalVolumeInG,
+		TotalSets:        funFacts.TotalSets,
+		WeightUnit:       user.WeightUnit,
 	})
 	ctx := templ.WithChildren(r.Context(), page)
 

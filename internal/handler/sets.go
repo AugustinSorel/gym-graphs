@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"log/slog"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -109,56 +108,35 @@ func (h *SetsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	weightValues := r.Form["weight"]
-	repValues := r.Form["repetitions"]
+	weightRaw := r.Form["weight"]
+	repsRaw := r.Form["repetitions"]
 
-	if len(weightValues) == 0 {
+	if len(weightRaw) == 0 {
 		w.Header().Set("HX-Redirect", fmt.Sprintf("/exercises/%d", id))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	count := min(len(weightValues), len(repValues))
+	count := min(len(weightRaw), len(repsRaw))
+	weightRaw = weightRaw[:count]
+	repsRaw = repsRaw[:count]
+
+	var weights []float32
+	var reps []int32
+	weightErrs := zog.Issues.Flatten(schema.CreateSetWeights.Parse(weightRaw, &weights))
+	repsErrs := zog.Issues.Flatten(schema.CreateSetRepetitions.Parse(repsRaw, &reps))
 
 	rowValues := make([]exercises.NewSetRowValues, count)
 	rowErrs := make([]exercises.NewSetRowErr, count)
-	hasErr := false
-
-	type parsedSet struct {
-		weightInG   int32
-		repetitions int32
-	}
-	parsed := make([]parsedSet, count)
-
 	for i := range count {
-		rowValues[i] = exercises.NewSetRowValues{
-			Weight:      weightValues[i],
-			Repetitions: repValues[i],
-		}
-
-		var input schema.CreateSetInput
-		errs := schema.CreateSet.Parse(map[string]any{
-			"weight":      weightValues[i],
-			"repetitions": repValues[i],
-		}, &input)
-
-		if errs != nil {
-			fieldErrs := zog.Issues.Flatten(errs)
-			rowErrs[i] = exercises.NewSetRowErr{
-				Weight:      firstErr(fieldErrs, "weight"),
-				Repetitions: firstErr(fieldErrs, "repetitions"),
-			}
-			hasErr = true
-			continue
-		}
-
-		parsed[i] = parsedSet{
-			weightInG:   int32(math.Round(weightunit.ToGrams(float64(input.Weight), user.WeightUnit))),
-			repetitions: input.Repetitions,
+		rowValues[i] = exercises.NewSetRowValues{Weight: weightRaw[i], Repetitions: repsRaw[i]}
+		rowErrs[i] = exercises.NewSetRowErr{
+			Weight:      firstErr(weightErrs, fmt.Sprintf("[%d]", i)),
+			Repetitions: firstErr(repsErrs, fmt.Sprintf("[%d]", i)),
 		}
 	}
 
-	if hasErr {
+	if weightErrs != nil || repsErrs != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		if renderErr := exercises.NewSetForm(int32(id), rowValues, rowErrs, exercises.NewSetFormErr{}, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render new set form with errors", "error", renderErr)
@@ -168,11 +146,11 @@ func (h *SetsHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	inputs := make([]service.CreateSetInput, count)
-	for i, p := range parsed {
+	for i := range count {
 		inputs[i] = service.CreateSetInput{
 			ExerciseID:  int32(id),
-			Repetitions: p.repetitions,
-			WeightInG:   p.weightInG,
+			Repetitions: reps[i],
+			WeightInG:   int32(weightunit.ToGrams(float64(weights[i]), user.WeightUnit)),
 		}
 	}
 
