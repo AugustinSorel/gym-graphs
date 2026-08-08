@@ -51,3 +51,9 @@ where user_id = $1;
 -- name: GetExerciseByIDAndUserID :one
 select id, user_id, name, index, updated_at, created_at from exercises
 where id = $1 and user_id = $2;
+
+-- name: UpdateExerciseName :one
+update exercises
+set name = $1, updated_at = now()
+where id = $2 and user_id = $3
+returning *;

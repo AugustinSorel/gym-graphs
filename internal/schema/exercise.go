@@ -15,3 +15,9 @@ var Exercise = z.Struct(z.Shape{
 })
 
 var CreateExerciseInput = Exercise.Pick("name")
+
+type RenameExercise struct {
+	Name string
+}
+
+var RenameExerciseInput = Exercise.Pick("name")

@@ -99,6 +99,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /exercises/new", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewNewPage)))
 	mux.Handle("POST /exercises/new", requireAuthSession(http.HandlerFunc(exercisesHandler.Create)))
 	mux.Handle("GET /exercises/{id}/name", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewRenamePage)))
+	mux.Handle("PATCH /exercises/{id}/name", requireAuthSession(http.HandlerFunc(exercisesHandler.Rename)))
 	mux.Handle("GET /stats", requireAuthSession(http.HandlerFunc(statsHandler.ViewPage)))
 
 	mux.Handle("GET /tags/new", requireAuthSession(http.HandlerFunc(tagHandler.ViewCreatePage)))

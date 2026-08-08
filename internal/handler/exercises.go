@@ -148,6 +148,48 @@ func (h *ExercisesHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (h *ExercisesHandler) Rename(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	var input schema.RenameExercise
+	errs := schema.RenameExerciseInput.Parse(zhttp.Request(r), &input)
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fieldErrors := zog.Issues.Flatten(errs)
+		formErrs := exercises.RenameExerciseFormErr{
+			Name: firstErr(fieldErrors, "name"),
+			Root: firstErr(fieldErrors, "root"),
+		}
+		formValues := exercises.RenameExerciseFormValues{Name: r.FormValue("name")}
+		if renderErr := exercises.RenameExerciseForm(int32(id), formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render rename exercise form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if _, err := h.exerciseSvc.UpdateName(r.Context(), int32(id), authSession.UserID, input.Name); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		formErrs := exercises.RenameExerciseFormErr{Root: "something went wrong, please try again."}
+		formValues := exercises.RenameExerciseFormValues{Name: input.Name}
+		if renderErr := exercises.RenameExerciseForm(int32(id), formValues, formErrs).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render rename exercise form", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/exercises/"+rawID)
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *ExercisesHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
