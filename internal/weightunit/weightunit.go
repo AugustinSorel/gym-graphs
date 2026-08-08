@@ -1,6 +1,10 @@
 package weightunit
 
-import "github.com/augustinsorel/gym-graphs/internal/database/db"
+import (
+	"fmt"
+
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+)
 
 func Convert(weightInG float64, unit db.WeightUnit) float64 {
 	if unit == db.WeightUnitLbs {
@@ -21,6 +25,10 @@ func Name(unit db.WeightUnit) string {
 		return "pounds"
 	}
 	return "kilograms"
+}
+
+func Format(weightInG float64, unit db.WeightUnit) string {
+	return fmt.Sprintf("%.1f", Convert(weightInG, unit))
 }
 
 func ToGrams(value float64, unit db.WeightUnit) float64 {

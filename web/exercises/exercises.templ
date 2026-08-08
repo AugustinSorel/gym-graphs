@@ -125,7 +125,7 @@ templ formatOneRepMax(exercise service.ExerciseRow, algorithm db.OneRepMaxAlgori
 	if last1rm <= 0 {
 		-
 	} else {
-		{ fmt.Sprintf("%.1f ", weightunit.Convert(last1rm, unit)) }
+		{ weightunit.Format(last1rm, unit) + " " }
 		<abbr title={ weightunit.Name(unit) } class="no-underline">{ weightunit.Abbr(unit) }</abbr>
 		if exercise.PrevSetWeightInG != 0 && exercise.PrevSetRepetitions != 0 {
 			{ trendArrow(last1rm, onerm.Compute(float64(exercise.PrevSetWeightInG), float64(exercise.PrevSetRepetitions), algorithm)) }
