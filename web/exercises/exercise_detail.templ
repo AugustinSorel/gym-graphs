@@ -8,13 +8,13 @@ import (
 )
 
 type ExerciseDetailData struct {
-	ID                int32
-	Name              string
-	Best1RMInG        float64
-	HighestWeightInG  float64
-	TotalVolumeInG    float64
-	TotalSets         int
-	WeightUnit        db.WeightUnit
+	ID               int32
+	Name             string
+	Best1RMInG       float64
+	HighestWeightInG float64
+	TotalVolumeInG   float64
+	TotalSets        int
+	WeightUnit       db.WeightUnit
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -86,7 +86,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.Best1RMInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.Best1RMInG, ex.WeightUnit)) }
-						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}
@@ -97,7 +97,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.HighestWeightInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.HighestWeightInG, ex.WeightUnit)) }
-						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}
@@ -108,7 +108,7 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				<dd class="text-xl font-semibold">
 					if ex.TotalVolumeInG > 0 {
 						{ fmt.Sprintf("%.1f", weightunit.Convert(ex.TotalVolumeInG, ex.WeightUnit)) }
-						<span class="text-sm font-normal text-outline">{ weightunit.Label(ex.WeightUnit) }</span>
+						<abbr title={ weightunit.FullLabel(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Label(ex.WeightUnit) }</abbr>
 					} else {
 						-
 					}

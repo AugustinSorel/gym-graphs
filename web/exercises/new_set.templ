@@ -111,7 +111,7 @@ templ NewSetForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowEr
 			<thead class="border-b-2 text-nowrap">
 				<tr>
 					<th class={ thClass + " pl-0" }>
-						weight ({ weightunit.Label(weightUnit) })
+						weight (<abbr title={ weightunit.FullLabel(weightUnit) } class="no-underline">{ weightunit.Label(weightUnit) }</abbr>)
 					</th>
 					<th class={ thClass }>repetitions</th>
 					<th class={ thClass + " pr-0 w-0" }></th>

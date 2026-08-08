@@ -16,6 +16,13 @@ func Label(unit db.WeightUnit) string {
 	return "kg"
 }
 
+func FullLabel(unit db.WeightUnit) string {
+	if unit == db.WeightUnitLbs {
+		return "pounds"
+	}
+	return "kilograms"
+}
+
 func ToGrams(value float64, unit db.WeightUnit) float64 {
 	if unit == db.WeightUnitLbs {
 		return value * 453.592
