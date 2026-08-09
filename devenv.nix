@@ -44,6 +44,7 @@
     exec = "go run ./cmd/api/main.go";
     restart = {
       on = "always";
+      max = null;
     };
     watch = {
       paths = [ ./cmd ./internal ./web ];
