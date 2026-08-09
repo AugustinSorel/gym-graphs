@@ -34,7 +34,7 @@ type NewSetFormErr struct {
 
 templ NewSetPage() {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		<h1 class="font-semibold text-3xl">new set</h1>
+		<h1 class="font-semibold text-3xl">new sets</h1>
 		{ children... }
 	</main>
 }
@@ -120,7 +120,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 		class="flex flex-col gap-10"
 	>
 		<div class="space-y-10">
-			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2">set</h2>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2">set 1</h2>
 			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 				<span class="text-outline text-sm pb-2">
 					weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
