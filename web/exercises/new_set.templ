@@ -126,6 +126,9 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 				}
 			}
 		}
+		@link.Link(link.Props{Href: "#", Class: "ml-auto text-outline mb-10"}) {
+			add set
+		}
 		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
 			save
 			@spinner.Spinner()
@@ -141,7 +144,7 @@ templ Row(form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit
 	if weightUnit == db.WeightUnitLbs {
 		{{ weightPlaceholder = "176" }}
 	}
-	<fieldset class="space-y-10">
+	<fieldset class="space-y-10 mt-10 first:mt-0">
 		<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">set 1</legend>
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 			<span class="text-outline text-sm pb-2">
@@ -177,7 +180,7 @@ templ CounterBtn(props input.Props) {
 		props.Type = input.TypeNumber
 		props.Autocomplete = "off"
 		props.Class = "border-none flex-1 p-2"
-		props.Attributes = templ.Attributes{"step": "any", "autofocus": ""}
+		props.Attributes = templ.Attributes{"step": "any"}
 	}}
 	<div class="border-y-2 border-dotted border-outline flex items-center">
 		@input.Input(props)
