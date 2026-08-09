@@ -11,16 +11,6 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
 )
 
-type NewSetRowValues struct {
-	Weight      string
-	Repetitions string
-}
-
-type NewSetRowErr struct {
-	Weight      string
-	Repetitions string
-}
-
 type NewSetFormValues struct {
 	Weight      string
 	Repetitions string
@@ -45,68 +35,6 @@ templ NewSetPageWithForm(exerciseID int32, form NewSetFormValues, formErr NewSet
 	}
 }
 
-templ NewSetRow(row NewSetRowValues, rowErr NewSetRowErr, weightUnit db.WeightUnit) {
-	{{ weightPlaceholder := "80" }}
-	if weightUnit == db.WeightUnitLbs {
-		{{ weightPlaceholder = "176" }}
-	}
-	<tr
-		class="bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x"
-	>
-		<td
-			class="pl-0 p-4 align-middle has-[>[aria-invalid=true]]:text-error"
-		>
-			<input
-				step="any"
-				type="number"
-				name="weight"
-				if row.Weight != "" {
-					value={ row.Weight }
-				}
-				autocomplete="off"
-				autofocus
-				placeholder={ weightPlaceholder }
-				class="w-full text-lg py-1 px-2"
-				if rowErr.Weight != "" {
-					aria-invalid="true"
-				}
-			/>
-			if rowErr.Weight != "" {
-				<p role="alert" class="text-error text-sm mt-1">{ rowErr.Weight }</p>
-			}
-		</td>
-		<td
-			class="p-4 align-middle has-[>[aria-invalid=true]]:text-error"
-		>
-			<input
-				type="number"
-				name="repetitions"
-				if row.Repetitions != "" {
-					value={ row.Repetitions }
-				}
-				autocomplete="off"
-				placeholder="10"
-				class="w-full text-lg py-1 px-2"
-				if rowErr.Repetitions != "" {
-					aria-invalid="true"
-				}
-			/>
-			if rowErr.Repetitions != "" {
-				<p role="alert" class="text-error text-sm mt-1">{ rowErr.Repetitions }</p>
-			}
-		</td>
-		<td class="pr-0 p-4 align-middle w-0">
-			@button.Button(button.Props{Variant: button.VariantLink, Type: button.TypeButton, Attributes: templ.Attributes{"hx-on:click": "this.closest('tr').remove()"}}) {
-				remove
-			}
-		</td>
-	</tr>
-}
-
-templ emptyNewSetRow(weightUnit db.WeightUnit) {
-	@NewSetRow(NewSetRowValues{}, NewSetRowErr{}, weightUnit)
-}
-
 templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
 	<form
 		hx-post={ fmt.Sprintf("/exercises/%d/sets/new", exerciseID) }
@@ -115,7 +43,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		@Row(form, formErr, weightUnit)
+		@NewSetRow(form, formErr, weightUnit)
 		if formErr.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
@@ -126,7 +54,15 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 				}
 			}
 		}
-		@link.Link(link.Props{Href: "#", Class: "ml-auto text-outline mb-10"}) {
+		@link.Link(link.Props{
+			Href:  fmt.Sprintf("/exercises/%d/sets/row", exerciseID),
+			Class: "ml-auto text-outline mb-10",
+			Attributes: templ.Attributes{
+				"hx-get":    fmt.Sprintf("/exercises/%d/sets/row", exerciseID),
+				"hx-target": "this",
+				"hx-swap":   "beforebegin",
+			},
+		}) {
 			add set
 		}
 		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
@@ -139,13 +75,20 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 	</form>
 }
 
-templ Row(form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+templ NewSetRow(form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
 	{{ weightPlaceholder := "80" }}
 	if weightUnit == db.WeightUnitLbs {
 		{{ weightPlaceholder = "176" }}
 	}
 	<fieldset class="space-y-10 mt-10 first:mt-0">
-		<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">set 1</legend>
+		<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">new set</legend>
+		<script>
+			(function() {
+				const fieldsets = document.querySelectorAll("form fieldset");
+				const legend = fieldsets[fieldsets.length - 1].querySelector("legend");
+				legend.textContent = "set " + fieldsets.length;
+			})();
+		</script>
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 			<span class="text-outline text-sm pb-2">
 				weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):

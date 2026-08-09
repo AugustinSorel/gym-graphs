@@ -83,7 +83,7 @@ func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := exercises.NewSetRow(exercises.NewSetRowValues{}, exercises.NewSetRowErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
+	if err := exercises.NewSetRow(exercises.NewSetFormValues{}, exercises.NewSetFormErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
 		slog.Error("failed to render new set row", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
