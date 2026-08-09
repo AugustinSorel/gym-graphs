@@ -70,6 +70,28 @@ func (q *Queries) GetExerciseStatsByID(ctx context.Context, exerciseID int32) (G
 	return i, err
 }
 
+const getLastSetByExerciseID = `-- name: GetLastSetByExerciseID :one
+select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+from sets
+where exercise_id = $1
+order by created_at desc
+limit 1
+`
+
+func (q *Queries) GetLastSetByExerciseID(ctx context.Context, exerciseID int32) (Set, error) {
+	row := q.db.QueryRow(ctx, getLastSetByExerciseID, exerciseID)
+	var i Set
+	err := row.Scan(
+		&i.ID,
+		&i.ExerciseID,
+		&i.Repetitions,
+		&i.WeightInG,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getSetsByExerciseID = `-- name: GetSetsByExerciseID :many
 select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
 from sets

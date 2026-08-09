@@ -4,6 +4,13 @@ from sets
 where exercise_id = $1
 order by created_at asc;
 
+-- name: GetLastSetByExerciseID :one
+select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+from sets
+where exercise_id = $1
+order by created_at desc
+limit 1;
+
 -- name: GetExerciseStatsByID :one
 select
     count(*)::int                               as total_sets,

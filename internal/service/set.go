@@ -20,6 +20,10 @@ type CreateSetInput struct {
 	WeightInG   int32
 }
 
+func (s *SetService) GetLastByExerciseID(ctx context.Context, exerciseID int32) (db.Set, error) {
+	return s.queries.GetLastSetByExerciseID(ctx, exerciseID)
+}
+
 func (s *SetService) CreateSets(ctx context.Context, inputs []CreateSetInput) ([]db.Set, error) {
 	params := db.CreateSetsParams{
 		Column1: make([]int32, len(inputs)),

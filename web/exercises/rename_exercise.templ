@@ -20,6 +20,7 @@ type RenameExerciseFormErr struct {
 
 templ RenameExercisePage() {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<h1 class="font-semibold text-3xl">rename exercise</h1>
 		{ children... }
 	</main>
 }
@@ -38,7 +39,6 @@ templ RenameExerciseForm(exerciseID int32, form RenameExerciseFormValues, formEr
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		<h1 class="font-semibold text-3xl">rename exercise</h1>
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 			<span class="text-outline text-sm">name:</span>
 			@input.Input(input.Props{

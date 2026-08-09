@@ -6,6 +6,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/alert"
 	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
 )
@@ -20,19 +21,27 @@ type NewSetRowErr struct {
 	Repetitions string
 }
 
+type NewSetFormValues struct {
+	Weight      string
+	Repetitions string
+}
+
 type NewSetFormErr struct {
-	Root string
+	Weight      string
+	Repetitions string
+	Root        string
 }
 
 templ NewSetPage() {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<h1 class="font-semibold text-3xl">new set</h1>
 		{ children... }
 	</main>
 }
 
-templ NewSetPageWithForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowErr, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+templ NewSetPageWithForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
 	@NewSetPage() {
-		@NewSetForm(exerciseID, rows, rowErrs, formErr, weightUnit)
+		@NewSetForm(exerciseID, form, formErr, weightUnit)
 	}
 }
 
@@ -98,8 +107,11 @@ templ emptyNewSetRow(weightUnit db.WeightUnit) {
 	@NewSetRow(NewSetRowValues{}, NewSetRowErr{}, weightUnit)
 }
 
-templ NewSetForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowErr, formErr NewSetFormErr, weightUnit db.WeightUnit) {
-	{{ thClass := "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide" }}
+templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+	{{ weightPlaceholder := "80" }}
+	if weightUnit == db.WeightUnitLbs {
+		{{ weightPlaceholder = "176" }}
+	}
 	<form
 		hx-post={ fmt.Sprintf("/exercises/%d/sets/new", exerciseID) }
 		hx-disable="find button[type='submit']"
@@ -107,26 +119,102 @@ templ NewSetForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowEr
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		<table class="caption-bottom text-sm w-full">
-			<thead class="border-b-2 text-nowrap">
-				<tr>
-					<th class={ thClass + " pl-0" }>
-						weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>)
-					</th>
-					<th class={ thClass }>repetitions</th>
-					<th class={ thClass + " pr-0 w-0" }></th>
-				</tr>
-			</thead>
-			<tbody id="set-rows">
-				for i, row := range rows {
-					if i < len(rowErrs) {
-						@NewSetRow(row, rowErrs[i], weightUnit)
-					} else {
-						@NewSetRow(row, NewSetRowErr{}, weightUnit)
+		<div class="space-y-10">
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2">set</h2>
+			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+				<span class="text-outline text-sm pb-2">
+					weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
+				</span>
+				<div class="border-y-2 border-dotted border-outline flex items-center">
+					@input.Input(input.Props{
+						Type:         input.TypeNumber,
+						Name:         "weight",
+						Autocomplete: "off",
+						Placeholder:  weightPlaceholder,
+						Value:        form.Weight,
+						HasError:     formErr.Weight != "",
+						Class:        "border-none flex-1 p-2",
+						Attributes:   templ.Attributes{"step": "any", "autofocus": ""},
+					})
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Type:    button.TypeButton,
+						Class:   "border-l-2 border-outline border-dotted",
+						Attributes: templ.Attributes{
+							"hx-on:click": `
+								const inp = this.previousElementSibling;
+								const v = parseFloat(inp.value) || 0;
+								inp.value = Math.max(0, parseFloat((v - 1).toFixed(3)));
+							`,
+						},
+					}) {
+						-
 					}
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Type:    button.TypeButton,
+						Class:   "border-l-2 border-outline border-dotted",
+						Attributes: templ.Attributes{
+							"hx-on:click": `
+								const inp = this.previousElementSibling.previousElementSibling;
+								const v = parseFloat(inp.value) || 0;
+								inp.value = parseFloat((v + 1).toFixed(3));
+							`,
+						},
+					}) {
+						+
+					}
+				</div>
+				if formErr.Weight != "" {
+					<p role="alert" class="text-error text-sm">{ formErr.Weight }</p>
 				}
-			</tbody>
-		</table>
+			</label>
+			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+				<span class="text-outline text-sm pb-2">repetitions:</span>
+				<div class="border-y-2 border-dotted border-outline flex items-center">
+					@input.Input(input.Props{
+						Type:         input.TypeNumber,
+						Name:         "repetitions",
+						Autocomplete: "off",
+						Placeholder:  "10",
+						Value:        form.Repetitions,
+						HasError:     formErr.Repetitions != "",
+						Class:        "border-none flex-1 p-2",
+					})
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Type:    button.TypeButton,
+						Class:   "border-l-2 border-outline border-dotted",
+						Attributes: templ.Attributes{
+							"hx-on:click": `
+								const inp = this.previousElementSibling;
+								const v = parseInt(inp.value) || 0;
+								inp.value = Math.max(1, v - 1);
+							`,
+						},
+					}) {
+						-
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Type:    button.TypeButton,
+						Class:   "border-l-2 border-outline border-dotted",
+						Attributes: templ.Attributes{
+							"hx-on:click": `
+								const inp = this.previousElementSibling.previousElementSibling;
+								const v = parseInt(inp.value) || 0;
+								inp.value = v + 1;
+							`,
+						},
+					}) {
+						+
+					}
+				</div>
+				if formErr.Repetitions != "" {
+					<p role="alert" class="text-error text-sm">{ formErr.Repetitions }</p>
+				}
+			</label>
+		</div>
 		if formErr.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
@@ -137,26 +225,11 @@ templ NewSetForm(exerciseID int32, rows []NewSetRowValues, rowErrs []NewSetRowEr
 				}
 			}
 		}
-		@button.Button(button.Props{
-			Variant: button.VariantLink,
-			Type:    button.TypeButton,
-			Class:   "ml-auto",
-			Attributes: templ.Attributes{
-				"hx-get":    fmt.Sprintf("/exercises/%d/sets/row", exerciseID),
-				"hx-target": "#set-rows",
-				"hx-swap":   "beforeend",
-			},
-		}) {
-			+ add set
-		}
 		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
 			save
 			@spinner.Spinner()
 		}
-		@link.Link(link.Props{
-			Href:  fmt.Sprintf("/exercises/%d", exerciseID),
-			Class: "ml-auto",
-		}) {
+		@link.Link(link.Props{Href: fmt.Sprintf("/exercises/%d", exerciseID), Class: "ml-auto"}) {
 			cancel
 		}
 	</form>
