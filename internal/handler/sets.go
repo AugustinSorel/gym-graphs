@@ -76,6 +76,13 @@ func (h *SetsHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
 	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch user for new set row", "error", err)
@@ -83,7 +90,16 @@ func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := exercises.NewSetRow(exercises.NewSetFormValues{}, exercises.NewSetFormErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
+	rowValues := exercises.NewSetFormValues{Weight: "0", Repetitions: "0"}
+	if lastSet, err := h.setSvc.GetLastByExerciseID(r.Context(), int32(id)); err == nil {
+		weightDisplay := weightunit.Convert(float64(lastSet.WeightInG), user.WeightUnit)
+		rowValues = exercises.NewSetFormValues{
+			Weight:      strconv.FormatFloat(weightDisplay, 'f', -1, 64),
+			Repetitions: strconv.Itoa(int(lastSet.Repetitions)),
+		}
+	}
+
+	if err := exercises.NewSetRow(rowValues, exercises.NewSetFormErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
 		slog.Error("failed to render new set row", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
