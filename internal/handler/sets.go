@@ -83,6 +83,12 @@ func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID); err != nil {
+		slog.Error("failed to fetch exercise for new set row", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
 	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch user for new set row", "error", err)
