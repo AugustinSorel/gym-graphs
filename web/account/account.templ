@@ -190,14 +190,14 @@ templ userEmail(email string) {
 }
 
 templ userName(name string) {
-	<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
 		<dl class="space-y-1">
 			<dt class="text-outline text-sm">name</dt>
 			<dd class="capitalize break-all">
 				{ name }
 			</dd>
 		</dl>
-		@link.Link(link.Props{Href: "/account/name", Class: "my-auto text-sm"}) {
+		@link.Link(link.Props{Href: "/account/name", Class: "my-auto text-sm ml-auto lg:ml-0"}) {
 			edit
 		}
 	</div>
@@ -227,12 +227,12 @@ templ themeSwitcher() {
 }
 
 templ DownloadUserData(errMsg string) {
-	<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
 		<dl class="space-y-1">
 			<dt class="text-outline text-sm">your data</dt>
 			<dd class="break-all">download your data</dd>
 		</dl>
-		@button.Button(button.Props{Href: "/account/data", Class: "my-auto"}) {
+		@button.Button(button.Props{Href: "/account/data", Class: "my-auto ml-auto lg:ml-0"}) {
 			download
 		}
 		if errMsg != "" {
@@ -249,14 +249,14 @@ templ DownloadUserData(errMsg string) {
 }
 
 templ UpdatePasswordRow(errMsg string) {
-	<div class="grid grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
 		<dl class="space-y-1">
 			<dt class="text-outline text-sm">password</dt>
 			<dd class="break-all">***********</dd>
 		</dl>
 		@button.Button(button.Props{
 			Type:  button.TypeButton,
-			Class: "my-auto text-sm",
+			Class: "my-auto text-sm ml-auto lg:ml-0",
 			Attributes: templ.Attributes{
 				"hx-post":    "/update-password",
 				"hx-disable": "this",
@@ -279,10 +279,10 @@ templ UpdatePasswordRow(errMsg string) {
 }
 
 templ SignOutRow(errMsg string) {
-	<div class="py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center">
+	<div class="py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center">
 		<div class="space-y-1">
 			<p class="text-outline text-sm">session</p>
-			<p class="text-balance">sign out from this current device.</p>
+			<p>sign out from this current device.</p>
 		</div>
 		@button.Button(button.Props{
 			Type:  button.TypeButton,
@@ -502,10 +502,10 @@ templ noTagsMessage() {
 }
 
 templ RemoveAccountRow(errMsg string) {
-	<div class="py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center">
+	<div class="py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center">
 		<div class="space-y-1">
 			<p class="text-outline text-sm">remove account</p>
-			<p class="text-balance">remove your account from all of our servers.</p>
+			<p>remove your account from all of our servers.</p>
 		</div>
 		@button.Button(button.Props{
 			Type:    button.TypeButton,
