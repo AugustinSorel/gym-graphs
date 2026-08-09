@@ -27,6 +27,7 @@ templ NewExercisePage() {
 
 templ NewExercisePageWithForm(form NewExerciseFormValues, formErr NewExerciseFormErr, tags []db.Tag) {
 	@NewExercisePage() {
+		<h1 class="font-semibold text-3xl">new exercise</h1>
 		@NewExerciseForm(form, formErr, tags)
 	}
 }
