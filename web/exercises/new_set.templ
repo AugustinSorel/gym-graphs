@@ -119,8 +119,8 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		<div class="space-y-10">
-			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2">set 1</h2>
+		<fieldset class="space-y-10">
+			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">set 1</legend>
 			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 				<span class="text-outline text-sm pb-2">
 					weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
@@ -141,6 +141,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 						Type:    button.TypeButton,
 						Class:   "border-l-2 border-outline border-dotted",
 						Attributes: templ.Attributes{
+							"aria-label": "increase weight by 1",
 							"hx-on:click": `
 								const inp = this.previousElementSibling;
 								const v = parseFloat(inp.value) || 0;
@@ -155,6 +156,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 						Type:    button.TypeButton,
 						Class:   "border-l-2 border-outline border-dotted",
 						Attributes: templ.Attributes{
+							"aria-label": "decrease weight by 1",
 							"hx-on:click": `
 								const inp = this.previousElementSibling.previousElementSibling;
 								const v = parseFloat(inp.value) || 0;
@@ -214,7 +216,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 					<p role="alert" class="text-error text-sm">{ formErr.Repetitions }</p>
 				}
 			</label>
-		</div>
+		</fieldset>
 		if formErr.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
