@@ -108,10 +108,6 @@ templ emptyNewSetRow(weightUnit db.WeightUnit) {
 }
 
 templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
-	{{ weightPlaceholder := "80" }}
-	if weightUnit == db.WeightUnitLbs {
-		{{ weightPlaceholder = "176" }}
-	}
 	<form
 		hx-post={ fmt.Sprintf("/exercises/%d/sets/new", exerciseID) }
 		hx-disable="find button[type='submit']"
@@ -119,104 +115,7 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		<fieldset class="space-y-10">
-			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">set 1</legend>
-			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
-				<span class="text-outline text-sm pb-2">
-					weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
-				</span>
-				<div class="border-y-2 border-dotted border-outline flex items-center">
-					@input.Input(input.Props{
-						Type:         input.TypeNumber,
-						Name:         "weight",
-						Autocomplete: "off",
-						Placeholder:  weightPlaceholder,
-						Value:        form.Weight,
-						HasError:     formErr.Weight != "",
-						Class:        "border-none flex-1 p-2",
-						Attributes:   templ.Attributes{"step": "any", "autofocus": ""},
-					})
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Type:    button.TypeButton,
-						Class:   "border-l-2 border-outline border-dotted",
-						Attributes: templ.Attributes{
-							"aria-label": "increase weight by 1",
-							"hx-on:click": `
-								const inp = this.previousElementSibling;
-								const v = parseFloat(inp.value) || 0;
-								inp.value = Math.max(0, parseFloat((v - 1).toFixed(3)));
-							`,
-						},
-					}) {
-						-
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Type:    button.TypeButton,
-						Class:   "border-l-2 border-outline border-dotted",
-						Attributes: templ.Attributes{
-							"aria-label": "decrease weight by 1",
-							"hx-on:click": `
-								const inp = this.previousElementSibling.previousElementSibling;
-								const v = parseFloat(inp.value) || 0;
-								inp.value = parseFloat((v + 1).toFixed(3));
-							`,
-						},
-					}) {
-						+
-					}
-				</div>
-				if formErr.Weight != "" {
-					<p role="alert" class="text-error text-sm">{ formErr.Weight }</p>
-				}
-			</label>
-			<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
-				<span class="text-outline text-sm pb-2">repetitions:</span>
-				<div class="border-y-2 border-dotted border-outline flex items-center">
-					@input.Input(input.Props{
-						Type:         input.TypeNumber,
-						Name:         "repetitions",
-						Autocomplete: "off",
-						Placeholder:  "10",
-						Value:        form.Repetitions,
-						HasError:     formErr.Repetitions != "",
-						Class:        "border-none flex-1 p-2",
-					})
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Type:    button.TypeButton,
-						Class:   "border-l-2 border-outline border-dotted",
-						Attributes: templ.Attributes{
-							"hx-on:click": `
-								const inp = this.previousElementSibling;
-								const v = parseInt(inp.value) || 0;
-								inp.value = Math.max(1, v - 1);
-							`,
-						},
-					}) {
-						-
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Type:    button.TypeButton,
-						Class:   "border-l-2 border-outline border-dotted",
-						Attributes: templ.Attributes{
-							"hx-on:click": `
-								const inp = this.previousElementSibling.previousElementSibling;
-								const v = parseInt(inp.value) || 0;
-								inp.value = v + 1;
-							`,
-						},
-					}) {
-						+
-					}
-				</div>
-				if formErr.Repetitions != "" {
-					<p role="alert" class="text-error text-sm">{ formErr.Repetitions }</p>
-				}
-			</label>
-		</fieldset>
+		@Row(form, formErr, weightUnit)
 		if formErr.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
@@ -235,4 +134,82 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 			cancel
 		}
 	</form>
+}
+
+templ Row(form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+	{{ weightPlaceholder := "80" }}
+	if weightUnit == db.WeightUnitLbs {
+		{{ weightPlaceholder = "176" }}
+	}
+	<fieldset class="space-y-10">
+		<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">set 1</legend>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm pb-2">
+				weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
+			</span>
+			@CounterBtn(input.Props{
+				Name:        "weight",
+				Placeholder: weightPlaceholder,
+				Value:       form.Weight,
+				HasError:    formErr.Weight != "",
+			})
+			if formErr.Weight != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Weight }</p>
+			}
+		</label>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm pb-2">repetitions:</span>
+			@CounterBtn(input.Props{
+				Name:        "repetitions",
+				Placeholder: "10",
+				Value:       form.Repetitions,
+				HasError:    formErr.Repetitions != "",
+			})
+			if formErr.Repetitions != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Repetitions }</p>
+			}
+		</label>
+	</fieldset>
+}
+
+templ CounterBtn(props input.Props) {
+	{{
+		props.Type = input.TypeNumber
+		props.Autocomplete = "off"
+		props.Class = "border-none flex-1 p-2"
+		props.Attributes = templ.Attributes{"step": "any", "autofocus": ""}
+	}}
+	<div class="border-y-2 border-dotted border-outline flex items-center">
+		@input.Input(props)
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Type:    button.TypeButton,
+			Class:   "border-l-2 border-outline border-dotted",
+			Attributes: templ.Attributes{
+				"aria-label": "increase weight by 1",
+				"hx-on:click": `
+								const inp = this.previousElementSibling;
+								const v = parseFloat(inp.value) || 0;
+								inp.value = Math.max(0, parseFloat((v - 1).toFixed(3)));
+							`,
+			},
+		}) {
+			-
+		}
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Type:    button.TypeButton,
+			Class:   "border-l-2 border-outline border-dotted",
+			Attributes: templ.Attributes{
+				"aria-label": "decrease weight by 1",
+				"hx-on:click": `
+								const inp = this.previousElementSibling.previousElementSibling;
+								const v = parseFloat(inp.value) || 0;
+								inp.value = parseFloat((v + 1).toFixed(3));
+							`,
+			},
+		}) {
+			+
+		}
+	</div>
 }
