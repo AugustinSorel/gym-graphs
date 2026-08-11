@@ -56,6 +56,13 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	graphPoints, err := h.exerciseSvc.GraphPoints(r.Context(), exercise.ID, user.OneRepMaxAlgorithm, user.WeightUnit)
+	if err != nil {
+		slog.Error("failed to compute exercise graph points", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	page := exercises.ExerciseDetailPage(exercises.ExerciseDetailData{
 		ID:               exercise.ID,
 		Name:             exercise.Name,
@@ -64,6 +71,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		TotalVolumeInG:   funFacts.TotalVolumeInG,
 		TotalSets:        funFacts.TotalSets,
 		WeightUnit:       user.WeightUnit,
+		GraphPoints:      graphPoints,
 	})
 	ctx := templ.WithChildren(r.Context(), page)
 

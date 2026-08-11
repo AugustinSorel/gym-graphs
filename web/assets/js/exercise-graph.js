@@ -1,48 +1,23 @@
-// Mock data: array of { date: Date, weightInG: number, repetitions: number }
-const exerciseMockSets = [
-  { date: new Date("2026-01-05"), weightInG: 60000, repetitions: 8 },
-  { date: new Date("2026-01-12"), weightInG: 62500, repetitions: 7 },
-  { date: new Date("2026-01-19"), weightInG: 62500, repetitions: 8 },
-  { date: new Date("2026-01-26"), weightInG: 65000, repetitions: 6 },
-  { date: new Date("2026-02-02"), weightInG: 67500, repetitions: 6 },
-  { date: new Date("2026-02-09"), weightInG: 67500, repetitions: 7 },
-  { date: new Date("2026-02-16"), weightInG: 70000, repetitions: 5 },
-  { date: new Date("2026-02-23"), weightInG: 72500, repetitions: 5 },
-  { date: new Date("2026-03-02"), weightInG: 70000, repetitions: 6 },
-  { date: new Date("2026-03-09"), weightInG: 75000, repetitions: 4 },
-  { date: new Date("2026-03-16"), weightInG: 75000, repetitions: 5 },
-  { date: new Date("2026-03-23"), weightInG: 77500, repetitions: 4 },
-  { date: new Date("2026-04-06"), weightInG: 80000, repetitions: 3 },
-  { date: new Date("2026-04-20"), weightInG: 82500, repetitions: 3 },
-  { date: new Date("2026-05-04"), weightInG: 80000, repetitions: 4 },
-  { date: new Date("2026-05-18"), weightInG: 85000, repetitions: 3 },
-  { date: new Date("2026-06-01"), weightInG: 87500, repetitions: 3 },
-  { date: new Date("2026-06-15"), weightInG: 87500, repetitions: 4 },
-  { date: new Date("2026-06-29"), weightInG: 90000, repetitions: 3 },
-  { date: new Date("2026-07-13"), weightInG: 92500, repetitions: 2 },
-];
-
-// Epley 1RM formula — weight in same unit as input
-const epley1RM = (weight, reps) =>
-  reps === 1 ? weight : weight * (1 + reps / 30);
-
-const formatWeight = (weightInG, unit) => {
-  if (unit === "lbs") {
-    return (weightInG / 453.592).toFixed(1);
-  }
-  return (weightInG / 1000).toFixed(1);
-};
-
 const formatDate = (date) =>
   date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
 const renderExerciseGraph = (container) => {
-  const unit = container.dataset.weightUnit || "kg";
+  const unit = container.dataset.unit || "kg";
 
-  const data = exerciseMockSets.map((s) => ({
-    date: s.date,
-    value: epley1RM(s.weightInG, s.repetitions),
+  let raw = [];
+  try {
+    raw = JSON.parse(container.dataset.points || "[]");
+  } catch (_) {}
+
+  const data = raw.map((p) => ({
+    date: new Date(p.date),
+    value: p.oneRepMax,
   }));
+
+  if (data.length === 0) {
+    d3.select(container).selectAll("*").remove();
+    return;
+  }
 
   const style = getComputedStyle(document.documentElement);
   const colorOnSurface =
@@ -129,7 +104,7 @@ const renderExerciseGraph = (container) => {
       .axisLeft(y)
       .ticks(5)
       .tickSize(4)
-      .tickFormat((d) => formatWeight(d, unit)),
+      .tickFormat((d) => d.toFixed(1)),
   );
 
   yAxisG.select(".domain").attr("stroke", colorOutline).attr("opacity", 0.4);
@@ -253,7 +228,7 @@ const renderExerciseGraph = (container) => {
       hoverDot.attr("cx", cx).attr("cy", cy).attr("opacity", 1);
 
       const dateLabel = formatDate(d.date);
-      tooltip.innerHTML = `${dateLabel} &mdash; ${formatWeight(d.value, unit)} ${unit} 1RM`;
+      tooltip.innerHTML = `${dateLabel} &mdash; ${d.value.toFixed(1)} ${unit} 1RM`;
 
       const containerRect = container.getBoundingClientRect();
       const tx = event.clientX - containerRect.left;
@@ -300,6 +275,3 @@ function initExerciseGraph() {
 }
 
 document.addEventListener("DOMContentLoaded", initExerciseGraph);
-
-// Re-init after HTMX swaps in case the graph container appears dynamically
-document.addEventListener("htmx:afterSwap", initExerciseGraph);

@@ -1,8 +1,10 @@
 package exercises
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
@@ -15,6 +17,7 @@ type ExerciseDetailData struct {
 	TotalVolumeInG   float64
 	TotalSets        int
 	WeightUnit       db.WeightUnit
+	GraphPoints      []service.ExerciseGraphPoint
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -43,6 +46,7 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 }
 
 templ exerciseGraph(ex ExerciseDetailData) {
+	{{ pointsJSON, _ := json.Marshal(ex.GraphPoints) }}
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
 			1 <abbr title="repetitions maximum" class="no-underline">rep max</abbr>
@@ -50,7 +54,8 @@ templ exerciseGraph(ex ExerciseDetailData) {
 		<div
 			id="exercise-graph"
 			class="w-full h-64 mt-4"
-			data-weight-unit={ string(ex.WeightUnit) }
+			data-unit={ weightunit.Abbr(ex.WeightUnit) }
+			data-points={ string(pointsJSON) }
 		></div>
 	</section>
 }

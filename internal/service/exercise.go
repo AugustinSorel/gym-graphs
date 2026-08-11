@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/onerm"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -141,6 +143,47 @@ func (s *ExerciseService) FunFacts(ctx context.Context, exerciseID int32, algori
 		TotalVolumeInG:   float64(stats.TotalVolumeInG),
 		TotalSets:        int(stats.TotalSets),
 	}, nil
+}
+
+type ExerciseGraphPoint struct {
+	DateUnixMs int64   `json:"date"`
+	OneRepMax  float64 `json:"oneRepMax"`
+}
+
+func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm, unit db.WeightUnit) ([]ExerciseGraphPoint, error) {
+	sets, err := s.queries.GetSetsByExerciseID(ctx, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+
+	type dayKey = [3]int // {year, month, day}
+	bestPerDay := make(map[dayKey]float64)
+	dayOrder := make([]dayKey, 0, len(sets))
+
+	for _, set := range sets {
+		if set.WeightInG <= 0 || set.Repetitions <= 0 {
+			continue
+		}
+		t := set.CreatedAt.Time.UTC()
+		key := dayKey{t.Year(), int(t.Month()), t.Day()}
+		orm := onerm.Compute(float64(set.WeightInG), float64(set.Repetitions), algorithm)
+		if _, seen := bestPerDay[key]; !seen {
+			dayOrder = append(dayOrder, key)
+		}
+		if orm > bestPerDay[key] {
+			bestPerDay[key] = orm
+		}
+	}
+
+	points := make([]ExerciseGraphPoint, 0, len(dayOrder))
+	for _, key := range dayOrder {
+		t := time.Date(key[0], time.Month(key[1]), key[2], 0, 0, 0, 0, time.UTC)
+		points = append(points, ExerciseGraphPoint{
+			DateUnixMs: t.UnixMilli(),
+			OneRepMax:  weightunit.Convert(bestPerDay[key], unit),
+		})
+	}
+	return points, nil
 }
 
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {
