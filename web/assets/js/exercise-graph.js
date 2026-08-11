@@ -1,15 +1,10 @@
 const formatDate = (date) =>
   date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-const renderExerciseGraph = (container) => {
+const renderExerciseGraph = (container, points) => {
   const unit = container.dataset.unit || "kg";
 
-  let raw = [];
-  try {
-    raw = JSON.parse(container.dataset.points || "[]");
-  } catch (_) {}
-
-  const data = raw.map((p) => ({
+  const data = points.map((p) => ({
     date: new Date(p.date),
     value: p.oneRepMax,
   }));
@@ -257,19 +252,38 @@ const renderExerciseGraph = (container) => {
     .text(`estimated 1rm (${unit})`);
 };
 
+const getPoints = () => {
+  try {
+    const dataEl = document.getElementById("exercise-graph-data");
+
+    if (!dataEl) {
+      return [];
+    }
+
+    return JSON.parse(dataEl.textContent);
+  } catch (_) {
+    return [];
+  }
+};
+
 let exerciseGraphResizeObserver = null;
 
 function initExerciseGraph() {
   const container = document.getElementById("exercise-graph");
-  if (!container) return;
 
-  renderExerciseGraph(container);
+  if (!container) {
+    return;
+  }
+
+  let points = getPoints();
+
+  renderExerciseGraph(container, points);
 
   if (exerciseGraphResizeObserver) {
     exerciseGraphResizeObserver.disconnect();
   }
   exerciseGraphResizeObserver = new ResizeObserver(() => {
-    renderExerciseGraph(container);
+    renderExerciseGraph(container, points);
   });
   exerciseGraphResizeObserver.observe(container);
 }

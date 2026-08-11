@@ -1,7 +1,6 @@
 package exercises
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/service"
@@ -46,16 +45,15 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 }
 
 templ exerciseGraph(ex ExerciseDetailData) {
-	{{ pointsJSON, _ := json.Marshal(ex.GraphPoints) }}
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
 			1 <abbr title="repetitions maximum" class="no-underline">rep max</abbr>
 		</h2>
+		@templ.JSONScript("exercise-graph-data", ex.GraphPoints)
 		<div
 			id="exercise-graph"
 			class="w-full h-64 mt-4"
 			data-unit={ weightunit.Abbr(ex.WeightUnit) }
-			data-points={ string(pointsJSON) }
 		></div>
 	</section>
 }
