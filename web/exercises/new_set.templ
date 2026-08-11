@@ -2,7 +2,6 @@ package exercises
 
 import (
 	"fmt"
-	"strconv"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/alert"
@@ -10,6 +9,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/input"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+	"strconv"
 )
 
 type NewSetRowValues struct {
@@ -92,20 +92,40 @@ templ NewSetRow(index int, form NewSetRowValues, formErr NewSetRowErr, weightUni
 		{{ weightPlaceholder = "176" }}
 	}
 	<fieldset class="space-y-10 mt-10 first:mt-0">
-		if index > 0 {
-			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
-				set { strconv.Itoa(index) }
-			</legend>
-		} else {
-			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">new set</legend>
-			<script>
-				(function() {
-					const fieldsets = document.querySelectorAll("form fieldset");
-					const legend = fieldsets[fieldsets.length - 1].querySelector("legend");
-					legend.textContent = "set " + fieldsets.length;
-				})();
-			</script>
-		}
+		<header class="flex items-center justify-between border-b-4 border-on-surface pb-2">
+			if index > 0 {
+				<legend class="uppercase text-outline text-sm">
+					set { strconv.Itoa(index) }
+				</legend>
+			} else {
+				<legend class="uppercase text-outline text-sm">new set</legend>
+				<script>
+					(function() {
+						const fieldsets = document.querySelectorAll("form fieldset");
+						const legend = fieldsets[fieldsets.length - 1].querySelector("legend");
+						legend.textContent = "set " + fieldsets.length;
+					})();
+				</script>
+			}
+			@button.Button(button.Props{
+				Type:    button.TypeButton,
+				Variant: button.VariantGhost,
+				Size:    button.SizeIcon,
+				Class:   "text-outline font-normal",
+				Attributes: templ.Attributes{
+					"aria-label": "remove set",
+					"hx-on:click": `
+						const fs = this.closest('fieldset');
+						fs.remove();
+						document.querySelectorAll('form fieldset').forEach((f, i) => {
+							f.querySelector('legend').textContent = 'set ' + (i + 1);
+						});
+					`,
+				},
+			}) {
+				x
+			}
+		</header>
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 			<span class="text-outline text-sm pb-2">
 				weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
