@@ -21,6 +21,7 @@ templ ExerciseDetailPage(ex ExerciseDetailData) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		@exerciseDetailHeader(ex)
 		@exerciseFunFacts(ex)
+		@exerciseGraph(ex)
 		@exerciseManage(ex)
 	</main>
 }
@@ -39,6 +40,19 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 			+ add
 		}
 	</header>
+}
+
+templ exerciseGraph(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			1 <abbr title="repetitions maximum" class="no-underline">rep max</abbr>
+		</h2>
+		<div
+			id="exercise-graph"
+			class="w-full h-64 mt-4"
+			data-weight-unit={ string(ex.WeightUnit) }
+		></div>
+	</section>
 }
 
 templ exerciseManage(ex ExerciseDetailData) {
