@@ -2,6 +2,7 @@ package exercises
 
 import (
 	"fmt"
+	"strconv"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/ui/alert"
@@ -11,15 +12,19 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
 )
 
-type NewSetFormValues struct {
+type NewSetRowValues struct {
+	Weight      string
+	Repetitions string
+}
+
+type NewSetRowErr struct {
 	Weight      string
 	Repetitions string
 }
 
 type NewSetFormErr struct {
-	Weight      string
-	Repetitions string
-	Root        string
+	Rows []NewSetRowErr
+	Root string
 }
 
 templ NewSetPage() {
@@ -29,13 +34,13 @@ templ NewSetPage() {
 	</main>
 }
 
-templ NewSetPageWithForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+templ NewSetPageWithForm(exerciseID int32, rows []NewSetRowValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
 	@NewSetPage() {
-		@NewSetForm(exerciseID, form, formErr, weightUnit)
+		@NewSetForm(exerciseID, rows, formErr, weightUnit)
 	}
 }
 
-templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+templ NewSetForm(exerciseID int32, rows []NewSetRowValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
 	<form
 		hx-post={ fmt.Sprintf("/exercises/%d/sets/new", exerciseID) }
 		hx-disable="find button[type='submit']"
@@ -43,7 +48,13 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 		hx-swap="outerHTML"
 		class="flex flex-col gap-10"
 	>
-		@NewSetRow(form, formErr, weightUnit)
+		for i, row := range rows {
+			{{ rowErr := NewSetRowErr{} }}
+			if i < len(formErr.Rows) {
+				{{ rowErr = formErr.Rows[i] }}
+			}
+			@NewSetRow(i+1, row, rowErr, weightUnit)
+		}
 		if formErr.Root != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
 				@alert.Title() {
@@ -75,20 +86,26 @@ templ NewSetForm(exerciseID int32, form NewSetFormValues, formErr NewSetFormErr,
 	</form>
 }
 
-templ NewSetRow(form NewSetFormValues, formErr NewSetFormErr, weightUnit db.WeightUnit) {
+templ NewSetRow(index int, form NewSetRowValues, formErr NewSetRowErr, weightUnit db.WeightUnit) {
 	{{ weightPlaceholder := "80" }}
 	if weightUnit == db.WeightUnitLbs {
 		{{ weightPlaceholder = "176" }}
 	}
 	<fieldset class="space-y-10 mt-10 first:mt-0">
-		<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">new set</legend>
-		<script>
-			(function() {
-				const fieldsets = document.querySelectorAll("form fieldset");
-				const legend = fieldsets[fieldsets.length - 1].querySelector("legend");
-				legend.textContent = "set " + fieldsets.length;
-			})();
-		</script>
+		if index > 0 {
+			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				set { strconv.Itoa(index) }
+			</legend>
+		} else {
+			<legend class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">new set</legend>
+			<script>
+				(function() {
+					const fieldsets = document.querySelectorAll("form fieldset");
+					const legend = fieldsets[fieldsets.length - 1].querySelector("legend");
+					legend.textContent = "set " + fieldsets.length;
+				})();
+			</script>
+		}
 		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
 			<span class="text-outline text-sm pb-2">
 				weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):

@@ -50,10 +50,10 @@ func (h *SetsHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formValues := exercises.NewSetFormValues{Weight: "0", Repetitions: "0"}
+	row := exercises.NewSetRowValues{Weight: "10", Repetitions: "1"}
 	if lastSet, err := h.setSvc.GetLastByExerciseID(r.Context(), int32(id)); err == nil {
 		weightDisplay := weightunit.Convert(float64(lastSet.WeightInG), user.WeightUnit)
-		formValues = exercises.NewSetFormValues{
+		row = exercises.NewSetRowValues{
 			Weight:      strconv.FormatFloat(weightDisplay, 'f', -1, 64),
 			Repetitions: strconv.Itoa(int(lastSet.Repetitions)),
 		}
@@ -61,7 +61,7 @@ func (h *SetsHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 
 	page := exercises.NewSetPageWithForm(
 		int32(id),
-		formValues,
+		[]exercises.NewSetRowValues{row},
 		exercises.NewSetFormErr{},
 		user.WeightUnit,
 	)
@@ -96,16 +96,16 @@ func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowValues := exercises.NewSetFormValues{Weight: "0", Repetitions: "0"}
+	row := exercises.NewSetRowValues{Weight: "10", Repetitions: "1"}
 	if lastSet, err := h.setSvc.GetLastByExerciseID(r.Context(), int32(id)); err == nil {
 		weightDisplay := weightunit.Convert(float64(lastSet.WeightInG), user.WeightUnit)
-		rowValues = exercises.NewSetFormValues{
+		row = exercises.NewSetRowValues{
 			Weight:      strconv.FormatFloat(weightDisplay, 'f', -1, 64),
 			Repetitions: strconv.Itoa(int(lastSet.Repetitions)),
 		}
 	}
 
-	if err := exercises.NewSetRow(rowValues, exercises.NewSetFormErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
+	if err := exercises.NewSetRow(0, row, exercises.NewSetRowErr{}, user.WeightUnit).Render(r.Context(), w); err != nil {
 		slog.Error("failed to render new set row", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -134,35 +134,65 @@ func (h *SetsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formValues := exercises.NewSetFormValues{Weight: r.FormValue("weight"), Repetitions: r.FormValue("repetitions")}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
-	var parsed schema.CreateSet
-	errs := schema.CreateSetInput.Parse(zhttp.Request(r), &parsed)
+	rawWeights := r.Form["weight"]
+	rawReps := r.Form["repetitions"]
+	rows := make([]exercises.NewSetRowValues, max(len(rawWeights), len(rawReps)))
+	for i := range rows {
+		row := exercises.NewSetRowValues{}
+		if i < len(rawWeights) {
+			row.Weight = rawWeights[i]
+		}
+		if i < len(rawReps) {
+			row.Repetitions = rawReps[i]
+		}
+		rows[i] = row
+	}
+
+	var parsed schema.CreateSets
+	errs := schema.CreateSetsInput.Parse(zhttp.Request(r), &parsed)
 	if errs != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fieldErrors := zog.Issues.Flatten(errs)
-		formErr := exercises.NewSetFormErr{
-			Weight:      firstErr(fieldErrors, "weight"),
-			Repetitions: firstErr(fieldErrors, "repetitions"),
+
+		rowErrs := make([]exercises.NewSetRowErr, len(rows))
+		for i := range rows {
+			rowErrs[i] = exercises.NewSetRowErr{
+				Weight:      firstErr(fieldErrors, fmt.Sprintf("weight[%d]", i)),
+				Repetitions: firstErr(fieldErrors, fmt.Sprintf("repetitions[%d]", i)),
+			}
 		}
-		if renderErr := exercises.NewSetForm(int32(id), formValues, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
+
+		formErr := exercises.NewSetFormErr{
+			Rows: rowErrs,
+			Root: firstErr(fieldErrors, "weight") + firstErr(fieldErrors, "repetitions"),
+		}
+		if renderErr := exercises.NewSetForm(int32(id), rows, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render new set form with errors", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 		return
 	}
 
-	input := service.CreateSetInput{
-		ExerciseID:  int32(id),
-		Repetitions: parsed.Repetitions,
-		WeightInG:   int32(weightunit.ToGrams(float64(parsed.Weight), user.WeightUnit)),
+	count := min(len(parsed.Weight), len(parsed.Repetitions))
+	inputs := make([]service.CreateSetInput, count)
+	for i := range count {
+		inputs[i] = service.CreateSetInput{
+			ExerciseID:  int32(id),
+			Repetitions: parsed.Repetitions[i],
+			WeightInG:   int32(weightunit.ToGrams(float64(parsed.Weight[i]), user.WeightUnit)),
+		}
 	}
 
-	if _, err := h.setSvc.CreateSets(r.Context(), []service.CreateSetInput{input}); err != nil {
-		slog.Error("failed to create set", "error", err)
+	if _, err := h.setSvc.CreateSets(r.Context(), inputs); err != nil {
+		slog.Error("failed to create sets", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		formErr := exercises.NewSetFormErr{Root: "something went wrong, please try again."}
-		if renderErr := exercises.NewSetForm(int32(id), formValues, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
+		if renderErr := exercises.NewSetForm(int32(id), rows, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render new set form after db error", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
