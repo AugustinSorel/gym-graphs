@@ -63,6 +63,13 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	tags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch tags for exercise detail page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	page := exercises.ExerciseDetailPage(exercises.ExerciseDetailData{
 		ID:               exercise.ID,
 		Name:             exercise.Name,
@@ -72,6 +79,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		TotalSets:        funFacts.TotalSets,
 		WeightUnit:       user.WeightUnit,
 		GraphPoints:      graphPoints,
+		Tags:             tags,
 	})
 	ctx := templ.WithChildren(r.Context(), page)
 
