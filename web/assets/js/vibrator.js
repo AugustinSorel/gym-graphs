@@ -1,5 +1,7 @@
 document.addEventListener("click", (event) => {
-  const clickedElement = event.target.closest("button, a");
+  const clickedElement = event.target.closest(
+    "button, a, input[type='radio'], option",
+  );
 
   if (clickedElement) {
     if ("vibrate" in navigator) {
