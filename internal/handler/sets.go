@@ -52,9 +52,8 @@ func (h *SetsHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 
 	row := exercises.NewSetRowValues{Weight: "10", Repetitions: "1"}
 	if lastSet, err := h.setSvc.GetLastByExerciseID(r.Context(), int32(id)); err == nil {
-		weightDisplay := weightunit.Convert(float64(lastSet.WeightInG), user.WeightUnit)
 		row = exercises.NewSetRowValues{
-			Weight:      strconv.FormatFloat(weightDisplay, 'f', -1, 64),
+			Weight:      weightunit.Format(float64(lastSet.WeightInG), user.WeightUnit),
 			Repetitions: strconv.Itoa(int(lastSet.Repetitions)),
 		}
 	}
@@ -98,9 +97,8 @@ func (h *SetsHandler) NewSetRow(w http.ResponseWriter, r *http.Request) {
 
 	row := exercises.NewSetRowValues{Weight: "10", Repetitions: "1"}
 	if lastSet, err := h.setSvc.GetLastByExerciseID(r.Context(), int32(id)); err == nil {
-		weightDisplay := weightunit.Convert(float64(lastSet.WeightInG), user.WeightUnit)
 		row = exercises.NewSetRowValues{
-			Weight:      strconv.FormatFloat(weightDisplay, 'f', -1, 64),
+			Weight:      weightunit.Format(float64(lastSet.WeightInG), user.WeightUnit),
 			Repetitions: strconv.Itoa(int(lastSet.Repetitions)),
 		}
 	}
