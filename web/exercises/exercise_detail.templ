@@ -49,12 +49,18 @@ templ exerciseGraph(ex ExerciseDetailData) {
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
 			1 <abbr title="repetitions maximum" class="no-underline">rep max</abbr>
 		</h2>
-		@templ.JSONScript("exercise-graph-data", ex.GraphPoints)
-		<div
-			id="exercise-graph"
-			class="w-full h-64 mt-4"
-			data-unit={ weightunit.Abbr(ex.WeightUnit) }
-		></div>
+		if len(ex.GraphPoints) == 0 {
+			<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+				<h3 class="text-sm text-outline">no sets yet</h3>
+			</div>
+		} else {
+			@templ.JSONScript("exercise-graph-data", ex.GraphPoints)
+			<div
+				id="exercise-graph"
+				class="w-full h-64 border-b-2 border-dotted border-outline/50"
+				data-unit={ weightunit.Abbr(ex.WeightUnit) }
+			></div>
+		}
 	</section>
 }
 
