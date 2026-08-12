@@ -25,7 +25,7 @@ const renderExerciseGraph = (container, points) => {
   const rect = container.getBoundingClientRect();
   const width = rect.width || 600;
   const height = rect.height || 280;
-  const margin = { top: 16, right: 8, bottom: 40, left: 32 };
+  const margin = { top: 32, right: 8, bottom: 48, left: 32 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -118,8 +118,7 @@ const renderExerciseGraph = (container, points) => {
     .area()
     .x((d) => x(d.date))
     .y0(innerH)
-    .y1((d) => y(d.value))
-    .curve(d3.curveMonotoneX);
+    .y1((d) => y(d.value));
 
   const gradientId = `ex-grad-${Math.random().toString(36).slice(2)}`;
   const defs = svg.append("defs");
@@ -150,8 +149,7 @@ const renderExerciseGraph = (container, points) => {
   const lineGen = d3
     .line()
     .x((d) => x(d.date))
-    .y((d) => y(d.value))
-    .curve(d3.curveMonotoneX);
+    .y((d) => y(d.value));
 
   g.append("path")
     .datum(data)
