@@ -25,7 +25,7 @@ const renderExerciseGraph = (container, points) => {
   const rect = container.getBoundingClientRect();
   const width = rect.width || 600;
   const height = rect.height || 280;
-  const margin = { top: 16, right: 16, bottom: 40, left: 52 };
+  const margin = { top: 16, right: 8, bottom: 40, left: 32 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -248,8 +248,7 @@ const renderExerciseGraph = (container, points) => {
     .attr("text-anchor", "middle")
     .attr("fill", colorOutline)
     .attr("font-size", "10px")
-    .attr("font-family", "inherit")
-    .text(`estimated 1rm (${unit})`);
+    .attr("font-family", "inherit");
 };
 
 const getPoints = () => {
