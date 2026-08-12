@@ -18,12 +18,12 @@ type CreateSets struct {
 }
 
 var weightSchema = z.Float32().
-	GTE(1, z.Message("weight must be 0 or more.")).
+	GT(0, z.Message("weight must be greater than 0.")).
 	LTE(1000, z.Message("weight must be at most 1000 kg.")).
 	TestFunc(maxThreeDecimalPlaces, z.Message("weight must have at most 3 decimal places."))
 
 var repetitionsSchema = z.Int32().
-	GT(1, z.Message("repetitions must be greater than 0.")).
+	GT(0, z.Message("repetitions must be greater than 0.")).
 	LT(1000, z.Message("repetitions must be less than 1000."))
 
 var SetSchema = z.Struct(z.Shape{
