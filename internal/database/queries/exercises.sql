@@ -61,3 +61,6 @@ returning *;
 -- name: DeleteExercise :exec
 delete from exercises
 where id = $1 and user_id = $2;
+
+-- name: DeleteExerciseTags :exec
+delete from exercise_tags where exercise_id = $1;

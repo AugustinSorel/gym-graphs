@@ -63,9 +63,16 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
+	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch tags for exercise detail page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	exerciseTags, err := h.tagSvc.GetByExerciseID(r.Context(), exercise.ID)
+	if err != nil {
+		slog.Error("failed to fetch exercise tags for exercise detail page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -79,7 +86,8 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		TotalSets:        funFacts.TotalSets,
 		WeightUnit:       user.WeightUnit,
 		GraphPoints:      graphPoints,
-		Tags:             tags,
+		AllTags:          allTags,
+		ExerciseTags:     exerciseTags,
 	})
 	ctx := templ.WithChildren(r.Context(), page)
 
@@ -331,6 +339,54 @@ func (h *ExercisesHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Redirect", "/exercises")
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *ExercisesHandler) UpdateTags(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if _, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID); err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	tagIDs := parseTagIDs(r.Form["tag_ids"])
+
+	if err := h.exerciseSvc.SetTags(r.Context(), int32(id), tagIDs); err != nil {
+		slog.Error("failed to update exercise tags", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch tags after update", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	exerciseTags, err := h.tagSvc.GetByExerciseID(r.Context(), int32(id))
+	if err != nil {
+		slog.Error("failed to fetch exercise tags after update", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := exercises.ExerciseTagsSection(int32(id), allTags, exerciseTags).Render(r.Context(), w); err != nil {
+		slog.Error("failed to render exercise tags section", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func parseTagIDs(raw []string) []int32 {

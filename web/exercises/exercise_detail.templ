@@ -17,7 +17,8 @@ type ExerciseDetailData struct {
 	TotalSets        int
 	WeightUnit       db.WeightUnit
 	GraphPoints      []service.ExerciseGraphPoint
-	Tags             []db.Tag
+	AllTags          []db.Tag
+	ExerciseTags     []db.Tag
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -71,18 +72,40 @@ templ exerciseTags(ex ExerciseDetailData) {
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
 			tags
 		</h2>
-		if len(ex.Tags) == 0 {
-			<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
-				<h3 class="text-sm text-outline">no tags yet</h3>
-			</div>
-		} else {
-			<div class="py-7 border-b-2 border-dotted border-outline/50 flex flex-wrap gap-2">
-				for _, tag := range ex.Tags {
-					<span class="border-2 border-on-surface px-3 py-1 text-sm">{ tag.Name }</span>
-				}
-			</div>
-		}
+		@ExerciseTagsSection(ex.ID, ex.AllTags, ex.ExerciseTags)
 	</section>
+}
+
+templ ExerciseTagsSection(exerciseID int32, allTags []db.Tag, exerciseTags []db.Tag) {
+	if len(allTags) == 0 {
+		<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+			<h3 class="text-sm text-outline">no tags yet</h3>
+		</div>
+	} else {
+		<form
+			id="exercise-tags-form"
+			hx-patch={ fmt.Sprintf("/exercises/%d/tags", exerciseID) }
+			hx-trigger="change"
+			hx-swap="outerHTML"
+			hx-target="#exercise-tags-form"
+			class="py-7 border-b-2 border-dotted border-outline/50 flex flex-wrap gap-2"
+		>
+			for _, tag := range allTags {
+				<label class={ "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer transition-colors hover:bg-on-surface/10 has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface", templ.KV("bg-on-surface text-surface", isTagSelected(tag.ID, exerciseTags)) }>
+					<input
+						type="checkbox"
+						name="tag_ids"
+						value={ fmt.Sprintf("%d", tag.ID) }
+						class="sr-only"
+						if isTagSelected(tag.ID, exerciseTags) {
+							checked
+						}
+					/>
+					{ tag.Name }
+				</label>
+			}
+		</form>
+	}
 }
 
 templ exerciseManage(ex ExerciseDetailData) {
@@ -170,4 +193,13 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 			</div>
 		</dl>
 	</section>
+}
+
+func isTagSelected(tagID int32, exerciseTags []db.Tag) bool {
+	for _, t := range exerciseTags {
+		if t.ID == tagID {
+			return true
+		}
+	}
+	return false
 }

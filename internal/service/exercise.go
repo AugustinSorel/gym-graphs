@@ -186,6 +186,31 @@ func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, alg
 	return points, nil
 }
 
+func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs []int32) error {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	txq := db.New(tx)
+
+	if err := txq.DeleteExerciseTags(ctx, exerciseID); err != nil {
+		return err
+	}
+
+	if len(tagIDs) > 0 {
+		if err := txq.CreateExerciseTags(ctx, db.CreateExerciseTagsParams{
+			ExerciseID: exerciseID,
+			Column2:    tagIDs,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
+}
+
 func (s *ExerciseService) Create(ctx context.Context, userID int32, name string, tagIDs []int32) (db.Exercise, error) {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {

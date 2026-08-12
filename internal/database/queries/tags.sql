@@ -21,3 +21,9 @@ returning *;
 -- name: DeleteTag :exec
 delete from tags
 where id = $1 and user_id = $2;
+
+-- name: GetTagsByExerciseID :many
+select t.* from tags t
+inner join exercise_tags et on et.tag_id = t.id
+where et.exercise_id = $1
+order by t.name asc;

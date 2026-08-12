@@ -66,6 +66,39 @@ func (q *Queries) GetTagByID(ctx context.Context, id int32) (Tag, error) {
 	return i, err
 }
 
+const getTagsByExerciseID = `-- name: GetTagsByExerciseID :many
+select t.id, t.user_id, t.name, t.updated_at, t.created_at from tags t
+inner join exercise_tags et on et.tag_id = t.id
+where et.exercise_id = $1
+order by t.name asc
+`
+
+func (q *Queries) GetTagsByExerciseID(ctx context.Context, exerciseID int32) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, getTagsByExerciseID, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTagsByUserID = `-- name: GetTagsByUserID :many
 select id, user_id, name, updated_at, created_at from tags
 where user_id = $1
