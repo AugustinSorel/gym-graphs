@@ -1,6 +1,6 @@
 document.addEventListener("click", (event) => {
   const clickedElement = event.target.closest(
-    "button, a, input[type='radio'], option",
+    "button, a, input[type='radio'], input[type='checkbox'], option",
   );
 
   if (clickedElement) {
