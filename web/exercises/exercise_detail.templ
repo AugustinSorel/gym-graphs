@@ -2,23 +2,28 @@ package exercises
 
 import (
 	"fmt"
+
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/onerm"
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
 
 type ExerciseDetailData struct {
-	ID               int32
-	Name             string
-	Best1RMInG       float64
-	HighestWeightInG float64
-	TotalVolumeInG   float64
-	TotalSets        int
-	WeightUnit       db.WeightUnit
-	GraphPoints      []service.ExerciseGraphPoint
-	AllTags          []db.Tag
-	ExerciseTags     []db.Tag
+	ID                 int32
+	Name               string
+	Best1RMInG         float64
+	HighestWeightInG   float64
+	TotalVolumeInG     float64
+	TotalSets          int
+	WeightUnit         db.WeightUnit
+	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
+	GraphPoints        []service.ExerciseGraphPoint
+	Sets               []db.Set
+	AllTags            []db.Tag
+	ExerciseTags       []db.Tag
 }
 
 templ ExerciseDetailPage(ex ExerciseDetailData) {
@@ -26,6 +31,7 @@ templ ExerciseDetailPage(ex ExerciseDetailData) {
 		@exerciseDetailHeader(ex)
 		@exerciseFunFacts(ex)
 		@exerciseGraph(ex)
+		@exerciseSetsTable(ex)
 		@exerciseTags(ex)
 		@exerciseManage(ex)
 	</main>
@@ -45,6 +51,82 @@ templ exerciseDetailHeader(ex ExerciseDetailData) {
 			+ add
 		}
 	</header>
+}
+
+templ exerciseSetsTable(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			sets
+		</h2>
+		if len(ex.Sets) == 0 {
+			<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+				<h3 class="text-sm text-outline">no sets yet</h3>
+			</div>
+		} else {
+			<ol style={ fmt.Sprintf("counter-reset: set-list %d", len(ex.Sets)+1) } class="list-none">
+				for i := len(ex.Sets) - 1; i >= 0; i-- {
+					{{ s := ex.Sets[i] }}
+					{{ popoverID := fmt.Sprintf("set-menu-%d", s.ID) }}
+					{{ anchorName := fmt.Sprintf("--set-anchor-%d", s.ID) }}
+					{{ orm := onerm.Compute(float64(s.WeightInG), float64(s.Repetitions), ex.OneRepMaxAlgorithm) }}
+					<li class="border-b-2 border-dotted border-outline/50 py-3 [counter-increment:set-list_-1] grid grid-cols-[auto_1fr_auto] items-center gap-x-3 before:content-[counter(set-list)_'.'] before:text-outline before:text-sm">
+						<dl class="grid grid-cols-3 gap-x-6 gap-y-1 text-sm">
+							<div>
+								<dt class="text-outline text-xs">1<abbr title="repetition maximum" class="no-underline">rm</abbr></dt>
+								<dd class="font-medium">
+									if orm > 0 {
+										{ weightunit.Format(orm, ex.WeightUnit) }
+										<abbr title={ weightunit.Name(ex.WeightUnit) } class="font-normal text-xs text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
+									} else {
+										-
+									}
+								</dd>
+							</div>
+							<div>
+								<dt class="text-outline text-xs">weight</dt>
+								<dd>
+									{ weightunit.Format(float64(s.WeightInG), ex.WeightUnit) }
+									<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-xs text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
+								</dd>
+							</div>
+							<div>
+								<dt class="text-outline text-xs">reps</dt>
+								<dd>{ fmt.Sprintf("%d", s.Repetitions) }</dd>
+							</div>
+						</dl>
+						<div class="relative">
+							@button.Button(button.Props{
+								Variant: button.VariantGhost,
+								Class:   "size-8 text-outline",
+								Attributes: templ.Attributes{
+									"popovertarget": popoverID,
+									"aria-label":    "Set options",
+									"style":         "anchor-name: " + anchorName,
+								},
+							}) {
+								&#8942;
+							}
+							<div
+								id={ popoverID }
+								popover=""
+								class="m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm"
+								style={ "position-anchor: " + anchorName + "; position-area: bottom span-left; position-try-fallbacks: flip-block;" }
+							>
+								<a
+									href="#"
+									class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
+								>edit</a>
+								<a
+									href="#"
+									class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
+								>remove</a>
+							</div>
+						</div>
+					</li>
+				}
+			</ol>
+		}
+	</section>
 }
 
 templ exerciseGraph(ex ExerciseDetailData) {

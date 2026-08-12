@@ -19,10 +19,11 @@ type ExercisesHandler struct {
 	tagSvc      *service.TagService
 	exerciseSvc *service.ExerciseService
 	userSvc     *service.UserService
+	setSvc      *service.SetService
 }
 
-func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.ExerciseService, userSvc *service.UserService) *ExercisesHandler {
-	return &ExercisesHandler{tagSvc: tagSvc, exerciseSvc: exerciseSvc, userSvc: userSvc}
+func NewExercisesHandler(tagSvc *service.TagService, exerciseSvc *service.ExerciseService, userSvc *service.UserService, setSvc *service.SetService) *ExercisesHandler {
+	return &ExercisesHandler{tagSvc: tagSvc, exerciseSvc: exerciseSvc, userSvc: userSvc, setSvc: setSvc}
 }
 
 func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request) {
@@ -77,17 +78,26 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	sets, err := h.setSvc.GetByExerciseID(r.Context(), exercise.ID)
+	if err != nil {
+		slog.Error("failed to fetch sets for exercise detail page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	page := exercises.ExerciseDetailPage(exercises.ExerciseDetailData{
-		ID:               exercise.ID,
-		Name:             exercise.Name,
-		Best1RMInG:       funFacts.Best1RMInG,
-		HighestWeightInG: funFacts.HighestWeightInG,
-		TotalVolumeInG:   funFacts.TotalVolumeInG,
-		TotalSets:        funFacts.TotalSets,
-		WeightUnit:       user.WeightUnit,
-		GraphPoints:      graphPoints,
-		AllTags:          allTags,
-		ExerciseTags:     exerciseTags,
+		ID:                 exercise.ID,
+		Name:               exercise.Name,
+		Best1RMInG:         funFacts.Best1RMInG,
+		HighestWeightInG:   funFacts.HighestWeightInG,
+		TotalVolumeInG:     funFacts.TotalVolumeInG,
+		TotalSets:          funFacts.TotalSets,
+		WeightUnit:         user.WeightUnit,
+		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
+		GraphPoints:        graphPoints,
+		Sets:               sets,
+		AllTags:            allTags,
+		ExerciseTags:       exerciseTags,
 	})
 	ctx := templ.WithChildren(r.Context(), page)
 

@@ -30,7 +30,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	deleteAccount := handler.NewDeleteAccountHandler(userSvc, accountDeletionSvc)
 	exerciseSvc := service.NewExerciseService(s.queries, s.pool)
 	setSvc := service.NewSetService(s.queries)
-	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc)
+	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc, setSvc)
 	setsHandler := handler.NewSetsHandler(exerciseSvc, setSvc, userSvc)
 	statsHandler := handler.NewStatsHandler()
 
