@@ -1,5 +1,5 @@
 const formatDate = (date) =>
-  date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 const renderExerciseGraph = (container, points) => {
   const unit = container.dataset.unit || "kg";

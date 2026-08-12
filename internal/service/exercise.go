@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/onerm"
@@ -156,11 +157,7 @@ func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, alg
 	}
 
 	type dayKey = [3]int // {year, month, day} in UTC
-	type dayBest struct {
-		orm        float64
-		dateUnixMs int64 // timestamp of the best set, forwarded to JS for local-time rendering
-	}
-	bestPerDay := make(map[dayKey]dayBest)
+	bestPerDay := make(map[dayKey]float64)
 	dayOrder := make([]dayKey, 0, len(sets))
 
 	for _, set := range sets {
@@ -170,21 +167,20 @@ func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, alg
 		t := set.CreatedAt.Time.UTC()
 		key := dayKey{t.Year(), int(t.Month()), t.Day()}
 		orm := onerm.Compute(float64(set.WeightInG), float64(set.Repetitions), algorithm)
-		prev, seen := bestPerDay[key]
-		if !seen {
+		if _, seen := bestPerDay[key]; !seen {
 			dayOrder = append(dayOrder, key)
 		}
-		if orm > prev.orm {
-			bestPerDay[key] = dayBest{orm: orm, dateUnixMs: set.CreatedAt.Time.UnixMilli()}
+		if orm > bestPerDay[key] {
+			bestPerDay[key] = orm
 		}
 	}
 
 	points := make([]ExerciseGraphPoint, 0, len(dayOrder))
 	for _, key := range dayOrder {
-		best := bestPerDay[key]
+		midnight := time.Date(key[0], time.Month(key[1]), key[2], 0, 0, 0, 0, time.UTC)
 		points = append(points, ExerciseGraphPoint{
-			DateUnixMs: best.dateUnixMs,
-			OneRepMax:  weightunit.Convert(best.orm, unit),
+			DateUnixMs: midnight.UnixMilli(),
+			OneRepMax:  weightunit.Convert(bestPerDay[key], unit),
 		})
 	}
 	return points, nil
