@@ -8,6 +8,11 @@ insert into tags (user_id, name)
 values ($1, $2)
 returning *;
 
+-- name: CreateTags :many
+insert into tags (user_id, name)
+select $1, unnest($2::text[])
+returning *;
+
 -- name: GetTagByID :one
 select * from tags
 where id = $1;

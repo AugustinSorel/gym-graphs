@@ -33,6 +33,43 @@ func (q *Queries) CreateTag(ctx context.Context, arg CreateTagParams) (Tag, erro
 	return i, err
 }
 
+const createTags = `-- name: CreateTags :many
+insert into tags (user_id, name)
+select $1, unnest($2::text[])
+returning id, user_id, name, updated_at, created_at
+`
+
+type CreateTagsParams struct {
+	UserID  int32
+	Column2 []string
+}
+
+func (q *Queries) CreateTags(ctx context.Context, arg CreateTagsParams) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, createTags, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const deleteTag = `-- name: DeleteTag :exec
 delete from tags
 where id = $1 and user_id = $2

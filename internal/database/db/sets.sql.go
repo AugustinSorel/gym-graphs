@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createSets = `-- name: CreateSets :many
@@ -124,4 +126,26 @@ func (q *Queries) GetSetsByExerciseID(ctx context.Context, exerciseID int32) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const seedCreateSets = `-- name: SeedCreateSets :exec
+insert into sets (exercise_id, repetitions, weight_in_g, created_at, updated_at)
+select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])
+`
+
+type SeedCreateSetsParams struct {
+	ExerciseID int32
+	Column2    []int32
+	Column3    []int32
+	Column4    []pgtype.Timestamptz
+}
+
+func (q *Queries) SeedCreateSets(ctx context.Context, arg SeedCreateSetsParams) error {
+	_, err := q.db.Exec(ctx, seedCreateSets,
+		arg.ExerciseID,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
+	return err
 }

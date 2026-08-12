@@ -76,7 +76,6 @@ func newTracker(cfg *config.Config) analytics.Tracker {
 }
 
 //TODO: monitoring
-//TODO: seed user
 //TODO: optimisation
 //TODO: mobile support
 //TODO: redo create tag page
