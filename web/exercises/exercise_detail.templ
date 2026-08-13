@@ -99,12 +99,6 @@ templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUn
 					<dt class="text-outline text-xs"><abbr title="repetitions" class="no-underline">reps</abbr></dt>
 					<dd>{ fmt.Sprintf("%d", s.Repetitions) }</dd>
 				</div>
-				if s.DoneAt.Valid {
-					<div class="col-span-3">
-						<dt class="text-outline text-xs">done</dt>
-						<dd>{ s.DoneAt.Time.UTC().Format("2006-01-02 15:04") }</dd>
-					</div>
-				}
 			</dl>
 			<div class="relative">
 				@button.Button(button.Props{
