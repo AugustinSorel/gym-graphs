@@ -122,6 +122,7 @@ SELECT
     COALESCE(s.sets_count, 0) AS sets_count,
     s.last_set_weight_in_g,
     s.last_set_repetitions,
+    s.last_set_done_at,
     s.prev_set_weight_in_g,
     s.prev_set_repetitions
 FROM exercises e
@@ -131,6 +132,7 @@ LEFT JOIN LATERAL (
         -- Extract the 1st row's data
         COALESCE(MAX(weight_in_g) FILTER (WHERE rn = 1), 0)::int AS last_set_weight_in_g,
         COALESCE(MAX(repetitions) FILTER (WHERE rn = 1), 0)::int AS last_set_repetitions,
+        MAX(done_at) FILTER (WHERE rn = 1)::timestamptz AS last_set_done_at,
         -- Extract the 2nd row's data
         COALESCE(MAX(weight_in_g) FILTER (WHERE rn = 2), 0)::int AS prev_set_weight_in_g,
         COALESCE(MAX(repetitions) FILTER (WHERE rn = 2), 0)::int AS prev_set_repetitions
@@ -138,6 +140,7 @@ LEFT JOIN LATERAL (
         SELECT
             weight_in_g,
             repetitions,
+            done_at,
             ROW_NUMBER() OVER (ORDER BY created_at DESC) as rn
         FROM sets
         WHERE exercise_id = e.id
@@ -165,6 +168,7 @@ type GetExercisesPageByUserIDRow struct {
 	SetsCount          int64
 	LastSetWeightInG   int32
 	LastSetRepetitions int32
+	LastSetDoneAt      pgtype.Timestamptz
 	PrevSetWeightInG   int32
 	PrevSetRepetitions int32
 }
@@ -188,6 +192,7 @@ func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercises
 			&i.SetsCount,
 			&i.LastSetWeightInG,
 			&i.LastSetRepetitions,
+			&i.LastSetDoneAt,
 			&i.PrevSetWeightInG,
 			&i.PrevSetRepetitions,
 		); err != nil {

@@ -52,7 +52,7 @@ templ ExerciseRows(page service.ExercisesPage) {
 					}
 				</td>
 				<td class="pr-0 p-4 align-middle text-outline lg:table-cell hidden whitespace-nowrap">
-					{ timeAgo(exercise.UpdatedAt.Time) }
+					{ timeAgo(exercise.LastSetDoneAt.Time) }
 				</td>
 			</tr>
 		}
