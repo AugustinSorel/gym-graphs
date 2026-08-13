@@ -4,6 +4,7 @@ create table sets(
     exercise_id integer references exercises(id) on delete cascade not null,
     repetitions integer not null,
     weight_in_g integer not null,
+    done_at timestamptz default now() not null,
     updated_at timestamptz default now() not null,
     created_at timestamptz default now() not null
 );

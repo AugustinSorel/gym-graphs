@@ -291,8 +291,8 @@ func (h *SetsHandler) ViewEditSetPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	doneAt := ""
-	if set.CreatedAt.Valid {
-		doneAt = set.CreatedAt.Time.UTC().Format("2006-01-02T15:04")
+	if set.DoneAt.Valid {
+		doneAt = set.DoneAt.Time.UTC().Format("2006-01-02T15:04")
 	}
 
 	form := exercises.EditSetFormValues{

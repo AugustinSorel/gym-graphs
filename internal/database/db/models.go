@@ -164,6 +164,7 @@ type Set struct {
 	ExerciseID  int32
 	Repetitions int32
 	WeightInG   int32
+	DoneAt      pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
 	CreatedAt   pgtype.Timestamptz
 }

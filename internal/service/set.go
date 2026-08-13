@@ -90,7 +90,7 @@ func (s *SetService) UpdateSet(ctx context.Context, input UpdateSetInput) (db.Se
 		UserID:      input.UserID,
 		Repetitions: input.Repetitions,
 		WeightInG:   input.WeightInG,
-		CreatedAt:   pgtype.Timestamptz{Time: input.DoneAt, Valid: true},
+		DoneAt:      pgtype.Timestamptz{Time: input.DoneAt, Valid: true},
 	})
 }
 

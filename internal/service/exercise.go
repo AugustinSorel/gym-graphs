@@ -164,7 +164,7 @@ func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, alg
 		if set.WeightInG <= 0 || set.Repetitions <= 0 {
 			continue
 		}
-		t := set.CreatedAt.Time.UTC()
+		t := set.DoneAt.Time.UTC()
 		key := dayKey{t.Year(), int(t.Month()), t.Day()}
 		orm := onerm.Compute(float64(set.WeightInG), float64(set.Repetitions), algorithm)
 		if _, seen := bestPerDay[key]; !seen {

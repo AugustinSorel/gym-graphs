@@ -14,7 +14,7 @@ import (
 const createSets = `-- name: CreateSets :many
 insert into sets (exercise_id, repetitions, weight_in_g)
 select unnest($1::int[]), unnest($2::int[]), unnest($3::int[])
-returning id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+returning id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 `
 
 type CreateSetsParams struct {
@@ -37,6 +37,7 @@ func (q *Queries) CreateSets(ctx context.Context, arg CreateSetsParams) ([]Set, 
 			&i.ExerciseID,
 			&i.Repetitions,
 			&i.WeightInG,
+			&i.DoneAt,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -91,10 +92,10 @@ func (q *Queries) GetExerciseStatsByID(ctx context.Context, exerciseID int32) (G
 }
 
 const getLastSetByExerciseID = `-- name: GetLastSetByExerciseID :one
-select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
-order by created_at desc
+order by done_at desc
 limit 1
 `
 
@@ -106,6 +107,7 @@ func (q *Queries) GetLastSetByExerciseID(ctx context.Context, exerciseID int32) 
 		&i.ExerciseID,
 		&i.Repetitions,
 		&i.WeightInG,
+		&i.DoneAt,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -113,7 +115,7 @@ func (q *Queries) GetLastSetByExerciseID(ctx context.Context, exerciseID int32) 
 }
 
 const getSetByIDAndUserID = `-- name: GetSetByIDAndUserID :one
-select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.updated_at, s.created_at
+select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
 from sets s
 join exercises e on e.id = s.exercise_id
 where s.id = $1
@@ -133,6 +135,7 @@ func (q *Queries) GetSetByIDAndUserID(ctx context.Context, arg GetSetByIDAndUser
 		&i.ExerciseID,
 		&i.Repetitions,
 		&i.WeightInG,
+		&i.DoneAt,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -140,10 +143,10 @@ func (q *Queries) GetSetByIDAndUserID(ctx context.Context, arg GetSetByIDAndUser
 }
 
 const getSetsByExerciseID = `-- name: GetSetsByExerciseID :many
-select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
-order by created_at asc
+order by done_at asc
 `
 
 func (q *Queries) GetSetsByExerciseID(ctx context.Context, exerciseID int32) ([]Set, error) {
@@ -160,6 +163,7 @@ func (q *Queries) GetSetsByExerciseID(ctx context.Context, exerciseID int32) ([]
 			&i.ExerciseID,
 			&i.Repetitions,
 			&i.WeightInG,
+			&i.DoneAt,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -174,11 +178,11 @@ func (q *Queries) GetSetsByExerciseID(ctx context.Context, exerciseID int32) ([]
 }
 
 const getSetsPageByExerciseID = `-- name: GetSetsPageByExerciseID :many
-select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
   and id < $2
-order by id desc
+order by done_at desc
 limit $3
 `
 
@@ -202,6 +206,7 @@ func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageBy
 			&i.ExerciseID,
 			&i.Repetitions,
 			&i.WeightInG,
+			&i.DoneAt,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -216,8 +221,8 @@ func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageBy
 }
 
 const seedCreateSets = `-- name: SeedCreateSets :exec
-insert into sets (exercise_id, repetitions, weight_in_g, created_at, updated_at)
-select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])
+insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
+select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])
 `
 
 type SeedCreateSetsParams struct {
@@ -239,12 +244,12 @@ func (q *Queries) SeedCreateSets(ctx context.Context, arg SeedCreateSetsParams) 
 
 const updateSetByIDAndUserID = `-- name: UpdateSetByIDAndUserID :one
 update sets s
-set repetitions = $3, weight_in_g = $4, created_at = $5, updated_at = now()
+set repetitions = $3, weight_in_g = $4, done_at = $5, updated_at = now()
 from exercises e
 where s.id = $1
   and s.exercise_id = e.id
   and e.user_id = $2
-returning s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.updated_at, s.created_at
+returning s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
 `
 
 type UpdateSetByIDAndUserIDParams struct {
@@ -252,7 +257,7 @@ type UpdateSetByIDAndUserIDParams struct {
 	UserID      int32
 	Repetitions int32
 	WeightInG   int32
-	CreatedAt   pgtype.Timestamptz
+	DoneAt      pgtype.Timestamptz
 }
 
 func (q *Queries) UpdateSetByIDAndUserID(ctx context.Context, arg UpdateSetByIDAndUserIDParams) (Set, error) {
@@ -261,7 +266,7 @@ func (q *Queries) UpdateSetByIDAndUserID(ctx context.Context, arg UpdateSetByIDA
 		arg.UserID,
 		arg.Repetitions,
 		arg.WeightInG,
-		arg.CreatedAt,
+		arg.DoneAt,
 	)
 	var i Set
 	err := row.Scan(
@@ -269,6 +274,7 @@ func (q *Queries) UpdateSetByIDAndUserID(ctx context.Context, arg UpdateSetByIDA
 		&i.ExerciseID,
 		&i.Repetitions,
 		&i.WeightInG,
+		&i.DoneAt,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
