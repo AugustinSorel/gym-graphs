@@ -11,7 +11,7 @@ import (
 templ RemoveSetPage(exerciseID int32, setID int32) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		<form
-			hx-post={ fmt.Sprintf("/exercises/%d/sets/%d/remove", exerciseID, setID) }
+			hx-delete={ fmt.Sprintf("/exercises/%d/sets/%d", exerciseID, setID) }
 			hx-disable="find button[type='submit']"
 			hx-indicator="find button[type='submit']"
 			hx-swap="outerHTML"

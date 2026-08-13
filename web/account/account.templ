@@ -480,7 +480,7 @@ templ tagItem(tag db.Tag) {
 				class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
 			>rename</a>
 			<a
-				href={ templ.SafeURL(fmt.Sprintf("/tags/%d/remove", tag.ID)) }
+				href={ templ.SafeURL(fmt.Sprintf("/tags/%d/confirm-delete", tag.ID)) }
 				class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
 			>remove</a>
 		</div>

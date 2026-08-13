@@ -55,7 +55,7 @@ templ RemoveTagPage(tagID int32, tagName string) {
 	@main() {
 		<div class="flex flex-col mx-auto w-full gap-20">
 			<form
-				hx-post={ fmt.Sprintf("/tags/%d/remove", tagID) }
+				hx-delete={ fmt.Sprintf("/tags/%d", tagID) }
 				hx-disable="find button[type='submit']"
 				hx-indicator="find button[type='submit']"
 				hx-swap="outerHTML"

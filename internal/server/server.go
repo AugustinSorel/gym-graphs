@@ -77,5 +77,4 @@ func newTracker(cfg *config.Config) analytics.Tracker {
 
 //TODO: monitoring
 //TODO: optimisation
-//FIX: post remove
 //FIX: order in set table

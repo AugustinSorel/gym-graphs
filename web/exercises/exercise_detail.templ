@@ -123,7 +123,7 @@ templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUn
 					class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
 				>edit</a>
 				<a
-					href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/remove", exerciseID, s.ID)) }
+					href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/confirm-delete", exerciseID, s.ID)) }
 					class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
 				>remove</a>
 			</div>
@@ -230,7 +230,7 @@ templ exerciseManage(ex ExerciseDetailData) {
 				<p>permanently delete this exercise and all its sets.</p>
 			</div>
 			@link.Link(link.Props{
-				Href:  fmt.Sprintf("/exercises/%d/remove", ex.ID),
+				Href:  fmt.Sprintf("/exercises/%d/confirm-delete", ex.ID),
 				Class: "my-auto ml-auto text-sm font-semibold text-error underline hover:opacity-70 transition-opacity hover:text-error/80 ml-auto lg:ml-0",
 			}) {
 				delete
