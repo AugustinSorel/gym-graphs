@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"math"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 )
@@ -18,6 +19,44 @@ type CreateSetInput struct {
 	ExerciseID  int32
 	Repetitions int32
 	WeightInG   int32
+}
+
+const SetsPageSize = 10
+const InitialSetCursor = math.MaxInt32
+
+type SetsPage struct {
+	Rows        []db.Set
+	NextCursor  int32
+	HasNextPage bool
+	TotalCount  int
+}
+
+func (s *SetService) GetPageByExerciseID(ctx context.Context, exerciseID int32, cursor int32, totalCount int) (SetsPage, error) {
+	sets, err := s.queries.GetSetsPageByExerciseID(ctx, db.GetSetsPageByExerciseIDParams{
+		ExerciseID: exerciseID,
+		ID:         cursor,
+		Limit:      SetsPageSize + 1,
+	})
+	if err != nil {
+		return SetsPage{}, err
+	}
+
+	hasNextPage := len(sets) > SetsPageSize
+	if hasNextPage {
+		sets = sets[:SetsPageSize]
+	}
+
+	var nextCursor int32
+	if hasNextPage {
+		nextCursor = sets[len(sets)-1].ID
+	}
+
+	return SetsPage{
+		Rows:        sets,
+		NextCursor:  nextCursor,
+		HasNextPage: hasNextPage,
+		TotalCount:  totalCount,
+	}, nil
 }
 
 func (s *SetService) GetByExerciseID(ctx context.Context, exerciseID int32) ([]db.Set, error) {

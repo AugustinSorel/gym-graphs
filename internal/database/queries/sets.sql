@@ -4,6 +4,14 @@ from sets
 where exercise_id = $1
 order by created_at asc;
 
+-- name: GetSetsPageByExerciseID :many
+select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+from sets
+where exercise_id = $1
+  and id < $2
+order by id desc
+limit $3;
+
 -- name: GetLastSetByExerciseID :one
 select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
 from sets

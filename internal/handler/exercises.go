@@ -78,7 +78,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sets, err := h.setSvc.GetByExerciseID(r.Context(), exercise.ID)
+	setsPage, err := h.setSvc.GetPageByExerciseID(r.Context(), exercise.ID, service.InitialSetCursor, funFacts.TotalSets)
 	if err != nil {
 		slog.Error("failed to fetch sets for exercise detail page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		WeightUnit:         user.WeightUnit,
 		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
 		GraphPoints:        graphPoints,
-		Sets:               sets,
+		SetsPage:           setsPage,
 		AllTags:            allTags,
 		ExerciseTags:       exerciseTags,
 	})

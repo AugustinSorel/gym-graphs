@@ -128,6 +128,48 @@ func (q *Queries) GetSetsByExerciseID(ctx context.Context, exerciseID int32) ([]
 	return items, nil
 }
 
+const getSetsPageByExerciseID = `-- name: GetSetsPageByExerciseID :many
+select id, exercise_id, repetitions, weight_in_g, updated_at, created_at
+from sets
+where exercise_id = $1
+  and id < $2
+order by id desc
+limit $3
+`
+
+type GetSetsPageByExerciseIDParams struct {
+	ExerciseID int32
+	ID         int32
+	Limit      int32
+}
+
+func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageByExerciseIDParams) ([]Set, error) {
+	rows, err := q.db.Query(ctx, getSetsPageByExerciseID, arg.ExerciseID, arg.ID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Set
+	for rows.Next() {
+		var i Set
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExerciseID,
+			&i.Repetitions,
+			&i.WeightInG,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const seedCreateSets = `-- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])

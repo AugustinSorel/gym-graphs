@@ -27,6 +27,57 @@ func NewSetsHandler(exerciseSvc *service.ExerciseService, setSvc *service.SetSer
 	return &SetsHandler{exerciseSvc: exerciseSvc, setSvc: setSvc, userSvc: userSvc}
 }
 
+func (h *SetsHandler) ViewSetsRows(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	rawID := r.PathValue("id")
+	id, err := strconv.ParseInt(rawID, 10, 32)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	exercise, err := h.exerciseSvc.GetByIDAndUserID(r.Context(), int32(id), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch exercise for sets rows", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch user for sets rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	funFacts, err := h.exerciseSvc.FunFacts(r.Context(), exercise.ID, user.OneRepMaxAlgorithm)
+	if err != nil {
+		slog.Error("failed to fetch fun facts for sets rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	var cursor int32 = service.InitialSetCursor
+	if raw := r.URL.Query().Get("cursor"); raw != "" {
+		if v, err := strconv.ParseInt(raw, 10, 32); err == nil {
+			cursor = int32(v)
+		}
+	}
+
+	setsPage, err := h.setSvc.GetPageByExerciseID(r.Context(), exercise.ID, cursor, funFacts.TotalSets)
+	if err != nil {
+		slog.Error("failed to fetch sets rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := exercises.ExerciseSetsRows(int32(id), setsPage, user.WeightUnit, user.OneRepMaxAlgorithm).Render(r.Context(), w); err != nil {
+		slog.Error("failed to render sets rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func (h *SetsHandler) ViewNewPage(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 
