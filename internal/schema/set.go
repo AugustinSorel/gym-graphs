@@ -2,6 +2,7 @@ package schema
 
 import (
 	"strings"
+	"time"
 
 	z "github.com/Oudwins/zog"
 	p "github.com/Oudwins/zog/pkgs/internals"
@@ -32,6 +33,20 @@ var SetSchema = z.Struct(z.Shape{
 })
 
 var CreateSetInput = SetSchema.Pick("weight", "repetitions")
+
+type UpdateSet struct {
+	Weight      float32
+	Repetitions int32
+	Done_at     time.Time
+}
+
+const datetimeLocalLayout = "2006-01-02T15:04"
+
+var UpdateSetInput = z.Struct(z.Shape{
+	"weight":      weightSchema,
+	"repetitions": repetitionsSchema,
+	"done_at":     z.Time(z.Time.Format(datetimeLocalLayout)).Required(z.Message("done at is required.")),
+})
 
 var CreateSetsInput = z.Struct(z.Shape{
 	"weight":      z.Slice(weightSchema).Min(1, z.Message("at least one set is required.")).Max(20, z.Message("at most 20 weight items is allowed")),

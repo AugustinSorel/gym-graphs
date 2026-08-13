@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
 	zog "github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
@@ -250,4 +251,175 @@ func (h *SetsHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("HX-Redirect", fmt.Sprintf("/exercises/%d", id))
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *SetsHandler) parseExerciseAndSetIDs(r *http.Request) (int32, int32, error) {
+	rawExID := r.PathValue("id")
+	exID, err := strconv.ParseInt(rawExID, 10, 32)
+	if err != nil {
+		return 0, 0, err
+	}
+	rawSetID := r.PathValue("setID")
+	setID, err := strconv.ParseInt(rawSetID, 10, 32)
+	if err != nil {
+		return 0, 0, err
+	}
+	return int32(exID), int32(setID), nil
+}
+
+func (h *SetsHandler) ViewEditSetPage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	exID, setID, err := h.parseExerciseAndSetIDs(r)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	set, err := h.setSvc.GetByIDAndUserID(r.Context(), setID, authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch set for edit page", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch user for edit set page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	doneAt := ""
+	if set.CreatedAt.Valid {
+		doneAt = set.CreatedAt.Time.UTC().Format("2006-01-02T15:04")
+	}
+
+	form := exercises.EditSetFormValues{
+		Weight:      weightunit.Format(float64(set.WeightInG), user.WeightUnit),
+		Repetitions: strconv.Itoa(int(set.Repetitions)),
+		DoneAt:      doneAt,
+	}
+
+	page := exercises.EditSetPageWithForm(exID, setID, form, exercises.EditSetFormErr{}, user.WeightUnit)
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
+		slog.Error("failed to render edit set page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (h *SetsHandler) UpdateSet(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	exID, setID, err := h.parseExerciseAndSetIDs(r)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch user for update set", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	var parsed schema.UpdateSet
+	errs := schema.UpdateSetInput.Parse(zhttp.Request(r), &parsed)
+
+	formValues := exercises.EditSetFormValues{
+		Weight:      r.FormValue("weight"),
+		Repetitions: r.FormValue("repetitions"),
+		DoneAt:      r.FormValue("done_at"),
+	}
+
+	if errs != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fieldErrors := zog.Issues.Flatten(errs)
+		formErr := exercises.EditSetFormErr{
+			Weight:      firstErr(fieldErrors, "weight"),
+			Repetitions: firstErr(fieldErrors, "repetitions"),
+			DoneAt:      firstErr(fieldErrors, "done_at"),
+			Root:        firstErr(fieldErrors, "root"),
+		}
+		if renderErr := exercises.EditSetForm(exID, setID, formValues, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render edit set form with errors", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	doneAt := parsed.Done_at
+	if doneAt.IsZero() {
+		doneAt = time.Now()
+	}
+
+	if _, err := h.setSvc.UpdateSet(r.Context(), service.UpdateSetInput{
+		ID:          setID,
+		UserID:      authSession.UserID,
+		Repetitions: parsed.Repetitions,
+		WeightInG:   int32(weightunit.ToGrams(float64(parsed.Weight), user.WeightUnit)),
+		DoneAt:      doneAt,
+	}); err != nil {
+		slog.Error("failed to update set", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		formErr := exercises.EditSetFormErr{Root: "something went wrong, please try again."}
+		if renderErr := exercises.EditSetForm(exID, setID, formValues, formErr, user.WeightUnit).Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render edit set form after db error", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/exercises/%d", exID))
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *SetsHandler) ViewRemoveSetPage(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	exID, setID, err := h.parseExerciseAndSetIDs(r)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if _, err := h.setSvc.GetByIDAndUserID(r.Context(), setID, authSession.UserID); err != nil {
+		slog.Error("failed to fetch set for remove page", "error", err)
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	page := exercises.RemoveSetPage(exID, setID)
+	ctx := templ.WithChildren(r.Context(), page)
+
+	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
+		slog.Error("failed to render remove set page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (h *SetsHandler) RemoveSet(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	exID, setID, err := h.parseExerciseAndSetIDs(r)
+	if err != nil {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.setSvc.DeleteSet(r.Context(), setID, authSession.UserID); err != nil {
+		slog.Error("failed to delete set", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		if renderErr := exercises.RemoveSetFormErr("something went wrong, please try again.").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render remove set error", "error", renderErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/exercises/%d", exID))
+	w.WriteHeader(http.StatusOK)
 }

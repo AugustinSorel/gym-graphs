@@ -112,21 +112,21 @@ templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUn
 				}) {
 					&#8942;
 				}
-				<div
-					id={ popoverID }
-					popover=""
-					class="m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm"
-					style={ "position-anchor: " + anchorName + "; position-area: bottom span-left; position-try-fallbacks: flip-block;" }
-				>
-					<a
-						href="#"
-						class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
-					>edit</a>
-					<a
-						href="#"
-						class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
-					>remove</a>
-				</div>
+			<div
+				id={ popoverID }
+				popover=""
+				class="m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-36 open:flex flex-col text-center text-sm"
+				style={ "position-anchor: " + anchorName + "; position-area: bottom span-left; position-try-fallbacks: flip-block;" }
+			>
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/edit", exerciseID, s.ID)) }
+					class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
+				>edit</a>
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/remove", exerciseID, s.ID)) }
+					class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
+				>remove</a>
+			</div>
 			</div>
 		</li>
 	}

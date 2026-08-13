@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type SetService struct {
@@ -65,6 +67,38 @@ func (s *SetService) GetByExerciseID(ctx context.Context, exerciseID int32) ([]d
 
 func (s *SetService) GetLastByExerciseID(ctx context.Context, exerciseID int32) (db.Set, error) {
 	return s.queries.GetLastSetByExerciseID(ctx, exerciseID)
+}
+
+type UpdateSetInput struct {
+	ID          int32
+	UserID      int32
+	Repetitions int32
+	WeightInG   int32
+	DoneAt      time.Time
+}
+
+func (s *SetService) GetByIDAndUserID(ctx context.Context, id int32, userID int32) (db.Set, error) {
+	return s.queries.GetSetByIDAndUserID(ctx, db.GetSetByIDAndUserIDParams{
+		ID:     id,
+		UserID: userID,
+	})
+}
+
+func (s *SetService) UpdateSet(ctx context.Context, input UpdateSetInput) (db.Set, error) {
+	return s.queries.UpdateSetByIDAndUserID(ctx, db.UpdateSetByIDAndUserIDParams{
+		ID:          input.ID,
+		UserID:      input.UserID,
+		Repetitions: input.Repetitions,
+		WeightInG:   input.WeightInG,
+		CreatedAt:   pgtype.Timestamptz{Time: input.DoneAt, Valid: true},
+	})
+}
+
+func (s *SetService) DeleteSet(ctx context.Context, id int32, userID int32) error {
+	return s.queries.DeleteSetByIDAndUserID(ctx, db.DeleteSetByIDAndUserIDParams{
+		ID:     id,
+		UserID: userID,
+	})
 }
 
 func (s *SetService) CreateSets(ctx context.Context, inputs []CreateSetInput) ([]db.Set, error) {

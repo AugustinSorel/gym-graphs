@@ -50,6 +50,24 @@ func (q *Queries) CreateSets(ctx context.Context, arg CreateSetsParams) ([]Set, 
 	return items, nil
 }
 
+const deleteSetByIDAndUserID = `-- name: DeleteSetByIDAndUserID :exec
+delete from sets
+using exercises
+where sets.id = $1
+  and sets.exercise_id = exercises.id
+  and exercises.user_id = $2
+`
+
+type DeleteSetByIDAndUserIDParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) DeleteSetByIDAndUserID(ctx context.Context, arg DeleteSetByIDAndUserIDParams) error {
+	_, err := q.db.Exec(ctx, deleteSetByIDAndUserID, arg.ID, arg.UserID)
+	return err
+}
+
 const getExerciseStatsByID = `-- name: GetExerciseStatsByID :one
 select
     count(*)::int                               as total_sets,
@@ -82,6 +100,33 @@ limit 1
 
 func (q *Queries) GetLastSetByExerciseID(ctx context.Context, exerciseID int32) (Set, error) {
 	row := q.db.QueryRow(ctx, getLastSetByExerciseID, exerciseID)
+	var i Set
+	err := row.Scan(
+		&i.ID,
+		&i.ExerciseID,
+		&i.Repetitions,
+		&i.WeightInG,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getSetByIDAndUserID = `-- name: GetSetByIDAndUserID :one
+select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.updated_at, s.created_at
+from sets s
+join exercises e on e.id = s.exercise_id
+where s.id = $1
+  and e.user_id = $2
+`
+
+type GetSetByIDAndUserIDParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) GetSetByIDAndUserID(ctx context.Context, arg GetSetByIDAndUserIDParams) (Set, error) {
+	row := q.db.QueryRow(ctx, getSetByIDAndUserID, arg.ID, arg.UserID)
 	var i Set
 	err := row.Scan(
 		&i.ID,
@@ -190,4 +235,42 @@ func (q *Queries) SeedCreateSets(ctx context.Context, arg SeedCreateSetsParams) 
 		arg.Column4,
 	)
 	return err
+}
+
+const updateSetByIDAndUserID = `-- name: UpdateSetByIDAndUserID :one
+update sets s
+set repetitions = $3, weight_in_g = $4, created_at = $5, updated_at = now()
+from exercises e
+where s.id = $1
+  and s.exercise_id = e.id
+  and e.user_id = $2
+returning s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.updated_at, s.created_at
+`
+
+type UpdateSetByIDAndUserIDParams struct {
+	ID          int32
+	UserID      int32
+	Repetitions int32
+	WeightInG   int32
+	CreatedAt   pgtype.Timestamptz
+}
+
+func (q *Queries) UpdateSetByIDAndUserID(ctx context.Context, arg UpdateSetByIDAndUserIDParams) (Set, error) {
+	row := q.db.QueryRow(ctx, updateSetByIDAndUserID,
+		arg.ID,
+		arg.UserID,
+		arg.Repetitions,
+		arg.WeightInG,
+		arg.CreatedAt,
+	)
+	var i Set
+	err := row.Scan(
+		&i.ID,
+		&i.ExerciseID,
+		&i.Repetitions,
+		&i.WeightInG,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
