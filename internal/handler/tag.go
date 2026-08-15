@@ -44,8 +44,13 @@ func (h *TagHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := h.tagSvc.Create(r.Context(), authSession.UserID, input.Name); err != nil {
+		errMsg := "something went wrong, please try again."
+		if isDuplicateError(err) {
+			errMsg = "a tag with this name already exists."
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
-		formErrs := tag.CreateTagFormErr{Root: "something went wrong, please try again."}
+		formErrs := tag.CreateTagFormErr{Root: errMsg}
 		formValues := tag.CreateTagFormValues{Name: input.Name}
 		if renderErr := tag.CreateTagForm(formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render create tag form", "error", renderErr)
@@ -181,8 +186,13 @@ func (h *TagHandler) Rename(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := h.tagSvc.UpdateName(r.Context(), int32(tagID), authSession.UserID, input.Name); err != nil {
+		errMsg := "something went wrong, please try again."
+		if isDuplicateError(err) {
+			errMsg = "a tag with this name already exists."
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
-		formErrs := tag.RenameTagFormErr{Root: "something went wrong, please try again."}
+		formErrs := tag.RenameTagFormErr{Root: errMsg}
 		formValues := tag.RenameTagFormValues{Name: input.Name}
 		if renderErr := tag.RenameTagForm(int32(tagID), formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render rename tag form", "error", renderErr)

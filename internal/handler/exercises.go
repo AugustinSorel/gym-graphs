@@ -213,8 +213,13 @@ func (h *ExercisesHandler) Rename(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := h.exerciseSvc.UpdateName(r.Context(), int32(id), authSession.UserID, input.Name); err != nil {
+		errMsg := "something went wrong, please try again."
+		if isDuplicateError(err) {
+			errMsg = "an exercise with this name already exists."
+		}
+
 		w.WriteHeader(http.StatusInternalServerError)
-		formErrs := exercises.RenameExerciseFormErr{Root: "something went wrong, please try again."}
+		formErrs := exercises.RenameExerciseFormErr{Root: errMsg}
 		formValues := exercises.RenameExerciseFormValues{Name: input.Name}
 		if renderErr := exercises.RenameExerciseForm(int32(id), formValues, formErrs).Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render rename exercise form", "error", renderErr)
@@ -333,11 +338,15 @@ func (h *ExercisesHandler) Create(w http.ResponseWriter, r *http.Request) {
 	tagIDs := parseTagIDs(r.Form["tag_ids"])
 
 	if _, err := h.exerciseSvc.Create(r.Context(), authSession.UserID, input.Name, tagIDs); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
 		tags, _ := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 
-		formErrs := exercises.NewExerciseFormErr{Root: "something went wrong, please try again."}
+		errMsg := "something went wrong, please try again."
+		if isDuplicateError(err) {
+			errMsg = "an exercise with this name already exists."
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		formErrs := exercises.NewExerciseFormErr{Root: errMsg}
 		formValues := exercises.NewExerciseFormValues{Name: input.Name}
 
 		if renderErr := exercises.NewExerciseForm(formValues, formErrs, tags).Render(r.Context(), w); renderErr != nil {
