@@ -72,3 +72,14 @@ delete from exercise_tags where exercise_id = $1;
 select id, user_id, name, index, updated_at, created_at from exercises
 where user_id = $1
 order by index asc;
+
+-- name: UpsertExercise :one
+insert into exercises (user_id, name)
+values ($1, $2)
+on conflict (user_id, name) do update set name = excluded.name
+returning id, user_id, name, index, updated_at, created_at;
+
+-- name: LinkExerciseTags :exec
+insert into exercise_tags (exercise_id, tag_id)
+select $1, unnest($2::int[])
+on conflict do nothing;

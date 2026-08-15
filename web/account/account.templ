@@ -145,6 +145,7 @@ templ AccountDetails(user db.User, tags []db.Tag) {
 		@userEmail(user.EmailAddress)
 		@userName(user.Name)
 		@DownloadUserData("")
+		@ImportUserData("")
 	</section>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">security</h2>
@@ -239,6 +240,57 @@ templ DownloadUserData(errMsg string) {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
 				@alert.Title() {
 					downloading data failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}
+
+templ ImportUserData(errMsg string) {
+	<div
+		id="import-user-data"
+		class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3"
+	>
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">import data</dt>
+			<dd class="break-all">restore from a gym-graphs export file</dd>
+		</dl>
+		<label class="my-auto ml-auto lg:ml-0 cursor-pointer">
+			<span class="sr-only">choose export file</span>
+			<input
+				type="file"
+				name="file"
+				accept=".json,application/json"
+				class="sr-only"
+				hx-post="/account/data/import"
+				hx-encoding="multipart/form-data"
+				hx-target="#import-user-data"
+				hx-swap="outerHTML"
+				hx-indicator="#import-spinner"
+				hx-trigger="change"
+			/>
+			@button.Button(button.Props{
+				Type:  button.TypeButton,
+				Class: "pointer-events-none",
+				Attributes: templ.Attributes{
+					"aria-hidden": "true",
+					"tabindex":    "-1",
+				},
+			}) {
+				import
+			}
+		</label>
+		<div id="import-spinner" class="htmx-indicator col-span-full flex items-center gap-2 text-sm text-outline">
+			@spinner.Spinner()
+			importing…
+		</div>
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					import failed
 				}
 				@alert.Description() {
 					{ errMsg }

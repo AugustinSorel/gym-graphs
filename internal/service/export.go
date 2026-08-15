@@ -2,17 +2,24 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrUnsupportedExportVersion = errors.New("unsupported export version")
 
 type ExportService struct {
 	queries *db.Queries
+	pool    *pgxpool.Pool
 }
 
-func NewExportService(queries *db.Queries) *ExportService {
-	return &ExportService{queries: queries}
+func NewExportService(queries *db.Queries, pool *pgxpool.Pool) *ExportService {
+	return &ExportService{queries: queries, pool: pool}
 }
 
 type ExportSet struct {
@@ -99,4 +106,81 @@ func (s *ExportService) ExportUserData(ctx context.Context, user db.User) (UserE
 		},
 		Exercises: exportExercises,
 	}, nil
+}
+
+func (s *ExportService) ImportUserData(ctx context.Context, userID int32, data UserExport) error {
+	if data.Version != "1" {
+		return fmt.Errorf("%w: %q", ErrUnsupportedExportVersion, data.Version)
+	}
+
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	txq := db.New(tx)
+
+	for _, ex := range data.Exercises {
+		exercise, err := txq.UpsertExercise(ctx, db.UpsertExerciseParams{
+			UserID: userID,
+			Name:   ex.Name,
+		})
+		if err != nil {
+			return fmt.Errorf("upsert exercise %q: %w", ex.Name, err)
+		}
+
+		var tagIDs []int32
+		if len(ex.Tags) > 0 {
+			tags, err := txq.UpsertTags(ctx, db.UpsertTagsParams{
+				UserID:  userID,
+				Column2: ex.Tags,
+			})
+			if err != nil {
+				return fmt.Errorf("upsert tags for exercise %q: %w", ex.Name, err)
+			}
+			tagIDs = make([]int32, len(tags))
+			for i, t := range tags {
+				tagIDs[i] = t.ID
+			}
+		}
+
+		if len(tagIDs) > 0 {
+			if err := txq.LinkExerciseTags(ctx, db.LinkExerciseTagsParams{
+				ExerciseID: exercise.ID,
+				Column2:    tagIDs,
+			}); err != nil {
+				return fmt.Errorf("link tags to exercise %q: %w", ex.Name, err)
+			}
+		}
+
+		if len(ex.Sets) == 0 {
+			continue
+		}
+
+		repetitions := make([]int32, len(ex.Sets))
+		weights := make([]int32, len(ex.Sets))
+		doneAts := make([]pgtype.Timestamptz, len(ex.Sets))
+
+		for i, set := range ex.Sets {
+			t, err := time.Parse(time.RFC3339, set.DoneAt)
+			if err != nil {
+				return fmt.Errorf("parse doneAt %q for exercise %q: %w", set.DoneAt, ex.Name, err)
+			}
+			repetitions[i] = set.Repetitions
+			weights[i] = set.WeightInG
+			doneAts[i] = pgtype.Timestamptz{Time: t.UTC(), Valid: true}
+		}
+
+		if err := txq.SeedCreateSets(ctx, db.SeedCreateSetsParams{
+			ExerciseID: exercise.ID,
+			Column2:    repetitions,
+			Column3:    weights,
+			Column4:    doneAts,
+		}); err != nil {
+			return fmt.Errorf("insert sets for exercise %q: %w", ex.Name, err)
+		}
+	}
+
+	return tx.Commit(ctx)
 }

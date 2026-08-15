@@ -227,3 +227,41 @@ func (q *Queries) UpdateTagName(ctx context.Context, arg UpdateTagNameParams) (T
 	)
 	return i, err
 }
+
+const upsertTags = `-- name: UpsertTags :many
+insert into tags (user_id, name)
+select $1, unnest($2::text[])
+on conflict (user_id, name) do update set name = excluded.name
+returning id, user_id, name, updated_at, created_at
+`
+
+type UpsertTagsParams struct {
+	UserID  int32
+	Column2 []string
+}
+
+func (q *Queries) UpsertTags(ctx context.Context, arg UpsertTagsParams) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, upsertTags, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -254,6 +254,50 @@ func (h *AccountHandler) DownloadData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *AccountHandler) ImportData(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	const maxUploadBytes = 10 << 20 // 10 MB
+	if err := r.ParseMultipartForm(maxUploadBytes); err != nil {
+		w.WriteHeader(http.StatusRequestEntityTooLarge)
+		if renderErr := account.ImportUserData("file too large (max 10 MB)").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render import data component", "error", renderErr)
+		}
+		return
+	}
+
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if renderErr := account.ImportUserData("no file uploaded").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render import data component", "error", renderErr)
+		}
+		return
+	}
+	defer file.Close()
+
+	var data service.UserExport
+	if err := json.NewDecoder(file).Decode(&data); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if renderErr := account.ImportUserData("invalid file format — expected a gym-graphs JSON export").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render import data component", "error", renderErr)
+		}
+		return
+	}
+
+	if err := h.exportSvc.ImportUserData(r.Context(), authSession.UserID, data); err != nil {
+		slog.Error("failed to import user data", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		if renderErr := account.ImportUserData("import failed, please try again").Render(r.Context(), w); renderErr != nil {
+			slog.Error("failed to render import data component", "error", renderErr)
+		}
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/exercises")
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	authSession, _ := middleware.GetAuthSession(r.Context())
 

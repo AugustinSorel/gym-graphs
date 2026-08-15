@@ -33,6 +33,12 @@ inner join exercise_tags et on et.tag_id = t.id
 where et.exercise_id = $1
 order by t.name asc;
 
+-- name: UpsertTags :many
+insert into tags (user_id, name)
+select $1, unnest($2::text[])
+on conflict (user_id, name) do update set name = excluded.name
+returning id, user_id, name, updated_at, created_at;
+
 -- name: GetAllExerciseTagNamesByUserID :many
 select et.exercise_id, t.name
 from exercise_tags et

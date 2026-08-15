@@ -239,6 +239,22 @@ func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercises
 	return items, nil
 }
 
+const linkExerciseTags = `-- name: LinkExerciseTags :exec
+insert into exercise_tags (exercise_id, tag_id)
+select $1, unnest($2::int[])
+on conflict do nothing
+`
+
+type LinkExerciseTagsParams struct {
+	ExerciseID int32
+	Column2    []int32
+}
+
+func (q *Queries) LinkExerciseTags(ctx context.Context, arg LinkExerciseTagsParams) error {
+	_, err := q.db.Exec(ctx, linkExerciseTags, arg.ExerciseID, arg.Column2)
+	return err
+}
+
 const updateExerciseName = `-- name: UpdateExerciseName :one
 update exercises
 set name = $1, updated_at = now()
@@ -254,6 +270,32 @@ type UpdateExerciseNameParams struct {
 
 func (q *Queries) UpdateExerciseName(ctx context.Context, arg UpdateExerciseNameParams) (Exercise, error) {
 	row := q.db.QueryRow(ctx, updateExerciseName, arg.Name, arg.ID, arg.UserID)
+	var i Exercise
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Index,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const upsertExercise = `-- name: UpsertExercise :one
+insert into exercises (user_id, name)
+values ($1, $2)
+on conflict (user_id, name) do update set name = excluded.name
+returning id, user_id, name, index, updated_at, created_at
+`
+
+type UpsertExerciseParams struct {
+	UserID int32
+	Name   string
+}
+
+func (q *Queries) UpsertExercise(ctx context.Context, arg UpsertExerciseParams) (Exercise, error) {
+	row := q.db.QueryRow(ctx, upsertExercise, arg.UserID, arg.Name)
 	var i Exercise
 	err := row.Scan(
 		&i.ID,
