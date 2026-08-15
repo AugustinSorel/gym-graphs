@@ -230,11 +230,11 @@ templ themeSwitcher() {
 templ DownloadUserData(errMsg string) {
 	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
 		<dl class="space-y-1">
-			<dt class="text-outline text-sm">your data</dt>
-			<dd class="break-all">download your data</dd>
+			<dt class="text-outline text-sm">export data</dt>
+			<dd class="break-all">export your data as a json file</dd>
 		</dl>
 		@button.Button(button.Props{Href: "/account/data", Class: "my-auto ml-auto lg:ml-0"}) {
-			download
+			export
 		}
 		if errMsg != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
