@@ -55,6 +55,13 @@ where sets.id = $1
   and sets.exercise_id = exercises.id
   and exercises.user_id = $2;
 
+-- name: GetAllSetsByUserID :many
+select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+order by s.exercise_id asc, s.done_at asc;
+
 -- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]);

@@ -67,3 +67,8 @@ where id = $1 and user_id = $2;
 
 -- name: DeleteExerciseTags :exec
 delete from exercise_tags where exercise_id = $1;
+
+-- name: GetAllExercisesByUserID :many
+select id, user_id, name, index, updated_at, created_at from exercises
+where user_id = $1
+order by index asc;

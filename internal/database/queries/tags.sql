@@ -32,3 +32,11 @@ select t.* from tags t
 inner join exercise_tags et on et.tag_id = t.id
 where et.exercise_id = $1
 order by t.name asc;
+
+-- name: GetAllExerciseTagNamesByUserID :many
+select et.exercise_id, t.name
+from exercise_tags et
+inner join tags t on t.id = et.tag_id
+inner join exercises e on e.id = et.exercise_id
+where e.user_id = $1
+order by et.exercise_id asc, t.name asc;

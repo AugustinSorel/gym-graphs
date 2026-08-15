@@ -69,6 +69,42 @@ func (q *Queries) DeleteSetByIDAndUserID(ctx context.Context, arg DeleteSetByIDA
 	return err
 }
 
+const getAllSetsByUserID = `-- name: GetAllSetsByUserID :many
+select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+order by s.exercise_id asc, s.done_at asc
+`
+
+func (q *Queries) GetAllSetsByUserID(ctx context.Context, userID int32) ([]Set, error) {
+	rows, err := q.db.Query(ctx, getAllSetsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Set
+	for rows.Next() {
+		var i Set
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExerciseID,
+			&i.Repetitions,
+			&i.WeightInG,
+			&i.DoneAt,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getExerciseStatsByID = `-- name: GetExerciseStatsByID :one
 select
     count(*)::int                               as total_sets,

@@ -85,6 +85,40 @@ func (q *Queries) DeleteTag(ctx context.Context, arg DeleteTagParams) error {
 	return err
 }
 
+const getAllExerciseTagNamesByUserID = `-- name: GetAllExerciseTagNamesByUserID :many
+select et.exercise_id, t.name
+from exercise_tags et
+inner join tags t on t.id = et.tag_id
+inner join exercises e on e.id = et.exercise_id
+where e.user_id = $1
+order by et.exercise_id asc, t.name asc
+`
+
+type GetAllExerciseTagNamesByUserIDRow struct {
+	ExerciseID int32
+	Name       string
+}
+
+func (q *Queries) GetAllExerciseTagNamesByUserID(ctx context.Context, userID int32) ([]GetAllExerciseTagNamesByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, getAllExerciseTagNamesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllExerciseTagNamesByUserIDRow
+	for rows.Next() {
+		var i GetAllExerciseTagNamesByUserIDRow
+		if err := rows.Scan(&i.ExerciseID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTagByID = `-- name: GetTagByID :one
 select id, user_id, name, updated_at, created_at from tags
 where id = $1

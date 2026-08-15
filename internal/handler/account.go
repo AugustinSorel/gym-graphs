@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zhttp"
@@ -22,10 +25,11 @@ type AccountHandler struct {
 	authSessionSvc     *service.AuthSessionService
 	tagSvc             *service.TagService
 	accountDeletionSvc *service.AccountDeletionService
+	exportSvc          *service.ExportService
 }
 
-func NewAccountHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService, tagSvc *service.TagService, accountDeletionSvc *service.AccountDeletionService) *AccountHandler {
-	return &AccountHandler{userSvc: userSvc, authSessionSvc: authSessionSvc, tagSvc: tagSvc, accountDeletionSvc: accountDeletionSvc}
+func NewAccountHandler(userSvc *service.UserService, authSessionSvc *service.AuthSessionService, tagSvc *service.TagService, accountDeletionSvc *service.AccountDeletionService, exportSvc *service.ExportService) *AccountHandler {
+	return &AccountHandler{userSvc: userSvc, authSessionSvc: authSessionSvc, tagSvc: tagSvc, accountDeletionSvc: accountDeletionSvc, exportSvc: exportSvc}
 }
 
 func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
@@ -222,8 +226,32 @@ func (h *AccountHandler) UpdateOneRepMaxAlgorithm(w http.ResponseWriter, r *http
 }
 
 func (h *AccountHandler) DownloadData(w http.ResponseWriter, r *http.Request) {
-	// stub – data export to be implemented
-	w.WriteHeader(http.StatusNoContent)
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	user, err := h.userSvc.GetByID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to get user for data export", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	export, err := h.exportSvc.ExportUserData(r.Context(), user)
+	if err != nil {
+		slog.Error("failed to build user data export", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	filename := fmt.Sprintf("gym-graphs-%s.json", time.Now().UTC().Format("2006-01-02"))
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(export); err != nil {
+		slog.Error("failed to encode user data export", "error", err)
+	}
 }
 
 func (h *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
