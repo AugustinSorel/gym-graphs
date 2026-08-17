@@ -2,6 +2,7 @@ package weightunit
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 )
@@ -28,7 +29,20 @@ func Name(unit db.WeightUnit) string {
 }
 
 func Format(weightInG float64, unit db.WeightUnit) string {
-	return fmt.Sprintf("%.1f", Convert(weightInG, unit))
+	s := fmt.Sprintf("%.1f", Convert(weightInG, unit))
+	// insert a space every 3 digits in the integer part
+	dot := strings.Index(s, ".")
+	intPart := s[:dot]
+	fracPart := s[dot:]
+	var b strings.Builder
+	offset := len(intPart) % 3
+	for i, ch := range intPart {
+		if i > 0 && (i-offset)%3 == 0 {
+			b.WriteByte(' ')
+		}
+		b.WriteRune(ch)
+	}
+	return b.String() + fracPart
 }
 
 func ToGrams(value float64, unit db.WeightUnit) float64 {
