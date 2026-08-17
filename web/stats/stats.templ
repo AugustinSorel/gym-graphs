@@ -2,7 +2,33 @@ package stats
 
 templ StatsPage() {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		<h1 class="uppercase font-semibold text-3xl">stats</h1>
-		<p class="text-outline">coming soon</p>
+		<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				overview
+			</h2>
+			<dl class="grid grid-cols-2 py-7 text-center">
+				<div class="p-5 space-y-2 border-dotted border-outline border-r-2 border-b-2">
+					<dt class="text-outline text-sm">total volume</dt>
+					<dd class="text-3xl font-semibold">50 111</dd>
+				</div>
+				<div class="p-5 space-y-2 border-dotted border-outline border-b-2">
+					<dt class="text-outline text-sm">total sets</dt>
+					<dd class="text-3xl font-semibold">12</dd>
+				</div>
+				<div class="p-5 space-y-2 border-dotted border-outline border-r-2">
+					<dt class="text-outline text-sm">total weight</dt>
+					<dd class="text-3xl font-semibold">12 111</dd>
+				</div>
+				<div class="p-5 space-y-2 border-dotted border-outline">
+					<dt class="text-outline text-sm">exercises count</dt>
+					<dd class="text-3xl font-semibold">15</dd>
+				</div>
+			</dl>
+		</section>
 	</main>
+}
+
+type Props struct {
+	Class string
 }
