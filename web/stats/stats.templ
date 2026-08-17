@@ -1,6 +1,13 @@
 package stats
 
-templ StatsPage() {
+import (
+	"strconv"
+
+	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+)
+
+templ StatsPage(s service.UserStats) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
 		<section>
@@ -10,19 +17,35 @@ templ StatsPage() {
 			<dl class="grid grid-cols-2 py-7 text-center">
 				<div class="p-5 space-y-2 border-dotted border-outline border-r-2 border-b-2">
 					<dt class="text-outline text-sm">total volume</dt>
-					<dd class="text-3xl font-semibold">50 111</dd>
+					<dd class="text-3xl font-semibold">
+						{ weightunit.Format(float64(s.TotalVolumeInG), s.WeightUnit) }
+						<abbr
+							class="text-lg font-normal text-outline -ml-2 no-underline"
+							title={ weightunit.Name(s.WeightUnit) }
+						>
+							{ weightunit.Abbr(s.WeightUnit) }
+						</abbr>
+					</dd>
 				</div>
 				<div class="p-5 space-y-2 border-dotted border-outline border-b-2">
 					<dt class="text-outline text-sm">total sets</dt>
-					<dd class="text-3xl font-semibold">12</dd>
+					<dd class="text-3xl font-semibold">{ strconv.Itoa(int(s.TotalSets)) }</dd>
 				</div>
 				<div class="p-5 space-y-2 border-dotted border-outline border-r-2">
-					<dt class="text-outline text-sm">total weight</dt>
-					<dd class="text-3xl font-semibold">12 111</dd>
+					<dt class="text-outline text-sm">total weight </dt>
+					<dd class="text-3xl font-semibold">
+						{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
+						<abbr
+							class="text-lg font-normal text-outline -ml-2 no-underline"
+							title={ weightunit.Name(s.WeightUnit) }
+						>
+							{ weightunit.Abbr(s.WeightUnit) }
+						</abbr>
+					</dd>
 				</div>
 				<div class="p-5 space-y-2 border-dotted border-outline">
 					<dt class="text-outline text-sm">exercises count</dt>
-					<dd class="text-3xl font-semibold">15</dd>
+					<dd class="text-3xl font-semibold">{ strconv.Itoa(int(s.ExercisesCount)) }</dd>
 				</div>
 			</dl>
 		</section>

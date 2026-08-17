@@ -22,6 +22,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	passwordUpdateSvc := service.NewPasswordUpdateService(s.queries, s.pool)
 	accountDeletionSvc := service.NewAccountDeletionService(s.queries)
 	exportSvc := service.NewExportService(s.queries, s.pool)
+	statsSvc := service.NewStatsService(s.queries)
 	signUp := handler.NewSignUpHandler(userSvc, signUpSessionSvc, s.mailer, s.emailRateLimit, s.emailCodeVerificationRateLimit)
 	signIn := handler.NewSignInHandler(userSvc, authSessionSvc, s.passwordAuthRateLimit)
 	account := handler.NewAccountHandler(userSvc, authSessionSvc, tagSvc, accountDeletionSvc, exportSvc)
@@ -33,7 +34,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	setSvc := service.NewSetService(s.queries)
 	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc, setSvc)
 	setsHandler := handler.NewSetsHandler(exerciseSvc, setSvc, userSvc)
-	statsHandler := handler.NewStatsHandler()
+	statsHandler := handler.NewStatsHandler(statsSvc, userSvc)
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)

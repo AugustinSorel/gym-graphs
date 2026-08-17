@@ -256,6 +256,36 @@ func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageBy
 	return items, nil
 }
 
+const getUserStatsByUserID = `-- name: GetUserStatsByUserID :one
+select
+    count(s.id)::int                                                              as total_sets,
+    coalesce(sum(s.weight_in_g::bigint * s.repetitions::bigint), 0)::bigint      as total_volume_in_g,
+    coalesce(sum(s.weight_in_g::bigint), 0)::bigint                              as total_weight_in_g,
+    count(distinct s.exercise_id)::int                                            as exercises_count
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+`
+
+type GetUserStatsByUserIDRow struct {
+	TotalSets      int32
+	TotalVolumeInG int64
+	TotalWeightInG int64
+	ExercisesCount int32
+}
+
+func (q *Queries) GetUserStatsByUserID(ctx context.Context, userID int32) (GetUserStatsByUserIDRow, error) {
+	row := q.db.QueryRow(ctx, getUserStatsByUserID, userID)
+	var i GetUserStatsByUserIDRow
+	err := row.Scan(
+		&i.TotalSets,
+		&i.TotalVolumeInG,
+		&i.TotalWeightInG,
+		&i.ExercisesCount,
+	)
+	return i, err
+}
+
 const seedCreateSets = `-- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])
