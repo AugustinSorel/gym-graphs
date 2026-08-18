@@ -21,7 +21,7 @@ templ StatsPage(s service.UserStats, now time.Time) {
 				{ weekLabel(now) }
 			</h2>
 			<dl class="grid grid-cols-2 py-7 text-center">
-				<div class="py-5 space-y-2 border-dotted border-outline/50 border-r-2 border-b-2">
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2 border-b-2">
 					<dt class="text-outline text-xs">total volume</dt>
 					<dd class="text-xl font-semibold">
 						{ weightunit.Format(float64(s.TotalVolumeInG), s.WeightUnit) }
@@ -33,11 +33,11 @@ templ StatsPage(s service.UserStats, now time.Time) {
 						</abbr>
 					</dd>
 				</div>
-				<div class="py-5 space-y-2 border-dotted border-outline/50 border-b-2">
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-b-2">
 					<dt class="text-outline text-xs">total sets</dt>
 					<dd class="text-xl font-semibold">{ strconv.Itoa(int(s.TotalSets)) }</dd>
 				</div>
-				<div class="py-5 space-y-2 border-dotted border-outline/50 border-r-2">
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2">
 					<dt class="text-outline text-xs">total weight</dt>
 					<dd class="text-xl font-semibold">
 						{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
@@ -49,7 +49,7 @@ templ StatsPage(s service.UserStats, now time.Time) {
 						</abbr>
 					</dd>
 				</div>
-				<div class="py-5 space-y-2 border-dotted border-outline/50">
+				<div class="py-5 space-y-1 border-dotted border-outline/50">
 					<dt class="text-outline text-xs">exercises count</dt>
 					<dd class="text-xl font-semibold">{ strconv.Itoa(int(s.ExercisesCount)) }</dd>
 				</div>
