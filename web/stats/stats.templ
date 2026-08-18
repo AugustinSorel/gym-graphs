@@ -24,34 +24,54 @@ templ StatsPage(s service.UserStats, now time.Time) {
 				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2 border-b-2">
 					<dt class="text-outline text-xs">total volume</dt>
 					<dd class="text-xl font-semibold">
-						{ weightunit.Format(float64(s.TotalVolumeInG), s.WeightUnit) }
-						<abbr
-							class="text-sm font-normal text-outline no-underline"
-							title={ weightunit.Name(s.WeightUnit) }
-						>
-							{ weightunit.Abbr(s.WeightUnit) }
-						</abbr>
+						if s.TotalVolumeInG > 0 {
+							{ weightunit.Format(float64(s.TotalVolumeInG), s.WeightUnit) }
+							<abbr
+								class="text-sm font-normal text-outline no-underline"
+								title={ weightunit.Name(s.WeightUnit) }
+							>
+								{ weightunit.Abbr(s.WeightUnit) }
+							</abbr>
+						} else {
+							-
+						}
 					</dd>
 				</div>
 				<div class="py-5 space-y-1 border-dotted border-outline/50 border-b-2">
 					<dt class="text-outline text-xs">total sets</dt>
-					<dd class="text-xl font-semibold">{ strconv.Itoa(int(s.TotalSets)) }</dd>
+					<dd class="text-xl font-semibold">
+						if s.TotalSets > 0 {
+							{ strconv.Itoa(int(s.TotalSets)) }
+						} else {
+							-
+						}
+					</dd>
 				</div>
 				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2">
 					<dt class="text-outline text-xs">total weight</dt>
 					<dd class="text-xl font-semibold">
-						{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
-						<abbr
-							class="text-sm font-normal text-outline no-underline"
-							title={ weightunit.Name(s.WeightUnit) }
-						>
-							{ weightunit.Abbr(s.WeightUnit) }
-						</abbr>
+						if s.TotalWeightInG > 0 {
+							{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
+							<abbr
+								class="text-sm font-normal text-outline no-underline"
+								title={ weightunit.Name(s.WeightUnit) }
+							>
+								{ weightunit.Abbr(s.WeightUnit) }
+							</abbr>
+						} else {
+							-
+						}
 					</dd>
 				</div>
 				<div class="py-5 space-y-1 border-dotted border-outline/50">
 					<dt class="text-outline text-xs">exercises count</dt>
-					<dd class="text-xl font-semibold">{ strconv.Itoa(int(s.ExercisesCount)) }</dd>
+					<dd class="text-xl font-semibold">
+						if s.ExercisesCount > 0 {
+							{ strconv.Itoa(int(s.ExercisesCount)) }
+						} else {
+							-
+						}
+					</dd>
 				</div>
 			</dl>
 		</section>
