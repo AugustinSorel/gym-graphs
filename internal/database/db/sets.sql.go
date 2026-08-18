@@ -286,7 +286,7 @@ func (q *Queries) GetUserStatsByUserID(ctx context.Context, userID int32) (GetUs
 	return i, err
 }
 
-const getUserStatsByUserIDAndMonth = `-- name: GetUserStatsByUserIDAndMonth :one
+const getUserStatsByUserIDAndWeek = `-- name: GetUserStatsByUserIDAndWeek :one
 select
     count(s.id)::int                                                              as total_sets,
     coalesce(sum(s.weight_in_g::bigint * s.repetitions::bigint), 0)::bigint      as total_volume_in_g,
@@ -295,24 +295,24 @@ select
 from sets s
 join exercises e on e.id = s.exercise_id
 where e.user_id = $1
-  and date_trunc('month', s.done_at) = date_trunc('month', $2::timestamptz)
+  and date_trunc('week', s.done_at) = date_trunc('week', $2::timestamptz)
 `
 
-type GetUserStatsByUserIDAndMonthParams struct {
+type GetUserStatsByUserIDAndWeekParams struct {
 	UserID  int32
 	Column2 pgtype.Timestamptz
 }
 
-type GetUserStatsByUserIDAndMonthRow struct {
+type GetUserStatsByUserIDAndWeekRow struct {
 	TotalSets      int32
 	TotalVolumeInG int64
 	TotalWeightInG int64
 	ExercisesCount int32
 }
 
-func (q *Queries) GetUserStatsByUserIDAndMonth(ctx context.Context, arg GetUserStatsByUserIDAndMonthParams) (GetUserStatsByUserIDAndMonthRow, error) {
-	row := q.db.QueryRow(ctx, getUserStatsByUserIDAndMonth, arg.UserID, arg.Column2)
-	var i GetUserStatsByUserIDAndMonthRow
+func (q *Queries) GetUserStatsByUserIDAndWeek(ctx context.Context, arg GetUserStatsByUserIDAndWeekParams) (GetUserStatsByUserIDAndWeekRow, error) {
+	row := q.db.QueryRow(ctx, getUserStatsByUserIDAndWeek, arg.UserID, arg.Column2)
+	var i GetUserStatsByUserIDAndWeekRow
 	err := row.Scan(
 		&i.TotalSets,
 		&i.TotalVolumeInG,

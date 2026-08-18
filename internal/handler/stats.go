@@ -33,14 +33,14 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 	now := time.Now().UTC()
 
-	monthStats, err := h.statsSvc.GetMonthStats(r.Context(), authSession.UserID, user.WeightUnit, now)
+	weekStats, err := h.statsSvc.GetWeekStats(r.Context(), authSession.UserID, user.WeightUnit, now)
 	if err != nil {
-		slog.Error("failed to fetch month stats", "error", err)
+		slog.Error("failed to fetch week stats", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	page := stats.StatsPage(monthStats, now)
+	page := stats.StatsPage(weekStats, now)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {

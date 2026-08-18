@@ -39,10 +39,10 @@ func (s *StatsService) GetUserStats(ctx context.Context, userID int32, unit db.W
 	}, nil
 }
 
-func (s *StatsService) GetMonthStats(ctx context.Context, userID int32, unit db.WeightUnit, month time.Time) (UserStats, error) {
-	row, err := s.queries.GetUserStatsByUserIDAndMonth(ctx, db.GetUserStatsByUserIDAndMonthParams{
+func (s *StatsService) GetWeekStats(ctx context.Context, userID int32, unit db.WeightUnit, week time.Time) (UserStats, error) {
+	row, err := s.queries.GetUserStatsByUserIDAndWeek(ctx, db.GetUserStatsByUserIDAndWeekParams{
 		UserID:  userID,
-		Column2: pgtype.Timestamptz{Time: month, Valid: true},
+		Column2: pgtype.Timestamptz{Time: week, Valid: true},
 	})
 	if err != nil {
 		return UserStats{}, err
