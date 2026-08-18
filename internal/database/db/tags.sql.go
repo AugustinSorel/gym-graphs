@@ -9,6 +9,18 @@ import (
 	"context"
 )
 
+const countTagsByUserID = `-- name: CountTagsByUserID :one
+select count(*)::int from tags
+where user_id = $1
+`
+
+func (q *Queries) CountTagsByUserID(ctx context.Context, userID int32) (int32, error) {
+	row := q.db.QueryRow(ctx, countTagsByUserID, userID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const createTag = `-- name: CreateTag :one
 insert into tags (user_id, name)
 values ($1, $2)
@@ -178,6 +190,46 @@ order by name asc
 
 func (q *Queries) GetTagsByUserID(ctx context.Context, userID int32) ([]Tag, error) {
 	rows, err := q.db.Query(ctx, getTagsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTagsPageByUserID = `-- name: GetTagsPageByUserID :many
+select id, user_id, name, updated_at, created_at from tags
+where user_id = $1
+  and name > $2
+order by name asc
+limit $3
+`
+
+type GetTagsPageByUserIDParams struct {
+	UserID int32
+	Name   string
+	Limit  int32
+}
+
+func (q *Queries) GetTagsPageByUserID(ctx context.Context, arg GetTagsPageByUserIDParams) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, getTagsPageByUserID, arg.UserID, arg.Name, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

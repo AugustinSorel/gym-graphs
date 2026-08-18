@@ -125,6 +125,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("DELETE /tags/{id}", requireAuthSession(http.HandlerFunc(tagHandler.Remove)))
 
 	mux.Handle("GET /account", requireAuthSession(http.HandlerFunc(account.ViewPage)))
+	mux.Handle("GET /account/tags", requireAuthSession(http.HandlerFunc(account.ViewTagsRows)))
 	mux.Handle("GET /account/name", requireAuthSession(http.HandlerFunc(account.ViewEditNamePage)))
 	mux.Handle("PATCH /account/name", requireAuthSession(http.HandlerFunc(account.UpdateName)))
 	mux.Handle("PATCH /account/weight-unit", requireAuthSession(http.HandlerFunc(account.UpdateWeightUnit)))

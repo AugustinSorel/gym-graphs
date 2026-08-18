@@ -3,6 +3,17 @@ select * from tags
 where user_id = $1
 order by name asc;
 
+-- name: GetTagsPageByUserID :many
+select * from tags
+where user_id = $1
+  and name > $2
+order by name asc
+limit $3;
+
+-- name: CountTagsByUserID :one
+select count(*)::int from tags
+where user_id = $1;
+
 -- name: CreateTag :one
 insert into tags (user_id, name)
 values ($1, $2)

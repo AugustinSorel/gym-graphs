@@ -217,7 +217,7 @@ const getSetsPageByExerciseID = `-- name: GetSetsPageByExerciseID :many
 select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
-  and (done_at, id) < ($2, $3)
+  and (done_at < $2 or (done_at = $2 and id < $3))
 order by done_at desc, id desc
 limit $4
 `

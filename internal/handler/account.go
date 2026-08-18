@@ -49,21 +49,35 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
+	totalCount, err := h.tagSvc.CountByUserID(r.Context(), authSession.UserID)
 	if err != nil {
 		page := account.AccountErrorPage("loading the account page failed")
 
 		ctx := templ.WithChildren(r.Context(), page)
 
 		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
-			slog.Error("failed to get user", "error", err)
+			slog.Error("failed to count tags", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 
 		return
 	}
 
-	page := account.AccountPage(user, tags)
+	tagsPage, err := h.tagSvc.GetPageByUserID(r.Context(), authSession.UserID, "", totalCount)
+	if err != nil {
+		page := account.AccountErrorPage("loading the account page failed")
+
+		ctx := templ.WithChildren(r.Context(), page)
+
+		if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
+			slog.Error("failed to get tags page", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	page := account.AccountPage(user, tagsPage)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
@@ -77,6 +91,31 @@ func (h *AccountHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return
+	}
+}
+
+func (h *AccountHandler) ViewTagsRows(w http.ResponseWriter, r *http.Request) {
+	authSession, _ := middleware.GetAuthSession(r.Context())
+
+	totalCount, err := h.tagSvc.CountByUserID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to count tags for rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	cursor := r.URL.Query().Get("cursor")
+
+	tagsPage, err := h.tagSvc.GetPageByUserID(r.Context(), authSession.UserID, cursor, totalCount)
+	if err != nil {
+		slog.Error("failed to get tags page rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := account.TagsRows(tagsPage).Render(r.Context(), w); err != nil {
+		slog.Error("failed to render tags rows", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 

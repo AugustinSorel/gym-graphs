@@ -3,16 +3,18 @@ package account
 import (
 	"fmt"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/web/ui/alert"
 	"github.com/augustinsorel/gym-graphs/web/ui/button"
 	"github.com/augustinsorel/gym-graphs/web/ui/input"
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+	"net/url"
 )
 
-templ AccountPage(user db.User, tags []db.Tag) {
+templ AccountPage(user db.User, tagsPage service.TagsPage) {
 	@main() {
-		@AccountDetails(user, tags)
+		@AccountDetails(user, tagsPage)
 	}
 }
 
@@ -134,7 +136,7 @@ templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
 	</form>
 }
 
-templ AccountDetails(user db.User, tags []db.Tag) {
+templ AccountDetails(user db.User, tagsPage service.TagsPage) {
 	<header class="space-y-1">
 		@avatar(user.Name)
 		<h1 class="capitalize font-semibold text-3xl break-all">{ user.Name }</h1>
@@ -160,7 +162,7 @@ templ AccountDetails(user db.User, tags []db.Tag) {
 	</section>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">tags</h2>
-		@TagsSection(tags)
+		@TagsSection(tagsPage)
 	</section>
 	<section>
 		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">danger zone</h2>
@@ -486,21 +488,44 @@ templ oneRepMaxChart(selectedAlgorithm string) {
 	></div>
 }
 
-templ TagsSection(tags []db.Tag) {
-	if len(tags) == 0 {
+templ TagsSection(tagsPage service.TagsPage) {
+	if tagsPage.TotalCount == 0 {
 		@noTagsMessage()
 	} else {
 		<header class="pt-7 pb-3 flex items-center justify-between">
-			<span class="text-outline text-sm">tags ({ fmt.Sprintf("%d", len(tags)) })</span>
+			<span class="text-outline text-sm">tags ({ fmt.Sprintf("%d", tagsPage.TotalCount) })</span>
 			@link.Link(link.Props{Href: "/tags/new"}) {
 				+ add
 			}
 		</header>
-		<ul class="list-none [counter-reset:my-list]">
-			for _, tag := range tags {
-				@tagItem(tag)
-			}
+		<ul id="tags-list" class="list-none [counter-reset:my-list]">
+			@TagsRows(tagsPage)
 		</ul>
+	}
+}
+
+templ TagsRows(tagsPage service.TagsPage) {
+	for _, tag := range tagsPage.Rows {
+		@tagItem(tag)
+	}
+	if tagsPage.HasNextPage {
+		<li
+			id="tags-load-more"
+			hx-get={ fmt.Sprintf("/account/tags?cursor=%s", url.QueryEscape(tagsPage.NextCursor)) }
+			hx-swap="outerHTML"
+			hx-target="#tags-load-more"
+			hx-include="none"
+			class="list-none"
+		>
+			<div class="py-3 flex justify-center [.htmx-request_&]:hidden">
+				@button.Button(button.Props{Variant: button.VariantLink, Class: "text-outline font-normal no-underline"}) {
+					load more
+				}
+			</div>
+			for range 3 {
+				<div class="hidden [.htmx-request_&]:block animate-pulse h-12 border-b-2 border-dotted border-outline/50"></div>
+			}
+		</li>
 	}
 }
 
