@@ -2,17 +2,18 @@ package stats
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/service"
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 )
 
-templ StatsPage(s service.UserStats) {
+templ StatsPage(s service.UserStats, month time.Time) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
 		<section>
 			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
-				overview
+				{ month.Format("January 2006") }
 			</h2>
 			<dl class="grid grid-cols-2 py-7 text-center">
 				<div class="py-5 space-y-2 border-dotted border-outline/50 border-r-2 border-b-2">
@@ -32,7 +33,7 @@ templ StatsPage(s service.UserStats) {
 					<dd class="text-xl font-semibold">{ strconv.Itoa(int(s.TotalSets)) }</dd>
 				</div>
 				<div class="py-5 space-y-2 border-dotted border-outline/50 border-r-2">
-					<dt class="text-outline text-xs">total weight </dt>
+					<dt class="text-outline text-xs">total weight</dt>
 					<dd class="text-xl font-semibold">
 						{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
 						<abbr

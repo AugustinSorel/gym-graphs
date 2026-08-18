@@ -3,6 +3,7 @@ package handler
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
@@ -30,14 +31,16 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userStats, err := h.statsSvc.GetUserStats(r.Context(), authSession.UserID, user.WeightUnit)
+	now := time.Now().UTC()
+
+	monthStats, err := h.statsSvc.GetMonthStats(r.Context(), authSession.UserID, user.WeightUnit, now)
 	if err != nil {
-		slog.Error("failed to fetch user stats", "error", err)
+		slog.Error("failed to fetch month stats", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	page := stats.StatsPage(userStats)
+	page := stats.StatsPage(monthStats, now)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {

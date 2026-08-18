@@ -62,6 +62,17 @@ join exercises e on e.id = s.exercise_id
 where e.user_id = $1
 order by s.exercise_id asc, s.done_at asc;
 
+-- name: GetUserStatsByUserIDAndMonth :one
+select
+    count(s.id)::int                                                              as total_sets,
+    coalesce(sum(s.weight_in_g::bigint * s.repetitions::bigint), 0)::bigint      as total_volume_in_g,
+    coalesce(sum(s.weight_in_g::bigint), 0)::bigint                              as total_weight_in_g,
+    count(distinct s.exercise_id)::int                                            as exercises_count
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+  and date_trunc('month', s.done_at) = date_trunc('month', $2::timestamptz);
+
 -- name: GetUserStatsByUserID :one
 select
     count(s.id)::int                                                              as total_sets,
