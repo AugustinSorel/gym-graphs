@@ -138,10 +138,15 @@ templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUn
 			hx-swap="outerHTML"
 			hx-target="#sets-load-more"
 			hx-include="none"
-			class="py-3 flex justify-center"
+			class="list-none"
 		>
-			@button.Button(button.Props{Variant: button.VariantLink, Class: "text-outline"}) {
-				load more
+			<div class="py-3 flex justify-center [.htmx-request_&]:hidden">
+				@button.Button(button.Props{Variant: button.VariantLink, Class: "text-outline font-normal no-underline"}) {
+					load more
+				}
+			</div>
+			for range 10 {
+				<div class="hidden [.htmx-request_&]:block animate-pulse h-13 border-b-2 border-dotted border-outline/50"></div>
 			}
 		</li>
 	}
