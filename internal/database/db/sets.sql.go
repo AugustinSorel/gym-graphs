@@ -217,19 +217,25 @@ const getSetsPageByExerciseID = `-- name: GetSetsPageByExerciseID :many
 select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
-  and id < $2
-order by done_at desc
-limit $3
+  and (done_at, id) < ($2, $3)
+order by done_at desc, id desc
+limit $4
 `
 
 type GetSetsPageByExerciseIDParams struct {
 	ExerciseID int32
+	DoneAt     pgtype.Timestamptz
 	ID         int32
 	Limit      int32
 }
 
 func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageByExerciseIDParams) ([]Set, error) {
-	rows, err := q.db.Query(ctx, getSetsPageByExerciseID, arg.ExerciseID, arg.ID, arg.Limit)
+	rows, err := q.db.Query(ctx, getSetsPageByExerciseID,
+		arg.ExerciseID,
+		arg.DoneAt,
+		arg.ID,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

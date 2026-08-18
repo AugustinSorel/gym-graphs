@@ -24,19 +24,29 @@ type CreateSetInput struct {
 }
 
 const SetsPageSize = 10
-const InitialSetCursor = math.MaxInt32
+
+type SetCursor struct {
+	DoneAt pgtype.Timestamptz
+	ID     int32
+}
+
+var InitialSetCursor = SetCursor{
+	DoneAt: pgtype.Timestamptz{Time: time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC), Valid: true},
+	ID:     math.MaxInt32,
+}
 
 type SetsPage struct {
 	Rows        []db.Set
-	NextCursor  int32
+	NextCursor  SetCursor
 	HasNextPage bool
 	TotalCount  int
 }
 
-func (s *SetService) GetPageByExerciseID(ctx context.Context, exerciseID int32, cursor int32, totalCount int) (SetsPage, error) {
+func (s *SetService) GetPageByExerciseID(ctx context.Context, exerciseID int32, cursor SetCursor, totalCount int) (SetsPage, error) {
 	sets, err := s.queries.GetSetsPageByExerciseID(ctx, db.GetSetsPageByExerciseIDParams{
 		ExerciseID: exerciseID,
-		ID:         cursor,
+		DoneAt:     cursor.DoneAt,
+		ID:         cursor.ID,
 		Limit:      SetsPageSize + 1,
 	})
 	if err != nil {
@@ -48,9 +58,10 @@ func (s *SetService) GetPageByExerciseID(ctx context.Context, exerciseID int32, 
 		sets = sets[:SetsPageSize]
 	}
 
-	var nextCursor int32
+	var nextCursor SetCursor
 	if hasNextPage {
-		nextCursor = sets[len(sets)-1].ID
+		last := sets[len(sets)-1]
+		nextCursor = SetCursor{DoneAt: last.DoneAt, ID: last.ID}
 	}
 
 	return SetsPage{

@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 	"github.com/augustinsorel/gym-graphs/web/exercises"
 	"github.com/augustinsorel/gym-graphs/web/ui/layout"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type SetsHandler struct {
@@ -59,10 +61,18 @@ func (h *SetsHandler) ViewSetsRows(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cursor int32 = service.InitialSetCursor
-	if raw := r.URL.Query().Get("cursor"); raw != "" {
-		if v, err := strconv.ParseInt(raw, 10, 32); err == nil {
-			cursor = int32(v)
+	cursor := service.InitialSetCursor
+	if rawTs := r.URL.Query().Get("cursor"); rawTs != "" {
+		if t, err := time.Parse(time.RFC3339Nano, rawTs); err == nil {
+			cursor.DoneAt = pgtype.Timestamptz{Time: t, Valid: true}
+			// reset ID to MaxInt32 so that when only the timestamp changes we
+			// still include all tied rows; the cursor_id param overrides below.
+			cursor.ID = math.MaxInt32
+		}
+	}
+	if rawID := r.URL.Query().Get("cursor_id"); rawID != "" {
+		if v, err := strconv.ParseInt(rawID, 10, 32); err == nil {
+			cursor.ID = int32(v)
 		}
 	}
 

@@ -8,9 +8,9 @@ order by done_at asc;
 select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at
 from sets
 where exercise_id = $1
-  and id < $2
-order by done_at desc
-limit $3;
+  and (done_at, id) < ($2, $3)
+order by done_at desc, id desc
+limit $4;
 
 -- name: GetLastSetByExerciseID :one
 select id, exercise_id, repetitions, weight_in_g, done_at, updated_at, created_at

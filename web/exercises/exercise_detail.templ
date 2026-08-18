@@ -2,6 +2,7 @@ package exercises
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/onerm"
@@ -133,7 +134,7 @@ templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUn
 	if page.HasNextPage {
 		<li
 			id="sets-load-more"
-			hx-get={ fmt.Sprintf("/exercises/%d/sets?cursor=%d", exerciseID, page.NextCursor) }
+			hx-get={ fmt.Sprintf("/exercises/%d/sets?cursor=%s&cursor_id=%d", exerciseID, page.NextCursor.DoneAt.Time.UTC().Format(time.RFC3339Nano), page.NextCursor.ID) }
 			hx-swap="outerHTML"
 			hx-target="#sets-load-more"
 			hx-include="none"
