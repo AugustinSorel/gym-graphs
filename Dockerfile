@@ -14,6 +14,11 @@ RUN ARCH=$([ "$TARGETARCH" = "amd64" ] && echo "x64" || echo "$TARGETARCH") && \
   https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-${ARCH}-musl \
   && chmod +x /usr/local/bin/tailwindcss
 
+# Install goose migration tool
+RUN --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.cache/go-build \
+  go install github.com/pressly/goose/v3/cmd/goose@latest
+
 # Download dependencies (Leverage BuildKit cache mounts for speed)
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod \
@@ -45,6 +50,9 @@ COPY --from=builder /etc/passwd /etc/passwd
 
 # Copy the binary
 COPY --from=builder /gym-graphs /gym-graphs
+
+# Copy goose
+COPY --from=builder /go/bin/goose /goose
 
 # Run as the non-root user
 USER appuser
