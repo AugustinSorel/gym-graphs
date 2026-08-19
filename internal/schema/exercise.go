@@ -9,7 +9,7 @@ type CreateExercise struct {
 }
 
 var Exercise = z.Struct(z.Shape{
-	"name": z.String().Required(z.Message("name is required.")).
+	"name": z.String().Trim().Required(z.Message("name is required.")).
 		Min(1, z.Message("name must be at least 1 character.")).
 		Max(100, z.Message("name must be at most 100 characters.")),
 })

@@ -13,7 +13,7 @@ type RenameTag struct {
 }
 
 var tagSchema = z.Struct(z.Shape{
-	"name": z.String().Required(z.Message("name is required.")).
+	"name": z.String().Trim().Required(z.Message("name is required.")).
 		Min(1, z.Message("name must be at least 1 character.")).
 		Max(255, z.Message("name must be at most 255 characters.")),
 })
