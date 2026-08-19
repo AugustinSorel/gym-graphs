@@ -83,3 +83,6 @@ func newTracker(cfg *config.Config) analytics.Tracker {
 
 //TODO: monitoring
 //TODO: optimisation
+//TODO: home page
+//TODO: filters
+//TODO: more graphs
