@@ -9,10 +9,12 @@ import (
 
 	"github.com/augustinsorel/gym-graphs/internal/analytics"
 	"github.com/augustinsorel/gym-graphs/internal/config"
+	"github.com/augustinsorel/gym-graphs/internal/database"
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 	"github.com/augustinsorel/gym-graphs/internal/email"
 	"github.com/augustinsorel/gym-graphs/internal/ratelimit"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 )
 
 type Server struct {
@@ -32,6 +34,10 @@ func NewServer(cfg *config.Config) *http.Server {
 	pool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
+	}
+
+	if err := database.Migrate(stdlib.OpenDBFromPool(pool)); err != nil {
+		log.Fatalf("unable to run database migrations: %v", err)
 	}
 
 	mailer, err := newMailer(cfg)
