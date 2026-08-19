@@ -187,7 +187,7 @@ LIMIT $3
 
 type GetExercisesPageByUserIDParams struct {
 	UserID int32
-	Index  int32
+	Index  pgtype.Int4
 	Limit  int32
 }
 
@@ -195,7 +195,7 @@ type GetExercisesPageByUserIDRow struct {
 	ID                 int32
 	UserID             int32
 	Name               string
-	Index              int32
+	Index              pgtype.Int4
 	UpdatedAt          pgtype.Timestamptz
 	CreatedAt          pgtype.Timestamptz
 	SetsCount          int64

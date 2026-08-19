@@ -55,7 +55,7 @@ where id in (
     where account_deletion_sessions.id = $1
     and account_deletion_sessions.user_identity_verified_at is not null
 )
-returning id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm
+returning id, email_address, name, weight_unit, one_rep_max_algorithm, password_hash, password_salt, created_at, updated_at
 `
 
 func (q *Queries) DeleteUserByAccountDeletionSessionID(ctx context.Context, id int32) (User, error) {
@@ -66,17 +66,17 @@ func (q *Queries) DeleteUserByAccountDeletionSessionID(ctx context.Context, id i
 		&i.EmailAddress,
 		&i.Name,
 		&i.WeightUnit,
+		&i.OneRepMaxAlgorithm,
 		&i.PasswordHash,
 		&i.PasswordSalt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.OneRepMaxAlgorithm,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm from users
+select id, email_address, name, weight_unit, one_rep_max_algorithm, password_hash, password_salt, created_at, updated_at from users
 where email_address = $1
 `
 
@@ -88,17 +88,17 @@ func (q *Queries) GetUserByEmail(ctx context.Context, emailAddress string) (User
 		&i.EmailAddress,
 		&i.Name,
 		&i.WeightUnit,
+		&i.OneRepMaxAlgorithm,
 		&i.PasswordHash,
 		&i.PasswordSalt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.OneRepMaxAlgorithm,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-select id, email_address, name, weight_unit, password_hash, password_salt, created_at, updated_at, one_rep_max_algorithm from users
+select id, email_address, name, weight_unit, one_rep_max_algorithm, password_hash, password_salt, created_at, updated_at from users
 where id = $1
 `
 
@@ -110,17 +110,17 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 		&i.EmailAddress,
 		&i.Name,
 		&i.WeightUnit,
+		&i.OneRepMaxAlgorithm,
 		&i.PasswordHash,
 		&i.PasswordSalt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.OneRepMaxAlgorithm,
 	)
 	return i, err
 }
 
 const getUserByPasswordResetSessionID = `-- name: GetUserByPasswordResetSessionID :one
-select users.id, users.email_address, users.name, users.weight_unit, users.password_hash, users.password_salt, users.created_at, users.updated_at, users.one_rep_max_algorithm from users
+select users.id, users.email_address, users.name, users.weight_unit, users.one_rep_max_algorithm, users.password_hash, users.password_salt, users.created_at, users.updated_at from users
 join password_reset_sessions on password_reset_sessions.user_id = users.id
 where password_reset_sessions.id = $1
 `
@@ -133,11 +133,11 @@ func (q *Queries) GetUserByPasswordResetSessionID(ctx context.Context, id int32)
 		&i.EmailAddress,
 		&i.Name,
 		&i.WeightUnit,
+		&i.OneRepMaxAlgorithm,
 		&i.PasswordHash,
 		&i.PasswordSalt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.OneRepMaxAlgorithm,
 	)
 	return i, err
 }

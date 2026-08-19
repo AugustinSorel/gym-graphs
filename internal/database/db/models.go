@@ -128,7 +128,7 @@ type Exercise struct {
 	ID        int32
 	UserID    int32
 	Name      string
-	Index     int32
+	Index     pgtype.Int4
 	UpdatedAt pgtype.Timestamptz
 	CreatedAt pgtype.Timestamptz
 }
@@ -192,9 +192,9 @@ type User struct {
 	EmailAddress       string
 	Name               string
 	WeightUnit         WeightUnit
+	OneRepMaxAlgorithm OneRepMaxAlgorithm
 	PasswordHash       []byte
 	PasswordSalt       []byte
 	CreatedAt          pgtype.Timestamptz
 	UpdatedAt          pgtype.Timestamptz
-	OneRepMaxAlgorithm OneRepMaxAlgorithm
 }
