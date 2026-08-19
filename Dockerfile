@@ -37,10 +37,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 
 # ─── Stage 2: minimal runtime image ──────────────────────────────────────────
-FROM scratch
-
-# Copy CA certificates for HTTPS/TLS
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+FROM alpine:3.21
 
 # Copy Timezone data
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
