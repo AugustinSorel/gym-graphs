@@ -81,6 +81,43 @@ const renderRepsRangeGraph = (container, buckets) => {
     .attr("fill", colorOnSurface)
     .attr("opacity", 0.85)
     .attr("rx", 1);
+
+  // Tooltip
+  let tooltip = container.querySelector(".reps-graph-tooltip");
+  if (!tooltip) {
+    tooltip = document.createElement("div");
+    tooltip.className = "reps-graph-tooltip";
+    tooltip.style.cssText =
+      "position:absolute;pointer-events:none;padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity 0.1s;background:var(--color-on-surface,#000);color:var(--color-surface,#fff);border-radius:2px;";
+    container.style.position = "relative";
+    container.appendChild(tooltip);
+  }
+
+  const total = d3.sum(buckets, (d) => d.count);
+
+  // Invisible hit area over each row
+  rows
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", innerW)
+    .attr("height", rowH)
+    .attr("fill", "transparent")
+    .on("mouseover", function (event, d) {
+      const pct = total > 0 ? ((d.count / total) * 100).toFixed(0) : 0;
+      tooltip.textContent = `${d.label} reps — ${d.count} sets (${pct}%)`;
+
+      const containerRect = container.getBoundingClientRect();
+      const tx = event.clientX - containerRect.left;
+      const ty = event.clientY - containerRect.top;
+      const tipW = tooltip.offsetWidth || 160;
+      tooltip.style.left = `${Math.min(tx + 12, containerRect.width - tipW - 8)}px`;
+      tooltip.style.top = `${ty - 36}px`;
+      tooltip.style.opacity = "1";
+    })
+    .on("mouseleave", () => {
+      tooltip.style.opacity = "0";
+    });
 };
 
 const getRepsRangeData = () => {
