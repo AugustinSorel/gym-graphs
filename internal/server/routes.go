@@ -12,7 +12,7 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.FS(web.Files))
+	fileServer := staticCacheMiddleware(http.FileServer(http.FS(web.Files)))
 
 	userSvc := service.NewUserService(s.queries)
 	authSessionSvc := service.NewAuthSessionService(s.queries)
@@ -188,6 +188,13 @@ func (s *Server) requestRateLimitMiddleware(next http.Handler) http.Handler {
 
 func (s *Server) analyticsMiddleware(next http.Handler) http.Handler {
 	return s.tracker.Middleware(next)
+}
+
+func staticCacheMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {
