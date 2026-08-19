@@ -33,7 +33,7 @@ templ ExerciseRows(page service.ExercisesPage) {
 	<tbody>
 		for _, exercise := range page.Rows {
 			<tr class="bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50 relative">
-				<td class="pl-0 p-4 align-middle font-medium">
+				<td class="pl-0 p-4 align-middle font-medium lowercase">
 					@link.Link(link.Props{
 						Href:  fmt.Sprintf("/exercises/%d", exercise.ID),
 						Class: "before:absolute before:inset-0 before:z-1",
