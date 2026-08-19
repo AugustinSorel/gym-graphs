@@ -18,7 +18,7 @@ func NewSeedService(queries *db.Queries) *SeedService {
 
 var seedTags = []string{
 	"legs", "chest", "biceps", "triceps", "back",
-	"shoulders", "calfs", "abs", "traps",
+	"shoulders", "calves", "abs", "traps",
 }
 
 var seedExercises = []struct {
