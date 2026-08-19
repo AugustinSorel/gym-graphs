@@ -109,7 +109,7 @@ function initRepsRangeGraph() {
   repsRangeResizeObserver = new ResizeObserver(() => {
     renderRepsRangeGraph(container, buckets);
   });
-  repsRangeResizeObserver.observe(container);
+  repsRangeResizeObserver.observe(document.documentElement);
 }
 
 document.addEventListener("DOMContentLoaded", initRepsRangeGraph);

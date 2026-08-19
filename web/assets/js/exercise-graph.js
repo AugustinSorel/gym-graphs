@@ -282,7 +282,7 @@ function initExerciseGraph() {
   exerciseGraphResizeObserver = new ResizeObserver(() => {
     renderExerciseGraph(container, points);
   });
-  exerciseGraphResizeObserver.observe(container);
+  exerciseGraphResizeObserver.observe(document.documentElement);
 }
 
 document.addEventListener("DOMContentLoaded", initExerciseGraph);
