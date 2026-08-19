@@ -20,4 +20,4 @@ alter table users
 
 -- +goose Down
 alter table users drop column one_rep_max_algorithm;
-drop type one_rep_max_algorithm;
+drop type one_rep_max_algorithm cascade;

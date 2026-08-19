@@ -20,4 +20,4 @@ execute function update_modified_column();
 -- +goose Down
 drop table if exists users;
 
-drop type weight_unit;
+drop type weight_unit cascade;
