@@ -1,0 +1,28 @@
+# Nix / devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+devenv.lock
+devenv.nix
+devenv.yaml
+.direnv/
+
+# Generated artifacts (rebuilt inside Docker)
+web/assets/css/styles.css
+*_templ.go
+
+# Git
+.git/
+.gitignore
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Build output
+main
+tmp/
+*.out
+*.test
