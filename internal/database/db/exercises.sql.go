@@ -170,7 +170,7 @@ LEFT JOIN LATERAL (
             weight_in_g,
             repetitions,
             done_at,
-            ROW_NUMBER() OVER (ORDER BY created_at DESC) as rn
+            ROW_NUMBER() OVER (ORDER BY done_at DESC) as rn
         FROM sets
         WHERE exercise_id = e.id
     ) ranked_sets
