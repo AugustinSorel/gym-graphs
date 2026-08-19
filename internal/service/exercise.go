@@ -39,7 +39,6 @@ const InitialCursor = math.MaxInt32
 func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int32) (ExercisesPage, error) {
 	exercises, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
 		UserID: user.ID,
-		Index:  cursor,
 		Limit:  ExercisesPageSize + 1,
 	})
 	if err != nil {
@@ -54,7 +53,7 @@ func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int3
 	// NextCursor is the smallest index on this page; the next page fetches index < that.
 	var nextCursor int32
 	if hasNextPage {
-		nextCursor = exercises[len(exercises)-1].Index
+		nextCursor = exercises[len(exercises)-1].ID
 	}
 
 	count, err := s.queries.GetExercisesCountByUserID(ctx, user.ID)
@@ -64,7 +63,7 @@ func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int3
 
 	var firstIndex int32
 	if len(exercises) > 0 {
-		firstIndex = exercises[0].Index
+		firstIndex = exercises[0].ID
 	}
 
 	return ExercisesPage{

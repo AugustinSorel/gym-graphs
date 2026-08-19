@@ -12,7 +12,6 @@ SELECT
     e.id, 
     e.user_id, 
     e.name, 
-    e.index, 
     e.updated_at, 
     e.created_at,
     COALESCE(s.sets_count, 0) AS sets_count,
@@ -43,16 +42,15 @@ LEFT JOIN LATERAL (
     ) ranked_sets
 ) s ON true
 WHERE e.user_id = $1
-  AND e.index < $2
-ORDER BY e.index DESC
-LIMIT $3;
+ORDER BY id DESC
+LIMIT $2;
 
 -- name: GetExercisesCountByUserID :one
 select count(*) from exercises
 where user_id = $1;
 
 -- name: GetExerciseByIDAndUserID :one
-select id, user_id, name, index, updated_at, created_at from exercises
+select id, user_id, name, updated_at, created_at from exercises
 where id = $1 and user_id = $2;
 
 -- name: UpdateExerciseName :one
@@ -69,15 +67,15 @@ where id = $1 and user_id = $2;
 delete from exercise_tags where exercise_id = $1;
 
 -- name: GetAllExercisesByUserID :many
-select id, user_id, name, index, updated_at, created_at from exercises
+select id, user_id, name, updated_at, created_at from exercises
 where user_id = $1
-order by index asc;
+order by id asc;
 
 -- name: UpsertExercise :one
 insert into exercises (user_id, name)
 values ($1, $2)
 on conflict (user_id, name) do update set name = excluded.name
-returning id, user_id, name, index, updated_at, created_at;
+returning id, user_id, name, updated_at, created_at;
 
 -- name: LinkExerciseTags :exec
 insert into exercise_tags (exercise_id, tag_id)

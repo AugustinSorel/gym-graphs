@@ -14,7 +14,7 @@ import (
 const createExercise = `-- name: CreateExercise :one
 insert into exercises (user_id, name)
 values ($1, $2)
-returning id, user_id, name, index, updated_at, created_at
+returning id, user_id, name, updated_at, created_at
 `
 
 type CreateExerciseParams struct {
@@ -29,7 +29,6 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 		&i.ID,
 		&i.UserID,
 		&i.Name,
-		&i.Index,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -76,9 +75,9 @@ func (q *Queries) DeleteExerciseTags(ctx context.Context, exerciseID int32) erro
 }
 
 const getAllExercisesByUserID = `-- name: GetAllExercisesByUserID :many
-select id, user_id, name, index, updated_at, created_at from exercises
+select id, user_id, name, updated_at, created_at from exercises
 where user_id = $1
-order by index asc
+order by id asc
 `
 
 func (q *Queries) GetAllExercisesByUserID(ctx context.Context, userID int32) ([]Exercise, error) {
@@ -94,7 +93,6 @@ func (q *Queries) GetAllExercisesByUserID(ctx context.Context, userID int32) ([]
 			&i.ID,
 			&i.UserID,
 			&i.Name,
-			&i.Index,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -109,7 +107,7 @@ func (q *Queries) GetAllExercisesByUserID(ctx context.Context, userID int32) ([]
 }
 
 const getExerciseByIDAndUserID = `-- name: GetExerciseByIDAndUserID :one
-select id, user_id, name, index, updated_at, created_at from exercises
+select id, user_id, name, updated_at, created_at from exercises
 where id = $1 and user_id = $2
 `
 
@@ -125,7 +123,6 @@ func (q *Queries) GetExerciseByIDAndUserID(ctx context.Context, arg GetExerciseB
 		&i.ID,
 		&i.UserID,
 		&i.Name,
-		&i.Index,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -149,7 +146,6 @@ SELECT
     e.id, 
     e.user_id, 
     e.name, 
-    e.index, 
     e.updated_at, 
     e.created_at,
     COALESCE(s.sets_count, 0) AS sets_count,
@@ -180,14 +176,12 @@ LEFT JOIN LATERAL (
     ) ranked_sets
 ) s ON true
 WHERE e.user_id = $1
-  AND e.index < $2
-ORDER BY e.index DESC
-LIMIT $3
+ORDER BY id DESC
+LIMIT $2
 `
 
 type GetExercisesPageByUserIDParams struct {
 	UserID int32
-	Index  pgtype.Int4
 	Limit  int32
 }
 
@@ -195,7 +189,6 @@ type GetExercisesPageByUserIDRow struct {
 	ID                 int32
 	UserID             int32
 	Name               string
-	Index              pgtype.Int4
 	UpdatedAt          pgtype.Timestamptz
 	CreatedAt          pgtype.Timestamptz
 	SetsCount          int64
@@ -207,7 +200,7 @@ type GetExercisesPageByUserIDRow struct {
 }
 
 func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercisesPageByUserIDParams) ([]GetExercisesPageByUserIDRow, error) {
-	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.Index, arg.Limit)
+	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +212,6 @@ func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercises
 			&i.ID,
 			&i.UserID,
 			&i.Name,
-			&i.Index,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.SetsCount,
@@ -259,7 +251,7 @@ const updateExerciseName = `-- name: UpdateExerciseName :one
 update exercises
 set name = $1, updated_at = now()
 where id = $2 and user_id = $3
-returning id, user_id, name, index, updated_at, created_at
+returning id, user_id, name, updated_at, created_at
 `
 
 type UpdateExerciseNameParams struct {
@@ -275,7 +267,6 @@ func (q *Queries) UpdateExerciseName(ctx context.Context, arg UpdateExerciseName
 		&i.ID,
 		&i.UserID,
 		&i.Name,
-		&i.Index,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -286,7 +277,7 @@ const upsertExercise = `-- name: UpsertExercise :one
 insert into exercises (user_id, name)
 values ($1, $2)
 on conflict (user_id, name) do update set name = excluded.name
-returning id, user_id, name, index, updated_at, created_at
+returning id, user_id, name, updated_at, created_at
 `
 
 type UpsertExerciseParams struct {
@@ -301,7 +292,6 @@ func (q *Queries) UpsertExercise(ctx context.Context, arg UpsertExerciseParams) 
 		&i.ID,
 		&i.UserID,
 		&i.Name,
-		&i.Index,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)

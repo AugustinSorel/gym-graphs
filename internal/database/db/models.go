@@ -128,7 +128,6 @@ type Exercise struct {
 	ID        int32
 	UserID    int32
 	Name      string
-	Index     pgtype.Int4
 	UpdatedAt pgtype.Timestamptz
 	CreatedAt pgtype.Timestamptz
 }
