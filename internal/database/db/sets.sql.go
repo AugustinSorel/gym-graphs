@@ -150,6 +150,36 @@ func (q *Queries) GetLastSetByExerciseID(ctx context.Context, exerciseID int32) 
 	return i, err
 }
 
+const getRepsRangeByExerciseID = `-- name: GetRepsRangeByExerciseID :one
+select
+    count(*) filter (where repetitions between 1 and 5)::int   as reps_1_5,
+    count(*) filter (where repetitions between 6 and 8)::int   as reps_6_8,
+    count(*) filter (where repetitions between 9 and 12)::int  as reps_9_12,
+    count(*) filter (where repetitions >= 13)::int             as reps_13_plus
+from sets
+where exercise_id = $1
+  and repetitions > 0
+`
+
+type GetRepsRangeByExerciseIDRow struct {
+	Reps15     int32
+	Reps68     int32
+	Reps912    int32
+	Reps13Plus int32
+}
+
+func (q *Queries) GetRepsRangeByExerciseID(ctx context.Context, exerciseID int32) (GetRepsRangeByExerciseIDRow, error) {
+	row := q.db.QueryRow(ctx, getRepsRangeByExerciseID, exerciseID)
+	var i GetRepsRangeByExerciseIDRow
+	err := row.Scan(
+		&i.Reps15,
+		&i.Reps68,
+		&i.Reps912,
+		&i.Reps13Plus,
+	)
+	return i, err
+}
+
 const getSetByIDAndUserID = `-- name: GetSetByIDAndUserID :one
 select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
 from sets s

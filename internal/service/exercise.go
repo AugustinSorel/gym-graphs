@@ -185,6 +185,25 @@ func (s *ExerciseService) GraphPoints(ctx context.Context, exerciseID int32, alg
 	return points, nil
 }
 
+type RepsRangeBucket struct {
+	Label string `json:"label"`
+	Count int    `json:"count"`
+}
+
+func (s *ExerciseService) RepsRange(ctx context.Context, exerciseID int32) ([]RepsRangeBucket, error) {
+	row, err := s.queries.GetRepsRangeByExerciseID(ctx, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+
+	return []RepsRangeBucket{
+		{Label: "1-5", Count: int(row.Reps15)},
+		{Label: "6-8", Count: int(row.Reps68)},
+		{Label: "9-12", Count: int(row.Reps912)},
+		{Label: "13+", Count: int(row.Reps13Plus)},
+	}, nil
+}
+
 func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs []int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {

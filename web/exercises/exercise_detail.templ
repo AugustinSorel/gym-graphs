@@ -22,6 +22,7 @@ type ExerciseDetailData struct {
 	WeightUnit         db.WeightUnit
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
 	GraphPoints        []service.ExerciseGraphPoint
+	RepsRangeBuckets   []service.RepsRangeBucket
 	SetsPage           service.SetsPage
 	AllTags            []db.Tag
 	ExerciseTags       []db.Tag
@@ -32,6 +33,7 @@ templ ExerciseDetailPage(ex ExerciseDetailData) {
 		@exerciseDetailHeader(ex)
 		@exerciseFunFacts(ex)
 		@exerciseGraph(ex)
+		@exerciseMoreGraphs(ex)
 		@exerciseSetsTable(ex)
 		@exerciseTags(ex)
 		@exerciseManage(ex)
@@ -169,6 +171,23 @@ templ exerciseGraph(ex ExerciseDetailData) {
 				data-unit={ weightunit.Abbr(ex.WeightUnit) }
 			></div>
 		}
+	</section>
+}
+
+templ exerciseMoreGraphs(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			more graphs
+		</h2>
+		<div class="grid lg:grid-cols-3 gap-4 py-6 border-b-2 border-dotted border-outline/50">
+			<div class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<p class="text-outline text-xs">reps range</p>
+				@templ.JSONScript("exercise-reps-range-data", ex.RepsRangeBuckets)
+				<div id="exercise-reps-range-graph"></div>
+			</div>
+			<div class="h-40 rounded-sm bg-outline/20"></div>
+			<div class="h-40 rounded-sm bg-outline/20"></div>
+		</div>
 	</section>
 }
 

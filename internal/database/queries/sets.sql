@@ -19,6 +19,16 @@ where exercise_id = $1
 order by done_at desc
 limit 1;
 
+-- name: GetRepsRangeByExerciseID :one
+select
+    count(*) filter (where repetitions between 1 and 5)::int   as reps_1_5,
+    count(*) filter (where repetitions between 6 and 8)::int   as reps_6_8,
+    count(*) filter (where repetitions between 9 and 12)::int  as reps_9_12,
+    count(*) filter (where repetitions >= 13)::int             as reps_13_plus
+from sets
+where exercise_id = $1
+  and repetitions > 0;
+
 -- name: GetExerciseStatsByID :one
 select
     count(*)::int                               as total_sets,

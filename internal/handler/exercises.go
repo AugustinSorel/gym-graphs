@@ -64,6 +64,13 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	repsRangeBuckets, err := h.exerciseSvc.RepsRange(r.Context(), exercise.ID)
+	if err != nil {
+		slog.Error("failed to compute reps range buckets", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch tags for exercise detail page", "error", err)
@@ -95,6 +102,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		WeightUnit:         user.WeightUnit,
 		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
 		GraphPoints:        graphPoints,
+		RepsRangeBuckets:   repsRangeBuckets,
 		SetsPage:           setsPage,
 		AllTags:            allTags,
 		ExerciseTags:       exerciseTags,
