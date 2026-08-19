@@ -8,7 +8,7 @@ create table auth_sessions (
     updated_at timestamptz default now() not null
 );
 
-create trigger update_users_modtime
+create trigger update_auth_sessions_modtime
 before update on auth_sessions
 for each row
 execute function update_modified_column();

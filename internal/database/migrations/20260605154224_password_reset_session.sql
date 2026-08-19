@@ -10,7 +10,7 @@ create table password_reset_sessions (
     updated_at timestamptz default now() not null
 );
 
-create trigger update_users_modtime
+create trigger update_password_reset_sessions_modtime
 before update on password_reset_sessions
 for each row
 execute function update_modified_column();

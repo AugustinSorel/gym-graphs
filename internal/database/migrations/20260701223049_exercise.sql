@@ -9,7 +9,7 @@ create table exercises(
     unique (user_id, name)
 );
 
-create trigger update_users_modtime
+create trigger update_exercises_modtime
 before update on exercises
 for each row
 execute function update_modified_column();

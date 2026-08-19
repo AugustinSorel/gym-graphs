@@ -8,7 +8,7 @@ create table password_update_sessions (
     updated_at timestamptz default now() not null
 );
 
-create trigger update_users_modtime
+create trigger update_password_update_sessions_modtime
 before update on password_update_sessions
 for each row
 execute function update_modified_column();
