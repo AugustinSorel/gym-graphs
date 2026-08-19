@@ -55,7 +55,7 @@ func NewServer(cfg *config.Config) *http.Server {
 		passwordAuthRateLimit:          ratelimit.NewLimit(1_000, 5, time.Minute),
 		emailRateLimit:                 ratelimit.NewLimit(1_000, 5, 30*time.Minute),
 		emailCodeVerificationRateLimit: ratelimit.NewLimit(1_000, 5, time.Minute),
-		requestRateLimit:               ratelimit.NewLimit(10_000, 100, time.Second),
+		requestRateLimit:               ratelimit.NewLimit(10_000, 500, time.Second),
 	}
 
 	return &http.Server{
