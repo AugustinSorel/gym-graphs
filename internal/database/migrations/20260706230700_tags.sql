@@ -8,5 +8,10 @@ create table tags (
     unique (user_id, name)
 );
 
+create trigger update_tags_modtime
+before update on tags
+for each row
+execute function update_modified_column();
+
 -- +goose Down
 drop table if exists tags;
