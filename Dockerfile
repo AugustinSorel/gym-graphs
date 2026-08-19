@@ -7,9 +7,11 @@ RUN apk add --no-cache tzdata libstdc++ libgcc && \
 
 WORKDIR /app
 
-# Download the Tailwind CSS v4 standalone binary
-RUN wget -qO /usr/local/bin/tailwindcss \
-  https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-x64-musl \
+# Download the Tailwind CSS v4 standalone binary (architecture-aware)
+ARG TARGETARCH
+RUN ARCH=$([ "$TARGETARCH" = "amd64" ] && echo "x64" || echo "$TARGETARCH") && \
+  wget -qO /usr/local/bin/tailwindcss \
+  https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-${ARCH}-musl \
   && chmod +x /usr/local/bin/tailwindcss
 
 # Download dependencies (Leverage BuildKit cache mounts for speed)
