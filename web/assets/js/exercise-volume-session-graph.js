@@ -4,6 +4,12 @@ const DAYS = 7;
 const renderVolumeSessionGraph = (container, points, unit) => {
   d3.select(container).selectAll("*").remove();
 
+  if (points.length === 0) {
+    container.innerHTML =
+      '<p style="font-size:12px;text-align:center;padding:24px 0;color:var(--color-outline)">no sets yet</p>';
+    return;
+  }
+
   const style = getComputedStyle(document.documentElement);
   const colorOnSurface =
     style.getPropertyValue("--color-on-surface").trim() || "#000";

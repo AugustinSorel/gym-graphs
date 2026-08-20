@@ -1,6 +1,13 @@
 const renderRepsRangeGraph = (container, buckets) => {
   d3.select(container).selectAll("*").remove();
 
+  const total = d3.sum(buckets, (d) => d.count);
+  if (total === 0) {
+    container.innerHTML =
+      '<p style="font-size:12px;text-align:center;padding:24px 0;color:var(--color-outline)">no sets yet</p>';
+    return;
+  }
+
   const style = getComputedStyle(document.documentElement);
   const colorOnSurface =
     style.getPropertyValue("--color-on-surface").trim() || "#000";
@@ -92,8 +99,6 @@ const renderRepsRangeGraph = (container, buckets) => {
     container.style.position = "relative";
     container.appendChild(tooltip);
   }
-
-  const total = d3.sum(buckets, (d) => d.count);
 
   // Invisible hit area over each row
   rows
