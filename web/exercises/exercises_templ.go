@@ -345,7 +345,7 @@ func ExercisesTable(page service.ExercisesPage) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<table id=\"exercises-table\" class=\"caption-bottom text-sm\" data-total-count=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<table id=\"exercises-table\" class=\"caption-bottom text-sm table-fixed w-full\" data-total-count=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -358,7 +358,7 @@ func ExercisesTable(page service.ExercisesPage) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" hx-on::after-swap=\"document.getElementById('exercises-count').textContent = this.dataset.totalCount\"><thead class=\"border-b-2 text-nowrap\"><tr><th class=\"h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide\">name</th><th class=\"h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left\">last 1<abbr title=\"rep maximum\" class=\"no-underline\">rm</abbr></th><th class=\"h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden\">sets</th><th class=\"h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden\">last set</th></tr></thead>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" hx-on::after-swap=\"document.getElementById('exercises-count').textContent = this.dataset.totalCount\"><thead class=\"border-b-2 text-nowrap\"><tr><th class=\"h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide\">name</th><th class=\"h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left w-34\">last 1<abbr title=\"rep maximum\" class=\"no-underline\">rm</abbr></th><th class=\"h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-18\">sets</th><th class=\"h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-34\">last set</th></tr></thead>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

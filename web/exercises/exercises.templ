@@ -151,18 +151,18 @@ templ ExercisesTable(page service.ExercisesPage) {
 	} else {
 		<table
 			id="exercises-table"
-			class="caption-bottom text-sm"
+			class="caption-bottom text-sm table-fixed w-full"
 			data-total-count={ fmt.Sprintf("%d", page.TotalCount) }
 			hx-on::after-swap="document.getElementById('exercises-count').textContent = this.dataset.totalCount"
 		>
 			<thead class="border-b-2 text-nowrap">
 				<tr>
 					<th class="h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide">name</th>
-					<th class="h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left">
+					<th class="h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left w-34">
 						last 1<abbr title="rep maximum" class="no-underline">rm</abbr>
 					</th>
-					<th class="h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden">sets</th>
-					<th class="h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden">last set</th>
+					<th class="h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-18">sets</th>
+					<th class="h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-34">last set</th>
 				</tr>
 			</thead>
 			@ExerciseRows(page)
