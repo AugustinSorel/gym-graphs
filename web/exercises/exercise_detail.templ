@@ -181,19 +181,19 @@ templ exerciseMoreGraphs(ex ExerciseDetailData) {
 			more graphs
 		</h2>
 		<div class="grid lg:grid-cols-3 gap-4 py-6 border-b-2 border-dotted border-outline/50">
-			<div class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
-				<p class="text-outline text-xs">reps range</p>
+			<figure class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<figcaption class="text-outline text-xs">reps range</figcaption>
 				@templ.JSONScript("exercise-reps-range-data", ex.RepsRangeBuckets)
 				<div id="exercise-reps-range-graph"></div>
-			</div>
-			<div class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
-				<p class="text-outline text-xs">volume · last 7 days</p>
+			</figure>
+			<figure class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<figcaption class="text-outline text-xs">volume · last 7 days</figcaption>
 				@templ.JSONScript("exercise-volume-session-data", ex.VolumePerSession)
 				<div
 					id="exercise-volume-session-graph"
 					data-unit={ weightunit.Abbr(ex.WeightUnit) }
 				></div>
-			</div>
+			</figure>
 			<div class="h-40 rounded-sm bg-outline/20"></div>
 		</div>
 	</section>

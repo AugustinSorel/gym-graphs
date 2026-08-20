@@ -605,7 +605,7 @@ func exerciseMoreGraphs(ex ExerciseDetailData) templ.Component {
 			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<section><h2 class=\"uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full\">more graphs</h2><div class=\"grid lg:grid-cols-3 gap-4 py-6 border-b-2 border-dotted border-outline/50\"><div class=\"gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4\"><p class=\"text-outline text-xs\">reps range</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<section><h2 class=\"uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full\">more graphs</h2><div class=\"grid lg:grid-cols-3 gap-4 py-6 border-b-2 border-dotted border-outline/50\"><figure class=\"gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4\"><figcaption class=\"text-outline text-xs\">reps range</figcaption>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -613,7 +613,7 @@ func exerciseMoreGraphs(ex ExerciseDetailData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div id=\"exercise-reps-range-graph\"></div></div><div class=\"gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4\"><p class=\"text-outline text-xs\">volume · last 7 days</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div id=\"exercise-reps-range-graph\"></div></figure><figure class=\"gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4\"><figcaption class=\"text-outline text-xs\">volume · last 7 days</figcaption>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -634,7 +634,7 @@ func exerciseMoreGraphs(ex ExerciseDetailData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"></div></div><div class=\"h-40 rounded-sm bg-outline/20\"></div></div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"></div></figure><div class=\"h-40 rounded-sm bg-outline/20\"></div></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
