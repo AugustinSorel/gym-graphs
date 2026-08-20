@@ -32,6 +32,7 @@ type ExercisesPage struct {
 	FirstIndex         int32
 	WeightUnit         db.WeightUnit
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
+	AllTags            []db.Tag
 }
 
 const InitialCursor = math.MaxInt32

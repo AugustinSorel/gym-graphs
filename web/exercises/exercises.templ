@@ -11,6 +11,32 @@ import (
 	"github.com/augustinsorel/gym-graphs/web/ui/link"
 )
 
+templ exerciseFilters(tags []db.Tag) {
+	if len(tags) > 0 {
+		<details class="group col-span-2 space-y-4">
+			<summary class="cursor-pointer items-center gap-2 text-outline text-xs select-none">
+				filters
+			</summary>
+			<fieldset class="space-y-4">
+				<legend class="uppercase text-outline border-b-2 border-outline/50 border-dotted text-xs pb-2 w-full">tags</legend>
+				<div class="flex flex-wrap gap-2">
+					for _, tag := range tags {
+						<label class="border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">
+							<input
+								type="checkbox"
+								name="filter_tag_ids"
+								value={ fmt.Sprintf("%d", tag.ID) }
+								class="sr-only"
+							/>
+							{ tag.Name }
+						</label>
+					}
+				</div>
+			</fieldset>
+		</details>
+	}
+}
+
 templ noExercisesMessage() {
 	<section class="mt-40 gap-5 flex flex-col items-center text-center">
 		<span
@@ -76,13 +102,14 @@ templ ExerciseRows(page service.ExercisesPage) {
 }
 
 templ exercisesList(page service.ExercisesPage, totalCount int64) {
-	<header class="flex items-center justify-between">
+	<header class="grid grid-cols-[1fr_auto] gap-4">
 		<span class="text-outline uppercase text-sm">
 			exercises ({ fmt.Sprintf("%d", totalCount) })
 		</span>
 		@link.Link(link.Props{Href: "/exercises/new"}) {
 			+ add
 		}
+		@exerciseFilters(page.AllTags)
 	</header>
 	<table class="caption-bottom text-sm">
 		<thead class="border-b-2 text-nowrap">

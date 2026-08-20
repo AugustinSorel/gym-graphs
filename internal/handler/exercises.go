@@ -172,6 +172,14 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch tags for exercises page", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	exercisesPage.AllTags = allTags
+
 	page := exercises.ExercisesPage(exercisesPage)
 	ctx := templ.WithChildren(r.Context(), page)
 
