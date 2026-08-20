@@ -20,7 +20,7 @@ func NewExerciseService(queries *db.Queries, pool *pgxpool.Pool) *ExerciseServic
 	return &ExerciseService{queries: queries, pool: pool}
 }
 
-const ExercisesPageSize = 2
+const ExercisesPageSize = 30
 
 type ExerciseRow = db.GetExercisesPageByUserIDRow
 
