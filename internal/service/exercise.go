@@ -20,7 +20,7 @@ func NewExerciseService(queries *db.Queries, pool *pgxpool.Pool) *ExerciseServic
 	return &ExerciseService{queries: queries, pool: pool}
 }
 
-const ExercisesPageSize = 30
+const ExercisesPageSize = 2
 
 type ExerciseRow = db.GetExercisesPageByUserIDRow
 
@@ -33,6 +33,7 @@ type ExercisesPage struct {
 	WeightUnit         db.WeightUnit
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
 	AllTags            []db.Tag
+	ActiveTagIDs       []int32
 }
 
 const InitialCursor = math.MaxInt32
@@ -40,7 +41,7 @@ const InitialCursor = math.MaxInt32
 func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int32) (ExercisesPage, error) {
 	exercises, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
 		UserID: user.ID,
-		ID: cursor,
+		ID:     cursor,
 		Limit:  ExercisesPageSize + 1,
 	})
 	if err != nil {
@@ -61,6 +62,69 @@ func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int3
 	count, err := s.queries.GetExercisesCountByUserID(ctx, user.ID)
 	if err != nil {
 		return ExercisesPage{}, err
+	}
+
+	var firstIndex int32
+	if len(exercises) > 0 {
+		firstIndex = exercises[0].ID
+	}
+
+	return ExercisesPage{
+		Rows:               exercises,
+		TotalCount:         count,
+		NextCursor:         nextCursor,
+		HasNextPage:        hasNextPage,
+		FirstIndex:         firstIndex,
+		WeightUnit:         user.WeightUnit,
+		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
+	}, nil
+}
+
+func (s *ExerciseService) GetPageByTagIDs(ctx context.Context, user db.User, tagIDs []int32, cursor int32) (ExercisesPage, error) {
+	raw, err := s.queries.GetExercisesPageByUserIDAndTagIDs(ctx, db.GetExercisesPageByUserIDAndTagIDsParams{
+		UserID:  user.ID,
+		Column2: tagIDs,
+		ID:      cursor,
+		Limit:   ExercisesPageSize + 1,
+	})
+	if err != nil {
+		return ExercisesPage{}, err
+	}
+
+	hasNextPage := len(raw) > ExercisesPageSize
+	if hasNextPage {
+		raw = raw[:ExercisesPageSize]
+	}
+
+	var nextCursor int32
+	if hasNextPage {
+		nextCursor = raw[len(raw)-1].ID
+	}
+
+	exercises := make([]ExerciseRow, len(raw))
+	for i, r := range raw {
+		exercises[i] = ExerciseRow{
+			ID:                 r.ID,
+			UserID:             r.UserID,
+			Name:               r.Name,
+			UpdatedAt:          r.UpdatedAt,
+			CreatedAt:          r.CreatedAt,
+			SetsCount:          r.SetsCount,
+			LastSetWeightInG:   r.LastSetWeightInG,
+			LastSetRepetitions: r.LastSetRepetitions,
+			LastSetDoneAt:      r.LastSetDoneAt,
+			PrevSetWeightInG:   r.PrevSetWeightInG,
+			PrevSetRepetitions: r.PrevSetRepetitions,
+		}
+	}
+
+	count, err := s.queries.GetExercisesCountByUserIDAndTagIDs(ctx, db.GetExercisesCountByUserIDAndTagIDsParams{
+		UserID:  user.ID,
+		Column2: tagIDs,
+	})
+	if err != nil {
+		// If no rows match, count returns no rows — treat that as 0.
+		count = 0
 	}
 
 	var firstIndex int32

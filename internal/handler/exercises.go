@@ -143,29 +143,55 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filterTagIDs := parseTagIDs(r.URL.Query()["filter_tag_ids"])
+
 	if r.Header.Get("HX-Request") == "true" {
+		var exercisesPage service.ExercisesPage
+		rawCursor := r.URL.Query().Get("cursor")
+		isScrollRequest := rawCursor != ""
+
 		var cursor int32 = service.InitialCursor
-		if raw := r.URL.Query().Get("cursor"); raw != "" {
-			if v, err := strconv.ParseInt(raw, 10, 32); err == nil {
+		if isScrollRequest {
+			if v, parseErr := strconv.ParseInt(rawCursor, 10, 32); parseErr == nil {
 				cursor = int32(v)
 			}
 		}
 
-		exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), user, cursor)
+		if len(filterTagIDs) > 0 {
+			exercisesPage, err = h.exerciseSvc.GetPageByTagIDs(r.Context(), user, filterTagIDs, cursor)
+		} else {
+			exercisesPage, err = h.exerciseSvc.GetPage(r.Context(), user, cursor)
+		}
 		if err != nil {
 			slog.Error("failed to fetch exercises rows", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
+		exercisesPage.ActiveTagIDs = filterTagIDs
 
-		if err := exercises.ExerciseRows(exercisesPage).Render(r.Context(), w); err != nil {
-			slog.Error("failed to render exercises rows", "error", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// Infinite-scroll requests only need the <tbody> fragment.
+		// Filter requests need the full <table> (with <thead>) so the
+		// table header is not lost when swapping #exercises-table.
+		if isScrollRequest {
+			if err := exercises.ExerciseRows(exercisesPage).Render(r.Context(), w); err != nil {
+				slog.Error("failed to render exercises rows", "error", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+		} else {
+			if err := exercises.ExercisesTable(exercisesPage).Render(r.Context(), w); err != nil {
+				slog.Error("failed to render exercises table", "error", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 		}
 		return
 	}
 
-	exercisesPage, err := h.exerciseSvc.GetPage(r.Context(), user, service.InitialCursor)
+	var exercisesPage service.ExercisesPage
+	if len(filterTagIDs) > 0 {
+		exercisesPage, err = h.exerciseSvc.GetPageByTagIDs(r.Context(), user, filterTagIDs, service.InitialCursor)
+	} else {
+		exercisesPage, err = h.exerciseSvc.GetPage(r.Context(), user, service.InitialCursor)
+	}
 	if err != nil {
 		slog.Error("failed to fetch exercises", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -179,6 +205,7 @@ func (h *ExercisesHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	exercisesPage.AllTags = allTags
+	exercisesPage.ActiveTagIDs = filterTagIDs
 
 	page := exercises.ExercisesPage(exercisesPage)
 	ctx := templ.WithChildren(r.Context(), page)

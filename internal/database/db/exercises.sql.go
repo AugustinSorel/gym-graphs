@@ -141,6 +141,25 @@ func (q *Queries) GetExercisesCountByUserID(ctx context.Context, userID int32) (
 	return count, err
 }
 
+const getExercisesCountByUserIDAndTagIDs = `-- name: GetExercisesCountByUserIDAndTagIDs :one
+SELECT COUNT(DISTINCT e.id)
+FROM exercises e
+INNER JOIN exercise_tags et ON et.exercise_id = e.id AND et.tag_id = ANY($2::int[])
+WHERE e.user_id = $1
+`
+
+type GetExercisesCountByUserIDAndTagIDsParams struct {
+	UserID  int32
+	Column2 []int32
+}
+
+func (q *Queries) GetExercisesCountByUserIDAndTagIDs(ctx context.Context, arg GetExercisesCountByUserIDAndTagIDsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getExercisesCountByUserIDAndTagIDs, arg.UserID, arg.Column2)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getExercisesPageByUserID = `-- name: GetExercisesPageByUserID :many
 SELECT
     e.id, 
@@ -210,6 +229,103 @@ func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercises
 	var items []GetExercisesPageByUserIDRow
 	for rows.Next() {
 		var i GetExercisesPageByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.SetsCount,
+			&i.LastSetWeightInG,
+			&i.LastSetRepetitions,
+			&i.LastSetDoneAt,
+			&i.PrevSetWeightInG,
+			&i.PrevSetRepetitions,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getExercisesPageByUserIDAndTagIDs = `-- name: GetExercisesPageByUserIDAndTagIDs :many
+SELECT DISTINCT ON (e.id)
+    e.id,
+    e.user_id,
+    e.name,
+    e.updated_at,
+    e.created_at,
+    COALESCE(s.sets_count, 0) AS sets_count,
+    s.last_set_weight_in_g,
+    s.last_set_repetitions,
+    s.last_set_done_at,
+    s.prev_set_weight_in_g,
+    s.prev_set_repetitions
+FROM exercises e
+INNER JOIN exercise_tags et ON et.exercise_id = e.id AND et.tag_id = ANY($2::int[])
+LEFT JOIN LATERAL (
+    SELECT
+        COUNT(*) AS sets_count,
+        COALESCE(MAX(weight_in_g) FILTER (WHERE rn = 1), 0)::int AS last_set_weight_in_g,
+        COALESCE(MAX(repetitions) FILTER (WHERE rn = 1), 0)::int AS last_set_repetitions,
+        MAX(done_at) FILTER (WHERE rn = 1)::timestamptz AS last_set_done_at,
+        COALESCE(MAX(weight_in_g) FILTER (WHERE rn = 2), 0)::int AS prev_set_weight_in_g,
+        COALESCE(MAX(repetitions) FILTER (WHERE rn = 2), 0)::int AS prev_set_repetitions
+    FROM (
+        SELECT
+            weight_in_g,
+            repetitions,
+            done_at,
+            ROW_NUMBER() OVER (ORDER BY done_at DESC) as rn
+        FROM sets
+        WHERE exercise_id = e.id
+    ) ranked_sets
+) s ON true
+WHERE e.user_id = $1
+  AND e.id < $3
+ORDER BY e.id DESC
+LIMIT $4
+`
+
+type GetExercisesPageByUserIDAndTagIDsParams struct {
+	UserID  int32
+	Column2 []int32
+	ID      int32
+	Limit   int32
+}
+
+type GetExercisesPageByUserIDAndTagIDsRow struct {
+	ID                 int32
+	UserID             int32
+	Name               string
+	UpdatedAt          pgtype.Timestamptz
+	CreatedAt          pgtype.Timestamptz
+	SetsCount          int64
+	LastSetWeightInG   int32
+	LastSetRepetitions int32
+	LastSetDoneAt      pgtype.Timestamptz
+	PrevSetWeightInG   int32
+	PrevSetRepetitions int32
+}
+
+func (q *Queries) GetExercisesPageByUserIDAndTagIDs(ctx context.Context, arg GetExercisesPageByUserIDAndTagIDsParams) ([]GetExercisesPageByUserIDAndTagIDsRow, error) {
+	rows, err := q.db.Query(ctx, getExercisesPageByUserIDAndTagIDs,
+		arg.UserID,
+		arg.Column2,
+		arg.ID,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetExercisesPageByUserIDAndTagIDsRow
+	for rows.Next() {
+		var i GetExercisesPageByUserIDAndTagIDsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
