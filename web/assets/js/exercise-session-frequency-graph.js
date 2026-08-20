@@ -20,7 +20,7 @@ const renderSessionFrequencyGraph = (container, points) => {
 
   if (points.length === 0) {
     container.innerHTML =
-      '<p style="font-size:12px;text-align:center;padding:24px 0;color:var(--color-outline)">no sets yet</p>';
+      '<p style="font-size:14px;text-align:center;padding:24px 0;color:var(--color-outline)">no sets yet</p>';
     return;
   }
 
