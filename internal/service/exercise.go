@@ -242,6 +242,42 @@ func (s *ExerciseService) VolumePerSessionLast7Days(ctx context.Context, exercis
 	return points, nil
 }
 
+type SessionFrequencyPoint struct {
+	// WeekOffset is 0 for the current week, -1 for last week, … -7 for 7 weeks ago.
+	WeekOffset   int `json:"weekOffset"`
+	SessionCount int `json:"sessionCount"`
+}
+
+func (s *ExerciseService) SessionFrequencyLast8Weeks(ctx context.Context, exerciseID int32) ([]SessionFrequencyPoint, error) {
+	rows, err := s.queries.GetSessionFrequencyLast8WeeksByExerciseID(ctx, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now().UTC()
+	// Start of the current ISO week (Monday)
+	weekday := int(now.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	currentWeekStart := now.AddDate(0, 0, -(weekday - 1)).Truncate(24 * time.Hour)
+
+	points := make([]SessionFrequencyPoint, 0, len(rows))
+	for _, row := range rows {
+		if !row.WeekStart.Valid {
+			continue
+		}
+		d := row.WeekStart.Time.UTC()
+		ws := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		weekOffset := int(ws.Sub(currentWeekStart).Hours() / (24 * 7))
+		points = append(points, SessionFrequencyPoint{
+			WeekOffset:   weekOffset,
+			SessionCount: int(row.SessionCount),
+		})
+	}
+	return points, nil
+}
+
 func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs []int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {

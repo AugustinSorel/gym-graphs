@@ -78,6 +78,13 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	sessionFrequency, err := h.exerciseSvc.SessionFrequencyLast8Weeks(r.Context(), exercise.ID)
+	if err != nil {
+		slog.Error("failed to compute session frequency", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch tags for exercise detail page", "error", err)
@@ -113,6 +120,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		GraphPoints:        graphPoints,
 		RepsRangeBuckets:   repsRangeBuckets,
 		VolumePerSession:   volumePerSession,
+		SessionFrequency:   sessionFrequency,
 		SetsPage:           setsPage,
 		AllTags:            allTags,
 		ExerciseTags:       exerciseTags,

@@ -85,5 +85,4 @@ func newTracker(cfg *config.Config) analytics.Tracker {
 //TODO: optimisation
 //TODO: home page
 //TODO: filters
-//TODO: more graphs
 //TODO: stats page

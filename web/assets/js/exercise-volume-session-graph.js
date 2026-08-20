@@ -1,4 +1,17 @@
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 const DAYS = 7;
 
 const renderVolumeSessionGraph = (container, points, unit) => {
@@ -20,7 +33,7 @@ const renderVolumeSessionGraph = (container, points, unit) => {
 
   const marginTop = 6;
   const marginBottom = 24; // day labels
-  const marginLeft = 36;   // y-axis
+  const marginLeft = 36; // y-axis
   const marginRight = 4;
   const innerW = totalW - marginLeft - marginRight;
   const innerH = 120;
@@ -87,11 +100,7 @@ const renderVolumeSessionGraph = (container, points, unit) => {
   // Y-axis
   g.append("g")
     .call(
-      d3
-        .axisLeft(y)
-        .tickValues(yTicks)
-        .tickFormat(formatVolume)
-        .tickSize(0),
+      d3.axisLeft(y).tickValues(yTicks).tickFormat(formatVolume).tickSize(0),
     )
     .call((ax) => ax.select(".domain").remove())
     .selectAll("text")

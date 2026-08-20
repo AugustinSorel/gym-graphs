@@ -209,6 +209,42 @@ func (q *Queries) GetRepsRangeByExerciseID(ctx context.Context, exerciseID int32
 	return i, err
 }
 
+const getSessionFrequencyLast8WeeksByExerciseID = `-- name: GetSessionFrequencyLast8WeeksByExerciseID :many
+select
+    date_trunc('week', done_at)::date          as week_start,
+    count(distinct date_trunc('day', done_at))::int as session_count
+from sets
+where exercise_id = $1
+  and done_at >= date_trunc('week', now()) - interval '7 weeks'
+group by week_start
+order by week_start asc
+`
+
+type GetSessionFrequencyLast8WeeksByExerciseIDRow struct {
+	WeekStart    pgtype.Date
+	SessionCount int32
+}
+
+func (q *Queries) GetSessionFrequencyLast8WeeksByExerciseID(ctx context.Context, exerciseID int32) ([]GetSessionFrequencyLast8WeeksByExerciseIDRow, error) {
+	rows, err := q.db.Query(ctx, getSessionFrequencyLast8WeeksByExerciseID, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSessionFrequencyLast8WeeksByExerciseIDRow
+	for rows.Next() {
+		var i GetSessionFrequencyLast8WeeksByExerciseIDRow
+		if err := rows.Scan(&i.WeekStart, &i.SessionCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSetByIDAndUserID = `-- name: GetSetByIDAndUserID :one
 select s.id, s.exercise_id, s.repetitions, s.weight_in_g, s.done_at, s.updated_at, s.created_at
 from sets s

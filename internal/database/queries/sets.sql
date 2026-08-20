@@ -103,6 +103,16 @@ from sets s
 join exercises e on e.id = s.exercise_id
 where e.user_id = $1;
 
+-- name: GetSessionFrequencyLast8WeeksByExerciseID :many
+select
+    date_trunc('week', done_at)::date          as week_start,
+    count(distinct date_trunc('day', done_at))::int as session_count
+from sets
+where exercise_id = $1
+  and done_at >= date_trunc('week', now()) - interval '7 weeks'
+group by week_start
+order by week_start asc;
+
 -- name: GetVolumePerSessionLast7DaysByExerciseID :many
 select
     date_trunc('day', done_at)::date            as session_date,
