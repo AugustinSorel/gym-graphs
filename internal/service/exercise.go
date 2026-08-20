@@ -204,6 +204,35 @@ func (s *ExerciseService) RepsRange(ctx context.Context, exerciseID int32) ([]Re
 	}, nil
 }
 
+type VolumeSessionPoint struct {
+	// DayOffset is 0 for today, -1 for yesterday, … -6 for 6 days ago.
+	DayOffset  int   `json:"dayOffset"`
+	VolumeInG  int64 `json:"volumeInG"`
+}
+
+func (s *ExerciseService) VolumePerSessionLast7Days(ctx context.Context, exerciseID int32) ([]VolumeSessionPoint, error) {
+	rows, err := s.queries.GetVolumePerSessionLast7DaysByExerciseID(ctx, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+
+	today := time.Now().UTC().Truncate(24 * time.Hour)
+	points := make([]VolumeSessionPoint, 0, len(rows))
+	for _, row := range rows {
+		if !row.SessionDate.Valid {
+			continue
+		}
+		d := row.SessionDate.Time.UTC()
+		sessionDay := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		dayOffset := int(sessionDay.Sub(today).Hours() / 24)
+		points = append(points, VolumeSessionPoint{
+			DayOffset: dayOffset,
+			VolumeInG: row.VolumeInG,
+		})
+	}
+	return points, nil
+}
+
 func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs []int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {

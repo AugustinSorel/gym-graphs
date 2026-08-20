@@ -23,6 +23,7 @@ type ExerciseDetailData struct {
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
 	GraphPoints        []service.ExerciseGraphPoint
 	RepsRangeBuckets   []service.RepsRangeBucket
+	VolumePerSession   []service.VolumeSessionPoint
 	SetsPage           service.SetsPage
 	AllTags            []db.Tag
 	ExerciseTags       []db.Tag
@@ -185,7 +186,14 @@ templ exerciseMoreGraphs(ex ExerciseDetailData) {
 				@templ.JSONScript("exercise-reps-range-data", ex.RepsRangeBuckets)
 				<div id="exercise-reps-range-graph"></div>
 			</div>
-			<div class="h-40 rounded-sm bg-outline/20"></div>
+			<div class="gap-4 pb-4 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<p class="text-outline text-xs">volume · last 7 days</p>
+				@templ.JSONScript("exercise-volume-session-data", ex.VolumePerSession)
+				<div
+					id="exercise-volume-session-graph"
+					data-unit={ weightunit.Abbr(ex.WeightUnit) }
+				></div>
+			</div>
 			<div class="h-40 rounded-sm bg-outline/20"></div>
 		</div>
 	</section>

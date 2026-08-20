@@ -93,6 +93,16 @@ from sets s
 join exercises e on e.id = s.exercise_id
 where e.user_id = $1;
 
+-- name: GetVolumePerSessionLast7DaysByExerciseID :many
+select
+    date_trunc('day', done_at)::date            as session_date,
+    sum(weight_in_g::bigint * repetitions::bigint)::bigint as volume_in_g
+from sets
+where exercise_id = $1
+  and done_at >= date_trunc('day', now()) - interval '6 days'
+group by session_date
+order by session_date asc;
+
 -- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]);

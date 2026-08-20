@@ -358,6 +358,42 @@ func (q *Queries) GetUserStatsByUserIDAndWeek(ctx context.Context, arg GetUserSt
 	return i, err
 }
 
+const getVolumePerSessionLast7DaysByExerciseID = `-- name: GetVolumePerSessionLast7DaysByExerciseID :many
+select
+    date_trunc('day', done_at)::date            as session_date,
+    sum(weight_in_g::bigint * repetitions::bigint)::bigint as volume_in_g
+from sets
+where exercise_id = $1
+  and done_at >= date_trunc('day', now()) - interval '6 days'
+group by session_date
+order by session_date asc
+`
+
+type GetVolumePerSessionLast7DaysByExerciseIDRow struct {
+	SessionDate pgtype.Date
+	VolumeInG   int64
+}
+
+func (q *Queries) GetVolumePerSessionLast7DaysByExerciseID(ctx context.Context, exerciseID int32) ([]GetVolumePerSessionLast7DaysByExerciseIDRow, error) {
+	rows, err := q.db.Query(ctx, getVolumePerSessionLast7DaysByExerciseID, exerciseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVolumePerSessionLast7DaysByExerciseIDRow
+	for rows.Next() {
+		var i GetVolumePerSessionLast7DaysByExerciseIDRow
+		if err := rows.Scan(&i.SessionDate, &i.VolumeInG); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const seedCreateSets = `-- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[])

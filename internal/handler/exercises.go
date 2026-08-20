@@ -71,6 +71,13 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	volumePerSession, err := h.exerciseSvc.VolumePerSessionLast7Days(r.Context(), exercise.ID)
+	if err != nil {
+		slog.Error("failed to compute volume per session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	allTags, err := h.tagSvc.GetByUserID(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch tags for exercise detail page", "error", err)
@@ -103,6 +110,7 @@ func (h *ExercisesHandler) ViewDetailPage(w http.ResponseWriter, r *http.Request
 		OneRepMaxAlgorithm: user.OneRepMaxAlgorithm,
 		GraphPoints:        graphPoints,
 		RepsRangeBuckets:   repsRangeBuckets,
+		VolumePerSession:   volumePerSession,
 		SetsPage:           setsPage,
 		AllTags:            allTags,
 		ExerciseTags:       exerciseTags,
