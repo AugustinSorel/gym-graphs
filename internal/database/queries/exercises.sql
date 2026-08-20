@@ -42,8 +42,9 @@ LEFT JOIN LATERAL (
     ) ranked_sets
 ) s ON true
 WHERE e.user_id = $1
-ORDER BY id DESC
-LIMIT $2;
+  AND e.id < $2
+ORDER BY e.id DESC
+LIMIT $3;
 
 -- name: GetExercisesCountByUserID :one
 select count(*) from exercises

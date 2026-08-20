@@ -176,12 +176,14 @@ LEFT JOIN LATERAL (
     ) ranked_sets
 ) s ON true
 WHERE e.user_id = $1
-ORDER BY id DESC
-LIMIT $2
+  AND e.id < $2
+ORDER BY e.id DESC
+LIMIT $3
 `
 
 type GetExercisesPageByUserIDParams struct {
 	UserID int32
+	ID     int32
 	Limit  int32
 }
 
@@ -200,7 +202,7 @@ type GetExercisesPageByUserIDRow struct {
 }
 
 func (q *Queries) GetExercisesPageByUserID(ctx context.Context, arg GetExercisesPageByUserIDParams) ([]GetExercisesPageByUserIDRow, error) {
-	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.Limit)
+	rows, err := q.db.Query(ctx, getExercisesPageByUserID, arg.UserID, arg.ID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@ func NewExerciseService(queries *db.Queries, pool *pgxpool.Pool) *ExerciseServic
 	return &ExerciseService{queries: queries, pool: pool}
 }
 
-const ExercisesPageSize = 30
+const ExercisesPageSize = 2
 
 type ExerciseRow = db.GetExercisesPageByUserIDRow
 
@@ -40,6 +40,7 @@ const InitialCursor = math.MaxInt32
 func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int32) (ExercisesPage, error) {
 	exercises, err := s.queries.GetExercisesPageByUserID(ctx, db.GetExercisesPageByUserIDParams{
 		UserID: user.ID,
+		ID: cursor,
 		Limit:  ExercisesPageSize + 1,
 	})
 	if err != nil {
@@ -120,12 +121,12 @@ func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorit
 }
 
 type ExerciseFunFacts struct {
-	Best1RMInG        float64
-	BestSetWeightInG  float64
-	BestSetReps       int
-	TotalSessions     int
-	AvgRepsPerSet     float64
-	TotalSets         int
+	Best1RMInG       float64
+	BestSetWeightInG float64
+	BestSetReps      int
+	TotalSessions    int
+	AvgRepsPerSet    float64
+	TotalSets        int
 }
 
 func (s *ExerciseService) FunFacts(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (ExerciseFunFacts, error) {
@@ -216,8 +217,8 @@ func (s *ExerciseService) RepsRange(ctx context.Context, exerciseID int32) ([]Re
 
 type VolumeSessionPoint struct {
 	// DayOffset is 0 for today, -1 for yesterday, … -6 for 6 days ago.
-	DayOffset  int   `json:"dayOffset"`
-	VolumeInG  int64 `json:"volumeInG"`
+	DayOffset int   `json:"dayOffset"`
+	VolumeInG int64 `json:"volumeInG"`
 }
 
 func (s *ExerciseService) VolumePerSessionLast7Days(ctx context.Context, exerciseID int32) ([]VolumeSessionPoint, error) {
