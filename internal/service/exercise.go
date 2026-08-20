@@ -119,10 +119,12 @@ func (s *ExerciseService) Best1RM(ctx context.Context, exerciseID int32, algorit
 }
 
 type ExerciseFunFacts struct {
-	Best1RMInG       float64
-	HighestWeightInG float64
-	TotalVolumeInG   float64
-	TotalSets        int
+	Best1RMInG        float64
+	BestSetWeightInG  float64
+	BestSetReps       int
+	TotalSessions     int
+	AvgRepsPerSet     float64
+	TotalSets         int
 }
 
 func (s *ExerciseService) FunFacts(ctx context.Context, exerciseID int32, algorithm db.OneRepMaxAlgorithm) (ExerciseFunFacts, error) {
@@ -136,10 +138,17 @@ func (s *ExerciseService) FunFacts(ctx context.Context, exerciseID int32, algori
 		return ExerciseFunFacts{}, err
 	}
 
+	bestSet, err := s.queries.GetBestSetByExerciseID(ctx, exerciseID)
+	if err != nil && int(stats.TotalSets) > 0 {
+		return ExerciseFunFacts{}, err
+	}
+
 	return ExerciseFunFacts{
 		Best1RMInG:       best1rm,
-		HighestWeightInG: float64(stats.HighestWeightInG),
-		TotalVolumeInG:   float64(stats.TotalVolumeInG),
+		BestSetWeightInG: float64(bestSet.WeightInG),
+		BestSetReps:      int(bestSet.Repetitions),
+		TotalSessions:    int(stats.TotalSessions),
+		AvgRepsPerSet:    stats.AvgReps,
 		TotalSets:        int(stats.TotalSets),
 	}, nil
 }

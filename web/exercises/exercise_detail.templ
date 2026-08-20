@@ -16,8 +16,10 @@ type ExerciseDetailData struct {
 	ID                 int32
 	Name               string
 	Best1RMInG         float64
-	HighestWeightInG   float64
-	TotalVolumeInG     float64
+	BestSetWeightInG   float64
+	BestSetReps        int
+	TotalSessions      int
+	AvgRepsPerSet      float64
 	TotalSets          int
 	WeightUnit         db.WeightUnit
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
@@ -292,32 +294,33 @@ templ exerciseFunFacts(ex ExerciseDetailData) {
 				</dd>
 			</div>
 			<div class="grid gap-1">
-				<dt class="text-outline text-xs">highest weight</dt>
+				<dt class="text-outline text-xs">best set</dt>
 				<dd class="text-xl font-semibold">
-					if ex.HighestWeightInG > 0 {
-						{ weightunit.Format(ex.HighestWeightInG, ex.WeightUnit) }
-						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
+					if ex.BestSetWeightInG > 0 && ex.BestSetReps > 0 {
+						{ weightunit.Format(ex.BestSetWeightInG, ex.WeightUnit) }
+						<span class="text-sm font-normal text-outline">
+							<abbr title={ weightunit.Name(ex.WeightUnit) } class="no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr> * { fmt.Sprintf("%d", ex.BestSetReps) }
+						</span>
 					} else {
 						-
 					}
 				</dd>
 			</div>
 			<div class="grid gap-1">
-				<dt class="text-outline text-xs">total volume</dt>
-				<dd class="text-xl font-semibold">
-					if ex.TotalVolumeInG > 0 {
-						{ weightunit.Format(ex.TotalVolumeInG, ex.WeightUnit) }
-						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
-					} else {
-						-
-					}
-				</dd>
-			</div>
-			<div class="grid gap-1">
-				<dt class="text-outline text-xs">total sets</dt>
+				<dt class="text-outline text-xs"><abbr title="average repetitions per set" class="no-underline">avg reps / set</abbr></dt>
 				<dd class="text-xl font-semibold">
 					if ex.TotalSets > 0 {
-						{ fmt.Sprintf("%d", ex.TotalSets) }
+						{ fmt.Sprintf("%.1f", ex.AvgRepsPerSet) }
+					} else {
+						-
+					}
+				</dd>
+			</div>
+			<div class="grid gap-1">
+				<dt class="text-outline text-xs">sessions</dt>
+				<dd class="text-xl font-semibold">
+					if ex.TotalSessions > 0 {
+						{ fmt.Sprintf("%d", ex.TotalSessions) }
 					} else {
 						-
 					}

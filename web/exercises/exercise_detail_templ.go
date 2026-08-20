@@ -24,8 +24,10 @@ type ExerciseDetailData struct {
 	ID                 int32
 	Name               string
 	Best1RMInG         float64
-	HighestWeightInG   float64
-	TotalVolumeInG     float64
+	BestSetWeightInG   float64
+	BestSetReps        int
+	TotalSessions      int
+	AvgRepsPerSet      float64
 	TotalSets          int
 	WeightUnit         db.WeightUnit
 	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
@@ -126,7 +128,7 @@ func exerciseDetailHeader(ex ExerciseDetailData) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(ex.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 47, Col: 12}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 49, Col: 12}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -139,7 +141,7 @@ func exerciseDetailHeader(ex ExerciseDetailData) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ex.TotalSets))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 50, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 52, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -219,7 +221,7 @@ func exerciseSetsTable(ex ExerciseDetailData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("counter-reset: set-list %d", ex.SetsPage.TotalCount+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 70, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 72, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -279,7 +281,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(orm, unit))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 88, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 90, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -292,7 +294,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Name(unit))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 89, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 91, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
@@ -305,7 +307,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Abbr(unit))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 89, Col: 122}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 91, Col: 122}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -328,7 +330,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(float64(s.WeightInG), unit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 98, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 100, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -341,7 +343,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Name(unit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 99, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 101, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -354,7 +356,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Abbr(unit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 99, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 101, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -367,7 +369,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.Repetitions))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 104, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 106, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -414,7 +416,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(popoverID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 120, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 122, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
@@ -427,7 +429,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("position-anchor: " + anchorName + "; position-area: bottom span-left; position-try-fallbacks: flip-block;")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 123, Col: 120}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 125, Col: 120}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -440,7 +442,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var19 templ.SafeURL
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/edit", exerciseID, s.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 126, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 128, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -453,7 +455,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var20 templ.SafeURL
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/confirm-delete", exerciseID, s.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 130, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 132, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -472,7 +474,7 @@ func ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUni
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/exercises/%d/sets?cursor=%s&cursor_id=%d", exerciseID, page.NextCursor.DoneAt.Time.UTC().Format(time.RFC3339Nano), page.NextCursor.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 140, Col: 160}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 142, Col: 160}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {
@@ -565,7 +567,7 @@ func exerciseGraph(ex ExerciseDetailData) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Abbr(ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 172, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 174, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 			if templ_7745c5c3_Err != nil {
@@ -628,7 +630,7 @@ func exerciseMoreGraphs(ex ExerciseDetailData) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Abbr(ex.WeightUnit))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 194, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 196, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 		if templ_7745c5c3_Err != nil {
@@ -713,7 +715,7 @@ func ExerciseTagsSection(exerciseID int32, allTags []db.Tag, exerciseTags []db.T
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/exercises/%d/tags", exerciseID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 219, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 221, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
@@ -749,7 +751,7 @@ func ExerciseTagsSection(exerciseID int32, allTags []db.Tag, exerciseTags []db.T
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", tag.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 230, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 232, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 				if templ_7745c5c3_Err != nil {
@@ -772,7 +774,7 @@ func ExerciseTagsSection(exerciseID int32, allTags []db.Tag, exerciseTags []db.T
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(tag.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 236, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 238, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -820,7 +822,7 @@ func exerciseManage(ex ExerciseDetailData) templ.Component {
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(ex.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 251, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 253, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
@@ -921,7 +923,7 @@ func exerciseFunFacts(ex ExerciseDetailData) templ.Component {
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(ex.Best1RMInG, ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 287, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 289, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -934,7 +936,7 @@ func exerciseFunFacts(ex ExerciseDetailData) templ.Component {
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Name(ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 288, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 290, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 			if templ_7745c5c3_Err != nil {
@@ -947,7 +949,7 @@ func exerciseFunFacts(ex ExerciseDetailData) templ.Component {
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Abbr(ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 288, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 290, Col: 139}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -963,97 +965,100 @@ func exerciseFunFacts(ex ExerciseDetailData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">highest weight</dt><dd class=\"text-xl font-semibold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">best set</dt><dd class=\"text-xl font-semibold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if ex.HighestWeightInG > 0 {
+		if ex.BestSetWeightInG > 0 && ex.BestSetReps > 0 {
 			var templ_7745c5c3_Var42 string
-			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(ex.HighestWeightInG, ex.WeightUnit))
+			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(ex.BestSetWeightInG, ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 298, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 300, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " <abbr title=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " <span class=\"text-sm font-normal text-outline\"><abbr title=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var43 string
 			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Name(ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 299, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 302, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"text-sm font-normal text-outline no-underline\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"no-underline\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var44 string
 			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Abbr(ex.WeightUnit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 299, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 302, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</abbr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</abbr> * ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "-")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">total volume</dt><dd class=\"text-xl font-semibold\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if ex.TotalVolumeInG > 0 {
 			var templ_7745c5c3_Var45 string
-			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Format(ex.TotalVolumeInG, ex.WeightUnit))
+			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ex.BestSetReps))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 309, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 302, Col: 154}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " <abbr title=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "-")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\"><abbr title=\"average repetitions per set\" class=\"no-underline\">avg reps / set</abbr></dt><dd class=\"text-xl font-semibold\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if ex.TotalSets > 0 {
 			var templ_7745c5c3_Var46 string
-			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(weightunit.Name(ex.WeightUnit))
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", ex.AvgRepsPerSet))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 310, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 313, Col: 45}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" class=\"text-sm font-normal text-outline no-underline\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "-")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">sessions</dt><dd class=\"text-xl font-semibold\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if ex.TotalSessions > 0 {
 			var templ_7745c5c3_Var47 string
-			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(weightunit.Abbr(ex.WeightUnit))
+			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ex.TotalSessions))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 310, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 323, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</abbr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1063,27 +1068,7 @@ func exerciseFunFacts(ex ExerciseDetailData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">total sets</dt><dd class=\"text-xl font-semibold\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if ex.TotalSets > 0 {
-			var templ_7745c5c3_Var48 string
-			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ex.TotalSets))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/exercises/exercise_detail.templ`, Line: 320, Col: 39}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "-")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</dd></div></dl></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</dd></div></dl></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

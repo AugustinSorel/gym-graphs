@@ -31,11 +31,21 @@ where exercise_id = $1
 
 -- name: GetExerciseStatsByID :one
 select
-    count(*)::int                               as total_sets,
-    coalesce(max(weight_in_g), 0)::int          as highest_weight_in_g,
-    coalesce(sum(weight_in_g::bigint * repetitions::bigint), 0)::bigint as total_volume_in_g
+    count(*)::int                                                              as total_sets,
+    count(distinct date_trunc('day', done_at))::int                            as total_sessions,
+    coalesce(avg(repetitions), 0)::float8                                      as avg_reps,
+    coalesce(max(weight_in_g::bigint * repetitions::bigint), 0)::bigint        as best_set_volume_in_g
 from sets
 where exercise_id = $1;
+
+-- name: GetBestSetByExerciseID :one
+select weight_in_g, repetitions
+from sets
+where exercise_id = $1
+  and weight_in_g > 0
+  and repetitions > 0
+order by weight_in_g::bigint * repetitions::bigint desc
+limit 1;
 
 -- name: CreateSets :many
 insert into sets (exercise_id, repetitions, weight_in_g)
