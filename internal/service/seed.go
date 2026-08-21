@@ -54,7 +54,7 @@ var seedExercises = []struct {
 	},
 	{
 		name: "deadlift",
-		tags: []string{"legs", "calfs"},
+		tags: []string{"legs", "calves"},
 		sets: [][3]int32{
 			{30_000_000, 30, 1},
 			{10_000_000, 10, 2},
