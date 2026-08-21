@@ -387,7 +387,7 @@ func (q *Queries) GetUserStatsByUserID(ctx context.Context, userID int32) (GetUs
 	return i, err
 }
 
-const getUserStatsByUserIDAndWeek = `-- name: GetUserStatsByUserIDAndWeek :one
+const getUserStatsByUserIDLast7Days = `-- name: GetUserStatsByUserIDLast7Days :one
 select
     count(s.id)::int                                                              as total_sets,
     coalesce(sum(s.weight_in_g::bigint * s.repetitions::bigint), 0)::bigint      as total_volume_in_g,
@@ -396,24 +396,19 @@ select
 from sets s
 join exercises e on e.id = s.exercise_id
 where e.user_id = $1
-  and date_trunc('week', s.done_at) = date_trunc('week', $2::timestamptz)
+  and s.done_at >= date_trunc('day', now()) - interval '6 days'
 `
 
-type GetUserStatsByUserIDAndWeekParams struct {
-	UserID  int32
-	Column2 pgtype.Timestamptz
-}
-
-type GetUserStatsByUserIDAndWeekRow struct {
+type GetUserStatsByUserIDLast7DaysRow struct {
 	TotalSets      int32
 	TotalVolumeInG int64
 	TotalWeightInG int64
 	ExercisesCount int32
 }
 
-func (q *Queries) GetUserStatsByUserIDAndWeek(ctx context.Context, arg GetUserStatsByUserIDAndWeekParams) (GetUserStatsByUserIDAndWeekRow, error) {
-	row := q.db.QueryRow(ctx, getUserStatsByUserIDAndWeek, arg.UserID, arg.Column2)
-	var i GetUserStatsByUserIDAndWeekRow
+func (q *Queries) GetUserStatsByUserIDLast7Days(ctx context.Context, userID int32) (GetUserStatsByUserIDLast7DaysRow, error) {
+	row := q.db.QueryRow(ctx, getUserStatsByUserIDLast7Days, userID)
+	var i GetUserStatsByUserIDLast7DaysRow
 	err := row.Scan(
 		&i.TotalSets,
 		&i.TotalVolumeInG,

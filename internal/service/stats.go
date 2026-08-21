@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // GetWeeklyVolumePoints returns total volume per day across all exercises
@@ -65,11 +64,8 @@ func (s *StatsService) GetUserStats(ctx context.Context, userID int32, unit db.W
 	}, nil
 }
 
-func (s *StatsService) GetWeekStats(ctx context.Context, userID int32, unit db.WeightUnit, week time.Time) (UserStats, error) {
-	row, err := s.queries.GetUserStatsByUserIDAndWeek(ctx, db.GetUserStatsByUserIDAndWeekParams{
-		UserID:  userID,
-		Column2: pgtype.Timestamptz{Time: week, Valid: true},
-	})
+func (s *StatsService) GetWeekStats(ctx context.Context, userID int32, unit db.WeightUnit) (UserStats, error) {
+	row, err := s.queries.GetUserStatsByUserIDLast7Days(ctx, userID)
 	if err != nil {
 		return UserStats{}, err
 	}

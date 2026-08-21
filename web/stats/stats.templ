@@ -8,17 +8,23 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/weightunit"
 )
 
-func weekLabel(t time.Time) string {
-	_, week := t.ISOWeek()
-	return "week " + strconv.Itoa(week)
+func last7DaysLabel(today time.Time) string {
+	start := today.AddDate(0, 0, -6)
+	format := func(t time.Time) string {
+		return t.Format("Jan 2")
+	}
+	return format(start) + " - " + format(today)
 }
 
 templ StatsPage(s service.UserStats, weeklyVolume []service.VolumeSessionPoint, now time.Time) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
+		<hgroup class="space-y-1">
+			<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
+			<p class="text-sm text-outline font-normal uppercase">{ last7DaysLabel(now) }</p>
+		</hgroup>
 		<section>
 			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
-				{ weekLabel(now) }
+				facts
 			</h2>
 			<dl class="grid grid-cols-2 py-7 text-center">
 				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2 border-b-2">
@@ -76,7 +82,9 @@ templ StatsPage(s service.UserStats, weeklyVolume []service.VolumeSessionPoint, 
 			</dl>
 		</section>
 		<section>
-			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">weekly volume</h2>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				volume per day
+			</h2>
 			@templ.JSONScript("stats-volume-data", weeklyVolume)
 			<div id="stats-volume-graph" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
 		</section>

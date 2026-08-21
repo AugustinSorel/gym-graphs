@@ -82,7 +82,7 @@ join exercises e on e.id = s.exercise_id
 where e.user_id = $1
 order by s.exercise_id asc, s.done_at asc;
 
--- name: GetUserStatsByUserIDAndWeek :one
+-- name: GetUserStatsByUserIDLast7Days :one
 select
     count(s.id)::int                                                              as total_sets,
     coalesce(sum(s.weight_in_g::bigint * s.repetitions::bigint), 0)::bigint      as total_volume_in_g,
@@ -91,7 +91,7 @@ select
 from sets s
 join exercises e on e.id = s.exercise_id
 where e.user_id = $1
-  and date_trunc('week', s.done_at) = date_trunc('week', $2::timestamptz);
+  and s.done_at >= date_trunc('day', now()) - interval '6 days';
 
 -- name: GetUserStatsByUserID :one
 select

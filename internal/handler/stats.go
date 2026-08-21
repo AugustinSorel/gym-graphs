@@ -33,7 +33,7 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 
 	now := time.Now().UTC()
 
-	weekStats, err := h.statsSvc.GetWeekStats(r.Context(), authSession.UserID, user.WeightUnit, now)
+	weekStats, err := h.statsSvc.GetWeekStats(r.Context(), authSession.UserID, user.WeightUnit)
 	if err != nil {
 		slog.Error("failed to fetch week stats", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
