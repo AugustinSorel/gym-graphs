@@ -31,7 +31,7 @@ templ exerciseFilters(tags []db.Tag, activeTagIDs []int32) {
 				hx-push-url="true"
 			>
 				<fieldset class="space-y-2 border-b-2 border-outline/50 border-dotted pb-6">
-					<legend class="uppercase text-outline text-xs">tags</legend>
+					<legend class="uppercase text-outline text-xs sr-only">tags</legend>
 					<div class="flex flex-wrap gap-2">
 						for _, tag := range tags {
 							<label class="border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">

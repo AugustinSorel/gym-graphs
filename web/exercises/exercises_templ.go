@@ -56,7 +56,7 @@ func exerciseFilters(tags []db.Tag, activeTagIDs []int32) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</output></summary><form id=\"exercises-filter-form\" hx-get=\"/exercises\" hx-trigger=\"change\" hx-target=\"#exercises-table\" hx-swap=\"outerHTML\" hx-push-url=\"true\"><fieldset class=\"space-y-2 border-b-2 border-outline/50 border-dotted pb-6\"><legend class=\"uppercase text-outline text-xs\">tags</legend><div class=\"flex flex-wrap gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</output></summary><form id=\"exercises-filter-form\" hx-get=\"/exercises\" hx-trigger=\"change\" hx-target=\"#exercises-table\" hx-swap=\"outerHTML\" hx-push-url=\"true\"><fieldset class=\"space-y-2 border-b-2 border-outline/50 border-dotted pb-6\"><legend class=\"uppercase text-outline text-xs sr-only\">tags</legend><div class=\"flex flex-wrap gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
