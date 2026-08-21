@@ -476,7 +476,7 @@ func ExercisesPage(page service.ExercisesPage) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if page.TotalCount == 0 {
+		if page.TotalCount == 0 && len(page.ActiveTagIDs) == 0 {
 			templ_7745c5c3_Err = noExercisesMessage().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

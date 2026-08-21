@@ -185,7 +185,7 @@ templ exercisesList(page service.ExercisesPage, totalCount int64) {
 
 templ ExercisesPage(page service.ExercisesPage) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
-		if page.TotalCount == 0 {
+		if page.TotalCount == 0 && len(page.ActiveTagIDs) == 0 {
 			@noExercisesMessage()
 		} else {
 			@exercisesList(page, page.TotalCount)
