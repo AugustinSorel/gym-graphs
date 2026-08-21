@@ -423,6 +423,43 @@ func (q *Queries) GetUserStatsByUserIDAndWeek(ctx context.Context, arg GetUserSt
 	return i, err
 }
 
+const getVolumePerDayLast7DaysByUserID = `-- name: GetVolumePerDayLast7DaysByUserID :many
+select
+    date_trunc('day', s.done_at)::date                          as session_date,
+    sum(s.weight_in_g::bigint * s.repetitions::bigint)::bigint  as volume_in_g
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+  and s.done_at >= date_trunc('day', now()) - interval '6 days'
+group by session_date
+order by session_date asc
+`
+
+type GetVolumePerDayLast7DaysByUserIDRow struct {
+	SessionDate pgtype.Date
+	VolumeInG   int64
+}
+
+func (q *Queries) GetVolumePerDayLast7DaysByUserID(ctx context.Context, userID int32) ([]GetVolumePerDayLast7DaysByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, getVolumePerDayLast7DaysByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVolumePerDayLast7DaysByUserIDRow
+	for rows.Next() {
+		var i GetVolumePerDayLast7DaysByUserIDRow
+		if err := rows.Scan(&i.SessionDate, &i.VolumeInG); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getVolumePerSessionLast7DaysByExerciseID = `-- name: GetVolumePerSessionLast7DaysByExerciseID :many
 select
     date_trunc('day', done_at)::date            as session_date,

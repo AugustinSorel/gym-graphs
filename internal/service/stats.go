@@ -8,6 +8,32 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// GetWeeklyVolumePoints returns total volume per day across all exercises
+// for the last 7 days (today and the 6 preceding days).
+// It reuses VolumeSessionPoint defined in exercise.go.
+func (s *StatsService) GetWeeklyVolumePoints(ctx context.Context, userID int32) ([]VolumeSessionPoint, error) {
+	rows, err := s.queries.GetVolumePerDayLast7DaysByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	today := time.Now().UTC().Truncate(24 * time.Hour)
+	points := make([]VolumeSessionPoint, 0, len(rows))
+	for _, row := range rows {
+		if !row.SessionDate.Valid {
+			continue
+		}
+		d := row.SessionDate.Time
+		sessionDay := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		dayOffset := int(sessionDay.Sub(today).Hours() / 24)
+		points = append(points, VolumeSessionPoint{
+			DayOffset: dayOffset,
+			VolumeInG: row.VolumeInG,
+		})
+	}
+	return points, nil
+}
+
 type StatsService struct {
 	queries *db.Queries
 }
