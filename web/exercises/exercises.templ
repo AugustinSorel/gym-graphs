@@ -142,8 +142,6 @@ templ ExercisesTable(page service.ExercisesPage) {
 	if page.TotalCount == 0 {
 		<div
 			id="exercises-table"
-			data-total-count="0"
-			hx-on::after-swap="document.getElementById('exercises-count').textContent = this.dataset.totalCount"
 			class="flex flex-col items-center gap-3 py-20 text-center"
 		>
 			<span class="text-outline text-sm">no exercises match the selected filters</span>
@@ -152,8 +150,6 @@ templ ExercisesTable(page service.ExercisesPage) {
 		<table
 			id="exercises-table"
 			class="caption-bottom text-sm table-fixed w-full"
-			data-total-count={ fmt.Sprintf("%d", page.TotalCount) }
-			hx-on::after-swap="document.getElementById('exercises-count').textContent = this.dataset.totalCount"
 		>
 			<thead class="border-b-2 text-nowrap">
 				<tr>
@@ -170,10 +166,10 @@ templ ExercisesTable(page service.ExercisesPage) {
 	}
 }
 
-templ exercisesList(page service.ExercisesPage, totalCount int64) {
+templ exercisesList(page service.ExercisesPage) {
 	<header class="grid grid-cols-[1fr_auto] gap-4">
 		<span class="text-outline uppercase text-sm">
-			exercises (<output id="exercises-count">{ fmt.Sprintf("%d", totalCount) }</output>)
+			exercises ({ fmt.Sprintf("%d", page.AllExercisesCount) })
 		</span>
 		@link.Link(link.Props{Href: "/exercises/new"}) {
 			+ add
@@ -188,7 +184,7 @@ templ ExercisesPage(page service.ExercisesPage) {
 		if page.TotalCount == 0 && len(page.ActiveTagIDs) == 0 {
 			@noExercisesMessage()
 		} else {
-			@exercisesList(page, page.TotalCount)
+			@exercisesList(page)
 		}
 	</main>
 }

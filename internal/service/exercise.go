@@ -27,6 +27,7 @@ type ExerciseRow = db.GetExercisesPageByUserIDRow
 type ExercisesPage struct {
 	Rows               []ExerciseRow
 	TotalCount         int64
+	AllExercisesCount  int64
 	NextCursor         int32
 	HasNextPage        bool
 	FirstIndex         int32
@@ -72,6 +73,7 @@ func (s *ExerciseService) GetPage(ctx context.Context, user db.User, cursor int3
 	return ExercisesPage{
 		Rows:               exercises,
 		TotalCount:         count,
+		AllExercisesCount:  count,
 		NextCursor:         nextCursor,
 		HasNextPage:        hasNextPage,
 		FirstIndex:         firstIndex,
@@ -127,6 +129,11 @@ func (s *ExerciseService) GetPageByTagIDs(ctx context.Context, user db.User, tag
 		count = 0
 	}
 
+	allCount, err := s.queries.GetExercisesCountByUserID(ctx, user.ID)
+	if err != nil {
+		return ExercisesPage{}, err
+	}
+
 	var firstIndex int32
 	if len(exercises) > 0 {
 		firstIndex = exercises[0].ID
@@ -135,6 +142,7 @@ func (s *ExerciseService) GetPageByTagIDs(ctx context.Context, user db.User, tag
 	return ExercisesPage{
 		Rows:               exercises,
 		TotalCount:         count,
+		AllExercisesCount:  allCount,
 		NextCursor:         nextCursor,
 		HasNextPage:        hasNextPage,
 		FirstIndex:         firstIndex,
