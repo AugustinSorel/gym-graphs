@@ -3,7 +3,6 @@ package handler
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/a-h/templ"
 	"github.com/augustinsorel/gym-graphs/internal/middleware"
@@ -30,8 +29,6 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
-	now := time.Now().UTC()
 
 	weekStats, err := h.statsSvc.GetWeekStats(r.Context(), authSession.UserID, user.WeightUnit)
 	if err != nil {
@@ -61,7 +58,7 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := stats.StatsPage(weekStats, heatmap, volumeByTag, weeklyVolumeTrend, now)
+	page := stats.StatsPage(weekStats, heatmap, volumeByTag, weeklyVolumeTrend)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
