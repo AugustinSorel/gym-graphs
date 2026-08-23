@@ -56,6 +56,11 @@ func (s *StatsService) GetWeeklyVolumePoints(ctx context.Context, userID int32) 
 	return points, nil
 }
 
+type WeeklyVolumeTrendPoint struct {
+	WeekStartUnixMs int64 `json:"weekStartUnixMs"`
+	VolumeInG       int64 `json:"volumeInG"`
+}
+
 type VolumeByTagPoint struct {
 	TagName   string `json:"tagName"`
 	VolumeInG int64  `json:"volumeInG"`
@@ -90,6 +95,27 @@ func (s *StatsService) GetUserStats(ctx context.Context, userID int32, unit db.W
 		ExercisesCount: row.ExercisesCount,
 		WeightUnit:     unit,
 	}, nil
+}
+
+func (s *StatsService) GetWeeklyVolumeTrend(ctx context.Context, userID int32) ([]WeeklyVolumeTrendPoint, error) {
+	rows, err := s.queries.GetWeeklyVolumeLast12WeeksByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	points := make([]WeeklyVolumeTrendPoint, 0, len(rows))
+	for _, row := range rows {
+		if !row.WeekStart.Valid {
+			continue
+		}
+		d := row.WeekStart.Time.UTC()
+		midnight := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		points = append(points, WeeklyVolumeTrendPoint{
+			WeekStartUnixMs: midnight.UnixMilli(),
+			VolumeInG:       row.VolumeInG,
+		})
+	}
+	return points, nil
 }
 
 func (s *StatsService) GetVolumeByTag(ctx context.Context, userID int32) ([]VolumeByTagPoint, error) {

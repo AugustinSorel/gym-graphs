@@ -16,7 +16,7 @@ func last7DaysLabel(today time.Time) string {
 	return format(start) + " - " + format(today)
 }
 
-templ StatsPage(s service.UserStats, weeklyVolume []service.VolumeSessionPoint, heatmapDays []service.HeatmapDay, volumeByTag []service.VolumeByTagPoint, now time.Time) {
+templ StatsPage(s service.UserStats, weeklyVolume []service.VolumeSessionPoint, heatmapDays []service.HeatmapDay, volumeByTag []service.VolumeByTagPoint, weeklyVolumeTrend []service.WeeklyVolumeTrendPoint, now time.Time) {
 	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
 		<hgroup class="space-y-1">
 			<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
@@ -94,6 +94,13 @@ templ StatsPage(s service.UserStats, weeklyVolume []service.VolumeSessionPoint, 
 			</h2>
 			@templ.JSONScript("stats-heatmap-data", heatmapDays)
 			<div id="stats-heatmap" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
+		</section>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				weekly volume trend
+			</h2>
+			@templ.JSONScript("stats-weekly-volume-trend-data", weeklyVolumeTrend)
+			<div id="stats-weekly-volume-trend-graph" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
 		</section>
 		<section>
 			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
