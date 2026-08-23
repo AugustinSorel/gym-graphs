@@ -56,6 +56,11 @@ func (s *StatsService) GetWeeklyVolumePoints(ctx context.Context, userID int32) 
 	return points, nil
 }
 
+type VolumeByTagPoint struct {
+	TagName   string `json:"tagName"`
+	VolumeInG int64  `json:"volumeInG"`
+}
+
 type StatsService struct {
 	queries *db.Queries
 }
@@ -85,6 +90,22 @@ func (s *StatsService) GetUserStats(ctx context.Context, userID int32, unit db.W
 		ExercisesCount: row.ExercisesCount,
 		WeightUnit:     unit,
 	}, nil
+}
+
+func (s *StatsService) GetVolumeByTag(ctx context.Context, userID int32) ([]VolumeByTagPoint, error) {
+	rows, err := s.queries.GetVolumeByTagLast7DaysByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	points := make([]VolumeByTagPoint, 0, len(rows))
+	for _, row := range rows {
+		points = append(points, VolumeByTagPoint{
+			TagName:   row.TagName,
+			VolumeInG: row.VolumeInG,
+		})
+	}
+	return points, nil
 }
 
 func (s *StatsService) GetWeekStats(ctx context.Context, userID int32, unit db.WeightUnit) (UserStats, error) {

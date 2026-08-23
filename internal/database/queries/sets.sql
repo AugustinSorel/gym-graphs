@@ -145,6 +145,19 @@ where e.user_id = $1
 group by session_date
 order by session_date asc;
 
+-- name: GetVolumeByTagLast7DaysByUserID :many
+select
+    t.name                                                              as tag_name,
+    sum(s.weight_in_g::bigint * s.repetitions::bigint)::bigint         as volume_in_g
+from sets s
+join exercises e on e.id = s.exercise_id
+join exercise_tags et on et.exercise_id = e.id
+join tags t on t.id = et.tag_id
+where e.user_id = $1
+  and s.done_at >= date_trunc('day', now()) - interval '6 days'
+group by t.name
+order by volume_in_g desc;
+
 -- name: SeedCreateSets :exec
 insert into sets (exercise_id, repetitions, weight_in_g, done_at, created_at, updated_at)
 select $1, unnest($2::int[]), unnest($3::int[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]), unnest($4::timestamptz[]);

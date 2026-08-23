@@ -455,6 +455,45 @@ func (q *Queries) GetUserStatsByUserIDLast7Days(ctx context.Context, userID int3
 	return i, err
 }
 
+const getVolumeByTagLast7DaysByUserID = `-- name: GetVolumeByTagLast7DaysByUserID :many
+select
+    t.name                                                              as tag_name,
+    sum(s.weight_in_g::bigint * s.repetitions::bigint)::bigint         as volume_in_g
+from sets s
+join exercises e on e.id = s.exercise_id
+join exercise_tags et on et.exercise_id = e.id
+join tags t on t.id = et.tag_id
+where e.user_id = $1
+  and s.done_at >= date_trunc('day', now()) - interval '6 days'
+group by t.name
+order by volume_in_g desc
+`
+
+type GetVolumeByTagLast7DaysByUserIDRow struct {
+	TagName   string
+	VolumeInG int64
+}
+
+func (q *Queries) GetVolumeByTagLast7DaysByUserID(ctx context.Context, userID int32) ([]GetVolumeByTagLast7DaysByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, getVolumeByTagLast7DaysByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetVolumeByTagLast7DaysByUserIDRow
+	for rows.Next() {
+		var i GetVolumeByTagLast7DaysByUserIDRow
+		if err := rows.Scan(&i.TagName, &i.VolumeInG); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getVolumePerDayLast7DaysByUserID = `-- name: GetVolumePerDayLast7DaysByUserID :many
 select
     date_trunc('day', s.done_at)::date                          as session_date,

@@ -54,7 +54,14 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := stats.StatsPage(weekStats, weeklyVolume, heatmap, now)
+	volumeByTag, err := h.statsSvc.GetVolumeByTag(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch volume by tag", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	page := stats.StatsPage(weekStats, weeklyVolume, heatmap, volumeByTag, now)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
