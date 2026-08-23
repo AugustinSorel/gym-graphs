@@ -33,28 +33,6 @@ func (s *StatsService) GetTrainingHeatmap(ctx context.Context, userID int32) ([]
 	return days, nil
 }
 
-func (s *StatsService) GetWeeklyVolumePoints(ctx context.Context, userID int32) ([]VolumeSessionPoint, error) {
-	rows, err := s.queries.GetVolumePerDayLast7DaysByUserID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	today := time.Now().UTC().Truncate(24 * time.Hour)
-	points := make([]VolumeSessionPoint, 0, len(rows))
-	for _, row := range rows {
-		if !row.SessionDate.Valid {
-			continue
-		}
-		d := row.SessionDate.Time
-		sessionDay := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
-		dayOffset := int(sessionDay.Sub(today).Hours() / 24)
-		points = append(points, VolumeSessionPoint{
-			DayOffset: dayOffset,
-			VolumeInG: row.VolumeInG,
-		})
-	}
-	return points, nil
-}
 
 type WeeklyVolumeTrendPoint struct {
 	WeekStartUnixMs int64 `json:"weekStartUnixMs"`

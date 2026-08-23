@@ -40,13 +40,6 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	weeklyVolume, err := h.statsSvc.GetWeeklyVolumePoints(r.Context(), authSession.UserID)
-	if err != nil {
-		slog.Error("failed to fetch weekly volume points", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
 	heatmap, err := h.statsSvc.GetTrainingHeatmap(r.Context(), authSession.UserID)
 	if err != nil {
 		slog.Error("failed to fetch training heatmap", "error", err)
@@ -68,7 +61,7 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := stats.StatsPage(weekStats, weeklyVolume, heatmap, volumeByTag, weeklyVolumeTrend, now)
+	page := stats.StatsPage(weekStats, heatmap, volumeByTag, weeklyVolumeTrend, now)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
