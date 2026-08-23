@@ -7,9 +7,32 @@ import (
 	"github.com/augustinsorel/gym-graphs/internal/database/db"
 )
 
-// GetWeeklyVolumePoints returns total volume per day across all exercises
-// for the last 7 days (today and the 6 preceding days).
-// It reuses VolumeSessionPoint defined in exercise.go.
+type HeatmapDay struct {
+	DateUnixMs int64 `json:"date"`
+	VolumeInG  int64 `json:"volumeInG"`
+}
+
+func (s *StatsService) GetTrainingHeatmap(ctx context.Context, userID int32) ([]HeatmapDay, error) {
+	rows, err := s.queries.GetTrainingDaysByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	days := make([]HeatmapDay, 0, len(rows))
+	for _, row := range rows {
+		if !row.SessionDate.Valid {
+			continue
+		}
+		d := row.SessionDate.Time.UTC()
+		midnight := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		days = append(days, HeatmapDay{
+			DateUnixMs: midnight.UnixMilli(),
+			VolumeInG:  row.VolumeInG,
+		})
+	}
+	return days, nil
+}
+
 func (s *StatsService) GetWeeklyVolumePoints(ctx context.Context, userID int32) ([]VolumeSessionPoint, error) {
 	rows, err := s.queries.GetVolumePerDayLast7DaysByUserID(ctx, userID)
 	if err != nil {

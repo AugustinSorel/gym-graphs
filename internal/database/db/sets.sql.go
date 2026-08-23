@@ -357,6 +357,43 @@ func (q *Queries) GetSetsPageByExerciseID(ctx context.Context, arg GetSetsPageBy
 	return items, nil
 }
 
+const getTrainingDaysByUserID = `-- name: GetTrainingDaysByUserID :many
+select
+    date_trunc('day', s.done_at)::date                          as session_date,
+    sum(s.weight_in_g::bigint * s.repetitions::bigint)::bigint  as volume_in_g
+from sets s
+join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+  and s.done_at >= date_trunc('week', now()) - interval '25 weeks'
+group by session_date
+order by session_date asc
+`
+
+type GetTrainingDaysByUserIDRow struct {
+	SessionDate pgtype.Date
+	VolumeInG   int64
+}
+
+func (q *Queries) GetTrainingDaysByUserID(ctx context.Context, userID int32) ([]GetTrainingDaysByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, getTrainingDaysByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTrainingDaysByUserIDRow
+	for rows.Next() {
+		var i GetTrainingDaysByUserIDRow
+		if err := rows.Scan(&i.SessionDate, &i.VolumeInG); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserStatsByUserID = `-- name: GetUserStatsByUserID :one
 select
     count(s.id)::int                                                              as total_sets,

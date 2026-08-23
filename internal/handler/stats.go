@@ -47,7 +47,14 @@ func (h *StatsHandler) ViewPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := stats.StatsPage(weekStats, weeklyVolume, now)
+	heatmap, err := h.statsSvc.GetTrainingHeatmap(r.Context(), authSession.UserID)
+	if err != nil {
+		slog.Error("failed to fetch training heatmap", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	page := stats.StatsPage(weekStats, weeklyVolume, heatmap, now)
 	ctx := templ.WithChildren(r.Context(), page)
 
 	if err := layout.Layout(r.URL.Path).Render(ctx, w); err != nil {
