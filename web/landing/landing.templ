@@ -10,6 +10,7 @@ templ LandingPage() {
 		@header()
 		@hero()
 		@oneRepMaxPreview()
+		@whatYouGet()
 	</main>
 }
 
@@ -73,16 +74,16 @@ templ oneRepMaxPreview() {
 			class="w-full h-72 border-b-2 border-dotted border-outline/50"
 			data-unit="kg"
 		></div>
-		<dl class="py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-2 text-center">
-			<div class="grid gap-1 border-r-2 border-dotted border-outline/50">
+		<dl class="py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-y-6 text-center">
+			<div class="grid gap-1 border-r-0 lg:border-r-2 border-dotted border-outline/50">
 				<dt class="text-outline text-xs">best 1<abbr title="repetition maximum" class="no-underline">rm</abbr></dt>
 				<dd class="text-xl font-semibold">90.5 <abbr title="kilograms" class="text-sm font-normal text-outline no-underline">kg</abbr></dd>
 			</div>
-			<div class="grid gap-1 border-r-2 border-dotted border-outline/50">
+			<div class="grid gap-1 border-r-0 lg:border-r-2 border-dotted border-outline/50">
 				<dt class="text-outline text-xs">best set</dt>
 				<dd class="text-xl font-semibold">85.0 <span class="text-sm font-normal text-outline"><abbr title="kilograms" class="no-underline">kg</abbr> * 2</span></dd>
 			</div>
-			<div class="grid gap-1 border-r-2 border-dotted border-outline/50">
+			<div class="grid gap-1 border-r-0 lg:border-r-2 border-dotted border-outline/50">
 				<dt class="text-outline text-xs"><abbr title="average repetitions per set" class="no-underline">avg reps / set</abbr></dt>
 				<dd class="text-xl font-semibold">4.8</dd>
 			</div>
@@ -91,5 +92,35 @@ templ oneRepMaxPreview() {
 				<dd class="text-xl font-semibold">17</dd>
 			</div>
 		</dl>
+	</section>
+}
+
+templ whatYouGet() {
+	<section class="flex flex-col">
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2">
+			what you get
+		</h2>
+		<ul class="flex flex-col">
+			<li class="grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50">
+				<p class="text-outline text-xs">one rep max</p>
+				<span class="text-outline text-xs tabular-nums shrink-0">01</span>
+				<p class="text-sm mt-1">Six 1RM formulas. Pick Epley, Brzycki or whatever you argue about.</p>
+			</li>
+			<li class="grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50">
+				<p class="text-outline text-xs">tags</p>
+				<span class="text-outline text-xs tabular-nums shrink-0">02</span>
+				<p class="text-sm mt-1">Group exercises by muscle. Chart a whole tag as one line.</p>
+			</li>
+			<li class="grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50">
+				<p class="text-outline text-xs">your data</p>
+				<span class="text-outline text-xs tabular-nums shrink-0">03</span>
+				<p class="text-sm mt-1">Export everything as CSV, any time. No lock-in, no upsell.</p>
+			</li>
+			<li class="grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50">
+				<p class="text-outline text-xs">speed</p>
+				<span class="text-outline text-xs tabular-nums shrink-0">04</span>
+				<p class="text-sm mt-1">Three taps between rack and logged. Works offline in the gym.</p>
+			</li>
+		</ul>
 	</section>
 }
