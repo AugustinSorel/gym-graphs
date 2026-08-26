@@ -54,7 +54,7 @@ func LandingPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ctaBand().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pricing().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -201,7 +201,7 @@ func oneRepMaxPreview() templ.Component {
 	})
 }
 
-func ctaBand() templ.Component {
+func pricing() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -222,7 +222,7 @@ func ctaBand() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<section class=\"flex flex-col gap-8\"><div><h2 class=\"text-3xl lg:text-6xl uppercase\">start logging today.</h2><p class=\"text-sm text-outline leading-relaxed mt-3\">free account. no credit card. your data, your graphs.</p></div><nav class=\"flex gap-6 items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<section class=\"outline outline-4 outline-surface outline-offset-[-12px] border-2 bg-on-surface text-surface p-9 flex flex-col gap-6\"><hgroup><h2 class=\"text-2xl font-bold\">Free while you lift.</h2><p class=\"text-sm text-outline leading-relaxed mt-3\">Unlimited exercises, unlimited sets, unlimited graphs. No card.</p></hgroup><nav class=\"flex gap-4 items-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -238,13 +238,13 @@ func ctaBand() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "create account")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "start tracking")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-up"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-up", Variant: button.VariantSecondary}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -266,11 +266,88 @@ func ctaBand() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-in", Variant: button.VariantOutline}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-up", Variant: button.VariantLink}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</nav></section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ctaBand() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<section class=\"flex flex-col gap-8\"><div><h2 class=\"text-3xl lg:text-6xl uppercase\">start logging today.</h2><p class=\"text-sm text-outline leading-relaxed mt-3\">free account. no credit card. your data, your graphs.</p></div><nav class=\"flex gap-6 items-center\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var11 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "create account")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-up"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "sign in")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = button.Button(button.Props{Href: "/sign-in", Variant: button.VariantOutline}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</nav></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -294,12 +371,12 @@ func whatYouGet() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var10 == nil {
-			templ_7745c5c3_Var10 = templ.NopComponent
+		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var13 == nil {
+			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<section class=\"flex flex-col\"><h2 class=\"uppercase text-outline border-b-4 border-on-surface text-sm pb-2\">what you get</h2><ul class=\"flex flex-col\"><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">one rep max</p><span class=\"text-outline text-xs tabular-nums shrink-0\">01</span><p class=\"text-sm mt-1\">Six 1RM formulas. Pick Epley, Brzycki or whatever you argue about.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">tags</p><span class=\"text-outline text-xs tabular-nums shrink-0\">02</span><p class=\"text-sm mt-1\">Group exercises by muscle. Chart a whole tag as one line.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">your data</p><span class=\"text-outline text-xs tabular-nums shrink-0\">03</span><p class=\"text-sm mt-1\">Export everything as CSV, any time. No lock-in, no upsell.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">speed</p><span class=\"text-outline text-xs tabular-nums shrink-0\">04</span><p class=\"text-sm mt-1\">Three taps between rack and logged. Works offline in the gym.</p></li></ul></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<section class=\"flex flex-col\"><h2 class=\"uppercase text-outline border-b-4 border-on-surface text-sm pb-2\">what you get</h2><ul class=\"flex flex-col\"><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">one rep max</p><span class=\"text-outline text-xs tabular-nums shrink-0\">01</span><p class=\"text-sm mt-1\">Six 1RM formulas. Pick Epley, Brzycki or whatever you argue about.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">tags</p><span class=\"text-outline text-xs tabular-nums shrink-0\">02</span><p class=\"text-sm mt-1\">Group exercises by muscle. Chart a whole tag as one line.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">your data</p><span class=\"text-outline text-xs tabular-nums shrink-0\">03</span><p class=\"text-sm mt-1\">Export everything as CSV, any time. No lock-in, no upsell.</p></li><li class=\"grid grid-cols-[1fr_auto] py-6 border-b-2 border-dotted border-outline/50\"><p class=\"text-outline text-xs\">speed</p><span class=\"text-outline text-xs tabular-nums shrink-0\">04</span><p class=\"text-sm mt-1\">Three taps between rack and logged. Works offline in the gym.</p></li></ul></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

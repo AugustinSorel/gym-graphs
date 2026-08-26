@@ -11,7 +11,7 @@ templ LandingPage() {
 		@hero()
 		@oneRepMaxPreview()
 		@whatYouGet()
-		@ctaBand()
+		@pricing()
 	</main>
 }
 
@@ -93,6 +93,23 @@ templ oneRepMaxPreview() {
 				<dd class="text-xl font-semibold">17</dd>
 			</div>
 		</dl>
+	</section>
+}
+
+templ pricing() {
+	<section class="outline outline-4 outline-surface outline-offset-[-12px] border-2 bg-on-surface text-surface p-9 flex flex-col gap-6">
+		<hgroup>
+			<h2 class="text-2xl font-bold">Free while you lift.</h2>
+			<p class="text-sm text-outline leading-relaxed mt-3">Unlimited exercises, unlimited sets, unlimited graphs. No card.</p>
+		</hgroup>
+		<nav class="flex gap-4 items-center">
+			@button.Button(button.Props{Href: "/sign-up", Variant: button.VariantSecondary}) {
+				start tracking
+			}
+			@button.Button(button.Props{Href: "/sign-up", Variant: button.VariantLink}) {
+				sign in
+			}
+		</nav>
 	</section>
 }
 
