@@ -1,0 +1,41 @@
+package landing
+
+import (
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+)
+
+templ LandingPage() {
+	<main class="max-w-app mx-auto p-4 lg:p-20 space-y-32 lg:space-y-48">
+		@header()
+		@hero()
+	</main>
+}
+
+templ header() {
+	<header>
+		<span class="text-sm uppercase">gym graphs</span>
+	</header>
+}
+
+templ hero() {
+	<section class="flex flex-col justify-center gap-8">
+		<h1 class="text-3xl lg:text-6xl uppercase">
+			Your strength,
+			<br/>
+			as a graph.		
+		</h1>
+		<p class="text-sm text-outline leading-relaxed text-balance">
+			log your sessions. watch each exercise trend upward. gym graphs turns
+			your training log into the clearest progress report you've ever seen.
+		</p>
+		<nav class="flex gap-6 items-center">
+			@button.Button(button.Props{Href: "/sign-up"}) {
+				start tracking
+			}
+			@link.Link(link.Props{Href: "/sign-in"}) {
+				sign in				
+			}
+		</nav>
+	</section>
+}

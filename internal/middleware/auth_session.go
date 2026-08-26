@@ -46,7 +46,7 @@ func GuestOnly(authSessionSvc *service.AuthSessionService, next http.Handler) ht
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/exercises", http.StatusSeeOther)
 	})
 }
 

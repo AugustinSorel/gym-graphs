@@ -35,6 +35,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	exercisesHandler := handler.NewExercisesHandler(tagSvc, exerciseSvc, userSvc, setSvc)
 	setsHandler := handler.NewSetsHandler(exerciseSvc, setSvc, userSvc)
 	statsHandler := handler.NewStatsHandler(statsSvc, userSvc)
+	landingHandler := handler.NewLandingHandler()
 
 	guestOnly := func(next http.Handler) http.Handler {
 		return middleware.GuestOnly(authSessionSvc, next)
@@ -94,9 +95,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.Handle("/assets/", fileServer)
 
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/exercises", http.StatusFound)
-	})
+	mux.Handle("GET /{$}", guestOnly(http.HandlerFunc(landingHandler.ViewPage)))
 
 	mux.Handle("GET /exercises", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewPage)))
 	mux.Handle("GET /exercises/{id}", requireAuthSession(http.HandlerFunc(exercisesHandler.ViewDetailPage)))
