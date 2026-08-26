@@ -11,6 +11,7 @@ templ LandingPage() {
 		@hero()
 		@oneRepMaxPreview()
 		@whatYouGet()
+		@ctaBand()
 	</main>
 }
 
@@ -92,6 +93,23 @@ templ oneRepMaxPreview() {
 				<dd class="text-xl font-semibold">17</dd>
 			</div>
 		</dl>
+	</section>
+}
+
+templ ctaBand() {
+	<section class="flex flex-col gap-8">
+		<div>
+			<h2 class="text-3xl lg:text-6xl uppercase">start logging today.</h2>
+			<p class="text-sm text-outline leading-relaxed mt-3">free account. no credit card. your data, your graphs.</p>
+		</div>
+		<nav class="flex gap-6 items-center">
+			@button.Button(button.Props{Href: "/sign-up"}) {
+				create account
+			}
+			@button.Button(button.Props{Href: "/sign-in", Variant: button.VariantOutline}) {
+				sign in
+			}
+		</nav>
 	</section>
 }
 
