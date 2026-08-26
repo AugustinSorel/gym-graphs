@@ -46,6 +46,10 @@ func LandingPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = oneRepMaxPreview().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -153,6 +157,35 @@ func hero() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</nav></section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func oneRepMaxPreview() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<section class=\"flex flex-col\"><h2 class=\"uppercase text-outline border-b-4 border-on-surface text-sm pb-2 flex justify-between\"><abbr title=\"one repetition maximum\" class=\"no-underline\">1 rep max</abbr> <span>deadlift</span></h2><script type=\"application/json\" id=\"exercise-graph-data\">\n\t\t\t[\n\t\t\t\t{\"date\":1735689600000,\"oneRepMax\":72.3},\n\t\t\t\t{\"date\":1736294400000,\"oneRepMax\":74.1},\n\t\t\t\t{\"date\":1736899200000,\"oneRepMax\":73.8},\n\t\t\t\t{\"date\":1737504000000,\"oneRepMax\":76.5},\n\t\t\t\t{\"date\":1738108800000,\"oneRepMax\":75.2},\n\t\t\t\t{\"date\":1738713600000,\"oneRepMax\":78.9},\n\t\t\t\t{\"date\":1739318400000,\"oneRepMax\":79.4},\n\t\t\t\t{\"date\":1739923200000,\"oneRepMax\":80.1},\n\t\t\t\t{\"date\":1740528000000,\"oneRepMax\":78.6},\n\t\t\t\t{\"date\":1741132800000,\"oneRepMax\":82.3},\n\t\t\t\t{\"date\":1741737600000,\"oneRepMax\":83.7},\n\t\t\t\t{\"date\":1742342400000,\"oneRepMax\":81.9},\n\t\t\t{\"date\":1742947200000,\"oneRepMax\":86.2},\n\t\t\t{\"date\":1743552000000,\"oneRepMax\":85.0},\n\t\t\t{\"date\":1744156800000,\"oneRepMax\":88.4},\n\t\t\t{\"date\":1744761600000,\"oneRepMax\":87.1},\n\t\t\t\t{\"date\":1745366400000,\"oneRepMax\":90.5}\n\t\t\t]\n\t\t</script><div id=\"exercise-graph\" class=\"w-full h-72 border-b-2 border-dotted border-outline/50\" data-unit=\"kg\"></div><dl class=\"py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-2 text-center\"><div class=\"grid gap-1 border-r-2 border-dotted border-outline/50\"><dt class=\"text-outline text-xs\">best 1<abbr title=\"repetition maximum\" class=\"no-underline\">rm</abbr></dt><dd class=\"text-xl font-semibold\">90.5 <abbr title=\"kilograms\" class=\"text-sm font-normal text-outline no-underline\">kg</abbr></dd></div><div class=\"grid gap-1 border-r-2 border-dotted border-outline/50\"><dt class=\"text-outline text-xs\">best set</dt><dd class=\"text-xl font-semibold\">85.0 <span class=\"text-sm font-normal text-outline\"><abbr title=\"kilograms\" class=\"no-underline\">kg</abbr> * 2</span></dd></div><div class=\"grid gap-1 border-r-2 border-dotted border-outline/50\"><dt class=\"text-outline text-xs\"><abbr title=\"average repetitions per set\" class=\"no-underline\">avg reps / set</abbr></dt><dd class=\"text-xl font-semibold\">4.8</dd></div><div class=\"grid gap-1\"><dt class=\"text-outline text-xs\">sessions</dt><dd class=\"text-xl font-semibold\">17</dd></div></dl></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
