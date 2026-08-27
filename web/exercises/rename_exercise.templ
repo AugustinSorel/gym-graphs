@@ -1,0 +1,74 @@
+package exercises
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+type RenameExerciseFormValues struct {
+	Name string
+}
+
+type RenameExerciseFormErr struct {
+	Name string
+	Root string
+}
+
+templ RenameExercisePage() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<h1 class="font-semibold text-3xl">rename exercise</h1>
+		{ children... }
+	</main>
+}
+
+templ RenameExercisePageWithForm(exerciseID int32, form RenameExerciseFormValues, formErr RenameExerciseFormErr) {
+	@RenameExercisePage() {
+		@RenameExerciseForm(exerciseID, form, formErr)
+	}
+}
+
+templ RenameExerciseForm(exerciseID int32, form RenameExerciseFormValues, formErr RenameExerciseFormErr) {
+	<form
+		hx-patch={ fmt.Sprintf("/exercises/%d/name", exerciseID) }
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">name:</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Autocomplete: "off",
+				HasError:     formErr.Name != "",
+				Attributes:   templ.Attributes{"autofocus": ""},
+			})
+			if formErr.Name != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Name }</p>
+			}
+		</label>
+		if formErr.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					renaming exercise failed
+				}
+				@alert.Description() {
+					{ formErr.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: fmt.Sprintf("/exercises/%d", exerciseID), Class: "ml-auto"}) {
+			cancel
+		}
+	</form>
+}

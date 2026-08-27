@@ -1,0 +1,226 @@
+package tag
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+templ CreateTagPage() {
+	@main() {
+		<div class="flex flex-col mx-auto w-full gap-20">
+			{ children... }
+		</div>
+	}
+}
+
+templ CreateTagErrorPage(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Create tag error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ main() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		{ children... }
+	</main>
+}
+
+templ CreateTagPageWithForm(form CreateTagFormValues, err CreateTagFormErr) {
+	@CreateTagPage() {
+		@CreateTagForm(form, err)
+	}
+}
+
+type CreateTagFormValues struct {
+	Name string
+}
+
+type CreateTagFormErr struct {
+	Name string
+	Root string
+}
+
+templ RemoveTagPage(tagID int32, tagName string) {
+	@main() {
+		<div class="flex flex-col mx-auto w-full gap-20">
+			<form
+				hx-delete={ fmt.Sprintf("/tags/%d", tagID) }
+				hx-disable="find button[type='submit']"
+				hx-indicator="find button[type='submit']"
+				hx-swap="outerHTML"
+				class="flex flex-col gap-10"
+			>
+				<h1 class="font-semibold text-3xl">remove tag</h1>
+				<p class="text-outline">
+					Are you sure you want to remove the tag <strong class="text-on-surface">{ tagName }</strong>? This action cannot be undone.
+				</p>
+				{ children... }
+				@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantDestructive}) {
+					yes, remove tag
+					@spinner.Spinner()
+				}
+				@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+					cancel
+				}
+			</form>
+		</div>
+	}
+}
+
+templ RemoveTagErrorPage(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Remove tag error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ RemoveTagFormErr(errMsg string) {
+	if errMsg != "" {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				something went wrong
+			}
+			@alert.Description() {
+				{ errMsg }
+			}
+		}
+	}
+}
+
+templ RenameTagPage(tagID int32) {
+	@main() {
+		<div class="flex flex-col mx-auto w-full gap-20">
+			{ children... }
+		</div>
+	}
+}
+
+templ RenameTagErrorPage(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Rename tag error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ RenameTagPageWithForm(tagID int32, form RenameTagFormValues, err RenameTagFormErr) {
+	@RenameTagPage(tagID) {
+		@RenameTagForm(tagID, form, err)
+	}
+}
+
+type RenameTagFormValues struct {
+	Name string
+}
+
+type RenameTagFormErr struct {
+	Name string
+	Root string
+}
+
+templ RenameTagForm(tagID int32, form RenameTagFormValues, err RenameTagFormErr) {
+	<form
+		hx-patch={ fmt.Sprintf("/tags/%d/name", tagID) }
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<h1 class="font-semibold text-3xl">rename tag</h1>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">tag name</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Autocomplete: "off",
+				HasError:     err.Name != "",
+			})
+			if err.Name != "" {
+				<p class="text-error text-sm" role="alert">{ err.Name }</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
+		}
+	</form>
+}
+
+templ CreateTagForm(form CreateTagFormValues, err CreateTagFormErr) {
+	<form
+		hx-post="/tags/new"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<h1 class="font-semibold text-3xl">create exercise tag</h1>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">tag name</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Placeholder:  "e.g. legs, push, cardio",
+				HasError:     err.Name != "",
+				Autocomplete: "off",
+			})
+			if err.Name != "" {
+				<p class="text-error text-sm" role="alert">{ err.Name }</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit}) {
+			create tag
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
+		}
+	</form>
+}

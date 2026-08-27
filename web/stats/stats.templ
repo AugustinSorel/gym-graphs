@@ -1,0 +1,100 @@
+package stats
+
+import (
+	"strconv"
+
+	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+)
+
+templ StatsPage(s service.UserStats, heatmapDays []service.HeatmapDay, volumeByTag []service.VolumeByTagPoint, weeklyVolumeTrend []service.WeeklyVolumeTrendPoint) {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<hgroup class="space-y-1">
+			<h1 class="uppercase font-semibold text-3xl">your <abbr title="statistics" class="no-underline">stats</abbr></h1>
+		</hgroup>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				this week
+			</h2>
+			<dl class="grid grid-cols-2 py-7 text-center">
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2 border-b-2">
+					<dt class="text-outline text-xs">total volume</dt>
+					<dd class="text-xl font-semibold">
+						if s.TotalVolumeInG > 0 {
+							{ weightunit.Format(float64(s.TotalVolumeInG), s.WeightUnit) }
+							<abbr
+								class="text-sm font-normal text-outline no-underline"
+								title={ weightunit.Name(s.WeightUnit) }
+							>
+								{ weightunit.Abbr(s.WeightUnit) }
+							</abbr>
+						} else {
+							-
+						}
+					</dd>
+				</div>
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-b-2">
+					<dt class="text-outline text-xs">total sets</dt>
+					<dd class="text-xl font-semibold">
+						if s.TotalSets > 0 {
+							{ strconv.Itoa(int(s.TotalSets)) }
+						} else {
+							-
+						}
+					</dd>
+				</div>
+				<div class="py-5 space-y-1 border-dotted border-outline/50 border-r-2">
+					<dt class="text-outline text-xs">total weight</dt>
+					<dd class="text-xl font-semibold">
+						if s.TotalWeightInG > 0 {
+							{ weightunit.Format(float64(s.TotalWeightInG), s.WeightUnit) }
+							<abbr
+								class="text-sm font-normal text-outline no-underline"
+								title={ weightunit.Name(s.WeightUnit) }
+							>
+								{ weightunit.Abbr(s.WeightUnit) }
+							</abbr>
+						} else {
+							-
+						}
+					</dd>
+				</div>
+				<div class="py-5 space-y-1 border-dotted border-outline/50">
+					<dt class="text-outline text-xs">exercises</dt>
+					<dd class="text-xl font-semibold">
+						if s.ExercisesCount > 0 {
+							{ strconv.Itoa(int(s.ExercisesCount)) }
+						} else {
+							-
+						}
+					</dd>
+				</div>
+			</dl>
+		</section>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				volume trend
+			</h2>
+			@templ.JSONScript("stats-weekly-volume-trend-data", weeklyVolumeTrend)
+			<div id="stats-weekly-volume-trend-graph" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
+		</section>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				volume by tag
+			</h2>
+			@templ.JSONScript("stats-volume-by-tag-data", volumeByTag)
+			<div id="stats-volume-by-tag-graph" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
+		</section>
+		<section>
+			<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+				training calendar
+			</h2>
+			@templ.JSONScript("stats-heatmap-data", heatmapDays)
+			<div id="stats-heatmap" data-unit={ weightunit.Abbr(s.WeightUnit) } class="mt-7"></div>
+		</section>
+	</main>
+}
+
+type Props struct {
+	Class string
+}

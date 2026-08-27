@@ -1,0 +1,146 @@
+package button
+
+import (
+	"github.com/augustinsorel/gym-graphs/web"
+	"strings"
+)
+
+type Variant string
+type Size string
+type Type string
+
+const (
+	VariantDefault     Variant = "default"
+	VariantDestructive Variant = "destructive"
+	VariantOutline     Variant = "outline"
+	VariantSecondary   Variant = "secondary"
+	VariantGhost       Variant = "ghost"
+	VariantLink        Variant = "link"
+)
+
+const (
+	TypeButton Type = "button"
+	TypeReset  Type = "reset"
+	TypeSubmit Type = "submit"
+)
+
+const (
+	SizeDefault Size = "default"
+	SizeSm      Size = "sm"
+	SizeLg      Size = "lg"
+	SizeIcon    Size = "icon"
+)
+
+type Props struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	Variant    Variant
+	Size       Size
+	FullWidth  bool
+	Href       string
+	Target     string
+	Disabled   bool
+	Type       Type
+	Form       string
+}
+
+templ Button(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.Type == "" {
+		{{ p.Type = TypeButton }}
+	}
+	if p.Href != "" && !p.Disabled {
+		<a
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			href={ templ.SafeURL(p.Href) }
+			if p.Target != "" {
+				target={ p.Target }
+			}
+			class={
+				web.TwMerge(
+					"cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-colors",
+					"disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
+					"outline-none focus-visible:ring-on-surface focus-visible:ring-4 focus-visible:ring-offset-2",
+					p.variantClasses(),
+					p.sizeClasses(),
+					p.modifierClasses(),
+					p.Class,
+				),
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</a>
+	} else {
+		<button
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			class={
+				web.TwMerge(
+					"cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-colors",
+					"disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
+					"outline-none focus-visible:ring-on-surface focus-visible:ring-4 focus-visible:ring-offset-2",
+					p.variantClasses(),
+					p.sizeClasses(),
+					p.modifierClasses(),
+					p.Class,
+				),
+			}
+			if p.Type != "" {
+				type={ string(p.Type) }
+			}
+			if p.Form != "" {
+				form={ p.Form }
+			}
+			disabled?={ p.Disabled }
+			{ p.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
+}
+
+func (b Props) variantClasses() string {
+	switch b.Variant {
+	case VariantDestructive:
+		return "bg-error text-on-error focus-visible:ring-error hover:bg-error/80 focus-visible:ring-offset-surface"
+	case VariantOutline:
+		return "border-2 border-dotted border-outline bg-transparent hover:bg-surface-container-highest"
+	case VariantSecondary:
+		return "bg-surface text-on-surface  hover:bg-on-surface/80 focus-visible:ring-offset-surface"
+	case VariantGhost:
+		return "hover:bg-surface-container-highest"
+	case VariantLink:
+		return "font-semibold text-sm underline hover:text-current/70 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
+	default:
+		return "bg-on-surface text-surface  hover:bg-on-surface/80"
+	}
+}
+
+func (b Props) sizeClasses() string {
+	switch b.Size {
+	case SizeSm:
+		return "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+	case SizeLg:
+		return "h-10 rounded-md px-6 has-[>svg]:px-4"
+	case SizeIcon:
+		return "size-9"
+	default: // SizeDefault
+		return "h-9 px-4 py-2 has-[>svg]:px-3"
+	}
+}
+
+func (b Props) modifierClasses() string {
+	classes := []string{}
+	if b.FullWidth {
+		classes = append(classes, "w-full")
+	}
+	return strings.Join(classes, " ")
+}

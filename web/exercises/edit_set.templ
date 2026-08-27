@@ -1,0 +1,111 @@
+package exercises
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+type EditSetFormValues struct {
+	Weight      string
+	Repetitions string
+	DoneAt      string
+}
+
+type EditSetFormErr struct {
+	Weight      string
+	Repetitions string
+	DoneAt      string
+	Root        string
+}
+
+templ EditSetPage() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<h1 class="font-semibold text-3xl">edit set</h1>
+		{ children... }
+	</main>
+}
+
+templ EditSetPageWithForm(exerciseID int32, setID int32, form EditSetFormValues, formErr EditSetFormErr, weightUnit db.WeightUnit) {
+	@EditSetPage() {
+		@EditSetForm(exerciseID, setID, form, formErr, weightUnit)
+	}
+}
+
+templ EditSetForm(exerciseID int32, setID int32, form EditSetFormValues, formErr EditSetFormErr, weightUnit db.WeightUnit) {
+	{{ weightPlaceholder := "80" }}
+	if weightUnit == db.WeightUnitLbs {
+		{{ weightPlaceholder = "176" }}
+	}
+	<form
+		hx-patch={ fmt.Sprintf("/exercises/%d/sets/%d", exerciseID, setID) }
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm pb-2">
+				weight (<abbr title={ weightunit.Name(weightUnit) } class="no-underline">{ weightunit.Abbr(weightUnit) }</abbr>):
+			</span>
+			@CounterBtn(input.Props{
+				Name:        "weight",
+				Placeholder: weightPlaceholder,
+				Value:       form.Weight,
+				HasError:    formErr.Weight != "",
+			})
+			if formErr.Weight != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Weight }</p>
+			}
+		</label>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm pb-2">repetitions:</span>
+			@CounterBtn(input.Props{
+				Name:        "repetitions",
+				Placeholder: "10",
+				Value:       form.Repetitions,
+				HasError:    formErr.Repetitions != "",
+			})
+			if formErr.Repetitions != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.Repetitions }</p>
+			}
+		</label>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm pb-2">done at:</span>
+			<input
+				type="datetime-local"
+				name="done_at"
+				value={ form.DoneAt }
+				class="border-y-2 border-dotted border-outline p-2 bg-transparent w-full focus-visible:outline-none"
+				if formErr.DoneAt != "" {
+					aria-invalid="true"
+				}
+			/>
+			if formErr.DoneAt != "" {
+				<p role="alert" class="text-error text-sm">{ formErr.DoneAt }</p>
+			}
+		</label>
+		if formErr.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ formErr.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: fmt.Sprintf("/exercises/%d", exerciseID), Class: "ml-auto"}) {
+			cancel
+		}
+	</form>
+}

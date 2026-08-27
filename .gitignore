@@ -1,10 +1,22 @@
-node_modules
-dist
+keys.txt
 
-.env
+*.test
+*.out
+/web/assets/css/styles.css
 
-.output
-.tanstack
-.nitro
+go.work
+tmp/
 
-tsconfig.tsbuildinfo
+# Project build
+main
+
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml

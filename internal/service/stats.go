@@ -1,0 +1,128 @@
+package service
+
+import (
+	"context"
+	"time"
+
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+)
+
+type HeatmapDay struct {
+	DateUnixMs int64 `json:"date"`
+	VolumeInG  int64 `json:"volumeInG"`
+}
+
+func (s *StatsService) GetTrainingHeatmap(ctx context.Context, userID int32) ([]HeatmapDay, error) {
+	rows, err := s.queries.GetTrainingDaysByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	days := make([]HeatmapDay, 0, len(rows))
+	for _, row := range rows {
+		if !row.SessionDate.Valid {
+			continue
+		}
+		d := row.SessionDate.Time.UTC()
+		midnight := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		days = append(days, HeatmapDay{
+			DateUnixMs: midnight.UnixMilli(),
+			VolumeInG:  row.VolumeInG,
+		})
+	}
+	return days, nil
+}
+
+
+type WeeklyVolumeTrendPoint struct {
+	WeekStartUnixMs int64 `json:"weekStartUnixMs"`
+	VolumeInG       int64 `json:"volumeInG"`
+}
+
+type VolumeByTagPoint struct {
+	TagName   string `json:"tagName"`
+	VolumeInG int64  `json:"volumeInG"`
+}
+
+type StatsService struct {
+	queries *db.Queries
+}
+
+func NewStatsService(queries *db.Queries) *StatsService {
+	return &StatsService{queries: queries}
+}
+
+type UserStats struct {
+	TotalSets      int32
+	TotalVolumeInG int64
+	TotalWeightInG int64
+	ExercisesCount int32
+	WeightUnit     db.WeightUnit
+}
+
+func (s *StatsService) GetUserStats(ctx context.Context, userID int32, unit db.WeightUnit) (UserStats, error) {
+	row, err := s.queries.GetUserStatsByUserID(ctx, userID)
+	if err != nil {
+		return UserStats{}, err
+	}
+
+	return UserStats{
+		TotalSets:      row.TotalSets,
+		TotalVolumeInG: row.TotalVolumeInG,
+		TotalWeightInG: row.TotalWeightInG,
+		ExercisesCount: row.ExercisesCount,
+		WeightUnit:     unit,
+	}, nil
+}
+
+func (s *StatsService) GetWeeklyVolumeTrend(ctx context.Context, userID int32) ([]WeeklyVolumeTrendPoint, error) {
+	rows, err := s.queries.GetWeeklyVolumeLast12WeeksByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	points := make([]WeeklyVolumeTrendPoint, 0, len(rows))
+	for _, row := range rows {
+		if !row.WeekStart.Valid {
+			continue
+		}
+		d := row.WeekStart.Time.UTC()
+		midnight := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC)
+		points = append(points, WeeklyVolumeTrendPoint{
+			WeekStartUnixMs: midnight.UnixMilli(),
+			VolumeInG:       row.VolumeInG,
+		})
+	}
+	return points, nil
+}
+
+func (s *StatsService) GetVolumeByTag(ctx context.Context, userID int32) ([]VolumeByTagPoint, error) {
+	rows, err := s.queries.GetVolumeByTagLast7DaysByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	points := make([]VolumeByTagPoint, 0, len(rows))
+	for _, row := range rows {
+		points = append(points, VolumeByTagPoint{
+			TagName:   row.TagName,
+			VolumeInG: row.VolumeInG,
+		})
+	}
+	return points, nil
+}
+
+func (s *StatsService) GetWeekStats(ctx context.Context, userID int32, unit db.WeightUnit) (UserStats, error) {
+	row, err := s.queries.GetUserStatsByUserIDLast7Days(ctx, userID)
+	if err != nil {
+		return UserStats{}, err
+	}
+
+	return UserStats{
+		TotalSets:      row.TotalSets,
+		TotalVolumeInG: row.TotalVolumeInG,
+		TotalWeightInG: row.TotalWeightInG,
+		ExercisesCount: row.ExercisesCount,
+		WeightUnit:     unit,
+	}, nil
+}

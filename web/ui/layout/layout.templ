@@ -1,0 +1,40 @@
+package layout
+
+import (
+	"github.com/augustinsorel/gym-graphs/web"
+	"github.com/augustinsorel/gym-graphs/web/ui/navbar"
+)
+
+templ Layout(currentPath ...string) {
+	{{ path := "" }}
+	if len(currentPath) > 0 {
+		{{ path = currentPath[0] }}
+	}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<title>Gym Graphs</title>
+			<link href={ "/assets/css/styles.css?v=" + web.AssetsVersion } rel="stylesheet"/>
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@4.0.0-beta5"></script>
+			<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+			<script src={ "/assets/js/theme.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/line-chart.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/exercise-graph.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/exercise-reps-range-graph.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/exercise-volume-session-graph.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/exercise-session-frequency-graph.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/stats-heatmap.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/stats-volume-by-tag-graph.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/stats-weekly-volume-trend.js?v=" + web.AssetsVersion }></script>
+			<script src={ "/assets/js/vibrator.js?v=" + web.AssetsVersion }></script>
+		</head>
+		<body class="bg-surface text-on-surface pb-20 lg:pb-0">
+			if path != "" {
+				@navbar.NavBar(path)
+			}
+			{ children... }
+		</body>
+	</html>
+}

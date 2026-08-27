@@ -1,1 +1,0 @@
-ALTER TABLE "sets" ALTER COLUMN "weight_in_kg" SET DATA TYPE numeric USING "weight_in_kg"::numeric;

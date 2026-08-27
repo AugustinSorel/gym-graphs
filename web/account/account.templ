@@ -1,0 +1,610 @@
+package account
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+	"net/url"
+)
+
+templ AccountPage(user db.User, tagsPage service.TagsPage) {
+	@main() {
+		@AccountDetails(user, tagsPage)
+	}
+}
+
+templ AccountErrorPage(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Account page error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ EditNamePage() {
+	@main() {
+		{ children... }
+	}
+}
+
+templ EditNamePageError(msg string) {
+	@main() {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				Edit name error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	}
+}
+
+templ main() {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		{ children... }
+	</main>
+}
+
+templ EditNamePageWithForm(form EditNameFormValues, err EditNameFormErr) {
+	@EditNamePage() {
+		@EditNameForm(form, err)
+	}
+}
+
+type EditNameFormValues struct {
+	Name string
+}
+
+type EditNameFormErr struct {
+	Name string
+	Root string
+}
+
+templ EditNameForm(form EditNameFormValues, err EditNameFormErr) {
+	{{ avatarText := form.Name }}
+	{{
+		if len(avatarText) >= 2 {
+			avatarText = avatarText[:2]
+		}
+	}}
+	<div class="flex flex-col items-center gap-2 mb-4">
+		<span
+			id="edit-name-avatar"
+			class="uppercase size-16 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold"
+			aria-hidden="true"
+		>{ avatarText }</span>
+		<span class="text-outline text-xs uppercase tracking-widest">preview</span>
+	</div>
+	<form
+		hx-patch="/account/name"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col gap-10"
+	>
+		<label class="grid gap-2 has-[>[aria-invalid=true]]:text-error">
+			<span class="text-outline text-sm">display name</span>
+			@input.Input(input.Props{
+				Type:         input.TypeText,
+				Name:         "name",
+				Value:        form.Name,
+				Autocomplete: "name",
+				HasError:     err.Name != "",
+				Attributes: templ.Attributes{
+					"oninput": `
+						var v = this.value.trim();
+						var a = document.getElementById('edit-name-avatar');
+						if (!a) return;
+						if (v.length >= 2) { a.textContent = v.slice(0,2).toUpperCase(); }
+						else if (v.length === 1) { a.textContent = v.toUpperCase(); }
+						else { a.textContent = '??'; }
+					`,
+				},
+			})
+			if err.Name != "" {
+				<p class="text-error text-sm" role="alert">{ err.Name }</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit}) {
+			save
+			@spinner.Spinner()
+		}
+		@link.Link(link.Props{Href: "/account", Class: "text-sm ml-auto"}) {
+			cancel
+		}
+	</form>
+}
+
+templ AccountDetails(user db.User, tagsPage service.TagsPage) {
+	<header class="space-y-1">
+		@avatar(user.Name)
+		<h1 class="capitalize font-semibold text-3xl break-all">{ user.Name }</h1>
+		<p class="text-sm text-outline break-all">{ user.EmailAddress }</p>
+	</header>
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">profile</h2>
+		@userEmail(user.EmailAddress)
+		@userName(user.Name)
+		@DownloadUserData("")
+		@ImportUserData("")
+	</section>
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">security</h2>
+		@UpdatePasswordRow("")
+		@SignOutRow("")
+	</section>
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">preferences</h2>
+		@WeightUnitForm(WeightUnitFormValues{WeightUnit: string(user.WeightUnit)}, WeightUnitFormErr{})
+		@themeSwitcher()
+		@OneRepMaxAlgorithmForm(OneRepMaxAlgorithmFormValues{Algorithm: string(user.OneRepMaxAlgorithm)}, OneRepMaxAlgorithmFormErr{})
+	</section>
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">tags</h2>
+		@TagsSection(tagsPage)
+	</section>
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">danger zone</h2>
+		@RemoveAccountRow("")
+	</section>
+}
+
+templ avatar(name string) {
+	<span
+		class="uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2"
+		aria-hidden="true"
+	>
+		if len(name) >= 2 {
+			{ name[:2] }
+		} else {
+			{ name }
+		}
+	</span>
+}
+
+templ userEmail(email string) {
+	<dl class="flex flex-col gap-1 py-7 border-b-2 border-dotted border-outline/50">
+		<dt class="text-outline text-sm">email</dt>
+		<dd class="break-all">
+			{ email }
+		</dd>
+	</dl>
+}
+
+templ userName(name string) {
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">name</dt>
+			<dd class="capitalize break-all">
+				{ name }
+			</dd>
+		</dl>
+		@link.Link(link.Props{Href: "/account/name", Class: "my-auto text-sm ml-auto lg:ml-0"}) {
+			edit
+		}
+	</div>
+}
+
+templ themeSwitcher() {
+	<div class="py-7 border-b-2 border-outline/50 border-dotted flex items-center justify-between">
+		<p class="text-outline text-sm">theme</p>
+		<fieldset class="flex border-2 border-on-surface w-fit">
+			<input type="radio" name="theme" value="system" id="theme-system" class="sr-only peer/system"/>
+			<label
+				for="theme-system"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/system:bg-on-surface peer-checked/system:text-surface peer-[:not(:checked)]/system:hover:bg-on-surface/10 transition-colors peer-focus-visible/system:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>system</label>
+			<input type="radio" name="theme" value="light" id="theme-light" class="sr-only peer/light"/>
+			<label
+				for="theme-light"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer border-r-2 border-on-surface peer-checked/light:bg-on-surface peer-checked/light:text-surface peer-[:not(:checked)]/light:hover:bg-on-surface/10 transition-colors peer-focus-visible/light:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>light</label>
+			<input type="radio" name="theme" value="dark" id="theme-dark" class="sr-only peer/dark"/>
+			<label
+				for="theme-dark"
+				class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer peer-checked/dark:bg-on-surface peer-checked/dark:text-surface peer-[:not(:checked)]/dark:hover:bg-on-surface/10 transition-colors peer-focus-visible/dark:ring-4 ring-on-surface ring-offset-2 ring-offset-surface"
+			>dark</label>
+		</fieldset>
+	</div>
+}
+
+templ DownloadUserData(errMsg string) {
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">export data</dt>
+			<dd class="break-all">export your data as a json file</dd>
+		</dl>
+		@button.Button(button.Props{Href: "/account/data", Class: "my-auto ml-auto lg:ml-0"}) {
+			export
+		}
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					downloading data failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}
+
+templ ImportUserData(errMsg string) {
+	<div
+		id="import-user-data"
+		class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3"
+	>
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">import data</dt>
+			<dd class="break-all">restore from a gym-graphs export file</dd>
+		</dl>
+		<label class="my-auto ml-auto lg:ml-0 cursor-pointer">
+			<span class="sr-only">choose export file</span>
+			<input
+				type="file"
+				name="file"
+				accept=".json,application/json"
+				class="sr-only"
+				hx-post="/account/data/import"
+				hx-encoding="multipart/form-data"
+				hx-target="#import-user-data"
+				hx-swap="outerHTML"
+				hx-indicator="#import-spinner"
+				hx-trigger="change"
+			/>
+			@button.Button(button.Props{
+				Type:  button.TypeButton,
+				Class: "pointer-events-none",
+				Attributes: templ.Attributes{
+					"aria-hidden": "true",
+					"tabindex":    "-1",
+				},
+			}) {
+				import
+			}
+		</label>
+		<div id="import-spinner" class="htmx-indicator col-span-full flex items-center gap-2 text-sm text-outline">
+			@spinner.Spinner()
+			importing…
+		</div>
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					import failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}
+
+templ UpdatePasswordRow(errMsg string) {
+	<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+		<dl class="space-y-1">
+			<dt class="text-outline text-sm">password</dt>
+			<dd class="break-all">***********</dd>
+		</dl>
+		@button.Button(button.Props{
+			Type:  button.TypeButton,
+			Class: "my-auto text-sm ml-auto lg:ml-0",
+			Attributes: templ.Attributes{
+				"hx-post":    "/update-password",
+				"hx-disable": "this",
+			},
+		}) {
+			update
+			@spinner.Spinner()
+		}
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					updating password failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}
+
+templ SignOutRow(errMsg string) {
+	<div class="py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center">
+		<div class="space-y-1">
+			<p class="text-outline text-sm">session</p>
+			<p>sign out from this current device.</p>
+		</div>
+		@button.Button(button.Props{
+			Type:  button.TypeButton,
+			Class: "my-auto ml-auto",
+			Attributes: templ.Attributes{
+				"hx-post":    "/sign-out",
+				"hx-disable": "this",
+				"hx-target":  "closest div",
+				"hx-swap":    "outerHTML",
+			},
+		}) {
+			sign out
+			@spinner.Spinner()
+		}
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					signing out failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}
+
+type WeightUnitFormValues struct {
+	WeightUnit string
+}
+
+type WeightUnitFormErr struct {
+	Root string
+}
+
+templ WeightUnitForm(form WeightUnitFormValues, err WeightUnitFormErr) {
+	<form
+		hx-patch="/account/weight-unit"
+		hx-trigger="change"
+		hx-swap="outerHTML"
+		class="py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center"
+	>
+		<p class="text-outline text-sm">weight unit</p>
+		<fieldset class="flex border-2 border-on-surface w-fit">
+			<label class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">
+				<input
+					type="radio"
+					name="weight_unit"
+					value="kg"
+					class="sr-only"
+					if form.WeightUnit == "kg" {
+						checked
+					}
+				/>
+				<abbr title="kilograms" class="no-underline">kg</abbr>
+			</label>
+			<label class="px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">
+				<input
+					type="radio"
+					name="weight_unit"
+					value="lbs"
+					class="sr-only"
+					if form.WeightUnit == "lbs" {
+						checked
+					}
+				/>
+				<abbr title="pounds" class="no-underline">lbs</abbr>
+			</label>
+		</fieldset>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					changing weight unit failed
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+	</form>
+}
+
+type OneRepMaxAlgorithmFormValues struct {
+	Algorithm string
+}
+
+type OneRepMaxAlgorithmFormErr struct {
+	Root string
+}
+
+var oneRepMaxAlgorithms = []struct{ Value, Label string }{
+	{"adams", "adams"},
+	{"baechle", "baechle"},
+	{"berger", "berger"},
+	{"brown", "brown"},
+	{"brzycki", "brzycki"},
+	{"epley", "epley"},
+	{"kemmler", "kemmler"},
+	{"landers", "landers"},
+	{"lombardi", "lombardi"},
+	{"mayhew", "mayhew"},
+	{"naclerio", "naclerio"},
+	{"oconner", "oConner"},
+	{"wathen", "wathen"},
+}
+
+templ OneRepMaxAlgorithmForm(form OneRepMaxAlgorithmFormValues, err OneRepMaxAlgorithmFormErr) {
+	<div class="py-7 border-b-2 border-outline/50 border-dotted space-y-5">
+		<form
+			hx-patch="/account/one-rep-max-algorithm"
+			hx-trigger="change"
+			hx-swap="none"
+			class="grid grid-cols-[1fr_auto] gap-y-3 items-center"
+		>
+			<label for="one-rep-max-algorithm" class="text-outline text-sm">one rep max algorithm</label>
+			<select
+				name="one_rep_max_algorithm"
+				id="one-rep-max-algorithm"
+			>
+				for _, algo := range oneRepMaxAlgorithms {
+					<option
+						value={ algo.Value }
+						if form.Algorithm == algo.Value {
+							selected
+						}
+					>{ algo.Label }</option>
+				}
+			</select>
+			if err.Root != "" {
+				@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+					@alert.Title() {
+						changing algorithm failed
+					}
+					@alert.Description() {
+						{ err.Root }
+					}
+				}
+			}
+		</form>
+		@oneRepMaxChart(form.Algorithm)
+	</div>
+}
+
+templ oneRepMaxChart(selectedAlgorithm string) {
+	<div
+		id="one-rep-max-chart"
+		class="w-full h-48"
+		data-one-rep-max-algorithm={ selectedAlgorithm }
+	></div>
+}
+
+templ TagsSection(tagsPage service.TagsPage) {
+	if tagsPage.TotalCount == 0 {
+		@noTagsMessage()
+	} else {
+		<header class="pt-7 pb-3 flex items-center justify-between">
+			<span class="text-outline text-sm">tags ({ fmt.Sprintf("%d", tagsPage.TotalCount) })</span>
+			@link.Link(link.Props{Href: "/tags/new"}) {
+				+ add
+			}
+		</header>
+		<ul id="tags-list" class="list-none [counter-reset:my-list]">
+			@TagsRows(tagsPage)
+		</ul>
+	}
+}
+
+templ TagsRows(tagsPage service.TagsPage) {
+	for _, tag := range tagsPage.Rows {
+		@tagItem(tag)
+	}
+	if tagsPage.HasNextPage {
+		<li
+			id="tags-load-more"
+			hx-get={ fmt.Sprintf("/account/tags?cursor=%s", url.QueryEscape(tagsPage.NextCursor)) }
+			hx-swap="outerHTML"
+			hx-target="#tags-load-more"
+			hx-include="none"
+			class="list-none"
+		>
+			<div class="py-3 flex justify-center [.htmx-request_&]:hidden">
+				@button.Button(button.Props{Variant: button.VariantLink, Class: "text-outline font-normal no-underline"}) {
+					load more
+				}
+			</div>
+			for range 3 {
+				<div class="hidden [.htmx-request_&]:block animate-pulse h-12 border-b-2 border-dotted border-outline/50"></div>
+			}
+		</li>
+	}
+}
+
+templ tagItem(tag db.Tag) {
+	{{ popoverID := fmt.Sprintf("tag-menu-%d", tag.ID) }}
+	{{ anchorName := fmt.Sprintf("--tag-anchor-%d", tag.ID) }}
+	<li class="border-b-2 border-dotted border-outline/50 py-3 [counter-increment:my-list] grid grid-cols-[auto_1fr_auto] items-center gap-2 before:content-[counter(my-list)_'.'] before:text-outline before:text-sm">
+		<span>{ tag.Name }</span>
+		@button.Button(button.Props{
+			Type:    button.TypeButton,
+			Variant: button.VariantGhost,
+			Class:   "size-10 text-outline",
+			Attributes: templ.Attributes{
+				"popovertarget": popoverID,
+				"aria-label":    "Tag options",
+				"style":         "anchor-name: " + anchorName,
+			},
+		}) {
+			&#8942;
+		}
+		<div
+			id={ popoverID }
+			popover=""
+			class="tag-popover m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm"
+			style={ "position-anchor: " + anchorName + "; position-area: bottom span-right; position-try-fallbacks: flip-block;" }
+		>
+			<a
+				href={ templ.SafeURL(fmt.Sprintf("/tags/%d/name", tag.ID)) }
+				class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
+			>rename</a>
+			<a
+				href={ templ.SafeURL(fmt.Sprintf("/tags/%d/confirm-delete", tag.ID)) }
+				class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
+			>remove</a>
+		</div>
+	</li>
+}
+
+templ noTagsMessage() {
+	<section class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+		<span
+			aria-hidden="true"
+			class="bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline"
+		>0</span>
+		<h1 class="uppercase font-semibold">no tags yet</h1>
+		<p class="text-balance text-outline text-sm max-w-sm">Add your first tag and start sorting your exercises</p>
+		@link.Link(link.Props{Href: "/tags/new"}) {
+			+ add tag
+		}
+	</section>
+}
+
+templ RemoveAccountRow(errMsg string) {
+	<div class="py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center">
+		<div class="space-y-1">
+			<p class="text-outline text-sm">remove account</p>
+			<p>remove your account from all of our servers.</p>
+		</div>
+		@button.Button(button.Props{
+			Type:    button.TypeButton,
+			Variant: button.VariantDestructive,
+			Class:   "my-auto ml-auto",
+			Attributes: templ.Attributes{
+				"hx-post":    "/delete-account",
+				"hx-disable": "this",
+			},
+		}) {
+			delete account
+			@spinner.Spinner()
+		}
+		if errMsg != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "col-span-2"}) {
+				@alert.Title() {
+					deleting account failed
+				}
+				@alert.Description() {
+					{ errMsg }
+				}
+			}
+		}
+	</div>
+}

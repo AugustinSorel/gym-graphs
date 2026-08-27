@@ -1,0 +1,109 @@
+package alert
+
+import "github.com/augustinsorel/gym-graphs/web"
+
+type Variant string
+
+const (
+	VariantDefault     Variant = "default"
+	VariantDestructive Variant = "destructive"
+	VariantSuccess     Variant = "success"
+)
+
+type Props struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	Variant    Variant
+}
+
+type TitleProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+type DescriptionProps struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+}
+
+templ Alert(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		data-slot="alert"
+		class={
+			web.TwMerge(
+				"border-2 p-3 grid gap-1",
+				variantClasses(p.Variant),
+				p.Class,
+			),
+		}
+		role="alert"
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+templ Title(props ...TitleProps) {
+	{{ var p TitleProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<h5
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		data-slot="alert-title"
+		class={
+			web.TwMerge(
+				"font-semibold",
+				p.Class,
+			),
+		}
+		{ p.Attributes... }
+	>
+		{ children... }
+	</h5>
+}
+
+templ Description(props ...DescriptionProps) {
+	{{ var p DescriptionProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		data-slot="alert-description"
+		class={
+			web.TwMerge(
+				"text-sm",
+				p.Class,
+			),
+		}
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+}
+
+func variantClasses(variant Variant) string {
+	switch variant {
+	case VariantDestructive:
+		return "bg-error-container border-error"
+	case VariantSuccess:
+		return "bg-success-container border-success"
+	default:
+		return "bg-card text-card-foreground"
+	}
+}

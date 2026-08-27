@@ -1,32 +1,54 @@
-FROM node:22-slim AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+# ─── Stage 1: build ──────────────────────────────────────────────────────────
+FROM golang:1.26.4-alpine AS builder
 
-FROM base AS build
-COPY . /usr/src/app
-WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run -r build
-RUN pnpm deploy --filter=api --prod /prod/api
-RUN pnpm deploy --filter=web --prod /prod/web
-RUN pnpm deploy --filter=api --prod /prod/migration
+# Add tzdata, Tailwind dependencies, and create a non-root user
+RUN apk add --no-cache tzdata libstdc++ libgcc && \
+  adduser -D -g '' appuser
 
-FROM node:22-slim AS api
-COPY --from=build /prod/api /prod/api
-WORKDIR /prod/api
-EXPOSE 5000
-ENV NODE_ENV=production
-CMD ["node", "dist/index.js"]
+WORKDIR /app
 
-FROM base AS migration
-COPY --from=build /prod/migration /prod/migration
-WORKDIR /prod/migration
-RUN pnpm db:generate
-CMD ["./node_modules/.bin/drizzle-kit", "migrate"]
+# Download the Tailwind CSS v4 standalone binary (architecture-aware)
+ARG TARGETARCH
+RUN ARCH=$([ "$TARGETARCH" = "amd64" ] && echo "x64" || echo "$TARGETARCH") && \
+  wget -qO /usr/local/bin/tailwindcss \
+  https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-${ARCH}-musl \
+  && chmod +x /usr/local/bin/tailwindcss
 
-FROM node:22-slim AS web
-COPY --from=build /prod/web /prod/web
-WORKDIR /prod/web
-EXPOSE 3000
-CMD [ "node", ".output/server/index.mjs" ]
+# Download dependencies (Leverage BuildKit cache mounts for speed)
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+  go mod download
+
+# Copy source
+COPY . .
+
+# Compile CSS
+RUN tailwindcss -i web/styles/styles.css -o web/assets/css/styles.css --minify
+
+# Build the binary with Go build caching
+RUN --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.cache/go-build \
+  CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /gym-graphs ./cmd/api/main.go
+
+
+# ─── Stage 2: minimal runtime image ──────────────────────────────────────────
+FROM scratch
+
+# Copy CA certificates for HTTPS/TLS
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Copy Timezone data
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+
+# Copy the non-root user configuration
+COPY --from=builder /etc/passwd /etc/passwd
+
+# Copy the binary
+COPY --from=builder /gym-graphs /gym-graphs
+
+# Run as the non-root user
+USER appuser
+
+EXPOSE 8000
+
+ENTRYPOINT ["/gym-graphs"]

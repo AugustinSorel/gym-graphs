@@ -1,0 +1,181 @@
+package deleteaccount
+
+import (
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/input"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+templ ConfirmPage(err ConfirmFormErr) {
+	@confirmLayout() {
+		<h1 class="text-xl lg:text-5xl text-center">delete your account</h1>
+		@ConfirmForm(err)
+	}
+}
+
+templ confirmLayout() {
+	<main class="grid lg:grid-cols-[1fr_auto_1fr] min-h-dvh">
+		<section class="bg-surface-container-high hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center">
+			<header>
+				<span class="text-sm uppercase">gym graphs</span>
+			</header>
+			<div class="grid grid-rows-[1fr_auto_1fr]">
+				<h1 class="row-start-2 flex flex-col">
+					<span class="text-[15rem] font-bold leading-[0.85]">02</span>
+					<span class="text-3xl font-bold uppercase">confirm deletion</span>
+				</h1>
+			</div>
+		</section>
+		<hr class="bg-current w-1 h-full hidden lg:block"/>
+		<section class="max-w-xl w-full m-auto space-y-15 p-4">
+			{ children... }
+		</section>
+	</main>
+}
+
+type ConfirmFormErr struct {
+	Root string
+}
+
+templ ConfirmForm(err ConfirmFormErr) {
+	<form
+		hx-post="/delete-account/confirm"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col py-10 px-5 lg:px-10 gap-10"
+	>
+		<p class="text-center">
+			Are you sure you want to permanently delete your account? This action cannot be undone.
+		</p>
+		@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantDestructive, FullWidth: true}) {
+			yes, delete my account
+			@spinner.Spinner()
+		}
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{
+			Variant: button.VariantLink,
+			Type:    button.TypeButton,
+			Class:   "ml-auto",
+			Attributes: templ.Attributes{
+				"hx-post":    "/delete-account/cancel",
+				"hx-disable": "this",
+			},
+		}) {
+			cancel
+			@spinner.Spinner()
+		}
+	</form>
+}
+
+templ VerifyPasswordPage(form VerifyPasswordFormValues, err VerifyPasswordFormErr) {
+	@verifyPasswordLayout() {
+		<h1 class="text-xl lg:text-5xl text-center">delete your account</h1>
+		@VerifyPasswordForm(form, err)
+	}
+}
+
+templ verifyPasswordLayout() {
+	<main class="grid lg:grid-cols-[1fr_auto_1fr] min-h-dvh">
+		<section class="bg-surface-container-high hidden lg:grid p-20 gap-20 grid-rows-[auto_1fr] justify-content-center">
+			<header>
+				<span class="text-sm uppercase">gym graphs</span>
+			</header>
+			<div class="grid grid-rows-[1fr_auto_1fr]">
+				<h1 class="row-start-2 flex flex-col">
+					<span class="text-[15rem] font-bold leading-[0.85]">01</span>
+					<span class="text-3xl font-bold uppercase">verify your password</span>
+				</h1>
+				<ol class="row-start-3 flex flex-col justify-end text-outline gap-1">
+					<li class="flex items-center whitespace-pre before:bg-current before:left:0 before:w-8 before:mr-3 before:h-px before:inline-block uppercase text-sm">02	confirm deletion </li>
+				</ol>
+			</div>
+		</section>
+		<hr class="bg-current w-1 h-full hidden lg:block"/>
+		<section class="max-w-xl w-full m-auto space-y-15 p-4">
+			{ children... }
+		</section>
+	</main>
+}
+
+type VerifyPasswordFormValues struct {
+	Email    string
+	Password string
+}
+
+type VerifyPasswordFormErr struct {
+	Password string
+	Root     string
+}
+
+templ VerifyPasswordForm(form VerifyPasswordFormValues, err VerifyPasswordFormErr) {
+	<form
+		hx-post="/delete-account/verify-password"
+		hx-disable="find button[type='submit']"
+		hx-indicator="find button[type='submit']"
+		hx-swap="outerHTML"
+		class="flex flex-col py-10 px-5 lg:px-10 gap-10"
+	>
+		<input
+			type="hidden"
+			name="email"
+			autocomplete="email"
+			value={ form.Email }
+		/>
+		<label class="grid gap-1 has-[>[aria-invalid=true]]:text-error">
+			password:
+			@input.Input(input.Props{
+				Type:        input.TypePassword,
+				Name:        "password",
+				Placeholder: "********",
+				Value:       form.Password,
+				HasError:    err.Password != "",
+				Attributes: templ.Attributes{
+					"autocomplete": "current-password",
+				},
+			})
+			if err.Password != "" {
+				<p class="text-error text-sm" role="alert">{ err.Password }</p>
+			}
+		</label>
+		if err.Root != "" {
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+				@alert.Title() {
+					something went wrong
+				}
+				@alert.Description() {
+					{ err.Root }
+				}
+			}
+		}
+		@button.Button(button.Props{Type: button.TypeSubmit, FullWidth: true}) {
+			continue
+			@spinner.Spinner()
+		}
+		<div class="flex justify-end">
+			@button.Button(button.Props{
+				Variant: button.VariantLink,
+				Type:    button.TypeButton,
+				Attributes: templ.Attributes{
+					"hx-post":    "/delete-account/cancel",
+					"hx-disable": "this",
+					"hx-target":  "closest form",
+					"hx-swap":    "outerHTML",
+				},
+			}) {
+				cancel
+				@spinner.Spinner()
+			}
+		</div>
+	</form>
+}

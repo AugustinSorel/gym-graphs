@@ -1,0 +1,345 @@
+package exercises
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/onerm"
+	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+)
+
+type ExerciseDetailData struct {
+	ID                 int32
+	Name               string
+	Best1RMInG         float64
+	BestSetWeightInG   float64
+	BestSetReps        int
+	TotalSessions      int
+	AvgRepsPerSet      float64
+	TotalSets          int
+	WeightUnit         db.WeightUnit
+	OneRepMaxAlgorithm db.OneRepMaxAlgorithm
+	GraphPoints        []service.ExerciseGraphPoint
+	RepsRangeBuckets   []service.RepsRangeBucket
+	VolumePerSession   []service.VolumeSessionPoint
+	SessionFrequency   []service.SessionFrequencyPoint
+	SetsPage           service.SetsPage
+	AllTags            []db.Tag
+	ExerciseTags       []db.Tag
+}
+
+templ ExerciseDetailPage(ex ExerciseDetailData) {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		@exerciseDetailHeader(ex)
+		@exerciseFunFacts(ex)
+		@exerciseGraph(ex)
+		@exerciseMoreGraphs(ex)
+		@exerciseSetsTable(ex)
+		@exerciseTags(ex)
+		@exerciseManage(ex)
+	</main>
+}
+
+templ exerciseDetailHeader(ex ExerciseDetailData) {
+	<header class="grid grid-cols-[1fr_auto] gap-y-10 lg:gap-y-5">
+		<h1 class="text-3xl font-semibold capitalize col-span-2">
+			{ ex.Name }
+		</h1>
+		<span class="uppercase text-outline text-sm">
+			sets ({ fmt.Sprintf("%d", ex.TotalSets) })
+		</span>
+		@link.Link(link.Props{
+			Href: fmt.Sprintf("/exercises/%d/sets/new", ex.ID),
+		}) {
+			+ add
+		}
+	</header>
+}
+
+templ exerciseSetsTable(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			sets
+		</h2>
+		if ex.SetsPage.TotalCount == 0 {
+			<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+				<h3 class="text-sm text-outline">no sets yet</h3>
+			</div>
+		} else {
+			<ol id="sets-list" style={ fmt.Sprintf("counter-reset: set-list %d", ex.SetsPage.TotalCount+1) } class="list-none">
+				@ExerciseSetsRows(ex.ID, ex.SetsPage, ex.WeightUnit, ex.OneRepMaxAlgorithm)
+			</ol>
+		}
+	</section>
+}
+
+templ ExerciseSetsRows(exerciseID int32, page service.SetsPage, unit db.WeightUnit, algorithm db.OneRepMaxAlgorithm) {
+	for _, s := range page.Rows {
+		{{ popoverID := fmt.Sprintf("set-menu-%d", s.ID) }}
+		{{ anchorName := fmt.Sprintf("--set-anchor-%d", s.ID) }}
+		{{ orm := onerm.Compute(float64(s.WeightInG), float64(s.Repetitions), algorithm) }}
+		<li class="border-b-2 border-dotted border-outline/50 py-3 [counter-increment:set-list_-1] grid grid-cols-[auto_1fr_auto] items-center gap-x-3 before:content-[counter(set-list)_'.'] before:text-outline before:text-sm">
+			<dl class="grid grid-cols-3 gap-x-6 gap-y-1 text-sm">
+				<div>
+					<dt class="text-outline text-xs">1<abbr title="repetition maximum" class="no-underline">rm</abbr></dt>
+					<dd class="font-medium">
+						if orm > 0 {
+							{ weightunit.Format(orm, unit) }
+							<abbr title={ weightunit.Name(unit) } class="font-normal text-xs text-outline no-underline">{ weightunit.Abbr(unit) }</abbr>
+						} else {
+							-
+						}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-outline text-xs">weight</dt>
+					<dd>
+						{ weightunit.Format(float64(s.WeightInG), unit) }
+						<abbr title={ weightunit.Name(unit) } class="text-xs text-outline no-underline">{ weightunit.Abbr(unit) }</abbr>
+					</dd>
+				</div>
+				<div>
+					<dt class="text-outline text-xs"><abbr title="repetitions" class="no-underline">reps</abbr></dt>
+					<dd>{ fmt.Sprintf("%d", s.Repetitions) }</dd>
+				</div>
+			</dl>
+			<div class="relative">
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Class:   "size-8 text-outline",
+					Attributes: templ.Attributes{
+						"popovertarget": popoverID,
+						"aria-label":    "Set options",
+						"style":         "anchor-name: " + anchorName,
+					},
+				}) {
+					&#8942;
+				}
+				<div
+					id={ popoverID }
+					popover=""
+					class="m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-36 open:flex flex-col text-center text-sm"
+					style={ "position-anchor: " + anchorName + "; position-area: bottom span-left; position-try-fallbacks: flip-block;" }
+				>
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/edit", exerciseID, s.ID)) }
+						class="underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface"
+					>edit</a>
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/exercises/%d/sets/%d/confirm-delete", exerciseID, s.ID)) }
+						class="text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface"
+					>remove</a>
+				</div>
+			</div>
+		</li>
+	}
+	if page.HasNextPage {
+		<li
+			id="sets-load-more"
+			hx-get={ fmt.Sprintf("/exercises/%d/sets?cursor=%s&cursor_id=%d", exerciseID, page.NextCursor.DoneAt.Time.UTC().Format(time.RFC3339Nano), page.NextCursor.ID) }
+			hx-swap="outerHTML"
+			hx-target="#sets-load-more"
+			hx-include="none"
+			class="list-none"
+		>
+			<div class="py-3 flex justify-center [.htmx-request_&]:hidden">
+				@button.Button(button.Props{Variant: button.VariantLink, Class: "text-outline font-normal no-underline"}) {
+					load more
+				}
+			</div>
+			for range 10 {
+				<div class="hidden [.htmx-request_&]:block animate-pulse h-13 border-b-2 border-dotted border-outline/50"></div>
+			}
+		</li>
+	}
+}
+
+templ exerciseGraph(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			1 <abbr title="repetitions maximum" class="no-underline">rep max</abbr>
+		</h2>
+		if len(ex.GraphPoints) == 0 {
+			<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+				<h3 class="text-sm text-outline">no sets yet</h3>
+			</div>
+		} else {
+			@templ.JSONScript("exercise-graph-data", ex.GraphPoints)
+			<div
+				id="exercise-graph"
+				class="w-full h-72 border-b-2 border-dotted border-outline/50"
+				data-unit={ weightunit.Abbr(ex.WeightUnit) }
+			></div>
+		}
+	</section>
+}
+
+templ exerciseMoreGraphs(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			more graphs
+		</h2>
+		<div class="grid lg:grid-cols-3 gap-10 py-6 border-b-2 border-dotted border-outline/50">
+			<figure class="gap-4 pb-10 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<figcaption class="text-outline text-xs">reps range</figcaption>
+				@templ.JSONScript("exercise-reps-range-data", ex.RepsRangeBuckets)
+				<div id="exercise-reps-range-graph"></div>
+			</figure>
+			<figure class="gap-4 pb-10 lg:pb-0 grid grid-rows-[auto_1fr] items-center border-b-2 border-dotted border-outline/50 lg:border-r-2 lg:border-b-0 lg:pr-4">
+				<figcaption class="text-outline text-xs">volume · last 7 days</figcaption>
+				@templ.JSONScript("exercise-volume-session-data", ex.VolumePerSession)
+				<div
+					id="exercise-volume-session-graph"
+					data-unit={ weightunit.Abbr(ex.WeightUnit) }
+				></div>
+			</figure>
+			<figure class="gap-4 pb-10 lg:pb-0 grid grid-rows-[auto_1fr] items-center">
+				<figcaption class="text-outline text-xs">session frequency · last 8 weeks</figcaption>
+				@templ.JSONScript("exercise-session-frequency-data", ex.SessionFrequency)
+				<div id="exercise-session-frequency-graph"></div>
+			</figure>
+		</div>
+	</section>
+}
+
+templ exerciseTags(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			tags
+		</h2>
+		@ExerciseTagsSection(ex.ID, ex.AllTags, ex.ExerciseTags)
+	</section>
+}
+
+templ ExerciseTagsSection(exerciseID int32, allTags []db.Tag, exerciseTags []db.Tag) {
+	if len(allTags) == 0 {
+		<div class="py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center">
+			<h3 class="text-sm text-outline">no tags yet</h3>
+		</div>
+	} else {
+		<form
+			id="exercise-tags-form"
+			hx-patch={ fmt.Sprintf("/exercises/%d/tags", exerciseID) }
+			hx-trigger="change"
+			hx-swap="outerHTML"
+			hx-target="#exercise-tags-form"
+			class="py-7 border-b-2 border-dotted border-outline/50 flex flex-wrap gap-2"
+		>
+			for _, tag := range allTags {
+				<label class={ "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer transition-colors hover:bg-on-surface/10 has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface", templ.KV("bg-on-surface text-surface", isTagSelected(tag.ID, exerciseTags)) }>
+					<input
+						type="checkbox"
+						name="tag_ids"
+						value={ fmt.Sprintf("%d", tag.ID) }
+						class="sr-only"
+						if isTagSelected(tag.ID, exerciseTags) {
+							checked
+						}
+					/>
+					{ tag.Name }
+				</label>
+			}
+		</form>
+	}
+}
+
+templ exerciseManage(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			manage
+		</h2>
+		<div class="grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3">
+			<dl class="space-y-1">
+				<dt class="text-outline text-sm">name</dt>
+				<dd class="capitalize break-all text-balance">{ ex.Name }</dd>
+			</dl>
+			@link.Link(link.Props{
+				Href:  fmt.Sprintf("/exercises/%d/name", ex.ID),
+				Class: "my-auto text-sm ml-auto lg:ml-0",
+			}) {
+				rename
+			}
+		</div>
+		<div class="py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center">
+			<div class="space-y-1">
+				<p class="text-outline text-sm">remove exercise</p>
+				<p>permanently delete this exercise and all its sets.</p>
+			</div>
+			@link.Link(link.Props{
+				Href:  fmt.Sprintf("/exercises/%d/confirm-delete", ex.ID),
+				Class: "my-auto ml-auto text-sm font-semibold text-error underline hover:opacity-70 transition-opacity hover:text-error/80 ml-auto lg:ml-0",
+			}) {
+				delete
+			}
+		</div>
+	</section>
+}
+
+templ exerciseFunFacts(ex ExerciseDetailData) {
+	<section>
+		<h2 class="uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full">
+			facts
+		</h2>
+		<dl class="py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-2">
+			<div class="grid gap-1">
+				<dt class="text-outline text-xs">
+					best 1<abbr title="repetition maximum" class="no-underline">rm</abbr>
+				</dt>
+				<dd class="text-xl font-semibold">
+					if ex.Best1RMInG > 0 {
+						{ weightunit.Format(ex.Best1RMInG, ex.WeightUnit) }
+						<abbr title={ weightunit.Name(ex.WeightUnit) } class="text-sm font-normal text-outline no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr>
+					} else {
+						-
+					}
+				</dd>
+			</div>
+			<div class="grid gap-1">
+				<dt class="text-outline text-xs">best set</dt>
+				<dd class="text-xl font-semibold">
+					if ex.BestSetWeightInG > 0 && ex.BestSetReps > 0 {
+						{ weightunit.Format(ex.BestSetWeightInG, ex.WeightUnit) }
+						<span class="text-sm font-normal text-outline">
+							<abbr title={ weightunit.Name(ex.WeightUnit) } class="no-underline">{ weightunit.Abbr(ex.WeightUnit) }</abbr> * { fmt.Sprintf("%d", ex.BestSetReps) }
+						</span>
+					} else {
+						-
+					}
+				</dd>
+			</div>
+			<div class="grid gap-1">
+				<dt class="text-outline text-xs"><abbr title="average repetitions per set" class="no-underline">avg reps / set</abbr></dt>
+				<dd class="text-xl font-semibold">
+					if ex.TotalSets > 0 {
+						{ fmt.Sprintf("%.1f", ex.AvgRepsPerSet) }
+					} else {
+						-
+					}
+				</dd>
+			</div>
+			<div class="grid gap-1">
+				<dt class="text-outline text-xs">sessions</dt>
+				<dd class="text-xl font-semibold">
+					if ex.TotalSessions > 0 {
+						{ fmt.Sprintf("%d", ex.TotalSessions) }
+					} else {
+						-
+					}
+				</dd>
+			</div>
+		</dl>
+	</section>
+}
+
+func isTagSelected(tagID int32, exerciseTags []db.Tag) bool {
+	for _, t := range exerciseTags {
+		if t.ID == tagID {
+			return true
+		}
+	}
+	return false
+}

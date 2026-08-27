@@ -1,0 +1,60 @@
+package exercises
+
+import (
+	"fmt"
+	"github.com/augustinsorel/gym-graphs/web/ui/alert"
+	"github.com/augustinsorel/gym-graphs/web/ui/button"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+	"github.com/augustinsorel/gym-graphs/web/ui/spinner"
+)
+
+templ RemoveExercisePage(exerciseID int32, exerciseName string) {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		<form
+			hx-delete={ fmt.Sprintf("/exercises/%d", exerciseID) }
+			hx-disable="find button[type='submit']"
+			hx-indicator="find button[type='submit']"
+			hx-swap="outerHTML"
+			class="flex flex-col gap-10"
+		>
+			<h1 class="font-semibold text-3xl">remove exercise</h1>
+			<p class="text-outline">
+				Are you sure you want to remove the exercise <strong class="text-on-surface capitalize">{ exerciseName }</strong>? This action cannot be undone.
+			</p>
+			{ children... }
+			@button.Button(button.Props{Type: button.TypeSubmit, Variant: button.VariantDestructive}) {
+				yes, remove exercise
+				@spinner.Spinner()
+			}
+			@link.Link(link.Props{Href: fmt.Sprintf("/exercises/%d", exerciseID), Class: "text-sm ml-auto"}) {
+				cancel
+			}
+		</form>
+	</main>
+}
+
+templ RemoveExerciseErrorPage(msg string) {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				remove exercise error
+			}
+			@alert.Description() {
+				{ msg }
+			}
+		}
+	</main>
+}
+
+templ RemoveExerciseFormErr(errMsg string) {
+	if errMsg != "" {
+		@alert.Alert(alert.Props{Variant: alert.VariantDestructive}) {
+			@alert.Title() {
+				something went wrong
+			}
+			@alert.Description() {
+				{ errMsg }
+			}
+		}
+	}
+}

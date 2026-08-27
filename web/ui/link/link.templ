@@ -1,0 +1,29 @@
+package link
+
+import "github.com/augustinsorel/gym-graphs/web"
+
+type Props struct {
+	Class      string
+	Href       string
+	Disabled   bool
+	Attributes templ.Attributes
+}
+
+templ Link(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<a
+		href={ templ.SafeURL(p.Href) }
+		class={
+			web.TwMerge(
+				"font-semibold text-sm underline hover:text-current/70 transition-colors outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+				p.Class,
+			),
+		}
+		{ p.Attributes... }
+	>
+		{ children... }
+	</a>
+}

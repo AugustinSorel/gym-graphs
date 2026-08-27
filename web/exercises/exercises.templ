@@ -1,0 +1,263 @@
+package exercises
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/augustinsorel/gym-graphs/internal/database/db"
+	"github.com/augustinsorel/gym-graphs/internal/onerm"
+	"github.com/augustinsorel/gym-graphs/internal/service"
+	"github.com/augustinsorel/gym-graphs/internal/weightunit"
+	"github.com/augustinsorel/gym-graphs/web/ui/link"
+)
+
+templ exerciseFilters(tags []db.Tag, activeTagIDs []int32) {
+	if len(tags) > 0 {
+		<details class="group col-span-2 space-y-4">
+			<summary class="cursor-pointer items-center gap-2 text-outline text-xs select-none">
+				filters
+				<output id="filter-count" class="[&:not(:empty)]:before:content-['_('] [&:not(:empty)]:after:content-[')']">
+					if len(activeTagIDs) > 0 {
+						{ fmt.Sprintf("%d", len(activeTagIDs)) }
+					}
+				</output>
+			</summary>
+			<form
+				id="exercises-filter-form"
+				hx-get="/exercises"
+				hx-trigger="change"
+				hx-target="#exercises-table"
+				hx-swap="outerHTML"
+				hx-push-url="true"
+			>
+				<fieldset class="space-y-2 border-b-2 border-outline/50 border-dotted pb-6">
+					<legend class="uppercase text-outline text-xs sr-only">tags</legend>
+					<div class="flex flex-wrap gap-2">
+						for _, tag := range tags {
+							<label class="border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface">
+								<input
+									type="checkbox"
+									name="filter_tag_ids"
+									value={ fmt.Sprintf("%d", tag.ID) }
+									class="sr-only"
+									if isActiveTag(tag.ID, activeTagIDs) {
+										checked
+									}
+								/>
+								{ tag.Name }
+							</label>
+						}
+					</div>
+				</fieldset>
+			</form>
+		</details>
+		<script>
+			(function () {
+				const form = document.getElementById("exercises-filter-form");
+				const output = document.getElementById("filter-count");
+				function updateCount() {
+					const n = form.querySelectorAll("input[name='filter_tag_ids']:checked").length;
+					output.textContent = n > 0 ? String(n) : "";
+				}
+				form.addEventListener("change", updateCount);
+			})();
+		</script>
+	}
+}
+
+func isActiveTag(tagID int32, activeTagIDs []int32) bool {
+	for _, id := range activeTagIDs {
+		if id == tagID {
+			return true
+		}
+	}
+	return false
+}
+
+templ noExercisesMessage() {
+	<section class="mt-40 gap-5 flex flex-col items-center text-center">
+		<span
+			aria-hidden="true"
+			class="bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline"
+		>
+			0
+		</span>
+		<h1 class="uppercase font-semibold">no exercises yet</h1>
+		<p class="text-balance text-outline text-sm max-w-sm">
+			Add your first movement and start building your training logs
+		</p>
+		@link.Link(link.Props{Href: "/exercises/new"}) {
+			+ add exercise
+		}
+	</section>
+}
+
+templ ExerciseRows(page service.ExercisesPage) {
+	<tbody>
+		for _, exercise := range page.Rows {
+			<tr class="bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50 relative">
+				<td class="pl-0 p-4 align-middle font-medium lowercase">
+					@link.Link(link.Props{
+						Href:  fmt.Sprintf("/exercises/%d", exercise.ID),
+						Class: "before:absolute before:inset-0 before:z-1",
+					}) {
+						{ exercise.Name }
+					}
+				</td>
+				<td class="p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left">
+					@formatOneRepMax(exercise, page.OneRepMaxAlgorithm, page.WeightUnit)
+				</td>
+				<td class="p-4 align-middle text-outline lg:table-cell hidden">
+					if exercise.SetsCount == 0 {
+						-
+					} else {
+						{ fmt.Sprintf("%d", exercise.SetsCount) }
+					}
+				</td>
+				<td class="pr-0 p-4 align-middle text-outline lg:table-cell hidden whitespace-nowrap">
+					{ timeAgo(exercise.LastSetDoneAt.Time) }
+				</td>
+			</tr>
+		}
+	</tbody>
+	if page.HasNextPage {
+		<tbody
+			hx-get={ nextPageURL(page) }
+			hx-swap="outerHTML"
+			hx-trigger="revealed"
+		>
+			for range 20 {
+				<tr>
+					<td
+						colspan="4"
+						class="animate-pulse h-13 bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x"
+					></td>
+				</tr>
+			}
+		</tbody>
+	}
+}
+
+templ ExercisesTable(page service.ExercisesPage) {
+	if page.TotalCount == 0 {
+		<div
+			id="exercises-table"
+			class="flex flex-col items-center gap-3 py-20 text-center"
+		>
+			<span class="text-outline text-sm">no exercises match the selected filters</span>
+		</div>
+	} else {
+		<table
+			id="exercises-table"
+			class="caption-bottom text-sm table-fixed w-full"
+		>
+			<thead class="border-b-2 text-nowrap">
+				<tr>
+					<th class="h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide">name</th>
+					<th class="h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left w-34">
+						last 1<abbr title="rep maximum" class="no-underline">rm</abbr>
+					</th>
+					<th class="h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-18">sets</th>
+					<th class="h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-34">last set</th>
+				</tr>
+			</thead>
+			@ExerciseRows(page)
+		</table>
+	}
+}
+
+templ exercisesList(page service.ExercisesPage) {
+	<header class="grid grid-cols-[1fr_auto] gap-4">
+		<span class="text-outline uppercase text-sm">
+			exercises ({ fmt.Sprintf("%d", page.AllExercisesCount) })
+		</span>
+		@link.Link(link.Props{Href: "/exercises/new"}) {
+			+ add
+		}
+		@exerciseFilters(page.AllTags, page.ActiveTagIDs)
+	</header>
+	@ExercisesTable(page)
+}
+
+templ ExercisesPage(page service.ExercisesPage) {
+	<main class="flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20">
+		if page.TotalCount == 0 && len(page.ActiveTagIDs) == 0 {
+			@noExercisesMessage()
+		} else {
+			@exercisesList(page)
+		}
+	</main>
+}
+
+func trendArrow(last, prev float64) string {
+	switch {
+	case last > prev:
+		return " ↑"
+	case last < prev:
+		return " ↓"
+	default:
+		return " -"
+	}
+}
+
+templ formatOneRepMax(exercise service.ExerciseRow, algorithm db.OneRepMaxAlgorithm, unit db.WeightUnit) {
+	{{ last1rm := onerm.Compute(float64(exercise.LastSetWeightInG), float64(exercise.LastSetRepetitions), algorithm) }}
+	if last1rm <= 0 {
+		-
+	} else {
+		{ weightunit.Format(last1rm, unit) + " " }
+		<abbr title={ weightunit.Name(unit) } class="no-underline">{ weightunit.Abbr(unit) }</abbr>
+		if exercise.PrevSetWeightInG != 0 && exercise.PrevSetRepetitions != 0 {
+			{ trendArrow(last1rm, onerm.Compute(float64(exercise.PrevSetWeightInG), float64(exercise.PrevSetRepetitions), algorithm)) }
+		}
+	}
+}
+
+func nextPageURL(page service.ExercisesPage) string {
+	u := fmt.Sprintf("/exercises?cursor=%d", page.NextCursor)
+	for _, id := range page.ActiveTagIDs {
+		u += fmt.Sprintf("&filter_tag_ids=%d", id)
+	}
+	return u
+}
+
+func timeAgo(t time.Time) string {
+	if t.IsZero() {
+		return "-"
+	}
+	secs := int(time.Since(t).Seconds())
+	switch {
+	case secs < 60:
+		return "just now"
+	case secs < 3600:
+		mins := secs / 60
+		if mins == 1 {
+			return "1 minute ago"
+		}
+		return fmt.Sprintf("%d minutes ago", mins)
+	case secs < 86400:
+		hours := secs / 3600
+		if hours == 1 {
+			return "1 hour ago"
+		}
+		return fmt.Sprintf("%d hours ago", hours)
+	case secs < 2592000:
+		days := secs / 86400
+		if days == 1 {
+			return "yesterday"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	case secs < 31536000:
+		months := secs / 2592000
+		if months == 1 {
+			return "1 month ago"
+		}
+		return fmt.Sprintf("%d months ago", months)
+	default:
+		years := secs / 31536000
+		if years == 1 {
+			return "1 year ago"
+		}
+		return fmt.Sprintf("%d years ago", years)
+	}
+}
