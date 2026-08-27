@@ -222,7 +222,7 @@ func pricing() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<section class=\"outline outline-4 outline-surface outline-offset-[-12px] border-2 bg-on-surface text-surface p-9 flex flex-col gap-6\"><hgroup><h2 class=\"text-2xl font-bold\">Free while you lift.</h2><p class=\"text-sm text-outline leading-relaxed mt-3\">Unlimited exercises, unlimited sets, unlimited graphs. No card.</p></hgroup><nav class=\"flex gap-4 items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<section class=\"outline outline-5 outline-surface outline-offset-[-12px] border-2 bg-on-surface text-surface p-9 flex flex-col gap-6 border-on-surface\"><hgroup><h2 class=\"text-2xl font-bold\">Free while you lift.</h2><p class=\"text-sm text-outline leading-relaxed mt-3\">Unlimited exercises, unlimited sets, unlimited graphs. No card.</p></hgroup><nav class=\"flex gap-4 items-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
