@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -316,7 +317,7 @@ func (h *AccountHandler) ImportData(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	var data service.UserExport
-	if err := json.NewDecoder(file).Decode(&data); err != nil {
+	if err := json.NewDecoder(io.LimitReader(file, maxUploadBytes)).Decode(&data); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		if renderErr := account.ImportUserData("invalid file format — expected a gym-graphs JSON export").Render(r.Context(), w); renderErr != nil {
 			slog.Error("failed to render import data component", "error", renderErr)

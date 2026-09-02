@@ -13,6 +13,17 @@ import (
 
 var ErrUnsupportedExportVersion = errors.New("unsupported export version")
 
+const (
+	maxImportExercises = 1_000
+	maxImportTagsPerExercise  = 100
+	maxImportSetsPerExercise  = 10_000
+)
+
+var (
+	minImportTime = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	maxImportTime = time.Date(2100, 1, 1, 0, 0, 0, 0, time.UTC)
+)
+
 type ExportService struct {
 	queries *db.Queries
 	pool    *pgxpool.Pool
@@ -113,6 +124,28 @@ func (s *ExportService) ImportUserData(ctx context.Context, userID int32, data U
 		return fmt.Errorf("%w: %q", ErrUnsupportedExportVersion, data.Version)
 	}
 
+	if len(data.Exercises) > maxImportExercises {
+		return fmt.Errorf("import contains %d exercises, maximum is %d", len(data.Exercises), maxImportExercises)
+	}
+
+	for i, ex := range data.Exercises {
+		if len(ex.Tags) > maxImportTagsPerExercise {
+			return fmt.Errorf("exercise %d has %d tags, maximum is %d", i, len(ex.Tags), maxImportTagsPerExercise)
+		}
+		if len(ex.Sets) > maxImportSetsPerExercise {
+			return fmt.Errorf("exercise %d has %d sets, maximum is %d", i, len(ex.Sets), maxImportSetsPerExercise)
+		}
+		for j, set := range ex.Sets {
+			t, err := time.Parse(time.RFC3339, set.DoneAt)
+			if err != nil {
+				return fmt.Errorf("exercise %d set %d: invalid doneAt %q: %w", i, j, set.DoneAt, err)
+			}
+			if t.Before(minImportTime) || t.After(maxImportTime) {
+				return fmt.Errorf("exercise %d set %d: doneAt %q is out of allowed range", i, j, set.DoneAt)
+			}
+		}
+	}
+
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -163,10 +196,7 @@ func (s *ExportService) ImportUserData(ctx context.Context, userID int32, data U
 		doneAts := make([]pgtype.Timestamptz, len(ex.Sets))
 
 		for i, set := range ex.Sets {
-			t, err := time.Parse(time.RFC3339, set.DoneAt)
-			if err != nil {
-				return fmt.Errorf("parse doneAt %q for exercise %q: %w", set.DoneAt, ex.Name, err)
-			}
+			t, _ := time.Parse(time.RFC3339, set.DoneAt) // already validated above
 			repetitions[i] = set.Repetitions
 			weights[i] = set.WeightInG
 			doneAts[i] = pgtype.Timestamptz{Time: t.UTC(), Valid: true}
