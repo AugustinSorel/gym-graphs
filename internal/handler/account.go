@@ -253,7 +253,8 @@ func (h *AccountHandler) UpdateOneRepMaxAlgorithm(w http.ResponseWriter, r *http
 		return
 	}
 
-	w.Header().Set("HX-Trigger", `{"one-rep-max-algorithm-changed":"`+input.OneRepMaxAlgorithm+`"}`)
+	trigger, _ := json.Marshal(map[string]string{"one-rep-max-algorithm-changed": input.OneRepMaxAlgorithm})
+	w.Header().Set("HX-Trigger", string(trigger))
 
 	if renderErr := account.OneRepMaxAlgorithmForm(
 		account.OneRepMaxAlgorithmFormValues{Algorithm: input.OneRepMaxAlgorithm},
