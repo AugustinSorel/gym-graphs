@@ -87,7 +87,7 @@ func header() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header><span class=\"text-sm uppercase\">gym graphs</span></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"flex items-center justify-between\"><span class=\"text-sm uppercase\">gym graphs</span> <a href=\"https://github.com/augustinsorel/gym-graphs\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-sm text-outline hover:text-on-surface transition-colors\">github</a></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
