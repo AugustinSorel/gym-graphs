@@ -133,11 +133,16 @@ func (q *Queries) GetAllExerciseTagNamesByUserID(ctx context.Context, userID int
 
 const getTagByID = `-- name: GetTagByID :one
 select id, user_id, name, updated_at, created_at from tags
-where id = $1
+where id = $1 and user_id = $2
 `
 
-func (q *Queries) GetTagByID(ctx context.Context, id int32) (Tag, error) {
-	row := q.db.QueryRow(ctx, getTagByID, id)
+type GetTagByIDParams struct {
+	ID     int32
+	UserID int32
+}
+
+func (q *Queries) GetTagByID(ctx context.Context, arg GetTagByIDParams) (Tag, error) {
+	row := q.db.QueryRow(ctx, getTagByID, arg.ID, arg.UserID)
 	var i Tag
 	err := row.Scan(
 		&i.ID,

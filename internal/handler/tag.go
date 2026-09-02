@@ -72,7 +72,7 @@ func (h *TagHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingTag, err := h.tagSvc.GetByID(r.Context(), int32(tagID))
+	existingTag, err := h.tagSvc.GetByID(r.Context(), int32(tagID), authSession.UserID)
 	if err != nil {
 		page := tag.RemoveTagErrorPage("loading the remove tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
@@ -80,11 +80,6 @@ func (h *TagHandler) ViewRemovePage(w http.ResponseWriter, r *http.Request) {
 			slog.Error("failed to render remove tag error page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
-		return
-	}
-
-	if existingTag.UserID != authSession.UserID {
-		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 
@@ -131,7 +126,7 @@ func (h *TagHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingTag, err := h.tagSvc.GetByID(r.Context(), int32(tagID))
+	existingTag, err := h.tagSvc.GetByID(r.Context(), int32(tagID), authSession.UserID)
 	if err != nil {
 		page := tag.RenameTagErrorPage("loading the rename tag page failed")
 		ctx := templ.WithChildren(r.Context(), page)
@@ -139,11 +134,6 @@ func (h *TagHandler) ViewRenamePage(w http.ResponseWriter, r *http.Request) {
 			slog.Error("failed to render rename tag error page", "error", renderErr)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
-		return
-	}
-
-	if existingTag.UserID != authSession.UserID {
-		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 

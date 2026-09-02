@@ -26,7 +26,7 @@ returning *;
 
 -- name: GetTagByID :one
 select * from tags
-where id = $1;
+where id = $1 and user_id = $2;
 
 -- name: UpdateTagName :one
 update tags
