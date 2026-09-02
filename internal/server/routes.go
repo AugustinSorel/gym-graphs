@@ -166,7 +166,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	mux.Handle("GET /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.ViewSetPasswordPage))))
 	mux.Handle("POST /sign-up/set-password", guestOnly(requireVerifiedSignUpSession(http.HandlerFunc(signUp.SetPassword))))
 
-	return s.analyticsMiddleware(s.corsMiddleware(s.requestRateLimitMiddleware(mux)))
+	return s.analyticsMiddleware(s.requestRateLimitMiddleware(mux))
 }
 
 func (s *Server) requestRateLimitMiddleware(next http.Handler) http.Handler {
@@ -196,18 +196,3 @@ func staticCacheMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server) corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins if needed
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
