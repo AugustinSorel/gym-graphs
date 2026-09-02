@@ -443,7 +443,7 @@ func (h *ExercisesHandler) UpdateTags(w http.ResponseWriter, r *http.Request) {
 
 	tagIDs := parseTagIDs(r.Form["tag_ids"])
 
-	if err := h.exerciseSvc.SetTags(r.Context(), int32(id), tagIDs); err != nil {
+	if err := h.exerciseSvc.SetTags(r.Context(), int32(id), authSession.UserID, tagIDs); err != nil {
 		slog.Error("failed to update exercise tags", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

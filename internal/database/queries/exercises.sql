@@ -65,7 +65,9 @@ delete from exercises
 where id = $1 and user_id = $2;
 
 -- name: DeleteExerciseTags :exec
-delete from exercise_tags where exercise_id = $1;
+delete from exercise_tags
+where exercise_id = $1
+  and exercise_id in (select id from exercises where user_id = $2);
 
 -- name: GetAllExercisesByUserID :many
 select id, user_id, name, updated_at, created_at from exercises

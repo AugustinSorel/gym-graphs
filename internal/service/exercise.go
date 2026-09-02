@@ -352,7 +352,7 @@ func (s *ExerciseService) SessionFrequencyLast8Weeks(ctx context.Context, exerci
 	return points, nil
 }
 
-func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs []int32) error {
+func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, userID int32, tagIDs []int32) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -361,7 +361,10 @@ func (s *ExerciseService) SetTags(ctx context.Context, exerciseID int32, tagIDs 
 
 	txq := db.New(tx)
 
-	if err := txq.DeleteExerciseTags(ctx, exerciseID); err != nil {
+	if err := txq.DeleteExerciseTags(ctx, db.DeleteExerciseTagsParams{
+		ExerciseID: exerciseID,
+		UserID:     userID,
+	}); err != nil {
 		return err
 	}
 
