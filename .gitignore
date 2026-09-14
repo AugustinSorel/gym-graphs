@@ -1,15 +1,3 @@
-keys.txt
-
-*.test
-*.out
-/web/assets/css/styles.css
-
-go.work
-tmp/
-
-# Project build
-main
-
 # Devenv
 .devenv*
 devenv.local.nix

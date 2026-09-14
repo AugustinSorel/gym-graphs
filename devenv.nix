@@ -1,78 +1,46 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, inputs, ... }:
 
 {
-  env = {
-    PORT = 8000;
+  # https://devenv.sh/basics/
+  env.GREET = "devenv";
 
-    GOOSE_DRIVER = "postgres";
-    GOOSE_DBSTRING = "postgres://localhost:5432/gym_graphs";
-    GOOSE_MIGRATION_DIR = ./internal/database/migrations;
+  # https://devenv.sh/packages/
+  packages = [ pkgs.git ];
 
-    DATABASE_URL = "postgres://@localhost:5432/gym_graphs";
+  # https://devenv.sh/languages/
+  # languages.rust.enable = true;
 
-    SMTP_HOST = "127.0.0.1";
-    SMTP_PORT = "1025";
-    SMTP_FROM = "no-reply@gym-graphs.com";
-  };
+  # https://devenv.sh/processes/
+  # processes.dev.exec = "${lib.getExe pkgs.watchexec} -n -- ls -la";
 
-  packages = with pkgs; [
-    goose
-    tailwindcss_4
-    templ
-    sqlc
-  ];
+  # https://devenv.sh/services/
+  # services.postgres.enable = true;
 
-  languages.go = {
-    enable = true;
-  };
+  # https://devenv.sh/scripts/
+  scripts.hello.exec = ''
+    echo hello from $GREET
+  '';
 
-  services.mailpit = {
-    enable = true;
-  };
+  # https://devenv.sh/basics/
+  enterShell = ''
+    hello         # Run scripts directly
+    git --version # Use packages
+  '';
 
-  services.postgres = {
-    enable = true;
-    listen_addresses = "127.0.0.1";
-    initialDatabases = [
-      {
-        name = "gym_graphs";
-      }
-    ];
-  };
+  # https://devenv.sh/tasks/
+  # tasks = {
+  #   "myproj:setup".exec = "mytool build";
+  #   "devenv:enterShell".after = [ "myproj:setup" ];
+  # };
 
-  processes.api = {
-    exec = "go run ./cmd/api/main.go";
-    restart = {
-      on = "always";
-      max = null;
-    };
-    watch = {
-      paths = [ ./cmd ./internal ./web ];
-      extensions = [ "go" ];
-    };
-  };
+  # https://devenv.sh/tests/
+  enterTest = ''
+    echo "Running tests"
+    git --version | grep --color=auto "${pkgs.git.version}"
+  '';
 
-  processes.html = {
-    exec = "templ generate";
-    watch = {
-      paths = [ ./web ];
-      extensions = [ "templ" ];
-    };
-  };
+  # https://devenv.sh/git-hooks/
+  # git-hooks.hooks.shellcheck.enable = true;
 
-  processes.sql = {
-    exec = "sqlc generate";
-    watch = {
-      paths = [ ./internal/database/queries ];
-      extensions = [ "sql" ];
-    };
-  };
-
-  processes.styles = {
-    exec = "tailwindcss -i web/styles/styles.css -o web/assets/css/styles.css";
-    watch = {
-      paths = [ ./web ];
-      extensions = [ "templ" ];
-    };
-  };
+  # See full reference at https://devenv.sh/reference/options/
 }
