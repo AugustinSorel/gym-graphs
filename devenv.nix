@@ -1,7 +1,10 @@
 { pkgs, ... }:
 
 {
-  env.GREET = "devenv";
+  env = {
+    db_url = "postgres://" + builtins.getEnv "USER" + "@localhost:5433/gym_graphs";
+    secret_key_base = "123";
+  };
 
   packages = with pkgs;[
     goose
@@ -9,6 +12,17 @@
   ];
 
   languages.gleam.enable = true;
+
+
+  services.postgres = {
+    enable = true;
+    listen_addresses = "127.0.0.1";
+    initialDatabases = [
+      {
+        name = "gym_graphs";
+      }
+    ];
+  };
 
   processes.api = {
     exec = "gleam run ./";
