@@ -3,14 +3,14 @@
 {
   env =
     let
-      db_url = "postgres://" + builtins.getEnv "USER" + "@localhost:5433/gym_graphs";
+      DATABASE_URL = "postgres://" + builtins.getEnv "USER" + "@localhost:5432/gym_graphs";
     in
     {
-      db_url = db_url;
-      secret_key_base = "51ab65e573f8a9f5454c31327d917fbb04ea1594507f0b35d32af7f956a7c503";
+      DATABASE_URL = DATABASE_URL;
+      SECRET_KEY_BASE = "51ab65e573f8a9f5454c31327d917fbb04ea1594507f0b35d32af7f956a7c503";
 
       GOOSE_DRIVER = "postgres";
-      GOOSE_DBSTRING = db_url;
+      GOOSE_DBSTRING = DATABASE_URL;
       GOOSE_MIGRATION_DIR = ./migrations;
     };
 
@@ -24,6 +24,7 @@
 
   services.postgres = {
     enable = true;
+    port = 5432;
     listen_addresses = "127.0.0.1";
     initialDatabases = [
       {
@@ -34,6 +35,22 @@
 
   processes.api = {
     exec = "gleam run ./";
+    watch = {
+      paths = [ ./src ];
+      extensions = [ "gleam" ];
+    };
+  };
+
+  processes.sql = {
+    exec = "gleam run -m squirrel";
+    watch = {
+      paths = [ ./src ];
+      extensions = [ "sql" ];
+    };
+  };
+
+  processes.styles = {
+    exec = "tailwindcss -i ./src/styles.css  -o ./priv/static/styles.css";
     watch = {
       paths = [ ./src ];
       extensions = [ "gleam" ];

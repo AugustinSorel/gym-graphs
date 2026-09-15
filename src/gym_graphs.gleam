@@ -20,7 +20,7 @@ pub fn main() {
   let ctx = ctx.Ctx(db)
 
   let assert Ok(pool_child) =
-    pog.url_config(pool_name, env.db_url)
+    pog.url_config(pool_name, env.database_url)
     |> result.map(pog.supervised)
 
   let http_child =

@@ -25,7 +25,7 @@ fn get_static_directory() -> String {
   priv_directory <> "/static"
 }
 
-pub fn send_html(el: Element(a), status: Int) -> Response {
+pub fn send_html(el: Element(a), with_status status: Int) -> Response {
   wisp.response(status)
   |> wisp.set_header("content-type", "text/html")
   |> wisp.string_tree_body(element.to_string_tree(el))
