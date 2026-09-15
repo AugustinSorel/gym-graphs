@@ -3,7 +3,7 @@
 {
   env = {
     db_url = "postgres://" + builtins.getEnv "USER" + "@localhost:5433/gym_graphs";
-    secret_key_base = "123";
+    secret_key_base = "uNWfVw+UGU5BOS35wvyp3X9y1muaI3pu2wWoSS74i94=";
   };
 
   packages = with pkgs;[
