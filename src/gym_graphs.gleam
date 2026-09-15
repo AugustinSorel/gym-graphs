@@ -1,3 +1,4 @@
+import app/ctx
 import app/env
 import app/router
 import gleam/erlang/process
@@ -16,12 +17,14 @@ pub fn main() {
   let pool_name = process.new_name("db_pool")
   let db = pog.named_connection(pool_name)
 
+  let ctx = ctx.Ctx(db)
+
   let assert Ok(pool_child) =
     pog.url_config(pool_name, env.db_url)
     |> result.map(pog.supervised)
 
   let http_child =
-    router.handle_request
+    router.handle_request(_, ctx)
     |> wisp_mist.handler(env.secret_key_base)
     |> mist.new
     |> mist.bind("0.0.0.0")
