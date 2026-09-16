@@ -23,6 +23,21 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    ["sign-up", "verify-email-address"] -> {
+      case req.method {
+        Get -> {
+          use <- auth.require_blank(req, ctx)
+          use _session <- auth.require_sign_up_unverified(req, ctx)
+
+          sign_up.view_verify_email_page()
+        }
+        Post -> {
+          todo
+          // sign_up_handler.verify_email(req, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     _ -> wisp.not_found()
   }
 }

@@ -109,3 +109,10 @@ pub fn start(req: Request, ctx: Ctx) {
     }
   }
 }
+
+pub fn view_verify_email_page() {
+  ui.get_verify_email_form()
+  |> ui.verify_email_form()
+  |> ui.verify_email_page()
+  |> web.send_html(200)
+}
