@@ -22,12 +22,13 @@ pub fn view_start_page() {
   ui.get_register_form()
   |> ui.register_form()
   |> ui.register_page()
-  |> web.send_html(200)
+  |> web.send_html(with_status: 200)
 }
 
 pub type StartError {
   StartValidationFailed(form.Form(ui.EmailRegisterForm))
   StartDatabaseFailure(QueryError)
+  VerificationCodeDeliveryFailed
 }
 
 pub fn start(req: Request, ctx: Ctx) {
@@ -50,6 +51,16 @@ pub fn start(req: Request, ctx: Ctx) {
       sign_up_session.create(ctx.db, input.email)
       |> result.map_error(StartDatabaseFailure),
     )
+
+    // use Nil <- result.try(
+    //   email.send(
+    //     email: ctx.email,
+    //     to: input.email,
+    //     subject: "Your verification code - " <> verification_code,
+    //     html: template.verification_code(verification_code),
+    //   )
+    //   |> result.map_error(VerificationCodeDeliveryFailed),
+    // )
 
     Ok(session.encode_token(id, secret))
   }
@@ -74,6 +85,9 @@ pub fn start(req: Request, ctx: Ctx) {
       )
       |> ui.register_form()
       |> web.send_html(with_status: 409)
+    }
+    Error(VerificationCodeDeliveryFailed) -> {
+      todo
     }
     Error(StartDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))

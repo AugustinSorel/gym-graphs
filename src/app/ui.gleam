@@ -45,7 +45,7 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
       ),
       html.script([attribute.src("/static/theme.js")], ""),
       html.script([attribute.src("/static/graph-resize.js")], ""),
-      html.title([], "auth"),
+      html.title([], "gym graphs"),
     ]),
     html.body(
       [attribute.class("bg-surface text-on-surface pb-20 lg:pb-0")],
