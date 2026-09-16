@@ -1,12 +1,12 @@
 import app/ctx.{type Ctx}
-import app/email
+import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/sign_up_session/sign_up_session
 import domains/user/user
 import features/sign_up/template
-import features/sign_up/ui
-import formal/form
+import features/sign_up/ui.{type EmailRegisterForm}
+import formal/form.{type Form}
 import gleam/float
 import gleam/result
 import gleam/string
@@ -28,9 +28,9 @@ pub fn view_start_page() {
 }
 
 pub type StartError {
-  StartValidationFailed(form.Form(ui.EmailRegisterForm))
+  StartValidationFailed(Form(EmailRegisterForm))
   StartDatabaseFailure(QueryError)
-  VerificationCodeDeliveryFailed
+  VerificationCodeDeliveryFailed(SendEmailError)
 }
 
 pub fn start(req: Request, ctx: Ctx) {
@@ -61,7 +61,7 @@ pub fn start(req: Request, ctx: Ctx) {
         subject: "Your verification code - " <> verification_code,
         html: template.verification_code(verification_code),
       )
-      |> result.map_error(fn(_) { VerificationCodeDeliveryFailed }),
+      |> result.map_error(VerificationCodeDeliveryFailed),
     )
 
     Ok(session.encode_token(id, secret))
@@ -88,8 +88,8 @@ pub fn start(req: Request, ctx: Ctx) {
       |> ui.register_form()
       |> web.send_html(with_status: 409)
     }
-    Error(VerificationCodeDeliveryFailed) -> {
-      wisp.log_error(req.path <> " failed to deliver verification email")
+    Error(VerificationCodeDeliveryFailed(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
       ui.get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
