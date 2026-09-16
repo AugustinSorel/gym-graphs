@@ -1,8 +1,10 @@
 import app/ctx.{type Ctx}
+import app/email
 import app/session
 import app/web
 import domains/sign_up_session/sign_up_session
 import domains/user/user
+import features/sign_up/template
 import features/sign_up/ui
 import formal/form
 import gleam/float
@@ -47,20 +49,20 @@ pub fn start(req: Request, ctx: Ctx) {
       |> result.map_error(StartDatabaseFailure),
     )
 
-    use #(id, secret, _verification_code) <- result.try(
+    use #(id, secret, verification_code) <- result.try(
       sign_up_session.create(ctx.db, input.email)
       |> result.map_error(StartDatabaseFailure),
     )
 
-    // use Nil <- result.try(
-    //   email.send(
-    //     email: ctx.email,
-    //     to: input.email,
-    //     subject: "Your verification code - " <> verification_code,
-    //     html: template.verification_code(verification_code),
-    //   )
-    //   |> result.map_error(VerificationCodeDeliveryFailed),
-    // )
+    use Nil <- result.try(
+      email.send(
+        email: ctx.email,
+        to: input.email,
+        subject: "Your verification code - " <> verification_code,
+        html: template.verification_code(verification_code),
+      )
+      |> result.map_error(fn(_) { VerificationCodeDeliveryFailed }),
+    )
 
     Ok(session.encode_token(id, secret))
   }
@@ -87,7 +89,15 @@ pub fn start(req: Request, ctx: Ctx) {
       |> web.send_html(with_status: 409)
     }
     Error(VerificationCodeDeliveryFailed) -> {
-      todo
+      wisp.log_error(req.path <> " failed to deliver verification email")
+      ui.get_register_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Failed to send verification email. Please try again."),
+      )
+      |> ui.register_form()
+      |> web.send_html(with_status: 500)
     }
     Error(StartDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))

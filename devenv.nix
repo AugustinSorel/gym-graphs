@@ -9,6 +9,12 @@
       DATABASE_URL = DATABASE_URL;
       SECRET_KEY_BASE = "51ab65e573f8a9f5454c31327d917fbb04ea1594507f0b35d32af7f956a7c503";
 
+      ENV = "dev";
+
+      SMTP_HOST = "localhost";
+      SMTP_PORT = "1025";
+      SMTP_FROM = "noreply@localhost";
+
       GOOSE_DRIVER = "postgres";
       GOOSE_DBSTRING = DATABASE_URL;
       GOOSE_MIGRATION_DIR = ./migrations;
