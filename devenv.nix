@@ -21,6 +21,9 @@
 
   languages.gleam.enable = true;
 
+  services.mailpit = {
+    enable = true;
+  };
 
   services.postgres = {
     enable = true;
