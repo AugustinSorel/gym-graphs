@@ -6,7 +6,6 @@ import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
-import wisp.{type Request}
 
 pub fn display_weight_value(weight: Float) {
   weight
@@ -54,7 +53,7 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
   ])
 }
 
-pub fn nav_bar(req: Request) {
+pub fn nav_bar(path: String) {
   let links = [
     #("exercises", "/exercises"),
     #("stats", "/stats"),
@@ -83,7 +82,7 @@ pub fn nav_bar(req: Request) {
                   "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface",
                 ),
                 attribute.aria_current(
-                  string.lowercase(bool.to_string(href == req.path)),
+                  string.lowercase(bool.to_string(href == path)),
                 ),
               ],
               [html.text(title)],
@@ -107,7 +106,7 @@ pub fn nav_bar(req: Request) {
               "text-sm uppercase font-semibold aria-current:bg-on-surface aria-current:text-surface px-2 py-1 hover:bg-on-surface hover:text-surface focus-visible:ring-on-surface",
             ),
             attribute.aria_current(
-              string.lowercase(bool.to_string(href == req.path)),
+              string.lowercase(bool.to_string(href == path)),
             ),
           ],
           [html.text(title)],
