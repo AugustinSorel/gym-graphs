@@ -4,8 +4,7 @@ import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/auth_session/auth_session
-import domains/password_reset/password_reset
-import domains/password_reset/sql
+import domains/password_reset/password_reset.{type PasswordReset}
 import domains/user/user
 import features/auth/auth
 import features/password_reset/forms.{
@@ -116,7 +115,7 @@ pub type VerifyError {
   VerifyDatabaseFailure(QueryError)
 }
 
-pub fn verify(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn verify(req: Request, session: PasswordReset, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -170,7 +169,7 @@ pub fn verify(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
   }
 }
 
-pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn cancel(req: Request, session: PasswordReset, ctx: Ctx) {
   use form_data <- wisp.require_form(req)
 
   let result = {
@@ -195,10 +194,9 @@ pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
   }
 }
 
-//FIX sql.selectbyidrow
 pub fn view_set_new_password_page(
   req: Request,
-  session: sql.SelectByIdRow,
+  session: PasswordReset,
   ctx: Ctx,
 ) {
   let result = user.select_by_password_reset_id(ctx.db, session.id)
@@ -227,7 +225,7 @@ type ResetPasswordError {
   ResetPasswordDatabaseFailure(QueryError)
 }
 
-pub fn set_new_password(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn set_new_password(req: Request, session: PasswordReset, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let result = {

@@ -1,8 +1,20 @@
 import app/crypto
 import app/db
 import domains/password_reset/sql
+import gleam/option.{type Option}
 import gleam/result
+import gleam/time/timestamp.{type Timestamp}
 import pog.{type Connection}
+
+pub type PasswordReset {
+  PasswordReset(
+    id: Int,
+    user_id: Int,
+    email_code_hash: String,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+  )
+}
 
 pub fn create(db: Connection, email_address: String) {
   let secret = crypto.generate_session_secret()
@@ -17,7 +29,17 @@ pub fn create(db: Connection, email_address: String) {
 }
 
 pub fn select_by_id(db: Connection, id: Int) {
-  sql.select_by_id(db, id) |> db.extract_entity
+  sql.select_by_id(db, id)
+  |> db.extract_entity
+  |> result.map(fn(row) {
+    PasswordReset(
+      id: row.id,
+      user_id: row.user_id,
+      email_code_hash: row.email_code_hash,
+      secret_hash: row.secret_hash,
+      user_identity_verified_at: row.user_identity_verified_at,
+    )
+  })
 }
 
 pub fn mark_as_verified(db: Connection, id: Int) {
