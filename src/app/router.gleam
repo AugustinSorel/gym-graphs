@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/web
 import features/auth/auth
+import features/password_reset/password_reset
 import features/sign_in/sign_in
 import features/sign_up/sign_up
 import gleam/http.{Get, Post}
@@ -72,6 +73,32 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    ["reset-password"] -> {
+      case req.method {
+        Get -> password_reset.view_page()
+        // Post -> password_reset_handler.start(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+
+    // ["reset-password", "verify-email-code"] ->
+    //   case req.method {
+    //     Get -> password_reset_handler.view_verify_page(req, ctx)
+    //     Post -> password_reset_handler.verify(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // ["reset-password", "verify-email-code", "cancel"] -> {
+    //   case req.method {
+    //     Post -> password_reset_handler.cancel(req, ctx)
+    //     _ -> wisp.method_not_allowed([Post])
+    //   }
+    // }
+    // ["reset-password", "set-new-password"] -> {
+    //   case req.method {
+    //     Get -> password_reset_handler.view_set_new_password_page(req, ctx)
+    //     Post -> password_reset_handler.set_new_password(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
     ["sign-in"] -> {
       case req.method {
         Get -> {

@@ -52,12 +52,9 @@ pub fn generate_password_reset_email_code() {
   |> list.map(fn(i) { string.slice(alphabet, i, 1) })
   |> string.join("")
 }
-// pub fn hash_password_reset_email_code(email_code: String, salt: BitArray) {
-//   let assert Ok(salt_str) = bit_array.to_string(salt)
 
-//   let assert Ok(hashes) =
-//     argus.hasher()
-//     |> argus.hash(email_code, salt_str)
+pub fn hash_password_reset_email_code(email_code: String) -> String {
+  let assert Ok(hashes) = argus.hasher() |> argus.hash(email_code)
 
-//   hashes
-// }
+  hashes.encoded_hash
+}

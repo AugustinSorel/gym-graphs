@@ -27,6 +27,13 @@ pub fn sign_up_session_cookie() {
   )
 }
 
+pub fn password_reset_cookie() {
+  Cookie(
+    "password_reset_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
 pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
   let res = {
     use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
