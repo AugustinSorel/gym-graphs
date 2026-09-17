@@ -1,7 +1,7 @@
 import app/ctx.{type Ctx}
 import app/session
 import domains/auth_session/auth_session
-import domains/sign_up_session/sign_up_session
+import domains/sign_up_session/sign_up_session.{type SignUpSession}
 import gleam/bool
 import gleam/float
 import gleam/option
@@ -50,7 +50,11 @@ pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
   }
 }
 
-pub fn require_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
+pub fn require_sign_up_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
   let result = {
     use cookie <- result.try(session.get_cookie(
       req,
@@ -80,7 +84,11 @@ pub fn require_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
   }
 }
 
-pub fn require_sign_up_unverified(req: Request, ctx: Ctx, next) -> Response {
+pub fn require_sign_up_unverified(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
   use sign_up_sess <- require_sign_up_session(req, ctx)
 
   let already_verified = option.is_some(sign_up_sess.email_address_verified_at)
@@ -93,7 +101,11 @@ pub fn require_sign_up_unverified(req: Request, ctx: Ctx, next) -> Response {
   next(sign_up_sess)
 }
 
-pub fn require_sign_up_verified(req: Request, ctx: Ctx, next) -> Response {
+pub fn require_sign_up_verified(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
   use sign_up_sess <- require_sign_up_session(req, ctx)
 
   let not_verified = option.is_none(sign_up_sess.email_address_verified_at)

@@ -2,8 +2,20 @@ import app/crypto
 import app/db
 import domains/sign_up_session/sql
 import gleam/bool
+import gleam/option.{type Option}
 import gleam/result
+import gleam/time/timestamp.{type Timestamp}
 import pog.{type Connection}
+
+pub type SignUpSession {
+  SignUpSession(
+    id: Int,
+    secret_hash: BitArray,
+    email_address: String,
+    email_address_verification_code: String,
+    email_address_verified_at: Option(Timestamp),
+  )
+}
 
 pub fn create(db: Connection, email: String) {
   let secret = crypto.generate_session_secret()
@@ -18,6 +30,15 @@ pub fn create(db: Connection, email: String) {
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id)
   |> db.extract_entity
+  |> result.map(fn(row) {
+    SignUpSession(
+      id: row.id,
+      secret_hash: row.secret_hash,
+      email_address: row.email_address,
+      email_address_verification_code: row.email_address_verification_code,
+      email_address_verified_at: row.email_address_verified_at,
+    )
+  })
 }
 
 pub fn verify_code(stored_code: String, submitted_code: String) {

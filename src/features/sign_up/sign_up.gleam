@@ -3,8 +3,7 @@ import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/auth_session/auth_session
-import domains/sign_up_session/sign_up_session
-import domains/sign_up_session/sql
+import domains/sign_up_session/sign_up_session.{type SignUpSession}
 import domains/user/user
 import features/auth/auth
 import features/sign_up/forms.{
@@ -128,7 +127,7 @@ pub type VerifyEmailError {
   VerifyEmailDatabaseFailure(QueryError)
 }
 
-pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn verify_email(req: Request, session: SignUpSession, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -185,7 +184,7 @@ pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
   }
 }
 
-pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
   let result =
     sign_up_session.delete_by_id(ctx.db, session.id) |> result.replace(Nil)
 
@@ -207,7 +206,7 @@ pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
 
 pub fn resend_verify_email_code(
   req: Request,
-  session: sql.SelectByIdRow,
+  session: SignUpSession,
   ctx: Ctx,
 ) {
   use form_data <- wisp.require_form(req)
@@ -242,7 +241,7 @@ pub fn resend_verify_email_code(
   }
 }
 
-pub fn view_set_password_page(session: sql.SelectByIdRow) {
+pub fn view_set_password_page(session: SignUpSession) {
   get_set_password_form()
   |> form.add_string("email", session.email_address)
   |> ui.set_password_form()
@@ -255,7 +254,7 @@ pub type SetPasswordError {
   SetPasswordDatabaseFailure(QueryError)
 }
 
-pub fn set_password(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+pub fn set_password(req: Request, session: SignUpSession, ctx: Ctx) {
   use formdata <- wisp.require_form(req)
 
   let result = {
