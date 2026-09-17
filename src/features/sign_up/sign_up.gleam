@@ -7,18 +7,21 @@ import domains/sign_up_session/sign_up_session
 import domains/sign_up_session/sql
 import domains/user/user
 import features/auth/auth
-import features/sign_up/template
-import features/sign_up/ui.{
+import features/sign_up/forms.{
   type EmailRegisterForm, type SetPasswordForm, type VerifyEmailAddressForm,
+  get_register_form, get_set_password_form, get_verify_email_form,
 }
+import features/sign_up/template
+import features/sign_up/ui
 import formal/form.{type Form}
+import gleam/option.{None, Some}
 import gleam/result
 import gleam/string
 import pog.{type QueryError}
 import wisp.{type Request}
 
 pub fn view_start_page() {
-  ui.get_register_form()
+  get_register_form()
   |> ui.register_form()
   |> ui.register_page()
   |> web.send_html(with_status: 200)
@@ -35,7 +38,7 @@ pub fn start(req: Request, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      ui.get_register_form()
+      get_register_form()
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(StartValidationFailed),
@@ -81,7 +84,7 @@ pub fn start(req: Request, ctx: Ctx) {
       |> web.send_html(with_status: 422)
     }
     Error(StartDatabaseFailure(pog.ConstraintViolated(_, "users_email_key", _))) -> {
-      ui.get_register_form()
+      get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
         "root",
@@ -92,7 +95,7 @@ pub fn start(req: Request, ctx: Ctx) {
     }
     Error(VerificationCodeDeliveryFailed(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_register_form()
+      get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
         "root",
@@ -103,7 +106,7 @@ pub fn start(req: Request, ctx: Ctx) {
     }
     Error(StartDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_register_form()
+      get_register_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.register_form()
@@ -113,8 +116,8 @@ pub fn start(req: Request, ctx: Ctx) {
 }
 
 pub fn view_verify_email_page() {
-  ui.get_verify_email_form()
-  |> ui.verify_email_form()
+  get_verify_email_form()
+  |> ui.verify_email_form(None)
   |> ui.verify_email_page()
   |> web.send_html(200)
 }
@@ -130,7 +133,7 @@ pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      ui.get_verify_email_form()
+      get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(VerifyEmailValidationFailed),
@@ -156,11 +159,11 @@ pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
     }
     Error(VerifyEmailValidationFailed(form)) -> {
       form
-      |> ui.verify_email_form()
+      |> ui.verify_email_form(None)
       |> web.send_html(422)
     }
     Error(VerificationCodeFailed) -> {
-      ui.get_verify_email_form()
+      get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
         "root",
@@ -168,23 +171,21 @@ pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
           "The verification code you entered is incorrect. Please try again.",
         ),
       )
-      |> ui.verify_email_form()
+      |> ui.verify_email_form(None)
       |> web.send_html(422)
     }
     Error(VerifyEmailDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_email_form()
+      get_verify_email_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
-      |> ui.verify_email_form()
+      |> ui.verify_email_form(None)
       |> web.send_html(500)
     }
   }
 }
 
 pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
-  use form_data <- wisp.require_form(req)
-
   let result =
     sign_up_session.delete_by_id(ctx.db, session.id) |> result.replace(Nil)
 
@@ -196,10 +197,9 @@ pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
 
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_email_form()
-      |> form.add_values(form_data.values)
+      get_verify_email_form()
       |> form.add_error("root", form.CustomError("Something went wrong."))
-      |> ui.verify_email_form()
+      |> ui.verify_email_form(None)
       |> web.send_html(500)
     }
   }
@@ -224,28 +224,26 @@ pub fn resend_verify_email_code(
 
   case result {
     Ok(Nil) ->
-      ui.get_verify_email_form()
+      get_verify_email_form()
       |> form.add_values(form_data.values)
-      |> form.add_string(
-        "success_msg",
-        "A new verification code has been sent to your email address.",
+      |> ui.verify_email_form(
+        Some("A new verification code has been sent to your email address."),
       )
-      |> ui.verify_email_form()
       |> web.send_html(200)
 
     Error(error) -> {
       wisp.log_error("sign up: resend verify email: " <> string.inspect(error))
-      ui.get_verify_email_form()
+      get_verify_email_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
-      |> ui.verify_email_form()
+      |> ui.verify_email_form(None)
       |> web.send_html(500)
     }
   }
 }
 
 pub fn view_set_password_page(session: sql.SelectByIdRow) {
-  ui.get_set_password_form()
+  get_set_password_form()
   |> form.add_string("email", session.email_address)
   |> ui.set_password_form()
   |> ui.set_password_page()
@@ -262,7 +260,7 @@ pub fn set_password(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      ui.get_set_password_form()
+      get_set_password_form()
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(SetPasswordValidation),
@@ -328,7 +326,7 @@ pub fn set_password(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
       |> web.send_html(422)
     Error(SetPasswordDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_set_password_form()
+      get_set_password_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong"))
       |> ui.set_password_form()

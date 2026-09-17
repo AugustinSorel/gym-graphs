@@ -5,7 +5,8 @@ import app/web
 import domains/auth_session/auth_session
 import domains/user/user
 import features/auth/auth
-import features/sign_in/ui.{type SignInForm}
+import features/sign_in/forms.{type SignInForm, get_sign_in_form}
+import features/sign_in/ui
 import formal/form.{type Form}
 import gleam/bool
 import gleam/result
@@ -14,7 +15,7 @@ import pog.{type QueryError}
 import wisp.{type Request}
 
 pub fn view_page() {
-  ui.get_sign_in_form()
+  get_sign_in_form()
   |> ui.sign_in_form()
   |> ui.sign_in_page()
   |> web.send_html(200)
@@ -31,7 +32,7 @@ pub fn sign_in(req: Request, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      ui.get_sign_in_form()
+      get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(SignInFormValidation),
@@ -73,7 +74,7 @@ pub fn sign_in(req: Request, ctx: Ctx) {
       |> web.send_html(422)
 
     Error(InvalidCredentials) ->
-      ui.get_sign_in_form()
+      get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Invalid email or password."))
       |> ui.sign_in_form()
@@ -81,7 +82,7 @@ pub fn sign_in(req: Request, ctx: Ctx) {
 
     Error(SignInDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_sign_in_form()
+      get_sign_in_form()
       |> form.add_values(formdata.values)
       |> form.add_error(
         "root",

@@ -1,46 +1,16 @@
 import app/ui
-import formal/form.{type FieldError, type Form, MustBeEmail}
+import features/sign_up/forms.{
+  type EmailRegisterForm, type SetPasswordForm, type VerifyEmailAddressForm,
+}
+import formal/form.{type Form}
 import gleam/bool
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
-
-pub type EmailRegisterForm {
-  EmailRegisterForm(email: String)
-}
-
-pub type VerifyEmailAddressForm {
-  VerifyEmailAddressForm(code: String)
-}
-
-pub type SetPasswordForm {
-  SetPasswordForm(password: String)
-}
-
-pub fn get_register_form() -> Form(EmailRegisterForm) {
-  let schema = {
-    use email <- form.field("email", {
-      form.parse_email
-      |> form.map(string.trim)
-      |> form.check_not_empty
-      |> form.check_string_length_less_than(255)
-      |> form.check_string_length_more_than(3)
-    })
-
-    form.success(EmailRegisterForm(email:))
-  }
-
-  form.new(schema)
-  |> form.language(fn(error: FieldError) -> String {
-    case error {
-      MustBeEmail -> "please enter a valid email address"
-      _ -> form.en_gb(error)
-    }
-  })
-}
 
 pub type CurrentStep {
   EnterEmail
@@ -199,29 +169,16 @@ pub fn register_form(form: Form(EmailRegisterForm)) -> Element(a) {
   )
 }
 
-pub fn get_verify_email_form() -> Form(VerifyEmailAddressForm) {
-  let schema = {
-    use code <- form.field("code", {
-      form.parse_string
-      |> form.check_not_empty
-      |> form.check_string_length_more_than(7)
-      |> form.check_string_length_less_than(9)
-    })
-
-    form.success(VerifyEmailAddressForm(code:))
-  }
-
-  form.new(schema) |> form.language(form.en_gb)
-}
-
 pub fn verify_email_page(children: Element(a)) -> Element(a) {
   sign_up_layout(VerifyEmail, "Check your inbox", children)
 }
 
-pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
+pub fn verify_email_form(
+  form: Form(VerifyEmailAddressForm),
+  success_msg: Option(String),
+) -> Element(a) {
   let code_err = list.first(form.field_error_messages(form, "code"))
   let root_err = list.first(form.field_error_messages(form, "root"))
-  let success_msg = form.field_value(form, "success_msg")
 
   html.form(
     [
@@ -273,14 +230,13 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
         Error(_) -> element.none()
       },
 
-      case string.is_empty(success_msg) {
-        False -> {
+      case success_msg {
+        Some(msg) ->
           ui.alert(ui.AlertSuccess, [], [
             ui.alert_title(element.text("verification code sent")),
-            ui.alert_description(element.text(success_msg)),
+            ui.alert_description(element.text(msg)),
           ])
-        }
-        True -> element.none()
+        None -> element.none()
       },
 
       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
@@ -320,21 +276,6 @@ pub fn verify_email_form(form: Form(VerifyEmailAddressForm)) -> Element(a) {
       ]),
     ],
   )
-}
-
-pub fn get_set_password_form() -> Form(SetPasswordForm) {
-  let schema = {
-    use password <- form.field("password", {
-      form.parse_string
-      |> form.check_not_empty
-      |> form.check_string_length_more_than(7)
-      |> form.check_string_length_less_than(72)
-    })
-
-    form.success(SetPasswordForm(password:))
-  }
-
-  form.new(schema) |> form.language(form.en_gb)
 }
 
 pub fn set_password_page(children: Element(a)) -> Element(a) {
