@@ -35,12 +35,7 @@ pub fn validate_verification_code(a: String, b: String) -> Bool {
 pub fn hash_user_password(password: String) {
   let assert Ok(hashes) = argus.hasher() |> argus.hash(password)
 
-  // bit_array.from_string(hashes.encoded_hash)
-
-  echo hashes.raw_hash
-  echo bit_array.from_string(hashes.encoded_hash)
-
-  hashes.raw_hash
+  bit_array.from_string(hashes.encoded_hash)
 }
 
 pub fn validate_user_password(

@@ -79,7 +79,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
           sign_in.view_page()
         }
-        // Post -> auth_session_handler.sign_in(req, ctx)
+        Post -> {
+          use <- auth.require_blank(req, ctx)
+
+          sign_in.sign_in(req, ctx)
+        }
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }

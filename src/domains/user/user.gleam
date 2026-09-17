@@ -38,3 +38,7 @@ pub fn create(
   sql.create(db, password_hash, salt, name, session_id)
   |> db.extract_entity
 }
+
+pub fn select_by_email(db: Connection, email: String) {
+  sql.select_by_email(db, email) |> db.extract_entity
+}
