@@ -180,3 +180,65 @@ pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
     }
   }
 }
+
+pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
+  let result =
+    sign_up_session.delete_by_id(ctx.db, session.id) |> result.replace(Nil)
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> session.clear_cookie(req, cookie)
+      |> wisp.set_header("HX-Redirect", "/sign-up")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_email_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_email_form()
+      |> web.send_html(500)
+    }
+  }
+}
+
+pub fn resend_verify_email_code(
+  req: Request,
+  session: sql.SelectByIdRow,
+  ctx: Ctx,
+) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    email.send(
+      email: ctx.email,
+      to: session.email_address,
+      subject: "Your verification code - "
+        <> session.email_address_verification_code,
+      html: template.verification_code(session.email_address_verification_code),
+    )
+  }
+
+  case result {
+    Ok(Nil) ->
+      ui.get_verify_email_form()
+      |> form.add_values(form_data.values)
+      |> form.add_string(
+        "success_msg",
+        "A new verification code has been sent to your email address.",
+      )
+      |> ui.verify_email_form()
+      |> web.send_html(200)
+
+    Error(error) -> {
+      wisp.log_error("sign up: resend verify email: " <> string.inspect(error))
+      ui.get_verify_email_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_email_form()
+      |> web.send_html(500)
+    }
+  }
+}

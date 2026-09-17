@@ -31,3 +31,7 @@ pub fn verify_code(stored_code: String, submitted_code: String) {
 pub fn mark_email_as_verified(db: pog.Connection, session_id: Int) {
   sql.verify(db, session_id)
 }
+
+pub fn delete_by_id(db: pog.Connection, session_id: Int) {
+  sql.delete_by_id(db, session_id)
+}
