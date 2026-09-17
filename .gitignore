@@ -25,4 +25,4 @@ devenv.local.yaml
 # pre-commit
 .pre-commit-config.yaml
 
-./priv/static/styles.css
+priv/static/styles.css
