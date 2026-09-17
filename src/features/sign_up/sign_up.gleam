@@ -2,24 +2,20 @@ import app/ctx.{type Ctx}
 import app/email.{type SendEmailError}
 import app/session
 import app/web
+import domains/auth_session/auth_session
 import domains/sign_up_session/sign_up_session
 import domains/sign_up_session/sql
 import domains/user/user
+import features/auth/auth
 import features/sign_up/template
-import features/sign_up/ui.{type EmailRegisterForm, type VerifyEmailAddressForm}
+import features/sign_up/ui.{
+  type EmailRegisterForm, type SetPasswordForm, type VerifyEmailAddressForm,
+}
 import formal/form.{type Form}
-import gleam/float
 import gleam/result
 import gleam/string
-import gleam/time/duration
 import pog.{type QueryError}
 import wisp.{type Request}
-
-const cookie = "sign_up_session_token"
-
-fn cookie_max_age() {
-  duration.hours(24) |> duration.to_seconds() |> float.round()
-}
 
 pub fn view_start_page() {
   ui.get_register_form()
@@ -72,7 +68,12 @@ pub fn start(req: Request, ctx: Ctx) {
     Ok(token) -> {
       wisp.created()
       |> wisp.set_header("HX-Redirect", "/sign-up/verify-email-address")
-      |> session.set_cookie(req, cookie, token, cookie_max_age())
+      |> session.set_cookie(
+        req,
+        auth.sign_up_session_cookie().name,
+        token,
+        auth.sign_up_session_cookie().max_age,
+      )
     }
     Error(StartValidationFailed(form)) -> {
       form
@@ -190,7 +191,7 @@ pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
   case result {
     Ok(Nil) ->
       wisp.ok()
-      |> session.clear_cookie(req, cookie)
+      |> session.clear_cookie(req, auth.sign_up_session_cookie().name)
       |> wisp.set_header("HX-Redirect", "/sign-up")
 
     Error(error) -> {
@@ -240,5 +241,106 @@ pub fn resend_verify_email_code(
       |> ui.verify_email_form()
       |> web.send_html(500)
     }
+  }
+}
+
+pub fn view_set_password_page(session: sql.SelectByIdRow) {
+  ui.get_set_password_form()
+  |> form.add_string("email", session.email_address)
+  |> ui.set_password_form()
+  |> ui.set_password_page()
+  |> web.send_html(200)
+}
+
+pub type SetPasswordError {
+  SetPasswordValidation(Form(SetPasswordForm))
+  SetPasswordDatabaseFailure(QueryError)
+}
+
+pub fn set_password(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(SetPasswordValidation),
+    )
+
+    use Nil <- result.try(
+      user.check_if_email_is_available(ctx.db, session.email_address)
+      |> result.map_error(SetPasswordDatabaseFailure),
+    )
+
+    let name = user.infer_name_from_email(session.email_address)
+
+    pog.transaction(ctx.db, fn(tx) {
+      use user <- result.try({
+        user.create(tx, input.password, name, session.id)
+        |> result.map_error(SetPasswordDatabaseFailure)
+      })
+
+      use Nil <- result.try(
+        sign_up_session.delete_by_id(tx, session.id)
+        |> result.replace(Nil)
+        |> result.map_error(SetPasswordDatabaseFailure),
+      )
+
+      // FIXME
+      //   use _ <- result.try(
+      //     seed.seed_user(tx, user.id)
+      //     |> result.map_error(SeedAccountFailed),
+      //   )
+
+      use #(session, secret) <- result.try(
+        auth_session.create(tx, user.id)
+        |> result.map_error(SetPasswordDatabaseFailure),
+      )
+
+      let token = session.encode_token(session.id, secret)
+
+      Ok(token)
+    })
+    |> result.map_error(fn(err) {
+      case err {
+        pog.TransactionRolledBack(e) -> e
+        pog.TransactionQueryError(err) -> SetPasswordDatabaseFailure(err)
+      }
+    })
+  }
+
+  case result {
+    Ok(token) -> {
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/")
+      |> session.clear_cookie(req, auth.sign_up_session_cookie().name)
+      |> session.set_cookie(
+        req,
+        auth.auth_session_cookie().name,
+        token,
+        auth.auth_session_cookie().max_age,
+      )
+    }
+    Error(SetPasswordValidation(form)) ->
+      form
+      |> ui.set_password_form()
+      |> web.send_html(422)
+    Error(SetPasswordDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_set_password_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> ui.set_password_form()
+      |> web.send_html(500)
+    }
+    // Error(SeedAccountFailed(error)) -> {
+    //   wisp.log_error(req.path <> " " <> string.inspect(error))
+    //   ui.get_set_password_form()
+    //   |> form.add_values(formdata.values)
+    //   |> form.add_error("root", form.CustomError("Something went wrong"))
+    //   |> ui.set_password_form()
+    //   |> web.html(500)
+    // }
   }
 }

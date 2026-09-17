@@ -1,5 +1,10 @@
+import app/crypto
+import app/db
 import domains/user/sql
+import gleam/bit_array
+import gleam/list
 import gleam/result
+import gleam/string
 import pog.{type Connection}
 
 pub fn check_if_email_is_available(db: Connection, email: String) {
@@ -14,4 +19,22 @@ pub fn check_if_email_is_available(db: Connection, email: String) {
         detail: "Key (email)=(example@domain.com) already exists.",
       ))
   }
+}
+
+pub fn infer_name_from_email(email: String) {
+  email |> string.split(on: "@") |> list.first() |> result.unwrap("unknown")
+}
+
+pub fn create(
+  db: pog.Connection,
+  password: String,
+  name: String,
+  session_id: Int,
+) {
+  let password_hash = crypto.hash_user_password(password)
+  //FIX
+  let salt = bit_array.from_string("")
+
+  sql.create(db, password_hash, salt, name, session_id)
+  |> db.extract_entity
 }

@@ -54,6 +54,23 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       sign_up.cancel(req, session, ctx)
     }
+    ["sign-up", "set-password"] -> {
+      case req.method {
+        Get -> {
+          use <- auth.require_blank(req, ctx)
+          use session <- auth.require_sign_up_verified(req, ctx)
+
+          sign_up.view_set_password_page(session)
+        }
+        Post -> {
+          use <- auth.require_blank(req, ctx)
+          use session <- auth.require_sign_up_verified(req, ctx)
+
+          sign_up.set_password(req, session, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     _ -> wisp.not_found()
   }
 }

@@ -3,17 +3,33 @@ import app/session
 import domains/auth_session/auth_session
 import domains/sign_up_session/sign_up_session
 import gleam/bool
+import gleam/float
 import gleam/option
 import gleam/result
+import gleam/time/duration
 import wisp.{type Request, type Response}
 
-const auth_session_cookie = "auth_session_token"
+pub type Cookie {
+  Cookie(name: String, max_age: Int)
+}
 
-const sign_up_cookie = "sign_up_session_token"
+pub fn auth_session_cookie() {
+  Cookie(
+    "auth_session_token",
+    duration.hours(24 * 7) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn sign_up_session_cookie() {
+  Cookie(
+    "sign_up_session_token",
+    duration.hours(24) |> duration.to_seconds() |> float.round(),
+  )
+}
 
 pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
   let res = {
-    use cookie <- result.try(session.get_cookie(req, auth_session_cookie))
+    use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
     use token <- result.try(session.decode_token(cookie))
 
     auth_session.select_by_id(ctx.db, token.id)
@@ -29,7 +45,10 @@ pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
 
 pub fn require_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
   let result = {
-    use cookie <- result.try(session.get_cookie(req, sign_up_cookie))
+    use cookie <- result.try(session.get_cookie(
+      req,
+      sign_up_session_cookie().name,
+    ))
     use token <- result.try(session.decode_token(cookie))
 
     use sign_up_sess <- result.try(
@@ -49,7 +68,7 @@ pub fn require_sign_up_session(req: Request, ctx: Ctx, next) -> Response {
     Ok(sign_up_sess) -> next(sign_up_sess)
     Error(Nil) -> {
       wisp.redirect("/sign-up")
-      |> session.clear_cookie(req, sign_up_cookie)
+      |> session.clear_cookie(req, sign_up_session_cookie().name)
     }
   }
 }

@@ -41,6 +41,54 @@ pub fn check_email_availability(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `create` query
+/// defined in `./src/domains/user/sql/create.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateRow {
+  CreateRow(id: Int, email_address: String)
+}
+
+/// Runs the `create` query
+/// defined in `./src/domains/user/sql/create.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create(
+  db: pog.Connection,
+  arg_1: BitArray,
+  arg_2: BitArray,
+  arg_3: String,
+  id: Int,
+) -> Result(pog.Returned(CreateRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    decode.success(CreateRow(id:, email_address:))
+  }
+
+  "insert into users (email_address, password_hash, password_salt, name)
+select
+    email_address,
+    $1,
+    $2,
+    $3
+from sign_up_sessions
+where id = $4 and email_address_verified_at is not null returning
+    id, email_address
+"
+  |> pog.query
+  |> pog.parameter(pog.bytea(arg_1))
+  |> pog.parameter(pog.bytea(arg_2))
+  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_email` query
 /// defined in `./src/domains/user/sql/select_by_email.sql`.
 ///

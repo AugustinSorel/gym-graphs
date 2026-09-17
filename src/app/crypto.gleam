@@ -32,17 +32,16 @@ pub fn validate_verification_code(a: String, b: String) -> Bool {
   crypto.secure_compare(bit_array.from_string(a), bit_array.from_string(b))
 }
 
-// pub fn generate_hashing_salt() -> BitArray {
-//   argus.gen_salt() |> bit_array.from_string
-// }
+pub fn hash_user_password(password: String) {
+  let assert Ok(hashes) = argus.hasher() |> argus.hash(password)
 
-// pub fn hash_user_password(password: String, salt: BitArray) {
-//   let assert Ok(salt) = bit_array.to_string(salt)
+  // bit_array.from_string(hashes.encoded_hash)
 
-//   let assert Ok(hashes) = argus.hasher() |> argus.hash(password, salt)
+  echo hashes.raw_hash
+  echo bit_array.from_string(hashes.encoded_hash)
 
-//   bit_array.from_string(hashes.encoded_hash)
-// }
+  hashes.raw_hash
+}
 
 pub fn validate_user_password(
   stored_hash: BitArray,
