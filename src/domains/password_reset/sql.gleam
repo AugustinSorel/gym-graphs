@@ -73,3 +73,61 @@ returning *
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
+
+/// A row you get from running the `select_by_id` query
+/// defined in `./src/domains/password_reset/sql/select_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectByIdRow {
+  SelectByIdRow(
+    id: Int,
+    user_id: Int,
+    secret_hash: BitArray,
+    email_code_hash: String,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_by_id` query
+/// defined in `./src/domains/password_reset/sql/select_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_by_id(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(SelectByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use user_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use email_code_hash <- decode.field(3, decode.string)
+    use user_identity_verified_at <- decode.field(
+      4,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
+    decode.success(SelectByIdRow(
+      id:,
+      user_id:,
+      secret_hash:,
+      email_code_hash:,
+      user_identity_verified_at:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select * from password_reset_sessions where id = $1 and created_at > now() - interval '1 hours';
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}

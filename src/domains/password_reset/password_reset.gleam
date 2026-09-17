@@ -15,3 +15,7 @@ pub fn create(db: Connection, email_address: String) {
   |> db.extract_entity
   |> result.try(fn(session) { Ok(#(session.id, secret, email_code)) })
 }
+
+pub fn select_by_id(db: Connection, id: Int) {
+  sql.select_by_id(db, id) |> db.extract_entity
+}

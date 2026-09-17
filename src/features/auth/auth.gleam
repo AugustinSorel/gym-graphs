@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/session
 import domains/auth_session/auth_session
+import domains/password_reset/password_reset
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
 import gleam/bool
 import gleam/float
@@ -116,4 +117,65 @@ pub fn require_sign_up_verified(
   )
 
   next(sign_up_sess)
+}
+
+pub fn require_password_reset(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(
+      req,
+      password_reset_cookie().name,
+    ))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      password_reset.select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/account")
+      |> session.clear_cookie(req, password_reset_cookie().name)
+    }
+  }
+}
+
+pub fn require_password_reset_unverified(
+  req: Request,
+  ctx: Ctx,
+  next,
+) -> Response {
+  use session <- require_password_reset(req, ctx)
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/reset-password/set-new-password"),
+  )
+
+  next(session)
+}
+
+pub fn require_password_reset_verified(
+  req: Request,
+  ctx: Ctx,
+  next,
+) -> Response {
+  use session <- require_password_reset(req, ctx)
+
+  let not_verified = option.is_none(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/reset-password/verify-email-code"),
+  )
+
+  next(session)
 }

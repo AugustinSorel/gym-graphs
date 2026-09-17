@@ -95,3 +95,10 @@ pub fn start(req: Request, ctx: Ctx) {
     }
   }
 }
+
+pub fn view_verify_page() {
+  ui.get_verify_form()
+  |> ui.verify_form()
+  |> ui.verify_page()
+  |> web.send_html(200)
+}
