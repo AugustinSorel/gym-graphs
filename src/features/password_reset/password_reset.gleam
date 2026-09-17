@@ -12,6 +12,7 @@ import features/password_reset/forms.{
   type ResetPasswordForm, type SetNewPasswordForm, type VerifyEmailCodeForm,
 }
 import features/password_reset/template
+import features/password_reset/ui
 import formal/form.{type Form}
 import gleam/bool
 import gleam/result

@@ -4,6 +4,7 @@ import features/auth/auth
 import features/password_reset/password_reset
 import features/sign_in/sign_in
 import features/sign_up/sign_up
+import features/user/user
 import gleam/http.{Get, Post}
 import wisp.{type Request}
 
@@ -11,7 +12,7 @@ pub fn handle_request(req: Request, ctx: Ctx) {
   use req <- web.middleware(req, ctx)
 
   case wisp.path_segments(req) {
-    [] -> wisp.redirect(to: "/exercises")
+    [] -> wisp.redirect(to: "/account")
     ["sign-up"] -> {
       case req.method {
         Get -> {
@@ -130,6 +131,14 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+
+    ["account"] -> {
+      use <- wisp.require_method(req, Get)
+      use _session, user <- auth.require(req, ctx)
+
+      user.view_account_page(req, user)
+    }
+
     _ -> wisp.not_found()
   }
 }

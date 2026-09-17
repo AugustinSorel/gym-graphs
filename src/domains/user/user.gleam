@@ -4,7 +4,19 @@ import domains/user/sql
 import gleam/list
 import gleam/result
 import gleam/string
+import gleam/time/timestamp
 import pog.{type Connection}
+
+pub type User {
+  User(
+    id: Int,
+    name: String,
+    email: String,
+    created_at: timestamp.Timestamp,
+    // weight_unit: user.WeightUnit,
+    // one_rep_max_algorithm: one_rep_max.Algorithm,
+  )
+}
 
 pub fn check_if_email_is_available(db: Connection, email: String) {
   use user <- result.try(sql.check_email_availability(db, email))

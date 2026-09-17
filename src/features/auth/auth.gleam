@@ -1,8 +1,9 @@
 import app/ctx.{type Ctx}
 import app/session
-import domains/auth_session/auth_session
+import domains/auth_session/auth_session.{AuthSession}
 import domains/password_reset/password_reset
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
+import domains/user/user
 import gleam/bool
 import gleam/float
 import gleam/option
@@ -33,6 +34,55 @@ pub fn password_reset_cookie() {
     "password_reset_session_token",
     duration.hours(1) |> duration.to_seconds() |> float.round(),
   )
+}
+
+pub fn require(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      auth_session.select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(session.validate_token(token, session.secret_hash))
+
+    let auth_session = AuthSession(id: session.id)
+
+    let user =
+      user.User(
+        id: session.user_id,
+        name: session.name,
+        email: session.email_address,
+        created_at: session.user_created_at,
+        // weight_unit: case session.weight_unit {
+      //   sql.Kg -> user.Kg
+      //   sql.Lbs -> user.Lbs
+      // },
+      // one_rep_max_algorithm: one_rep_max_algorithm_sql(
+      //   session.one_rep_max_algorithm,
+      // )
+      )
+
+    use Nil <- result.try(auth_session.refresh(session, ctx.db))
+
+    Ok(#(auth_session, user, cookie))
+  }
+
+  case result {
+    Ok(#(session, user, cookie)) ->
+      next(session, user)
+      |> session.set_cookie(
+        req,
+        auth_session_cookie().name,
+        cookie,
+        auth_session_cookie().max_age,
+      )
+    Error(Nil) -> {
+      wisp.redirect("/sign-up")
+      |> session.clear_cookie(req, auth_session_cookie().name)
+    }
+  }
 }
 
 pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
