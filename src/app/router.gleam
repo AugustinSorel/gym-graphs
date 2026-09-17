@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/web
 import features/auth/auth
+import features/sign_in/sign_in
 import features/sign_up/sign_up
 import gleam/http.{Get, Post}
 import wisp.{type Request}
@@ -68,6 +69,17 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
           sign_up.set_password(req, session, ctx)
         }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+    ["sign-in"] -> {
+      case req.method {
+        Get -> {
+          use <- auth.require_blank(req, ctx)
+
+          sign_in.view_page()
+        }
+        // Post -> auth_session_handler.sign_in(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
