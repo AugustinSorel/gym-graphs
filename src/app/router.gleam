@@ -100,12 +100,21 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       password_reset.cancel(req, session, ctx)
     }
-    // ["reset-password", "set-new-password"] -> {
-    //   case req.method {
-    //     Get -> password_reset_handler.view_set_new_password_page(req, ctx)
-    //     Post -> password_reset_handler.set_new_password(req, ctx)
-    //     _ -> wisp.method_not_allowed([Get, Post])
-    //   }
+    ["reset-password", "set-new-password"] -> {
+      case req.method {
+        Get -> {
+          use session <- auth.require_password_reset_verified(req, ctx)
+
+          password_reset.view_set_new_password_page(req, session, ctx)
+        }
+        Post -> {
+          use session <- auth.require_password_reset_verified(req, ctx)
+
+          password_reset.set_new_password(req, session, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     ["sign-in"] -> {
       case req.method {
         Get -> {

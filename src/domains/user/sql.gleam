@@ -147,6 +147,86 @@ pub fn select_by_email(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_by_password_reset_id` query
+/// defined in `./src/domains/user/sql/select_by_password_reset_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectByPasswordResetIdRow {
+  SelectByPasswordResetIdRow(email_address: String)
+}
+
+/// Runs the `select_by_password_reset_id` query
+/// defined in `./src/domains/user/sql/select_by_password_reset_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_by_password_reset_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectByPasswordResetIdRow), pog.QueryError) {
+  let decoder = {
+    use email_address <- decode.field(0, decode.string)
+    decode.success(SelectByPasswordResetIdRow(email_address:))
+  }
+
+  "select users.email_address
+from password_reset_sessions
+inner join users on password_reset_sessions.user_id = users.id
+where password_reset_sessions.id
+=
+$1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `update_password_by_password_reset_id` query
+/// defined in `./src/domains/user/sql/update_password_by_password_reset_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdatePasswordByPasswordResetIdRow {
+  UpdatePasswordByPasswordResetIdRow(id: Int)
+}
+
+/// Runs the `update_password_by_password_reset_id` query
+/// defined in `./src/domains/user/sql/update_password_by_password_reset_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_password_by_password_reset_id(
+  db: pog.Connection,
+  password_hash: String,
+  password_reset_sessions_id: Int,
+) -> Result(pog.Returned(UpdatePasswordByPasswordResetIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdatePasswordByPasswordResetIdRow(id:))
+  }
+
+  "update users
+set
+  password_hash = $1
+from password_reset_sessions
+where users.id = password_reset_sessions.user_id
+and password_reset_sessions.id = $2
+and password_reset_sessions.user_identity_verified_at is not null
+returning password_reset_sessions.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(password_hash))
+  |> pog.parameter(pog.int(password_reset_sessions_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 // --- Enums -------------------------------------------------------------------
 
 /// Corresponds to the Postgres `one_rep_max_algorithm` enum.
