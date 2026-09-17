@@ -1,7 +1,6 @@
 import app/crypto
 import app/db
 import domains/user/sql
-import gleam/bit_array
 import gleam/list
 import gleam/result
 import gleam/string
@@ -32,10 +31,8 @@ pub fn create(
   session_id: Int,
 ) {
   let password_hash = crypto.hash_user_password(password)
-  //FIX
-  let salt = bit_array.from_string("")
 
-  sql.create(db, password_hash, salt, name, session_id)
+  sql.create(db, password_hash, name, session_id)
   |> db.extract_entity
 }
 

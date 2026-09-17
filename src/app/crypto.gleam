@@ -32,19 +32,14 @@ pub fn validate_verification_code(a: String, b: String) -> Bool {
   crypto.secure_compare(bit_array.from_string(a), bit_array.from_string(b))
 }
 
-pub fn hash_user_password(password: String) {
+pub fn hash_user_password(password: String) -> String {
   let assert Ok(hashes) = argus.hasher() |> argus.hash(password)
 
-  bit_array.from_string(hashes.encoded_hash)
+  hashes.encoded_hash
 }
 
-pub fn validate_user_password(
-  stored_hash: BitArray,
-  plain_password: String,
-) -> Bool {
-  let assert Ok(hash_str) = stored_hash |> bit_array.to_string
-
-  argus.verify(hash_str, plain_password) |> result.unwrap(False)
+pub fn validate_user_password(hash: String, candidate: String) -> Bool {
+  hash |> argus.verify(candidate) |> result.unwrap(False)
 }
 
 pub fn generate_password_reset_email_code() {

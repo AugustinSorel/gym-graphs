@@ -59,9 +59,8 @@ pub type CreateRow {
 ///
 pub fn create(
   db: pog.Connection,
-  arg_1: BitArray,
-  arg_2: BitArray,
-  arg_3: String,
+  arg_1: String,
+  arg_2: String,
   id: Int,
 ) -> Result(pog.Returned(CreateRow), pog.QueryError) {
   let decoder = {
@@ -70,20 +69,18 @@ pub fn create(
     decode.success(CreateRow(id:, email_address:))
   }
 
-  "insert into users (email_address, password_hash, password_salt, name)
+  "insert into users (email_address, password_hash, name)
 select
     email_address,
     $1,
-    $2,
-    $3
+    $2
 from sign_up_sessions
-where id = $4 and email_address_verified_at is not null returning
+where id = $3 and email_address_verified_at is not null returning
     id, email_address
 "
   |> pog.query
-  |> pog.parameter(pog.bytea(arg_1))
-  |> pog.parameter(pog.bytea(arg_2))
-  |> pog.parameter(pog.text(arg_3))
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
   |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
@@ -102,8 +99,7 @@ pub type SelectByEmailRow {
     name: String,
     weight_unit: WeightUnit,
     one_rep_max_algorithm: OneRepMaxAlgorithm,
-    password_hash: BitArray,
-    password_salt: BitArray,
+    password_hash: String,
     created_at: Timestamp,
     updated_at: Timestamp,
   )
@@ -128,10 +124,9 @@ pub fn select_by_email(
       4,
       one_rep_max_algorithm_decoder(),
     )
-    use password_hash <- decode.field(5, decode.bit_array)
-    use password_salt <- decode.field(6, decode.bit_array)
-    use created_at <- decode.field(7, pog.timestamp_decoder())
-    use updated_at <- decode.field(8, pog.timestamp_decoder())
+    use password_hash <- decode.field(5, decode.string)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
     decode.success(SelectByEmailRow(
       id:,
       email_address:,
@@ -139,7 +134,6 @@ pub fn select_by_email(
       weight_unit:,
       one_rep_max_algorithm:,
       password_hash:,
-      password_salt:,
       created_at:,
       updated_at:,
     ))

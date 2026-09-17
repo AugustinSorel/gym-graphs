@@ -23,8 +23,7 @@ create table users (
     name text not null,
     weight_unit weight_unit not null default 'kg',
     one_rep_max_algorithm one_rep_max_algorithm not null default 'epley',
-    password_hash bytea not null,
-    password_salt bytea not null,
+    password_hash text not null,
     created_at timestamp default now() not null,
     updated_at timestamp default now() not null
 );
