@@ -94,12 +94,12 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
-    // ["reset-password", "verify-email-code", "cancel"] -> {
-    //   case req.method {
-    //     Post -> password_reset_handler.cancel(req, ctx)
-    //     _ -> wisp.method_not_allowed([Post])
-    //   }
-    // }
+    ["reset-password", "verify-email-code", "cancel"] -> {
+      use <- wisp.require_method(req, Post)
+      use session <- auth.require_password_reset(req, ctx)
+
+      password_reset.cancel(req, session, ctx)
+    }
     // ["reset-password", "set-new-password"] -> {
     //   case req.method {
     //     Get -> password_reset_handler.view_set_new_password_page(req, ctx)

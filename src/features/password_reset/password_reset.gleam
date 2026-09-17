@@ -167,3 +167,28 @@ pub fn verify(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
     }
   }
 }
+
+pub fn cancel(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    password_reset.delete_by_id(ctx.db, session.id)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> session.clear_cookie(req, auth.password_reset_cookie().name)
+      |> wisp.set_header("HX-Redirect", "/reset-password")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_form()
+      |> web.send_html(500)
+    }
+  }
+}
