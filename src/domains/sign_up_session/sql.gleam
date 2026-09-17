@@ -133,3 +133,29 @@ pub fn select_by_id(
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
+
+/// Runs the `verify` query
+/// defined in `./src/domains/sign_up_session/sql/verify.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn verify(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update 
+  sign_up_sessions 
+set 
+  email_address_verified_at = now() 
+where 
+  id = $1 
+  and email_address_verified_at is null;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}

@@ -32,8 +32,10 @@ pub fn handle_request(req: Request, ctx: Ctx) {
           sign_up.view_verify_email_page()
         }
         Post -> {
-          todo
-          // sign_up_handler.verify_email(req, ctx)
+          use <- auth.require_blank(req, ctx)
+          use session <- auth.require_sign_up_unverified(req, ctx)
+
+          sign_up.verify_email(req, session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }

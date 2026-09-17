@@ -3,9 +3,10 @@ import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/sign_up_session/sign_up_session
+import domains/sign_up_session/sql
 import domains/user/user
 import features/sign_up/template
-import features/sign_up/ui.{type EmailRegisterForm}
+import features/sign_up/ui.{type EmailRegisterForm, type VerifyEmailAddressForm}
 import formal/form.{type Form}
 import gleam/float
 import gleam/result
@@ -115,4 +116,67 @@ pub fn view_verify_email_page() {
   |> ui.verify_email_form()
   |> ui.verify_email_page()
   |> web.send_html(200)
+}
+
+pub type VerifyEmailError {
+  VerifyEmailValidationFailed(Form(VerifyEmailAddressForm))
+  VerificationCodeFailed
+  VerifyEmailDatabaseFailure(QueryError)
+}
+
+pub fn verify_email(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_verify_email_form()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(VerifyEmailValidationFailed),
+    )
+
+    use Nil <- result.try(
+      sign_up_session.verify_code(
+        session.email_address_verification_code,
+        input.code,
+      )
+      |> result.replace_error(VerificationCodeFailed),
+    )
+
+    sign_up_session.mark_email_as_verified(ctx.db, session.id)
+    |> result.map_error(VerifyEmailDatabaseFailure)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> {
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
+    }
+    Error(VerifyEmailValidationFailed(form)) -> {
+      form
+      |> ui.verify_email_form()
+      |> web.send_html(422)
+    }
+    Error(VerificationCodeFailed) -> {
+      ui.get_verify_email_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError(
+          "The verification code you entered is incorrect. Please try again.",
+        ),
+      )
+      |> ui.verify_email_form()
+      |> web.send_html(422)
+    }
+    Error(VerifyEmailDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_email_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_email_form()
+      |> web.send_html(500)
+    }
+  }
 }
