@@ -1,13 +1,18 @@
+import app/crypto
 import app/ctx.{type Ctx}
 import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/password_reset/password_reset
+import domains/password_reset/sql
 import domains/user/user
 import features/auth/auth
 import features/password_reset/template
-import features/password_reset/ui.{type ResetPasswordForm}
+import features/password_reset/ui.{
+  type ResetPasswordForm, type VerifyEmailCodeForm,
+}
 import formal/form.{type Form}
+import gleam/bool
 import gleam/result
 import gleam/string
 import pog.{type QueryError}
@@ -101,4 +106,64 @@ pub fn view_verify_page() {
   |> ui.verify_form()
   |> ui.verify_page()
   |> web.send_html(200)
+}
+
+pub type VerifyError {
+  VerifyErrorValidation(Form(VerifyEmailCodeForm))
+  IncorrectCode
+  VerifyDatabaseFailure(QueryError)
+}
+
+pub fn verify(req: Request, session: sql.SelectByIdRow, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_verify_form()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(VerifyErrorValidation),
+    )
+
+    let code_correct =
+      crypto.validate_user_password(session.email_code_hash, input.code)
+
+    use <- bool.guard(when: !code_correct, return: Error(IncorrectCode))
+
+    password_reset.mark_as_verified(ctx.db, session.id)
+    |> result.map_error(VerifyDatabaseFailure)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
+
+    Error(VerifyErrorValidation(form)) ->
+      form
+      |> ui.verify_form()
+      |> web.send_html(422)
+
+    Error(IncorrectCode) ->
+      ui.get_verify_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError(
+          "The verification code you entered is incorrect. Please try again.",
+        ),
+      )
+      |> ui.verify_form()
+      |> web.send_html(422)
+
+    Error(VerifyDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_form()
+      |> web.send_html(500)
+    }
+  }
 }

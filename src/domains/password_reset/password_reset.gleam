@@ -19,3 +19,11 @@ pub fn create(db: Connection, email_address: String) {
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id) |> db.extract_entity
 }
+
+pub fn mark_as_verified(db: Connection, id: Int) {
+  sql.verify(db, id)
+}
+
+pub fn delete_by_id(db: Connection, id: Int) {
+  sql.delete_by_id(db, id)
+}

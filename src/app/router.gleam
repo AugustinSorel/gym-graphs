@@ -87,7 +87,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
           password_reset.view_verify_page()
         }
-        // Post -> password_reset_handler.verify(req, ctx)
+        Post -> {
+          use session <- auth.require_password_reset_unverified(req, ctx)
+
+          password_reset.verify(req, session, ctx)
+        }
         _ -> wisp.method_not_allowed([Get, Post])
       }
     // ["reset-password", "verify-email-code", "cancel"] -> {
