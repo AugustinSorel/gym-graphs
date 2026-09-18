@@ -6,9 +6,10 @@ import domains/auth_session/auth_session.{type AuthSession}
 import domains/password_update/password_update.{type PasswordUpdate}
 import domains/user/user.{type User}
 import features/auth/auth
-import features/password_update/ui.{
+import features/password_update/forms.{
   type SetNewPasswordForm, type VerifyPasswordForm,
 }
+import features/password_update/ui
 import features/user/ui as user_ui
 import formal/form.{type Form}
 import gleam/bool
@@ -47,7 +48,7 @@ pub fn start(req: Request, session: AuthSession, ctx: Ctx) {
 }
 
 pub fn view_verify_password_page(user: User) {
-  ui.get_verify_password_form()
+  forms.get_verify_password_form()
   |> form.add_values([#("email", user.email)])
   |> ui.verify_password_form()
   |> ui.verify_password_page()
@@ -70,7 +71,7 @@ pub fn verify_password(
 
   let result = {
     use input <- result.try(
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.run()
       |> result.map_error(VerifyPasswordValidation),
@@ -109,7 +110,7 @@ pub fn verify_password(
       |> web.send_html(422)
 
     Error(CredentialsError) ->
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Incorrect password."))
       |> ui.verify_password_form()
@@ -117,7 +118,7 @@ pub fn verify_password(
 
     Error(VerifyPasswordDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.verify_password_form()
@@ -127,7 +128,7 @@ pub fn verify_password(
 }
 
 pub fn view_set_new_password_page(user: User) {
-  ui.get_set_new_password_form()
+  forms.get_set_new_password_form()
   |> form.add_values([#("email", user.email)])
   |> ui.set_new_password_form()
   |> ui.set_new_password_page()
@@ -144,7 +145,7 @@ pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      ui.get_set_new_password_form()
+      forms.get_set_new_password_form()
       |> form.add_values(form_data.values)
       |> form.run()
       |> result.map_error(UpdatePasswordValidation),
@@ -192,7 +193,7 @@ pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
 
     Error(UpdatePasswordDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_set_new_password_form()
+      forms.get_set_new_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.set_new_password_form()
@@ -230,7 +231,7 @@ pub fn cancel(
 
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_set_new_password_form()
+      forms.get_set_new_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.set_new_password_form()

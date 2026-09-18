@@ -5,7 +5,8 @@ import app/web
 import domains/account_deletion/account_deletion.{type AccountDeletion}
 import domains/auth_session/auth_session.{type AuthSession}
 import domains/user/user.{type User}
-import features/account_deletion/ui.{type VerifyPasswordForm}
+import features/account_deletion/forms.{type VerifyPasswordForm}
+import features/account_deletion/ui
 import features/auth/auth
 import features/user/ui as user_ui
 import formal/form.{type Form}
@@ -16,10 +17,10 @@ import gleam/string
 import pog.{type QueryError}
 import wisp.{type Request}
 
-pub fn start(req: Request, session: AuthSession, ctx: Ctx) {
+pub fn start(req: Request, auth_session: AuthSession, ctx: Ctx) {
   let result = {
     use #(id, secret) <- result.try({
-      account_deletion.create(ctx.db, session.id)
+      account_deletion.create(ctx.db, auth_session.id)
     })
 
     Ok(session.encode_token(id, secret))
@@ -49,7 +50,7 @@ pub fn view_verify_password_page(req: Request, user: User, ctx: Ctx) {
 
   case result {
     Ok(user) ->
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values([#("email", user.email_address)])
       |> ui.verify_password_form()
       |> ui.verify_password_page()
@@ -57,7 +58,7 @@ pub fn view_verify_password_page(req: Request, user: User, ctx: Ctx) {
 
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_error("root", form.CustomError("something went wrong"))
       |> ui.verify_password_form()
       |> ui.verify_password_page()
@@ -74,7 +75,7 @@ type VerifyPasswordError {
 
 pub fn verify_password(
   req: Request,
-  session: AccountDeletion,
+  account_deletion: AccountDeletion,
   user: User,
   ctx: Ctx,
 ) {
@@ -82,7 +83,7 @@ pub fn verify_password(
 
   let result = {
     use input <- result.try(
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.run()
       |> result.map_error(VerifyPasswordValidation),
@@ -102,7 +103,7 @@ pub fn verify_password(
     )
 
     use Nil <- result.try(
-      account_deletion.mark_session_as_verified(ctx.db, session.id)
+      account_deletion.mark_session_as_verified(ctx.db, account_deletion.id)
       |> result.map_error(VerifyPasswordDatabaseFailure)
       |> result.replace(Nil),
     )
@@ -121,7 +122,7 @@ pub fn verify_password(
       |> web.send_html(422)
 
     Error(InvalidCredentials) -> {
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Incorrect password."))
       |> ui.verify_password_form()
@@ -130,7 +131,7 @@ pub fn verify_password(
 
     Error(VerifyPasswordDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong"))
       |> ui.verify_password_form()
@@ -140,15 +141,15 @@ pub fn verify_password(
 }
 
 pub fn view_confirm_page() {
-  ui.get_account_deletion_form()
+  forms.get_account_deletion_form()
   |> ui.confirm_form()
   |> ui.confirm_page()
   |> web.send_html(200)
 }
 
-pub fn confirm(req: Request, session: AccountDeletion, ctx: Ctx) {
+pub fn confirm(req: Request, account_deletion: AccountDeletion, ctx: Ctx) {
   let result =
-    user.delete_by_account_deletion_id(ctx.db, session.id)
+    user.delete_by_account_deletion_id(ctx.db, account_deletion.id)
     |> result.replace(Nil)
 
   case result {
@@ -160,7 +161,7 @@ pub fn confirm(req: Request, session: AccountDeletion, ctx: Ctx) {
 
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_account_deletion_form()
+      forms.get_account_deletion_form()
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.confirm_form()
       |> web.send_html(500)
@@ -195,7 +196,7 @@ pub fn cancel(
 
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      ui.get_verify_password_form()
+      forms.get_verify_password_form()
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("something went wrong"))
       |> ui.verify_password_form()

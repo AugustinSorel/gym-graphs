@@ -1,4 +1,7 @@
 import app/ui
+import features/account_deletion/forms.{
+  type AccountDeletionConfirmForm, type VerifyPasswordForm,
+}
 import formal/form.{type Form}
 import gleam/bool
 import gleam/list
@@ -179,16 +182,6 @@ pub fn confirm_page(children: Element(a)) -> Element(a) {
   account_deletion_layout(Confirm, "Delete your account", children)
 }
 
-pub type AccountDeletionConfirmForm {
-  AccountDeletionConfirmForm
-}
-
-pub fn get_account_deletion_form() -> Form(AccountDeletionConfirmForm) {
-  AccountDeletionConfirmForm
-  |> form.success
-  |> form.new
-}
-
 pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
   let root_err = list.first(form.field_error_messages(form, "root"))
 
@@ -236,21 +229,3 @@ pub fn confirm_form(form: Form(AccountDeletionConfirmForm)) -> Element(a) {
   )
 }
 
-pub type VerifyPasswordForm {
-  VerifyPasswordForm(password: String)
-}
-
-pub fn get_verify_password_form() -> Form(VerifyPasswordForm) {
-  let schema = {
-    use password <- form.field("password", {
-      form.parse_string
-      |> form.check_not_empty
-      |> form.check_string_length_more_than(7)
-      |> form.check_string_length_less_than(72)
-    })
-
-    form.success(VerifyPasswordForm(password:))
-  }
-
-  form.new(schema)
-}
