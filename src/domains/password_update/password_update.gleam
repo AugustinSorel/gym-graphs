@@ -40,3 +40,7 @@ pub fn select_by_id(db: Connection, id: Int) {
 pub fn mark_session_as_verified(db: Connection, id: Int) {
   sql.verify(db, id)
 }
+
+pub fn delete_by_id(db: Connection, id: Int) {
+  sql.delete_by_id(db, id)
+}

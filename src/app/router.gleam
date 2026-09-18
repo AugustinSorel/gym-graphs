@@ -143,13 +143,20 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
-    // ["update-password", "set-new-password"] -> {
-    //   case req.method {
-    //     Get -> password_update_handler.view_set_new_password_page(req, ctx)
-    //     Post -> password_update_handler.set_new_password(req, ctx)
-    //     _ -> wisp.method_not_allowed([Get, Post])
-    //   }
-    // }
+    ["update-password", "set-new-password"] -> {
+      case req.method {
+        Get -> {
+          use _session, user <- auth.require_password_update_verified(req, ctx)
+
+          password_update.view_set_new_password_page(user)
+        }
+        Post -> {
+          use session, _user <- auth.require_password_update_verified(req, ctx)
+          password_update.set_new_password(req, session, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     // ["update-password", "cancel"] -> {
     //   case req.method {
     //     Post -> password_update_handler.cancel(req, ctx)

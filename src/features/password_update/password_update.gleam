@@ -6,7 +6,9 @@ import domains/auth_session/auth_session.{type AuthSession}
 import domains/password_update/password_update.{type PasswordUpdate}
 import domains/user/user.{type User}
 import features/auth/auth
-import features/password_update/ui.{type VerifyPasswordForm}
+import features/password_update/ui.{
+  type SetNewPasswordForm, type VerifyPasswordForm,
+}
 import features/user/ui as user_ui
 import formal/form.{type Form}
 import gleam/bool
@@ -119,6 +121,81 @@ pub fn verify_password(
       |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> ui.verify_password_form()
+      |> web.send_html(500)
+    }
+  }
+}
+
+pub fn view_set_new_password_page(user: User) {
+  ui.get_set_new_password_form()
+  |> form.add_values([#("email", user.email)])
+  |> ui.set_new_password_form()
+  |> ui.set_new_password_page()
+  |> web.send_html(200)
+}
+
+type UpdatePasswordError {
+  UpdatePasswordValidation(Form(SetNewPasswordForm))
+  UpdatePasswordDatabaseFailure(QueryError)
+}
+
+pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_set_new_password_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(UpdatePasswordValidation),
+    )
+
+    let password_hash = crypto.hash_user_password(input.password)
+
+    pog.transaction(ctx.db, fn(tx) {
+      use Nil <- result.try({
+        user.update_password_by_password_update_id(
+          tx,
+          password_hash,
+          session.id,
+        )
+        |> result.map_error(UpdatePasswordDatabaseFailure)
+        |> result.replace(Nil)
+      })
+
+      use Nil <- result.try(
+        password_update.delete_by_id(tx, session.id)
+        |> result.map_error(UpdatePasswordDatabaseFailure)
+        |> result.replace(Nil),
+      )
+
+      Ok(Nil)
+    })
+    |> result.map_error(fn(err) {
+      case err {
+        pog.TransactionRolledBack(e) -> e
+        pog.TransactionQueryError(err) -> UpdatePasswordDatabaseFailure(err)
+      }
+    })
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.created()
+      |> session.clear_cookie(req, auth.password_update_cookie().name)
+      |> wisp.set_header("HX-Redirect", "/account")
+
+    Error(UpdatePasswordValidation(form)) ->
+      form
+      |> ui.set_new_password_form()
+      |> web.send_html(422)
+
+    Error(UpdatePasswordDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_set_new_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.set_new_password_form()
       |> web.send_html(500)
     }
   }

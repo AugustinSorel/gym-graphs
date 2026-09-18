@@ -65,6 +65,19 @@ pub fn update_password_by_password_reset_id(
   |> db.extract_entity
 }
 
+pub fn update_password_by_password_update_id(
+  db: Connection,
+  password_hash,
+  password_update_id: Int,
+) {
+  sql.update_password_by_password_update_id(
+    db,
+    password_hash,
+    password_update_id,
+  )
+  |> db.extract_entity
+}
+
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id) |> db.extract_entity
 }
