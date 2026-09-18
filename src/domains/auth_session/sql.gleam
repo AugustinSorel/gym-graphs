@@ -62,6 +62,26 @@ pub fn create(
   |> pog.execute(db)
 }
 
+/// Runs the `delete_by_id` query
+/// defined in `./src/domains/auth_session/sql/delete_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from auth_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `refresh_last_active_at_by_id` query
 /// defined in `./src/domains/auth_session/sql/refresh_last_active_at_by_id.sql`.
 ///

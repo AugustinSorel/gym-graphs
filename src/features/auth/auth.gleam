@@ -1,6 +1,7 @@
 import app/ctx.{type Ctx}
 import app/session
-import domains/auth_session/auth_session.{AuthSession}
+import app/web
+import domains/auth_session/auth_session.{type AuthSession, AuthSession}
 import domains/password_reset/password_reset
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
 import domains/user/user
@@ -8,6 +9,7 @@ import gleam/bool
 import gleam/float
 import gleam/option
 import gleam/result
+import gleam/string
 import gleam/time/duration
 import wisp.{type Request, type Response}
 

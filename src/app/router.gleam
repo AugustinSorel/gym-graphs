@@ -131,6 +131,12 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    ["sign-out"] -> {
+      use <- wisp.require_method(req, Post)
+      use session, _user <- auth.require(req, ctx)
+
+      user.sign_out(req, session, ctx)
+    }
 
     ["account"] -> {
       use <- wisp.require_method(req, Get)

@@ -39,3 +39,7 @@ pub fn refresh(session: sql.SelectByIdRow, db: Connection) {
     order.Lt | order.Eq -> Ok(Nil)
   }
 }
+
+pub fn delete_by_id(db: Connection, id: Int) {
+  sql.delete_by_id(db, id)
+}
