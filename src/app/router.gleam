@@ -171,13 +171,27 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       account_deletion.start(req, session, ctx)
     }
-    // ["delete-account", "verify-password"] -> {
-    //   case req.method {
-    //     Get -> account_deletion_handler.view_verify_password_page(req, ctx)
-    //     Post -> account_deletion_handler.verify_password(req, ctx)
-    //     _ -> wisp.method_not_allowed([Get, Post])
-    //   }
-    // }
+    ["delete-account", "verify-password"] -> {
+      case req.method {
+        Get -> {
+          use _session, user <- auth.require_account_deletion_unverified(
+            req,
+            ctx,
+          )
+
+          account_deletion.view_verify_password_page(req, user, ctx)
+        }
+        Post -> {
+          use session, user <- auth.require_account_deletion_unverified(
+            req,
+            ctx,
+          )
+
+          account_deletion.verify_password(req, session, user, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     // ["delete-account", "confirm"] -> {
     //   case req.method {
     //     Get -> account_deletion_handler.view_confirm_page(req, ctx)

@@ -1,13 +1,19 @@
+import app/crypto
 import app/ctx.{type Ctx}
 import app/session
 import app/web
-import domains/account_deletion/account_deletion
+import domains/account_deletion/account_deletion.{type AccountDeletion}
 import domains/auth_session/auth_session.{type AuthSession}
+import domains/user/user.{type User}
+import features/account_deletion/ui.{type VerifyPasswordForm}
 import features/auth/auth
 import features/user/ui as user_ui
+import formal/form.{type Form}
+import gleam/bool
 import gleam/option
 import gleam/result
 import gleam/string
+import pog.{type QueryError}
 import wisp.{type Request}
 
 pub fn start(req: Request, session: AuthSession, ctx: Ctx) {
@@ -33,6 +39,101 @@ pub fn start(req: Request, session: AuthSession, ctx: Ctx) {
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       user_ui.remove_account_row(error: option.Some("something went wrong"))
+      |> web.send_html(500)
+    }
+  }
+}
+
+pub fn view_verify_password_page(req: Request, user: User, ctx: Ctx) {
+  let result = user.select_by_id(ctx.db, user.id)
+
+  case result {
+    Ok(user) ->
+      ui.get_verify_password_form()
+      |> form.add_values([#("email", user.email_address)])
+      |> ui.verify_password_form()
+      |> ui.verify_password_page()
+      |> web.send_html(200)
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_password_form()
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.verify_password_form()
+      |> ui.verify_password_page()
+      |> web.send_html(500)
+    }
+  }
+}
+
+type VerifyPasswordError {
+  VerifyPasswordValidation(Form(VerifyPasswordForm))
+  VerifyPasswordDatabaseFailure(QueryError)
+  InvalidCredentials
+}
+
+pub fn verify_password(
+  req: Request,
+  session: AccountDeletion,
+  user: User,
+  ctx: Ctx,
+) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(VerifyPasswordValidation),
+    )
+
+    use user <- result.try(
+      user.select_by_id(ctx.db, user.id)
+      |> result.map_error(VerifyPasswordDatabaseFailure),
+    )
+
+    let is_password_correct =
+      crypto.validate_user_password(user.password_hash, input.password)
+
+    use <- bool.guard(
+      when: !is_password_correct,
+      return: Error(InvalidCredentials),
+    )
+
+    use Nil <- result.try(
+      account_deletion.mark_session_as_verified(ctx.db, session.id)
+      |> result.map_error(VerifyPasswordDatabaseFailure)
+      |> result.replace(Nil),
+    )
+
+    Ok(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/delete-account/confirm")
+
+    Error(VerifyPasswordValidation(form)) ->
+      form
+      |> ui.verify_password_form()
+      |> web.send_html(422)
+
+    Error(InvalidCredentials) -> {
+      ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Incorrect password."))
+      |> ui.verify_password_form()
+      |> web.send_html(422)
+    }
+
+    Error(VerifyPasswordDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> ui.verify_password_form()
       |> web.send_html(500)
     }
   }
