@@ -1,7 +1,6 @@
 import app/ctx.{type Ctx}
 import app/session
-import app/web
-import domains/auth_session/auth_session.{type AuthSession, AuthSession}
+import domains/auth_session/auth_session.{AuthSession}
 import domains/password_reset/password_reset
 import domains/password_update/password_update
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
@@ -10,7 +9,6 @@ import gleam/bool
 import gleam/float
 import gleam/option
 import gleam/result
-import gleam/string
 import gleam/time/duration
 import wisp.{type Request, type Response}
 
@@ -270,7 +268,7 @@ pub fn require_password_update(req, ctx: Ctx, next) {
   }
 }
 
-pub fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
+pub fn require_password_update_unverified(req: Request, ctx: Ctx, next) {
   use auth_session, user <- require(req, ctx)
   use session <- require_password_update(req, ctx)
 
@@ -290,7 +288,7 @@ pub fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
   next(session, user)
 }
 
-pub fn require_verified(req: Request, ctx: Ctx, next) -> Response {
+pub fn require_password_update_verified(req: Request, ctx: Ctx, next) {
   use auth_session, user <- require(req, ctx)
   use session <- require_password_update(req, ctx)
 
