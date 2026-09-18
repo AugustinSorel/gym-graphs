@@ -6,8 +6,8 @@ import gleam/result
 import gleam/time/timestamp.{type Timestamp}
 import pog.{type Connection}
 
-pub type PasswordReset {
-  PasswordReset(
+pub type PasswordResetSession {
+  PasswordResetSession(
     id: Int,
     user_id: Int,
     email_code_hash: String,
@@ -32,7 +32,7 @@ pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id)
   |> db.extract_entity
   |> result.map(fn(row) {
-    PasswordReset(
+    PasswordResetSession(
       id: row.id,
       user_id: row.user_id,
       email_code_hash: row.email_code_hash,

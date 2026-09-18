@@ -32,15 +32,15 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       case req.method {
         Get -> {
           use <- auth.require_blank(req, ctx)
-          use _session <- auth.require_sign_up_unverified(req, ctx)
+          use _sign_up_session <- auth.require_sign_up_unverified(req, ctx)
 
           sign_up.view_verify_email_page()
         }
         Post -> {
           use <- auth.require_blank(req, ctx)
-          use session <- auth.require_sign_up_unverified(req, ctx)
+          use sign_up_session <- auth.require_sign_up_unverified(req, ctx)
 
-          sign_up.verify_email(req, session, ctx)
+          sign_up.verify_email(req, sign_up_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -48,30 +48,30 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["sign-up", "verify-email-address", "resend"] -> {
       use <- wisp.require_method(req, Post)
       use <- auth.require_blank(req, ctx)
-      use session <- auth.require_sign_up_session(req, ctx)
+      use sign_up_session <- auth.require_sign_up_session(req, ctx)
 
-      sign_up.resend_verify_email_code(req, session, ctx)
+      sign_up.resend_verify_email_code(req, sign_up_session, ctx)
     }
     ["sign-up", "verify-email-address", "cancel"] -> {
       use <- wisp.require_method(req, Post)
       use <- auth.require_blank(req, ctx)
-      use session <- auth.require_sign_up_unverified(req, ctx)
+      use sign_up_session <- auth.require_sign_up_unverified(req, ctx)
 
-      sign_up.cancel(req, session, ctx)
+      sign_up.cancel(req, sign_up_session, ctx)
     }
     ["sign-up", "set-password"] -> {
       case req.method {
         Get -> {
           use <- auth.require_blank(req, ctx)
-          use session <- auth.require_sign_up_verified(req, ctx)
+          use sign_up_session <- auth.require_sign_up_verified(req, ctx)
 
-          sign_up.view_set_password_page(session)
+          sign_up.view_set_password_page(sign_up_session)
         }
         Post -> {
           use <- auth.require_blank(req, ctx)
-          use session <- auth.require_sign_up_verified(req, ctx)
+          use sign_up_session <- auth.require_sign_up_verified(req, ctx)
 
-          sign_up.set_password(req, session, ctx)
+          sign_up.set_password(req, sign_up_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -86,34 +86,50 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["reset-password", "verify-email-code"] ->
       case req.method {
         Get -> {
-          use _session <- auth.require_password_reset_unverified(req, ctx)
+          use _password_reset_session <- auth.require_password_reset_unverified(
+            req,
+            ctx,
+          )
 
           password_reset.view_verify_page()
         }
         Post -> {
-          use session <- auth.require_password_reset_unverified(req, ctx)
+          use password_reset_session <- auth.require_password_reset_unverified(
+            req,
+            ctx,
+          )
 
-          password_reset.verify(req, session, ctx)
+          password_reset.verify(req, password_reset_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
     ["reset-password", "verify-email-code", "cancel"] -> {
       use <- wisp.require_method(req, Post)
-      use session <- auth.require_password_reset(req, ctx)
+      use password_reset_session <- auth.require_password_reset(req, ctx)
 
-      password_reset.cancel(req, session, ctx)
+      password_reset.cancel(req, password_reset_session, ctx)
     }
     ["reset-password", "set-new-password"] -> {
       case req.method {
         Get -> {
-          use session <- auth.require_password_reset_verified(req, ctx)
+          use password_reset_session <- auth.require_password_reset_verified(
+            req,
+            ctx,
+          )
 
-          password_reset.view_set_new_password_page(req, session, ctx)
+          password_reset.view_set_new_password_page(
+            req,
+            password_reset_session,
+            ctx,
+          )
         }
         Post -> {
-          use session <- auth.require_password_reset_verified(req, ctx)
+          use password_reset_session <- auth.require_password_reset_verified(
+            req,
+            ctx,
+          )
 
-          password_reset.set_new_password(req, session, ctx)
+          password_reset.set_new_password(req, password_reset_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -121,15 +137,15 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
     ["update-password"] -> {
       use <- wisp.require_method(req, Post)
-      use session, _user <- auth.require(req, ctx)
+      use auth_session, _user <- auth.require(req, ctx)
 
-      password_update.start(req, session, ctx)
+      password_update.start(req, auth_session, ctx)
     }
 
     ["update-password", "verify-password"] -> {
       case req.method {
         Get -> {
-          use _session, user <- auth.require_password_update_unverified(
+          use _password_update_session, user <- auth.require_password_update_unverified(
             req,
             ctx,
           )
@@ -137,9 +153,17 @@ pub fn handle_request(req: Request, ctx: Ctx) {
           password_update.view_verify_password_page(user)
         }
         Post -> {
-          use session, user <- auth.require_password_update_unverified(req, ctx)
+          use password_update_session, user <- auth.require_password_update_unverified(
+            req,
+            ctx,
+          )
 
-          password_update.verify_password(req, session, user, ctx)
+          password_update.verify_password(
+            req,
+            password_update_session,
+            user,
+            ctx,
+          )
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -147,13 +171,20 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["update-password", "set-new-password"] -> {
       case req.method {
         Get -> {
-          use _session, user <- auth.require_password_update_verified(req, ctx)
+          use _password_reset_session, user <- auth.require_password_update_verified(
+            req,
+            ctx,
+          )
 
           password_update.view_set_new_password_page(user)
         }
         Post -> {
-          use session, _user <- auth.require_password_update_verified(req, ctx)
-          password_update.set_new_password(req, session, ctx)
+          use password_update_session, _user <- auth.require_password_update_verified(
+            req,
+            ctx,
+          )
+
+          password_update.set_new_password(req, password_update_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -167,14 +198,14 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     }
     ["delete-account"] -> {
       use <- wisp.require_method(req, Post)
-      use session, _user <- auth.require(req, ctx)
+      use auth_session, _user <- auth.require(req, ctx)
 
-      account_deletion.start(req, session, ctx)
+      account_deletion.start(req, auth_session, ctx)
     }
     ["delete-account", "verify-password"] -> {
       case req.method {
         Get -> {
-          use _session, user <- auth.require_account_deletion_unverified(
+          use _account_deletion_session, user <- auth.require_account_deletion_unverified(
             req,
             ctx,
           )
@@ -182,12 +213,17 @@ pub fn handle_request(req: Request, ctx: Ctx) {
           account_deletion.view_verify_password_page(req, user, ctx)
         }
         Post -> {
-          use session, user <- auth.require_account_deletion_unverified(
+          use account_deletion_session, user <- auth.require_account_deletion_unverified(
             req,
             ctx,
           )
 
-          account_deletion.verify_password(req, session, user, ctx)
+          account_deletion.verify_password(
+            req,
+            account_deletion_session,
+            user,
+            ctx,
+          )
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -195,7 +231,7 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["delete-account", "confirm"] -> {
       case req.method {
         Get -> {
-          use _session, _user <- auth.require_account_deletion_verified(
+          use _account_deletion_session, _user <- auth.require_account_deletion_verified(
             req,
             ctx,
           )
@@ -203,9 +239,12 @@ pub fn handle_request(req: Request, ctx: Ctx) {
           account_deletion.view_confirm_page()
         }
         Post -> {
-          use session, _user <- auth.require_account_deletion_verified(req, ctx)
+          use account_deletion_session, _user <- auth.require_account_deletion_verified(
+            req,
+            ctx,
+          )
 
-          account_deletion.confirm(req, session, ctx)
+          account_deletion.confirm(req, account_deletion_session, ctx)
         }
         _ -> wisp.method_not_allowed([Get, Post])
       }
@@ -213,9 +252,9 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["delete-account", "cancel"] -> {
       use <- wisp.require_method(req, Post)
       use auth_session, _user <- auth.require(req, ctx)
-      use session <- auth.require_account_deletion(req, ctx)
+      use account_deletion_session <- auth.require_account_deletion(req, ctx)
 
-      account_deletion.cancel(req, auth_session, session, ctx)
+      account_deletion.cancel(req, auth_session, account_deletion_session, ctx)
     }
     ["sign-in"] -> {
       case req.method {
@@ -234,14 +273,14 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     }
     ["sign-out"] -> {
       use <- wisp.require_method(req, Post)
-      use session, _user <- auth.require(req, ctx)
+      use auth_session, _user <- auth.require(req, ctx)
 
-      user.sign_out(req, session, ctx)
+      user.sign_out(req, auth_session, ctx)
     }
 
     ["account"] -> {
       use <- wisp.require_method(req, Get)
-      use _session, user <- auth.require(req, ctx)
+      use _auth_session, user <- auth.require(req, ctx)
 
       user.view_account_page(req, user)
     }

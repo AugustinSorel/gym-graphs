@@ -4,7 +4,7 @@ import app/email.{type SendEmailError}
 import app/session
 import app/web
 import domains/auth_session/auth_session
-import domains/password_reset/password_reset.{type PasswordReset}
+import domains/password_reset/password_reset.{type PasswordResetSession}
 import domains/user/user
 import features/auth/auth
 import features/password_reset/forms.{
@@ -115,7 +115,11 @@ pub type VerifyError {
   VerifyDatabaseFailure(QueryError)
 }
 
-pub fn verify(req: Request, session: PasswordReset, ctx: Ctx) {
+pub fn verify(
+  req: Request,
+  password_reset_session: PasswordResetSession,
+  ctx: Ctx,
+) {
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -127,11 +131,14 @@ pub fn verify(req: Request, session: PasswordReset, ctx: Ctx) {
     )
 
     let code_correct =
-      crypto.validate_user_password(session.email_code_hash, input.code)
+      crypto.validate_user_password(
+        password_reset_session.email_code_hash,
+        input.code,
+      )
 
     use <- bool.guard(when: !code_correct, return: Error(IncorrectCode))
 
-    password_reset.mark_as_verified(ctx.db, session.id)
+    password_reset.mark_as_verified(ctx.db, password_reset_session.id)
     |> result.map_error(VerifyDatabaseFailure)
     |> result.replace(Nil)
   }
@@ -169,11 +176,15 @@ pub fn verify(req: Request, session: PasswordReset, ctx: Ctx) {
   }
 }
 
-pub fn cancel(req: Request, session: PasswordReset, ctx: Ctx) {
+pub fn cancel(
+  req: Request,
+  password_reset_session: PasswordResetSession,
+  ctx: Ctx,
+) {
   use form_data <- wisp.require_form(req)
 
   let result = {
-    password_reset.delete_by_id(ctx.db, session.id)
+    password_reset.delete_by_id(ctx.db, password_reset_session.id)
     |> result.replace(Nil)
   }
 
@@ -196,10 +207,11 @@ pub fn cancel(req: Request, session: PasswordReset, ctx: Ctx) {
 
 pub fn view_set_new_password_page(
   req: Request,
-  session: PasswordReset,
+  password_reset_session: PasswordResetSession,
   ctx: Ctx,
 ) {
-  let result = user.select_by_password_reset_id(ctx.db, session.id)
+  let result =
+    user.select_by_password_reset_id(ctx.db, password_reset_session.id)
 
   case result {
     Ok(user) ->
@@ -225,7 +237,11 @@ type ResetPasswordError {
   ResetPasswordDatabaseFailure(QueryError)
 }
 
-pub fn set_new_password(req: Request, session: PasswordReset, ctx: Ctx) {
+pub fn set_new_password(
+  req: Request,
+  password_reset_session: PasswordResetSession,
+  ctx: Ctx,
+) {
   use formdata <- wisp.require_form(req)
 
   let result = {
@@ -240,19 +256,23 @@ pub fn set_new_password(req: Request, session: PasswordReset, ctx: Ctx) {
 
     pog.transaction(ctx.db, fn(tx) {
       use Nil <- result.try({
-        user.update_password_by_password_reset_id(tx, password_hash, session.id)
+        user.update_password_by_password_reset_id(
+          tx,
+          password_hash,
+          password_reset_session.id,
+        )
         |> result.map_error(ResetPasswordDatabaseFailure)
         |> result.replace(Nil)
       })
 
       use Nil <- result.try(
-        password_reset.delete_by_id(tx, session.id)
+        password_reset.delete_by_id(tx, password_reset_session.id)
         |> result.replace(Nil)
         |> result.map_error(ResetPasswordDatabaseFailure),
       )
 
       use #(session, secret) <- result.try({
-        auth_session.create(tx, session.user_id)
+        auth_session.create(tx, password_reset_session.user_id)
         |> result.map_error(ResetPasswordDatabaseFailure)
       })
 

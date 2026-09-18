@@ -3,7 +3,7 @@ import app/ctx.{type Ctx}
 import app/session
 import app/web
 import domains/auth_session/auth_session.{type AuthSession}
-import domains/password_update/password_update.{type PasswordUpdate}
+import domains/password_update/password_update.{type PasswordUpdateSession}
 import domains/user/user.{type User}
 import features/auth/auth
 import features/password_update/forms.{
@@ -19,10 +19,10 @@ import gleam/string
 import pog.{type QueryError}
 import wisp.{type Request}
 
-pub fn start(req: Request, session: AuthSession, ctx: Ctx) {
+pub fn start(req: Request, auth_session: AuthSession, ctx: Ctx) {
   let result = {
     use #(id, secret) <- result.try({
-      password_update.create(ctx.db, session.id)
+      password_update.create(ctx.db, auth_session.id)
     })
 
     Ok(session.encode_token(id, secret))
@@ -63,7 +63,7 @@ type VerifyPasswordError {
 
 pub fn verify_password(
   req: Request,
-  session: PasswordUpdate,
+  password_update_session: PasswordUpdateSession,
   user: User,
   ctx: Ctx,
 ) {
@@ -91,7 +91,10 @@ pub fn verify_password(
     )
 
     use Nil <- result.try(
-      password_update.mark_session_as_verified(ctx.db, session.id)
+      password_update.mark_session_as_verified(
+        ctx.db,
+        password_update_session.id,
+      )
       |> result.map_error(VerifyPasswordDatabaseFailure)
       |> result.replace(Nil),
     )
@@ -140,7 +143,11 @@ type UpdatePasswordError {
   UpdatePasswordDatabaseFailure(QueryError)
 }
 
-pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
+pub fn set_new_password(
+  req: Request,
+  password_update_session: PasswordUpdateSession,
+  ctx: Ctx,
+) {
   use form_data <- wisp.require_form(req)
 
   let result = {
@@ -158,14 +165,14 @@ pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
         user.update_password_by_password_update_id(
           tx,
           password_hash,
-          session.id,
+          password_update_session.id,
         )
         |> result.map_error(UpdatePasswordDatabaseFailure)
         |> result.replace(Nil)
       })
 
       use Nil <- result.try(
-        password_update.delete_by_id(tx, session.id)
+        password_update.delete_by_id(tx, password_update_session.id)
         |> result.map_error(UpdatePasswordDatabaseFailure)
         |> result.replace(Nil),
       )
@@ -205,7 +212,7 @@ pub fn set_new_password(req: Request, session: PasswordUpdate, ctx: Ctx) {
 pub fn cancel(
   req: Request,
   auth_session: AuthSession,
-  password_update_session: PasswordUpdate,
+  password_update_session: PasswordUpdateSession,
   ctx: Ctx,
 ) {
   use form_data <- wisp.require_form(req)

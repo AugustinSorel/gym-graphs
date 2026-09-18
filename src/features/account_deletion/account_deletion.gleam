@@ -2,7 +2,7 @@ import app/crypto
 import app/ctx.{type Ctx}
 import app/session
 import app/web
-import domains/account_deletion/account_deletion.{type AccountDeletion}
+import domains/account_deletion/account_deletion.{type AccountDeletionSession}
 import domains/auth_session/auth_session.{type AuthSession}
 import domains/user/user.{type User}
 import features/account_deletion/forms.{type VerifyPasswordForm}
@@ -75,7 +75,7 @@ type VerifyPasswordError {
 
 pub fn verify_password(
   req: Request,
-  account_deletion: AccountDeletion,
+  account_deletion_session: AccountDeletionSession,
   user: User,
   ctx: Ctx,
 ) {
@@ -103,7 +103,10 @@ pub fn verify_password(
     )
 
     use Nil <- result.try(
-      account_deletion.mark_session_as_verified(ctx.db, account_deletion.id)
+      account_deletion.mark_session_as_verified(
+        ctx.db,
+        account_deletion_session.id,
+      )
       |> result.map_error(VerifyPasswordDatabaseFailure)
       |> result.replace(Nil),
     )
@@ -147,9 +150,13 @@ pub fn view_confirm_page() {
   |> web.send_html(200)
 }
 
-pub fn confirm(req: Request, account_deletion: AccountDeletion, ctx: Ctx) {
+pub fn confirm(
+  req: Request,
+  account_deletion_session: AccountDeletionSession,
+  ctx: Ctx,
+) {
   let result =
-    user.delete_by_account_deletion_id(ctx.db, account_deletion.id)
+    user.delete_by_account_deletion_id(ctx.db, account_deletion_session.id)
     |> result.replace(Nil)
 
   case result {
@@ -172,19 +179,20 @@ pub fn confirm(req: Request, account_deletion: AccountDeletion, ctx: Ctx) {
 pub fn cancel(
   req: Request,
   auth_session: AuthSession,
-  account_deletion: AccountDeletion,
+  account_deletion_session: AccountDeletionSession,
   ctx: Ctx,
 ) {
   use form_data <- wisp.require_form(req)
 
-  let session_matched = auth_session.id == account_deletion.auth_session_id
+  let session_matched =
+    auth_session.id == account_deletion_session.auth_session_id
   use <- bool.guard(when: !session_matched, return: {
     wisp.redirect("/")
     |> session.clear_cookie(req, auth.account_deletion_cookie().name)
   })
 
   let result = {
-    account_deletion.delete_by_id(ctx.db, account_deletion.id)
+    account_deletion.delete_by_id(ctx.db, account_deletion_session.id)
     |> result.replace(Nil)
   }
 

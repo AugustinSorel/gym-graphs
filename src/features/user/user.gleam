@@ -16,9 +16,9 @@ pub fn view_account_page(req: Request, user: User) {
   |> web.send_html(200)
 }
 
-pub fn sign_out(req: Request, session: AuthSession, ctx: ctx.Ctx) {
+pub fn sign_out(req: Request, auth_session: AuthSession, ctx: ctx.Ctx) {
   let result = {
-    auth_session.delete_by_id(ctx.db, session.id)
+    auth_session.delete_by_id(ctx.db, auth_session.id)
     |> result.replace(Nil)
   }
 
