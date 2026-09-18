@@ -157,12 +157,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
-    // ["update-password", "cancel"] -> {
-    //   case req.method {
-    //     Post -> password_update_handler.cancel(req, ctx)
-    //     _ -> wisp.method_not_allowed([Post])
-    //   }
-    // }
+    ["update-password", "cancel"] -> {
+      use <- wisp.require_method(req, Post)
+      use auth_session, _user <- auth.require(req, ctx)
+      use password_update_session <- auth.require_password_update(req, ctx)
+
+      password_update.cancel(req, auth_session, password_update_session, ctx)
+    }
     ["sign-in"] -> {
       case req.method {
         Get -> {
