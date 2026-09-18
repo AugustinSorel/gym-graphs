@@ -192,13 +192,24 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
-    // ["delete-account", "confirm"] -> {
-    //   case req.method {
-    //     Get -> account_deletion_handler.view_confirm_page(req, ctx)
-    //     Post -> account_deletion_handler.confirm(req, ctx)
-    //     _ -> wisp.method_not_allowed([Get, Post])
-    //   }
-    // }
+    ["delete-account", "confirm"] -> {
+      case req.method {
+        Get -> {
+          use _session, _user <- auth.require_account_deletion_verified(
+            req,
+            ctx,
+          )
+
+          account_deletion.view_confirm_page()
+        }
+        Post -> {
+          use session, _user <- auth.require_account_deletion_verified(req, ctx)
+
+          account_deletion.confirm(req, session, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     // ["delete-account", "cancel"] -> {
     //   case req.method {
     //     Post -> account_deletion_handler.cancel(req, ctx)

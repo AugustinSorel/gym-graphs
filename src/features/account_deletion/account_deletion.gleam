@@ -138,3 +138,32 @@ pub fn verify_password(
     }
   }
 }
+
+pub fn view_confirm_page() {
+  ui.get_account_deletion_form()
+  |> ui.confirm_form()
+  |> ui.confirm_page()
+  |> web.send_html(200)
+}
+
+pub fn confirm(req: Request, session: AccountDeletion, ctx: Ctx) {
+  let result =
+    user.delete_by_account_deletion_id(ctx.db, session.id)
+    |> result.replace(Nil)
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> session.clear_cookie(req, auth.account_deletion_cookie().name)
+      |> session.clear_cookie(req, auth.auth_session_cookie().name)
+      |> wisp.set_header("HX-Redirect", "/sign-in")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_account_deletion_form()
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.confirm_form()
+      |> web.send_html(500)
+    }
+  }
+}

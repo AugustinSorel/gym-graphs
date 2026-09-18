@@ -81,3 +81,7 @@ pub fn update_password_by_password_update_id(
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id) |> db.extract_entity
 }
+
+pub fn delete_by_account_deletion_id(db: Connection, id: Int) {
+  sql.delete_by_account_deletion_id(db, id)
+}

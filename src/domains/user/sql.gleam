@@ -86,6 +86,34 @@ where id = $3 and email_address_verified_at is not null returning
   |> pog.execute(db)
 }
 
+/// Runs the `delete_by_account_deletion_id` query
+/// defined in `./src/domains/user/sql/delete_by_account_deletion_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_by_account_deletion_id(
+  db: pog.Connection,
+  account_deletion_sessions_id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from users
+where id in (
+    select auth_sessions.user_id
+    from auth_sessions
+    inner join account_deletion_sessions
+        on auth_sessions.id = account_deletion_sessions.auth_session_id
+    where account_deletion_sessions.id = $1
+    and account_deletion_sessions.user_identity_verified_at is not null
+);
+"
+  |> pog.query
+  |> pog.parameter(pog.int(account_deletion_sessions_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_email` query
 /// defined in `./src/domains/user/sql/select_by_email.sql`.
 ///
