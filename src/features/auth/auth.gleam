@@ -3,6 +3,7 @@ import app/session
 import app/web
 import domains/auth_session/auth_session.{type AuthSession, AuthSession}
 import domains/password_reset/password_reset
+import domains/password_update/password_update
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
 import domains/user/user
 import gleam/bool
@@ -34,6 +35,13 @@ pub fn sign_up_session_cookie() {
 pub fn password_reset_cookie() {
   Cookie(
     "password_reset_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn password_update_cookie() {
+  Cookie(
+    "password_update_session_token",
     duration.hours(1) |> duration.to_seconds() |> float.round(),
   )
 }
@@ -230,4 +238,74 @@ pub fn require_password_reset_verified(
   )
 
   next(session)
+}
+
+pub fn require_password_update(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(
+      req,
+      password_update_cookie().name,
+    ))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      password_update.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name)
+    }
+  }
+}
+
+pub fn require_unverified(req: Request, ctx: Ctx, next) -> Response {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_password_update(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(
+    when: !session_matched,
+    return: wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name),
+  )
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/update-password/set-new-password"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_verified(req: Request, ctx: Ctx, next) -> Response {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_password_update(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(
+    when: !session_matched,
+    return: wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name),
+  )
+
+  let is_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: !is_verified,
+    return: wisp.redirect("/update-password/verify-password"),
+  )
+
+  next(session, user)
 }

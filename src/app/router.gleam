@@ -2,6 +2,7 @@ import app/ctx.{type Ctx}
 import app/web
 import features/auth/auth
 import features/password_reset/password_reset
+import features/password_update/password_update
 import features/sign_in/sign_in
 import features/sign_up/sign_up
 import features/user/user
@@ -116,6 +117,34 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+
+    ["update-password"] -> {
+      use <- wisp.require_method(req, Post)
+      use session, _user <- auth.require(req, ctx)
+
+      password_update.start(req, session, ctx)
+    }
+
+    // ["update-password", "verify-password"] -> {
+    //   case req.method {
+    //     Get -> password_update_handler.view_verify_password_page(req, ctx)
+    //     Post -> password_update_handler.verify_password(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // }
+    // ["update-password", "set-new-password"] -> {
+    //   case req.method {
+    //     Get -> password_update_handler.view_set_new_password_page(req, ctx)
+    //     Post -> password_update_handler.set_new_password(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // }
+    // ["update-password", "cancel"] -> {
+    //   case req.method {
+    //     Post -> password_update_handler.cancel(req, ctx)
+    //     _ -> wisp.method_not_allowed([Post])
+    //   }
+    // }
     ["sign-in"] -> {
       case req.method {
         Get -> {
