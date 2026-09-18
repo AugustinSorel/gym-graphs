@@ -1,5 +1,6 @@
 import app/ctx.{type Ctx}
 import app/web
+import features/account_deletion/account_deletion
 import features/auth/auth
 import features/password_reset/password_reset
 import features/password_update/password_update
@@ -164,6 +165,32 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       password_update.cancel(req, auth_session, password_update_session, ctx)
     }
+    ["delete-account"] -> {
+      use <- wisp.require_method(req, Post)
+      use session, _user <- auth.require(req, ctx)
+
+      account_deletion.start(req, session, ctx)
+    }
+    // ["delete-account", "verify-password"] -> {
+    //   case req.method {
+    //     Get -> account_deletion_handler.view_verify_password_page(req, ctx)
+    //     Post -> account_deletion_handler.verify_password(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // }
+    // ["delete-account", "confirm"] -> {
+    //   case req.method {
+    //     Get -> account_deletion_handler.view_confirm_page(req, ctx)
+    //     Post -> account_deletion_handler.confirm(req, ctx)
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
+    // }
+    // ["delete-account", "cancel"] -> {
+    //   case req.method {
+    //     Post -> account_deletion_handler.cancel(req, ctx)
+    //     _ -> wisp.method_not_allowed([Post])
+    //   }
+    // }
     ["sign-in"] -> {
       case req.method {
         Get -> {

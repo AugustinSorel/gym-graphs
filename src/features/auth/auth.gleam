@@ -1,5 +1,6 @@
 import app/ctx.{type Ctx}
 import app/session
+import domains/account_deletion/account_deletion
 import domains/auth_session/auth_session.{AuthSession}
 import domains/password_reset/password_reset
 import domains/password_update/password_update
@@ -40,6 +41,13 @@ pub fn password_reset_cookie() {
 pub fn password_update_cookie() {
   Cookie(
     "password_update_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn account_deletion_cookie() {
+  Cookie(
+    "account_deletion_session_token",
     duration.hours(1) |> duration.to_seconds() |> float.round(),
   )
 }
@@ -303,6 +311,73 @@ pub fn require_password_update_verified(req: Request, ctx: Ctx, next) {
   use <- bool.guard(
     when: !is_verified,
     return: wisp.redirect("/update-password/verify-password"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_account_deletion(req: Request, ctx: Ctx, next) -> Response {
+  let result = {
+    use cookie <- result.try({
+      session.get_cookie(req, account_deletion_cookie().name)
+    })
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      account_deletion.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/")
+      |> session.clear_cookie(req, account_deletion_cookie().name)
+    }
+  }
+}
+
+pub fn require_account_deletion_unverified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_account_deletion(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(when: !session_matched, return: {
+    wisp.redirect("/")
+    |> session.clear_cookie(req, account_deletion_cookie().name)
+  })
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/delete-account/confirm"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_account_deletion_verified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_account_deletion(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(when: !session_matched, return: {
+    wisp.redirect("/")
+    |> session.clear_cookie(req, account_deletion_cookie().name)
+  })
+
+  let is_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: !is_verified,
+    return: wisp.redirect("/delete-account/verify-password"),
   )
 
   next(session, user)
