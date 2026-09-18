@@ -210,12 +210,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
-    // ["delete-account", "cancel"] -> {
-    //   case req.method {
-    //     Post -> account_deletion_handler.cancel(req, ctx)
-    //     _ -> wisp.method_not_allowed([Post])
-    //   }
-    // }
+    ["delete-account", "cancel"] -> {
+      use <- wisp.require_method(req, Post)
+      use auth_session, _user <- auth.require(req, ctx)
+      use session <- auth.require_account_deletion(req, ctx)
+
+      account_deletion.cancel(req, auth_session, session, ctx)
+    }
     ["sign-in"] -> {
       case req.method {
         Get -> {

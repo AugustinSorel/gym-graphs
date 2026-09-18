@@ -167,3 +167,39 @@ pub fn confirm(req: Request, session: AccountDeletion, ctx: Ctx) {
     }
   }
 }
+
+pub fn cancel(
+  req: Request,
+  auth_session: AuthSession,
+  account_deletion: AccountDeletion,
+  ctx: Ctx,
+) {
+  use form_data <- wisp.require_form(req)
+
+  let session_matched = auth_session.id == account_deletion.auth_session_id
+  use <- bool.guard(when: !session_matched, return: {
+    wisp.redirect("/")
+    |> session.clear_cookie(req, auth.account_deletion_cookie().name)
+  })
+
+  let result = {
+    account_deletion.delete_by_id(ctx.db, account_deletion.id)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> session.clear_cookie(req, auth.account_deletion_cookie().name)
+      |> wisp.set_header("HX-Redirect", "/")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      ui.get_verify_password_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.verify_password_form()
+      |> web.send_html(500)
+    }
+  }
+}
