@@ -703,7 +703,16 @@ pub fn remove_account_row(error error: option.Option(String)) {
   )
 }
 
-pub fn edit_name_page(children: Element(a), path: String) -> Element(a) {
+pub fn edit_name_page(
+  children: Element(a),
+  path: String,
+  name: String,
+) -> Element(a) {
+  let initials = case string.length(string.trim(name)) {
+    0 -> "??"
+    1 -> string.uppercase(string.trim(name))
+    _ -> string.uppercase(string.slice(string.trim(name), 0, 2))
+  }
   ui.layout([
     ui.nav_bar(path),
     html.main(
@@ -713,6 +722,24 @@ pub fn edit_name_page(children: Element(a), path: String) -> Element(a) {
         ),
       ],
       [
+        html.div([attribute.class("flex flex-col items-center gap-2 mb-4")], [
+          html.span(
+            [
+              attribute.id("edit-name-avatar"),
+              attribute.class(
+                "uppercase size-16 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold",
+              ),
+              attribute.attribute("aria-hidden", "true"),
+            ],
+            [html.text(initials)],
+          ),
+          html.span(
+            [
+              attribute.class("text-outline text-xs uppercase tracking-widest"),
+            ],
+            [html.text("preview")],
+          ),
+        ]),
         children,
       ],
     ),
@@ -730,6 +757,7 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class("flex flex-col gap-10"),
+      attribute.attribute("data-htmx-powered", "true"),
     ],
     [
       html.label(
@@ -738,7 +766,7 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
         ],
         [
           html.span([attribute.class("text-outline text-sm")], [
-            html.text("name:"),
+            html.text("display name"),
           ]),
           ui.input([
             attribute.type_("text"),
@@ -749,6 +777,17 @@ pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
               Ok(_) -> "true"
               Error(_) -> "false"
             }),
+            attribute.attribute(
+              "oninput",
+              "
+						var v = this.value.trim();
+						var a = document.getElementById('edit-name-avatar');
+						if (!a) return;
+						if (v.length >= 2) { a.textContent = v.slice(0,2).toUpperCase(); }
+						else if (v.length === 1) { a.textContent = v.toUpperCase(); }
+						else { a.textContent = '??'; }
+					",
+            ),
           ]),
           case name_err {
             Ok(msg) ->

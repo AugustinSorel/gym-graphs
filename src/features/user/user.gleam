@@ -44,7 +44,7 @@ pub fn view_rename_page(req: Request, user: User) {
   forms.get_edit_name_form()
   |> form.add_values([#("name", user.name)])
   |> ui.edit_name_form()
-  |> ui.edit_name_page(req.path)
+  |> ui.edit_name_page(req.path, user.name)
   |> web.send_html(200)
 }
 
