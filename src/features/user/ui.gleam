@@ -1,5 +1,8 @@
 import app/ui
 import domains/user/user.{type User}
+import features/user/forms.{type EditNameForm}
+import formal/form.{type Form}
+import gleam/list
 import gleam/option
 import gleam/string
 import lustre/attribute
@@ -696,6 +699,85 @@ pub fn remove_account_row(error error: option.Option(String)) {
           ])
         option.None -> element.none()
       },
+    ],
+  )
+}
+
+pub fn edit_name_page(children: Element(a), path: String) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(path),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [
+        children,
+      ],
+    ),
+  ])
+}
+
+pub fn edit_name_form(f: Form(EditNameForm)) -> Element(a) {
+  let name_err = list.first(form.field_error_messages(f, "name"))
+  let root_err = list.first(form.field_error_messages(f, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/name"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.label(
+        [
+          attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error"),
+        ],
+        [
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("name:"),
+          ]),
+          ui.input([
+            attribute.type_("text"),
+            attribute.name("name"),
+            attribute.value(form.field_value(f, "name")),
+            attribute.attribute("autocomplete", "name"),
+            attribute.aria_invalid(case name_err {
+              Ok(_) -> "true"
+              Error(_) -> "false"
+            }),
+          ]),
+          case name_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href("/account"), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
     ],
   )
 }

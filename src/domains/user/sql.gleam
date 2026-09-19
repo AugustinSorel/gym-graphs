@@ -114,6 +114,28 @@ where id in (
   |> pog.execute(db)
 }
 
+/// Runs the `rename` query
+/// defined in `./src/domains/user/sql/rename.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn rename(
+  db: pog.Connection,
+  name: String,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update users set name = $1 where id = $2;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(name))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_by_email` query
 /// defined in `./src/domains/user/sql/select_by_email.sql`.
 ///

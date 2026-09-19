@@ -85,3 +85,7 @@ pub fn select_by_id(db: Connection, id: Int) {
 pub fn delete_by_account_deletion_id(db: Connection, id: Int) {
   sql.delete_by_account_deletion_id(db, id)
 }
+
+pub fn rename(db: Connection, name: String, id: Int) {
+  sql.rename(db, name, id)
+}

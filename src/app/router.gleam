@@ -7,7 +7,7 @@ import features/password_update/password_update
 import features/sign_in/sign_in
 import features/sign_up/sign_up
 import features/user/user
-import gleam/http.{Get, Post}
+import gleam/http.{Get, Patch, Post}
 import wisp.{type Request}
 
 pub fn handle_request(req: Request, ctx: Ctx) {
@@ -285,6 +285,21 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       user.view_account_page(req, user)
     }
 
+    ["account", "name"] -> {
+      case req.method {
+        Get -> {
+          use _auth_session, user <- auth.require(req, ctx)
+
+          user.view_rename_page(req, user)
+        }
+        Patch -> {
+          use _auth_session, user <- auth.require(req, ctx)
+
+          user.rename(req, user, ctx)
+        }
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
     _ -> wisp.not_found()
   }
 }
