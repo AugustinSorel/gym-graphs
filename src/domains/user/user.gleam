@@ -109,3 +109,14 @@ pub fn delete_by_account_deletion_id(db: Connection, id: Int) {
 pub fn rename(db: Connection, name: String, id: Int) {
   sql.rename(db, name, id)
 }
+
+pub fn update_weight_unit(db: Connection, weight_unit: WeightUnit, id: Int) {
+  sql.update_weight_unit(
+    db,
+    case weight_unit {
+      Kg -> sql.Kg
+      Lbs -> sql.Lbs
+    },
+    id,
+  )
+}

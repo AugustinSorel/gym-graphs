@@ -382,6 +382,28 @@ returning users.id;
   |> pog.execute(db)
 }
 
+/// Runs the `update_weight_unit` query
+/// defined in `./src/domains/user/sql/update_weight_unit.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_weight_unit(
+  db: pog.Connection,
+  weight_unit: WeightUnit,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update users set weight_unit = $1 where id = $2;
+"
+  |> pog.query
+  |> pog.parameter(weight_unit_encoder(weight_unit))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 // --- Enums -------------------------------------------------------------------
 
 /// Corresponds to the Postgres `one_rep_max_algorithm` enum.
@@ -442,4 +464,12 @@ fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
     "kg" -> decode.success(Kg)
     _ -> decode.failure(Lbs, "WeightUnit")
   }
+}
+
+fn weight_unit_encoder(weight_unit) -> pog.Value {
+  case weight_unit {
+    Lbs -> "lbs"
+    Kg -> "kg"
+  }
+  |> pog.text
 }

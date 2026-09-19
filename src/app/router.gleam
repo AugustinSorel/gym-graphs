@@ -300,6 +300,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+
+    ["account", "weight-unit"] -> {
+      use <- wisp.require_method(req, Patch)
+      use _auth_session, user <- auth.require(req, ctx)
+
+      user.update_weight_unit(req, user, ctx)
+    }
     _ -> wisp.not_found()
   }
 }

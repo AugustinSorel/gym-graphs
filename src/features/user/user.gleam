@@ -91,3 +91,52 @@ pub fn rename(req: Request, user: User, ctx: Ctx) {
     }
   }
 }
+
+type UpdateWeightUnitError {
+  UpdateWeightUnitValidation(Form(user.WeightUnit))
+  UpdateWeightUnitDatabaseFailure(QueryError)
+}
+
+pub fn update_weight_unit(req: Request, user: User, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    use weight_unit <- result.try(
+      forms.get_weight_unit_form()
+      |> form.add_values(form_data.values)
+      |> form.run()
+      |> result.map_error(UpdateWeightUnitValidation),
+    )
+
+    use <- bool.guard(when: weight_unit == user.weight_unit, return: Ok(Nil))
+
+    user.update_weight_unit(ctx.db, weight_unit, user.id)
+    |> result.replace(Nil)
+    |> result.map_error(UpdateWeightUnitDatabaseFailure)
+  }
+
+  case result {
+    Ok(Nil) -> {
+      forms.get_weight_unit_form()
+      |> form.add_values(form_data.values)
+      |> ui.weight_unit_form()
+      |> web.send_html(200)
+      |> wisp.set_header("HX-Reswap", "none")
+    }
+
+    Error(UpdateWeightUnitValidation(form)) -> {
+      form
+      |> ui.weight_unit_form()
+      |> web.send_html(422)
+    }
+
+    Error(UpdateWeightUnitDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      forms.get_weight_unit_form()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("something went wrong"))
+      |> ui.weight_unit_form()
+      |> web.send_html(500)
+    }
+  }
+}
