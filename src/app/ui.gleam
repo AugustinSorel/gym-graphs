@@ -43,7 +43,7 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
         "",
       ),
       html.script([attribute.src("/static/js/theme.js")], ""),
-      html.title([], "gym graphs"),
+      html.title([], "Gym Graphs"),
     ]),
     html.body(
       [attribute.class("bg-surface text-on-surface pb-20 lg:pb-0")],
