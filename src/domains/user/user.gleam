@@ -84,6 +84,20 @@ pub fn update_password_by_password_update_id(
   |> db.extract_entity
 }
 
+fn weight_unit_from_sql(w: sql.WeightUnit) -> WeightUnit {
+  case w {
+    sql.Kg -> Kg
+    sql.Lbs -> Lbs
+  }
+}
+
+fn weight_unit_to_sql(w: WeightUnit) -> sql.WeightUnit {
+  case w {
+    Kg -> sql.Kg
+    Lbs -> sql.Lbs
+  }
+}
+
 pub fn select_by_id(db: Connection, id: Int) {
   sql.select_by_id(db, id)
   |> db.extract_entity
@@ -93,10 +107,7 @@ pub fn select_by_id(db: Connection, id: Int) {
       name: row.name,
       password_hash: row.password_hash,
       email_address: row.email_address,
-      weight_unit: case row.weight_unit {
-        sql.Lbs -> Lbs
-        sql.Kg -> Kg
-      },
+      weight_unit: weight_unit_from_sql(row.weight_unit),
       created_at: row.created_at,
     )
   })
@@ -111,12 +122,5 @@ pub fn rename(db: Connection, name: String, id: Int) {
 }
 
 pub fn update_weight_unit(db: Connection, weight_unit: WeightUnit, id: Int) {
-  sql.update_weight_unit(
-    db,
-    case weight_unit {
-      Kg -> sql.Kg
-      Lbs -> sql.Lbs
-    },
-    id,
-  )
+  sql.update_weight_unit(db, weight_unit_to_sql(weight_unit), id)
 }
