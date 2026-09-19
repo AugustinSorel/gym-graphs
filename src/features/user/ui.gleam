@@ -1,5 +1,5 @@
 import app/ui
-import domains/user/user.{type User}
+import domains/user/user.{type User, type WeightUnit}
 import features/user/forms.{type EditNameForm}
 import formal/form.{type Form}
 import gleam/list
@@ -134,15 +134,15 @@ pub fn account_details(
           html.text("preferences"),
         ],
       ),
-      // weight_unit_form(
-      // get_weight_unit_form()
-      // |> form.add_values([
-      //   #("weight_unit", case user.weight_unit {
-      //     user.Lbs -> "lbs"
-      //     user.Kg -> "kg"
-      //   }),
-      // ]),
-      // ),
+      weight_unit_form(
+        forms.get_weight_unit_form()
+        |> form.add_values([
+          #("weight_unit", case user.weight_unit {
+            user.Lbs -> "lbs"
+            user.Kg -> "kg"
+          }),
+        ]),
+      ),
       html.div(
         [
           attribute.class(
@@ -273,98 +273,82 @@ pub fn download_user_data(error: option.Option(String)) {
   )
 }
 
-// pub fn get_weight_unit_form() {
-//   form.new({
-//     use weight_unit <- form.field("weight_unit", {
-//       form.parse(fn(input) {
-//         case input {
-//           ["kg", ..] -> Ok(user.Kg)
-//           ["lbs", ..] -> Ok(user.Lbs)
-//           _ -> Error(#(user.Kg, "weight unit must be kg or lbs"))
-//         }
-//       })
-//     })
+pub fn weight_unit_form(form: Form(WeightUnit)) {
+  let root_err = list.first(form.field_error_messages(form, "root"))
 
-//     form.success(weight_unit)
-//   })
-// }
-
-// pub fn weight_unit_form(form: Form(user.WeightUnit)) {
-//   let root_err = list.first(form.field_error_messages(form, "root"))
-
-//   html.form(
-//     [
-//       attribute.attribute("hx-patch", "/account/weight-unit"),
-//       attribute.attribute("hx-trigger", "change"),
-//       attribute.attribute("hx-swap", "outerHTML"),
-//       attribute.class(
-//         "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
-//       ),
-//     ],
-//     [
-//       html.p([attribute.class("text-outline text-sm")], [
-//         html.text("weight unit"),
-//       ]),
-//       html.fieldset(
-//         [
-//           attribute.class("flex border-2 border-on-surface w-fit"),
-//         ],
-//         [
-//           html.label(
-//             [
-//               attribute.class(
-//                 "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-//               ),
-//             ],
-//             [
-//               html.input([
-//                 attribute.type_("radio"),
-//                 attribute.name("weight_unit"),
-//                 attribute.value("kg"),
-//                 attribute.checked(form.field_value(form, "weight_unit") == "kg"),
-//                 attribute.class("sr-only"),
-//               ]),
-//               html.abbr(
-//                 [attribute.title("kilograms"), attribute.class("no-underline")],
-//                 [html.text("kg")],
-//               ),
-//             ],
-//           ),
-//           html.label(
-//             [
-//               attribute.class(
-//                 "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
-//               ),
-//             ],
-//             [
-//               html.input([
-//                 attribute.type_("radio"),
-//                 attribute.name("weight_unit"),
-//                 attribute.value("lbs"),
-//                 attribute.checked(
-//                   form.field_value(form, "weight_unit") == "lbs",
-//                 ),
-//                 attribute.class("sr-only"),
-//               ]),
-//               html.abbr(
-//                 [attribute.title("pounds"), attribute.class("no-underline")],
-//                 [html.text("lbs")],
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//       case root_err {
-//         Ok(msg) ->
-//           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
-//             ui.alert_title(element.text("changing weight unit failed")),
-//             ui.alert_description(element.text(msg)),
-//           ])
-//         Error(_) -> element.none()
-//       },
-//     ],
-//   )
-// }
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/weight-unit"),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.p([attribute.class("text-outline text-sm")], [
+        html.text("weight unit"),
+      ]),
+      html.fieldset(
+        [
+          attribute.class("flex border-2 border-on-surface w-fit"),
+        ],
+        [
+          html.label(
+            [
+              attribute.class(
+                "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              ),
+            ],
+            [
+              html.input([
+                attribute.type_("radio"),
+                attribute.name("weight_unit"),
+                attribute.value("kg"),
+                attribute.checked(form.field_value(form, "weight_unit") == "kg"),
+                attribute.class("sr-only"),
+              ]),
+              html.abbr(
+                [attribute.title("kilograms"), attribute.class("no-underline")],
+                [html.text("kg")],
+              ),
+            ],
+          ),
+          html.label(
+            [
+              attribute.class(
+                "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+              ),
+            ],
+            [
+              html.input([
+                attribute.type_("radio"),
+                attribute.name("weight_unit"),
+                attribute.value("lbs"),
+                attribute.checked(
+                  form.field_value(form, "weight_unit") == "lbs",
+                ),
+                attribute.class("sr-only"),
+              ]),
+              html.abbr(
+                [attribute.title("pounds"), attribute.class("no-underline")],
+                [html.text("lbs")],
+              ),
+            ],
+          ),
+        ],
+      ),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("changing weight unit failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+    ],
+  )
+}
 
 pub fn update_password_row(error error: option.Option(String)) {
   html.div(

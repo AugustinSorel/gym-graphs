@@ -7,6 +7,11 @@ import gleam/string
 import gleam/time/timestamp
 import pog.{type Connection}
 
+pub type WeightUnit {
+  Kg
+  Lbs
+}
+
 pub type User {
   User(
     id: Int,
@@ -14,7 +19,7 @@ pub type User {
     email_address: String,
     created_at: timestamp.Timestamp,
     password_hash: String,
-    weight_unit: sql.WeightUnit,
+    weight_unit: WeightUnit,
     // one_rep_max_algorithm: one_rep_max.Algorithm,
   )
 }
@@ -88,7 +93,10 @@ pub fn select_by_id(db: Connection, id: Int) {
       name: row.name,
       password_hash: row.password_hash,
       email_address: row.email_address,
-      weight_unit: row.weight_unit,
+      weight_unit: case row.weight_unit {
+        sql.Lbs -> Lbs
+        sql.Kg -> Kg
+      },
       created_at: row.created_at,
     )
   })

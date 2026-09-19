@@ -1,3 +1,4 @@
+import domains/user/user
 import formal/form.{type Form}
 
 pub type EditNameForm {
@@ -16,4 +17,20 @@ pub fn get_edit_name_form() -> Form(EditNameForm) {
   }
 
   form.new(schema)
+}
+
+pub fn get_weight_unit_form() {
+  form.new({
+    use weight_unit <- form.field("weight_unit", {
+      form.parse(fn(input) {
+        case input {
+          ["kg", ..] -> Ok(user.Kg)
+          ["lbs", ..] -> Ok(user.Lbs)
+          _ -> Error(#(user.Kg, "weight unit must be kg or lbs"))
+        }
+      })
+    })
+
+    form.success(weight_unit)
+  })
 }
