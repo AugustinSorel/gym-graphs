@@ -1,7 +1,7 @@
 import app/ctx.{type Ctx}
 import app/session
 import domains/account_deletion/account_deletion
-import domains/auth_session/auth_session.{AuthSession}
+import domains/auth_session/auth_session
 import domains/password_reset/password_reset
 import domains/password_update/password_update
 import domains/sign_up_session/sign_up_session.{type SignUpSession}
@@ -57,30 +57,21 @@ pub fn require(req, ctx: Ctx, next) {
     use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
     use token <- result.try(session.decode_token(cookie))
 
-    use session <- result.try(
-      auth_session.select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    use auth_session <- result.try(
+      auth_session.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
     )
 
-    use Nil <- result.try(session.validate_token(token, session.secret_hash))
+    use user <- result.try(
+      user.select_by_id(ctx.db, auth_session.user_id)
+      |> result.replace_error(Nil),
+    )
 
-    let auth_session = AuthSession(id: session.id)
+    use Nil <- result.try({
+      session.validate_token(token, auth_session.secret_hash)
+    })
 
-    let user =
-      user.User(
-        id: session.user_id,
-        name: session.name,
-        email: session.email_address,
-        created_at: session.user_created_at,
-        // weight_unit: case session.weight_unit {
-      //   sql.Kg -> user.Kg
-      //   sql.Lbs -> user.Lbs
-      // },
-      // one_rep_max_algorithm: one_rep_max_algorithm_sql(
-      //   session.one_rep_max_algorithm,
-      // )
-      )
-
-    use Nil <- result.try(auth_session.refresh(session, ctx.db))
+    use Nil <- result.try(auth_session.refresh(auth_session, ctx.db))
 
     Ok(#(auth_session, user, cookie))
   }

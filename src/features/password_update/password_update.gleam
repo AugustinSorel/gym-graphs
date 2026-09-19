@@ -49,7 +49,7 @@ pub fn start(req: Request, auth_session: AuthSession, ctx: Ctx) {
 
 pub fn view_verify_password_page(user: User) {
   forms.get_verify_password_form()
-  |> form.add_values([#("email", user.email)])
+  |> form.add_values([#("email", user.email_address)])
   |> ui.verify_password_form()
   |> ui.verify_password_page()
   |> web.send_html(200)
@@ -132,7 +132,7 @@ pub fn verify_password(
 
 pub fn view_set_new_password_page(user: User) {
   forms.get_set_new_password_form()
-  |> form.add_values([#("email", user.email)])
+  |> form.add_values([#("email", user.email_address)])
   |> ui.set_new_password_form()
   |> ui.set_new_password_page()
   |> web.send_html(200)

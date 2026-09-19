@@ -113,13 +113,9 @@ pub type SelectByIdRow {
     id: Int,
     user_id: Int,
     secret_hash: BitArray,
-    created_at: Timestamp,
     last_active_at: Timestamp,
-    email_address: String,
-    name: String,
-    user_created_at: Timestamp,
-    weight_unit: WeightUnit,
-    one_rep_max_algorithm: OneRepMaxAlgorithm,
+    created_at: Timestamp,
+    updated_at: Timestamp,
   )
 }
 
@@ -137,109 +133,23 @@ pub fn select_by_id(
     use id <- decode.field(0, decode.int)
     use user_id <- decode.field(1, decode.int)
     use secret_hash <- decode.field(2, decode.bit_array)
-    use created_at <- decode.field(3, pog.timestamp_decoder())
-    use last_active_at <- decode.field(4, pog.timestamp_decoder())
-    use email_address <- decode.field(5, decode.string)
-    use name <- decode.field(6, decode.string)
-    use user_created_at <- decode.field(7, pog.timestamp_decoder())
-    use weight_unit <- decode.field(8, weight_unit_decoder())
-    use one_rep_max_algorithm <- decode.field(
-      9,
-      one_rep_max_algorithm_decoder(),
-    )
+    use last_active_at <- decode.field(3, pog.timestamp_decoder())
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
     decode.success(SelectByIdRow(
       id:,
       user_id:,
       secret_hash:,
-      created_at:,
       last_active_at:,
-      email_address:,
-      name:,
-      user_created_at:,
-      weight_unit:,
-      one_rep_max_algorithm:,
+      created_at:,
+      updated_at:,
     ))
   }
 
-  "select
-  s.id,
-  s.user_id,
-  s.secret_hash,
-  s.created_at,
-  s.last_active_at,
-  u.email_address,
-  u.name,
-  u.created_at as user_created_at,
-  u.weight_unit,
-  u.one_rep_max_algorithm
-from auth_sessions s
-join users u on u.id = s.user_id
-where s.id = $1;
+  "select * from auth_sessions where id = $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
-}
-
-// --- Enums -------------------------------------------------------------------
-
-/// Corresponds to the Postgres `one_rep_max_algorithm` enum.
-///
-/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
-/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub type OneRepMaxAlgorithm {
-  Wathen
-  Oconner
-  Naclerio
-  Mayhew
-  Lombardi
-  Landers
-  Kemmler
-  Epley
-  Brzycki
-  Brown
-  Berger
-  Baechle
-  Adams
-}
-
-fn one_rep_max_algorithm_decoder() -> decode.Decoder(OneRepMaxAlgorithm) {
-  use one_rep_max_algorithm <- decode.then(decode.string)
-  case one_rep_max_algorithm {
-    "wathen" -> decode.success(Wathen)
-    "oconner" -> decode.success(Oconner)
-    "naclerio" -> decode.success(Naclerio)
-    "mayhew" -> decode.success(Mayhew)
-    "lombardi" -> decode.success(Lombardi)
-    "landers" -> decode.success(Landers)
-    "kemmler" -> decode.success(Kemmler)
-    "epley" -> decode.success(Epley)
-    "brzycki" -> decode.success(Brzycki)
-    "brown" -> decode.success(Brown)
-    "berger" -> decode.success(Berger)
-    "baechle" -> decode.success(Baechle)
-    "adams" -> decode.success(Adams)
-    _ -> decode.failure(Wathen, "OneRepMaxAlgorithm")
-  }
-}
-
-/// Corresponds to the Postgres `weight_unit` enum.
-///
-/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
-/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
-///
-pub type WeightUnit {
-  Lbs
-  Kg
-}
-
-fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
-  use weight_unit <- decode.then(decode.string)
-  case weight_unit {
-    "lbs" -> decode.success(Lbs)
-    "kg" -> decode.success(Kg)
-    _ -> decode.failure(Lbs, "WeightUnit")
-  }
 }

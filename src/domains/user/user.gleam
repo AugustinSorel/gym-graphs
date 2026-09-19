@@ -11,9 +11,10 @@ pub type User {
   User(
     id: Int,
     name: String,
-    email: String,
+    email_address: String,
     created_at: timestamp.Timestamp,
-    // weight_unit: user.WeightUnit,
+    password_hash: String,
+    weight_unit: sql.WeightUnit,
     // one_rep_max_algorithm: one_rep_max.Algorithm,
   )
 }
@@ -79,7 +80,18 @@ pub fn update_password_by_password_update_id(
 }
 
 pub fn select_by_id(db: Connection, id: Int) {
-  sql.select_by_id(db, id) |> db.extract_entity
+  sql.select_by_id(db, id)
+  |> db.extract_entity
+  |> result.map(fn(row) {
+    User(
+      id: row.id,
+      name: row.name,
+      password_hash: row.password_hash,
+      email_address: row.email_address,
+      weight_unit: row.weight_unit,
+      created_at: row.created_at,
+    )
+  })
 }
 
 pub fn delete_by_account_deletion_id(db: Connection, id: Int) {

@@ -50,7 +50,7 @@ pub fn account_details(
         [
           attribute.class("text-sm text-outline break-all"),
         ],
-        [html.text(user.email)],
+        [html.text(user.email_address)],
       ),
     ]),
 
@@ -77,7 +77,7 @@ pub fn account_details(
               html.text("email"),
             ]),
             html.dd([attribute.class("break-all")], [
-              html.text(user.email),
+              html.text(user.email_address),
             ]),
           ]),
         ],
