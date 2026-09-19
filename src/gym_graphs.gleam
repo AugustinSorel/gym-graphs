@@ -39,3 +39,10 @@ pub fn main() {
 
   process.sleep_forever()
 }
+//TODO: seed user
+//TODO: cache
+
+//QUESTION: weight unit mapping
+//QUESTION: error name with prefix
+//QUESTION: overall architecture
+//QUESTION: transaction error handling
