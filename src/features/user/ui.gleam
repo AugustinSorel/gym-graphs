@@ -106,7 +106,6 @@ pub fn account_details(
           ),
         ],
       ),
-      download_user_data(option.None),
     ]),
 
     html.section([], [
