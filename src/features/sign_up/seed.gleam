@@ -4,6 +4,8 @@ import domains/set/set
 import domains/tag/tag.{type Tag}
 import gleam/list
 import gleam/result
+import gleam/time/duration
+import gleam/time/timestamp
 import pog.{type Connection}
 
 pub fn seed_user(db: Connection, user_id: Int) {
@@ -32,25 +34,31 @@ pub fn seed_user(db: Connection, user_id: Int) {
   })
 
   use Nil <- result.try({
-    let #(exercise_ids, data) =
-      [
-        #(bench.id, #(8, 60_000)),
-        #(bench.id, #(8, 60_000)),
-        #(bench.id, #(8, 60_000)),
+    let now = timestamp.system_time()
+    let day = duration.hours(24)
+    let yesterday = timestamp.subtract(now, day)
+    let two_days_ago = timestamp.subtract(now, duration.add(day, day))
 
-        #(deadlift.id, #(5, 100_000)),
-        #(deadlift.id, #(5, 100_000)),
-        #(deadlift.id, #(5, 100_000)),
+    let entries = [
+      #(bench.id, 8, 60_000, now),
+      #(bench.id, 8, 60_000, yesterday),
+      #(bench.id, 8, 60_000, two_days_ago),
 
-        #(squat.id, #(5, 80_000)),
-        #(squat.id, #(5, 80_000)),
-        #(squat.id, #(5, 80_000)),
-      ]
-      |> list.unzip
+      #(deadlift.id, 5, 100_000, now),
+      #(deadlift.id, 5, 100_000, yesterday),
+      #(deadlift.id, 5, 100_000, two_days_ago),
 
-    let #(repetitions, weights_in_g) = data |> list.unzip
+      #(squat.id, 5, 80_000, now),
+      #(squat.id, 5, 80_000, yesterday),
+      #(squat.id, 5, 80_000, two_days_ago),
+    ]
 
-    set.insert_many(db, exercise_ids, repetitions, weights_in_g)
+    let exercise_ids = list.map(entries, fn(e) { e.0 })
+    let repetitions = list.map(entries, fn(e) { e.1 })
+    let weights_in_g = list.map(entries, fn(e) { e.2 })
+    let done_ats = list.map(entries, fn(e) { e.3 })
+
+    set.insert_many(db, exercise_ids, repetitions, weights_in_g, done_ats)
     |> result.replace(Nil)
   })
 
