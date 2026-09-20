@@ -13,3 +13,10 @@ pub fn extract_entity(res: Result(pog.Returned(a), pog.QueryError)) {
     Error(err) -> Error(err)
   }
 }
+
+pub fn extract_entities(res: Result(pog.Returned(a), pog.QueryError)) {
+  case res {
+    Ok(pog.Returned(_count, entities)) -> Ok(entities)
+    Error(err) -> Error(err)
+  }
+}

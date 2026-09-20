@@ -10,6 +10,7 @@ import features/sign_up/forms.{
   type EmailRegisterForm, type SetPasswordForm, type VerifyEmailAddressForm,
   get_register_form, get_set_password_form, get_verify_email_form,
 }
+import features/sign_up/seed
 import features/sign_up/template
 import features/sign_up/ui
 import formal/form.{type Form}
@@ -225,9 +226,9 @@ pub fn resend_verify_email_code(
     Ok(Nil) ->
       get_verify_email_form()
       |> form.add_values(form_data.values)
-      |> ui.verify_email_form(
-        Some("A new verification code has been sent to your email address."),
-      )
+      |> ui.verify_email_form(Some(
+        "A new verification code has been sent to your email address.",
+      ))
       |> web.send_html(200)
 
     Error(error) -> {
@@ -284,11 +285,10 @@ pub fn set_password(req: Request, session: SignUpSession, ctx: Ctx) {
         |> result.map_error(SetPasswordDatabaseFailure),
       )
 
-      // FIXME
-      //   use _ <- result.try(
-      //     seed.seed_user(tx, user.id)
-      //     |> result.map_error(SeedAccountFailed),
-      //   )
+      use Nil <- result.try(
+        seed.seed_user(tx, user.id)
+        |> result.map_error(SetPasswordDatabaseFailure),
+      )
 
       use #(session, secret) <- result.try(
         auth_session.create(tx, user.id)
@@ -331,13 +331,5 @@ pub fn set_password(req: Request, session: SignUpSession, ctx: Ctx) {
       |> ui.set_password_form()
       |> web.send_html(500)
     }
-    // Error(SeedAccountFailed(error)) -> {
-    //   wisp.log_error(req.path <> " " <> string.inspect(error))
-    //   ui.get_set_password_form()
-    //   |> form.add_values(formdata.values)
-    //   |> form.add_error("root", form.CustomError("Something went wrong"))
-    //   |> ui.set_password_form()
-    //   |> web.html(500)
-    // }
   }
 }
