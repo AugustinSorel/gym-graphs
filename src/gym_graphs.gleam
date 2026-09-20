@@ -39,7 +39,6 @@ pub fn main() {
 
   process.sleep_forever()
 }
-//TODO: seed user
 //TODO: cache
 
 //QUESTION: weight unit mapping
