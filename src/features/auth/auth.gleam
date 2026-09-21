@@ -1,0 +1,375 @@
+import app/ctx.{type Ctx}
+import app/session
+import domains/account_deletion/account_deletion
+import domains/auth_session/auth_session
+import domains/password_reset/password_reset
+import domains/password_update/password_update
+import domains/sign_up_session/sign_up_session.{type SignUpSession}
+import domains/user/user
+import gleam/bool
+import gleam/float
+import gleam/option
+import gleam/result
+import gleam/time/duration
+import wisp.{type Request, type Response}
+
+pub type Cookie {
+  Cookie(name: String, max_age: Int)
+}
+
+pub fn auth_session_cookie() {
+  Cookie(
+    "auth_session_token",
+    duration.hours(24 * 7) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn sign_up_session_cookie() {
+  Cookie(
+    "sign_up_session_token",
+    duration.hours(24) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn password_reset_cookie() {
+  Cookie(
+    "password_reset_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn password_update_cookie() {
+  Cookie(
+    "password_update_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn account_deletion_cookie() {
+  Cookie(
+    "account_deletion_session_token",
+    duration.hours(1) |> duration.to_seconds() |> float.round(),
+  )
+}
+
+pub fn require(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
+    use token <- result.try(session.decode_token(cookie))
+
+    use auth_session <- result.try(
+      auth_session.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use user <- result.try(
+      user.select_by_id(ctx.db, auth_session.user_id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try({
+      session.validate_token(token, auth_session.secret_hash)
+    })
+
+    use Nil <- result.try(auth_session.refresh(auth_session, ctx.db))
+
+    Ok(#(auth_session, user, cookie))
+  }
+
+  case result {
+    Ok(#(session, user, cookie)) ->
+      next(session, user)
+      |> session.set_cookie(
+        req,
+        auth_session_cookie().name,
+        cookie,
+        auth_session_cookie().max_age,
+      )
+    Error(Nil) -> {
+      wisp.redirect("/sign-up")
+      |> session.clear_cookie(req, auth_session_cookie().name)
+    }
+  }
+}
+
+pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
+  let res = {
+    use cookie <- result.try(session.get_cookie(req, auth_session_cookie().name))
+    use token <- result.try(session.decode_token(cookie))
+
+    auth_session.select_by_id(ctx.db, token.id)
+    |> result.replace_error(Nil)
+    |> result.replace(Nil)
+  }
+
+  case res {
+    Ok(Nil) -> wisp.redirect("/")
+    Error(Nil) -> next()
+  }
+}
+
+pub fn require_sign_up_session(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
+  let result = {
+    use cookie <- result.try(session.get_cookie(
+      req,
+      sign_up_session_cookie().name,
+    ))
+    use token <- result.try(session.decode_token(cookie))
+
+    use sign_up_sess <- result.try(
+      sign_up_session.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, sign_up_sess.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(sign_up_sess)
+  }
+
+  case result {
+    Ok(sign_up_sess) -> next(sign_up_sess)
+    Error(Nil) -> {
+      wisp.redirect("/sign-up")
+      |> session.clear_cookie(req, sign_up_session_cookie().name)
+    }
+  }
+}
+
+pub fn require_sign_up_unverified(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
+  use sign_up_sess <- require_sign_up_session(req, ctx)
+
+  let already_verified = option.is_some(sign_up_sess.email_address_verified_at)
+
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/sign-up/set-password"),
+  )
+
+  next(sign_up_sess)
+}
+
+pub fn require_sign_up_verified(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
+  use sign_up_sess <- require_sign_up_session(req, ctx)
+
+  let not_verified = option.is_none(sign_up_sess.email_address_verified_at)
+
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/sign-up/verify-email-address"),
+  )
+
+  next(sign_up_sess)
+}
+
+pub fn require_password_reset(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(
+      req,
+      password_reset_cookie().name,
+    ))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      password_reset.select_by_id(ctx.db, token.id) |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/account")
+      |> session.clear_cookie(req, password_reset_cookie().name)
+    }
+  }
+}
+
+pub fn require_password_reset_unverified(
+  req: Request,
+  ctx: Ctx,
+  next,
+) -> Response {
+  use session <- require_password_reset(req, ctx)
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/reset-password/set-new-password"),
+  )
+
+  next(session)
+}
+
+pub fn require_password_reset_verified(
+  req: Request,
+  ctx: Ctx,
+  next,
+) -> Response {
+  use session <- require_password_reset(req, ctx)
+
+  let not_verified = option.is_none(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/reset-password/verify-email-code"),
+  )
+
+  next(session)
+}
+
+pub fn require_password_update(req, ctx: Ctx, next) {
+  let result = {
+    use cookie <- result.try(session.get_cookie(
+      req,
+      password_update_cookie().name,
+    ))
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      password_update.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name)
+    }
+  }
+}
+
+pub fn require_password_update_unverified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_password_update(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(
+    when: !session_matched,
+    return: wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name),
+  )
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/update-password/set-new-password"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_password_update_verified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_password_update(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(
+    when: !session_matched,
+    return: wisp.redirect("/account")
+      |> session.clear_cookie(req, password_update_cookie().name),
+  )
+
+  let is_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: !is_verified,
+    return: wisp.redirect("/update-password/verify-password"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_account_deletion(req: Request, ctx: Ctx, next) -> Response {
+  let result = {
+    use cookie <- result.try({
+      session.get_cookie(req, account_deletion_cookie().name)
+    })
+    use token <- result.try(session.decode_token(cookie))
+
+    use session <- result.try(
+      account_deletion.select_by_id(ctx.db, token.id)
+      |> result.replace_error(Nil),
+    )
+
+    use Nil <- result.try(
+      session.validate_token(token, session.secret_hash)
+      |> result.replace_error(Nil),
+    )
+
+    Ok(session)
+  }
+
+  case result {
+    Ok(session) -> next(session)
+    Error(Nil) -> {
+      wisp.redirect("/")
+      |> session.clear_cookie(req, account_deletion_cookie().name)
+    }
+  }
+}
+
+pub fn require_account_deletion_unverified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_account_deletion(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(when: !session_matched, return: {
+    wisp.redirect("/")
+    |> session.clear_cookie(req, account_deletion_cookie().name)
+  })
+
+  let already_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: already_verified,
+    return: wisp.redirect("/delete-account/confirm"),
+  )
+
+  next(session, user)
+}
+
+pub fn require_account_deletion_verified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- require(req, ctx)
+  use session <- require_account_deletion(req, ctx)
+
+  let session_matched = auth_session.id == session.auth_session_id
+  use <- bool.guard(when: !session_matched, return: {
+    wisp.redirect("/")
+    |> session.clear_cookie(req, account_deletion_cookie().name)
+  })
+
+  let is_verified = option.is_some(session.user_identity_verified_at)
+  use <- bool.guard(
+    when: !is_verified,
+    return: wisp.redirect("/delete-account/verify-password"),
+  )
+
+  next(session, user)
+}

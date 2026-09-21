@@ -1,30 +1,31 @@
 { pkgs, ... }:
 
 {
-  env = {
-    PORT = 8000;
+  env =
+    let
+      DATABASE_URL = "postgres://" + builtins.getEnv "USER" + "@localhost:5432/gym_graphs";
+    in
+    {
+      DATABASE_URL = DATABASE_URL;
+      SECRET_KEY_BASE = "51ab65e573f8a9f5454c31327d917fbb04ea1594507f0b35d32af7f956a7c503";
 
-    GOOSE_DRIVER = "postgres";
-    GOOSE_DBSTRING = "postgres://localhost:5432/gym_graphs";
-    GOOSE_MIGRATION_DIR = ./internal/database/migrations;
+      ENV = "dev";
 
-    DATABASE_URL = "postgres://@localhost:5432/gym_graphs";
+      SMTP_HOST = "localhost";
+      SMTP_PORT = "1025";
+      SMTP_FROM = "noreply@localhost";
 
-    SMTP_HOST = "127.0.0.1";
-    SMTP_PORT = "1025";
-    SMTP_FROM = "no-reply@gym-graphs.com";
-  };
+      GOOSE_DRIVER = "postgres";
+      GOOSE_DBSTRING = DATABASE_URL;
+      GOOSE_MIGRATION_DIR = ./migrations;
+    };
 
-  packages = with pkgs; [
+  packages = with pkgs;[
     goose
     tailwindcss_4
-    templ
-    sqlc
   ];
 
-  languages.go = {
-    enable = true;
-  };
+  languages.gleam.enable = true;
 
   services.mailpit = {
     enable = true;
@@ -32,6 +33,7 @@
 
   services.postgres = {
     enable = true;
+    port = 5432;
     listen_addresses = "127.0.0.1";
     initialDatabases = [
       {
@@ -41,38 +43,26 @@
   };
 
   processes.api = {
-    exec = "go run ./cmd/api/main.go";
-    restart = {
-      on = "always";
-      max = null;
-    };
+    exec = "gleam run ./";
     watch = {
-      paths = [ ./cmd ./internal ./web ];
-      extensions = [ "go" ];
-    };
-  };
-
-  processes.html = {
-    exec = "templ generate";
-    watch = {
-      paths = [ ./web ];
-      extensions = [ "templ" ];
+      paths = [ ./src ];
+      extensions = [ "gleam" ];
     };
   };
 
   processes.sql = {
-    exec = "sqlc generate";
+    exec = "gleam run -m squirrel";
     watch = {
-      paths = [ ./internal/database/queries ];
+      paths = [ ./src ];
       extensions = [ "sql" ];
     };
   };
 
   processes.styles = {
-    exec = "tailwindcss -i web/styles/styles.css -o web/assets/css/styles.css";
+    exec = "tailwindcss -i ./src/styles.css  -o ./priv/static/styles.css";
     watch = {
-      paths = [ ./web ];
-      extensions = [ "templ" ];
+      paths = [ ./src ];
+      extensions = [ "gleam" ];
     };
   };
 }
