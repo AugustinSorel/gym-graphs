@@ -55,7 +55,7 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     ["sign-up", "verify-email-address", "cancel"] -> {
       use <- wisp.require_method(req, Post)
       use <- auth.require_blank(req, ctx)
-      use sign_up_session <- auth.require_sign_up_unverified(req, ctx)
+      use sign_up_session <- auth.require_sign_up_session(req, ctx)
 
       sign_up.cancel(req, sign_up_session, ctx)
     }
