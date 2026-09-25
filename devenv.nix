@@ -59,7 +59,7 @@
   };
 
   processes.styles = {
-    exec = "tailwindcss -i ./src/styles.css  -o ./priv/static/styles.css";
+    exec = "tailwindcss -i ./src/ui/styles.css  -o ./priv/static/styles.css";
     watch = {
       paths = [ ./src ];
       extensions = [ "gleam" ];
