@@ -19,6 +19,7 @@ pub fn authenticate(auth_session_repo: AuthSessionRepo, raw_token) {
   use auth_session <- result.try({
     token
     |> session_token.id()
+    |> session_token.id_to_int()
     |> auth_session.new_id()
     |> auth_session_repo.select_by_id()
     |> result.map_error(DatabaseFailure)
