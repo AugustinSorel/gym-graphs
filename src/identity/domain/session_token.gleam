@@ -15,6 +15,10 @@ pub fn new_id(raw: Int) {
   SessionTokenId(raw)
 }
 
+pub fn new(id: SessionTokenId, secret: BitArray) {
+  SessionToken(id:, secret:)
+}
+
 pub fn encode(token: SessionToken) -> String {
   let encoded_secret = bit_array.base64_encode(token.secret, False)
   let id = int.to_string(token.id.value)

@@ -10,16 +10,10 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
   case wisp.path_segments(req) {
     ["sign-up"] -> {
+      use <- guards.require_guest(req, ctx)
       case req.method {
-        Get -> {
-          use <- guards.require_guest(req, ctx)
-          sign_up_controller.view_start_page()
-        }
-        Post -> {
-          use <- guards.require_guest(req, ctx)
-          // sign_up.start(req, ctx)
-          todo
-        }
+        Get -> sign_up_controller.view_start_page()
+        Post -> sign_up_controller.start(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }

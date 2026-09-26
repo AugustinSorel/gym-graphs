@@ -1,14 +1,5 @@
-import gleam/float
-import gleam/time/duration
 import identity/presentation/cookie.{type Cookie}
 import wisp.{type Request, type Response}
-
-pub fn auth_session_cookie() -> Cookie {
-  cookie.new(
-    "auth_session_token",
-    duration.hours(24 * 7) |> duration.to_seconds() |> float.round(),
-  )
-}
 
 pub fn get(req: Request, cookie: Cookie) -> Result(String, Nil) {
   wisp.get_cookie(req, name: cookie.name(cookie), security: wisp.Signed)

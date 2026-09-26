@@ -6,6 +6,8 @@ import gleam/otp/static_supervisor as supervisor
 import gleam/result
 import gleam/string
 import identity/infrastructure/auth_session_repo
+import identity/infrastructure/sign_up_session_repo
+import identity/infrastructure/user_repo
 import mist
 import pog
 import wisp
@@ -26,8 +28,11 @@ pub fn main() {
   let db = pog.named_connection(pool_name)
 
   let auth_session_repo = auth_session_repo.new(db)
+  let user_repo = user_repo.new(db)
+  let sign_up_session_repo = sign_up_session_repo.new(db)
 
-  let ctx = ctx.new(config.get_email(config), auth_session_repo)
+  let repo = ctx.new_repo(auth_session_repo, sign_up_session_repo, user_repo)
+  let ctx = ctx.new(config.get_email(config), repo)
 
   use pool_child <- result.try(
     pog.url_config(pool_name, config.get_database_url(config))

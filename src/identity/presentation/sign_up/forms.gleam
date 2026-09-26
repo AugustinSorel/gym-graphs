@@ -1,8 +1,8 @@
 import formal/form.{type Form}
-import identity/domain/email_address
+import identity/domain/email_address.{type EmailAddress}
 
 pub type EmailRegisterForm {
-  EmailRegisterForm(email: String)
+  EmailRegisterForm(email: EmailAddress)
 }
 
 pub fn email_register() -> Form(EmailRegisterForm) {
@@ -19,6 +19,9 @@ pub fn email_register() -> Form(EmailRegisterForm) {
         }
       })
     })
+
+    //FIXME
+    let assert Ok(email) = email_address.new(email)
 
     form.success(EmailRegisterForm(email:))
   }

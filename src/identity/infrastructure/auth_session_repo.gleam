@@ -1,6 +1,6 @@
 import gleam/result
 import identity/domain/auth_session.{type AuthSessionId}
-import identity/domain/repo.{AuthSessionRepo}
+import identity/domain/repo.{type AuthSessionRepo, AuthSessionRepo}
 import identity/infrastructure/sql
 import kernel/db
 import pog.{type Connection}
@@ -18,6 +18,6 @@ pub fn select_by_id(db: Connection, id: AuthSessionId) {
   })
 }
 
-pub fn new(db: Connection) {
+pub fn new(db: Connection) -> AuthSessionRepo {
   AuthSessionRepo(select_by_id: select_by_id(db, _))
 }
