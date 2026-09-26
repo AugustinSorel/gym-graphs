@@ -1,9 +1,24 @@
-import kernel/email.{type Email}
+import identity/domain/repo.{type AuthSessionRepo}
+import kernel/mailer.{type Mailer}
 
-pub opaque type Ctx {
-  Ctx(email: Email)
+type Repo {
+  Repo(auth_session: AuthSessionRepo)
 }
 
-pub fn new(email: Email) {
-  Ctx(email:)
+pub opaque type Ctx {
+  Ctx(mailer: Mailer, repo: Repo)
+}
+
+pub fn new(mailer: Mailer, auth_session_repo: AuthSessionRepo) -> Ctx {
+  let repo = Repo(auth_session: auth_session_repo)
+
+  Ctx(mailer:, repo:)
+}
+
+pub fn mailer(ctx: Ctx) {
+  ctx.mailer
+}
+
+pub fn auth_session_repo(ctx: Ctx) {
+  ctx.repo.auth_session
 }

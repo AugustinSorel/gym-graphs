@@ -10,16 +10,16 @@ import gleam/result
 import gleam/string
 import mug
 
-pub opaque type Email {
+pub opaque type Mailer {
   Ses(signer: Signer, from: String)
   Smtp(host: String, port: Int, from: String)
 }
 
-pub fn new_ses(signer: Signer, from: String) -> Email {
+pub fn new_ses(signer: Signer, from: String) -> Mailer {
   Ses(signer:, from:)
 }
 
-pub fn new_smpt(host: String, port: Int, from: String) -> Email {
+pub fn new_smtp(host: String, port: Int, from: String) -> Mailer {
   Smtp(host:, port:, from:)
 }
 
@@ -35,7 +35,7 @@ pub opaque type SendEmailError {
 }
 
 pub fn send(
-  email email: Email,
+  email email: Mailer,
   to to: String,
   subject subject: String,
   html html: String,
@@ -51,7 +51,7 @@ pub fn send(
 // ---------------------------------------------------------------------------
 
 fn send_via_ses(
-  email: Email,
+  email: Mailer,
   to: String,
   subject: String,
   html: String,
@@ -133,7 +133,7 @@ fn send_via_ses(
 const smtp_timeout_ms = 5000
 
 fn send_via_smtp(
-  email: Email,
+  email: Mailer,
   to: String,
   subject: String,
   html: String,

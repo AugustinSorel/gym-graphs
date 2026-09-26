@@ -5,6 +5,7 @@ import gleam/erlang/process
 import gleam/otp/static_supervisor as supervisor
 import gleam/result
 import gleam/string
+import identity/infrastructure/auth_session_repo
 import mist
 import pog
 import wisp
@@ -22,9 +23,11 @@ pub fn main() {
   )
 
   let pool_name = process.new_name("db_pool")
-  // let db = pog.named_connection(pool_name)
+  let db = pog.named_connection(pool_name)
 
-  let ctx = ctx.new(config.get_email(config))
+  let auth_session_repo = auth_session_repo.new(db)
+
+  let ctx = ctx.new(config.get_email(config), auth_session_repo)
 
   use pool_child <- result.try(
     pog.url_config(pool_name, config.get_database_url(config))

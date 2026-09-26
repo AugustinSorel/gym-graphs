@@ -2,7 +2,7 @@ import aws4_request
 import envoy
 import gleam/int
 import gleam/result
-import kernel/email.{type Email}
+import kernel/mailer.{type Mailer}
 
 type Env {
   Prod
@@ -10,7 +10,12 @@ type Env {
 }
 
 pub opaque type Config {
-  Config(env: Env, database_url: String, secret_key_base: String, email: Email)
+  Config(
+    env: Env,
+    database_url: String,
+    secret_key_base: String,
+    mailer: Mailer,
+  )
 }
 
 pub fn load() -> Result(Config, Nil) {
@@ -20,7 +25,7 @@ pub fn load() -> Result(Config, Nil) {
   use env <- result.try(load_env())
   use email <- result.try(load_email(env))
 
-  Ok(Config(env:, database_url:, secret_key_base:, email:))
+  Ok(Config(env:, database_url:, secret_key_base:, mailer: email))
 }
 
 pub fn get_database_url(config: Config) {
@@ -28,7 +33,7 @@ pub fn get_database_url(config: Config) {
 }
 
 pub fn get_email(config: Config) {
-  config.email
+  config.mailer
 }
 
 pub fn get_secret_key_base(config: Config) {
@@ -57,7 +62,7 @@ fn load_smtp_config() {
   use port <- result.try(envoy.get("SMTP_PORT") |> result.try(int.parse))
   use from <- result.try(envoy.get("SMTP_FROM"))
 
-  Ok(email.new_smpt(host, port, from))
+  Ok(mailer.new_smtp(host, port, from))
 }
 
 fn load_ses_config() {
@@ -71,5 +76,5 @@ fn load_ses_config() {
     aws4_request.signer(access_key_id:, secret_access_key:, region:, service:)
   }
 
-  Ok(email.new_ses(signer, from))
+  Ok(mailer.new_ses(signer, from))
 }
