@@ -2,7 +2,9 @@ import aws4_request
 import envoy
 import gleam/int
 import gleam/result
-import kernel/mailer.{type Mailer}
+import identity/application/mailer.{type Mailer}
+import kernel/infrastructure/mailer_ses
+import kernel/infrastructure/mailer_smtp
 
 type Env {
   Prod
@@ -62,7 +64,7 @@ fn load_smtp_config() {
   use port <- result.try(envoy.get("SMTP_PORT") |> result.try(int.parse))
   use from <- result.try(envoy.get("SMTP_FROM"))
 
-  Ok(mailer.new_smtp(host, port, from))
+  Ok(mailer_smtp.new(host, port, from))
 }
 
 fn load_ses_config() {
@@ -76,5 +78,5 @@ fn load_ses_config() {
     aws4_request.signer(access_key_id:, secret_access_key:, region:, service:)
   }
 
-  Ok(mailer.new_ses(signer, from))
+  Ok(mailer_ses.new(signer, from))
 }

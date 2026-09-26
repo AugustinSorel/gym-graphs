@@ -1,5 +1,5 @@
+import identity/application/mailer.{type Mailer}
 import identity/domain/repo.{type AuthSessionRepo}
-import kernel/mailer.{type Mailer}
 
 type Repo {
   Repo(auth_session: AuthSessionRepo)
