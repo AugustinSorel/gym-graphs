@@ -1,5 +1,5 @@
 import identity/domain/email_address.{type EmailAddress}
-import identity/domain/events.{type IdentityEvent, SignUpVerificationRequested}
+import identity/domain/events.{type IdentityEvent, SignUpVerificationCodeIssued}
 import identity/domain/session_secret.{type SessionSecretHash}
 import identity/domain/verification_code.{type VerificationCode}
 
@@ -29,7 +29,7 @@ pub fn request(
   code: VerificationCode,
 ) -> #(SignUpSession, List(IdentityEvent)) {
   let session = SignUpSession(email:, secret_hash:, code:)
-  let events = [SignUpVerificationRequested(email:, code:)]
+  let events = [SignUpVerificationCodeIssued(email:, code:)]
 
   #(session, events)
 }

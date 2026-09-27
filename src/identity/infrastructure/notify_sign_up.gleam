@@ -1,13 +1,13 @@
 import identity/infrastructure/email_templates
 import identity/domain/email_address.{type EmailAddress}
-import identity/domain/events.{type IdentityEvent, SignUpVerificationRequested}
+import identity/domain/events.{type IdentityEvent, SignUpVerificationCodeIssued}
 import identity/domain/verification_code.{type VerificationCode}
 import kernel/mailer.{type Mailer}
 import wisp
 
 pub fn handle(mailer: Mailer, event: IdentityEvent) -> Nil {
   case event {
-    SignUpVerificationRequested(email:, code:) ->
+    SignUpVerificationCodeIssued(email:, code:) ->
       send_verification_code(mailer, email, code)
   }
 }
