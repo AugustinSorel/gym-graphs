@@ -52,10 +52,16 @@ pub fn mark_email_as_verified(db: Connection, id: SignUpSessionId) {
   |> result.replace(Nil)
 }
 
+pub fn delete_by_id(db: Connection, id: SignUpSessionId) {
+  sql.delete_sign_up_session(db, sign_up_session.id_to_int(id))
+  |> result.replace(Nil)
+}
+
 pub fn new(db: Connection) -> SignUpSessionRepo {
   SignUpSessionRepo(
     create: create(db, _),
     select_by_id: select_by_id(db, _),
     mark_email_as_verified: mark_email_as_verified(db, _),
+    delete_by_id: delete_by_id(db, _),
   )
 }

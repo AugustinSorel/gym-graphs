@@ -20,5 +20,6 @@ pub type SignUpSessionRepo {
     create: fn(SignUpSessionStart) -> Result(SignUpSessionId, QueryError),
     select_by_id: fn(SignUpSessionId) -> Result(SignUpSession, QueryError),
     mark_email_as_verified: fn(SignUpSessionId) -> Result(Nil, QueryError),
+    delete_by_id: fn(SignUpSessionId) -> Result(Nil, QueryError),
   )
 }

@@ -87,3 +87,10 @@ pub fn verify_email(
   sign_up_session_repo.mark_email_as_verified(sign_up_session.id(session))
   |> result.map_error(MarkVerifiedDatabaseFailure)
 }
+
+pub fn cancel(
+  sign_up_session_repo: SignUpSessionRepo,
+  session: SignUpSession,
+) -> Result(Nil, QueryError) {
+  sign_up_session_repo.delete_by_id(sign_up_session.id(session))
+}

@@ -152,3 +152,24 @@ pub fn verify_email(req: Request, session: SignUpSession, ctx: Ctx) {
     }
   }
 }
+
+pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
+  let result =
+    ctx.sign_up_session_repo(ctx)
+    |> sign_up.cancel(session)
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> session_cookie.clear(req, cookie.sign_up_session())
+      |> wisp.set_header("HX-Redirect", "/sign-up")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      forms.verify_email_address()
+      |> ui.verify_email_form(option.None)
+      |> element.to_string
+      |> wisp.html_response(500)
+    }
+  }
+}
