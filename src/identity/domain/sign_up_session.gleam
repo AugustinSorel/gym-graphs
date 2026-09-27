@@ -114,6 +114,13 @@ pub fn verify(sign_up_session: SignUpSession, token: SessionToken) {
   Ok(Nil)
 }
 
+pub fn resend(sign_up_session: SignUpSession) -> IdentityEvent {
+  SignUpVerificationCodeIssued(
+    email: sign_up_session.email_address,
+    code: sign_up_session.code,
+  )
+}
+
 pub fn verify_code(
   sign_up_session: SignUpSession,
   candidate: String,

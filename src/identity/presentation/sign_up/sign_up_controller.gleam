@@ -153,6 +153,20 @@ pub fn verify_email(req: Request, session: SignUpSession, ctx: Ctx) {
   }
 }
 
+pub fn resend(req: Request, session: SignUpSession, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  sign_up.resend(ctx.event_publisher(ctx), session)
+
+  forms.verify_email_address()
+  |> form.add_values(formdata.values)
+  |> ui.verify_email_form(option.Some(
+    "A new verification code has been sent to your email address.",
+  ))
+  |> element.to_string
+  |> wisp.html_response(200)
+}
+
 pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
   let result =
     ctx.sign_up_session_repo(ctx)

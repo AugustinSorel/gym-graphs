@@ -28,6 +28,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }
+    ["sign-up", "verify-email-address", "resend"] -> {
+      use <- wisp.require_method(req, Post)
+      use <- guards.require_guest(req, ctx)
+      use sign_up_session <- guards.require_sign_up_unverified(req, ctx)
+
+      sign_up_controller.resend(req, sign_up_session, ctx)
+    }
     ["sign-up", "verify-email-address", "cancel"] -> {
       use <- wisp.require_method(req, Post)
       use <- guards.require_guest(req, ctx)

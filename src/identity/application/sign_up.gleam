@@ -94,3 +94,9 @@ pub fn cancel(
 ) -> Result(Nil, QueryError) {
   sign_up_session_repo.delete_by_id(sign_up_session.id(session))
 }
+
+pub fn resend(event_publisher: EventPublisher, session: SignUpSession) -> Nil {
+  session
+  |> sign_up_session.resend()
+  |> event_publisher.publish
+}
