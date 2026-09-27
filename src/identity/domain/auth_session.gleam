@@ -27,7 +27,7 @@ pub fn new(
   AuthSession(id:, secret_hash:, last_active_at:)
 }
 
-pub fn id(id: AuthSessionId) {
+pub fn id_to_int(id: AuthSessionId) {
   id.value
 }
 

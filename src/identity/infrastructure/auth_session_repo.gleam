@@ -7,7 +7,7 @@ import kernel/db
 import pog.{type Connection}
 
 pub fn select_by_id(db: Connection, id: AuthSessionId) {
-  sql.select_auth_session_by_id(db, auth_session.id(id))
+  sql.select_auth_session_by_id(db, auth_session.id_to_int(id))
   |> db.extract_entity
   |> result.map(fn(row) {
     auth_session.new(
