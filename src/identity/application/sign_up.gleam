@@ -6,7 +6,7 @@ import identity/domain/email_address.{type EmailAddress}
 import identity/domain/event_publisher.{type EventPublisher}
 import identity/domain/repo.{type SignUpSessionRepo, type UserRepo}
 import identity/domain/session_token.{type DecodeError}
-import identity/domain/sign_up_session
+import identity/domain/sign_up_session.{type SignUpSession}
 import pog.{type QueryError}
 
 pub type CreateInput {
@@ -67,4 +67,23 @@ pub fn authenticate(sign_up_session_repo: SignUpSessionRepo, raw_token) {
   )
 
   Ok(sign_up_session)
+}
+
+pub type VerifyEmailError {
+  InvalidCode
+  MarkVerifiedDatabaseFailure(QueryError)
+}
+
+pub fn verify_email(
+  sign_up_session_repo: SignUpSessionRepo,
+  session: SignUpSession,
+  code: String,
+) -> Result(Nil, VerifyEmailError) {
+  use Nil <- result.try(
+    sign_up_session.verify_code(session, code)
+    |> result.replace_error(InvalidCode),
+  )
+
+  sign_up_session_repo.mark_email_as_verified(sign_up_session.id(session))
+  |> result.map_error(MarkVerifiedDatabaseFailure)
 }

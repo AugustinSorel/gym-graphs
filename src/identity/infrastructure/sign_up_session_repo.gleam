@@ -38,6 +38,7 @@ pub fn select_by_id(db: Connection, id: SignUpSessionId) {
   )
 
   Ok(sign_up_session.new(
+    id,
     email_address,
     session_secret.new_hash(row.secret_hash),
     code,
@@ -46,6 +47,15 @@ pub fn select_by_id(db: Connection, id: SignUpSessionId) {
   ))
 }
 
+pub fn mark_email_as_verified(db: Connection, id: SignUpSessionId) {
+  sql.mark_sign_up_session_email_as_verified(db, sign_up_session.id_to_int(id))
+  |> result.replace(Nil)
+}
+
 pub fn new(db: Connection) -> SignUpSessionRepo {
-  SignUpSessionRepo(create: create(db, _), select_by_id: select_by_id(db, _))
+  SignUpSessionRepo(
+    create: create(db, _),
+    select_by_id: select_by_id(db, _),
+    mark_email_as_verified: mark_email_as_verified(db, _),
+  )
 }

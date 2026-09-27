@@ -1,16 +1,17 @@
 import gleam/bool
 import gleam/option.{type Option}
 import gleam/order
+import gleam/result
 import gleam/time/duration
 import gleam/time/timestamp.{type Timestamp}
 import identity/domain/email_address.{type EmailAddress}
 import identity/domain/events.{type IdentityEvent, SignUpVerificationCodeIssued}
-import identity/domain/session_secret.{type SessionSecret, type SessionSecretHash}
+import identity/domain/session_secret.{
+  type SessionSecret, type SessionSecretHash,
+}
 import identity/domain/session_token.{type SessionToken}
 import identity/domain/verification_code.{type VerificationCode}
 
-/// A sign-up session is only valid for this long after it was created.
-/// After this, it should be treated as if it never existed.
 fn validity() {
   duration.hours(24)
 }
@@ -29,6 +30,7 @@ pub fn id_to_int(sign_up_session_id: SignUpSessionId) {
 
 pub opaque type SignUpSession {
   SignUpSession(
+    id: SignUpSessionId,
     email_address: EmailAddress,
     secret_hash: SessionSecretHash,
     code: VerificationCode,
@@ -58,6 +60,7 @@ pub fn start(email: EmailAddress) -> SignUpSessionStart {
 }
 
 pub fn new(
+  id: SignUpSessionId,
   email_address: EmailAddress,
   secret_hash: SessionSecretHash,
   code: VerificationCode,
@@ -65,12 +68,17 @@ pub fn new(
   created_at: Timestamp,
 ) {
   SignUpSession(
+    id:,
     email_address:,
     secret_hash:,
     code:,
     email_address_verified_at:,
     created_at:,
   )
+}
+
+pub fn id(session: SignUpSession) -> SignUpSessionId {
+  session.id
 }
 
 pub fn email_address(session: SignUpSession) -> EmailAddress {
@@ -102,6 +110,22 @@ pub fn verify(sign_up_session: SignUpSession, token: SessionToken) {
     |> session_secret.verify(sign_up_session.secret_hash)
 
   use <- bool.guard(when: !is_secret_valid, return: Error(Nil))
+
+  Ok(Nil)
+}
+
+pub fn verify_code(
+  sign_up_session: SignUpSession,
+  candidate: String,
+) -> Result(Nil, Nil) {
+  use candidate_code <- result.try(
+    verification_code.new(candidate) |> result.replace_error(Nil),
+  )
+
+  let is_code_valid =
+    verification_code.verify(sign_up_session.code, candidate_code)
+
+  use <- bool.guard(when: !is_code_valid, return: Error(Nil))
 
   Ok(Nil)
 }

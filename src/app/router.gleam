@@ -20,11 +20,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     }
     ["sign-up", "verify-email-address"] -> {
       use <- guards.require_guest(req, ctx)
-      use _sign_up_session <- guards.require_sign_up_unverified(req, ctx)
+      use sign_up_session <- guards.require_sign_up_unverified(req, ctx)
 
       case req.method {
         Get -> sign_up_controller.view_verify_email_page()
-        Post -> todo
+        Post -> sign_up_controller.verify_email(req, sign_up_session, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }

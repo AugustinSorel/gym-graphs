@@ -4,9 +4,12 @@ import gleam/option
 import gleam/result
 import gleam/string
 import identity/application/sign_up
+import identity/domain/sign_up_session.{type SignUpSession}
 import identity/presentation/cookie
 import identity/presentation/session_cookie
-import identity/presentation/sign_up/forms.{type EmailRegisterForm}
+import identity/presentation/sign_up/forms.{
+  type EmailRegisterForm, type VerifyEmailAddressForm,
+}
 import identity/presentation/sign_up/ui
 import lustre/element
 import pog.{type QueryError}
@@ -91,4 +94,61 @@ pub fn view_verify_email_page() {
   |> ui.verify_email_page()
   |> element.to_string()
   |> wisp.html_response(200)
+}
+
+pub type VerifyEmailError {
+  VerifyEmailValidationFailed(Form(VerifyEmailAddressForm))
+  VerificationEmailFailed(sign_up.VerifyEmailError)
+}
+
+pub fn verify_email(req: Request, session: SignUpSession, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      forms.verify_email_address()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(VerifyEmailValidationFailed),
+    )
+
+    sign_up.verify_email(ctx.sign_up_session_repo(ctx), session, input.code)
+    |> result.map_error(VerificationEmailFailed)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/sign-up/set-password")
+
+    Error(VerifyEmailValidationFailed(form)) ->
+      form
+      |> ui.verify_email_form(option.None)
+      |> element.to_string
+      |> wisp.html_response(422)
+
+    Error(VerificationEmailFailed(sign_up.InvalidCode)) -> {
+      forms.verify_email_address()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError(
+          "The verification code you entered is incorrect. Please try again.",
+        ),
+      )
+      |> ui.verify_email_form(option.None)
+      |> element.to_string
+      |> wisp.html_response(422)
+    }
+
+    Error(VerificationEmailFailed(sign_up.MarkVerifiedDatabaseFailure(error))) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      forms.verify_email_address()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> ui.verify_email_form(option.None)
+      |> element.to_string
+      |> wisp.html_response(500)
+    }
+  }
 }
