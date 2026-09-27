@@ -2,25 +2,29 @@ import gleam/bit_array
 import gleam/int
 import gleam/result
 import gleam/string
+import identity/domain/session_secret.{type SessionSecret}
 
 pub opaque type SessionTokenId {
   SessionTokenId(value: Int)
 }
 
 pub opaque type SessionToken {
-  SessionToken(id: SessionTokenId, secret: BitArray)
+  SessionToken(id: SessionTokenId, secret: SessionSecret)
 }
 
 pub fn new_id(raw: Int) {
   SessionTokenId(raw)
 }
 
-pub fn new(id: SessionTokenId, secret: BitArray) {
+pub fn new(id: SessionTokenId, secret: SessionSecret) {
   SessionToken(id:, secret:)
 }
 
 pub fn encode(token: SessionToken) -> String {
-  let encoded_secret = bit_array.base64_encode(token.secret, False)
+  let encoded_secret =
+    token.secret
+    |> session_secret.to_bit_array()
+    |> bit_array.base64_encode(False)
   let id = int.to_string(token.id.value)
 
   id <> "." <> encoded_secret
@@ -48,7 +52,7 @@ pub fn decode(raw: String) -> Result(SessionToken, DecodeError) {
     |> result.replace_error(InvalidSecret),
   )
 
-  SessionToken(id: new_id(id), secret:)
+  SessionToken(id: new_id(id), secret: session_secret.new(secret))
 }
 
 pub fn id(session_token: SessionToken) {

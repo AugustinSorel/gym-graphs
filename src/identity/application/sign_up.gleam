@@ -1,9 +1,10 @@
 import gleam/result
 import identity/domain/email_address.{type EmailAddress}
 import identity/domain/repo.{type SignUpSessionRepo, type UserRepo}
+import identity/domain/session_secret
 import identity/domain/session_token
 import identity/domain/sign_up_session
-import kernel/crypto
+import identity/domain/verification_code
 
 pub type CreateInput {
   CreateInput(email: EmailAddress)
@@ -16,12 +17,12 @@ pub fn create(
 ) {
   use Nil <- result.try(user_repo.check_email_available(input.email))
 
-  let secret = crypto.generate_session_secret()
-  let secret_hash = crypto.hash_session_secret(secret)
-  let verification_code = crypto.generate_email_verification_code()
+  let secret = session_secret.generate()
+  let secret_hash = session_secret.hash(secret)
+  let code = verification_code.generate()
 
   use sign_up_session_id <- result.try({
-    sign_up_session_repo.create(input.email, secret_hash, verification_code)
+    sign_up_session_repo.create(input.email, secret_hash, code)
   })
 
   // use Nil <- result.try(
