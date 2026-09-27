@@ -1,8 +1,15 @@
+import identity/domain/verification_code.{type VerificationCode}
 import lustre/attribute
 import lustre/element
 import lustre/element/html
 
-pub fn verification_code(code: String) {
+pub fn verification_code(code: VerificationCode) {
+  let code = verification_code.to_string(code)
+
+  render_verification_code(code)
+}
+
+fn render_verification_code(code: String) {
   html.html([attribute.attribute("lang", "en")], [
     html.head([], [
       html.meta([attribute.attribute("charset", "UTF-8")]),

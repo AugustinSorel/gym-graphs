@@ -6,6 +6,8 @@ import gleam/otp/static_supervisor as supervisor
 import gleam/result
 import gleam/string
 import identity/infrastructure/auth_session_repo
+import identity/infrastructure/event_bus
+import identity/infrastructure/notify_sign_up
 import identity/infrastructure/sign_up_session_repo
 import identity/infrastructure/user_repo
 import mist
@@ -31,8 +33,12 @@ pub fn main() {
   let user_repo = user_repo.new(db)
   let sign_up_session_repo = sign_up_session_repo.new(db)
 
+  let mailer = config.get_email(config)
+  let event_bus_name = process.new_name("identity_event_bus")
+  let event_publisher = event_bus.publisher(event_bus_name)
+
   let repo = ctx.new_repo(auth_session_repo, sign_up_session_repo, user_repo)
-  let ctx = ctx.new(config.get_email(config), repo)
+  let ctx = ctx.new(mailer, repo, event_publisher)
 
   use pool_child <- result.try(
     pog.url_config(pool_name, config.get_database_url(config))
@@ -51,8 +57,14 @@ pub fn main() {
     |> mist.port(8000)
     |> mist.supervised
 
+  let event_bus_child =
+    event_bus.supervised(event_bus_name, [
+      notify_sign_up.handle(mailer, _),
+    ])
+
   use _ <- result.try(
     supervisor.new(supervisor.OneForOne)
+    |> supervisor.add(event_bus_child)
     |> supervisor.add(http_child)
     |> supervisor.add(pool_child)
     |> supervisor.start

@@ -1,7 +1,8 @@
-import kernel/mailer.{type Mailer}
+import identity/domain/event_publisher.{type EventPublisher}
 import identity/domain/repo.{
   type AuthSessionRepo, type SignUpSessionRepo, type UserRepo,
 }
+import kernel/mailer.{type Mailer}
 
 pub opaque type Repo {
   Repo(
@@ -12,11 +13,11 @@ pub opaque type Repo {
 }
 
 pub opaque type Ctx {
-  Ctx(mailer: Mailer, repo: Repo)
+  Ctx(mailer: Mailer, repo: Repo, event_publisher: EventPublisher)
 }
 
-pub fn new(mailer: Mailer, repo: Repo) -> Ctx {
-  Ctx(mailer:, repo:)
+pub fn new(mailer: Mailer, repo: Repo, event_publisher: EventPublisher) -> Ctx {
+  Ctx(mailer:, repo:, event_publisher:)
 }
 
 pub fn new_repo(
@@ -41,4 +42,8 @@ pub fn user_repo(ctx: Ctx) {
 
 pub fn sign_up_session_repo(ctx: Ctx) {
   ctx.repo.sign_up_session
+}
+
+pub fn event_publisher(ctx: Ctx) {
+  ctx.event_publisher
 }

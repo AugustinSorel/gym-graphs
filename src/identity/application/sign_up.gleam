@@ -1,5 +1,7 @@
+import gleam/list
 import gleam/result
 import identity/domain/email_address.{type EmailAddress}
+import identity/domain/event_publisher.{type EventPublisher}
 import identity/domain/repo.{type SignUpSessionRepo, type UserRepo}
 import identity/domain/session_secret
 import identity/domain/session_token
@@ -13,6 +15,7 @@ pub type CreateInput {
 pub fn create(
   user_repo: UserRepo,
   sign_up_session_repo: SignUpSessionRepo,
+  event_publisher: EventPublisher,
   input: CreateInput,
 ) {
   use Nil <- result.try(user_repo.check_email_available(input.email))
@@ -21,19 +24,12 @@ pub fn create(
   let secret_hash = session_secret.hash(secret)
   let code = verification_code.generate()
 
-  use sign_up_session_id <- result.try({
-    sign_up_session_repo.create(input.email, secret_hash, code)
-  })
+  let #(session, events) =
+    sign_up_session.request(input.email, secret_hash, code)
 
-  // use Nil <- result.try(
-  //   email.send(
-  //     email: ctx.email,
-  //     to: input.email,
-  //     subject: "Your verification code - " <> verification_code,
-  //     html: template.verification_code(verification_code),
-  //   )
-  //   |> result.map_error(VerificationCodeDeliveryFailed),
-  // )
+  use sign_up_session_id <- result.try(sign_up_session_repo.create(session))
+
+  list.each(events, event_publisher.publish)
 
   sign_up_session.id_to_int(sign_up_session_id)
   |> session_token.new_id()

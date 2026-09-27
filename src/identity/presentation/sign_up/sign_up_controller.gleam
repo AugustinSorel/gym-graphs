@@ -39,6 +39,7 @@ pub fn start(req: Request, ctx: Ctx) {
       sign_up.create(
         ctx.user_repo(ctx),
         ctx.sign_up_session_repo(ctx),
+        ctx.event_publisher(ctx),
         sign_up.CreateInput(email: input.email),
       )
       |> result.map_error(StartDatabaseFailure),
