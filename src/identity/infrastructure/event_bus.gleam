@@ -23,7 +23,10 @@ pub fn supervised(
 }
 
 fn handle_message(subscribers: List(fn(IdentityEvent) -> Nil), event) {
-  list.each(subscribers, fn(subscriber) { subscriber(event) })
+  list.each(subscribers, fn(subscriber) {
+    process.spawn_unlinked(fn() { subscriber(event) })
+    Nil
+  })
 
   actor.continue(subscribers)
 }
