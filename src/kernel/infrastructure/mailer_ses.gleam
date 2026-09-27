@@ -7,9 +7,7 @@ import gleam/int
 import gleam/json
 import gleam/result
 import gleam/string
-import identity/application/mailer.{
-  type Mailer, type MailerError, Mailer, MailerError,
-}
+import kernel/mailer.{type Mailer, type MailerError, Mailer, MailerError}
 
 type Config {
   Config(signer: Signer, from: String)

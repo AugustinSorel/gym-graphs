@@ -2,9 +2,7 @@ import gleam/bit_array
 import gleam/list
 import gleam/result
 import gleam/string
-import identity/application/mailer.{
-  type Mailer, type MailerError, Mailer, MailerError,
-}
+import kernel/mailer.{type Mailer, type MailerError, Mailer, MailerError}
 import mug
 
 type Config {

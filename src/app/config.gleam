@@ -2,7 +2,7 @@ import aws4_request
 import envoy
 import gleam/int
 import gleam/result
-import identity/application/mailer.{type Mailer}
+import kernel/mailer.{type Mailer}
 import kernel/infrastructure/mailer_ses
 import kernel/infrastructure/mailer_smtp
 

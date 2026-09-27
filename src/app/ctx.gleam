@@ -1,4 +1,4 @@
-import identity/application/mailer.{type Mailer}
+import kernel/mailer.{type Mailer}
 import identity/domain/repo.{
   type AuthSessionRepo, type SignUpSessionRepo, type UserRepo,
 }
