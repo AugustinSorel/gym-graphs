@@ -1,6 +1,8 @@
 import identity/domain/auth_session.{type AuthSession, type AuthSessionId}
 import identity/domain/email_address.{type EmailAddress}
-import identity/domain/sign_up_session.{type SignUpSession, type SignUpSessionId}
+import identity/domain/sign_up_session.{
+  type SignUpSession, type SignUpSessionId, type SignUpSessionStart,
+}
 import pog.{type QueryError}
 
 pub type AuthSessionRepo {
@@ -15,6 +17,7 @@ pub type UserRepo {
 
 pub type SignUpSessionRepo {
   SignUpSessionRepo(
-    create: fn(SignUpSession) -> Result(SignUpSessionId, QueryError),
+    create: fn(SignUpSessionStart) -> Result(SignUpSessionId, QueryError),
+    select_by_id: fn(SignUpSessionId) -> Result(SignUpSession, QueryError),
   )
 }

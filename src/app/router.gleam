@@ -11,9 +11,20 @@ pub fn handle_request(req: Request, ctx: Ctx) {
   case wisp.path_segments(req) {
     ["sign-up"] -> {
       use <- guards.require_guest(req, ctx)
+
       case req.method {
         Get -> sign_up_controller.view_start_page()
         Post -> sign_up_controller.start(req, ctx)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+    ["sign-up", "verify-email-address"] -> {
+      use <- guards.require_guest(req, ctx)
+      use _sign_up_session <- guards.require_sign_up_unverified(req, ctx)
+
+      case req.method {
+        Get -> sign_up_controller.view_verify_email_page()
+        Post -> todo
         _ -> wisp.method_not_allowed([Get, Post])
       }
     }

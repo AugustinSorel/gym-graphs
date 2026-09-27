@@ -33,5 +33,7 @@ pub fn hash_to_bit_array(hash: SessionSecretHash) -> BitArray {
 }
 
 pub fn verify(secret: SessionSecret, expected_hash: SessionSecretHash) -> Bool {
-  crypto.validate_session_secret(secret.bytes, expected_hash.bytes)
+  secret.bytes
+  |> crypto.hash_session_secret()
+  |> crypto.validate_session_secret(expected_hash.bytes)
 }

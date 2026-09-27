@@ -1,5 +1,6 @@
 import app/ctx.{type Ctx}
 import formal/form.{type Form}
+import gleam/option
 import gleam/result
 import gleam/string
 import identity/application/sign_up
@@ -36,7 +37,7 @@ pub fn start(req: Request, ctx: Ctx) {
     )
 
     use token <- result.try(
-      sign_up.create(
+      sign_up.start(
         ctx.user_repo(ctx),
         ctx.sign_up_session_repo(ctx),
         ctx.event_publisher(ctx),
@@ -60,6 +61,7 @@ pub fn start(req: Request, ctx: Ctx) {
       |> element.to_string
       |> wisp.html_response(422)
 
+    //FIX:display email already used
     Error(StartDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       forms.email_register()
@@ -70,4 +72,12 @@ pub fn start(req: Request, ctx: Ctx) {
       |> wisp.html_response(500)
     }
   }
+}
+
+pub fn view_verify_email_page() {
+  forms.verify_email_address()
+  |> ui.verify_email_form(option.None)
+  |> ui.verify_email_page()
+  |> element.to_string()
+  |> wisp.html_response(200)
 }
