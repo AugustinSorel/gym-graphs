@@ -22,21 +22,27 @@ pub fn create(db: Connection, request: SignUpSessionStart) {
 }
 
 pub fn select_by_id(db: Connection, id: SignUpSessionId) {
-  sql.select_sign_up_session_by_id(db, sign_up_session.id_to_int(id))
-  |> db.extract_entity
-  |> result.map(fn(row) {
-    let assert Ok(email_address) = email_address.new(row.email_address)
-
-    let assert Ok(code) =
-      verification_code.new(row.email_address_verification_code)
-
-    sign_up_session.new(
-      email_address,
-      session_secret.new_hash(row.secret_hash),
-      code,
-      row.email_address_verified_at,
-    )
+  use row <- result.try({
+    sql.select_sign_up_session_by_id(db, sign_up_session.id_to_int(id))
+    |> db.extract_entity
   })
+
+  use email_address <- result.try(
+    email_address.new(row.email_address)
+    |> result.replace_error(pog.PostgresqlError("", "", "")),
+  )
+
+  use code <- result.try(
+    verification_code.new(row.email_address_verification_code)
+    |> result.replace_error(pog.PostgresqlError("", "", "")),
+  )
+
+  Ok(sign_up_session.new(
+    email_address,
+    session_secret.new_hash(row.secret_hash),
+    code,
+    row.email_address_verified_at,
+  ))
 }
 
 pub fn new(db: Connection) -> SignUpSessionRepo {
