@@ -187,7 +187,7 @@ pub type SelectSignUpSessionByIdRow {
 ///
 pub fn select_sign_up_session_by_id(
   db: pog.Connection,
-  id: Int,
+  arg_1: Int,
 ) -> Result(pog.Returned(SelectSignUpSessionByIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -211,10 +211,10 @@ pub fn select_sign_up_session_by_id(
     ))
   }
 
-  "select * from sign_up_sessions where id = $1 and created_at > now() - interval '24 hours';
+  "select * from sign_up_sessions where id = $1;
 "
   |> pog.query
-  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

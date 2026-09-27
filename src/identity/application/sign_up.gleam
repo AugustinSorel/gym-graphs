@@ -1,5 +1,7 @@
+import gleam/bool
 import gleam/list
 import gleam/result
+import gleam/time/timestamp
 import identity/domain/email_address.{type EmailAddress}
 import identity/domain/event_publisher.{type EventPublisher}
 import identity/domain/repo.{type SignUpSessionRepo, type UserRepo}
@@ -35,6 +37,7 @@ pub fn start(
 pub type AuthenticateError {
   InvalidToken(DecodeError)
   DatabaseFailure(QueryError)
+  SessionExpired
   VerifyFailure
 }
 
@@ -52,6 +55,11 @@ pub fn authenticate(sign_up_session_repo: SignUpSessionRepo, raw_token) {
     |> sign_up_session_repo.select_by_id()
     |> result.map_error(DatabaseFailure)
   })
+
+  use <- bool.guard(
+    when: sign_up_session.expired(sign_up_session, timestamp.system_time()),
+    return: Error(SessionExpired),
+  )
 
   use Nil <- result.try(
     sign_up_session.verify(sign_up_session, token)

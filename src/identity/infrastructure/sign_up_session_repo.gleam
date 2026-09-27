@@ -42,6 +42,7 @@ pub fn select_by_id(db: Connection, id: SignUpSessionId) {
     session_secret.new_hash(row.secret_hash),
     code,
     row.email_address_verified_at,
+    row.created_at,
   ))
 }
 

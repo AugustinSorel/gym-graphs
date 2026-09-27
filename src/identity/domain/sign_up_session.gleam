@@ -1,13 +1,19 @@
 import gleam/bool
 import gleam/option.{type Option}
+import gleam/order
+import gleam/time/duration
 import gleam/time/timestamp.{type Timestamp}
 import identity/domain/email_address.{type EmailAddress}
 import identity/domain/events.{type IdentityEvent, SignUpVerificationCodeIssued}
-import identity/domain/session_secret.{
-  type SessionSecret, type SessionSecretHash,
-}
+import identity/domain/session_secret.{type SessionSecret, type SessionSecretHash}
 import identity/domain/session_token.{type SessionToken}
 import identity/domain/verification_code.{type VerificationCode}
+
+/// A sign-up session is only valid for this long after it was created.
+/// After this, it should be treated as if it never existed.
+fn validity() {
+  duration.hours(24)
+}
 
 pub opaque type SignUpSessionId {
   SignUpSessionId(id: Int)
@@ -27,6 +33,7 @@ pub opaque type SignUpSession {
     secret_hash: SessionSecretHash,
     code: VerificationCode,
     email_address_verified_at: Option(Timestamp),
+    created_at: Timestamp,
   )
 }
 
@@ -55,8 +62,15 @@ pub fn new(
   secret_hash: SessionSecretHash,
   code: VerificationCode,
   email_address_verified_at: Option(Timestamp),
+  created_at: Timestamp,
 ) {
-  SignUpSession(email_address:, secret_hash:, code:, email_address_verified_at:)
+  SignUpSession(
+    email_address:,
+    secret_hash:,
+    code:,
+    email_address_verified_at:,
+    created_at:,
+  )
 }
 
 pub fn email_address(session: SignUpSession) -> EmailAddress {
@@ -73,6 +87,12 @@ pub fn secret_hash(session: SignUpSession) -> SessionSecretHash {
 
 pub fn code(session: SignUpSession) -> VerificationCode {
   session.code
+}
+
+pub fn expired(sign_up_session: SignUpSession, now: Timestamp) -> Bool {
+  let expires_at = timestamp.add(sign_up_session.created_at, validity())
+
+  timestamp.compare(expires_at, now) == order.Lt
 }
 
 pub fn verify(sign_up_session: SignUpSession, token: SessionToken) {
