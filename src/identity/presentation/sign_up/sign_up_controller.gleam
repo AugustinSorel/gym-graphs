@@ -61,7 +61,18 @@ pub fn start(req: Request, ctx: Ctx) {
       |> element.to_string
       |> wisp.html_response(422)
 
-    //FIX:display email already used
+    Error(StartDatabaseFailure(pog.ConstraintViolated(_, "users_email_key", _))) -> {
+      forms.email_register()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Email address already taken."),
+      )
+      |> ui.email_register_form()
+      |> element.to_string
+      |> wisp.html_response(409)
+    }
+
     Error(StartDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       forms.email_register()
