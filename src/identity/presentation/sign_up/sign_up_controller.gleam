@@ -4,6 +4,7 @@ import gleam/option
 import gleam/result
 import gleam/string
 import identity/application/sign_up
+import identity/domain/email_address
 import identity/domain/sign_up_session.{type SignUpSession}
 import identity/presentation/cookie
 import identity/presentation/session_cookie
@@ -164,6 +165,20 @@ pub fn resend(req: Request, session: SignUpSession, ctx: Ctx) {
     "A new verification code has been sent to your email address.",
   ))
   |> element.to_string
+  |> wisp.html_response(200)
+}
+
+pub fn view_set_password_page(session: SignUpSession) {
+  forms.set_password()
+  |> form.add_string(
+    "email",
+    session
+      |> sign_up_session.email_address()
+      |> email_address.to_string(),
+  )
+  |> ui.set_password_form()
+  |> ui.set_password_page()
+  |> element.to_string()
   |> wisp.html_response(200)
 }
 

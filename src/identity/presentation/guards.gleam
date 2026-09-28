@@ -70,3 +70,17 @@ pub fn require_sign_up_unverified(req, ctx, next) {
 
   next(sign_up_session)
 }
+
+pub fn require_sign_up_verified(req, ctx, next) {
+  use sign_up_session <- require_sign_up_session(req, ctx)
+
+  let not_verified =
+    option.is_none(sign_up_session.email_address_verified_at(sign_up_session))
+
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/sign-up/verify-email-address"),
+  )
+
+  next(sign_up_session)
+}

@@ -42,6 +42,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       sign_up_controller.cancel(req, sign_up_session, ctx)
     }
+    ["sign-up", "set-password"] -> {
+      use <- guards.require_guest(req, ctx)
+      use sign_up_session <- guards.require_sign_up_verified(req, ctx)
+
+      case req.method {
+        Get -> sign_up_controller.view_set_password_page(sign_up_session)
+        // TODO: Post -> sign_up_controller.set_password(req, sign_up_session, ctx)
+        _ -> wisp.method_not_allowed([Get])
+      }
+    }
     _ -> wisp.not_found()
   }
 }
