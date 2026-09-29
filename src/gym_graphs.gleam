@@ -38,7 +38,7 @@ pub fn main() {
   let event_publisher = event_bus.publisher(event_bus_name)
 
   let repo = ctx.new_repo(auth_session_repo, sign_up_session_repo, user_repo)
-  let ctx = ctx.new(mailer, repo, event_publisher)
+  let ctx = ctx.new(db, mailer, repo, event_publisher)
 
   use pool_child <- result.try(
     pog.url_config(pool_name, config.get_database_url(config))

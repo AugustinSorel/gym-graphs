@@ -3,6 +3,7 @@ import identity/domain/repo.{
   type AuthSessionRepo, type SignUpSessionRepo, type UserRepo,
 }
 import kernel/mailer.{type Mailer}
+import pog.{type Connection, type TransactionError}
 
 pub opaque type Repo {
   Repo(
@@ -13,11 +14,28 @@ pub opaque type Repo {
 }
 
 pub opaque type Ctx {
-  Ctx(mailer: Mailer, repo: Repo, event_publisher: EventPublisher)
+  Ctx(
+    db: Connection,
+    mailer: Mailer,
+    repo: Repo,
+    event_publisher: EventPublisher,
+  )
 }
 
-pub fn new(mailer: Mailer, repo: Repo, event_publisher: EventPublisher) -> Ctx {
-  Ctx(mailer:, repo:, event_publisher:)
+pub fn new(
+  db: Connection,
+  mailer: Mailer,
+  repo: Repo,
+  event_publisher: EventPublisher,
+) -> Ctx {
+  Ctx(db:, mailer:, repo:, event_publisher:)
+}
+
+pub fn transaction(
+  ctx: Ctx,
+  callback: fn(Connection) -> Result(a, e),
+) -> Result(a, TransactionError(e)) {
+  pog.transaction(ctx.db, callback)
 }
 
 pub fn new_repo(
