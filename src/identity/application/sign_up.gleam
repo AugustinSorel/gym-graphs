@@ -1,0 +1,102 @@
+import gleam/bool
+import gleam/list
+import gleam/result
+import gleam/time/timestamp
+import identity/domain/email_address.{type EmailAddress}
+import identity/domain/event_publisher.{type EventPublisher}
+import identity/domain/repo.{type SignUpSessionRepo, type UserRepo}
+import identity/domain/session_token.{type DecodeError}
+import identity/domain/sign_up_session.{type SignUpSession}
+import pog.{type QueryError}
+
+pub type CreateInput {
+  CreateInput(email: EmailAddress)
+}
+
+pub fn start(
+  user_repo: UserRepo,
+  sign_up_session_repo: SignUpSessionRepo,
+  event_publisher: EventPublisher,
+  input: CreateInput,
+) {
+  use Nil <- result.try(user_repo.check_email_available(input.email))
+
+  let request = sign_up_session.start(input.email)
+
+  use sign_up_session_id <- result.try(sign_up_session_repo.create(request))
+
+  list.each(request.events, event_publisher.publish)
+
+  sign_up_session.id_to_int(sign_up_session_id)
+  |> session_token.new_id()
+  |> session_token.new(request.secret)
+  |> session_token.encode()
+  |> Ok()
+}
+
+pub type AuthenticateError {
+  InvalidToken(DecodeError)
+  DatabaseFailure(QueryError)
+  SessionExpired
+  VerifyFailure
+}
+
+pub fn authenticate(sign_up_session_repo: SignUpSessionRepo, raw_token) {
+  use token <- result.try(
+    session_token.decode(raw_token)
+    |> result.map_error(InvalidToken),
+  )
+
+  use sign_up_session <- result.try({
+    token
+    |> session_token.id()
+    |> session_token.id_to_int()
+    |> sign_up_session.new_id()
+    |> sign_up_session_repo.select_by_id()
+    |> result.map_error(DatabaseFailure)
+  })
+
+  use <- bool.guard(
+    when: sign_up_session.expired(sign_up_session, timestamp.system_time()),
+    return: Error(SessionExpired),
+  )
+
+  use Nil <- result.try(
+    sign_up_session.verify(sign_up_session, token)
+    |> result.replace_error(VerifyFailure),
+  )
+
+  Ok(sign_up_session)
+}
+
+pub type VerifyEmailError {
+  InvalidCode
+  MarkVerifiedDatabaseFailure(QueryError)
+}
+
+pub fn verify_email(
+  sign_up_session_repo: SignUpSessionRepo,
+  session: SignUpSession,
+  code: String,
+) -> Result(Nil, VerifyEmailError) {
+  use Nil <- result.try(
+    sign_up_session.verify_code(session, code)
+    |> result.replace_error(InvalidCode),
+  )
+
+  sign_up_session_repo.mark_email_as_verified(sign_up_session.id(session))
+  |> result.map_error(MarkVerifiedDatabaseFailure)
+}
+
+pub fn cancel(
+  sign_up_session_repo: SignUpSessionRepo,
+  session: SignUpSession,
+) -> Result(Nil, QueryError) {
+  sign_up_session_repo.delete_by_id(sign_up_session.id(session))
+}
+
+pub fn resend(event_publisher: EventPublisher, session: SignUpSession) -> Nil {
+  session
+  |> sign_up_session.resend()
+  |> event_publisher.publish
+}
