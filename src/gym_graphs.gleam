@@ -1,12 +1,12 @@
 import gleam/erlang/process
-import gleam/otp/static_supervisor as supervisor
+import gleam/otp/static_supervisor
 import gleam/result
 import gleam/string
+import gym_graphs/config
+import gym_graphs/ctx
+import gym_graphs/router
 import mist
 import pog
-import src/config
-import src/ctx
-import src/router
 import wisp
 import wisp/wisp_mist
 
@@ -44,12 +44,12 @@ pub fn main() {
     |> mist.supervised
 
   use _ <- result.try(
-    supervisor.new(supervisor.OneForOne)
-    |> supervisor.add(http_child)
-    |> supervisor.add(pool_child)
-    |> supervisor.start
+    static_supervisor.new(static_supervisor.OneForOne)
+    |> static_supervisor.add(http_child)
+    |> static_supervisor.add(pool_child)
+    |> static_supervisor.start
     |> result.map_error(fn(e) {
-      wisp.log_alert("failed to start supervisor " <> string.inspect(e))
+      wisp.log_alert("failed to start static_supervisor " <> string.inspect(e))
       Error(Nil)
     }),
   )
