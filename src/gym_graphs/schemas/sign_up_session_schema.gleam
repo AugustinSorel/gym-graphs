@@ -1,13 +1,13 @@
 import formal/form.{type Form}
-import gym_graphs/domains/user_domain.{type Email}
+import gym_graphs/domains/user.{type Email}
 
-pub opaque type StartSchema {
+pub type StartSchema {
   EmailRegisterSchema(email: Email)
 }
 
 pub fn parse_start() -> Form(StartSchema) {
   let schema = {
-    use email <- form.field("email", user_domain.parse_email())
+    use email <- form.field("email", user.parse_email())
 
     form.success(EmailRegisterSchema(email))
   }
