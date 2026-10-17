@@ -17,7 +17,7 @@
 
       GOOSE_DRIVER = "postgres";
       GOOSE_DBSTRING = DATABASE_URL;
-      GOOSE_MIGRATION_DIR = ./migrations;
+      GOOSE_MIGRATION_DIR = "./migrations";
     };
 
   packages = with pkgs;[
@@ -45,8 +45,12 @@
   processes.api = {
     exec = "gleam run ./";
     watch = {
-      paths = [ ./src ];
-      extensions = [ "gleam" ];
+      paths = [
+        ./src
+        ./gleam.toml
+        ./manifest.toml
+      ];
+      extensions = [ "gleam" "toml" ];
     };
   };
 
@@ -62,7 +66,7 @@
     exec = "tailwindcss -i ./src/styles.css  -o ./priv/static/styles.css";
     watch = {
       paths = [ ./src ];
-      extensions = [ "gleam" ];
+      extensions = [ "gleam" "css" ];
     };
   };
 }
