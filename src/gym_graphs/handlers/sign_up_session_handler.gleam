@@ -5,6 +5,9 @@ import gleam/string
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session
+import gym_graphs/domains/user
+import gym_graphs/email_template
+import gym_graphs/mailer.{type SendError}
 import gym_graphs/repos/sign_up_session_repo
 import gym_graphs/schemas/sign_up_session_schema.{type StartSchema}
 import gym_graphs/views/sign_up_session_view
@@ -26,6 +29,7 @@ type StartError {
   StartValidationFailed(Form(StartSchema))
   EmailAlreadyUsed
   DatabaseFailure(QueryError)
+  EmailFailure(SendError)
 }
 
 pub fn start(req: Request, ctx: Ctx) {
@@ -48,6 +52,16 @@ pub fn start(req: Request, ctx: Ctx) {
       |> result.map_error(DatabaseFailure)
       |> result.try(option.to_result(_, EmailAlreadyUsed))
     })
+
+    let #(subject, html) = email_template.verification_code(code)
+
+    let email =
+      mailer.Email(to: user.email_to_string(input.email), subject:, html:)
+
+    use _ <- result.try(
+      mailer.send(ctx.mailer, email)
+      |> result.map_error(EmailFailure),
+    )
 
     Ok(session.encode_token(sign_up_session.id_to_int(sign_up_session), secret))
   }
@@ -82,6 +96,15 @@ pub fn start(req: Request, ctx: Ctx) {
       |> wisp.html_response(409)
     }
     Error(DatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      sign_up_session_schema.parse_start()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_session_view.register_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+    Error(EmailFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       sign_up_session_schema.parse_start()
       |> form.add_values(formdata.values)

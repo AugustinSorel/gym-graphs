@@ -4,6 +4,8 @@ import gleam/result
 import gleam/string
 import gym_graphs/config
 import gym_graphs/ctx
+import gym_graphs/mailers/ses
+import gym_graphs/mailers/smtp
 import gym_graphs/router
 import mist
 import pog
@@ -24,7 +26,15 @@ pub fn main() {
   let pool_name = process.new_name("db_pool")
   let db = pog.named_connection(pool_name)
 
-  let ctx = ctx.new(db)
+  let mailer = case config.mailer {
+    config.SmtpMailer(host:, port:, from_address:) -> {
+      smtp.new(host, port, from_address)
+    }
+    config.SesMailer(access_key_id:, secret_access_key:, region:, from_address:) -> {
+      ses.new(access_key_id, secret_access_key, region, from_address)
+    }
+  }
+  let ctx = ctx.new(db, mailer)
 
   use pool_child <- result.try(
     pog.url_config(pool_name, config.database_url)

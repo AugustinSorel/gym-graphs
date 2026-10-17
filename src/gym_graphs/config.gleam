@@ -1,12 +1,6 @@
-// import aws4_request
 import envoy
-
-// import gleam/int
+import gleam/int
 import gleam/result
-
-// import kernel/infrastructure/mailer_ses
-// import kernel/infrastructure/mailer_smtp
-// import kernel/mailer.{type Mailer}
 
 pub type Env {
   Prod
@@ -18,7 +12,17 @@ pub type Config {
     env: Env,
     database_url: String,
     secret_key_base: String,
-    // mailer: Mailer,
+    mailer: MailerConfig,
+  )
+}
+
+pub type MailerConfig {
+  SmtpMailer(host: String, port: Int, from_address: String)
+  SesMailer(
+    access_key_id: String,
+    secret_access_key: String,
+    region: String,
+    from_address: String,
   )
 }
 
@@ -27,19 +31,10 @@ pub fn load() -> Result(Config, Nil) {
   use database_url <- result.try(envoy.get("DATABASE_URL"))
 
   use env <- result.try(load_env())
-  // use email <- result.try(load_email(env))
+  use mailer <- result.try(load_mailer(env))
 
-  // Ok(Config(env:, database_url:, secret_key_base:, mailer: email))
-  Ok(Config(env:, database_url:, secret_key_base:))
+  Ok(Config(env:, database_url:, secret_key_base:, mailer:))
 }
-
-// pub fn get_database_url(config: Config) {
-//   config.database_url
-// }
-
-// pub fn get_email(config: Config) {
-//   config.mailer
-// }
 
 pub fn get_secret_key_base(config: Config) {
   config.secret_key_base
@@ -54,31 +49,27 @@ fn load_env() {
     _ -> Error(Nil)
   }
 }
-// fn load_email(env: Env) {
-//   case env {
-//     Prod -> load_ses_config()
-//     Dev -> load_smtp_config()
-//   }
-// }
 
-// fn load_smtp_config() {
-//   use host <- result.try(envoy.get("SMTP_HOST"))
-//   use port <- result.try(envoy.get("SMTP_PORT") |> result.try(int.parse))
-//   use from <- result.try(envoy.get("SMTP_FROM"))
+fn load_mailer(env: Env) {
+  case env {
+    Dev -> load_smtp_mailer()
+    Prod -> load_ses_mailer()
+  }
+}
 
-//   Ok(mailer_smtp.new(host, port, from))
-// }
+fn load_smtp_mailer() {
+  use host <- result.try(envoy.get("SMTP_HOST"))
+  use port <- result.try(envoy.get("SMTP_PORT") |> result.try(int.parse))
+  use from_address <- result.try(envoy.get("SMTP_FROM"))
 
-// fn load_ses_config() {
-//   use access_key_id <- result.try(envoy.get("AWS_ACCESS_KEY_ID"))
-//   use secret_access_key <- result.try(envoy.get("AWS_SECRET_ACCESS_KEY"))
-//   use region <- result.try(envoy.get("AWS_REGION"))
-//   use from <- result.try(envoy.get("SES_FROM_ADDRESS"))
-//   let service = "ses"
+  Ok(SmtpMailer(host:, port:, from_address:))
+}
 
-//   let signer = {
-//     aws4_request.signer(access_key_id:, secret_access_key:, region:, service:)
-//   }
+fn load_ses_mailer() {
+  use access_key_id <- result.try(envoy.get("AWS_ACCESS_KEY_ID"))
+  use secret_access_key <- result.try(envoy.get("AWS_SECRET_ACCESS_KEY"))
+  use region <- result.try(envoy.get("AWS_REGION"))
+  use from_address <- result.try(envoy.get("SES_FROM_ADDRESS"))
 
-//   Ok(mailer_ses.new(signer, from))
-// }
+  Ok(SesMailer(access_key_id:, secret_access_key:, region:, from_address:))
+}
