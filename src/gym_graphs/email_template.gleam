@@ -68,6 +68,5 @@ pub fn verification_code(code: EmailVerificationCode) {
       ]),
     ]),
   ])
-  |> element.to_document_string()
   |> fn(html) { #("Your verification code - " <> code, html) }
 }

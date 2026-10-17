@@ -3,7 +3,7 @@ import gleam/int
 import gleam/list
 import gleam/result
 import gleam/string
-import gym_graphs/mailer.{type Email, type Mailer}
+import gym_graphs/mailer.{type Mailer, type MailerConfig}
 import mug
 
 const timeout = 10_000
@@ -16,11 +16,11 @@ fn send(
   host: String,
   port: Int,
   from_address: String,
-  email: Email,
+  mailer_config: MailerConfig,
 ) -> Result(Nil, mailer.SendError) {
   use _ <- result.try(validate_header("from address", from_address))
-  use _ <- result.try(validate_header("recipient", email.to))
-  use _ <- result.try(validate_header("subject", email.subject))
+  use _ <- result.try(validate_header("recipient", mailer_config.to))
+  use _ <- result.try(validate_header("subject", mailer_config.subject))
 
   use socket <- result.try(
     mug.new(host, port: port)
@@ -31,7 +31,7 @@ fn send(
     }),
   )
 
-  let outcome = deliver(socket, from_address, email)
+  let outcome = deliver(socket, from_address, mailer_config)
   let _ = mug.shutdown(socket)
   outcome
 }
@@ -39,7 +39,7 @@ fn send(
 fn deliver(
   socket: mug.Socket,
   from_address: String,
-  email: Email,
+  mailer_config: MailerConfig,
 ) -> Result(Nil, mailer.SendError) {
   use _ <- result.try(expect_response(socket, [220]))
   use _ <- result.try(command(socket, "EHLO localhost", [250]))
@@ -47,10 +47,13 @@ fn deliver(
     command(socket, "MAIL FROM:<" <> from_address <> ">", [250]),
   )
   use _ <- result.try(
-    command(socket, "RCPT TO:<" <> email.to <> ">", [250, 251]),
+    command(socket, "RCPT TO:<" <> mailer_config.to <> ">", [250, 251]),
   )
   use _ <- result.try(command(socket, "DATA", [354]))
-  use _ <- result.try(send_data(socket, build_message(from_address, email)))
+  use _ <- result.try(send_data(
+    socket,
+    build_message(from_address, mailer_config),
+  ))
   use _ <- result.try(expect_response(socket, [250]))
   use _ <- result.try(command(socket, "QUIT", [221]))
   Ok(Nil)
@@ -133,16 +136,16 @@ fn response_complete(response: String) -> Bool {
   })
 }
 
-fn build_message(from_address: String, email: Email) -> String {
+fn build_message(from_address: String, mailer_config: MailerConfig) -> String {
   [
     "From: <" <> from_address <> ">",
-    "To: <" <> email.to <> ">",
-    "Subject: " <> email.subject,
+    "To: <" <> mailer_config.to <> ">",
+    "Subject: " <> mailer_config.subject,
     "MIME-Version: 1.0",
     "Content-Type: text/html; charset=UTF-8",
     "Content-Transfer-Encoding: 8bit",
     "",
-    dot_stuff(email.html),
+    dot_stuff(mailer_config.html),
   ]
   |> string.join(with: "\r\n")
 }

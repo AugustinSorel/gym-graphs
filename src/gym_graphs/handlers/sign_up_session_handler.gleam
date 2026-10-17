@@ -5,7 +5,6 @@ import gleam/string
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session
-import gym_graphs/domains/user
 import gym_graphs/email_template
 import gym_graphs/mailer.{type SendError}
 import gym_graphs/repos/sign_up_session_repo
@@ -55,11 +54,8 @@ pub fn start(req: Request, ctx: Ctx) {
 
     let #(subject, html) = email_template.verification_code(code)
 
-    let email =
-      mailer.Email(to: user.email_to_string(input.email), subject:, html:)
-
-    use _ <- result.try(
-      mailer.send(ctx.mailer, email)
+    use Nil <- result.try(
+      mailer.send(ctx.mailer, mailer.new_config(input.email, subject, html))
       |> result.map_error(EmailFailure),
     )
 

@@ -6,7 +6,7 @@ import gleam/httpc
 import gleam/json
 import gleam/result
 import gleam/string
-import gym_graphs/mailer.{type Email, type Mailer}
+import gym_graphs/mailer.{type Mailer, type MailerConfig}
 
 pub fn new(
   access_key_id: String,
@@ -24,7 +24,7 @@ fn send(
   signer: aws4_request.Signer,
   region: String,
   from_address: String,
-  email: Email,
+  mailer_config: MailerConfig,
 ) {
   let body =
     json.object([
@@ -32,7 +32,7 @@ fn send(
       #(
         "Destination",
         json.object([
-          #("ToAddresses", json.array([email.to], of: json.string)),
+          #("ToAddresses", json.array([mailer_config.to], of: json.string)),
         ]),
       ),
       #(
@@ -44,7 +44,7 @@ fn send(
               #(
                 "Subject",
                 json.object([
-                  #("Data", json.string(email.subject)),
+                  #("Data", json.string(mailer_config.subject)),
                   #("Charset", json.string("UTF-8")),
                 ]),
               ),
@@ -54,7 +54,7 @@ fn send(
                   #(
                     "Html",
                     json.object([
-                      #("Data", json.string(email.html)),
+                      #("Data", json.string(mailer_config.html)),
                       #("Charset", json.string("UTF-8")),
                     ]),
                   ),
