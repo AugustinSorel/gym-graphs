@@ -17,7 +17,7 @@ pub fn require(
     use token <- result.try({
       wisp.get_cookie(
         req,
-        name: cookie.name(cookie.sign_up_session()),
+        name: cookie.sign_up_session().name,
         security: wisp.Signed,
       )
     })
@@ -55,7 +55,7 @@ pub fn require(
       wisp.redirect("/sign-up")
       |> wisp.set_cookie(
         req,
-        name: cookie.name(cookie.sign_up_session()),
+        name: cookie.sign_up_session().name,
         value: "",
         security: wisp.Signed,
         max_age: 0,

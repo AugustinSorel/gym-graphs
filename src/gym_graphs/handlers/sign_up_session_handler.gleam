@@ -69,10 +69,10 @@ pub fn start(req: Request, ctx: Ctx) {
       |> wisp.set_header("HX-Redirect", "/sign-up/verify-email-address")
       |> wisp.set_cookie(
         req,
-        name: cookie.name(cookie.sign_up_session()),
+        name: cookie.sign_up_session().name,
         value: token.value,
         security: wisp.Signed,
-        max_age: cookie.max_age(cookie.sign_up_session()),
+        max_age: cookie.sign_up_session().max_age,
       )
 
     Error(StartValidationFailed(form)) -> {

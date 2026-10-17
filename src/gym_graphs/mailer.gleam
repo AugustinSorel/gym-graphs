@@ -9,7 +9,7 @@ pub type SendError {
   SendError(reason: String)
 }
 
-pub opaque type Mailer {
+pub type Mailer {
   Mailer(send: fn(MailerConfig) -> Result(Nil, SendError))
 }
 

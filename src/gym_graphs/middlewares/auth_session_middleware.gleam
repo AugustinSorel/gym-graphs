@@ -13,7 +13,7 @@ pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
     use token <- result.try({
       wisp.get_cookie(
         req,
-        name: cookie.name(cookie.sign_up_session()),
+        name: cookie.sign_up_session().name,
         security: wisp.Signed,
       )
     })
