@@ -6,11 +6,14 @@ import gym_graphs/cookie
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session.{type SignUpSession}
+import gym_graphs/domains/user
 import gym_graphs/email_template
 import gym_graphs/mailer.{type SendError}
+import gym_graphs/repos/auth_session_repo
 import gym_graphs/repos/sign_up_session_repo
+import gym_graphs/repos/user_repo
 import gym_graphs/schemas/sign_up_session_schema.{
-  type StartSchema, type VerifyEmailAddressSchema,
+  type SetPasswordSchema, type StartSchema, type VerifyEmailAddressSchema,
 }
 import gym_graphs/views/sign_up_session_view
 import lustre/element
@@ -138,11 +141,10 @@ pub fn verify_email(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
       |> result.map_error(VerifyEmailValidationFailed),
     )
 
+    let code = sign_up_session.email_address_verification_code
+
     use Nil <- result.try(
-      sign_up_session.verify_email_code(
-        sign_up_session.email_address_verification_code,
-        input.code,
-      )
+      sign_up_session.verify_email_code(code, input.code)
       |> result.replace_error(VerificationCodeFailed),
     )
 
@@ -241,6 +243,106 @@ pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
       sign_up_session_schema.verify_email()
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> sign_up_session_view.verify_email_form(option.None)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+pub fn view_set_password_page(sign_up_session: SignUpSession) {
+  sign_up_session_schema.get_set_password_form()
+  |> form.add_string("email", sign_up_session.email.value)
+  |> sign_up_session_view.set_password_form()
+  |> sign_up_session_view.set_password_page()
+  |> element.to_string()
+  |> wisp.html_response(200)
+}
+
+type SetPasswordError {
+  SetPasswordValidation(Form(SetPasswordSchema))
+  SetPasswordDatabaseFailure(QueryError)
+  SetPasswordCreationFailed
+}
+
+pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      sign_up_session_schema.get_set_password_form()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(SetPasswordValidation),
+    )
+
+    let name = user.new_name(sign_up_session.email)
+
+    pog.transaction(ctx.db, fn(tx) {
+      use user <- result.try({
+        user_repo.create(tx, input.password_hash, name, sign_up_session.id)
+        |> result.map_error(SetPasswordDatabaseFailure)
+        |> result.try(option.to_result(_, SetPasswordCreationFailed))
+      })
+
+      use Nil <- result.try(
+        sign_up_session_repo.delete_by_id(tx, sign_up_session.id)
+        |> result.replace(Nil)
+        |> result.map_error(SetPasswordDatabaseFailure),
+      )
+
+      //TODO: seed user account
+
+      let secret = session.generate_secret()
+      let secret_hash = session.hash_secret(secret)
+
+      use auth_session <- result.try(
+        auth_session_repo.create(tx, user.id, secret_hash)
+        |> result.map_error(SetPasswordDatabaseFailure)
+        |> result.try(option.to_result(_, SetPasswordCreationFailed)),
+      )
+
+      let token = session.encode_token(auth_session.id.value, secret)
+
+      Ok(token)
+    })
+    |> result.map_error(fn(err) {
+      case err {
+        pog.TransactionRolledBack(e) -> e
+        pog.TransactionQueryError(err) -> SetPasswordDatabaseFailure(err)
+      }
+    })
+  }
+
+  case result {
+    Ok(token) -> {
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/")
+      |> wisp.set_cookie(
+        req,
+        name: cookie.sign_up_session().name,
+        value: "",
+        security: wisp.Signed,
+        max_age: 0,
+      )
+      |> wisp.set_cookie(
+        req,
+        name: cookie.auth_session().name,
+        value: token.value,
+        security: wisp.Signed,
+        max_age: cookie.auth_session().max_age,
+      )
+    }
+    Error(SetPasswordValidation(form)) ->
+      form
+      |> sign_up_session_view.set_password_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      sign_up_session_schema.get_set_password_form()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong"))
+      |> sign_up_session_view.set_password_form()
       |> element.to_string()
       |> wisp.html_response(500)
     }

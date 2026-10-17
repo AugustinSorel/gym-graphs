@@ -9,6 +9,60 @@ import gleam/option.{type Option}
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
+/// A row you get from running the `create_auth_session` query
+/// defined in `./src/gym_graphs/sql/create_auth_session.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateAuthSessionRow {
+  CreateAuthSessionRow(
+    id: Int,
+    user_id: Int,
+    secret_hash: BitArray,
+    last_active_at: Timestamp,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `create_auth_session` query
+/// defined in `./src/gym_graphs/sql/create_auth_session.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_auth_session(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: BitArray,
+) -> Result(pog.Returned(CreateAuthSessionRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use user_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use last_active_at <- decode.field(3, pog.timestamp_decoder())
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
+    decode.success(CreateAuthSessionRow(
+      id:,
+      user_id:,
+      secret_hash:,
+      last_active_at:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "insert into auth_sessions (user_id, secret_hash) values ($1, $2) returning *;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.bytea(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_sign_up_session` query
 /// defined in `./src/gym_graphs/sql/create_sign_up_session.sql`.
 ///
@@ -81,6 +135,51 @@ returning *;
   |> pog.parameter(pog.bytea(arg_1))
   |> pog.parameter(pog.text(email_address))
   |> pog.parameter(pog.text(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `create_user` query
+/// defined in `./src/gym_graphs/sql/create_user.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateUserRow {
+  CreateUserRow(id: Int, email_address: String)
+}
+
+/// Runs the `create_user` query
+/// defined in `./src/gym_graphs/sql/create_user.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_user(
+  db: pog.Connection,
+  arg_1: String,
+  arg_2: String,
+  id: Int,
+) -> Result(pog.Returned(CreateUserRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    decode.success(CreateUserRow(id:, email_address:))
+  }
+
+  "insert into users (email_address, password_hash, name)
+select
+    email_address,
+    $1,
+    $2
+from sign_up_sessions
+where id = $3 and email_address_verified_at is not null returning
+    id, email_address;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

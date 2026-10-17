@@ -54,6 +54,24 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       sign_up_session_handler.cancel(req, sign_up_session, ctx)
     }
+    Get, ["sign-up", "set-password"] -> {
+      use <- auth_session_middleware.require_blank(req, ctx)
+      use sign_up_session <- sign_up_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      sign_up_session_handler.view_set_password_page(sign_up_session)
+    }
+    Post, ["sign-up", "set-password"] -> {
+      use <- auth_session_middleware.require_blank(req, ctx)
+      use sign_up_session <- sign_up_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      sign_up_session_handler.set_password(req, sign_up_session, ctx)
+    }
 
     _, _ -> wisp.not_found()
   }

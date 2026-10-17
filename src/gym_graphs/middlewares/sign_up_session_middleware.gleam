@@ -81,19 +81,20 @@ pub fn require_unverified(
 
   next(sign_up_session)
 }
-// pub fn require_sign_up_verified(
-//   req: Request,
-//   ctx: Ctx,
-//   next: fn(SignUpSession) -> Response,
-// ) -> Response {
-//   use sign_up_sess <- require_sign_up_session(req, ctx)
 
-//   let not_verified = option.is_none(sign_up_sess.email_address_verified_at)
+pub fn require_verified(
+  req: Request,
+  ctx: Ctx,
+  next: fn(SignUpSession) -> Response,
+) -> Response {
+  use sign_up_session <- require(req, ctx)
 
-//   use <- bool.guard(
-//     when: not_verified,
-//     return: wisp.redirect("/sign-up/verify-email-address"),
-//   )
+  let not_verified = option.is_none(sign_up_session.email_address_verified_at)
 
-//   next(sign_up_sess)
-// }
+  use <- bool.guard(
+    when: not_verified,
+    return: wisp.redirect("/sign-up/verify-email-address"),
+  )
+
+  next(sign_up_session)
+}
