@@ -314,6 +314,67 @@ pub fn select_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_user_by_email` query
+/// defined in `./src/gym_graphs/sql/select_user_by_email.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectUserByEmailRow {
+  SelectUserByEmailRow(
+    id: Int,
+    email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
+    password_hash: String,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_user_by_email` query
+/// defined in `./src/gym_graphs/sql/select_user_by_email.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_user_by_email(
+  db: pog.Connection,
+  arg_1: String,
+) -> Result(pog.Returned(SelectUserByEmailRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      4,
+      one_rep_max_algorithm_decoder(),
+    )
+    use password_hash <- decode.field(5, decode.string)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
+    decode.success(SelectUserByEmailRow(
+      id:,
+      email_address:,
+      name:,
+      weight_unit:,
+      one_rep_max_algorithm:,
+      password_hash:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select * from users where email_address = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `verify_sign_up_session_by_id` query
 /// defined in `./src/gym_graphs/sql/verify_sign_up_session_by_id.sql`.
 ///
@@ -338,4 +399,66 @@ where
   |> pog.parameter(pog.int(id))
   |> pog.returning(decoder)
   |> pog.execute(db)
+}
+
+// --- Enums -------------------------------------------------------------------
+
+/// Corresponds to the Postgres `one_rep_max_algorithm` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type OneRepMaxAlgorithm {
+  Wathen
+  Oconner
+  Naclerio
+  Mayhew
+  Lombardi
+  Landers
+  Kemmler
+  Epley
+  Brzycki
+  Brown
+  Berger
+  Baechle
+  Adams
+}
+
+fn one_rep_max_algorithm_decoder() -> decode.Decoder(OneRepMaxAlgorithm) {
+  use one_rep_max_algorithm <- decode.then(decode.string)
+  case one_rep_max_algorithm {
+    "wathen" -> decode.success(Wathen)
+    "oconner" -> decode.success(Oconner)
+    "naclerio" -> decode.success(Naclerio)
+    "mayhew" -> decode.success(Mayhew)
+    "lombardi" -> decode.success(Lombardi)
+    "landers" -> decode.success(Landers)
+    "kemmler" -> decode.success(Kemmler)
+    "epley" -> decode.success(Epley)
+    "brzycki" -> decode.success(Brzycki)
+    "brown" -> decode.success(Brown)
+    "berger" -> decode.success(Berger)
+    "baechle" -> decode.success(Baechle)
+    "adams" -> decode.success(Adams)
+    _ -> decode.failure(Wathen, "OneRepMaxAlgorithm")
+  }
+}
+
+/// Corresponds to the Postgres `weight_unit` enum.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type WeightUnit {
+  Lbs
+  Kg
+}
+
+fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
+  use weight_unit <- decode.then(decode.string)
+  case weight_unit {
+    "lbs" -> decode.success(Lbs)
+    "kg" -> decode.success(Kg)
+    _ -> decode.failure(Lbs, "WeightUnit")
+  }
 }

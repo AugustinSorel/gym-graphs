@@ -278,7 +278,7 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
     let name = user.new_name(sign_up_session.email)
 
     pog.transaction(ctx.db, fn(tx) {
-      use user <- result.try({
+      use user_id <- result.try({
         user_repo.create(tx, input.password_hash, name, sign_up_session.id)
         |> result.map_error(SetPasswordDatabaseFailure)
         |> result.try(option.to_result(_, SetPasswordCreationFailed))
@@ -295,13 +295,13 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
       let secret = session.generate_secret()
       let secret_hash = session.hash_secret(secret)
 
-      use auth_session <- result.try(
-        auth_session_repo.create(tx, user.id, secret_hash)
+      use auth_session_id <- result.try(
+        auth_session_repo.create(tx, user_id, secret_hash)
         |> result.map_error(SetPasswordDatabaseFailure)
         |> result.try(option.to_result(_, SetPasswordCreationFailed)),
       )
 
-      let token = session.encode_token(auth_session.id.value, secret)
+      let token = session.encode_token(auth_session_id, secret)
 
       Ok(token)
     })

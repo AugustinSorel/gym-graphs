@@ -21,7 +21,7 @@ pub type UserId {
 }
 
 pub type User {
-  User(id: UserId)
+  User(id: UserId, password_hash: PasswordHash)
 }
 
 pub fn parse_email() {
@@ -50,4 +50,8 @@ pub fn parse_password() {
 
     PasswordHash(hashes.encoded_hash)
   })
+}
+
+pub fn verify_password(left: PasswordHash, right: String) {
+  left.value |> argus.verify(right) |> result.unwrap(False)
 }

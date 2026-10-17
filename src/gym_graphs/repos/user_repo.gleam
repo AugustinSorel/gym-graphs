@@ -1,7 +1,7 @@
 import gleam/option
 import gleam/result
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
-import gym_graphs/domains/user.{type Name, type PasswordHash}
+import gym_graphs/domains/user.{type Email, type Name, type PasswordHash}
 import gym_graphs/sql
 import pog.{type Connection}
 
@@ -15,10 +15,30 @@ pub fn create(
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        user.User(id: user.UserId(entity.id))
+        user.UserId(entity.id)
         |> option.Some()
       }
       pog.Returned(count: _, rows: []) -> option.None
     }
   })
+}
+
+pub fn select_by_email(db: Connection, email: Email) {
+  sql.select_user_by_email(db, email.value)
+  |> result.map(fn(row) {
+    case row {
+      pog.Returned(count: _, rows: [entity, ..]) -> {
+        new_user(entity.id, entity.password_hash)
+        |> option.Some()
+      }
+      pog.Returned(count: _, rows: []) -> option.None
+    }
+  })
+}
+
+fn new_user(id: Int, password_hash: String) {
+  let id = user.UserId(id)
+  let password_hash = user.PasswordHash(password_hash)
+
+  user.User(id:, password_hash:)
 }

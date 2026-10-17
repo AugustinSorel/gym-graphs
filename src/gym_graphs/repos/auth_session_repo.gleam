@@ -23,7 +23,7 @@ pub fn create(db: Connection, user_id: UserId, secret_hash: SessionSecretHash) {
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        new_auth_session(entity.id, entity.secret_hash) |> option.Some()
+        entity.id |> option.Some()
       }
       pog.Returned(count: _, rows: []) -> option.None
     }

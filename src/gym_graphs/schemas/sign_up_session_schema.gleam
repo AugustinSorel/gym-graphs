@@ -1,4 +1,3 @@
-import argus
 import formal/form.{type Form}
 import gym_graphs/domains/sign_up_session.{type EmailVerificationCode}
 import gym_graphs/domains/user.{type Email, type PasswordHash}

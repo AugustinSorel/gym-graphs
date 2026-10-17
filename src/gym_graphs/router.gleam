@@ -79,6 +79,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       auth_session_handler.view_sign_in_page()
     }
+    Post, ["sign-in"] -> {
+      use <- auth_session_middleware.require_blank(req, ctx)
+
+      auth_session_handler.sign_in(req, ctx)
+    }
     _, _ -> wisp.not_found()
   }
 }
