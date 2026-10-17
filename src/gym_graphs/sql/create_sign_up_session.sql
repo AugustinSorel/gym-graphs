@@ -12,4 +12,4 @@ where not exists (
     from users
     where email_address = $2
 )
-returning id;
+returning *;

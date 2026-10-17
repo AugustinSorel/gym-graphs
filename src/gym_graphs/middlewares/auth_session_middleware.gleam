@@ -1,6 +1,7 @@
 import gleam/bool
 import gleam/option
 import gleam/result
+import gym_graphs/cookie
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/auth_session
 import gym_graphs/domains/session
@@ -10,7 +11,11 @@ import wisp.{type Request, type Response}
 pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
   let res = {
     use token <- result.try({
-      wisp.get_cookie(req, name: "auth_session_token", security: wisp.Signed)
+      wisp.get_cookie(
+        req,
+        name: cookie.name(cookie.sign_up_session()),
+        security: wisp.Signed,
+      )
     })
 
     use #(id, secret) <- result.try(session.decode_token(token))
