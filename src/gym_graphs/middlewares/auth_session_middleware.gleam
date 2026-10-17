@@ -21,12 +21,12 @@ pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
     use #(id, secret) <- result.try(session.decode_token(token))
 
     use auth_session <- result.try(
-      auth_session_repo.select_by_id(ctx.db, auth_session.new_id(id))
+      auth_session_repo.select_by_id(ctx.db, auth_session.AuthSessionId(id))
       |> result.replace_error(Nil)
       |> result.try(option.to_result(_, Nil)),
     )
 
-    session.verify(auth_session.secret_hash(auth_session), secret)
+    session.verify(auth_session.secret_hash, secret)
   }
 
   bool.guard(

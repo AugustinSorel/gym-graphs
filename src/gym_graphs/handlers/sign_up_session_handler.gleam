@@ -60,10 +60,7 @@ pub fn start(req: Request, ctx: Ctx) {
       |> result.map_error(EmailFailure),
     )
 
-    Ok(session.encode_token(
-      sign_up_session.id_to_int(sign_up_session.id(sign_up_session)),
-      secret,
-    ))
+    Ok(session.encode_token(sign_up_session.id.value, secret))
   }
 
   case result {
@@ -73,7 +70,7 @@ pub fn start(req: Request, ctx: Ctx) {
       |> wisp.set_cookie(
         req,
         name: cookie.name(cookie.sign_up_session()),
-        value: session.encoded_token_to_string(token),
+        value: token.value,
         security: wisp.Signed,
         max_age: cookie.max_age(cookie.sign_up_session()),
       )
@@ -143,16 +140,13 @@ pub fn verify_email(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
 
     use Nil <- result.try(
       sign_up_session.verify_email_code(
-        sign_up_session.email_address_verification_code(sign_up_session),
+        sign_up_session.email_address_verification_code,
         input.code,
       )
       |> result.replace_error(VerificationCodeFailed),
     )
 
-    sign_up_session_repo.verify_by_id(
-      ctx.db,
-      sign_up_session.id(sign_up_session),
-    )
+    sign_up_session_repo.verify_by_id(ctx.db, sign_up_session.id)
     |> result.map_error(VerifyEmailDatabaseFailure)
     |> result.replace(Nil)
   }

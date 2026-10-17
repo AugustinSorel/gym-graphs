@@ -4,8 +4,6 @@ import lustre/element
 import lustre/element/html
 
 pub fn verification_code(code: EmailVerificationCode) {
-  let code = sign_up_session.email_verification_code_to_string(code)
-
   html.html([attribute.attribute("lang", "en")], [
     html.head([], [
       html.meta([attribute.attribute("charset", "UTF-8")]),
@@ -54,7 +52,7 @@ pub fn verification_code(code: EmailVerificationCode) {
     html.body([], [
       html.div([attribute.class("container")], [
         html.h1([], [element.text("Your Verification Code")]),
-        html.strong([attribute.class("code")], [element.text(code)]),
+        html.strong([attribute.class("code")], [element.text(code.value)]),
         html.footer([attribute.class("footer")], [
           html.p([], [
             element.text(
@@ -68,5 +66,5 @@ pub fn verification_code(code: EmailVerificationCode) {
       ]),
     ]),
   ])
-  |> fn(html) { #("Your verification code - " <> code, html) }
+  |> fn(html) { #("Your verification code - " <> code.value, html) }
 }

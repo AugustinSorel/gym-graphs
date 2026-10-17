@@ -14,22 +14,22 @@ pub fn create(
 ) {
   sql.create_sign_up_session(
     db,
-    session.secret_hash_to_bit_array(secret_hash),
-    user.email_to_string(email),
-    sign_up_session.email_verification_code_to_string(verification_code),
+    secret_hash.value,
+    email.value,
+    verification_code.value,
   )
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: []) -> option.None
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        let id = entity.id |> sign_up_session.new_id
-        let secret_hash = session.new_secret_hash(entity.secret_hash)
+        let id = sign_up_session.SignUpSessionId(entity.id)
+        let secret_hash = session.SessionSecretHash(entity.secret_hash)
         let email_verification_code =
-          sign_up_session.new_email_verification_code(
+          sign_up_session.EmailVerificationCode(
             entity.email_address_verification_code,
           )
 
-        sign_up_session.new(
+        sign_up_session.SignUpSession(
           id,
           secret_hash,
           email_verification_code,
@@ -44,19 +44,19 @@ pub fn create(
 
 //FIX map
 pub fn select_by_id(db: Connection, id: SignUpSessionId) {
-  sql.select_sign_up_session_by_id(db, sign_up_session.id_to_int(id))
+  sql.select_sign_up_session_by_id(db, id.value)
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: []) -> option.None
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        let id = entity.id |> sign_up_session.new_id
-        let secret_hash = session.new_secret_hash(entity.secret_hash)
+        let id = sign_up_session.SignUpSessionId(entity.id)
+        let secret_hash = session.SessionSecretHash(entity.secret_hash)
         let email_verification_code =
-          sign_up_session.new_email_verification_code(
+          sign_up_session.EmailVerificationCode(
             entity.email_address_verification_code,
           )
 
-        sign_up_session.new(
+        sign_up_session.SignUpSession(
           id,
           secret_hash,
           email_verification_code,
@@ -70,7 +70,7 @@ pub fn select_by_id(db: Connection, id: SignUpSessionId) {
 }
 
 pub fn verify_by_id(db: Connection, id: SignUpSessionId) {
-  sql.verify_sign_up_session_by_id(db, sign_up_session.id_to_int(id))
+  sql.verify_sign_up_session_by_id(db, id.value)
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: _) -> Nil

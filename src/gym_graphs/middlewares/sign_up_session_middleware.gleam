@@ -25,7 +25,10 @@ pub fn require(
     use #(id, secret) <- result.try(session.decode_token(token))
 
     use sign_up_session <- result.try(
-      sign_up_session_repo.select_by_id(ctx.db, sign_up_session.new_id(id))
+      sign_up_session_repo.select_by_id(
+        ctx.db,
+        sign_up_session.SignUpSessionId(id),
+      )
       |> result.replace_error(Nil)
       |> result.try(option.to_result(_, Nil))
       |> result.try(fn(session) {
@@ -39,7 +42,7 @@ pub fn require(
     )
 
     use Nil <- result.try(
-      session.verify(sign_up_session.secret_hash(sign_up_session), secret)
+      session.verify(sign_up_session.secret_hash, secret)
       |> result.replace_error(Nil),
     )
 
@@ -69,7 +72,7 @@ pub fn require_unverified(
   use sign_up_session <- require(req, ctx)
 
   let already_verified =
-    option.is_some(sign_up_session.email_address_verified_at(sign_up_session))
+    option.is_some(sign_up_session.email_address_verified_at)
 
   use <- bool.guard(
     when: already_verified,
