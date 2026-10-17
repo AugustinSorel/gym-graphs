@@ -9,6 +9,7 @@ import gleam/string
 import gleam/time/duration
 import gleam/time/timestamp
 import gym_graphs/domains/session.{type SessionSecretHash}
+import gym_graphs/domains/user.{type Email}
 
 pub type EmailVerificationCode {
   EmailVerificationCode(value: String)
@@ -21,6 +22,7 @@ pub type SignUpSessionId {
 pub type SignUpSession {
   SignUpSession(
     id: SignUpSessionId,
+    email: Email,
     secret_hash: SessionSecretHash,
     email_address_verification_code: EmailVerificationCode,
     email_address_verified_at: option.Option(timestamp.Timestamp),

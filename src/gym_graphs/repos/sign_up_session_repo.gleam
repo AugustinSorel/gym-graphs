@@ -1,5 +1,6 @@
 import gleam/option
 import gleam/result
+import gleam/time/timestamp
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user
@@ -22,17 +23,11 @@ pub fn create(
     case row {
       pog.Returned(count: _, rows: []) -> option.None
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        let id = sign_up_session.SignUpSessionId(entity.id)
-        let secret_hash = session.SessionSecretHash(entity.secret_hash)
-        let email_verification_code =
-          sign_up_session.EmailVerificationCode(
-            entity.email_address_verification_code,
-          )
-
-        sign_up_session.SignUpSession(
-          id,
-          secret_hash,
-          email_verification_code,
+        new_sign_up_session(
+          entity.id,
+          entity.email_address,
+          entity.secret_hash,
+          entity.email_address_verification_code,
           entity.email_address_verified_at,
           entity.created_at,
         )
@@ -42,24 +37,17 @@ pub fn create(
   })
 }
 
-//FIX map
 pub fn select_by_id(db: Connection, id: SignUpSessionId) {
   sql.select_sign_up_session_by_id(db, id.value)
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: []) -> option.None
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        let id = sign_up_session.SignUpSessionId(entity.id)
-        let secret_hash = session.SessionSecretHash(entity.secret_hash)
-        let email_verification_code =
-          sign_up_session.EmailVerificationCode(
-            entity.email_address_verification_code,
-          )
-
-        sign_up_session.SignUpSession(
-          id,
-          secret_hash,
-          email_verification_code,
+        new_sign_up_session(
+          entity.id,
+          entity.email_address,
+          entity.secret_hash,
+          entity.email_address_verification_code,
           entity.email_address_verified_at,
           entity.created_at,
         )
@@ -76,4 +64,36 @@ pub fn verify_by_id(db: Connection, id: SignUpSessionId) {
       pog.Returned(count: _, rows: _) -> Nil
     }
   })
+}
+
+pub fn delete_by_id(db: Connection, id: SignUpSessionId) {
+  sql.delete_sign_up_session_by_id(db, id.value)
+  |> result.map(fn(row) {
+    case row {
+      pog.Returned(count: _, rows: _) -> Nil
+    }
+  })
+}
+
+fn new_sign_up_session(
+  id: Int,
+  email: String,
+  secret_hash: BitArray,
+  code: String,
+  email_address_verified_at: option.Option(timestamp.Timestamp),
+  created_at: timestamp.Timestamp,
+) {
+  let id = sign_up_session.SignUpSessionId(id)
+  let email = user.Email(email)
+  let secret_hash = session.SessionSecretHash(secret_hash)
+  let email_verification_code = sign_up_session.EmailVerificationCode(code)
+
+  sign_up_session.SignUpSession(
+    id,
+    email,
+    secret_hash,
+    email_verification_code,
+    email_address_verified_at,
+    created_at,
+  )
 }

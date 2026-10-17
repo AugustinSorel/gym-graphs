@@ -36,6 +36,24 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       sign_up_session_handler.verify_email(req, sign_up_session, ctx)
     }
+    Post, ["sign-up", "verify-email-address", "resend"] -> {
+      use <- auth_session_middleware.require_blank(req, ctx)
+      use sign_up_session <- sign_up_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      sign_up_session_handler.resend(req, sign_up_session, ctx)
+    }
+    Post, ["sign-up", "verify-email-address", "cancel"] -> {
+      use <- auth_session_middleware.require_blank(req, ctx)
+      use sign_up_session <- sign_up_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      sign_up_session_handler.cancel(req, sign_up_session, ctx)
+    }
 
     _, _ -> wisp.not_found()
   }

@@ -85,6 +85,26 @@ returning *;
   |> pog.execute(db)
 }
 
+/// Runs the `delete_sign_up_session_by_id` query
+/// defined in `./src/gym_graphs/sql/delete_sign_up_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_sign_up_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from sign_up_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_auth_session_by_id` query
 /// defined in `./src/gym_graphs/sql/select_auth_session_by_id.sql`.
 ///

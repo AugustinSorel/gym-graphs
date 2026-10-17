@@ -186,3 +186,63 @@ pub fn verify_email(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
     }
   }
 }
+
+pub fn resend(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    let code = sign_up_session.email_address_verification_code
+    let #(subject, html) = email_template.verification_code(code)
+
+    let config = mailer.new_config(sign_up_session.email, subject, html)
+
+    mailer.send(ctx.mailer, config)
+  }
+
+  case result {
+    Ok(Nil) ->
+      sign_up_session_schema.verify_email()
+      |> form.add_values(form_data.values)
+      |> sign_up_session_view.verify_email_form(option.Some(
+        "A new verification code has been sent to your email address.",
+      ))
+      |> element.to_string()
+      |> wisp.html_response(200)
+
+    Error(error) -> {
+      wisp.log_error("sign up: resend verify email: " <> string.inspect(error))
+      sign_up_session_schema.verify_email()
+      |> form.add_values(form_data.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_session_view.verify_email_form(option.None)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
+  let result = sign_up_session_repo.delete_by_id(ctx.db, session.id)
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_cookie(
+        req,
+        name: cookie.sign_up_session().name,
+        value: "",
+        security: wisp.Signed,
+        max_age: 0,
+      )
+      |> wisp.set_header("HX-Redirect", "/sign-up")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      sign_up_session_schema.verify_email()
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> sign_up_session_view.verify_email_form(option.None)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
