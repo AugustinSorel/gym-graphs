@@ -54,18 +54,8 @@ pub fn select_by_id(db: Connection, id: PasswordResetSessionId) {
 
 pub fn verify_by_id(db: Connection, id: PasswordResetSessionId) {
   sql.verify_password_reset_session_by_id(db, id.value)
-  |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: _) -> Nil
-    }
-  })
 }
 
 pub fn delete_by_id(db: Connection, id: PasswordResetSessionId) {
   sql.delete_password_reset_session_by_id(db, id.value)
-  |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: _) -> Nil
-    }
-  })
 }

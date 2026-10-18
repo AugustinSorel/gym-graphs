@@ -153,6 +153,7 @@ pub fn verify(
 
     password_reset_session_repo.verify_by_id(ctx.db, password_reset_session.id)
     |> result.map_error(VerifyDatabaseFailure)
+    |> result.replace(Nil)
   }
 
   case result {
@@ -200,6 +201,7 @@ pub fn cancel(
 
   let result = {
     password_reset_session_repo.delete_by_id(ctx.db, password_reset_session.id)
+    |> result.replace(Nil)
   }
 
   case result {

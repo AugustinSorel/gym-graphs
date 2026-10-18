@@ -59,20 +59,10 @@ pub fn select_by_id(db: Connection, id: SignUpSessionId) {
 
 pub fn verify_by_id(db: Connection, id: SignUpSessionId) {
   sql.verify_sign_up_session_by_id(db, id.value)
-  |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: _) -> Nil
-    }
-  })
 }
 
 pub fn delete_by_id(db: Connection, id: SignUpSessionId) {
   sql.delete_sign_up_session_by_id(db, id.value)
-  |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: _) -> Nil
-    }
-  })
 }
 
 fn new_sign_up_session(

@@ -224,7 +224,10 @@ pub fn resend(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
 }
 
 pub fn cancel(req: Request, session: SignUpSession, ctx: Ctx) {
-  let result = sign_up_session_repo.delete_by_id(ctx.db, session.id)
+  let result = {
+    sign_up_session_repo.delete_by_id(ctx.db, session.id)
+    |> result.replace(Nil)
+  }
 
   case result {
     Ok(Nil) ->
