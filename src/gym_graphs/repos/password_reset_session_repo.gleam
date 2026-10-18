@@ -30,15 +30,28 @@ pub fn select_by_id(db: Connection, id: PasswordResetSessionId) {
   sql.select_password_reset_session_by_id(db, id.value)
   |> result.map(fn(row) {
     case row {
-      pog.Returned(count: _, rows: [entity, ..]) ->
+      pog.Returned(count: _, rows: [entity, ..]) -> {
+        let id = password_reset_session.PasswordResetSessionId(entity.id)
+        let secret_hash = session.SessionSecretHash(entity.secret_hash)
+        let email_code_hash =
+          password_reset_session.EmailVerificationCodeHash(
+            entity.email_code_hash,
+          )
+
         password_reset_session.PasswordResetSession(
-          password_reset_session.PasswordResetSessionId(entity.id),
-          session.SessionSecretHash(entity.secret_hash),
+          id,
+          secret_hash,
+          email_code_hash,
           entity.user_identity_verified_at,
         )
         |> option.Some()
+      }
 
       pog.Returned(count: _, rows: []) -> option.None
     }
   })
+}
+
+pub fn verify_by_id(db: Connection, id: PasswordResetSessionId) {
+  sql.verify_password_reset_session_by_id(db, id.value)
 }

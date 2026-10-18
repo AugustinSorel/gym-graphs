@@ -1,8 +1,11 @@
 import argus
 import formal/form
+import gleam/bit_array
+import gleam/bool
 import gleam/crypto
 import gleam/list
 import gleam/option
+import gleam/result
 import gleam/string
 import gleam/time/timestamp
 import gym_graphs/domains/session.{type SessionSecretHash}
@@ -23,6 +26,7 @@ pub type PasswordResetSession {
   PasswordResetSession(
     id: PasswordResetSessionId,
     secret_hash: SessionSecretHash,
+    email_code_hash: EmailVerificationCodeHash,
     user_identity_verified_at: option.Option(timestamp.Timestamp),
   )
 }
@@ -52,4 +56,8 @@ pub fn hash_email_verification_code(code: EmailVerificationCode) {
   let assert Ok(hashes) = argus.hasher() |> argus.hash(code.value)
 
   hashes.encoded_hash |> EmailVerificationCodeHash
+}
+
+pub fn verify(left: EmailVerificationCodeHash, right: EmailVerificationCode) {
+  argus.verify(left.value, right.value) |> result.unwrap(False)
 }

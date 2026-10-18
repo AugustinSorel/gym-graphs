@@ -1,21 +1,22 @@
 import formal/form.{type Form}
+import gleam/bool
 import gleam/option
 import gleam/result
 import gleam/string
 import gym_graphs/cookie
 import gym_graphs/ctx.{type Ctx}
-import gym_graphs/domains/password_reset_session
+import gym_graphs/domains/password_reset_session.{type PasswordResetSession}
 import gym_graphs/domains/session
 import gym_graphs/mailers/email_template
 import gym_graphs/mailers/mailer.{type SendError}
 import gym_graphs/repos/password_reset_session_repo
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/password_reset_session_schema.{
-  type ResetPasswordSchema,
+  type ResetPasswordSchema, type VerifyEmailCodeSchema,
 }
 import gym_graphs/views/password_reset_session_view
 import lustre/element
-import pog
+import pog.{type QueryError}
 import wisp.{type Request}
 
 pub fn view_page() {
@@ -28,7 +29,7 @@ pub fn view_page() {
 
 pub type StartError {
   StartValidation(Form(ResetPasswordSchema))
-  StartDatabaseFailure(pog.QueryError)
+  StartDatabaseFailure(QueryError)
   SendingVerificationCodeFailed(SendError)
   UserNotFound
 }
@@ -119,4 +120,74 @@ pub fn view_verify_page() {
   |> password_reset_session_view.verify_page()
   |> element.to_string()
   |> wisp.html_response(200)
+}
+
+pub type VerifyError {
+  VerifyErrorValidation(Form(VerifyEmailCodeSchema))
+  InvalidCode
+  VerifyDatabaseFailure(QueryError)
+}
+
+pub fn verify(
+  req: Request,
+  password_reset_session: PasswordResetSession,
+  ctx: Ctx,
+) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      password_reset_session_schema.verify()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(VerifyErrorValidation),
+    )
+
+    let valid_code =
+      password_reset_session.verify(
+        password_reset_session.email_code_hash,
+        input.code,
+      )
+
+    use <- bool.guard(when: !valid_code, return: Error(InvalidCode))
+
+    password_reset_session_repo.verify_by_id(ctx.db, password_reset_session.id)
+    |> result.map_error(VerifyDatabaseFailure)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_header("HX-Redirect", "/reset-password/set-new-password")
+
+    Error(VerifyErrorValidation(form)) ->
+      form
+      |> password_reset_session_view.verify_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+
+    Error(InvalidCode) ->
+      password_reset_session_schema.verify()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError(
+          "The verification code you entered is incorrect. Please try again.",
+        ),
+      )
+      |> password_reset_session_view.verify_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+
+    Error(VerifyDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      password_reset_session_schema.verify()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> password_reset_session_view.verify_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
 }
