@@ -202,3 +202,43 @@ pub fn set_new_password(
     }
   }
 }
+
+pub fn cancel(
+  req: Request,
+  auth_session: AuthSession,
+  password_update_session: PasswordUpdateSession,
+  ctx: Ctx,
+) {
+  use formdata <- wisp.require_form(req)
+
+  use <- bool.guard(
+    when: auth_session.id != password_update_session.auth_session_id,
+    return: wisp.ok()
+      |> wisp.set_cookie(req, cookie.password_update().name, "", wisp.Signed, 0)
+      |> wisp.set_header("HX-Redirect", "/account"),
+  )
+
+  let result =
+    password_update_session_repo.delete_by_id(
+      ctx.db,
+      password_update_session.id,
+    )
+    |> result.replace(Nil)
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_cookie(req, cookie.password_update().name, "", wisp.Signed, 0)
+      |> wisp.set_header("HX-Redirect", "/account")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      password_update_session_schema.set_new_password()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> password_update_session_view.set_new_password_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}

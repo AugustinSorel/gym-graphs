@@ -179,6 +179,20 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         ctx,
       )
     }
+    Post, ["update-password", "cancel"] -> {
+      use auth_session, _user <- auth_session_middleware.require(req, ctx)
+      use password_update_session <- password_update_session_middleware.require(
+        req,
+        ctx,
+      )
+
+      password_update_session_handler.cancel(
+        req,
+        auth_session,
+        password_update_session,
+        ctx,
+      )
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)
