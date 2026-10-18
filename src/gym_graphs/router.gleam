@@ -143,9 +143,15 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     }
 
     Get, ["account"] -> {
-      use user <- auth_session_middleware.require(req, ctx)
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       user_handler.view_account_page(req, user)
+    }
+
+    Post, ["sign-out"] -> {
+      use auth_session, _user <- auth_session_middleware.require(req, ctx)
+
+      auth_session_handler.sign_out(req, auth_session, ctx)
     }
 
     _, _ -> wisp.not_found()

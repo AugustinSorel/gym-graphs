@@ -38,12 +38,12 @@ pub fn require(req, ctx: Ctx, next) {
       |> result.try(option.to_result(_, Nil)),
     )
 
-    Ok(#(user, token))
+    Ok(#(user, auth_session, token))
   }
 
   case result {
-    Ok(#(user, token)) ->
-      next(user)
+    Ok(#(user, auth_session, token)) ->
+      next(auth_session, user)
       |> wisp.set_cookie(
         req,
         name: cookie.auth_session().name,

@@ -249,6 +249,26 @@ where id = $3 and email_address_verified_at is not null returning
   |> pog.execute(db)
 }
 
+/// Runs the `delete_auth_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_auth_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_auth_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from auth_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_password_reset_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_password_reset_session_by_id.sql`.
 ///

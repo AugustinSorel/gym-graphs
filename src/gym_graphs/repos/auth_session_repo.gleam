@@ -31,6 +31,10 @@ pub fn refresh_by_id(db: Connection, id: AuthSessionId) {
   sql.refresh_auth_session_by_id(db, id.value)
 }
 
+pub fn delete_by_id(db: Connection, id: AuthSessionId) {
+  sql.delete_auth_session_by_id(db, id.value)
+}
+
 fn new_auth_session(id: Int, user_id: Int, secret_hash: BitArray) {
   auth_session.AuthSession(
     auth_session.AuthSessionId(id),
