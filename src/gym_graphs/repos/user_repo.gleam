@@ -13,13 +13,8 @@ pub fn create(
 ) {
   sql.create_user(db, password_hash.value, name.value, sign_up_session_id.value)
   |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: [entity, ..]) -> {
-        user.UserId(entity.id)
-        |> option.Some()
-      }
-      pog.Returned(count: _, rows: []) -> option.None
-    }
+    let assert pog.Returned(count: 1, rows: [entity]) = row
+    user.UserId(entity.id)
   })
 }
 

@@ -211,7 +211,7 @@ pub fn resend(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
       |> element.to_string()
       |> wisp.html_response(200)
 
-    Error(error) -> {
+    Error(mailer.SendError(error)) -> {
       wisp.log_error("sign up: resend verify email: " <> string.inspect(error))
       sign_up_session_schema.verify_email()
       |> form.add_values(form_data.values)
@@ -261,7 +261,6 @@ pub fn view_set_password_page(sign_up_session: SignUpSession) {
 type SetPasswordError {
   SetPasswordValidation(Form(SetPasswordSchema))
   SetPasswordDatabaseFailure(QueryError)
-  SetPasswordCreationFailed
 }
 
 pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
@@ -281,7 +280,6 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
       use user_id <- result.try({
         user_repo.create(tx, input.password_hash, name, sign_up_session.id)
         |> result.map_error(SetPasswordDatabaseFailure)
-        |> result.try(option.to_result(_, SetPasswordCreationFailed))
       })
 
       use Nil <- result.try(
@@ -297,11 +295,10 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
 
       use auth_session_id <- result.try(
         auth_session_repo.create(tx, user_id, secret_hash)
-        |> result.map_error(SetPasswordDatabaseFailure)
-        |> result.try(option.to_result(_, SetPasswordCreationFailed)),
+        |> result.map_error(SetPasswordDatabaseFailure),
       )
 
-      let token = session.encode_token(auth_session_id, secret)
+      let token = session.encode_token(auth_session_id.value, secret)
 
       Ok(token)
     })
@@ -337,7 +334,7 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
       |> sign_up_session_view.set_password_form()
       |> element.to_string()
       |> wisp.html_response(422)
-    Error(error) -> {
+    Error(SetPasswordDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       sign_up_session_schema.get_set_password_form()
       |> form.add_values(formdata.values)

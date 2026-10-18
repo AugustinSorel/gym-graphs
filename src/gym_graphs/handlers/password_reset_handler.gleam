@@ -56,9 +56,7 @@ pub fn start(req: Request, ctx: Ctx) {
 
     use password_reset_session_id <- result.try(
       password_reset_repo.create(ctx.db, secret_hash, code_hash, user.email)
-      |> result.map_error(StartDatabaseFailure)
-      //FIX:This
-      |> result.try(option.to_result(_, UserNotFound)),
+      |> result.map_error(StartDatabaseFailure),
     )
 
     let #(subject, html) = email_template.reset_password_code(code)

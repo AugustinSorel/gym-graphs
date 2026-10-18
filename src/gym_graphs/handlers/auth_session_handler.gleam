@@ -56,12 +56,10 @@ pub fn sign_in(req: Request, ctx: Ctx) {
 
     use auth_session_id <- result.try(
       auth_session_repo.create(ctx.db, user.id, secret_hash)
-      |> result.map_error(SignInDatabaseFailure)
-      //FIX
-      |> result.try(option.to_result(_, InvalidCredentials)),
+      |> result.map_error(SignInDatabaseFailure),
     )
 
-    let token = session.encode_token(auth_session_id, secret)
+    let token = session.encode_token(auth_session_id.value, secret)
 
     Ok(token)
   }

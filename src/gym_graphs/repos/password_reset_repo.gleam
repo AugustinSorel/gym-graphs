@@ -1,4 +1,3 @@
-import gleam/option
 import gleam/result
 import gym_graphs/domains/password_reset_session.{type EmailVerificationCodeHash}
 import gym_graphs/domains/session.{type SessionSecretHash}
@@ -19,9 +18,7 @@ pub fn create(
     email.value,
   )
   |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: [entity, ..]) -> option.Some(entity.id)
-      pog.Returned(count: _, rows: []) -> option.None
-    }
+    let assert pog.Returned(count: _, rows: [entity]) = row
+    entity.id
   })
 }

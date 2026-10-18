@@ -20,13 +20,9 @@ pub fn select_by_id(db: Connection, id: AuthSessionId) {
 
 pub fn create(db: Connection, user_id: UserId, secret_hash: SessionSecretHash) {
   sql.create_auth_session(db, user_id.value, secret_hash.value)
-  |> result.map(fn(row) {
-    case row {
-      pog.Returned(count: _, rows: [entity, ..]) -> {
-        entity.id |> option.Some()
-      }
-      pog.Returned(count: _, rows: []) -> option.None
-    }
+  |> result.map(fn(returned) {
+    let assert pog.Returned(count: 1, rows: [entity]) = returned
+    auth_session.AuthSessionId(entity.id)
   })
 }
 
