@@ -4,7 +4,7 @@ import gleam/list
 import gleam/result
 import gleam/string
 import gym_graphs/schemas/account_deletion_session_schema.{
-  type VerifyPasswordSchema,
+  type ConfirmSchema, type VerifyPasswordSchema,
 }
 import gym_graphs/ui
 import lustre/attribute
@@ -180,4 +180,49 @@ pub fn verify_password_form(form: Form(VerifyPasswordSchema)) -> Element(a) {
 
 pub fn confirm_page(children: Element(a)) -> Element(a) {
   account_deletion_layout(Confirm, "Delete your account", children)
+}
+
+pub fn confirm_form(form: Form(ConfirmSchema)) -> Element(a) {
+  let root_err = list.first(form.field_error_messages(form, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-post", "/delete-account/confirm"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
+    ],
+    [
+      html.p([attribute.class("text-center")], [
+        html.text(
+          "Are you sure you want to permanently delete your account? This action cannot be undone.",
+        ),
+      ]),
+      ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
+        html.text("yes, delete my account"),
+        ui.spinner(),
+      ]),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(
+        ui.ButtonLink,
+        [
+          attribute.type_("button"),
+          attribute.attribute("hx-post", "/delete-account/cancel"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.attribute("hx-target", "closest form"),
+          attribute.attribute("hx-swap", "outerHTML"),
+          attribute.class("ml-auto"),
+        ],
+        [html.text("cancel"), ui.spinner()],
+      ),
+    ],
+  )
 }

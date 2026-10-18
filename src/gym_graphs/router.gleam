@@ -222,6 +222,40 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         ctx,
       )
     }
+    Get, ["delete-account", "confirm"] -> {
+      use _account_deletion_session, _user <- account_deletion_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      account_deletion_session_handler.view_confirm_page()
+    }
+    Post, ["delete-account", "confirm"] -> {
+      use account_deletion_session, _user <- account_deletion_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      account_deletion_session_handler.confirm(
+        req,
+        account_deletion_session,
+        ctx,
+      )
+    }
+    Post, ["delete-account", "cancel"] -> {
+      use auth_session, _user <- auth_session_middleware.require(req, ctx)
+      use account_deletion_session <- account_deletion_session_middleware.require(
+        req,
+        ctx,
+      )
+
+      account_deletion_session_handler.cancel(
+        req,
+        auth_session,
+        account_deletion_session,
+        ctx,
+      )
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)

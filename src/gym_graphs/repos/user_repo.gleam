@@ -1,5 +1,8 @@
 import gleam/option
 import gleam/result
+import gym_graphs/domains/account_deletion_session.{
+  type AccountDeletionSessionId,
+}
 import gym_graphs/domains/password_reset_session.{type PasswordResetSessionId}
 import gym_graphs/domains/password_update_session.{type PasswordUpdateSessionId}
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
@@ -75,6 +78,13 @@ pub fn select_by_id(db: Connection, id: UserId) {
       pog.Returned(count: _, rows: []) -> option.None
     }
   })
+}
+
+pub fn delete_by_account_deletion_session_id(
+  db: Connection,
+  id: AccountDeletionSessionId,
+) {
+  sql.delete_user_by_account_deletion_session_id(db, id.value)
 }
 
 pub fn update_password_hash_by_password_reset_session_id(

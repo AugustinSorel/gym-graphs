@@ -18,3 +18,11 @@ pub fn verify_password() -> Form(VerifyPasswordSchema) {
 
   form.new(schema) |> form.language(form.en_gb)
 }
+
+pub type ConfirmSchema {
+  ConfirmSchema
+}
+
+pub fn confirm() -> Form(ConfirmSchema) {
+  form.new(form.success(ConfirmSchema)) |> form.language(form.en_gb)
+}
