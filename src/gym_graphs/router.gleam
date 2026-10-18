@@ -98,6 +98,14 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       password_reset_session_handler.verify(req, password_reset_session, ctx)
     }
+    Post, ["reset-password", "verify-email-code", "cancel"] -> {
+      use password_reset_session <- password_reset_session_middleware.require(
+        req,
+        ctx,
+      )
+
+      password_reset_session_handler.cancel(req, password_reset_session, ctx)
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)

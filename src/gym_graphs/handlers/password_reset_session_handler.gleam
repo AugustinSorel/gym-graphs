@@ -153,7 +153,6 @@ pub fn verify(
 
     password_reset_session_repo.verify_by_id(ctx.db, password_reset_session.id)
     |> result.map_error(VerifyDatabaseFailure)
-    |> result.replace(Nil)
   }
 
   case result {
@@ -184,6 +183,35 @@ pub fn verify(
       wisp.log_error(req.path <> " " <> string.inspect(error))
       password_reset_session_schema.verify()
       |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> password_reset_session_view.verify_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+pub fn cancel(
+  req: Request,
+  password_reset_session: PasswordResetSession,
+  ctx: Ctx,
+) {
+  use form_data <- wisp.require_form(req)
+
+  let result = {
+    password_reset_session_repo.delete_by_id(ctx.db, password_reset_session.id)
+  }
+
+  case result {
+    Ok(Nil) ->
+      wisp.ok()
+      |> wisp.set_cookie(req, cookie.password_reset().name, "", wisp.Signed, 0)
+      |> wisp.set_header("HX-Redirect", "/reset-password")
+
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      password_reset_session_schema.verify()
+      |> form.add_values(form_data.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> password_reset_session_view.verify_form()
       |> element.to_string()

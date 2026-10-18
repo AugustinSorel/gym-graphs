@@ -55,3 +55,7 @@ pub fn select_by_id(db: Connection, id: PasswordResetSessionId) {
 pub fn verify_by_id(db: Connection, id: PasswordResetSessionId) {
   sql.verify_password_reset_session_by_id(db, id.value)
 }
+
+pub fn delete_by_id(db: Connection, id: PasswordResetSessionId) {
+  sql.delete_password_reset_session_by_id(db, id.value)
+}
