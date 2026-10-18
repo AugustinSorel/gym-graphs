@@ -4,7 +4,7 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 
-pub fn verification_code(code: EmailVerificationCode) {
+pub fn sign_up_code(code: EmailVerificationCode) {
   html.html([attribute.attribute("lang", "en")], [
     html.head([], [
       html.meta([attribute.attribute("charset", "UTF-8")]),

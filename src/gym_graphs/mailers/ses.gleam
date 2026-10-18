@@ -6,7 +6,7 @@ import gleam/httpc
 import gleam/json
 import gleam/result
 import gleam/string
-import gym_graphs/mailer.{type Mailer, type MailerConfig}
+import gym_graphs/mailers/mailer.{type Mailer, type MailerConfig}
 
 pub fn new(
   access_key_id: String,

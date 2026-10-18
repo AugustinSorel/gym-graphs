@@ -3,7 +3,7 @@ import gleam/int
 import gleam/list
 import gleam/result
 import gleam/string
-import gym_graphs/mailer.{type Mailer, type MailerConfig}
+import gym_graphs/mailers/mailer.{type Mailer, type MailerConfig}
 import mug
 
 const timeout = 10_000

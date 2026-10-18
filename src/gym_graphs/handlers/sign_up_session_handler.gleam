@@ -7,8 +7,8 @@ import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session.{type SignUpSession}
 import gym_graphs/domains/user
-import gym_graphs/email_template
-import gym_graphs/mailer.{type SendError}
+import gym_graphs/mailers/email_template
+import gym_graphs/mailers/mailer.{type SendError}
 import gym_graphs/repos/auth_session_repo
 import gym_graphs/repos/sign_up_session_repo
 import gym_graphs/repos/user_repo
@@ -56,7 +56,7 @@ pub fn start(req: Request, ctx: Ctx) {
       |> result.try(option.to_result(_, EmailAlreadyUsed))
     })
 
-    let #(subject, html) = email_template.verification_code(code)
+    let #(subject, html) = email_template.sign_up_code(code)
 
     use Nil <- result.try(
       mailer.send(ctx.mailer, mailer.new_config(input.email, subject, html))
@@ -194,7 +194,7 @@ pub fn resend(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
 
   let result = {
     let code = sign_up_session.email_address_verification_code
-    let #(subject, html) = email_template.verification_code(code)
+    let #(subject, html) = email_template.sign_up_code(code)
 
     let config = mailer.new_config(sign_up_session.email, subject, html)
 

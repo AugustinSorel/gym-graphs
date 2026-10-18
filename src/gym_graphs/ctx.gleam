@@ -1,4 +1,4 @@
-import gym_graphs/mailer.{type Mailer}
+import gym_graphs/mailers/mailer.{type Mailer}
 import pog.{type Connection}
 
 pub type Ctx {

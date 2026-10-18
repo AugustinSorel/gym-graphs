@@ -6,8 +6,8 @@ import gym_graphs/cookie
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/password_reset_session
 import gym_graphs/domains/session
-import gym_graphs/email_template
-import gym_graphs/mailer.{type SendError}
+import gym_graphs/mailers/email_template
+import gym_graphs/mailers/mailer.{type SendError}
 import gym_graphs/repos/password_reset_repo
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/password_reset_schema.{type ResetPasswordSchema}
@@ -58,7 +58,6 @@ pub fn start(req: Request, ctx: Ctx) {
       password_reset_repo.create(ctx.db, secret_hash, code_hash, user.email)
       |> result.map_error(StartDatabaseFailure)
       //FIX:This
-      //FIX:email
       |> result.try(option.to_result(_, UserNotFound)),
     )
 
