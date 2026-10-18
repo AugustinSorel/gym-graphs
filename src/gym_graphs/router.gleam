@@ -18,6 +18,8 @@ pub fn handle_request(req: Request, ctx: Ctx) {
   use req <- web.middleware(req)
 
   case req.method, wisp.path_segments(req) {
+    Get, [] -> wisp.redirect(to: "/account")
+
     Get, ["sign-up"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)
       sign_up_session_handler.view_start_page()
