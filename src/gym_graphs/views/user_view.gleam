@@ -141,6 +141,8 @@ pub fn update_password_row(error error: option.Option(String)) {
         [
           attribute.attribute("hx-post", "/update-password"),
           attribute.attribute("hx-disable", "this"),
+          attribute.attribute("hx-target", "closest div"),
+          attribute.attribute("hx-swap", "outerHTML"),
           attribute.class("my-auto text-sm"),
         ],
         [html.text("update"), ui.spinner()],

@@ -128,6 +128,65 @@ returning *;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `create_password_update_session` query
+/// defined in `./src/gym_graphs/repos/sql/create_password_update_session.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreatePasswordUpdateSessionRow {
+  CreatePasswordUpdateSessionRow(
+    id: Int,
+    auth_session_id: Int,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `create_password_update_session` query
+/// defined in `./src/gym_graphs/repos/sql/create_password_update_session.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_password_update_session(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: BitArray,
+) -> Result(pog.Returned(CreatePasswordUpdateSessionRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use auth_session_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use user_identity_verified_at <- decode.field(
+      3,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
+    decode.success(CreatePasswordUpdateSessionRow(
+      id:,
+      auth_session_id:,
+      secret_hash:,
+      user_identity_verified_at:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "insert into password_update_sessions (auth_session_id, secret_hash)
+values ($1, $2)
+returning *;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.bytea(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_sign_up_session` query
 /// defined in `./src/gym_graphs/repos/sql/create_sign_up_session.sql`.
 ///
