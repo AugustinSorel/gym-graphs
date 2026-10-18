@@ -3,7 +3,9 @@ import gleam/bool
 import gleam/list
 import gleam/result
 import gleam/string
-import gym_graphs/schemas/password_reset_schema.{type ResetPasswordSchema}
+import gym_graphs/schemas/password_reset_session_schema.{
+  type ResetPasswordSchema, type VerifyEmailCodeSchema,
+}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
@@ -164,80 +166,80 @@ pub fn verify_page(children: Element(a)) -> Element(a) {
   password_reset_layout(VerifyEmailCode, "Check your inbox", children)
 }
 
-// pub fn verify_form(form: Form(VerifyEmailCodeForm)) -> Element(a) {
-//   let code_err = list.first(form.field_error_messages(form, "code"))
-//   let root_err = list.first(form.field_error_messages(form, "root"))
+pub fn verify_form(form: Form(VerifyEmailCodeSchema)) -> Element(a) {
+  let code_err = list.first(form.field_error_messages(form, "code"))
+  let root_err = list.first(form.field_error_messages(form, "root"))
 
-//   html.form(
-//     [
-//       attribute.attribute("hx-post", "/reset-password/verify-email-code"),
-//       attribute.attribute("hx-disable", "find button[type='submit']"),
-//       attribute.attribute("hx-indicator", "find button[type='submit']"),
-//       attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
-//       attribute.attribute("hx-swap", "outerHTML"),
-//     ],
-//     [
-//       html.label(
-//         [
-//           attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
-//         ],
-//         [
-//           html.text("verification code:"),
-//           ui.input([
-//             attribute.id("code_input"),
-//             attribute.type_("text"),
-//             attribute.class("uppercase"),
-//             attribute.placeholder("A3KX7PQR"),
-//             attribute.name("code"),
-//             attribute.value(form.field_value(form, "code")),
-//             attribute.aria_invalid(
-//               string.lowercase(bool.to_string(result.is_ok(code_err))),
-//             ),
-//           ]),
-//           case code_err {
-//             Ok(msg) ->
-//               html.p(
-//                 [
-//                   attribute.role("alert"),
-//                   attribute.class("text-error text-sm"),
-//                 ],
-//                 [html.text(msg)],
-//               )
-//             Error(_) -> element.none()
-//           },
-//         ],
-//       ),
-//       case root_err {
-//         Ok(msg) ->
-//           ui.alert(ui.AlertError, [], [
-//             ui.alert_title(element.text("something went wrong")),
-//             ui.alert_description(element.text(msg)),
-//           ])
-//         Error(_) -> element.none()
-//       },
-//       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-//         html.text("verify"),
-//         ui.spinner(),
-//       ]),
-//       html.div([attribute.class("flex justify-end")], [
-//         ui.button(
-//           ui.ButtonLink,
-//           [
-//             attribute.type_("button"),
-//             attribute.attribute(
-//               "hx-post",
-//               "/reset-password/verify-email-code/cancel",
-//             ),
-//             attribute.attribute("hx-disable", "this"),
-//             attribute.attribute("hx-target", "closest form"),
-//             attribute.attribute("hx-swap", "outerHTML"),
-//           ],
-//           [html.text("cancel"), ui.spinner()],
-//         ),
-//       ]),
-//     ],
-//   )
-// }
+  html.form(
+    [
+      attribute.attribute("hx-post", "/reset-password/verify-email-code"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+      attribute.attribute("hx-swap", "outerHTML"),
+    ],
+    [
+      html.label(
+        [
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
+        ],
+        [
+          html.text("verification code:"),
+          ui.input([
+            attribute.id("code_input"),
+            attribute.type_("text"),
+            attribute.class("uppercase"),
+            attribute.placeholder("A3KX7PQR"),
+            attribute.name("code"),
+            attribute.value(form.field_value(form, "code")),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(code_err))),
+            ),
+          ]),
+          case code_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("verify"),
+        ui.spinner(),
+      ]),
+      html.div([attribute.class("flex justify-end")], [
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute(
+              "hx-post",
+              "/reset-password/verify-email-code/cancel",
+            ),
+            attribute.attribute("hx-disable", "this"),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
+          ],
+          [html.text("cancel"), ui.spinner()],
+        ),
+      ]),
+    ],
+  )
+}
 
 pub fn set_new_password_page(children: Element(a)) -> Element(a) {
   password_reset_layout(SetNewPassword, "Set a new password", children)

@@ -1,14 +1,12 @@
 import formal/form.{type Form}
+import gleam/result
 import gleam/string
+import gym_graphs/domains/password_reset_session.{type EmailVerificationCode}
 import gym_graphs/domains/user.{type Email}
 
 pub type ResetPasswordSchema {
   ResetPasswordSchema(email: Email)
 }
-
-// pub type VerifyEmailCodeForm {
-//   VerifyEmailCodeForm(code: String)
-// }
 
 // pub type SetNewPasswordForm {
 //   SetNewPasswordForm(password: String)
@@ -23,22 +21,22 @@ pub fn start() -> Form(ResetPasswordSchema) {
 
   form.new(schema)
 }
-// pub fn get_verify_form() -> Form(VerifyEmailCodeForm) {
-//   let schema = {
-//     use code <- form.field("code", {
-//       form.parse_string
-//       |> form.map(string.uppercase)
-//       |> form.check_not_empty
-//       |> form.check_string_length_more_than(7)
-//       |> form.check_string_length_less_than(9)
-//     })
 
-//     form.success(VerifyEmailCodeForm(code:))
-//   }
+pub type VerifyEmailCodeSchema {
+  VerifyEmailCodeSchema(code: EmailVerificationCode)
+}
 
-//   form.new(schema) |> form.language(form.en_gb)
-// }
+pub fn verify() -> Form(VerifyEmailCodeSchema) {
+  let schema = {
+    use code <- form.field("code", {
+      password_reset_session.parse_email_verification_code()
+    })
 
+    form.success(VerifyEmailCodeSchema(code:))
+  }
+
+  form.new(schema) |> form.language(form.en_gb)
+}
 // pub fn get_set_new_password_form() -> Form(SetNewPasswordForm) {
 //   let schema = {
 //     use password <- form.field("password", {

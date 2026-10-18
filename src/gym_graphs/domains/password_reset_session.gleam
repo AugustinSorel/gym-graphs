@@ -1,7 +1,11 @@
 import argus
+import formal/form
 import gleam/crypto
 import gleam/list
+import gleam/option
 import gleam/string
+import gleam/time/timestamp
+import gym_graphs/domains/session.{type SessionSecretHash}
 
 pub type EmailVerificationCode {
   EmailVerificationCode(value: String)
@@ -9,6 +13,18 @@ pub type EmailVerificationCode {
 
 pub type EmailVerificationCodeHash {
   EmailVerificationCodeHash(value: String)
+}
+
+pub type PasswordResetSessionId {
+  PasswordResetSessionId(value: Int)
+}
+
+pub type PasswordResetSession {
+  PasswordResetSession(
+    id: PasswordResetSessionId,
+    secret_hash: SessionSecretHash,
+    user_identity_verified_at: option.Option(timestamp.Timestamp),
+  )
 }
 
 pub fn generate_email_verification_code() {
@@ -21,6 +37,15 @@ pub fn generate_email_verification_code() {
   |> list.map(fn(i) { string.slice(alphabet, i, 1) })
   |> string.join("")
   |> EmailVerificationCode
+}
+
+pub fn parse_email_verification_code() {
+  form.parse_string
+  |> form.map(string.uppercase)
+  |> form.check_not_empty
+  |> form.check_string_length_more_than(7)
+  |> form.check_string_length_less_than(9)
+  |> form.map(EmailVerificationCode)
 }
 
 pub fn hash_email_verification_code(code: EmailVerificationCode) {

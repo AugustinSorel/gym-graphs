@@ -8,18 +8,20 @@ import gym_graphs/domains/password_reset_session
 import gym_graphs/domains/session
 import gym_graphs/mailers/email_template
 import gym_graphs/mailers/mailer.{type SendError}
-import gym_graphs/repos/password_reset_repo
+import gym_graphs/repos/password_reset_session_repo
 import gym_graphs/repos/user_repo
-import gym_graphs/schemas/password_reset_schema.{type ResetPasswordSchema}
-import gym_graphs/views/password_reset_view
+import gym_graphs/schemas/password_reset_session_schema.{
+  type ResetPasswordSchema,
+}
+import gym_graphs/views/password_reset_session_view
 import lustre/element
 import pog
 import wisp.{type Request}
 
 pub fn view_page() {
-  password_reset_schema.start()
-  |> password_reset_view.password_reset_form()
-  |> password_reset_view.password_reset_page()
+  password_reset_session_schema.start()
+  |> password_reset_session_view.password_reset_form()
+  |> password_reset_session_view.password_reset_page()
   |> element.to_string()
   |> wisp.html_response(200)
 }
@@ -36,7 +38,7 @@ pub fn start(req: Request, ctx: Ctx) {
 
   let result = {
     use input <- result.try(
-      password_reset_schema.start()
+      password_reset_session_schema.start()
       |> form.add_values(formdata.values)
       |> form.run()
       |> result.map_error(StartValidation),
@@ -55,7 +57,12 @@ pub fn start(req: Request, ctx: Ctx) {
     let code_hash = password_reset_session.hash_email_verification_code(code)
 
     use password_reset_session_id <- result.try(
-      password_reset_repo.create(ctx.db, secret_hash, code_hash, user.email)
+      password_reset_session_repo.create(
+        ctx.db,
+        secret_hash,
+        code_hash,
+        user.email,
+      )
       |> result.map_error(StartDatabaseFailure),
     )
 
@@ -84,24 +91,32 @@ pub fn start(req: Request, ctx: Ctx) {
       )
     Error(StartValidation(form)) ->
       form
-      |> password_reset_view.password_reset_form()
+      |> password_reset_session_view.password_reset_form()
       |> element.to_string()
       |> wisp.html_response(422)
     Error(UserNotFound) ->
-      password_reset_schema.start()
+      password_reset_session_schema.start()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Account not found"))
-      |> password_reset_view.password_reset_form()
+      |> password_reset_session_view.password_reset_form()
       |> element.to_string()
       |> wisp.html_response(404)
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      password_reset_schema.start()
+      password_reset_session_schema.start()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
-      |> password_reset_view.password_reset_form()
+      |> password_reset_session_view.password_reset_form()
       |> element.to_string()
       |> wisp.html_response(500)
     }
   }
+}
+
+pub fn view_verify_page() {
+  password_reset_session_schema.verify()
+  |> password_reset_session_view.verify_form()
+  |> password_reset_session_view.verify_page()
+  |> element.to_string()
+  |> wisp.html_response(200)
 }

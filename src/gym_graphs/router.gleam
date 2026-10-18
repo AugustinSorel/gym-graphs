@@ -1,9 +1,10 @@
 import gleam/http.{Get, Post}
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/auth_session_handler
-import gym_graphs/handlers/password_reset_handler
+import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/sign_up_session_handler
 import gym_graphs/middlewares/auth_session_middleware
+import gym_graphs/middlewares/password_reset_session_middleware
 import gym_graphs/middlewares/sign_up_session_middleware
 import gym_graphs/web
 import wisp.{type Request}
@@ -76,12 +77,38 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     }
 
     Get, ["reset-password"] -> {
-      password_reset_handler.view_page()
+      password_reset_session_handler.view_page()
     }
     Post, ["reset-password"] -> {
-      password_reset_handler.start(req, ctx)
+      password_reset_session_handler.start(req, ctx)
+    }
+    Get, ["reset-password", "verify-email-code"] -> {
+      use _password_reset_session <- password_reset_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      password_reset_session_handler.view_verify_page()
     }
 
+    // ["reset-password", "verify-email-code"] ->
+    //   case req.method {
+    //     Get -> {
+    //       use _password_reset_session <- auth.require_password_reset_unverified(
+    //         req,
+    //         ctx,
+    //       )
+    //       password_reset.view_verify_page()
+    //     }
+    //     Post -> {
+    //       use password_reset_session <- auth.require_password_reset_unverified(
+    //         req,
+    //         ctx,
+    //       )
+    //       password_reset.verify(req, password_reset_session, ctx)
+    //     }
+    //     _ -> wisp.method_not_allowed([Get, Post])
+    //   }
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)
 
