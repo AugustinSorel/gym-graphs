@@ -106,6 +106,29 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       password_reset_session_handler.cancel(req, password_reset_session, ctx)
     }
+    Get, ["reset-password", "set-new-password"] -> {
+      use password_reset_session <- password_reset_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      password_reset_session_handler.view_set_new_password_page(
+        req,
+        password_reset_session,
+        ctx,
+      )
+    }
+    Post, ["reset-password", "set-new-password"] -> {
+      use password_reset_session <- password_reset_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+      password_reset_session_handler.set_new_password(
+        req,
+        password_reset_session,
+        ctx,
+      )
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)

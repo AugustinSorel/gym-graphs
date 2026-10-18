@@ -4,7 +4,8 @@ import gleam/list
 import gleam/result
 import gleam/string
 import gym_graphs/schemas/password_reset_session_schema.{
-  type ResetPasswordSchema, type VerifyEmailCodeSchema,
+  type ResetPasswordSchema, type SetNewPasswordSchema,
+  type VerifyEmailCodeSchema,
 }
 import gym_graphs/ui
 import lustre/attribute
@@ -244,87 +245,88 @@ pub fn verify_form(form: Form(VerifyEmailCodeSchema)) -> Element(a) {
 pub fn set_new_password_page(children: Element(a)) -> Element(a) {
   password_reset_layout(SetNewPassword, "Set a new password", children)
 }
-// pub fn set_new_password_form(form: Form(SetNewPasswordForm)) -> Element(a) {
-//   let email_address = form.field_value(form, "email")
-//   let password_err = list.first(form.field_error_messages(form, "password"))
-//   let root_err = list.first(form.field_error_messages(form, "root"))
 
-//   html.form(
-//     [
-//       attribute.attribute("hx-post", "/reset-password/set-new-password"),
-//       attribute.attribute("hx-disable", "find button[type='submit']"),
-//       attribute.attribute("hx-indicator", "find button[type='submit']"),
-//       attribute.attribute("hx-swap", "outerHTML"),
-//       attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
-//     ],
-//     [
-//       html.input([
-//         attribute.type_("hidden"),
-//         attribute.name("email"),
-//         attribute.attribute("autocomplete", "email"),
-//         attribute.value(email_address),
-//       ]),
-//       html.label(
-//         [
-//           attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
-//         ],
-//         [
-//           html.text("new password:"),
-//           ui.input([
-//             attribute.id("password_input"),
-//             attribute.type_("password"),
-//             attribute.name("password"),
-//             attribute.placeholder("********"),
-//             attribute.value(form.field_value(form, "password")),
-//             attribute.attribute("autocomplete", "new-password"),
-//             attribute.aria_invalid(
-//               string.lowercase(bool.to_string(result.is_ok(password_err))),
-//             ),
-//           ]),
-//           case password_err {
-//             Ok(msg) ->
-//               html.p(
-//                 [
-//                   attribute.role("alert"),
-//                   attribute.class("text-error text-sm"),
-//                 ],
-//                 [html.text(msg)],
-//               )
-//             Error(_) -> element.none()
-//           },
-//         ],
-//       ),
+pub fn set_new_password_form(form: Form(SetNewPasswordSchema)) -> Element(a) {
+  let email_address = form.field_value(form, "email")
+  let password_err = list.first(form.field_error_messages(form, "password"))
+  let root_err = list.first(form.field_error_messages(form, "root"))
 
-//       case root_err {
-//         Ok(msg) ->
-//           ui.alert(ui.AlertError, [], [
-//             ui.alert_title(element.text("something went wrong")),
-//             ui.alert_description(element.text(msg)),
-//           ])
-//         Error(_) -> element.none()
-//       },
+  html.form(
+    [
+      attribute.attribute("hx-post", "/reset-password/set-new-password"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col py-10 px-5 lg:px-10 gap-10"),
+    ],
+    [
+      html.input([
+        attribute.type_("hidden"),
+        attribute.name("email"),
+        attribute.attribute("autocomplete", "email"),
+        attribute.value(email_address),
+      ]),
+      html.label(
+        [
+          attribute.class("grid gap-1 has-[>[aria-invalid=true]]:text-error"),
+        ],
+        [
+          html.text("new password:"),
+          ui.input([
+            attribute.id("password_input"),
+            attribute.type_("password"),
+            attribute.name("password"),
+            attribute.placeholder("********"),
+            attribute.value(form.field_value(form, "password")),
+            attribute.attribute("autocomplete", "new-password"),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(password_err))),
+            ),
+          ]),
+          case password_err {
+            Ok(msg) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(msg)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
 
-//       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
-//         html.text("set new password"),
-//         ui.spinner(),
-//       ]),
+      case root_err {
+        Ok(msg) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(msg)),
+          ])
+        Error(_) -> element.none()
+      },
 
-//       html.div([attribute.class("flex justify-end")], [
-//         ui.button(
-//           ui.ButtonLink,
-//           [
-//             attribute.type_("button"),
-//             attribute.attribute(
-//               "hx-post",
-//               "/reset-password/verify-email-code/cancel",
-//             ),
-//             attribute.attribute("hx-target", "closest form"),
-//             attribute.attribute("hx-swap", "outerHTML"),
-//             attribute.attribute("hx-disable", "this"),
-//           ],
-//           [html.text("cancel"), ui.spinner()],
-//         ),
-//       ]),
-//     ],
-//   )
-// }
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("set new password"),
+        ui.spinner(),
+      ]),
+
+      html.div([attribute.class("flex justify-end")], [
+        ui.button(
+          ui.ButtonLink,
+          [
+            attribute.type_("button"),
+            attribute.attribute(
+              "hx-post",
+              "/reset-password/verify-email-code/cancel",
+            ),
+            attribute.attribute("hx-target", "closest form"),
+            attribute.attribute("hx-swap", "outerHTML"),
+            attribute.attribute("hx-disable", "this"),
+          ],
+          [html.text("cancel"), ui.spinner()],
+        ),
+      ]),
+    ],
+  )
+}

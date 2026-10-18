@@ -32,6 +32,7 @@ pub fn select_by_id(db: Connection, id: PasswordResetSessionId) {
     case row {
       pog.Returned(count: _, rows: [entity, ..]) -> {
         let id = password_reset_session.PasswordResetSessionId(entity.id)
+        let user_id = user.UserId(entity.user_id)
         let secret_hash = session.SessionSecretHash(entity.secret_hash)
         let email_code_hash =
           password_reset_session.EmailVerificationCodeHash(
@@ -40,6 +41,7 @@ pub fn select_by_id(db: Connection, id: PasswordResetSessionId) {
 
         password_reset_session.PasswordResetSession(
           id,
+          user_id,
           secret_hash,
           email_code_hash,
           entity.user_identity_verified_at,

@@ -1,7 +1,5 @@
 import argus
 import formal/form
-import gleam/bit_array
-import gleam/bool
 import gleam/crypto
 import gleam/list
 import gleam/option
@@ -9,6 +7,7 @@ import gleam/result
 import gleam/string
 import gleam/time/timestamp
 import gym_graphs/domains/session.{type SessionSecretHash}
+import gym_graphs/domains/user.{type UserId}
 
 pub type EmailVerificationCode {
   EmailVerificationCode(value: String)
@@ -25,6 +24,7 @@ pub type PasswordResetSessionId {
 pub type PasswordResetSession {
   PasswordResetSession(
     id: PasswordResetSessionId,
+    user_id: UserId,
     secret_hash: SessionSecretHash,
     email_code_hash: EmailVerificationCodeHash,
     user_identity_verified_at: option.Option(timestamp.Timestamp),
