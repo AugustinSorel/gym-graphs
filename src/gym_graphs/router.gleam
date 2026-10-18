@@ -7,6 +7,7 @@ import gym_graphs/handlers/sign_up_session_handler
 import gym_graphs/handlers/user_handler
 import gym_graphs/middlewares/auth_session_middleware
 import gym_graphs/middlewares/password_reset_session_middleware
+import gym_graphs/middlewares/password_update_session_middleware
 import gym_graphs/middlewares/sign_up_session_middleware
 import gym_graphs/web
 import wisp.{type Request}
@@ -136,6 +137,27 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)
 
       password_update_session_handler.start(req, auth_session, ctx)
+    }
+    Get, ["update-password", "verify-password"] -> {
+      use _password_update_session, user <- password_update_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      password_update_session_handler.view_verify_password_page(user)
+    }
+    Post, ["update-password", "verify-password"] -> {
+      use password_update_session, user <- password_update_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      password_update_session_handler.verify_password(
+        req,
+        password_update_session,
+        user,
+        ctx,
+      )
     }
 
     Get, ["sign-in"] -> {

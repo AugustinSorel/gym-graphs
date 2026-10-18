@@ -498,6 +498,61 @@ pub fn select_password_reset_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_password_update_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectPasswordUpdateSessionByIdRow {
+  SelectPasswordUpdateSessionByIdRow(
+    id: Int,
+    auth_session_id: Int,
+    secret_hash: BitArray,
+    user_identity_verified_at: Option(Timestamp),
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_password_update_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_password_update_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectPasswordUpdateSessionByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use auth_session_id <- decode.field(1, decode.int)
+    use secret_hash <- decode.field(2, decode.bit_array)
+    use user_identity_verified_at <- decode.field(
+      3,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use created_at <- decode.field(4, pog.timestamp_decoder())
+    use updated_at <- decode.field(5, pog.timestamp_decoder())
+    decode.success(SelectPasswordUpdateSessionByIdRow(
+      id:,
+      auth_session_id:,
+      secret_hash:,
+      user_identity_verified_at:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select * from password_update_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_sign_up_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_sign_up_session_by_id.sql`.
 ///
@@ -805,6 +860,28 @@ pub fn verify_password_reset_session_by_id(
 set user_identity_verified_at = now()
 where id =
 $1 and user_identity_verified_at is null;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `verify_password_update_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/verify_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn verify_password_update_session_by_id(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update password_update_sessions
+set user_identity_verified_at = now()
+where id = $1 and user_identity_verified_at is null;
 "
   |> pog.query
   |> pog.parameter(pog.int(id))
