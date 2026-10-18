@@ -1,10 +1,12 @@
 import gleam/http.{Get, Post}
 import gym_graphs/ctx.{type Ctx}
+import gym_graphs/handlers/account_deletion_session_handler
 import gym_graphs/handlers/auth_session_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/password_update_session_handler
 import gym_graphs/handlers/sign_up_session_handler
 import gym_graphs/handlers/user_handler
+import gym_graphs/middlewares/account_deletion_session_middleware
 import gym_graphs/middlewares/auth_session_middleware
 import gym_graphs/middlewares/password_reset_session_middleware
 import gym_graphs/middlewares/password_update_session_middleware
@@ -192,6 +194,20 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         password_update_session,
         ctx,
       )
+    }
+
+    Post, ["delete-account"] -> {
+      use auth_session, _user <- auth_session_middleware.require(req, ctx)
+
+      account_deletion_session_handler.start(req, auth_session, ctx)
+    }
+    Get, ["delete-account", "verify-password"] -> {
+      use _account_deletion_session, user <- account_deletion_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      account_deletion_session_handler.view_verify_password_page(user)
     }
 
     Get, ["sign-in"] -> {

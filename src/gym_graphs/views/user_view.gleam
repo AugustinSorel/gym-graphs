@@ -119,6 +119,20 @@ pub fn account_details(
       update_password_row(error: option.None),
       sign_out_row(error: option.None),
     ]),
+
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
+        [
+          html.text("danger zone"),
+        ],
+      ),
+      remove_account_row(error: option.None),
+    ]),
   ])
 }
 
@@ -193,6 +207,48 @@ pub fn sign_out_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("signing out failed")),
+            ui.alert_description(element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn remove_account_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("remove account"),
+        ]),
+        html.p([attribute.class("text-balance")], [
+          html.text("remove your account from all of our servers."),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonDestroy,
+        [
+          attribute.attribute("hx-post", "/delete-account"),
+          attribute.attribute("hx-disable", "this"),
+          attribute.attribute("hx-target", "closest div"),
+          attribute.attribute("hx-swap", "outerHTML"),
+          attribute.class("my-auto ml-auto"),
+        ],
+        [
+          html.text("delete account"),
+          ui.spinner(),
+        ],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("deleting account failed")),
             ui.alert_description(element.text(msg)),
           ])
         option.None -> element.none()
