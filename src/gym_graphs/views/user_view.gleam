@@ -4,7 +4,7 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
-import gym_graphs/domains/user.{type User}
+import gym_graphs/domains/user.{type User, type WeightUnit}
 import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/ui
 import lustre/attribute
@@ -243,6 +243,12 @@ pub fn account_details(
           html.text("preferences"),
         ],
       ),
+      weight_unit_form(
+        user_schema.weight_unit()
+        |> form.add_values([
+          #("weight_unit", user.weight_unit |> user.weight_unit_to_string()),
+        ]),
+      ),
       html.div(
         [
           attribute.class(
@@ -324,6 +330,65 @@ pub fn account_details(
       remove_account_row(error: option.None),
     ]),
   ])
+}
+
+pub fn weight_unit_form(form: Form(WeightUnit)) -> Element(a) {
+  let error =
+    list.append(
+      form.field_error_messages(form, "weight_unit"),
+      form.field_error_messages(form, "root"),
+    )
+    |> list.first()
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/weight-unit"),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+      ),
+    ],
+    [
+      html.p([attribute.class("text-outline text-sm")], [
+        html.text("weight unit"),
+      ]),
+      html.fieldset([attribute.class("flex border-2 border-on-surface w-fit")], [
+        weight_unit_option(form, "kg", "kilograms"),
+        weight_unit_option(form, "lbs", "pounds"),
+      ]),
+      case error {
+        Ok(message) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("changing weight unit failed")),
+            ui.alert_description(element.text(message)),
+          ])
+        Error(_) -> element.none()
+      },
+    ],
+  )
+}
+
+fn weight_unit_option(form: Form(WeightUnit), value: String, title: String) {
+  html.label(
+    [
+      attribute.class(
+        "px-5 py-2 text-sm font-semibold uppercase cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+      ),
+    ],
+    [
+      html.input([
+        attribute.type_("radio"),
+        attribute.name("weight_unit"),
+        attribute.value(value),
+        attribute.checked(form.field_value(form, "weight_unit") == value),
+        attribute.class("sr-only"),
+      ]),
+      html.abbr([attribute.title(title), attribute.class("no-underline")], [
+        html.text(value),
+      ]),
+    ],
+  )
 }
 
 pub fn update_password_row(error error: option.Option(String)) {

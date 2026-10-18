@@ -3,7 +3,7 @@ import gleam/bool
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
-import gym_graphs/domains/user.{type User}
+import gym_graphs/domains/user.{type User, type WeightUnit}
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/views/user_view
@@ -67,6 +67,55 @@ pub fn update_name(req: Request, user: User, ctx: Ctx) {
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> user_view.edit_name_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type UpdateWeightUnitError {
+  UpdateWeightUnitValidation(Form(WeightUnit))
+  UpdateWeightUnitDatabaseFailure(QueryError)
+}
+
+pub fn update_weight_unit(req: Request, user: User, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use weight_unit <- result.try(
+      user_schema.weight_unit()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(UpdateWeightUnitValidation),
+    )
+
+    use <- bool.guard(when: weight_unit == user.weight_unit, return: Ok(Nil))
+
+    user_repo.update_weight_unit_by_id(ctx.db, weight_unit, user.id)
+    |> result.map_error(UpdateWeightUnitDatabaseFailure)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      user_schema.weight_unit()
+      |> form.add_values(formdata.values)
+      |> user_view.weight_unit_form()
+      |> element.to_string()
+      |> wisp.html_response(200)
+
+    Error(UpdateWeightUnitValidation(form)) ->
+      form
+      |> user_view.weight_unit_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+
+    Error(UpdateWeightUnitDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      user_schema.weight_unit()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> user_view.weight_unit_form()
       |> element.to_string()
       |> wisp.html_response(500)
     }

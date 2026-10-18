@@ -7,7 +7,7 @@ import gym_graphs/domains/password_reset_session.{type PasswordResetSessionId}
 import gym_graphs/domains/password_update_session.{type PasswordUpdateSessionId}
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user.{
-  type Email, type Name, type PasswordHash, type UserId,
+  type Email, type Name, type PasswordHash, type UserId, type WeightUnit,
 }
 import gym_graphs/repos/sql
 import pog.{type Connection}
@@ -35,6 +35,7 @@ pub fn select_by_email(db: Connection, email: Email) {
           entity.name,
           entity.email_address,
           entity.password_hash,
+          entity.weight_unit,
         )
         |> option.Some()
       }
@@ -56,6 +57,7 @@ pub fn select_by_password_reset_session_id(
           entity.name,
           entity.email_address,
           entity.password_hash,
+          entity.weight_unit,
         )
         |> option.Some()
       pog.Returned(count: _, rows: []) -> option.None
@@ -73,6 +75,7 @@ pub fn select_by_id(db: Connection, id: UserId) {
           entity.name,
           entity.email_address,
           entity.password_hash,
+          entity.weight_unit,
         )
         |> option.Some()
       pog.Returned(count: _, rows: []) -> option.None
@@ -89,6 +92,18 @@ pub fn delete_by_account_deletion_session_id(
 
 pub fn update_name_by_id(db: Connection, name: Name, id: UserId) {
   sql.update_user_name_by_id(db, name.value, id.value)
+}
+
+pub fn update_weight_unit_by_id(
+  db: Connection,
+  weight_unit: WeightUnit,
+  id: UserId,
+) {
+  sql.update_user_weight_unit_by_id(
+    db,
+    weight_unit_to_sql(weight_unit),
+    id.value,
+  )
 }
 
 pub fn update_password_hash_by_password_reset_session_id(
@@ -115,11 +130,28 @@ pub fn update_password_hash_by_password_update_session_id(
   )
 }
 
-fn new_user(id: Int, name: String, email: String, password_hash: String) {
+fn new_user(
+  id: Int,
+  name: String,
+  email: String,
+  password_hash: String,
+  weight_unit: sql.WeightUnit,
+) {
   let id = user.UserId(id)
   let password_hash = user.PasswordHash(password_hash)
   let email = user.Email(email)
   let name = user.Name(name)
+  let weight_unit = case weight_unit {
+    sql.Kg -> user.Kg
+    sql.Lbs -> user.Lbs
+  }
 
-  user.User(id:, name:, email:, password_hash:)
+  user.User(id:, name:, email:, password_hash:, weight_unit:)
+}
+
+fn weight_unit_to_sql(weight_unit: WeightUnit) -> sql.WeightUnit {
+  case weight_unit {
+    user.Kg -> sql.Kg
+    user.Lbs -> sql.Lbs
+  }
 }

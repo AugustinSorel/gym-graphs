@@ -286,6 +286,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       user_handler.update_name(req, user, ctx)
     }
     _, ["account", "name"] -> wisp.method_not_allowed([Get, Patch])
+    Patch, ["account", "weight-unit"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.update_weight_unit(req, user, ctx)
+    }
 
     Post, ["sign-out"] -> {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)

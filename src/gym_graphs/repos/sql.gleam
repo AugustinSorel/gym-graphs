@@ -1096,6 +1096,28 @@ returning users.id;
   |> pog.execute(db)
 }
 
+/// Runs the `update_user_weight_unit_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_user_weight_unit_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_user_weight_unit_by_id(
+  db: pog.Connection,
+  weight_unit: WeightUnit,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update users set weight_unit = $1 where id = $2;
+"
+  |> pog.query
+  |> pog.parameter(weight_unit_encoder(weight_unit))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `verify_account_deletion_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/verify_account_deletion_session_by_id.sql`.
 ///
@@ -1249,4 +1271,12 @@ fn weight_unit_decoder() -> decode.Decoder(WeightUnit) {
     "kg" -> decode.success(Kg)
     _ -> decode.failure(Lbs, "WeightUnit")
   }
+}
+
+fn weight_unit_encoder(weight_unit) -> pog.Value {
+  case weight_unit {
+    Lbs -> "lbs"
+    Kg -> "kg"
+  }
+  |> pog.text
 }
