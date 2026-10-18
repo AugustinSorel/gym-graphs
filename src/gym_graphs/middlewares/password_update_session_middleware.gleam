@@ -77,3 +77,27 @@ pub fn require_unverified(req: Request, ctx: Ctx, next) {
 
   next(password_update_session, user)
 }
+
+pub fn require_verified(req: Request, ctx: Ctx, next) {
+  use auth_session, user <- auth_session_middleware.require(req, ctx)
+  use password_update_session <- require(req, ctx)
+
+  use <- bool.guard(
+    when: auth_session.id != password_update_session.auth_session_id,
+    return: wisp.redirect("/account")
+      |> wisp.set_cookie(
+        req,
+        name: cookie.password_update().name,
+        value: "",
+        security: wisp.Signed,
+        max_age: 0,
+      ),
+  )
+
+  use <- bool.guard(
+    when: option.is_none(password_update_session.user_identity_verified_at),
+    return: wisp.redirect("/update-password/verify-password"),
+  )
+
+  next(password_update_session, user)
+}

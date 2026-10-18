@@ -348,6 +348,26 @@ pub fn delete_password_reset_session_by_id(
   |> pog.execute(db)
 }
 
+/// Runs the `delete_password_update_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_password_update_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_password_update_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from password_update_sessions where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_sign_up_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_sign_up_session_by_id.sql`.
 ///
@@ -840,6 +860,53 @@ returning password_reset_sessions.id;
   |> pog.query
   |> pog.parameter(pog.text(password_hash))
   |> pog.parameter(pog.int(password_reset_sessions_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `update_user_password_hash_by_password_update_session_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_update_session_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateUserPasswordHashByPasswordUpdateSessionIdRow {
+  UpdateUserPasswordHashByPasswordUpdateSessionIdRow(id: Int)
+}
+
+/// Runs the `update_user_password_hash_by_password_update_session_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_update_session_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_user_password_hash_by_password_update_session_id(
+  db: pog.Connection,
+  password_hash: String,
+  password_update_sessions_id: Int,
+) -> Result(
+  pog.Returned(UpdateUserPasswordHashByPasswordUpdateSessionIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdateUserPasswordHashByPasswordUpdateSessionIdRow(id:))
+  }
+
+  "update users
+set
+    password_hash = $1
+from auth_sessions
+join password_update_sessions on password_update_sessions.auth_session_id = auth_sessions.id
+where users.id = auth_sessions.user_id
+  and auth_sessions.id = password_update_sessions.auth_session_id
+  and password_update_sessions.id = $2
+  and password_update_sessions.user_identity_verified_at is not null
+returning users.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(password_hash))
+  |> pog.parameter(pog.int(password_update_sessions_id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

@@ -43,3 +43,7 @@ pub fn select_by_id(db: Connection, id: PasswordUpdateSessionId) {
 pub fn verify_by_id(db: Connection, id: PasswordUpdateSessionId) {
   sql.verify_password_update_session_by_id(db, id.value)
 }
+
+pub fn delete_by_id(db: Connection, id: PasswordUpdateSessionId) {
+  sql.delete_password_update_session_by_id(db, id.value)
+}

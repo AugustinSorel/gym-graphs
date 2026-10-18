@@ -159,6 +159,26 @@ pub fn handle_request(req: Request, ctx: Ctx) {
         ctx,
       )
     }
+    Get, ["update-password", "set-new-password"] -> {
+      use _password_update_session, user <- password_update_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      password_update_session_handler.view_set_new_password_page(user)
+    }
+    Post, ["update-password", "set-new-password"] -> {
+      use password_update_session, _user <- password_update_session_middleware.require_verified(
+        req,
+        ctx,
+      )
+
+      password_update_session_handler.set_new_password(
+        req,
+        password_update_session,
+        ctx,
+      )
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)

@@ -1,6 +1,7 @@
 import gleam/option
 import gleam/result
 import gym_graphs/domains/password_reset_session.{type PasswordResetSessionId}
+import gym_graphs/domains/password_update_session.{type PasswordUpdateSessionId}
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user.{
   type Email, type Name, type PasswordHash, type UserId,
@@ -82,6 +83,18 @@ pub fn update_password_hash_by_password_reset_session_id(
   id: PasswordResetSessionId,
 ) {
   sql.update_user_password_hash_by_password_reset_session_id(
+    db,
+    password_hash.value,
+    id.value,
+  )
+}
+
+pub fn update_password_hash_by_password_update_session_id(
+  db: Connection,
+  password_hash: PasswordHash,
+  id: PasswordUpdateSessionId,
+) {
+  sql.update_user_password_hash_by_password_update_session_id(
     db,
     password_hash.value,
     id.value,
