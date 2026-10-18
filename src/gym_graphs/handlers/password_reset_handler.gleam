@@ -1,0 +1,110 @@
+import formal/form.{type Form}
+import gleam/option
+import gleam/result
+import gleam/string
+import gym_graphs/cookie
+import gym_graphs/ctx.{type Ctx}
+import gym_graphs/domains/password_reset_session
+import gym_graphs/domains/session
+import gym_graphs/email_template
+import gym_graphs/mailer.{type SendError}
+import gym_graphs/repos/password_reset_repo
+import gym_graphs/repos/user_repo
+import gym_graphs/schemas/password_reset_schema.{type ResetPasswordSchema}
+import gym_graphs/views/password_reset_view
+import lustre/element
+import pog
+import wisp.{type Request}
+
+pub fn view_page() {
+  password_reset_schema.start()
+  |> password_reset_view.password_reset_form()
+  |> password_reset_view.password_reset_page()
+  |> element.to_string()
+  |> wisp.html_response(200)
+}
+
+pub type StartError {
+  StartValidation(Form(ResetPasswordSchema))
+  StartDatabaseFailure(pog.QueryError)
+  SendingVerificationCodeFailed(SendError)
+  UserNotFound
+}
+
+pub fn start(req: Request, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use input <- result.try(
+      password_reset_schema.start()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(StartValidation),
+    )
+
+    use user <- result.try(
+      user_repo.select_by_email(ctx.db, input.email)
+      |> result.map_error(StartDatabaseFailure)
+      |> result.try(option.to_result(_, UserNotFound)),
+    )
+
+    let secret = session.generate_secret()
+    let secret_hash = session.hash_secret(secret)
+
+    let code = password_reset_session.generate_email_verification_code()
+    let code_hash = password_reset_session.hash_email_verification_code(code)
+
+    use password_reset_session_id <- result.try(
+      password_reset_repo.create(ctx.db, secret_hash, code_hash, user.email)
+      |> result.map_error(StartDatabaseFailure)
+      //FIX:This
+      //FIX:email
+      |> result.try(option.to_result(_, UserNotFound)),
+    )
+
+    let #(subject, html) = email_template.reset_password_code(code)
+
+    let config = mailer.new_config(user.email, subject, html)
+
+    use Nil <- result.try(
+      mailer.send(ctx.mailer, config)
+      |> result.map_error(SendingVerificationCodeFailed),
+    )
+
+    Ok(session.encode_token(password_reset_session_id, secret))
+  }
+
+  case result {
+    Ok(token) ->
+      wisp.created()
+      |> wisp.set_header("HX-Redirect", "/reset-password/verify-email-code")
+      |> wisp.set_cookie(
+        req,
+        name: cookie.password_reset().name,
+        value: token.value,
+        security: wisp.Signed,
+        max_age: cookie.password_reset().max_age,
+      )
+    Error(StartValidation(form)) ->
+      form
+      |> password_reset_view.password_reset_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(UserNotFound) ->
+      password_reset_schema.start()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Account not found"))
+      |> password_reset_view.password_reset_form()
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      password_reset_schema.start()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> password_reset_view.password_reset_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}

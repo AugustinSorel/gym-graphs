@@ -1,6 +1,7 @@
 import gleam/http.{Get, Post}
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/auth_session_handler
+import gym_graphs/handlers/password_reset_handler
 import gym_graphs/handlers/sign_up_session_handler
 import gym_graphs/middlewares/auth_session_middleware
 import gym_graphs/middlewares/sign_up_session_middleware
@@ -72,6 +73,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       )
 
       sign_up_session_handler.set_password(req, sign_up_session, ctx)
+    }
+
+    Get, ["reset-password"] -> {
+      password_reset_handler.view_page()
+    }
+    Post, ["reset-password"] -> {
+      password_reset_handler.start(req, ctx)
     }
 
     Get, ["sign-in"] -> {

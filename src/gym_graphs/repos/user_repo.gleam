@@ -28,7 +28,7 @@ pub fn select_by_email(db: Connection, email: Email) {
   |> result.map(fn(row) {
     case row {
       pog.Returned(count: _, rows: [entity, ..]) -> {
-        new_user(entity.id, entity.password_hash)
+        new_user(entity.id, entity.email_address, entity.password_hash)
         |> option.Some()
       }
       pog.Returned(count: _, rows: []) -> option.None
@@ -36,9 +36,10 @@ pub fn select_by_email(db: Connection, email: Email) {
   })
 }
 
-fn new_user(id: Int, password_hash: String) {
+fn new_user(id: Int, email: String, password_hash: String) {
   let id = user.UserId(id)
   let password_hash = user.PasswordHash(password_hash)
+  let email = user.Email(email)
 
-  user.User(id:, password_hash:)
+  user.User(id:, email:, password_hash:)
 }
