@@ -1,4 +1,4 @@
-import gleam/http.{Get, Post}
+import gleam/http.{Get, Patch, Post}
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/account_deletion_session_handler
 import gym_graphs/handlers/auth_session_handler
@@ -273,6 +273,17 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       user_handler.view_account_page(req, user)
     }
+    Get, ["account", "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.view_edit_name_page(req, user)
+    }
+    Patch, ["account", "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.update_name(req, user, ctx)
+    }
+    _, ["account", "name"] -> wisp.method_not_allowed([Get, Patch])
 
     Post, ["sign-out"] -> {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)

@@ -982,6 +982,28 @@ $1;
   |> pog.execute(db)
 }
 
+/// Runs the `update_user_name_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_user_name_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_user_name_by_id(
+  db: pog.Connection,
+  name: String,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update users set name = $1 where id = $2;
+"
+  |> pog.query
+  |> pog.parameter(pog.text(name))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `update_user_password_hash_by_password_reset_session_id` query
 /// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_reset_session_id.sql`.
 ///

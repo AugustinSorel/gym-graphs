@@ -40,6 +40,14 @@ pub fn new_name(email: Email) {
   |> Name
 }
 
+pub fn parse_name() {
+  form.parse_string
+  |> form.map(string.trim)
+  |> form.check_not_empty
+  |> form.check_string_length_less_than(100)
+  |> form.map(Name)
+}
+
 pub fn parse_password() {
   form.parse_string
   |> form.check_not_empty

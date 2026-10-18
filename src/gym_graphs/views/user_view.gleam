@@ -1,6 +1,11 @@
+import formal/form.{type Form}
+import gleam/bool
+import gleam/list
 import gleam/option
+import gleam/result
 import gleam/string
 import gym_graphs/domains/user.{type User}
+import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
@@ -18,6 +23,113 @@ pub fn account_page(children: Element(a), path: String) -> Element(a) {
       [children],
     ),
   ])
+}
+
+pub fn edit_name_page(
+  children: Element(a),
+  path: String,
+  name: String,
+) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(path),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [
+        html.div([attribute.class("flex flex-col items-center gap-2 mb-4")], [
+          html.span(
+            [
+              attribute.id("edit-name-avatar"),
+              attribute.class(
+                "uppercase size-16 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold",
+              ),
+              attribute.aria_hidden(True),
+            ],
+            [html.text(name_initials(name))],
+          ),
+          html.span(
+            [attribute.class("text-outline text-xs uppercase tracking-widest")],
+            [html.text("preview")],
+          ),
+        ]),
+        children,
+      ],
+    ),
+  ])
+}
+
+pub fn name_initials(name: String) -> String {
+  let name = string.trim(name)
+
+  case string.length(name) {
+    0 -> "??"
+    1 -> string.uppercase(name)
+    _ -> string.uppercase(string.slice(from: name, at_index: 0, length: 2))
+  }
+}
+
+pub fn edit_name_form(form: Form(EditNameSchema)) -> Element(a) {
+  let name_error = list.first(form.field_error_messages(form, "name"))
+  let root_error = list.first(form.field_error_messages(form, "root"))
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", "/account/name"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.label(
+        [attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error")],
+        [
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("display name"),
+          ]),
+          ui.input([
+            attribute.type_("text"),
+            attribute.name("name"),
+            attribute.value(form.field_value(form, "name")),
+            attribute.autocomplete("name"),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(name_error))),
+            ),
+            attribute.attribute(
+              "oninput",
+              "var v = this.value.trim(); var a = document.getElementById('edit-name-avatar'); if (!a) return; if (v.length >= 2) { a.textContent = v.slice(0, 2).toUpperCase(); } else if (v.length === 1) { a.textContent = v.toUpperCase(); } else { a.textContent = '??'; }",
+            ),
+          ]),
+          case name_error {
+            Ok(message) ->
+              html.p(
+                [attribute.role("alert"), attribute.class("text-error text-sm")],
+                [html.text(message)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      case root_error {
+        Ok(message) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description(element.text(message)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href("/account"), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
 }
 
 pub fn account_details(

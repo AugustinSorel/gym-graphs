@@ -87,6 +87,10 @@ pub fn delete_by_account_deletion_session_id(
   sql.delete_user_by_account_deletion_session_id(db, id.value)
 }
 
+pub fn update_name_by_id(db: Connection, name: Name, id: UserId) {
+  sql.update_user_name_by_id(db, name.value, id.value)
+}
+
 pub fn update_password_hash_by_password_reset_session_id(
   db: Connection,
   password_hash: PasswordHash,
