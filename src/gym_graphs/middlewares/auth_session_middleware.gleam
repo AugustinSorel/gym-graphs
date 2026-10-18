@@ -20,7 +20,6 @@ pub fn require(req, ctx: Ctx, next) {
 
     use auth_session <- result.try(
       auth_session_repo.select_by_id(ctx.db, id)
-      |> echo
       |> result.replace_error(Nil)
       |> result.try(option.to_result(_, Nil)),
     )
