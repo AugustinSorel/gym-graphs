@@ -3,7 +3,7 @@ import gleam/result
 import gym_graphs/domains/auth_session.{type AuthSessionId}
 import gym_graphs/domains/session.{type SessionSecretHash}
 import gym_graphs/domains/user.{type UserId}
-import gym_graphs/sql
+import gym_graphs/repos/sql
 import pog.{type Connection}
 
 pub fn select_by_id(db: Connection, id: AuthSessionId) {

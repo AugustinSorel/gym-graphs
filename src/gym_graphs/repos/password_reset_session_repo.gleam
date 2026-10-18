@@ -5,7 +5,7 @@ import gym_graphs/domains/password_reset_session.{
 }
 import gym_graphs/domains/session.{type SessionSecretHash}
 import gym_graphs/domains/user.{type Email}
-import gym_graphs/sql
+import gym_graphs/repos/sql
 import pog.{type Connection}
 
 pub fn create(

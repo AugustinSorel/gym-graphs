@@ -1,5 +1,5 @@
 //// This module contains the code to run the sql queries defined in
-//// `./src/gym_graphs/sql`.
+//// `./src/gym_graphs/repos/sql`.
 //// > 🐿️ This module was generated automatically using v4.7.0 of
 //// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ////
@@ -10,7 +10,7 @@ import gleam/time/timestamp.{type Timestamp}
 import pog
 
 /// A row you get from running the `create_auth_session` query
-/// defined in `./src/gym_graphs/sql/create_auth_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_auth_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -27,7 +27,7 @@ pub type CreateAuthSessionRow {
 }
 
 /// Runs the `create_auth_session` query
-/// defined in `./src/gym_graphs/sql/create_auth_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_auth_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -64,7 +64,7 @@ pub fn create_auth_session(
 }
 
 /// A row you get from running the `create_password_reset_session` query
-/// defined in `./src/gym_graphs/sql/create_password_reset_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_password_reset_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -82,7 +82,7 @@ pub type CreatePasswordResetSessionRow {
 }
 
 /// Runs the `create_password_reset_session` query
-/// defined in `./src/gym_graphs/sql/create_password_reset_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_password_reset_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -129,7 +129,7 @@ returning *;
 }
 
 /// A row you get from running the `create_sign_up_session` query
-/// defined in `./src/gym_graphs/sql/create_sign_up_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_sign_up_session.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -147,7 +147,7 @@ pub type CreateSignUpSessionRow {
 }
 
 /// Runs the `create_sign_up_session` query
-/// defined in `./src/gym_graphs/sql/create_sign_up_session.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_sign_up_session.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -205,7 +205,7 @@ returning *;
 }
 
 /// A row you get from running the `create_user` query
-/// defined in `./src/gym_graphs/sql/create_user.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_user.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -215,7 +215,7 @@ pub type CreateUserRow {
 }
 
 /// Runs the `create_user` query
-/// defined in `./src/gym_graphs/sql/create_user.sql`.
+/// defined in `./src/gym_graphs/repos/sql/create_user.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -250,7 +250,7 @@ where id = $3 and email_address_verified_at is not null returning
 }
 
 /// Runs the `delete_password_reset_session_by_id` query
-/// defined in `./src/gym_graphs/sql/delete_password_reset_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/delete_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -270,7 +270,7 @@ pub fn delete_password_reset_session_by_id(
 }
 
 /// Runs the `delete_sign_up_session_by_id` query
-/// defined in `./src/gym_graphs/sql/delete_sign_up_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/delete_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -290,7 +290,7 @@ pub fn delete_sign_up_session_by_id(
 }
 
 /// A row you get from running the `select_auth_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_auth_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_auth_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -307,7 +307,7 @@ pub type SelectAuthSessionByIdRow {
 }
 
 /// Runs the `select_auth_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_auth_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_auth_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -342,7 +342,7 @@ pub fn select_auth_session_by_id(
 }
 
 /// A row you get from running the `select_password_reset_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_password_reset_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -360,7 +360,7 @@ pub type SelectPasswordResetSessionByIdRow {
 }
 
 /// Runs the `select_password_reset_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_password_reset_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -400,7 +400,7 @@ pub fn select_password_reset_session_by_id(
 }
 
 /// A row you get from running the `select_sign_up_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -418,7 +418,7 @@ pub type SelectSignUpSessionByIdRow {
 }
 
 /// Runs the `select_sign_up_session_by_id` query
-/// defined in `./src/gym_graphs/sql/select_sign_up_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -458,7 +458,7 @@ pub fn select_sign_up_session_by_id(
 }
 
 /// A row you get from running the `select_user_by_email` query
-/// defined in `./src/gym_graphs/sql/select_user_by_email.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_email.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -477,7 +477,7 @@ pub type SelectUserByEmailRow {
 }
 
 /// Runs the `select_user_by_email` query
-/// defined in `./src/gym_graphs/sql/select_user_by_email.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_email.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -519,7 +519,7 @@ pub fn select_user_by_email(
 }
 
 /// A row you get from running the `select_user_by_password_reset_session_id` query
-/// defined in `./src/gym_graphs/sql/select_user_by_password_reset_session_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -538,7 +538,7 @@ pub type SelectUserByPasswordResetSessionIdRow {
 }
 
 /// Runs the `select_user_by_password_reset_session_id` query
-/// defined in `./src/gym_graphs/sql/select_user_by_password_reset_session_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -585,7 +585,7 @@ $1;
 }
 
 /// A row you get from running the `update_user_password_hash_by_password_reset_session_id` query
-/// defined in `./src/gym_graphs/sql/update_user_password_hash_by_password_reset_session_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This type definition was generated automatically using v4.7.0 of the
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -595,7 +595,7 @@ pub type UpdateUserPasswordHashByPasswordResetSessionIdRow {
 }
 
 /// Runs the `update_user_password_hash_by_password_reset_session_id` query
-/// defined in `./src/gym_graphs/sql/update_user_password_hash_by_password_reset_session_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_reset_session_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -630,7 +630,7 @@ returning password_reset_sessions.id;
 }
 
 /// Runs the `verify_password_reset_session_by_id` query
-/// defined in `./src/gym_graphs/sql/verify_password_reset_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/verify_password_reset_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
@@ -653,7 +653,7 @@ $1 and user_identity_verified_at is null;
 }
 
 /// Runs the `verify_sign_up_session_by_id` query
-/// defined in `./src/gym_graphs/sql/verify_sign_up_session_by_id.sql`.
+/// defined in `./src/gym_graphs/repos/sql/verify_sign_up_session_by_id.sql`.
 ///
 /// > 🐿️ This function was generated automatically using v4.7.0 of
 /// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).

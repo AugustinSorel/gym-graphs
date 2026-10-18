@@ -3,7 +3,7 @@ import gleam/result
 import gym_graphs/domains/password_reset_session.{type PasswordResetSessionId}
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user.{type Email, type Name, type PasswordHash}
-import gym_graphs/sql
+import gym_graphs/repos/sql
 import pog.{type Connection}
 
 pub fn create(

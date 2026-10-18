@@ -4,7 +4,7 @@ import gleam/time/timestamp
 import gym_graphs/domains/session
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user
-import gym_graphs/sql
+import gym_graphs/repos/sql
 import pog.{type Connection}
 
 pub fn create(
