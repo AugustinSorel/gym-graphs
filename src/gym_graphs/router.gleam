@@ -3,6 +3,7 @@ import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/auth_session_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/sign_up_session_handler
+import gym_graphs/handlers/user_handler
 import gym_graphs/middlewares/auth_session_middleware
 import gym_graphs/middlewares/password_reset_session_middleware
 import gym_graphs/middlewares/sign_up_session_middleware
@@ -140,6 +141,13 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       auth_session_handler.sign_in(req, ctx)
     }
+
+    Get, ["account"] -> {
+      use user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.view_account_page(req, user)
+    }
+
     _, _ -> wisp.not_found()
   }
 }

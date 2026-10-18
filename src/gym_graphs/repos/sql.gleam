@@ -289,6 +289,26 @@ pub fn delete_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
+/// Runs the `refresh_auth_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/refresh_auth_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn refresh_auth_session_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update auth_sessions set last_active_at = now() where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_auth_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_auth_session_by_id.sql`.
 ///
@@ -514,6 +534,67 @@ pub fn select_user_by_email(
 "
   |> pog.query
   |> pog.parameter(pog.text(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_user_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectUserByIdRow {
+  SelectUserByIdRow(
+    id: Int,
+    email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
+    password_hash: String,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_user_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_user_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_user_by_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectUserByIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      4,
+      one_rep_max_algorithm_decoder(),
+    )
+    use password_hash <- decode.field(5, decode.string)
+    use created_at <- decode.field(6, pog.timestamp_decoder())
+    use updated_at <- decode.field(7, pog.timestamp_decoder())
+    decode.success(SelectUserByIdRow(
+      id:,
+      email_address:,
+      name:,
+      weight_unit:,
+      one_rep_max_algorithm:,
+      password_hash:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select * from users where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

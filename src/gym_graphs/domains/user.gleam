@@ -21,7 +21,7 @@ pub type UserId {
 }
 
 pub type User {
-  User(id: UserId, email: Email, password_hash: PasswordHash)
+  User(id: UserId, name: Name, email: Email, password_hash: PasswordHash)
 }
 
 pub fn parse_email() {
