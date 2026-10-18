@@ -209,6 +209,19 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       account_deletion_session_handler.view_verify_password_page(user)
     }
+    Post, ["delete-account", "verify-password"] -> {
+      use account_deletion_session, user <- account_deletion_session_middleware.require_unverified(
+        req,
+        ctx,
+      )
+
+      account_deletion_session_handler.verify_password(
+        req,
+        account_deletion_session,
+        user,
+        ctx,
+      )
+    }
 
     Get, ["sign-in"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)

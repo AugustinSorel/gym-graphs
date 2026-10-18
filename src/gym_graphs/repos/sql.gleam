@@ -1026,6 +1026,28 @@ returning users.id;
   |> pog.execute(db)
 }
 
+/// Runs the `verify_account_deletion_session_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/verify_account_deletion_session_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn verify_account_deletion_session_by_id(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update account_deletion_sessions
+set user_identity_verified_at = now()
+where id = $1 and user_identity_verified_at is null;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `verify_password_reset_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/verify_password_reset_session_by_id.sql`.
 ///

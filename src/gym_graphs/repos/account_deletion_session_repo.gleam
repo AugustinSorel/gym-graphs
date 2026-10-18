@@ -41,3 +41,7 @@ pub fn select_by_id(db: Connection, id: AccountDeletionSessionId) {
     }
   })
 }
+
+pub fn verify_by_id(db: Connection, id: AccountDeletionSessionId) {
+  sql.verify_account_deletion_session_by_id(db, id.value)
+}
