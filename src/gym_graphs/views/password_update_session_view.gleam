@@ -125,6 +125,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordSchema)) -> Element(a) {
             attribute.type_("password"),
             attribute.name("password"),
             attribute.placeholder("********"),
+            attribute.value(form.field_value(form, "password")),
             attribute.autocomplete("current-password"),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(password_error))),
