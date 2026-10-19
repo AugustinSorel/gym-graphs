@@ -150,7 +150,7 @@ pub fn register_form(form: Form(StartSchema)) -> Element(a) {
         Ok(msg) -> {
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         }
         Error(_) -> element.none()
@@ -228,7 +228,7 @@ pub fn verify_email_form(
         Ok(msg) -> {
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         }
         Error(_) -> element.none()
@@ -238,7 +238,7 @@ pub fn verify_email_form(
         option.Some(msg) ->
           ui.alert(ui.AlertSuccess, [], [
             ui.alert_title(element.text("verification code sent")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()
       },
@@ -336,7 +336,7 @@ pub fn set_password_form(form: Form(SetPasswordSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },

@@ -128,7 +128,7 @@ pub fn edit_name_form(form: Form(EditNameSchema)) -> Element(a) {
         Ok(message) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(message)),
+            ui.alert_description([], element.text(message)),
           ])
         Error(_) -> element.none()
       },
@@ -505,6 +505,23 @@ fn tag_item(tag: Tag) -> Element(a) {
   )
 }
 
+pub fn tag_item_error(msg: String) {
+  html.li([], [
+    ui.alert(
+      ui.AlertError,
+      [
+        attribute.class(
+          "mt-3 py-3 [counter-increment:tags-list] items-center gap-2",
+        ),
+      ],
+      [
+        ui.alert_title(html.text("loading tags failed")),
+        ui.alert_description([], html.text(msg)),
+      ],
+    ),
+  ])
+}
+
 fn no_tags_message() -> Element(a) {
   html.div(
     [
@@ -596,7 +613,7 @@ pub fn one_rep_max_algorithm_form(
         Ok(message) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("changing one rep max algorithm failed")),
-            ui.alert_description(element.text(message)),
+            ui.alert_description([], element.text(message)),
           ])
         Error(_) -> element.none()
       },
@@ -633,7 +650,7 @@ pub fn weight_unit_form(form: Form(WeightUnit)) -> Element(a) {
         Ok(message) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("changing weight unit failed")),
-            ui.alert_description(element.text(message)),
+            ui.alert_description([], element.text(message)),
           ])
         Error(_) -> element.none()
       },
@@ -692,7 +709,7 @@ pub fn update_password_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("updating password failed")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()
       },
@@ -734,7 +751,7 @@ pub fn sign_out_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("signing out failed")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()
       },
@@ -776,7 +793,7 @@ pub fn remove_account_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("deleting account failed")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()
       },

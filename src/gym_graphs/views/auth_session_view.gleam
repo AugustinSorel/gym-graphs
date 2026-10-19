@@ -157,7 +157,7 @@ pub fn sign_in_form(form: Form(SignInSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("sign in failed")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },

@@ -34,28 +34,48 @@ pub fn view_account_page(req: Request, user: User, ctx: Ctx) {
   }
 }
 
+pub type ViewTagsRowsError {
+  InvalidCursor
+  ViewTagsRowsDatabaseFailure(QueryError)
+}
+
 pub fn view_tags_rows(req: Request, user: User, ctx: Ctx) {
-  let cursor = case wisp.get_query(req) |> list.key_find("cursor") {
-    Ok(raw_cursor) -> int.parse(raw_cursor)
-    Error(Nil) -> Error(Nil)
+  let result = {
+    use cursor_query <- result.try(
+      wisp.get_query(req)
+      |> list.key_find("cursor")
+      |> result.replace_error(InvalidCursor),
+    )
+
+    use cursor <- result.try(
+      int.parse(cursor_query) |> result.replace_error(InvalidCursor),
+    )
+
+    use <- bool.guard(when: cursor <= 0, return: Error(InvalidCursor))
+
+    load_tags_page(user, cursor, ctx)
+    |> result.map_error(ViewTagsRowsDatabaseFailure)
   }
 
-  case cursor {
-    Ok(cursor) if cursor >= 0 ->
-      case load_tags_page(user, cursor, ctx) {
-        Ok(tags_page) ->
-          tags_page
-          |> user_view.tags_rows()
-          |> element.to_string()
-          |> wisp.html_response(200)
-        Error(error) -> {
-          wisp.log_error(req.path <> " " <> string.inspect(error))
-          //FIX
-          wisp.internal_server_error()
-        }
-      }
-    //FIX
-    _ -> wisp.bad_request("Invalid cursor.")
+  case result {
+    Ok(tags_page) ->
+      tags_page
+      |> user_view.tags_rows()
+      |> element.to_string()
+      |> wisp.html_response(200)
+
+    Error(InvalidCursor) -> {
+      user_view.tag_item_error("invalid cursor")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    }
+
+    Error(ViewTagsRowsDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      user_view.tag_item_error("something went wrong")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
   }
 }
 

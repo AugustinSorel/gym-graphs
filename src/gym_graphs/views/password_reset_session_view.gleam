@@ -147,7 +147,7 @@ pub fn password_reset_form(form: Form(ResetPasswordSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },
@@ -214,7 +214,7 @@ pub fn verify_form(form: Form(VerifyEmailCodeSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },
@@ -301,7 +301,7 @@ pub fn set_new_password_form(form: Form(SetNewPasswordSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },

@@ -151,7 +151,7 @@ pub fn verify_password_form(form: Form(VerifyPasswordSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },
@@ -207,7 +207,7 @@ pub fn confirm_form(form: Form(ConfirmSchema)) -> Element(a) {
         Ok(msg) ->
           ui.alert(ui.AlertError, [], [
             ui.alert_title(element.text("something went wrong")),
-            ui.alert_description(element.text(msg)),
+            ui.alert_description([], element.text(msg)),
           ])
         Error(_) -> element.none()
       },

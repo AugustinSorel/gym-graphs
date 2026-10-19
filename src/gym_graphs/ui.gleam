@@ -269,8 +269,11 @@ pub fn alert_title(children: Element(a)) -> Element(a) {
   html.p([attribute.class("font-semibold")], [children])
 }
 
-pub fn alert_description(children: Element(a)) -> Element(a) {
-  html.p([attribute.class("text-sm")], [
+pub fn alert_description(
+  attrs: List(Attribute(a)),
+  children: Element(a),
+) -> Element(a) {
+  html.p(list.append([attribute.class("text-sm")], attrs), [
     children,
   ])
 }
