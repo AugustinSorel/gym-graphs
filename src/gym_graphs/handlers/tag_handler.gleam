@@ -255,7 +255,7 @@ pub fn remove(req: Request, user: User, ctx: Ctx, tag_id: String) {
       parse_tag_id(tag_id) |> result.replace_error(RemoveTagInvalidId),
     )
 
-    tag_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+    tag_repo.delete_by_id_and_user_id(ctx.db, id, user.id)
     |> result.map_error(RemoveTagDatabaseFailure)
     |> result.replace(Nil)
   }
