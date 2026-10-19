@@ -539,6 +539,43 @@ pub fn delete_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_tag_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_tag_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteTagByIdAndUserIdRow {
+  DeleteTagByIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `delete_tag_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_tag_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_tag_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(DeleteTagByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(DeleteTagByIdAndUserIdRow(id:))
+  }
+
+  "delete from tags
+where id = $1 and user_id = $2
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_user_by_account_deletion_session_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_user_by_account_deletion_session_id.sql`.
 ///

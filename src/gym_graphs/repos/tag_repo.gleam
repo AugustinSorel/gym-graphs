@@ -40,6 +40,16 @@ pub fn update_name_by_id_and_user_id(
   })
 }
 
+pub fn delete_by_id_and_user_id(db: Connection, id: TagId, user_id: UserId) {
+  sql.delete_tag_by_id_and_user_id(db, id.value, user_id.value)
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) -> option.Some(tag.TagId(row.id))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
+}
+
 pub fn count_by_user_id(db: Connection, user_id: UserId) {
   sql.count_tags_by_user_id(db, user_id.value)
   |> result.map(fn(result) {

@@ -1,4 +1,4 @@
-import gleam/http.{Get, Patch, Post}
+import gleam/http.{Delete, Get, Patch, Post}
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/account_deletion_session_handler
 import gym_graphs/handlers/auth_session_handler
@@ -322,6 +322,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       tag_handler.rename(req, user, ctx, tag_id)
+    }
+    Get, ["tags", tag_id, "confirm-delete"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.view_remove_page(req, user, ctx, tag_id)
+    }
+    Delete, ["tags", tag_id] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.remove(req, user, ctx, tag_id)
     }
 
     Post, ["sign-out"] -> {
