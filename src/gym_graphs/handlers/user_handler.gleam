@@ -2,6 +2,7 @@ import formal/form.{type Form}
 import gleam/bool
 import gleam/int
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
@@ -69,12 +70,13 @@ fn load_tags_page(user: User, after_id: Int, ctx: Ctx) {
 
   let has_next_page = list.length(fetched_rows) > tags_page_size
   let rows = list.take(fetched_rows, tags_page_size)
+
   let next_cursor = case has_next_page, list.last(rows) {
-    True, Ok(last_tag) -> int.to_string(last_tag.id.value)
-    _, _ -> ""
+    True, Ok(last_tag) -> option.Some(last_tag.id)
+    _, _ -> option.None
   }
 
-  Ok(user_view.TagsPage(rows:, total_count:, has_next_page:, next_cursor:))
+  Ok(user_view.TagsPage(rows:, total_count:, next_cursor:))
 }
 
 pub fn view_edit_name_page(req: Request, user: User) {

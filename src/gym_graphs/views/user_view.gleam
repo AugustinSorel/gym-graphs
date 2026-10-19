@@ -18,9 +18,7 @@ pub type TagsPage {
   TagsPage(
     rows: List(Tag),
     total_count: Int,
-    has_next_page: Bool,
-    //FIX option.Option(tag.TagId)
-    next_cursor: String,
+    next_cursor: option.Option(tag.TagId),
   )
 }
 
@@ -396,9 +394,9 @@ pub fn tags_rows(tags_page: TagsPage) -> Element(a) {
 fn tag_row_elements(tags_page: TagsPage) -> List(Element(a)) {
   let rows = list.map(tags_page.rows, tag_item)
 
-  case tags_page.has_next_page {
-    False -> rows
-    True ->
+  case tags_page.next_cursor {
+    option.None -> rows
+    option.Some(tag.TagId(tag_id)) ->
       list.append(rows, [
         html.li(
           [
@@ -406,7 +404,7 @@ fn tag_row_elements(tags_page: TagsPage) -> List(Element(a)) {
             attribute.attribute(
               "hx-get",
               "/account/tags?cursor="
-                <> uri.percent_encode(tags_page.next_cursor),
+                <> uri.percent_encode(int.to_string(tag_id)),
             ),
             attribute.attribute("hx-swap", "outerHTML"),
             attribute.attribute("hx-target", "#tags-load-more"),
