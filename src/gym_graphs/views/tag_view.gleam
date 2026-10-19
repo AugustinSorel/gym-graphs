@@ -145,6 +145,7 @@ pub fn rename_tag_form(
             attribute.type_("text"),
             attribute.name("name"),
             attribute.value(form.field_value(form, "name")),
+            attribute.placeholder("chest"),
             attribute.autocomplete("off"),
             attribute.aria_invalid(
               string.lowercase(bool.to_string(result.is_ok(name_error))),
