@@ -313,6 +313,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       tag_handler.create(req, user, ctx)
     }
+    Get, ["tags", tag_id, "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.view_rename_page(req, user, ctx, tag_id)
+    }
+    Patch, ["tags", tag_id, "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.rename(req, user, ctx, tag_id)
+    }
 
     Post, ["sign-out"] -> {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)

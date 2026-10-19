@@ -866,6 +866,44 @@ pub fn select_sign_up_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_tag_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tag_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectTagByIdAndUserIdRow {
+  SelectTagByIdAndUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_tag_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tag_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_tag_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  arg_2: Int,
+) -> Result(pog.Returned(SelectTagByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectTagByIdAndUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from tags
+where id = $1 and user_id = $2;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_tags_page_by_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_tags_page_by_user_id.sql`.
 ///
@@ -1092,6 +1130,46 @@ $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `update_tag_name_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_tag_name_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateTagNameByIdAndUserIdRow {
+  UpdateTagNameByIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `update_tag_name_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_tag_name_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_tag_name_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+  name: String,
+) -> Result(pog.Returned(UpdateTagNameByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdateTagNameByIdAndUserIdRow(id:))
+  }
+
+  "update tags
+set name = $3
+where id = $1 and user_id = $2
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.text(name))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

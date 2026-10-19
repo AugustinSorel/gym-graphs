@@ -1,6 +1,7 @@
 import gleam/list
+import gleam/option
 import gleam/result
-import gym_graphs/domains/tag.{type Name}
+import gym_graphs/domains/tag.{type Name, type TagId}
 import gym_graphs/domains/user.{type UserId}
 import gym_graphs/repos/sql
 import pog.{type Connection}
@@ -10,6 +11,32 @@ pub fn create(db: Connection, user_id: UserId, name: Name) {
   |> result.map(fn(result) {
     let assert pog.Returned(rows: [row], count: 1) = result
     tag.TagId(row.id)
+  })
+}
+
+pub fn select_by_id_and_user_id(db: Connection, id: TagId, user_id: UserId) {
+  sql.select_tag_by_id_and_user_id(db, id.value, user_id.value)
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(tag.Tag(id: tag.TagId(row.id), name: tag.Name(row.name)))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
+}
+
+pub fn update_name_by_id_and_user_id(
+  db: Connection,
+  id: TagId,
+  user_id: UserId,
+  name: Name,
+) {
+  sql.update_tag_name_by_id_and_user_id(db, id.value, user_id.value, name.value)
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) -> option.Some(tag.TagId(row.id))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
   })
 }
 
