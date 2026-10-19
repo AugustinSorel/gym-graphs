@@ -5,6 +5,7 @@ import gym_graphs/handlers/auth_session_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/password_update_session_handler
 import gym_graphs/handlers/sign_up_session_handler
+import gym_graphs/handlers/tag_handler
 import gym_graphs/handlers/user_handler
 import gym_graphs/middlewares/account_deletion_session_middleware
 import gym_graphs/middlewares/auth_session_middleware
@@ -300,6 +301,12 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       user_handler.update_one_rep_max_algorithm(req, user, ctx)
+    }
+
+    Get, ["tags", "new"] -> {
+      use _auth_session, _user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.view_create_page(req)
     }
 
     Post, ["sign-out"] -> {
