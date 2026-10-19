@@ -17,7 +17,7 @@ import lustre/element
 import pog.{type QueryError}
 import wisp.{type Request}
 
-const tags_page_size = 20
+const tags_page_size = 10
 
 pub fn view_account_page(req: Request, user: User, ctx: Ctx) {
   case load_tags_page(user, 0, ctx) {
