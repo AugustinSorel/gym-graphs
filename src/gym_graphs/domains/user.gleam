@@ -25,6 +25,22 @@ pub type WeightUnit {
   Lbs
 }
 
+pub type OneRepMaxAlgorithm {
+  Adams
+  Baechle
+  Berger
+  Brown
+  Brzycki
+  Epley
+  Kemmler
+  Landers
+  Lombardi
+  Mayhew
+  Naclerio
+  Oconner
+  Wathen
+}
+
 pub type User {
   User(
     id: UserId,
@@ -32,6 +48,7 @@ pub type User {
     email: Email,
     password_hash: PasswordHash,
     weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -73,6 +90,26 @@ pub fn weight_unit_to_string(weight_unit: WeightUnit) -> String {
   case weight_unit {
     Kg -> "kg"
     Lbs -> "lbs"
+  }
+}
+
+pub fn one_rep_max_algorithm_to_string(
+  algorithm: OneRepMaxAlgorithm,
+) -> String {
+  case algorithm {
+    Adams -> "adams"
+    Baechle -> "baechle"
+    Berger -> "berger"
+    Brown -> "brown"
+    Brzycki -> "brzycki"
+    Epley -> "epley"
+    Kemmler -> "kemmler"
+    Landers -> "landers"
+    Lombardi -> "lombardi"
+    Mayhew -> "mayhew"
+    Naclerio -> "naclerio"
+    Oconner -> "oconner"
+    Wathen -> "wathen"
   }
 }
 

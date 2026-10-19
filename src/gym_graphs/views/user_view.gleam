@@ -314,6 +314,7 @@ pub fn account_details(
           ),
         ],
       ),
+      one_rep_max_algorithm_row(user.one_rep_max_algorithm),
     ]),
 
     html.section([], [
@@ -330,6 +331,57 @@ pub fn account_details(
       remove_account_row(error: option.None),
     ]),
   ])
+}
+
+fn one_rep_max_algorithm_row(algorithm: user.OneRepMaxAlgorithm) -> Element(a) {
+  let current = user.one_rep_max_algorithm_to_string(algorithm)
+  let algorithms = [
+    "adams",
+    "baechle",
+    "berger",
+    "brown",
+    "brzycki",
+    "epley",
+    "kemmler",
+    "landers",
+    "lombardi",
+    "mayhew",
+    "naclerio",
+    "oconner",
+    "wathen",
+  ]
+
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-3 items-center",
+      ),
+    ],
+    [
+      html.label(
+        [
+          attribute.for("one-rep-max-algorithm"),
+          attribute.class("text-outline text-sm"),
+        ],
+        [html.text("one rep max algorithm")],
+      ),
+      ui.select(
+        [
+          attribute.id("one-rep-max-algorithm"),
+          attribute.name("one_rep_max_algorithm"),
+        ],
+        list.map(algorithms, fn(algorithm) {
+          html.option(
+            [
+              attribute.value(algorithm),
+              attribute.selected(algorithm == current),
+            ],
+            algorithm,
+          )
+        }),
+      ),
+    ],
+  )
 }
 
 pub fn weight_unit_form(form: Form(WeightUnit)) -> Element(a) {

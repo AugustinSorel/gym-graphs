@@ -36,6 +36,7 @@ pub fn select_by_email(db: Connection, email: Email) {
           entity.email_address,
           entity.password_hash,
           entity.weight_unit,
+          entity.one_rep_max_algorithm,
         )
         |> option.Some()
       }
@@ -58,6 +59,7 @@ pub fn select_by_password_reset_session_id(
           entity.email_address,
           entity.password_hash,
           entity.weight_unit,
+          entity.one_rep_max_algorithm,
         )
         |> option.Some()
       pog.Returned(count: _, rows: []) -> option.None
@@ -76,6 +78,7 @@ pub fn select_by_id(db: Connection, id: UserId) {
           entity.email_address,
           entity.password_hash,
           entity.weight_unit,
+          entity.one_rep_max_algorithm,
         )
         |> option.Some()
       pog.Returned(count: _, rows: []) -> option.None
@@ -136,6 +139,7 @@ fn new_user(
   email: String,
   password_hash: String,
   weight_unit: sql.WeightUnit,
+  one_rep_max_algorithm: sql.OneRepMaxAlgorithm,
 ) {
   let id = user.UserId(id)
   let password_hash = user.PasswordHash(password_hash)
@@ -145,8 +149,30 @@ fn new_user(
     sql.Kg -> user.Kg
     sql.Lbs -> user.Lbs
   }
+  let one_rep_max_algorithm = case one_rep_max_algorithm {
+    sql.Adams -> user.Adams
+    sql.Baechle -> user.Baechle
+    sql.Berger -> user.Berger
+    sql.Brown -> user.Brown
+    sql.Brzycki -> user.Brzycki
+    sql.Epley -> user.Epley
+    sql.Kemmler -> user.Kemmler
+    sql.Landers -> user.Landers
+    sql.Lombardi -> user.Lombardi
+    sql.Mayhew -> user.Mayhew
+    sql.Naclerio -> user.Naclerio
+    sql.Oconner -> user.Oconner
+    sql.Wathen -> user.Wathen
+  }
 
-  user.User(id:, name:, email:, password_hash:, weight_unit:)
+  user.User(
+    id:,
+    name:,
+    email:,
+    password_hash:,
+    weight_unit:,
+    one_rep_max_algorithm:,
+  )
 }
 
 fn weight_unit_to_sql(weight_unit: WeightUnit) -> sql.WeightUnit {
