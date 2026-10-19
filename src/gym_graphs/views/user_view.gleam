@@ -314,7 +314,16 @@ pub fn account_details(
           ),
         ],
       ),
-      one_rep_max_algorithm_row(user.one_rep_max_algorithm),
+      one_rep_max_algorithm_form(
+        user_schema.one_rep_max_algorithm()
+        |> form.add_values([
+          #(
+            "one_rep_max_algorithm",
+            user.one_rep_max_algorithm
+              |> user.one_rep_max_algorithm_to_string(),
+          ),
+        ]),
+      ),
     ]),
 
     html.section([], [
@@ -333,8 +342,15 @@ pub fn account_details(
   ])
 }
 
-fn one_rep_max_algorithm_row(algorithm: user.OneRepMaxAlgorithm) -> Element(a) {
-  let current = user.one_rep_max_algorithm_to_string(algorithm)
+pub fn one_rep_max_algorithm_form(
+  form: Form(user.OneRepMaxAlgorithm),
+) -> Element(a) {
+  let error =
+    list.append(
+      form.field_error_messages(form, "one_rep_max_algorithm"),
+      form.field_error_messages(form, "root"),
+    )
+    |> list.first()
   let algorithms = [
     "adams",
     "baechle",
@@ -351,10 +367,13 @@ fn one_rep_max_algorithm_row(algorithm: user.OneRepMaxAlgorithm) -> Element(a) {
     "wathen",
   ]
 
-  html.div(
+  html.form(
     [
+      attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
       attribute.class(
-        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
       ),
     ],
     [
@@ -374,12 +393,22 @@ fn one_rep_max_algorithm_row(algorithm: user.OneRepMaxAlgorithm) -> Element(a) {
           html.option(
             [
               attribute.value(algorithm),
-              attribute.selected(algorithm == current),
+              attribute.selected(
+                algorithm == form.field_value(form, "one_rep_max_algorithm"),
+              ),
             ],
             algorithm,
           )
         }),
       ),
+      case error {
+        Ok(message) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("changing one rep max algorithm failed")),
+            ui.alert_description(element.text(message)),
+          ])
+        Error(_) -> element.none()
+      },
     ],
   )
 }

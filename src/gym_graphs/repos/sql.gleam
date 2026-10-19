@@ -1004,6 +1004,28 @@ pub fn update_user_name_by_id(
   |> pog.execute(db)
 }
 
+/// Runs the `update_user_one_rep_max_algorithm_by_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_user_one_rep_max_algorithm_by_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_user_one_rep_max_algorithm_by_id(
+  db: pog.Connection,
+  one_rep_max_algorithm: OneRepMaxAlgorithm,
+  arg_2: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "update users set one_rep_max_algorithm = $1 where id = $2;
+"
+  |> pog.query
+  |> pog.parameter(one_rep_max_algorithm_encoder(one_rep_max_algorithm))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `update_user_password_hash_by_password_reset_session_id` query
 /// defined in `./src/gym_graphs/repos/sql/update_user_password_hash_by_password_reset_session_id.sql`.
 ///
@@ -1252,6 +1274,25 @@ fn one_rep_max_algorithm_decoder() -> decode.Decoder(OneRepMaxAlgorithm) {
     "adams" -> decode.success(Adams)
     _ -> decode.failure(Wathen, "OneRepMaxAlgorithm")
   }
+}
+
+fn one_rep_max_algorithm_encoder(one_rep_max_algorithm) -> pog.Value {
+  case one_rep_max_algorithm {
+    Wathen -> "wathen"
+    Oconner -> "oconner"
+    Naclerio -> "naclerio"
+    Mayhew -> "mayhew"
+    Lombardi -> "lombardi"
+    Landers -> "landers"
+    Kemmler -> "kemmler"
+    Epley -> "epley"
+    Brzycki -> "brzycki"
+    Brown -> "brown"
+    Berger -> "berger"
+    Baechle -> "baechle"
+    Adams -> "adams"
+  }
+  |> pog.text
 }
 
 /// Corresponds to the Postgres `weight_unit` enum.

@@ -3,7 +3,9 @@ import gleam/bool
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
-import gym_graphs/domains/user.{type User, type WeightUnit}
+import gym_graphs/domains/user.{
+  type OneRepMaxAlgorithm, type User, type WeightUnit,
+}
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/views/user_view
@@ -116,6 +118,63 @@ pub fn update_weight_unit(req: Request, user: User, ctx: Ctx) {
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
       |> user_view.weight_unit_form()
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type UpdateOneRepMaxAlgorithmError {
+  UpdateOneRepMaxAlgorithmValidation(Form(OneRepMaxAlgorithm))
+  UpdateOneRepMaxAlgorithmDatabaseFailure(QueryError)
+}
+
+pub fn update_one_rep_max_algorithm(req: Request, user: User, ctx: Ctx) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use algorithm <- result.try(
+      user_schema.one_rep_max_algorithm()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(UpdateOneRepMaxAlgorithmValidation),
+    )
+
+    use <- bool.guard(
+      when: algorithm == user.one_rep_max_algorithm,
+      return: Ok(Nil),
+    )
+
+    user_repo.update_one_rep_max_algorithm_by_id(ctx.db, algorithm, user.id)
+    |> result.map_error(UpdateOneRepMaxAlgorithmDatabaseFailure)
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) ->
+      user_schema.one_rep_max_algorithm()
+      |> form.add_values(formdata.values)
+      |> user_view.one_rep_max_algorithm_form()
+      |> element.to_string()
+      |> wisp.html_response(200)
+
+    Error(UpdateOneRepMaxAlgorithmValidation(form)) ->
+      form
+      |> user_view.one_rep_max_algorithm_form()
+      |> element.to_string()
+      |> wisp.html_response(422)
+
+    Error(UpdateOneRepMaxAlgorithmDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      user_schema.one_rep_max_algorithm()
+      |> form.add_values([
+        #(
+          "one_rep_max_algorithm",
+          user.one_rep_max_algorithm |> user.one_rep_max_algorithm_to_string(),
+        ),
+      ])
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> user_view.one_rep_max_algorithm_form()
       |> element.to_string()
       |> wisp.html_response(500)
     }

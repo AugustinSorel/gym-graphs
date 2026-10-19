@@ -113,6 +113,27 @@ pub fn one_rep_max_algorithm_to_string(
   }
 }
 
+pub fn parse_one_rep_max_algorithm() {
+  form.parse(fn(input) {
+    case input {
+      ["adams", ..] -> Ok(Adams)
+      ["baechle", ..] -> Ok(Baechle)
+      ["berger", ..] -> Ok(Berger)
+      ["brown", ..] -> Ok(Brown)
+      ["brzycki", ..] -> Ok(Brzycki)
+      ["epley", ..] -> Ok(Epley)
+      ["kemmler", ..] -> Ok(Kemmler)
+      ["landers", ..] -> Ok(Landers)
+      ["lombardi", ..] -> Ok(Lombardi)
+      ["mayhew", ..] -> Ok(Mayhew)
+      ["naclerio", ..] -> Ok(Naclerio)
+      ["oconner", ..] -> Ok(Oconner)
+      ["wathen", ..] -> Ok(Wathen)
+      _ -> Error(#(Epley, "must be a supported one rep max algorithm"))
+    }
+  })
+}
+
 pub fn parse_password() {
   form.parse_string
   |> form.check_not_empty

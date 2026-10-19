@@ -291,6 +291,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       user_handler.update_weight_unit(req, user, ctx)
     }
+    Patch, ["account", "one-rep-max-algorithm"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.update_one_rep_max_algorithm(req, user, ctx)
+    }
 
     Post, ["sign-out"] -> {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)

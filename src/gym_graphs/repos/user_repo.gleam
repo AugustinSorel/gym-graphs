@@ -7,7 +7,8 @@ import gym_graphs/domains/password_reset_session.{type PasswordResetSessionId}
 import gym_graphs/domains/password_update_session.{type PasswordUpdateSessionId}
 import gym_graphs/domains/sign_up_session.{type SignUpSessionId}
 import gym_graphs/domains/user.{
-  type Email, type Name, type PasswordHash, type UserId, type WeightUnit,
+  type Email, type Name, type OneRepMaxAlgorithm, type PasswordHash, type UserId,
+  type WeightUnit,
 }
 import gym_graphs/repos/sql
 import pog.{type Connection}
@@ -109,6 +110,18 @@ pub fn update_weight_unit_by_id(
   )
 }
 
+pub fn update_one_rep_max_algorithm_by_id(
+  db: Connection,
+  algorithm: OneRepMaxAlgorithm,
+  id: UserId,
+) {
+  sql.update_user_one_rep_max_algorithm_by_id(
+    db,
+    one_rep_max_algorithm_to_sql(algorithm),
+    id.value,
+  )
+}
+
 pub fn update_password_hash_by_password_reset_session_id(
   db: Connection,
   password_hash: PasswordHash,
@@ -179,5 +192,25 @@ fn weight_unit_to_sql(weight_unit: WeightUnit) -> sql.WeightUnit {
   case weight_unit {
     user.Kg -> sql.Kg
     user.Lbs -> sql.Lbs
+  }
+}
+
+fn one_rep_max_algorithm_to_sql(
+  algorithm: OneRepMaxAlgorithm,
+) -> sql.OneRepMaxAlgorithm {
+  case algorithm {
+    user.Adams -> sql.Adams
+    user.Baechle -> sql.Baechle
+    user.Berger -> sql.Berger
+    user.Brown -> sql.Brown
+    user.Brzycki -> sql.Brzycki
+    user.Epley -> sql.Epley
+    user.Kemmler -> sql.Kemmler
+    user.Landers -> sql.Landers
+    user.Lombardi -> sql.Lombardi
+    user.Mayhew -> sql.Mayhew
+    user.Naclerio -> sql.Naclerio
+    user.Oconner -> sql.Oconner
+    user.Wathen -> sql.Wathen
   }
 }
