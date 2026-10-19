@@ -357,6 +357,43 @@ returning *;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `create_tag` query
+/// defined in `./src/gym_graphs/repos/sql/create_tag.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateTagRow {
+  CreateTagRow(id: Int)
+}
+
+/// Runs the `create_tag` query
+/// defined in `./src/gym_graphs/repos/sql/create_tag.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_tag(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: String,
+) -> Result(pog.Returned(CreateTagRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(CreateTagRow(id:))
+  }
+
+  "insert into tags (user_id, name)
+values ($1, $2)
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_user` query
 /// defined in `./src/gym_graphs/repos/sql/create_user.sql`.
 ///

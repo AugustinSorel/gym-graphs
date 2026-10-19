@@ -308,6 +308,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       tag_handler.view_create_page(req)
     }
+    Post, ["tags", "new"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      tag_handler.create(req, user, ctx)
+    }
 
     Post, ["sign-out"] -> {
       use auth_session, _user <- auth_session_middleware.require(req, ctx)
