@@ -101,7 +101,11 @@ pub fn rename_tag_page(children: Element(a), path: String) -> Element(a) {
         ),
       ],
       [
-        html.div([attribute.class("flex flex-col mx-auto w-full gap-20")], [
+        html.div([attribute.class("flex flex-col mx-auto w-full gap-10")], [
+          html.h1([attribute.class("font-semibold text-3xl")], [
+            html.text("rename tag"),
+          ]),
+
           children,
         ]),
       ],
@@ -109,32 +113,22 @@ pub fn rename_tag_page(children: Element(a), path: String) -> Element(a) {
   ])
 }
 
-pub fn rename_tag_form(
-  form: Form(RenameTagSchema),
-  id: option.Option(TagId),
-) -> Element(a) {
+pub fn rename_tag_form(form: Form(RenameTagSchema), id: TagId) -> Element(a) {
   let name_error = list.first(form.field_error_messages(form, "name"))
   let root_error = list.first(form.field_error_messages(form, "root"))
 
   html.form(
     [
-      case id {
-        option.Some(tag.TagId(id)) ->
-          attribute.attribute(
-            "hx-patch",
-            "/tags/" <> int.to_string(id) <> "/name",
-          )
-        option.None -> attribute.none()
-      },
+      attribute.attribute(
+        "hx-patch",
+        "/tags/" <> int.to_string(id.value) <> "/name",
+      ),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class("flex flex-col gap-10"),
     ],
     [
-      html.h1([attribute.class("font-semibold text-3xl")], [
-        html.text("rename tag"),
-      ]),
       html.label(
         [attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error")],
         [
@@ -180,6 +174,19 @@ pub fn rename_tag_form(
   )
 }
 
+pub fn rename_tag_error(msg: String) {
+  element.fragment([
+    ui.alert(ui.AlertError, [], [
+      ui.alert_title(element.text("rename tag failed")),
+      ui.alert_description([], element.text(msg)),
+    ]),
+
+    ui.link([attribute.href("/account"), attribute.class("ml-auto")], [
+      html.text("back"),
+    ]),
+  ])
+}
+
 pub fn remove_tag_page(children: Element(a), path: String) -> Element(a) {
   ui.layout([
     ui.nav_bar(path),
@@ -201,51 +208,28 @@ pub fn remove_tag_page(children: Element(a), path: String) -> Element(a) {
   ])
 }
 
-pub type RemoveTagPayload {
-  RemoveTag(tag: Tag)
-  RemoveTagError(msg: String)
-}
-
-pub fn remove_tag_form(payload: RemoveTagPayload) -> Element(a) {
+pub fn remove_tag_form(tag: Tag) -> Element(a) {
   html.form(
     [
-      case payload {
-        RemoveTag(tag) ->
-          attribute.attribute(
-            "hx-delete",
-            "/tags/" <> int.to_string(tag.id.value),
-          )
-        RemoveTagError(_msg) -> attribute.none()
-      },
+      attribute.attribute("hx-delete", "/tags/" <> int.to_string(tag.id.value)),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.attribute("hx-swap", "outerHTML"),
       attribute.class("flex flex-col gap-10"),
     ],
     [
-      case payload {
-        RemoveTag(tag) ->
-          html.p([attribute.class("text-outline")], [
-            html.text("Are you sure you want to remove the tag "),
-            html.strong([attribute.class("text-on-surface")], [
-              html.text(tag.name.value),
-            ]),
-            html.text("? This action cannot be undone."),
-          ])
-        RemoveTagError(msg) ->
-          ui.alert(ui.AlertError, [], [
-            ui.alert_title(element.text("something went wrong")),
-            ui.alert_description([], element.text(msg)),
-          ])
-      },
+      html.p([attribute.class("text-outline")], [
+        html.text("Are you sure you want to remove the tag "),
+        html.strong([attribute.class("text-on-surface")], [
+          html.text(tag.name.value),
+        ]),
+        html.text("? This action cannot be undone."),
+      ]),
+
       ui.button(
         ui.ButtonDestroy,
         [
           attribute.type_("submit"),
-          case payload {
-            RemoveTagError(_) -> attribute.disabled(True)
-            RemoveTag(_) -> attribute.none()
-          },
         ],
         [
           html.text("yes, remove tag"),
@@ -257,4 +241,17 @@ pub fn remove_tag_form(payload: RemoveTagPayload) -> Element(a) {
       ]),
     ],
   )
+}
+
+pub fn remove_tag_error(msg: String) {
+  element.fragment([
+    ui.alert(ui.AlertError, [], [
+      ui.alert_title(element.text("removing tag failed")),
+      ui.alert_description([], element.text(msg)),
+    ]),
+
+    ui.link([attribute.href("/account"), attribute.class("ml-auto")], [
+      html.text("back"),
+    ]),
+  ])
 }

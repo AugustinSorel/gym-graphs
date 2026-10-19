@@ -80,10 +80,9 @@ pub fn create(req: Request, user: User, ctx: Ctx) {
 pub type ViewRenameTagPageError {
   ViewRenameTagPageInvalidId
   ViewRenameTagPageDatabaseFailure(QueryError)
-  ViewRenameTagPageTagNotFound(TagId)
+  ViewRenameTagPageTagNotFound
 }
 
-//FIX
 pub fn view_rename_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
   let result = {
     use id <- result.try(
@@ -93,39 +92,33 @@ pub fn view_rename_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
 
     tag_repo.select_by_id_and_user_id(ctx.db, id, user.id)
     |> result.map_error(ViewRenameTagPageDatabaseFailure)
-    |> result.try(option.to_result(_, ViewRenameTagPageTagNotFound(id)))
+    |> result.try(option.to_result(_, ViewRenameTagPageTagNotFound))
   }
 
   case result {
     Ok(selected_tag) ->
       tag_schema.rename()
       |> form.add_values([#("name", selected_tag.name.value)])
-      |> tag_view.rename_tag_form(option.Some(selected_tag.id))
+      |> tag_view.rename_tag_form(selected_tag.id)
       |> tag_view.rename_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(200)
 
     Error(ViewRenameTagPageInvalidId) -> {
-      tag_schema.rename()
-      |> form.add_error("root", form.CustomError("tag not found"))
-      |> tag_view.rename_tag_form(option.None)
+      tag_view.rename_tag_error("invalid tag id")
       |> tag_view.rename_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(422)
     }
-    Error(ViewRenameTagPageTagNotFound(id)) -> {
-      tag_schema.rename()
-      |> form.add_error("root", form.CustomError("tag not found"))
-      |> tag_view.rename_tag_form(option.Some(id))
+    Error(ViewRenameTagPageTagNotFound) -> {
+      tag_view.rename_tag_error("tag not found")
       |> tag_view.rename_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(404)
     }
     Error(ViewRenameTagPageDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      tag_schema.rename()
-      |> form.add_error("root", form.CustomError("something went wrong"))
-      |> tag_view.rename_tag_form(option.None)
+      tag_view.rename_tag_error("invalid tag id")
       |> tag_view.rename_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(500)
@@ -135,12 +128,10 @@ pub fn view_rename_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
 
 type RenameTagError {
   RenameTagInvalidId
-  RenameTagValidation(Form(RenameTagSchema))
-  RenameTagNotFound
-  RenameTagDatabaseFailure(QueryError)
+  RenameTagValidation(Form(RenameTagSchema), TagId)
+  RenameTagDatabaseFailure(QueryError, TagId)
 }
 
-//FIX
 pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
   use formdata <- wisp.require_form(req)
 
@@ -154,12 +145,12 @@ pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
       tag_schema.rename()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(RenameTagValidation),
+      |> result.map_error(RenameTagValidation(_, id)),
     )
 
     tag_repo.update_name_by_id_and_user_id(ctx.db, id, user.id, input.name)
-    |> result.map_error(RenameTagDatabaseFailure)
-    |> result.try(option.to_result(_, RenameTagNotFound))
+    |> result.map_error(RenameTagDatabaseFailure(_, id))
+    |> result.replace(Nil)
   }
 
   case result {
@@ -167,39 +158,39 @@ pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/account")
 
-    Error(RenameTagInvalidId) -> wisp.not_found()
-
-    Error(RenameTagValidation(form)) -> {
-      let assert Ok(id) = parse_tag_id(tag_id)
-      form
-      |> tag_view.rename_tag_form(option.Some(id))
+    Error(RenameTagInvalidId) -> {
+      tag_view.rename_tag_error("invalid tag id")
+      |> tag_view.rename_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(422)
     }
 
-    Error(RenameTagNotFound) -> wisp.not_found()
+    Error(RenameTagValidation(form, id)) -> {
+      form
+      |> form.add_values(formdata.values)
+      |> tag_view.rename_tag_form(id)
+      |> element.to_string()
+      |> wisp.html_response(422)
+    }
 
-    Error(RenameTagDatabaseFailure(pog.ConstraintViolated(
-      message: _,
-      constraint: "tags_user_id_name_key",
-      detail: _,
-    ))) -> {
-      let assert Ok(id) = parse_tag_id(tag_id)
+    Error(RenameTagDatabaseFailure(
+      pog.ConstraintViolated(_, "tags_user_id_name_key", _),
+      id,
+    )) -> {
       tag_schema.rename()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Tag name is already used."))
-      |> tag_view.rename_tag_form(option.Some(id))
+      |> tag_view.rename_tag_form(id)
       |> element.to_string()
       |> wisp.html_response(409)
     }
 
-    Error(RenameTagDatabaseFailure(error)) -> {
-      let assert Ok(id) = parse_tag_id(tag_id)
+    Error(RenameTagDatabaseFailure(error, id)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       tag_schema.rename()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Something went wrong."))
-      |> tag_view.rename_tag_form(option.Some(id))
+      |> tag_view.rename_tag_form(id)
       |> element.to_string()
       |> wisp.html_response(500)
     }
@@ -226,26 +217,26 @@ pub fn view_remove_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
 
   case result {
     Ok(selected_tag) ->
-      tag_view.remove_tag_form(tag_view.RemoveTag(selected_tag))
+      tag_view.remove_tag_form(selected_tag)
       |> tag_view.remove_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(200)
 
     Error(ViewRemoveTagPageInvalidId) ->
-      tag_view.remove_tag_form(tag_view.RemoveTagError("invalid tag id"))
+      tag_view.remove_tag_error("invalid tag id")
       |> tag_view.remove_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(422)
 
     Error(ViewRemoveTagPageTagNotFound) ->
-      tag_view.remove_tag_form(tag_view.RemoveTagError("tag not found"))
+      tag_view.remove_tag_error("tag not found")
       |> tag_view.remove_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(404)
 
     Error(ViewRemoveTagPageDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      tag_view.remove_tag_form(tag_view.RemoveTagError("something went wrong"))
+      tag_view.remove_tag_error("something went wrong")
       |> tag_view.remove_tag_page(req.path)
       |> element.to_string()
       |> wisp.html_response(500)
@@ -256,7 +247,6 @@ pub fn view_remove_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
 pub type RemoveTagError {
   RemoveTagInvalidId
   RemoveTagDatabaseFailure(QueryError)
-  RemoveTagNotFound
 }
 
 pub fn remove(req: Request, user: User, ctx: Ctx, tag_id: String) {
@@ -267,7 +257,6 @@ pub fn remove(req: Request, user: User, ctx: Ctx, tag_id: String) {
 
     tag_repo.select_by_id_and_user_id(ctx.db, id, user.id)
     |> result.map_error(RemoveTagDatabaseFailure)
-    |> result.try(option.to_result(_, RemoveTagNotFound))
     |> result.replace(Nil)
   }
 
@@ -275,20 +264,15 @@ pub fn remove(req: Request, user: User, ctx: Ctx, tag_id: String) {
     Ok(Nil) ->
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/account")
-    Error(RemoveTagNotFound) -> {
-      tag_view.remove_tag_form(tag_view.RemoveTagError("tag not found"))
-      |> element.to_string()
-      |> wisp.html_response(404)
-    }
     Error(RemoveTagInvalidId) -> {
-      tag_view.remove_tag_form(tag_view.RemoveTagError("invalid tag id"))
+      tag_view.remove_tag_error("invalid tag id")
       |> element.to_string()
       |> wisp.html_response(404)
     }
 
     Error(RemoveTagDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      tag_view.remove_tag_form(tag_view.RemoveTagError("something went wrong"))
+      tag_view.remove_tag_error("something went wrong")
       |> element.to_string()
       |> wisp.html_response(404)
     }
