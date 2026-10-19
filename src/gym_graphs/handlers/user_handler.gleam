@@ -28,8 +28,10 @@ pub fn view_account_page(req: Request, user: User, ctx: Ctx) {
       |> wisp.html_response(200)
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      //FIX
-      wisp.internal_server_error()
+      user_view.account_details_error(user, "someting went wrong")
+      |> user_view.account_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(500)
     }
   }
 }

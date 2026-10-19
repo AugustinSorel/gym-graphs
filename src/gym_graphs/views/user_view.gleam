@@ -362,6 +362,49 @@ pub fn account_details(user: User, tags_page: TagsPage) -> Element(a) {
   ])
 }
 
+pub fn account_details_error(user: User, msg: String) {
+  element.fragment([
+    html.header([attribute.class("space-y-1")], [
+      html.span(
+        [
+          attribute.class(
+            "uppercase size-16 mb-5 text-xl bg-on-surface text-surface flex items-center justify-center font-semibold row-span-2",
+          ),
+          attribute.aria_hidden(True),
+        ],
+        [
+          html.text(string.slice(from: user.name.value, at_index: 0, length: 2)),
+        ],
+      ),
+      html.h1(
+        [
+          attribute.class("capitalize font-semibold text-3xl break-all"),
+        ],
+        [html.text(user.name.value)],
+      ),
+      html.p(
+        [
+          attribute.class("text-sm text-outline break-all"),
+        ],
+        [html.text(user.email.value)],
+      ),
+    ]),
+
+    ui.alert(
+      ui.AlertError,
+      [
+        attribute.class(
+          "mt-3 py-3 [counter-increment:tags-list] items-center gap-2",
+        ),
+      ],
+      [
+        ui.alert_title(html.text("loading account details failed")),
+        ui.alert_description([], html.text(msg)),
+      ],
+    ),
+  ])
+}
+
 pub fn tags_section(tags_page: TagsPage) -> Element(a) {
   case tags_page.total_count {
     0 -> no_tags_message()
