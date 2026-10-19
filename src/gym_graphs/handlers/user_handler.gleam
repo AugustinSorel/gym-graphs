@@ -1,11 +1,14 @@
 import formal/form.{type Form}
 import gleam/bool
+import gleam/int
+import gleam/list
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/user.{
   type OneRepMaxAlgorithm, type User, type WeightUnit,
 }
+import gym_graphs/repos/tag_repo
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/views/user_view
@@ -13,11 +16,65 @@ import lustre/element
 import pog.{type QueryError}
 import wisp.{type Request}
 
-pub fn view_account_page(req: Request, user: User) {
-  user_view.account_details(user)
-  |> user_view.account_page(req.path)
-  |> element.to_string()
-  |> wisp.html_response(200)
+const tags_page_size = 20
+
+pub fn view_account_page(req: Request, user: User, ctx: Ctx) {
+  case load_tags_page(user, 0, ctx) {
+    Ok(tags_page) ->
+      user_view.account_details(user, tags_page)
+      |> user_view.account_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      //FIX
+      wisp.internal_server_error()
+    }
+  }
+}
+
+pub fn view_tags_rows(req: Request, user: User, ctx: Ctx) {
+  let cursor = case wisp.get_query(req) |> list.key_find("cursor") {
+    Ok(raw_cursor) -> int.parse(raw_cursor)
+    Error(Nil) -> Error(Nil)
+  }
+
+  case cursor {
+    Ok(cursor) if cursor >= 0 ->
+      case load_tags_page(user, cursor, ctx) {
+        Ok(tags_page) ->
+          tags_page
+          |> user_view.tags_rows()
+          |> element.to_string()
+          |> wisp.html_response(200)
+        Error(error) -> {
+          wisp.log_error(req.path <> " " <> string.inspect(error))
+          //FIX
+          wisp.internal_server_error()
+        }
+      }
+    //FIX
+    _ -> wisp.bad_request("Invalid cursor.")
+  }
+}
+
+fn load_tags_page(user: User, after_id: Int, ctx: Ctx) {
+  use total_count <- result.try(tag_repo.count_by_user_id(ctx.db, user.id))
+  use fetched_rows <- result.try(tag_repo.select_page_by_user_id(
+    ctx.db,
+    user.id,
+    after_id,
+    tags_page_size + 1,
+  ))
+
+  let has_next_page = list.length(fetched_rows) > tags_page_size
+  let rows = list.take(fetched_rows, tags_page_size)
+  let next_cursor = case has_next_page, list.last(rows) {
+    True, Ok(last_tag) -> int.to_string(last_tag.id.value)
+    _, _ -> ""
+  }
+
+  Ok(user_view.TagsPage(rows:, total_count:, has_next_page:, next_cursor:))
 }
 
 pub fn view_edit_name_page(req: Request, user: User) {

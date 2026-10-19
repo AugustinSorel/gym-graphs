@@ -9,6 +9,41 @@ import gleam/option.{type Option}
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
+/// A row you get from running the `count_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/count_tags_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CountTagsByUserIdRow {
+  CountTagsByUserIdRow(total_count: Int)
+}
+
+/// Runs the `count_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/count_tags_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn count_tags_by_user_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(CountTagsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use total_count <- decode.field(0, decode.int)
+    decode.success(CountTagsByUserIdRow(total_count:))
+  }
+
+  "select count(*)::int as total_count
+from tags
+where user_id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_account_deletion_session` query
 /// defined in `./src/gym_graphs/repos/sql/create_account_deletion_session.sql`.
 ///
@@ -790,6 +825,48 @@ pub fn select_sign_up_session_by_id(
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_tags_page_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tags_page_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectTagsPageByUserIdRow {
+  SelectTagsPageByUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_tags_page_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tags_page_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_tags_page_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+  arg_2: Int,
+  arg_3: Int,
+) -> Result(pog.Returned(SelectTagsPageByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectTagsPageByUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from tags
+where user_id = $1 and id > $2
+order by id
+limit $3;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.int(arg_3))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

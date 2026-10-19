@@ -1,15 +1,28 @@
 import formal/form.{type Form}
 import gleam/bool
+import gleam/int
 import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/uri
+import gym_graphs/domains/tag.{type Tag}
 import gym_graphs/domains/user.{type User, type WeightUnit}
 import gym_graphs/schemas/user_schema.{type EditNameSchema}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
+
+pub type TagsPage {
+  TagsPage(
+    rows: List(Tag),
+    total_count: Int,
+    has_next_page: Bool,
+    //FIX option.Option(tag.TagId)
+    next_cursor: String,
+  )
+}
 
 pub fn account_page(children: Element(a), path: String) -> Element(a) {
   ui.layout([
@@ -132,10 +145,7 @@ pub fn edit_name_form(form: Form(EditNameSchema)) -> Element(a) {
   )
 }
 
-pub fn account_details(
-  user: User,
-  // tags: List(tag_sql.SelectByUserIdRow),
-) -> Element(a) {
+pub fn account_details(user: User, tags_page: TagsPage) -> Element(a) {
   element.fragment([
     html.header([attribute.class("space-y-1")], [
       html.span(
@@ -333,6 +343,18 @@ pub fn account_details(
             "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
           ),
         ],
+        [html.text("tags list")],
+      ),
+      tags_section(tags_page),
+    ]),
+
+    html.section([], [
+      html.h2(
+        [
+          attribute.class(
+            "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+          ),
+        ],
         [
           html.text("danger zone"),
         ],
@@ -340,6 +362,177 @@ pub fn account_details(
       remove_account_row(error: option.None),
     ]),
   ])
+}
+
+pub fn tags_section(tags_page: TagsPage) -> Element(a) {
+  case tags_page.total_count {
+    0 -> no_tags_message()
+    _ ->
+      element.fragment([
+        html.header(
+          [attribute.class("pt-7 pb-3 flex items-center justify-between")],
+          [
+            html.span([attribute.class("text-outline text-sm")], [
+              html.text("tags (" <> int.to_string(tags_page.total_count) <> ")"),
+            ]),
+            ui.link([attribute.href("/tags/new")], [html.text("+ add")]),
+          ],
+        ),
+        html.ul(
+          [
+            attribute.id("tags-list"),
+            attribute.class("list-none [counter-reset:tags-list]"),
+          ],
+          [tags_rows(tags_page)],
+        ),
+      ])
+  }
+}
+
+pub fn tags_rows(tags_page: TagsPage) -> Element(a) {
+  element.fragment(tag_row_elements(tags_page))
+}
+
+fn tag_row_elements(tags_page: TagsPage) -> List(Element(a)) {
+  let rows = list.map(tags_page.rows, tag_item)
+
+  case tags_page.has_next_page {
+    False -> rows
+    True ->
+      list.append(rows, [
+        html.li(
+          [
+            attribute.id("tags-load-more"),
+            attribute.attribute(
+              "hx-get",
+              "/account/tags?cursor="
+                <> uri.percent_encode(tags_page.next_cursor),
+            ),
+            attribute.attribute("hx-swap", "outerHTML"),
+            attribute.attribute("hx-target", "#tags-load-more"),
+            attribute.attribute("hx-include", "none"),
+            attribute.class("list-none"),
+          ],
+          [
+            html.div(
+              [
+                attribute.class(
+                  "py-3 flex justify-center [.htmx-request_&]:hidden",
+                ),
+              ],
+              [
+                ui.button(
+                  ui.ButtonLink,
+                  [attribute.class("text-outline font-normal no-underline")],
+                  [html.text("load more")],
+                ),
+              ],
+            ),
+            ..list.repeat(
+              html.div(
+                [
+                  attribute.class(
+                    "hidden [.htmx-request_&]:block animate-pulse h-12 border-b-2 border-dotted border-outline/50",
+                  ),
+                ],
+                [],
+              ),
+              times: 3,
+            )
+          ],
+        ),
+      ])
+  }
+}
+
+fn tag_item(tag: Tag) -> Element(a) {
+  let id = int.to_string(tag.id.value)
+  let popover_id = "tag-menu-" <> id
+  let anchor_name = "--tag-anchor-" <> id
+
+  html.li(
+    [
+      attribute.class(
+        "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:tags-list] grid grid-cols-[auto_1fr_auto] items-center gap-2 before:content-[counter(tags-list)_'.'] before:text-outline before:text-sm",
+      ),
+    ],
+    [
+      html.span([], [html.text(tag.name.value)]),
+      ui.button(
+        ui.ButtonGhost,
+        [
+          attribute.type_("button"),
+          attribute.class("size-10 text-outline"),
+          attribute.popovertarget(popover_id),
+          attribute.aria_label("Tag options"),
+          attribute.style("anchor-name", anchor_name),
+        ],
+        [html.text("\u{22ee}")],
+      ),
+      html.div(
+        [
+          attribute.id(popover_id),
+          attribute.popover(""),
+          attribute.class(
+            "m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-28 open:flex flex-col text-center text-sm",
+          ),
+          attribute.styles([
+            #("position-anchor", anchor_name),
+            #("position-area", "bottom span-right"),
+            #("position-try-fallbacks", "flip-block"),
+          ]),
+        ],
+        [
+          html.a(
+            [
+              attribute.href("/tags/" <> id <> "/name"),
+              attribute.class(
+                "underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface",
+              ),
+            ],
+            [html.text("rename")],
+          ),
+          html.a(
+            [
+              attribute.href("/tags/" <> id <> "/confirm-delete"),
+              attribute.class(
+                "text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface",
+              ),
+            ],
+            [html.text("remove")],
+          ),
+        ],
+      ),
+    ],
+  )
+}
+
+fn no_tags_message() -> Element(a) {
+  html.div(
+    [
+      attribute.class(
+        "py-12 border-b-2 border-dotted border-outline/50 gap-5 flex flex-col items-center text-center",
+      ),
+    ],
+    [
+      html.span(
+        [
+          attribute.aria_hidden(True),
+          attribute.class(
+            "bg-surface-container rounded-md size-12 flex items-center justify-center text-2xl text-outline",
+          ),
+        ],
+        [html.text("0")],
+      ),
+      html.h3([attribute.class("uppercase font-semibold")], [
+        html.text("no tags yet"),
+      ]),
+      html.p([attribute.class("text-balance text-outline text-sm max-w-sm")], [
+        html.text("Add your first tag and start sorting your exercises"),
+      ]),
+      ui.link([attribute.href("/tags/new")], [html.text("+ add tag")]),
+    ],
+  )
 }
 
 pub fn one_rep_max_algorithm_form(

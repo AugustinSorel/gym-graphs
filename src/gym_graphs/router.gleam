@@ -273,7 +273,12 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     Get, ["account"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
-      user_handler.view_account_page(req, user)
+      user_handler.view_account_page(req, user, ctx)
+    }
+    Get, ["account", "tags"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      user_handler.view_tags_rows(req, user, ctx)
     }
     Get, ["account", "name"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
