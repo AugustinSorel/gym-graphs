@@ -223,6 +223,7 @@ pub fn account_details(user: User, tags_page: TagsPage) -> Element(a) {
           ),
         ],
       ),
+      export_data_row(option.None),
     ]),
 
     html.section([], [
@@ -794,6 +795,39 @@ pub fn sign_out_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("signing out failed")),
+            ui.alert_description([], element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn export_data_row(error error: option.Option(String)) {
+  html.div(
+    [
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-3 items-center",
+      ),
+    ],
+    [
+      html.div([attribute.class("space-y-1")], [
+        html.p([attribute.class("text-outline text-sm")], [
+          html.text("account data"),
+        ]),
+        html.p([attribute.class("text-balance")], [
+          html.text("download your account and workout data as JSON."),
+        ]),
+      ]),
+      ui.button_link(
+        ui.ButtonPrimary,
+        [attribute.href("/account/export"), attribute.class("my-auto ml-auto")],
+        [html.text("export")],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+            ui.alert_title(element.text("Downloading data failed")),
             ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()

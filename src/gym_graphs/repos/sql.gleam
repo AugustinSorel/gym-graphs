@@ -732,6 +732,285 @@ pub fn select_auth_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_export_account_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_account_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExportAccountByUserIdRow {
+  SelectExportAccountByUserIdRow(
+    id: Int,
+    email_address: String,
+    name: String,
+    weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_export_account_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_account_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_export_account_by_user_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectExportAccountByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use email_address <- decode.field(1, decode.string)
+    use name <- decode.field(2, decode.string)
+    use weight_unit <- decode.field(3, weight_unit_decoder())
+    use one_rep_max_algorithm <- decode.field(
+      4,
+      one_rep_max_algorithm_decoder(),
+    )
+    use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
+    decode.success(SelectExportAccountByUserIdRow(
+      id:,
+      email_address:,
+      name:,
+      weight_unit:,
+      one_rep_max_algorithm:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select
+    id,
+    email_address,
+    name,
+    weight_unit,
+    one_rep_max_algorithm,
+    created_at,
+    updated_at
+from users
+where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_export_exercise_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_exercise_tags_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExportExerciseTagsByUserIdRow {
+  SelectExportExerciseTagsByUserIdRow(
+    exercise_id: Int,
+    tag_id: Int,
+    created_at: Timestamp,
+  )
+}
+
+/// Runs the `select_export_exercise_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_exercise_tags_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_export_exercise_tags_by_user_id(
+  db: pog.Connection,
+  exercises_user_id: Int,
+) -> Result(pog.Returned(SelectExportExerciseTagsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use exercise_id <- decode.field(0, decode.int)
+    use tag_id <- decode.field(1, decode.int)
+    use created_at <- decode.field(2, pog.timestamp_decoder())
+    decode.success(SelectExportExerciseTagsByUserIdRow(
+      exercise_id:,
+      tag_id:,
+      created_at:,
+    ))
+  }
+
+  "select exercise_tags.exercise_id, exercise_tags.tag_id, exercise_tags.created_at
+from exercise_tags
+inner join exercises on exercises.id = exercise_tags.exercise_id
+inner join tags on tags.id = exercise_tags.tag_id
+where exercises.user_id = $1 and tags.user_id = $1
+order by exercise_tags.exercise_id, exercise_tags.tag_id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_export_exercises_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_exercises_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExportExercisesByUserIdRow {
+  SelectExportExercisesByUserIdRow(
+    id: Int,
+    name: String,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_export_exercises_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_exercises_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_export_exercises_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+) -> Result(pog.Returned(SelectExportExercisesByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    use created_at <- decode.field(2, pog.timestamp_decoder())
+    use updated_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectExportExercisesByUserIdRow(
+      id:,
+      name:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select id, name, created_at, updated_at
+from exercises
+where user_id = $1
+order by id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_export_sets_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_sets_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExportSetsByUserIdRow {
+  SelectExportSetsByUserIdRow(
+    id: Int,
+    exercise_id: Int,
+    repetitions: Int,
+    weight_in_g: Int,
+    done_at: Timestamp,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_export_sets_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_sets_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_export_sets_by_user_id(
+  db: pog.Connection,
+  exercises_user_id: Int,
+) -> Result(pog.Returned(SelectExportSetsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use exercise_id <- decode.field(1, decode.int)
+    use repetitions <- decode.field(2, decode.int)
+    use weight_in_g <- decode.field(3, decode.int)
+    use done_at <- decode.field(4, pog.timestamp_decoder())
+    use created_at <- decode.field(5, pog.timestamp_decoder())
+    use updated_at <- decode.field(6, pog.timestamp_decoder())
+    decode.success(SelectExportSetsByUserIdRow(
+      id:,
+      exercise_id:,
+      repetitions:,
+      weight_in_g:,
+      done_at:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select
+    sets.id,
+    sets.exercise_id,
+    sets.repetitions,
+    sets.weight_in_g,
+    sets.done_at,
+    sets.created_at,
+    sets.updated_at
+from sets
+inner join exercises on exercises.id = sets.exercise_id
+where exercises.user_id = $1
+order by sets.done_at, sets.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_export_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_tags_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExportTagsByUserIdRow {
+  SelectExportTagsByUserIdRow(
+    id: Int,
+    name: String,
+    created_at: Timestamp,
+    updated_at: Timestamp,
+  )
+}
+
+/// Runs the `select_export_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_export_tags_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_export_tags_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+) -> Result(pog.Returned(SelectExportTagsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    use created_at <- decode.field(2, pog.timestamp_decoder())
+    use updated_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectExportTagsByUserIdRow(
+      id:,
+      name:,
+      created_at:,
+      updated_at:,
+    ))
+  }
+
+  "select id, name, created_at, updated_at
+from tags
+where user_id = $1
+order by id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_password_reset_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_password_reset_session_by_id.sql`.
 ///
@@ -1167,6 +1446,24 @@ $1;
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `set_transaction_repeatable_read` query
+/// defined in `./src/gym_graphs/repos/sql/set_transaction_repeatable_read.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn set_transaction_repeatable_read(
+  db: pog.Connection,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "set transaction isolation level repeatable read;
+"
+  |> pog.query
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
