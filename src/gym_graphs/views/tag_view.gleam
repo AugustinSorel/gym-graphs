@@ -2,7 +2,6 @@ import formal/form.{type Form}
 import gleam/bool
 import gleam/int
 import gleam/list
-import gleam/option
 import gleam/result
 import gleam/string
 import gym_graphs/domains/tag.{type Tag, type TagId}

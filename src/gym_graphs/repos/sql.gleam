@@ -157,6 +157,186 @@ pub fn create_auth_session(
   |> pog.execute(db)
 }
 
+/// Runs the `create_import_exercise_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_exercise_tags.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_import_exercise_tags(
+  db: pog.Connection,
+  arg_1: List(Int),
+  arg_2: List(Int),
+  arg_3: List(Timestamp),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into exercise_tags (exercise_id, tag_id, created_at)
+select *
+from unnest($1::integer[], $2::integer[], $3::timestamp[]);
+"
+  |> pog.query
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `create_import_exercises` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_exercises.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateImportExercisesRow {
+  CreateImportExercisesRow(source_id: Int, id: Int)
+}
+
+/// Runs the `create_import_exercises` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_exercises.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_import_exercises(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: List(Int),
+  arg_3: List(String),
+  arg_4: List(Timestamp),
+  arg_5: List(Timestamp),
+) -> Result(pog.Returned(CreateImportExercisesRow), pog.QueryError) {
+  let decoder = {
+    use source_id <- decode.field(0, decode.int)
+    use id <- decode.field(1, decode.int)
+    decode.success(CreateImportExercisesRow(source_id:, id:))
+  }
+
+  "with source(source_id, name, created_at, updated_at) as (
+    select *
+    from unnest($2::integer[], $3::text[], $4::timestamp[], $5::timestamp[])
+),
+inserted as (
+    insert into exercises (user_id, name, created_at, updated_at)
+    select $1, name, created_at, updated_at
+    from source
+    returning id, name
+)
+select source.source_id, inserted.id
+from source
+inner join inserted on inserted.name = source.name;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_3))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_4))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_5))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `create_import_sets` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_sets.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_import_sets(
+  db: pog.Connection,
+  arg_1: List(Int),
+  arg_2: List(Int),
+  arg_3: List(Int),
+  arg_4: List(Timestamp),
+  arg_5: List(Timestamp),
+  arg_6: List(Timestamp),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into sets (
+    exercise_id,
+    repetitions,
+    weight_in_g,
+    done_at,
+    created_at,
+    updated_at
+)
+select *
+from unnest(
+    $1::integer[],
+    $2::integer[],
+    $3::integer[],
+    $4::timestamp[],
+    $5::timestamp[],
+    $6::timestamp[]
+);
+"
+  |> pog.query
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_3))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_4))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_5))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_6))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `create_import_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_tags.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateImportTagsRow {
+  CreateImportTagsRow(source_id: Int, id: Int)
+}
+
+/// Runs the `create_import_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_import_tags.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_import_tags(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: List(Int),
+  arg_3: List(String),
+  arg_4: List(Timestamp),
+  arg_5: List(Timestamp),
+) -> Result(pog.Returned(CreateImportTagsRow), pog.QueryError) {
+  let decoder = {
+    use source_id <- decode.field(0, decode.int)
+    use id <- decode.field(1, decode.int)
+    decode.success(CreateImportTagsRow(source_id:, id:))
+  }
+
+  "with source(source_id, name, created_at, updated_at) as (
+    select *
+    from unnest($2::integer[], $3::text[], $4::timestamp[], $5::timestamp[])
+),
+inserted as (
+    insert into tags (user_id, name, created_at, updated_at)
+    select $1, name, created_at, updated_at
+    from source
+    returning id, name
+)
+select source.source_id, inserted.id
+from source
+inner join inserted on inserted.name = source.name;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_3))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_4))
+  |> pog.parameter(pog.array(fn(value) { pog.timestamp(value) }, arg_5))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_password_reset_session` query
 /// defined in `./src/gym_graphs/repos/sql/create_password_reset_session.sql`.
 ///
@@ -1007,6 +1187,80 @@ order by id;
 "
   |> pog.query
   |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_import_account_for_update` query
+/// defined in `./src/gym_graphs/repos/sql/select_import_account_for_update.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectImportAccountForUpdateRow {
+  SelectImportAccountForUpdateRow(id: Int)
+}
+
+/// Runs the `select_import_account_for_update` query
+/// defined in `./src/gym_graphs/repos/sql/select_import_account_for_update.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_import_account_for_update(
+  db: pog.Connection,
+  id: Int,
+) -> Result(pog.Returned(SelectImportAccountForUpdateRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(SelectImportAccountForUpdateRow(id:))
+  }
+
+  "select id
+from users
+where id = $1
+for update;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_import_account_state` query
+/// defined in `./src/gym_graphs/repos/sql/select_import_account_state.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectImportAccountStateRow {
+  SelectImportAccountStateRow(has_tags: Bool, has_exercises: Bool)
+}
+
+/// Runs the `select_import_account_state` query
+/// defined in `./src/gym_graphs/repos/sql/select_import_account_state.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_import_account_state(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(SelectImportAccountStateRow), pog.QueryError) {
+  let decoder = {
+    use has_tags <- decode.field(0, decode.bool)
+    use has_exercises <- decode.field(1, decode.bool)
+    decode.success(SelectImportAccountStateRow(has_tags:, has_exercises:))
+  }
+
+  "select
+    exists(select 1 from tags where user_id = users.id) as has_tags,
+    exists(select 1 from exercises where user_id = users.id) as has_exercises
+from users
+where id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

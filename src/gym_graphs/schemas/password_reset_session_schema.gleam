@@ -1,6 +1,4 @@
 import formal/form.{type Form}
-import gleam/result
-import gleam/string
 import gym_graphs/domains/password_reset_session.{type EmailVerificationCode}
 import gym_graphs/domains/user.{type Email, type PasswordHash}
 

@@ -224,6 +224,7 @@ pub fn account_details(user: User, tags_page: TagsPage) -> Element(a) {
         ],
       ),
       export_data_row(option.None),
+      import_data_row(option.None),
     ]),
 
     html.section([], [
@@ -828,6 +829,68 @@ pub fn export_data_row(error error: option.Option(String)) {
         option.Some(msg) ->
           ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
             ui.alert_title(element.text("Downloading data failed")),
+            ui.alert_description([], element.text(msg)),
+          ])
+        option.None -> element.none()
+      },
+    ],
+  )
+}
+
+pub fn import_data_row(error: option.Option(String)) {
+  html.form(
+    [
+      attribute.action("/account/import"),
+      attribute.method("post"),
+      attribute.enctype("multipart/form-data"),
+      attribute.attribute("hx-post", "/account/import"),
+      attribute.attribute("hx-encoding", "multipart/form-data"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.attribute("hx-disable", "find input, find button"),
+      attribute.attribute("hx-indicator", "find button"),
+      attribute.class(
+        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end",
+      ),
+    ],
+    [
+      html.div([attribute.class("min-w-0 grid gap-2")], [
+        html.span([attribute.class("text-outline text-sm")], [
+          html.text("import account data"),
+        ]),
+        html.span([attribute.class("text-balance")], [
+          html.text(
+            "restore workout data into an empty account from JSON (5 MB maximum).",
+          ),
+        ]),
+        ui.input([
+          attribute.id("account-data-import-file"),
+          attribute.type_("file"),
+          attribute.name("import_file"),
+          attribute.accept(["application/json", ".json"]),
+          attribute.required(True),
+          attribute.class("sr-only"),
+          attribute.attribute(
+            "onchange",
+            "if (this.files.length > 0) this.form.requestSubmit()",
+          ),
+        ]),
+      ]),
+      ui.button(
+        ui.ButtonPrimary,
+        [
+          attribute.type_("button"),
+          attribute.attribute(
+            "onclick",
+            "document.getElementById('account-data-import-file').click()",
+          ),
+          attribute.class("w-full sm:w-auto sm:ml-auto"),
+        ],
+        [html.text("import"), ui.spinner()],
+      ),
+      case error {
+        option.Some(msg) ->
+          ui.alert(ui.AlertError, [attribute.class("sm:col-span-2")], [
+            ui.alert_title(element.text("importing data failed")),
             ui.alert_description([], element.text(msg)),
           ])
         option.None -> element.none()

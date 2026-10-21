@@ -3,6 +3,7 @@ import gym_graphs/ctx.{type Ctx}
 import gym_graphs/handlers/account_deletion_session_handler
 import gym_graphs/handlers/auth_session_handler
 import gym_graphs/handlers/data_export_handler
+import gym_graphs/handlers/data_import_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/password_update_session_handler
 import gym_graphs/handlers/sign_up_session_handler
@@ -281,6 +282,14 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       data_export_handler.download(req, user, ctx)
+    }
+    Post, ["account", "import"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      req
+      |> wisp.set_max_body_size(64_000)
+      |> wisp.set_max_files_size(5_000_000)
+      |> data_import_handler.upload(user, ctx)
     }
     Get, ["account", "tags"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
