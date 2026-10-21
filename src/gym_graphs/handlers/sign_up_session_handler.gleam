@@ -10,6 +10,7 @@ import gym_graphs/domains/user
 import gym_graphs/mailers/email_template
 import gym_graphs/mailers/mailer.{type SendError}
 import gym_graphs/repos/auth_session_repo
+import gym_graphs/repos/seed_repo
 import gym_graphs/repos/sign_up_session_repo
 import gym_graphs/repos/user_repo
 import gym_graphs/schemas/sign_up_session_schema.{
@@ -291,7 +292,10 @@ pub fn set_password(req: Request, sign_up_session: SignUpSession, ctx: Ctx) {
         |> result.map_error(SetPasswordDatabaseFailure),
       )
 
-      //TODO: seed user account
+      use Nil <- result.try(
+        seed_repo.create(tx, user_id)
+        |> result.map_error(SetPasswordDatabaseFailure),
+      )
 
       let secret = session.generate_secret()
       let secret_hash = session.hash_secret(secret)

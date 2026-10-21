@@ -157,6 +157,66 @@ pub fn create_auth_session(
   |> pog.execute(db)
 }
 
+/// Runs the `create_exercise_tags_by_names` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercise_tags_by_names.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_exercise_tags_by_names(
+  db: pog.Connection,
+  exercises_user_id: Int,
+  arg_2: List(String),
+  arg_3: List(String),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "with source(exercise_name, tag_name) as (
+    select *
+    from unnest($2::text[], $3::text[])
+)
+insert into exercise_tags (exercise_id, tag_id)
+select exercises.id, tags.id
+from source
+inner join exercises
+    on exercises.user_id = $1
+    and exercises.name = source.exercise_name
+inner join tags
+    on tags.user_id = $1
+    and tags.name = source.tag_name;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `create_exercises` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercises.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_exercises(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: List(String),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into exercises (user_id, name)
+select $1, name
+from unnest($2::text[]) as source(name);
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `create_import_exercise_tags` query
 /// defined in `./src/gym_graphs/repos/sql/create_import_exercise_tags.sql`.
 ///
@@ -461,6 +521,47 @@ returning *;
   |> pog.execute(db)
 }
 
+/// Runs the `create_seed_sets` query
+/// defined in `./src/gym_graphs/repos/sql/create_seed_sets.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_seed_sets(
+  db: pog.Connection,
+  exercises_user_id: Int,
+  arg_2: List(String),
+  arg_3: List(Int),
+  arg_4: List(Int),
+  arg_5: List(Int),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "with source(exercise_name, weight_in_mg, repetitions, days_ago) as (
+    select *
+    from unnest($2::text[], $3::integer[], $4::integer[], $5::integer[])
+)
+insert into sets (exercise_id, weight_in_g, repetitions, done_at)
+select
+    exercises.id,
+    source.weight_in_mg / 1000,
+    source.repetitions,
+    localtimestamp - make_interval(days => source.days_ago)
+from source
+inner join exercises
+    on exercises.user_id = $1
+    and exercises.name = source.exercise_name;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_3))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_4))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_5))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_sign_up_session` query
 /// defined in `./src/gym_graphs/repos/sql/create_sign_up_session.sql`.
 ///
@@ -570,6 +671,30 @@ returning id;
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
   |> pog.parameter(pog.text(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// Runs the `create_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_tags.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_tags(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: List(String),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into tags (user_id, name)
+select $1, name
+from unnest($2::text[]) as source(name);
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.text(value) }, arg_2))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
