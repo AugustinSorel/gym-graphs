@@ -858,9 +858,7 @@ pub fn import_data_row(error: option.Option(String)) {
           html.text("import account data"),
         ]),
         html.span([attribute.class("text-balance")], [
-          html.text(
-            "restore workout data into an empty account from JSON (5 MB maximum).",
-          ),
+          html.text("restore from a gym-graphs export file."),
         ]),
         ui.input([
           attribute.id("account-data-import-file"),
