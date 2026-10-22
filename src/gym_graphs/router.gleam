@@ -7,6 +7,7 @@ import gym_graphs/handlers/data_import_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/password_update_session_handler
 import gym_graphs/handlers/sign_up_session_handler
+import gym_graphs/handlers/stats_handler
 import gym_graphs/handlers/tag_handler
 import gym_graphs/handlers/user_handler
 import gym_graphs/middlewares/account_deletion_session_middleware
@@ -277,6 +278,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       user_handler.view_account_page(req, user, ctx)
+    }
+    Get, ["stats"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      stats_handler.view_page(req, user)
     }
     Get, ["account", "export"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
