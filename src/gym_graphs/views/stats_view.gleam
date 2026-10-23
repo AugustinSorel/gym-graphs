@@ -1,6 +1,7 @@
 import gleam/int
 import gym_graphs/domains/stats.{type WeeklySummary}
 import gym_graphs/domains/user.{type WeightUnit}
+import gym_graphs/domains/weight.{type Weight}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
@@ -63,23 +64,19 @@ fn weekly_summary(
         ),
       ],
       [
-        weight_metric("total volume", summary.total_volume_in_g, weight_unit),
+        weight_metric("total volume", summary.total_volume, weight_unit),
         count_metric("total sets", summary.total_sets),
-        weight_metric("total weight", summary.total_weight_in_g, weight_unit),
+        weight_metric("total weight", summary.total_weight, weight_unit),
         count_metric("exercises", summary.exercises_count),
       ],
     ),
   ])
 }
 
-fn weight_metric(
-  label: String,
-  weight_in_g: Int,
-  unit: WeightUnit,
-) -> Element(a) {
-  metric(label, case weight_in_g > 0 {
-    True -> ui.display_weight(weight_in_g, unit)
-    False -> html.text("-")
+fn weight_metric(label: String, value: Weight, unit: WeightUnit) -> Element(a) {
+  metric(label, case weight.is_zero(value) {
+    True -> html.text("-")
+    False -> ui.display_weight(value, unit)
   })
 }
 

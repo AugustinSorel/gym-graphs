@@ -2,6 +2,7 @@ import gleam/int
 import gleam/result
 import gym_graphs/domains/stats
 import gym_graphs/domains/user.{type UserId}
+import gym_graphs/domains/weight
 import gym_graphs/repos/sql
 import pog.{type Connection, type QueryError}
 
@@ -19,19 +20,21 @@ pub fn select_weekly_summary(db: Connection, user_id: UserId) {
     pog.Returned(rows: [row], count: 1) -> Ok(row)
     _ -> Error(InvalidAggregate)
   })
-  use total_volume_in_g <- result.try(
+  use total_volume <- result.try(
     int.parse(row.total_volume_in_g)
-    |> result.map_error(fn(_) { InvalidAggregate }),
+    |> result.replace_error(InvalidAggregate)
+    |> result.map(weight.from_grams),
   )
-  use total_weight_in_g <- result.try(
+  use total_weight <- result.try(
     int.parse(row.total_weight_in_g)
-    |> result.map_error(fn(_) { InvalidAggregate }),
+    |> result.replace_error(InvalidAggregate)
+    |> result.map(weight.from_grams),
   )
 
   Ok(stats.WeeklySummary(
-    total_volume_in_g:,
+    total_volume:,
     total_sets: row.total_sets,
-    total_weight_in_g:,
+    total_weight:,
     exercises_count: row.exercises_count,
   ))
 }

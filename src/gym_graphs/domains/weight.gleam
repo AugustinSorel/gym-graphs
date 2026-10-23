@@ -2,6 +2,26 @@ import gleam/float
 import gleam/int
 import gym_graphs/domains/user.{type WeightUnit, Kg, Lbs}
 
+pub opaque type Weight {
+  Weight(grams: Int)
+}
+
+pub type DisplayWeight {
+  DisplayWeight(value: String, unit: WeightUnit)
+}
+
+pub fn from_grams(grams: Int) -> Weight {
+  Weight(grams)
+}
+
+pub fn in_grams(weight: Weight) -> Int {
+  weight.grams
+}
+
+pub fn is_zero(weight: Weight) -> Bool {
+  weight.grams == 0
+}
+
 pub fn unit_abbreviation(unit: WeightUnit) -> String {
   case unit {
     Kg -> "kg"
@@ -16,17 +36,20 @@ pub fn unit_name(unit: WeightUnit) -> String {
   }
 }
 
-fn convert_weight(grams: Int, unit: WeightUnit) -> Float {
+fn convert_weight(weight: Weight, unit: WeightUnit) -> Float {
   case unit {
-    Kg -> int.to_float(grams) /. 1000.0
-    Lbs -> int.to_float(grams) *. 0.00220462
+    Kg -> int.to_float(weight.grams) /. 1000.0
+    Lbs -> int.to_float(weight.grams) *. 0.00220462
   }
 }
 
-pub fn format_grams(grams: Int, unit: WeightUnit) -> String {
-  convert_weight(grams, unit)
-  |> round_to_two_decimals()
-  |> float.to_string()
+pub fn display(weight: Weight, unit: WeightUnit) -> DisplayWeight {
+  let value =
+    convert_weight(weight, unit)
+    |> round_to_two_decimals()
+    |> float.to_string()
+
+  DisplayWeight(value:, unit:)
 }
 
 fn round_to_two_decimals(value: Float) -> Float {

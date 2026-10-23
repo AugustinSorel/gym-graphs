@@ -2,21 +2,24 @@ import gleam/bool
 import gleam/list
 import gleam/string
 import gym_graphs/domains/user.{type WeightUnit}
-import gym_graphs/domains/weight
+import gym_graphs/domains/weight.{type Weight}
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 
-pub fn display_weight(weight_in_g: Int, weight_unit: WeightUnit) -> Element(a) {
+pub fn display_weight(value: Weight, weight_unit: WeightUnit) -> Element(a) {
+  let weight.DisplayWeight(value: formatted, unit:) =
+    weight.display(value, weight_unit)
+
   element.fragment([
-    html.text(weight.format_grams(weight_in_g, weight_unit)),
+    html.text(formatted),
     html.abbr(
       [
-        attribute.title(weight.unit_name(weight_unit)),
+        attribute.title(weight.unit_name(unit)),
         attribute.class("ml-1 text-sm font-normal text-outline no-underline"),
       ],
-      [html.text(weight.unit_abbreviation(weight_unit))],
+      [html.text(weight.unit_abbreviation(unit))],
     ),
   ])
 }
