@@ -1829,6 +1829,62 @@ $1;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_weekly_stats_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_weekly_stats_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectWeeklyStatsByUserIdRow {
+  SelectWeeklyStatsByUserIdRow(
+    total_volume_in_g: String,
+    total_sets: Int,
+    total_weight_in_g: String,
+    exercises_count: Int,
+  )
+}
+
+/// Runs the `select_weekly_stats_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_weekly_stats_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_weekly_stats_by_user_id(
+  db: pog.Connection,
+  e_user_id: Int,
+) -> Result(pog.Returned(SelectWeeklyStatsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use total_volume_in_g <- decode.field(0, decode.string)
+    use total_sets <- decode.field(1, decode.int)
+    use total_weight_in_g <- decode.field(2, decode.string)
+    use exercises_count <- decode.field(3, decode.int)
+    decode.success(SelectWeeklyStatsByUserIdRow(
+      total_volume_in_g:,
+      total_sets:,
+      total_weight_in_g:,
+      exercises_count:,
+    ))
+  }
+
+  "select
+    coalesce(sum(s.weight_in_g::numeric * s.repetitions::numeric), 0)::text as total_volume_in_g,
+    count(s.id)::int as total_sets,
+    coalesce(sum(s.weight_in_g::numeric), 0)::text as total_weight_in_g,
+    count(distinct s.exercise_id)::int as exercises_count
+from sets s
+inner join exercises e on e.id = s.exercise_id
+where e.user_id = $1
+  -- done_at is stored in the database's local time, so its week boundary must be too.
+  and s.done_at >= date_trunc('week', localtimestamp)
+  and s.done_at < date_trunc('week', localtimestamp) + interval '1 week';
+"
+  |> pog.query
+  |> pog.parameter(pog.int(e_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `set_transaction_repeatable_read` query
 /// defined in `./src/gym_graphs/repos/sql/set_transaction_repeatable_read.sql`.
 ///

@@ -282,7 +282,7 @@ pub fn handle_request(req: Request, ctx: Ctx) {
     Get, ["stats"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
-      stats_handler.view_page(req, user)
+      stats_handler.view_page(req, user, ctx)
     }
     Get, ["account", "export"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)

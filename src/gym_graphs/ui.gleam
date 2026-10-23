@@ -1,28 +1,25 @@
 import gleam/bool
-import gleam/float
 import gleam/list
 import gleam/string
+import gym_graphs/domains/user.{type WeightUnit}
+import gym_graphs/domains/weight
 import lustre/attribute.{type Attribute}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 
-pub fn display_weight_value(weight: Float) {
-  weight
-  |> float.to_precision(3)
-  |> float.to_string()
+pub fn display_weight(weight_in_g: Int, weight_unit: WeightUnit) -> Element(a) {
+  element.fragment([
+    html.text(weight.format_grams(weight_in_g, weight_unit)),
+    html.abbr(
+      [
+        attribute.title(weight.unit_name(weight_unit)),
+        attribute.class("ml-1 text-sm font-normal text-outline no-underline"),
+      ],
+      [html.text(weight.unit_abbreviation(weight_unit))],
+    ),
+  ])
 }
-
-// pub fn display_weight_unit(weight_unit: user.WeightUnit) {
-//   let #(title, sign) = case weight_unit {
-//     user.Kg -> #("kilograms", "kg")
-//     user.Lbs -> #("pounds", "lbs")
-//   }
-
-//   html.abbr([attribute.title(title), attribute.class("no-underline")], [
-//     html.text(sign),
-//   ])
-// }
 
 pub fn layout(children: List(Element(a))) -> Element(a) {
   html.html([attribute.lang("en")], [
