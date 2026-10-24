@@ -281,9 +281,9 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       user_handler.view_account_page(req, user, ctx)
     }
     Get, ["exercises"] -> {
-      use _auth_session, _user <- auth_session_middleware.require(req, ctx)
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
-      exercise_handler.view_page(req)
+      exercise_handler.view_page(req, user, ctx)
     }
     Get, ["stats"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)

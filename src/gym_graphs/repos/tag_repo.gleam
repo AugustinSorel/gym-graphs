@@ -58,6 +58,16 @@ pub fn count_by_user_id(db: Connection, user_id: UserId) {
   })
 }
 
+pub fn select_all_by_user_id(db: Connection, user_id: UserId) {
+  sql.select_tags_by_user_id(db, user_id.value)
+  |> result.map(fn(result) {
+    let pog.Returned(rows:, count: _) = result
+    list.map(rows, fn(row) {
+      tag.Tag(id: tag.TagId(row.id), name: tag.Name(row.name))
+    })
+  })
+}
+
 pub fn select_page_by_user_id(
   db: Connection,
   user_id: UserId,

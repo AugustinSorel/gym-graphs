@@ -9,6 +9,41 @@ import gleam/option.{type Option}
 import gleam/time/timestamp.{type Timestamp}
 import pog
 
+/// A row you get from running the `count_exercises_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/count_exercises_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CountExercisesByUserIdRow {
+  CountExercisesByUserIdRow(total_count: Int)
+}
+
+/// Runs the `count_exercises_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/count_exercises_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn count_exercises_by_user_id(
+  db: pog.Connection,
+  arg_1: Int,
+) -> Result(pog.Returned(CountExercisesByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use total_count <- decode.field(0, decode.int)
+    decode.success(CountExercisesByUserIdRow(total_count:))
+  }
+
+  "select count(*)::int as total_count
+from exercises
+where user_id = $1;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `count_tags_by_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/count_tags_by_user_id.sql`.
 ///
@@ -1595,6 +1630,43 @@ where id = $1 and user_id = $2;
   |> pog.query
   |> pog.parameter(pog.int(id))
   |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tags_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectTagsByUserIdRow {
+  SelectTagsByUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_tags_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_tags_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_tags_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+) -> Result(pog.Returned(SelectTagsByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectTagsByUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from tags
+where user_id = $1
+order by name, id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }
