@@ -20,6 +20,36 @@ pub fn error_page(path: String) -> Element(a) {
   )
 }
 
+pub fn new_page(tags: List(Tag), path: String) -> Element(a) {
+  page_layout(
+    element.fragment([
+      html.h1([attribute.class("font-semibold text-3xl")], [
+        html.text("new exercise"),
+      ]),
+      new_form(tags),
+    ]),
+    path,
+  )
+}
+
+pub fn new_page_error(path: String) -> Element(a) {
+  page_layout(
+    element.fragment([
+      html.h1([attribute.class("font-semibold text-3xl")], [
+        html.text("new exercise"),
+      ]),
+      ui.alert(ui.AlertError, [], [
+        ui.alert_title(element.text("loading tags failed")),
+        ui.alert_description([], element.text("Something went wrong.")),
+      ]),
+      ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ]),
+    path,
+  )
+}
+
 fn page_layout(content: Element(a), path: String) -> Element(a) {
   ui.layout([
     ui.nav_bar(path),
@@ -42,6 +72,80 @@ fn page_header(exercise_count: Int, tags: List(Tag)) -> Element(a) {
     ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     tag_filters(tags),
   ])
+}
+
+fn new_form(tags: List(Tag)) -> Element(a) {
+  html.form(
+    [
+      attribute.attribute("hx-post", "/exercises/new"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.label(
+        [attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error")],
+        [
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("name:"),
+          ]),
+          ui.input([
+            attribute.type_("text"),
+            attribute.name("name"),
+            attribute.value(""),
+            attribute.autocomplete("off"),
+            attribute.placeholder("bench press"),
+            attribute.aria_invalid("false"),
+            attribute.attribute("autofocus", ""),
+          ]),
+        ],
+      ),
+      exercise_tag_fields(tags),
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
+}
+
+fn exercise_tag_fields(tags: List(Tag)) -> Element(a) {
+  case tags {
+    [] -> element.none()
+    _ ->
+      html.fieldset([attribute.class("grid gap-3")], [
+        html.legend([attribute.class("text-outline text-sm mb-3")], [
+          html.text("tags:"),
+        ]),
+        html.div(
+          [attribute.class("flex flex-wrap gap-2")],
+          list.map(tags, exercise_tag_option),
+        ),
+      ])
+  }
+}
+
+fn exercise_tag_option(tag: Tag) -> Element(a) {
+  html.label(
+    [
+      attribute.class(
+        "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer has-[:checked]:bg-on-surface has-[:checked]:text-surface hover:bg-on-surface/10 transition-colors has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+      ),
+    ],
+    [
+      html.input([
+        attribute.type_("checkbox"),
+        attribute.name("tag_ids"),
+        attribute.value(int.to_string(tag.id.value)),
+        attribute.class("sr-only"),
+      ]),
+      html.text(" " <> tag.name.value),
+    ],
+  )
 }
 
 fn tag_filters(tags: List(Tag)) -> Element(a) {

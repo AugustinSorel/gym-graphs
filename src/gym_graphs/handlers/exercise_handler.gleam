@@ -32,3 +32,18 @@ pub fn view_page(req: Request, user: User, ctx: Ctx) {
     }
   }
 }
+
+pub fn view_new_page(req: Request, user: User, ctx: Ctx) {
+  case tag_repo.select_all_by_user_id(ctx.db, user.id) {
+    Ok(tags) ->
+      exercise_view.new_page(tags, req.path)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(error) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.new_page_error(req.path)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
