@@ -1168,9 +1168,10 @@ pub type SelectExercisesPageByUserIdRow {
 ///
 pub fn select_exercises_page_by_user_id(
   db: pog.Connection,
-  user_id: Int,
+  exercises_user_id: Int,
   arg_2: Int,
-  arg_3: Int,
+  arg_3: List(Int),
+  arg_4: Int,
 ) -> Result(pog.Returned(SelectExercisesPageByUserIdRow), pog.QueryError) {
   let decoder = {
     use id <- decode.field(0, decode.int)
@@ -1178,16 +1179,27 @@ pub fn select_exercises_page_by_user_id(
     decode.success(SelectExercisesPageByUserIdRow(id:, name:))
   }
 
-  "select id, name
+  "select exercises.id, exercises.name
 from exercises
-where user_id = $1 and ($2 = 0 or id < $2)
-order by id desc
-limit $3;
+where exercises.user_id = $1
+  and ($2 = 0 or exercises.id < $2)
+  and (
+    cardinality($3::integer[]) = 0
+    or exists (
+      select 1
+      from exercise_tags
+      where exercise_tags.exercise_id = exercises.id
+        and exercise_tags.tag_id = any($3::integer[])
+    )
+  )
+order by exercises.id desc
+limit $4;
 "
   |> pog.query
-  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.int(exercises_user_id))
   |> pog.parameter(pog.int(arg_2))
-  |> pog.parameter(pog.int(arg_3))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_3))
+  |> pog.parameter(pog.int(arg_4))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

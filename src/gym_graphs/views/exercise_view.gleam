@@ -18,18 +18,20 @@ pub type ExercisesPage {
   ExercisesPage(
     rows: List(Exercise),
     next_cursor: option.Option(exercise.ExerciseId),
+    filter_tag_ids: List(Int),
   )
 }
 
 pub fn page(
   exercise_count: Int,
   tags: List(Tag),
+  filter_tag_ids: List(Int),
   exercises_page: ExercisesPage,
   path: String,
 ) -> Element(a) {
   page_layout(
     element.fragment([
-      page_header(exercise_count, tags),
+      page_header(exercise_count, tags, filter_tag_ids),
       exercises_table(exercises_page),
     ]),
     path,
@@ -94,17 +96,21 @@ fn page_layout(content: Element(a), path: String) -> Element(a) {
   ])
 }
 
-fn page_header(exercise_count: Int, tags: List(Tag)) -> Element(a) {
+fn page_header(
+  exercise_count: Int,
+  tags: List(Tag),
+  filter_tag_ids: List(Int),
+) -> Element(a) {
   html.header([attribute.class("grid grid-cols-[1fr_auto] gap-4")], [
     html.h1([attribute.class("text-outline uppercase text-sm")], [
       html.text("exercises (" <> int.to_string(exercise_count) <> ")"),
     ]),
     ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
-    tag_filters(tags),
+    tag_filters(tags, filter_tag_ids),
   ])
 }
 
-fn exercises_table(exercises_page: ExercisesPage) -> Element(a) {
+pub fn exercises_table(exercises_page: ExercisesPage) -> Element(a) {
   html.table(
     [
       attribute.id("exercises-table"),
@@ -124,7 +130,10 @@ fn exercises_table(exercises_page: ExercisesPage) -> Element(a) {
           ),
         ]),
       ]),
-      exercise_rows(exercises_page),
+      case exercises_page.rows, exercises_page.filter_tag_ids {
+        [], [_, ..] -> no_filter_matches()
+        _, _ -> exercise_rows(exercises_page)
+      },
     ],
   )
 }
@@ -140,7 +149,7 @@ fn exercise_row_elements(exercises_page: ExercisesPage) -> List(Element(a)) {
     option.None -> [rows]
     option.Some(exercise.ExerciseId(exercise_id)) -> [
       rows,
-      loading_rows(exercise_id),
+      loading_rows(exercise_id, exercises_page.filter_tag_ids),
     ]
   }
 }
@@ -160,14 +169,15 @@ fn exercise_row(exercise: Exercise) -> Element(a) {
   )
 }
 
-fn loading_rows(exercise_id: Int) -> Element(a) {
+fn loading_rows(exercise_id: Int, filter_tag_ids: List(Int)) -> Element(a) {
   html.tbody(
     [
       attribute.id("exercises-load-more"),
       attribute.attribute(
         "hx-get",
         "/exercises/rows?cursor="
-          <> uri.percent_encode(int.to_string(exercise_id)),
+          <> uri.percent_encode(int.to_string(exercise_id))
+          <> filter_query(filter_tag_ids),
       ),
       attribute.attribute("hx-trigger", "revealed"),
       attribute.attribute("hx-swap", "outerHTML"),
@@ -191,6 +201,24 @@ fn loading_rows(exercise_id: Int) -> Element(a) {
       times: 3,
     ),
   )
+}
+
+fn filter_query(filter_tag_ids: List(Int)) -> String {
+  filter_tag_ids
+  |> list.map(fn(tag_id) {
+    "&filter_tag_ids=" <> uri.percent_encode(int.to_string(tag_id))
+  })
+  |> string.concat()
+}
+
+fn no_filter_matches() -> Element(a) {
+  html.tbody([], [
+    html.tr([], [
+      html.td([attribute.class("py-12 text-center text-outline")], [
+        html.text("no exercises match these filters"),
+      ]),
+    ]),
+  ])
 }
 
 pub fn exercise_rows_error(msg: String) -> Element(a) {
@@ -323,7 +351,7 @@ fn exercise_tag_option(
   )
 }
 
-fn tag_filters(tags: List(Tag)) -> Element(a) {
+fn tag_filters(tags: List(Tag), filter_tag_ids: List(Int)) -> Element(a) {
   case tags {
     [] -> element.none()
     _ ->
@@ -348,35 +376,45 @@ fn tag_filters(tags: List(Tag)) -> Element(a) {
               ),
             ],
           ),
-          html.form([attribute.id("exercises-filter-form")], [
-            html.fieldset(
-              [
-                attribute.class(
-                  "space-y-2 border-b-2 border-outline/50 border-dotted pb-6",
-                ),
-              ],
-              [
-                html.legend(
-                  [attribute.class("uppercase text-outline text-xs sr-only")],
-                  [html.text("tags")],
-                ),
-                html.div(
-                  [attribute.class("flex flex-wrap gap-2")],
-                  list.map(tags, tag_filter),
-                ),
-              ],
-            ),
-          ]),
+          html.form(
+            [
+              attribute.id("exercises-filter-form"),
+              attribute.attribute("hx-get", "/exercises"),
+              attribute.attribute("hx-trigger", "change"),
+              attribute.attribute("hx-target", "#exercises-table"),
+              attribute.attribute("hx-swap", "outerHTML"),
+              attribute.attribute("hx-push-url", "true"),
+            ],
+            [
+              html.fieldset(
+                [
+                  attribute.class(
+                    "space-y-2 border-b-2 border-outline/50 border-dotted pb-6",
+                  ),
+                ],
+                [
+                  html.legend(
+                    [attribute.class("uppercase text-outline text-xs sr-only")],
+                    [html.text("tags")],
+                  ),
+                  html.div(
+                    [attribute.class("flex flex-wrap gap-2")],
+                    list.map(tags, tag_filter(_, filter_tag_ids)),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ]),
         html.script(
           [],
-          "(function () {\n  const form = document.getElementById('exercises-filter-form');\n  const output = document.getElementById('filter-count');\n  form.addEventListener('change', function () {\n    const count = form.querySelectorAll(\"input[name='filter_tag_ids']:checked\").length;\n    output.textContent = count > 0 ? String(count) : '';\n  });\n})();",
+          "(function () {\n  const form = document.getElementById('exercises-filter-form');\n  const output = document.getElementById('filter-count');\n  function updateCount() {\n    const count = form.querySelectorAll(\"input[name='filter_tag_ids']:checked\").length;\n    output.textContent = count > 0 ? String(count) : '';\n  }\n  form.addEventListener('change', updateCount);\n  updateCount();\n})();",
         ),
       ])
   }
 }
 
-fn tag_filter(tag: Tag) -> Element(a) {
+fn tag_filter(tag: Tag, filter_tag_ids: List(Int)) -> Element(a) {
   html.label(
     [
       attribute.class(
@@ -388,6 +426,7 @@ fn tag_filter(tag: Tag) -> Element(a) {
         attribute.type_("checkbox"),
         attribute.name("filter_tag_ids"),
         attribute.value(int.to_string(tag.id.value)),
+        attribute.checked(list.contains(filter_tag_ids, tag.id.value)),
         attribute.class("sr-only"),
       ]),
       html.text(" " <> tag.name.value),

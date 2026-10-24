@@ -1,6 +1,6 @@
 import formal/form.{type Form}
 import gleam/bool
-import gleam/erlang/process
+import gleam/http/request
 import gleam/int
 import gleam/list
 import gleam/option
@@ -19,6 +19,8 @@ import wisp.{type Request}
 const exercises_page_size = 20
 
 pub fn view_page(req: Request, user: User, ctx: Ctx) {
+  let filter_tag_ids = filter_tag_ids(req)
+
   let page_data = {
     use exercise_count <- result.try({
       exercise_repo.count_by_user_id(ctx.db, user.id)
@@ -26,16 +28,29 @@ pub fn view_page(req: Request, user: User, ctx: Ctx) {
 
     use tags <- result.try(tag_repo.select_all_by_user_id(ctx.db, user.id))
 
-    use exercises_page <- result.try(load_exercises_page(user, 0, ctx))
+    use exercises_page <- result.try({
+      load_exercises_page(user, 0, filter_tag_ids, ctx)
+    })
 
     Ok(#(exercise_count, tags, exercises_page))
   }
 
   case page_data {
-    Ok(#(exercise_count, tags, exercises_page)) ->
-      exercise_view.page(exercise_count, tags, exercises_page, req.path)
-      |> element.to_string()
-      |> wisp.html_response(200)
+    Ok(#(exercise_count, tags, exercises_page)) -> {
+      let content = case request.get_header(req, "hx-request") {
+        Ok("true") -> exercise_view.exercises_table(exercises_page)
+        _ ->
+          exercise_view.page(
+            exercise_count,
+            tags,
+            filter_tag_ids,
+            exercises_page,
+            req.path,
+          )
+      }
+
+      content |> element.to_string() |> wisp.html_response(200)
+    }
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       exercise_view.error_page(req.path)
@@ -51,6 +66,8 @@ pub type ViewRowsError {
 }
 
 pub fn view_rows(req: Request, user: User, ctx: Ctx) {
+  let filter_tag_ids = filter_tag_ids(req)
+
   let result = {
     use cursor_query <- result.try(
       wisp.get_query(req)
@@ -64,7 +81,7 @@ pub fn view_rows(req: Request, user: User, ctx: Ctx) {
 
     use <- bool.guard(when: cursor <= 0, return: Error(InvalidCursor))
 
-    load_exercises_page(user, cursor, ctx)
+    load_exercises_page(user, cursor, filter_tag_ids, ctx)
     |> result.map_error(ViewRowsDatabaseFailure)
   }
 
@@ -87,12 +104,18 @@ pub fn view_rows(req: Request, user: User, ctx: Ctx) {
   }
 }
 
-fn load_exercises_page(user: User, before_id: Int, ctx: Ctx) {
+fn load_exercises_page(
+  user: User,
+  before_id: Int,
+  filter_tag_ids: List(Int),
+  ctx: Ctx,
+) {
   use fetched_rows <- result.try({
     exercise_repo.select_page_by_user_id(
       ctx.db,
       user.id,
       before_id,
+      filter_tag_ids,
       exercises_page_size + 1,
     )
   })
@@ -105,7 +128,22 @@ fn load_exercises_page(user: User, before_id: Int, ctx: Ctx) {
     _, _ -> option.None
   }
 
-  Ok(exercise_view.ExercisesPage(rows:, next_cursor:))
+  Ok(exercise_view.ExercisesPage(rows:, next_cursor:, filter_tag_ids:))
+}
+
+fn filter_tag_ids(req: Request) -> List(Int) {
+  wisp.get_query(req)
+  |> list.filter_map(fn(query) {
+    case query {
+      #("filter_tag_ids", value) ->
+        case int.parse(value) {
+          Ok(id) if id > 0 -> Ok(id)
+          _ -> Error(Nil)
+        }
+      _ -> Error(Nil)
+    }
+  })
+  |> list.unique()
 }
 
 pub fn view_new_page(req: Request, user: User, ctx: Ctx) {

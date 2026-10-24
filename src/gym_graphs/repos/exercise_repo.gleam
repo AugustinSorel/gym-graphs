@@ -52,9 +52,16 @@ pub fn select_page_by_user_id(
   db: Connection,
   user_id: UserId,
   before_id: Int,
+  filter_tag_ids: List(Int),
   limit: Int,
 ) {
-  sql.select_exercises_page_by_user_id(db, user_id.value, before_id, limit)
+  sql.select_exercises_page_by_user_id(
+    db,
+    user_id.value,
+    before_id,
+    filter_tag_ids,
+    limit,
+  )
   |> result.map(fn(result) {
     let pog.Returned(rows:, count: _) = result
     list.map(rows, fn(row) {
