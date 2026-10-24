@@ -1150,6 +1150,48 @@ pub fn select_auth_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_exercises_page_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercises_page_by_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExercisesPageByUserIdRow {
+  SelectExercisesPageByUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_exercises_page_by_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercises_page_by_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercises_page_by_user_id(
+  db: pog.Connection,
+  user_id: Int,
+  arg_2: Int,
+  arg_3: Int,
+) -> Result(pog.Returned(SelectExercisesPageByUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectExercisesPageByUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from exercises
+where user_id = $1 and ($2 = 0 or id < $2)
+order by id desc
+limit $3;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_export_account_by_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_export_account_by_user_id.sql`.
 ///

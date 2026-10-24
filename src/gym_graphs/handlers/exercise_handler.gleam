@@ -1,5 +1,9 @@
 import formal/form.{type Form}
+import gleam/bool
+import gleam/erlang/process
+import gleam/int
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
@@ -12,6 +16,8 @@ import lustre/element
 import pog
 import wisp.{type Request}
 
+const exercises_page_size = 20
+
 pub fn view_page(req: Request, user: User, ctx: Ctx) {
   let page_data = {
     use exercise_count <- result.try({
@@ -20,12 +26,14 @@ pub fn view_page(req: Request, user: User, ctx: Ctx) {
 
     use tags <- result.try(tag_repo.select_all_by_user_id(ctx.db, user.id))
 
-    Ok(#(exercise_count, tags))
+    use exercises_page <- result.try(load_exercises_page(user, 0, ctx))
+
+    Ok(#(exercise_count, tags, exercises_page))
   }
 
   case page_data {
-    Ok(#(exercise_count, tags)) ->
-      exercise_view.page(exercise_count, tags, req.path)
+    Ok(#(exercise_count, tags, exercises_page)) ->
+      exercise_view.page(exercise_count, tags, exercises_page, req.path)
       |> element.to_string()
       |> wisp.html_response(200)
     Error(error) -> {
@@ -35,6 +43,69 @@ pub fn view_page(req: Request, user: User, ctx: Ctx) {
       |> wisp.html_response(500)
     }
   }
+}
+
+pub type ViewRowsError {
+  InvalidCursor
+  ViewRowsDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_rows(req: Request, user: User, ctx: Ctx) {
+  let result = {
+    use cursor_query <- result.try(
+      wisp.get_query(req)
+      |> list.key_find("cursor")
+      |> result.replace_error(InvalidCursor),
+    )
+
+    use cursor <- result.try(
+      int.parse(cursor_query) |> result.replace_error(InvalidCursor),
+    )
+
+    use <- bool.guard(when: cursor <= 0, return: Error(InvalidCursor))
+
+    load_exercises_page(user, cursor, ctx)
+    |> result.map_error(ViewRowsDatabaseFailure)
+  }
+
+  case result {
+    Ok(exercises_page) ->
+      exercises_page
+      |> exercise_view.exercise_rows()
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(InvalidCursor) ->
+      exercise_view.exercise_rows_error("invalid cursor")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewRowsDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.exercise_rows_error("something went wrong")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+fn load_exercises_page(user: User, before_id: Int, ctx: Ctx) {
+  use fetched_rows <- result.try({
+    exercise_repo.select_page_by_user_id(
+      ctx.db,
+      user.id,
+      before_id,
+      exercises_page_size + 1,
+    )
+  })
+
+  let has_next_page = list.length(fetched_rows) > exercises_page_size
+  let rows = list.take(fetched_rows, exercises_page_size)
+
+  let next_cursor = case has_next_page, list.last(rows) {
+    True, Ok(last_exercise) -> option.Some(last_exercise.id)
+    _, _ -> option.None
+  }
+
+  Ok(exercise_view.ExercisesPage(rows:, next_cursor:))
 }
 
 pub fn view_new_page(req: Request, user: User, ctx: Ctx) {

@@ -47,3 +47,21 @@ pub fn count_by_user_id(db: Connection, user_id: UserId) {
     row.total_count
   })
 }
+
+pub fn select_page_by_user_id(
+  db: Connection,
+  user_id: UserId,
+  before_id: Int,
+  limit: Int,
+) {
+  sql.select_exercises_page_by_user_id(db, user_id.value, before_id, limit)
+  |> result.map(fn(result) {
+    let pog.Returned(rows:, count: _) = result
+    list.map(rows, fn(row) {
+      exercise.Exercise(
+        id: exercise.ExerciseId(row.id),
+        name: exercise.Name(row.name),
+      )
+    })
+  })
+}

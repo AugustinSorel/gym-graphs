@@ -5,6 +5,10 @@ pub type ExerciseId {
   ExerciseId(value: Int)
 }
 
+pub type Exercise {
+  Exercise(id: ExerciseId, name: Name)
+}
+
 pub type Name {
   Name(value: String)
 }

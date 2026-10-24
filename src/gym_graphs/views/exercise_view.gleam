@@ -2,8 +2,11 @@ import formal/form.{type Form}
 import gleam/bool
 import gleam/int
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/string
+import gleam/uri
+import gym_graphs/domains/exercise.{type Exercise}
 import gym_graphs/domains/tag.{type Tag}
 import gym_graphs/schemas/exercise_schema.{type CreateExerciseSchema}
 import gym_graphs/ui
@@ -11,8 +14,26 @@ import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 
-pub fn page(exercise_count: Int, tags: List(Tag), path: String) -> Element(a) {
-  page_layout(page_header(exercise_count, tags), path)
+pub type ExercisesPage {
+  ExercisesPage(
+    rows: List(Exercise),
+    next_cursor: option.Option(exercise.ExerciseId),
+  )
+}
+
+pub fn page(
+  exercise_count: Int,
+  tags: List(Tag),
+  exercises_page: ExercisesPage,
+  path: String,
+) -> Element(a) {
+  page_layout(
+    element.fragment([
+      page_header(exercise_count, tags),
+      exercises_table(exercises_page),
+    ]),
+    path,
+  )
 }
 
 pub fn error_page(path: String) -> Element(a) {
@@ -80,6 +101,108 @@ fn page_header(exercise_count: Int, tags: List(Tag)) -> Element(a) {
     ]),
     ui.link([attribute.href("/exercises/new")], [html.text("+ add")]),
     tag_filters(tags),
+  ])
+}
+
+fn exercises_table(exercises_page: ExercisesPage) -> Element(a) {
+  html.table(
+    [
+      attribute.id("exercises-table"),
+      attribute.class("caption-bottom text-sm table-fixed w-full"),
+    ],
+    [
+      html.thead([attribute.class("border-b-2 text-nowrap")], [
+        html.tr([], [
+          html.th(
+            [
+              attribute.class(
+                "h-10 pl-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide",
+              ),
+              attribute.scope("col"),
+            ],
+            [html.text("name")],
+          ),
+        ]),
+      ]),
+      exercise_rows(exercises_page),
+    ],
+  )
+}
+
+pub fn exercise_rows(exercises_page: ExercisesPage) -> Element(a) {
+  element.fragment(exercise_row_elements(exercises_page))
+}
+
+fn exercise_row_elements(exercises_page: ExercisesPage) -> List(Element(a)) {
+  let rows = html.tbody([], list.map(exercises_page.rows, exercise_row))
+
+  case exercises_page.next_cursor {
+    option.None -> [rows]
+    option.Some(exercise.ExerciseId(exercise_id)) -> [
+      rows,
+      loading_rows(exercise_id),
+    ]
+  }
+}
+
+fn exercise_row(exercise: Exercise) -> Element(a) {
+  html.tr(
+    [
+      attribute.class(
+        "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50",
+      ),
+    ],
+    [
+      html.td([attribute.class("pl-0 p-4 align-middle font-medium lowercase")], [
+        html.text(exercise.name.value),
+      ]),
+    ],
+  )
+}
+
+fn loading_rows(exercise_id: Int) -> Element(a) {
+  html.tbody(
+    [
+      attribute.id("exercises-load-more"),
+      attribute.attribute(
+        "hx-get",
+        "/exercises/rows?cursor="
+          <> uri.percent_encode(int.to_string(exercise_id)),
+      ),
+      attribute.attribute("hx-trigger", "revealed"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.attribute("hx-target", "#exercises-load-more"),
+      attribute.attribute("hx-include", "none"),
+      attribute.aria_label("Loading more exercises"),
+    ],
+    list.repeat(
+      html.tr([], [
+        html.td(
+          [
+            attribute.class(
+              "animate-pulse h-13 bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x",
+            ),
+            attribute.aria_hidden(True),
+            attribute.attribute("colspan", "1"),
+          ],
+          [],
+        ),
+      ]),
+      times: 3,
+    ),
+  )
+}
+
+pub fn exercise_rows_error(msg: String) -> Element(a) {
+  html.tbody([], [
+    html.tr([], [
+      html.td([attribute.class("py-4")], [
+        ui.alert(ui.AlertError, [], [
+          ui.alert_title(html.text("loading exercises failed")),
+          ui.alert_description([], html.text(msg)),
+        ]),
+      ]),
+    ]),
   ])
 }
 
