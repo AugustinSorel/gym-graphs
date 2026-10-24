@@ -93,7 +93,7 @@ pub fn new_form(
 
   html.form(
     [
-      attribute.attribute("hx-post", "/exercises/new"),
+      attribute.attribute("hx-post", "/exercises"),
       attribute.attribute("hx-disable", "find button[type='submit']"),
       attribute.attribute("hx-indicator", "find button[type='submit']"),
       attribute.attribute("hx-swap", "outerHTML"),

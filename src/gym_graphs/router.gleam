@@ -285,15 +285,15 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       exercise_handler.view_page(req, user, ctx)
     }
+    Post, ["exercises"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      exercise_handler.create(req, user, ctx)
+    }
     Get, ["exercises", "new"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       exercise_handler.view_new_page(req, user, ctx)
-    }
-    Post, ["exercises", "new"] -> {
-      use _auth_session, user <- auth_session_middleware.require(req, ctx)
-
-      exercise_handler.create(req, user, ctx)
     }
     Get, ["stats"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
