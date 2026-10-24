@@ -7,6 +7,7 @@ import gleam/option
 import gleam/result
 import gleam/string
 import gym_graphs/ctx.{type Ctx}
+import gym_graphs/domains/exercise.{type ExerciseId}
 import gym_graphs/domains/user.{type User}
 import gym_graphs/repos/exercise_repo
 import gym_graphs/repos/tag_repo
@@ -53,7 +54,7 @@ pub fn view_page(req: Request, user: User, ctx: Ctx) {
     }
     Error(error) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
-      exercise_view.error_page(req.path)
+      exercise_view.error_page(req.path, "something went wrong")
       |> element.to_string()
       |> wisp.html_response(500)
     }
@@ -144,6 +145,60 @@ fn filter_tag_ids(req: Request) -> List(Int) {
     }
   })
   |> list.unique()
+}
+
+type ViewDetailPageError {
+  ViewDetailPageInvalidId
+  ViewDetailPageNotFound
+  ViewDetailPageDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_detail_page(
+  req: Request,
+  user: User,
+  ctx: Ctx,
+  exercise_id: String,
+) {
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id)
+      |> result.replace_error(ViewDetailPageInvalidId),
+    )
+
+    exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(ViewDetailPageDatabaseFailure)
+    |> result.try(option.to_result(_, ViewDetailPageNotFound))
+  }
+
+  case result {
+    Ok(selected_exercise) ->
+      exercise_view.detail_page(selected_exercise, req.path)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(ViewDetailPageInvalidId) -> {
+      exercise_view.error_page(req.path, "invalid exercise id.")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    }
+    Error(ViewDetailPageNotFound) -> {
+      exercise_view.error_page(req.path, "exercise not found.")
+      |> element.to_string()
+      |> wisp.html_response(404)
+    }
+    Error(ViewDetailPageDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.error_page(req.path, "Something went wrong.")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+fn parse_exercise_id(value: String) -> Result(ExerciseId, Nil) {
+  use id <- result.try(int.parse(value) |> result.replace_error(Nil))
+  use <- bool.guard(when: id <= 0, return: Error(Nil))
+
+  Ok(exercise.ExerciseId(id))
 }
 
 pub fn view_new_page(req: Request, user: User, ctx: Ctx) {

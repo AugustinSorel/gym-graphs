@@ -1,5 +1,6 @@
 import gleam/bool
 import gleam/list
+import gleam/option
 import gleam/result
 import gym_graphs/domains/exercise.{type ExerciseId, type Name}
 import gym_graphs/domains/user.{type UserId}
@@ -45,6 +46,24 @@ pub fn count_by_user_id(db: Connection, user_id: UserId) {
   |> result.map(fn(result) {
     let assert pog.Returned(rows: [row], count: 1) = result
     row.total_count
+  })
+}
+
+pub fn select_by_id_and_user_id(
+  db: Connection,
+  id: ExerciseId,
+  user_id: UserId,
+) {
+  sql.select_exercise_by_id_and_user_id(db, id.value, user_id.value)
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(exercise.Exercise(
+          id: exercise.ExerciseId(row.id),
+          name: exercise.Name(row.name),
+        ))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
   })
 }
 

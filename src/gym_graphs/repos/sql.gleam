@@ -1150,6 +1150,44 @@ pub fn select_auth_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_exercise_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExerciseByIdAndUserIdRow {
+  SelectExerciseByIdAndUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_exercise_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercise_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  arg_2: Int,
+) -> Result(pog.Returned(SelectExerciseByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectExerciseByIdAndUserIdRow(id:, name:))
+  }
+
+  "select id, name
+from exercises
+where id = $1 and user_id = $2;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_exercises_page_by_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_exercises_page_by_user_id.sql`.
 ///

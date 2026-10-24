@@ -38,11 +38,20 @@ pub fn page(
   )
 }
 
-pub fn error_page(path: String) -> Element(a) {
+pub fn error_page(path: String, msg: String) -> Element(a) {
   page_layout(
     ui.alert(ui.AlertError, [], [
       ui.alert_title(element.text("loading exercises failed")),
-      ui.alert_description([], element.text("Something went wrong.")),
+      ui.alert_description([], element.text(msg)),
+    ]),
+    path,
+  )
+}
+
+pub fn detail_page(exercise: Exercise, path: String) -> Element(a) {
+  page_layout(
+    html.h1([attribute.class("font-semibold text-3xl lowercase")], [
+      html.text(exercise.name.value),
     ]),
     path,
   )
@@ -158,12 +167,20 @@ fn exercise_row(exercise: Exercise) -> Element(a) {
   html.tr(
     [
       attribute.class(
-        "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50",
+        "bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x transition-colors hover:bg-surface-container/50 relative",
       ),
     ],
     [
       html.td([attribute.class("pl-0 p-4 align-middle font-medium lowercase")], [
-        html.text(exercise.name.value),
+        html.a(
+          [
+            attribute.href("/exercises/" <> int.to_string(exercise.id.value)),
+            attribute.class(
+              "before:absolute before:inset-0 before:z-1 font-semibold underline hover:text-current/70 transition-colors outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+            ),
+          ],
+          [html.text(exercise.name.value)],
+        ),
       ]),
     ],
   )
