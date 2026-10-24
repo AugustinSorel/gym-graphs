@@ -1,6 +1,11 @@
+import formal/form.{type Form}
+import gleam/bool
 import gleam/int
 import gleam/list
+import gleam/result
+import gleam/string
 import gym_graphs/domains/tag.{type Tag}
+import gym_graphs/schemas/exercise_schema.{type CreateExerciseSchema}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
@@ -20,13 +25,17 @@ pub fn error_page(path: String) -> Element(a) {
   )
 }
 
-pub fn new_page(tags: List(Tag), path: String) -> Element(a) {
+pub fn new_page(
+  form: Form(CreateExerciseSchema),
+  tags: List(Tag),
+  path: String,
+) -> Element(a) {
   page_layout(
     element.fragment([
       html.h1([attribute.class("font-semibold text-3xl")], [
         html.text("new exercise"),
       ]),
-      new_form(tags),
+      new_form(form, tags),
     ]),
     path,
   )
@@ -74,7 +83,14 @@ fn page_header(exercise_count: Int, tags: List(Tag)) -> Element(a) {
   ])
 }
 
-fn new_form(tags: List(Tag)) -> Element(a) {
+pub fn new_form(
+  form: Form(CreateExerciseSchema),
+  tags: List(Tag),
+) -> Element(a) {
+  let name_error = list.first(form.field_error_messages(form, "name"))
+  let tag_ids_error = list.first(form.field_error_messages(form, "tag_ids"))
+  let root_error = list.first(form.field_error_messages(form, "root"))
+
   html.form(
     [
       attribute.attribute("hx-post", "/exercises/new"),
@@ -93,15 +109,33 @@ fn new_form(tags: List(Tag)) -> Element(a) {
           ui.input([
             attribute.type_("text"),
             attribute.name("name"),
-            attribute.value(""),
+            attribute.value(form.field_value(form, "name")),
             attribute.autocomplete("off"),
             attribute.placeholder("bench press"),
-            attribute.aria_invalid("false"),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(name_error))),
+            ),
             attribute.attribute("autofocus", ""),
           ]),
+          case name_error {
+            Ok(message) ->
+              html.p(
+                [attribute.role("alert"), attribute.class("text-error text-sm")],
+                [html.text(message)],
+              )
+            Error(_) -> element.none()
+          },
         ],
       ),
-      exercise_tag_fields(tags),
+      exercise_tag_fields(form, tags, tag_ids_error),
+      case root_error {
+        Ok(message) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description([], element.text(message)),
+          ])
+        Error(_) -> element.none()
+      },
       ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
         html.text("save"),
         ui.spinner(),
@@ -113,7 +147,11 @@ fn new_form(tags: List(Tag)) -> Element(a) {
   )
 }
 
-fn exercise_tag_fields(tags: List(Tag)) -> Element(a) {
+fn exercise_tag_fields(
+  form: Form(CreateExerciseSchema),
+  tags: List(Tag),
+  tag_ids_error: Result(String, Nil),
+) -> Element(a) {
   case tags {
     [] -> element.none()
     _ ->
@@ -123,13 +161,26 @@ fn exercise_tag_fields(tags: List(Tag)) -> Element(a) {
         ]),
         html.div(
           [attribute.class("flex flex-wrap gap-2")],
-          list.map(tags, exercise_tag_option),
+          list.map(tags, exercise_tag_option(form, _)),
         ),
+        case tag_ids_error {
+          Ok(message) ->
+            html.p(
+              [attribute.role("alert"), attribute.class("text-error text-sm")],
+              [html.text(message)],
+            )
+          Error(_) -> element.none()
+        },
       ])
   }
 }
 
-fn exercise_tag_option(tag: Tag) -> Element(a) {
+fn exercise_tag_option(
+  form: Form(CreateExerciseSchema),
+  tag: Tag,
+) -> Element(a) {
+  let id = int.to_string(tag.id.value)
+
   html.label(
     [
       attribute.class(
@@ -140,7 +191,8 @@ fn exercise_tag_option(tag: Tag) -> Element(a) {
       html.input([
         attribute.type_("checkbox"),
         attribute.name("tag_ids"),
-        attribute.value(int.to_string(tag.id.value)),
+        attribute.value(id),
+        attribute.checked(list.contains(form.field_values(form, "tag_ids"), id)),
         attribute.class("sr-only"),
       ]),
       html.text(" " <> tag.name.value),

@@ -192,6 +192,84 @@ pub fn create_auth_session(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `create_exercise` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercise.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateExerciseRow {
+  CreateExerciseRow(id: Int)
+}
+
+/// Runs the `create_exercise` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercise.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_exercise(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: String,
+) -> Result(pog.Returned(CreateExerciseRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(CreateExerciseRow(id:))
+  }
+
+  "insert into exercises (user_id, name)
+values ($1, $2)
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.text(arg_2))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `create_exercise_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercise_tags.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type CreateExerciseTagsRow {
+  CreateExerciseTagsRow(tag_id: Int)
+}
+
+/// Runs the `create_exercise_tags` query
+/// defined in `./src/gym_graphs/repos/sql/create_exercise_tags.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_exercise_tags(
+  db: pog.Connection,
+  arg_1: Int,
+  user_id: Int,
+  arg_3: List(Int),
+) -> Result(pog.Returned(CreateExerciseTagsRow), pog.QueryError) {
+  let decoder = {
+    use tag_id <- decode.field(0, decode.int)
+    decode.success(CreateExerciseTagsRow(tag_id:))
+  }
+
+  "insert into exercise_tags (exercise_id, tag_id)
+select $1, id
+from tags
+where user_id = $2 and id = any($3::integer[])
+returning tag_id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `create_exercise_tags_by_names` query
 /// defined in `./src/gym_graphs/repos/sql/create_exercise_tags_by_names.sql`.
 ///
