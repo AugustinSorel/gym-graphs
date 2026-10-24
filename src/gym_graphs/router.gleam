@@ -4,6 +4,7 @@ import gym_graphs/handlers/account_deletion_session_handler
 import gym_graphs/handlers/auth_session_handler
 import gym_graphs/handlers/data_export_handler
 import gym_graphs/handlers/data_import_handler
+import gym_graphs/handlers/exercise_handler
 import gym_graphs/handlers/password_reset_session_handler
 import gym_graphs/handlers/password_update_session_handler
 import gym_graphs/handlers/sign_up_session_handler
@@ -22,7 +23,7 @@ pub fn handle_request(req: Request, ctx: Ctx) {
   use req <- web.middleware(req)
 
   case req.method, wisp.path_segments(req) {
-    Get, [] -> wisp.redirect(to: "/account")
+    Get, [] -> wisp.redirect(to: "/exercises")
 
     Get, ["sign-up"] -> {
       use <- auth_session_middleware.require_blank(req, ctx)
@@ -278,6 +279,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       user_handler.view_account_page(req, user, ctx)
+    }
+    Get, ["exercises"] -> {
+      use _auth_session, _user <- auth_session_middleware.require(req, ctx)
+
+      exercise_handler.view_page(req)
     }
     Get, ["stats"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
