@@ -897,6 +897,43 @@ pub fn delete_auth_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_exercise_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_exercise_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteExerciseByIdAndUserIdRow {
+  DeleteExerciseByIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `delete_exercise_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_exercise_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_exercise_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(DeleteExerciseByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(DeleteExerciseByIdAndUserIdRow(id:))
+  }
+
+  "delete from exercises
+where id = $1 and user_id = $2
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_exercise_tags_by_id_and_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_exercise_tags_by_id_and_user_id.sql`.
 ///

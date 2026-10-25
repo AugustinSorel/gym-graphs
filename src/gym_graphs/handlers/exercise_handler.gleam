@@ -365,6 +365,94 @@ pub fn rename(req: Request, user: User, ctx: Ctx, exercise_id: String) {
   }
 }
 
+type ViewRemovePageError {
+  ViewRemovePageInvalidId
+  ViewRemovePageNotFound
+  ViewRemovePageDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_remove_page(
+  req: Request,
+  user: User,
+  ctx: Ctx,
+  exercise_id: String,
+) {
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id)
+      |> result.replace_error(ViewRemovePageInvalidId),
+    )
+    use selected_exercise_option <- result.try(
+      exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewRemovePageDatabaseFailure),
+    )
+
+    option.to_result(selected_exercise_option, ViewRemovePageNotFound)
+  }
+
+  case result {
+    Ok(selected_exercise) ->
+      exercise_view.remove_form(selected_exercise)
+      |> exercise_view.remove_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(ViewRemovePageInvalidId) ->
+      exercise_view.remove_error("invalid exercise id")
+      |> exercise_view.remove_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewRemovePageNotFound) ->
+      exercise_view.remove_error("exercise not found")
+      |> exercise_view.remove_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(ViewRemovePageDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.remove_error("something went wrong")
+      |> exercise_view.remove_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type RemoveError {
+  RemoveInvalidId
+  RemoveNotFound
+  RemoveDatabaseFailure(pog.QueryError)
+}
+
+pub fn remove(req: Request, user: User, ctx: Ctx, exercise_id: String) {
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id) |> result.replace_error(RemoveInvalidId),
+    )
+
+    exercise_repo.delete_by_id_and_user_id(ctx.db, id, user.id)
+    |> result.map_error(RemoveDatabaseFailure)
+    |> result.try(option.to_result(_, RemoveNotFound))
+    |> result.replace(Nil)
+  }
+
+  case result {
+    Ok(Nil) -> wisp.ok() |> wisp.set_header("HX-Redirect", "/exercises")
+    Error(RemoveInvalidId) ->
+      exercise_view.remove_error("invalid exercise id")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(RemoveNotFound) ->
+      exercise_view.remove_error("exercise not found")
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(RemoveDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.remove_error("something went wrong")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
 type UpdateTagsError {
   UpdateTagsInvalidId
   UpdateTagsValidation(Form(UpdateExerciseTagsSchema))

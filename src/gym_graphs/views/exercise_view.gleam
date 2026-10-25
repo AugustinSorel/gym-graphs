@@ -115,6 +115,32 @@ pub fn exercise_manage(selected_exercise: Exercise) -> Element(a) {
         ),
       ],
     ),
+    html.div(
+      [
+        attribute.class(
+          "py-7 border-b-2 border-outline/50 border-dotted grid lg:grid-cols-[1fr_auto] gap-y-3 items-center",
+        ),
+      ],
+      [
+        html.div([attribute.class("space-y-1")], [
+          html.p([attribute.class("text-outline text-sm")], [
+            html.text("remove exercise"),
+          ]),
+          html.p([], [
+            html.text("permanently delete this exercise and all its sets."),
+          ]),
+        ]),
+        ui.link(
+          [
+            attribute.href("/exercises/" <> exercise_id <> "/confirm-delete"),
+            attribute.class(
+              "text-error my-auto ml-auto text-sm lg:ml-0 hover:text-error/80",
+            ),
+          ],
+          [html.text("delete")],
+        ),
+      ],
+    ),
   ])
 }
 
@@ -197,6 +223,60 @@ pub fn rename_error(message: String) -> Element(a) {
   ui.alert(ui.AlertError, [], [
     ui.alert_title(element.text("renaming exercise failed")),
     ui.alert_description([], element.text(message)),
+  ])
+}
+
+pub fn remove_page(children: Element(a), path: String) -> Element(a) {
+  page_layout(
+    element.fragment([
+      html.h1([attribute.class("font-semibold text-3xl")], [
+        html.text("remove exercise"),
+      ]),
+      children,
+    ]),
+    path,
+  )
+}
+
+pub fn remove_form(selected_exercise: Exercise) -> Element(a) {
+  let detail_path = "/exercises/" <> int.to_string(selected_exercise.id.value)
+
+  html.form(
+    [
+      attribute.attribute("hx-delete", detail_path),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.p([attribute.class("text-outline")], [
+        html.text("Are you sure you want to remove the exercise "),
+        html.strong([attribute.class("text-on-surface")], [
+          html.text(selected_exercise.name.value),
+        ]),
+        html.text(" and all its sets? This action cannot be undone."),
+      ]),
+      ui.button(ui.ButtonDestroy, [attribute.type_("submit")], [
+        html.text("yes, remove exercise"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href(detail_path), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
+}
+
+pub fn remove_error(message: String) -> Element(a) {
+  element.fragment([
+    ui.alert(ui.AlertError, [], [
+      ui.alert_title(element.text("removing exercise failed")),
+      ui.alert_description([], element.text(message)),
+    ]),
+    ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+      html.text("back"),
+    ]),
   ])
 }
 
