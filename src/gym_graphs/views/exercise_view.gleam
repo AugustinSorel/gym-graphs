@@ -51,22 +51,89 @@ pub fn error_page(path: String, msg: String) -> Element(a) {
   )
 }
 
-pub fn detail_page(
-  selected_exercise: Exercise,
-  facts: exercise.ExerciseFacts,
-  weight_unit: WeightUnit,
-  path: String,
+pub fn detail_page(children: List(Element(a)), path: String) -> Element(a) {
+  page_layout(element.fragment(children), path)
+}
+
+pub fn exercise_tags(
+  exercise_id: exercise.ExerciseId,
+  all_tags: List(Tag),
+  selected_tags: List(Tag),
 ) -> Element(a) {
-  page_layout(
-    element.fragment([
-      detail_header(selected_exercise, facts.total_sets),
-      facts_section(facts, weight_unit),
-    ]),
-    path,
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [html.text("tags")],
+    ),
+    exercise_tags_form(
+      exercise_id,
+      all_tags,
+      list.map(selected_tags, fn(tag) { tag.id.value }),
+    ),
+  ])
+}
+
+pub fn exercise_tags_error(msg: String) {
+  ui.alert(ui.AlertError, [], [
+    ui.alert_title(element.text("Tags failed")),
+    ui.alert_description([], element.text(msg)),
+  ])
+}
+
+pub fn exercise_tags_form(
+  exercise_id: exercise.ExerciseId,
+  all_tags: List(Tag),
+  selected_tag_ids: List(Int),
+) -> Element(a) {
+  html.form(
+    [
+      attribute.id("exercise-tags-form"),
+      attribute.attribute(
+        "hx-patch",
+        "/exercises/" <> int.to_string(exercise_id.value) <> "/tags",
+      ),
+      attribute.attribute("hx-trigger", "change"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.attribute("hx-target", "#exercise-tags-form"),
+      attribute.class(
+        "py-7 border-b-2 border-dotted border-outline/50 flex flex-wrap gap-2",
+      ),
+    ],
+    list.map(all_tags, exercise_detail_tag_option(_, selected_tag_ids)),
   )
 }
 
-fn detail_header(selected_exercise: Exercise, total_sets: Int) -> Element(a) {
+fn exercise_detail_tag_option(
+  tag: Tag,
+  selected_tag_ids: List(Int),
+) -> Element(a) {
+  html.label(
+    [
+      attribute.class(
+        "border-2 border-on-surface px-3 py-1 text-sm cursor-pointer transition-colors hover:bg-on-surface/10 has-[:checked]:bg-on-surface has-[:checked]:text-surface has-[:focus-visible]:ring-4 ring-on-surface ring-offset-2 ring-offset-surface",
+      ),
+    ],
+    [
+      html.input([
+        attribute.type_("checkbox"),
+        attribute.name("tag_ids"),
+        attribute.value(int.to_string(tag.id.value)),
+        attribute.checked(list.contains(selected_tag_ids, tag.id.value)),
+        attribute.class("sr-only"),
+      ]),
+      html.text(" " <> tag.name.value),
+    ],
+  )
+}
+
+pub fn detail_header(
+  selected_exercise: Exercise,
+  total_sets: Int,
+) -> Element(a) {
   let exercise_id = int.to_string(selected_exercise.id.value)
 
   html.header(
@@ -90,7 +157,7 @@ fn detail_header(selected_exercise: Exercise, total_sets: Int) -> Element(a) {
   )
 }
 
-fn facts_section(
+pub fn exercise_facts(
   facts: exercise.ExerciseFacts,
   weight_unit: WeightUnit,
 ) -> Element(a) {

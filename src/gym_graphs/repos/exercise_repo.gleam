@@ -5,6 +5,7 @@ import gleam/option
 import gleam/result
 import gym_graphs/domains/exercise.{type ExerciseId, type Name}
 import gym_graphs/domains/one_rep_max
+import gym_graphs/domains/tag
 import gym_graphs/domains/user.{type OneRepMaxAlgorithm, type UserId}
 import gym_graphs/domains/weight
 import gym_graphs/repos/sql
@@ -112,6 +113,29 @@ pub fn select_facts_by_id_and_user_id(
       repetitions: facts.best_set_repetitions,
     ),
   ))
+}
+
+pub fn replace_tags_by_id_and_user_id(
+  db: Connection,
+  id: ExerciseId,
+  user_id: UserId,
+  tag_ids: List(Int),
+) {
+  let tag_ids = list.unique(tag_ids)
+
+  pog.transaction(db, fn(tx) {
+    use Nil <- result.try(
+      sql.delete_exercise_tags_by_id_and_user_id(tx, id.value, user_id.value)
+      |> result.replace(Nil),
+    )
+
+    use <- bool.guard(when: list.is_empty(tag_ids), return: Ok([]))
+
+    sql.create_exercise_tags(tx, id.value, user_id.value, tag_ids)
+    |> result.map(fn(rows) {
+      list.map(rows.rows, fn(row) { tag.TagId(row.tag_id) })
+    })
+  })
 }
 
 pub fn select_page_by_user_id(

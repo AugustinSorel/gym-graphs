@@ -11,7 +11,9 @@ import gym_graphs/domains/exercise.{type ExerciseId}
 import gym_graphs/domains/user.{type User}
 import gym_graphs/repos/exercise_repo
 import gym_graphs/repos/tag_repo
-import gym_graphs/schemas/exercise_schema.{type CreateExerciseSchema}
+import gym_graphs/schemas/exercise_schema.{
+  type CreateExerciseSchema, type UpdateExerciseTagsSchema,
+}
 import gym_graphs/views/exercise_view
 import lustre/element
 import pog
@@ -184,15 +186,30 @@ pub fn view_detail_page(
       |> result.map_error(ViewDetailPageDatabaseFailure),
     )
 
-    Ok(#(selected_exercise, facts))
+    use all_tags <- result.try(
+      tag_repo.select_all_by_user_id(ctx.db, user.id)
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
+    use selected_tags <- result.try(
+      tag_repo.select_by_exercise_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
+
+    Ok(#(selected_exercise, facts, all_tags, selected_tags))
   }
 
   case result {
-    Ok(#(selected_exercise, facts)) ->
+    Ok(#(selected_exercise, facts, all_tags, selected_tags)) ->
       exercise_view.detail_page(
-        selected_exercise,
-        facts,
-        user.weight_unit,
+        [
+          exercise_view.detail_header(selected_exercise, facts.total_sets),
+          exercise_view.exercise_facts(facts, user.weight_unit),
+          exercise_view.exercise_tags(
+            selected_exercise.id,
+            all_tags,
+            selected_tags,
+          ),
+        ],
         req.path,
       )
       |> element.to_string()
@@ -210,6 +227,70 @@ pub fn view_detail_page(
     Error(ViewDetailPageDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       exercise_view.error_page(req.path, "Something went wrong.")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type UpdateTagsError {
+  UpdateTagsInvalidId
+  UpdateTagsValidation(Form(UpdateExerciseTagsSchema))
+  UpdateTagsDatabaseFailure(pog.QueryError)
+}
+
+pub fn update_tags(req: Request, user: User, ctx: Ctx, exercise_id: String) {
+  use formdata <- wisp.require_form(req)
+
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id)
+      |> result.replace_error(UpdateTagsInvalidId),
+    )
+    use input <- result.try(
+      exercise_schema.update_tags()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(UpdateTagsValidation),
+    )
+
+    use new_tags <- result.try(
+      exercise_repo.replace_tags_by_id_and_user_id(
+        ctx.db,
+        id,
+        user.id,
+        input.tag_ids,
+      )
+      |> result.map_error(fn(error) {
+        case error {
+          pog.TransactionQueryError(error) -> UpdateTagsDatabaseFailure(error)
+          pog.TransactionRolledBack(error) -> UpdateTagsDatabaseFailure(error)
+        }
+      }),
+    )
+
+    use all_tags <- result.try(
+      tag_repo.select_all_by_user_id(ctx.db, user.id)
+      |> result.map_error(UpdateTagsDatabaseFailure),
+    )
+
+    Ok(#(id, all_tags, list.map(new_tags, fn(tag) { tag.value })))
+  }
+
+  case result {
+    Ok(#(id, all_tags, selected_tag_ids)) -> {
+      exercise_view.exercise_tags_form(id, all_tags, selected_tag_ids)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    }
+    Error(UpdateTagsInvalidId) | Error(UpdateTagsValidation(_)) -> {
+      exercise_view.exercise_tags_error("Invalid tag id")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    }
+    Error(UpdateTagsDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.exercise_tags_error("Something went wrong")
       |> element.to_string()
       |> wisp.html_response(500)
     }

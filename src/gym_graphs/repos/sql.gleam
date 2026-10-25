@@ -897,6 +897,33 @@ pub fn delete_auth_session_by_id(
   |> pog.execute(db)
 }
 
+/// Runs the `delete_exercise_tags_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_exercise_tags_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_exercise_tags_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "delete from exercise_tags
+where exercise_id in (
+  select id
+  from exercises
+  where id = $1 and user_id = $2
+);
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_password_reset_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_password_reset_session_by_id.sql`.
 ///
@@ -1270,6 +1297,44 @@ group by exercises.id;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_exercise_for_tag_update` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_for_tag_update.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExerciseForTagUpdateRow {
+  SelectExerciseForTagUpdateRow(id: Int)
+}
+
+/// Runs the `select_exercise_for_tag_update` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_for_tag_update.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercise_for_tag_update(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+) -> Result(pog.Returned(SelectExerciseForTagUpdateRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(SelectExerciseForTagUpdateRow(id:))
+  }
+
+  "select id
+from exercises
+where id = $1 and user_id = $2
+for update;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_exercise_set_performances_by_id_and_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_exercise_set_performances_by_id_and_user_id.sql`.
 ///
@@ -1313,6 +1378,49 @@ where exercises.id = $1
   and exercises.user_id = $2
   and sets.weight_in_g > 0
   and sets.repetitions > 0;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_exercise_tags_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_tags_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExerciseTagsByIdAndUserIdRow {
+  SelectExerciseTagsByIdAndUserIdRow(id: Int, name: String)
+}
+
+/// Runs the `select_exercise_tags_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_tags_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercise_tags_by_id_and_user_id(
+  db: pog.Connection,
+  exercises_id: Int,
+  exercises_user_id: Int,
+) -> Result(pog.Returned(SelectExerciseTagsByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use name <- decode.field(1, decode.string)
+    decode.success(SelectExerciseTagsByIdAndUserIdRow(id:, name:))
+  }
+
+  "select tags.id, tags.name
+from exercise_tags
+inner join exercises on exercises.id = exercise_tags.exercise_id
+inner join tags on tags.id = exercise_tags.tag_id
+where exercises.id = $1
+  and exercises.user_id = $2
+  and tags.user_id = $2
+order by tags.name, tags.id;
 "
   |> pog.query
   |> pog.parameter(pog.int(exercises_id))

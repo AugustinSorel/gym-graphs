@@ -1,6 +1,7 @@
 import gleam/list
 import gleam/option
 import gleam/result
+import gym_graphs/domains/exercise.{type ExerciseId}
 import gym_graphs/domains/tag.{type Name, type TagId}
 import gym_graphs/domains/user.{type UserId}
 import gym_graphs/repos/sql
@@ -60,6 +61,24 @@ pub fn count_by_user_id(db: Connection, user_id: UserId) {
 
 pub fn select_all_by_user_id(db: Connection, user_id: UserId) {
   sql.select_tags_by_user_id(db, user_id.value)
+  |> result.map(fn(result) {
+    let pog.Returned(rows:, count: _) = result
+    list.map(rows, fn(row) {
+      tag.Tag(id: tag.TagId(row.id), name: tag.Name(row.name))
+    })
+  })
+}
+
+pub fn select_by_exercise_id_and_user_id(
+  db: Connection,
+  exercise_id: ExerciseId,
+  user_id: UserId,
+) {
+  sql.select_exercise_tags_by_id_and_user_id(
+    db,
+    exercise_id.value,
+    user_id.value,
+  )
   |> result.map(fn(result) {
     let pog.Returned(rows:, count: _) = result
     list.map(rows, fn(row) {
