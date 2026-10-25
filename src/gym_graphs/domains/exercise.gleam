@@ -1,5 +1,6 @@
 import formal/form
 import gleam/string
+import gym_graphs/domains/weight.{type Weight}
 
 pub type ExerciseId {
   ExerciseId(value: Int)
@@ -7,6 +8,20 @@ pub type ExerciseId {
 
 pub type Exercise {
   Exercise(id: ExerciseId, name: Name)
+}
+
+pub type BestSet {
+  BestSet(weight: Weight, repetitions: Int)
+}
+
+pub type ExerciseFacts {
+  ExerciseFacts(
+    total_sets: Int,
+    total_sessions: Int,
+    average_repetitions: Float,
+    best_one_rep_max: Weight,
+    best_set: BestSet,
+  )
 }
 
 pub type Name {

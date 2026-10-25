@@ -165,14 +165,36 @@ pub fn view_detail_page(
       |> result.replace_error(ViewDetailPageInvalidId),
     )
 
-    exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
-    |> result.map_error(ViewDetailPageDatabaseFailure)
-    |> result.try(option.to_result(_, ViewDetailPageNotFound))
+    use selected_exercise_option <- result.try(
+      exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
+    use selected_exercise <- result.try(option.to_result(
+      selected_exercise_option,
+      ViewDetailPageNotFound,
+    ))
+
+    use facts <- result.try(
+      exercise_repo.select_facts_by_id_and_user_id(
+        ctx.db,
+        id,
+        user.id,
+        user.one_rep_max_algorithm,
+      )
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
+
+    Ok(#(selected_exercise, facts))
   }
 
   case result {
-    Ok(selected_exercise) ->
-      exercise_view.detail_page(selected_exercise, req.path)
+    Ok(#(selected_exercise, facts)) ->
+      exercise_view.detail_page(
+        selected_exercise,
+        facts,
+        user.weight_unit,
+        req.path,
+      )
       |> element.to_string()
       |> wisp.html_response(200)
     Error(ViewDetailPageInvalidId) -> {

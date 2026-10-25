@@ -1188,6 +1188,139 @@ where id = $1 and user_id = $2;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_exercise_facts_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_facts_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExerciseFactsByIdAndUserIdRow {
+  SelectExerciseFactsByIdAndUserIdRow(
+    total_sets: Int,
+    total_sessions: Int,
+    average_repetitions: Float,
+    best_set_weight_in_g: Int,
+    best_set_repetitions: Int,
+  )
+}
+
+/// Runs the `select_exercise_facts_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_facts_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercise_facts_by_id_and_user_id(
+  db: pog.Connection,
+  exercises_id: Int,
+  exercises_user_id: Int,
+) -> Result(pog.Returned(SelectExerciseFactsByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use total_sets <- decode.field(0, decode.int)
+    use total_sessions <- decode.field(1, decode.int)
+    use average_repetitions <- decode.field(2, decode.float)
+    use best_set_weight_in_g <- decode.field(3, decode.int)
+    use best_set_repetitions <- decode.field(4, decode.int)
+    decode.success(SelectExerciseFactsByIdAndUserIdRow(
+      total_sets:,
+      total_sessions:,
+      average_repetitions:,
+      best_set_weight_in_g:,
+      best_set_repetitions:,
+    ))
+  }
+
+  "select
+  count(sets.id)::int as total_sets,
+  count(distinct date_trunc('day', sets.done_at))::int as total_sessions,
+  coalesce(avg(sets.repetitions), 0)::float8 as average_repetitions,
+  coalesce((
+    select best_set.weight_in_g
+    from sets as best_set
+    where best_set.exercise_id = exercises.id
+      and best_set.weight_in_g > 0
+      and best_set.repetitions > 0
+    order by
+      best_set.weight_in_g::bigint * best_set.repetitions::bigint desc,
+      best_set.done_at desc,
+      best_set.id desc
+    limit 1
+  ), 0)::int as best_set_weight_in_g,
+  coalesce((
+    select best_set.repetitions
+    from sets as best_set
+    where best_set.exercise_id = exercises.id
+      and best_set.weight_in_g > 0
+      and best_set.repetitions > 0
+    order by
+      best_set.weight_in_g::bigint * best_set.repetitions::bigint desc,
+      best_set.done_at desc,
+      best_set.id desc
+    limit 1
+  ), 0)::int as best_set_repetitions
+from exercises
+left join sets on sets.exercise_id = exercises.id
+where exercises.id = $1 and exercises.user_id = $2
+group by exercises.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_exercise_set_performances_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_set_performances_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectExerciseSetPerformancesByIdAndUserIdRow {
+  SelectExerciseSetPerformancesByIdAndUserIdRow(
+    weight_in_g: Int,
+    repetitions: Int,
+  )
+}
+
+/// Runs the `select_exercise_set_performances_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_exercise_set_performances_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_exercise_set_performances_by_id_and_user_id(
+  db: pog.Connection,
+  exercises_id: Int,
+  exercises_user_id: Int,
+) -> Result(
+  pog.Returned(SelectExerciseSetPerformancesByIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use weight_in_g <- decode.field(0, decode.int)
+    use repetitions <- decode.field(1, decode.int)
+    decode.success(SelectExerciseSetPerformancesByIdAndUserIdRow(
+      weight_in_g:,
+      repetitions:,
+    ))
+  }
+
+  "select sets.weight_in_g, sets.repetitions
+from sets
+inner join exercises on exercises.id = sets.exercise_id
+where exercises.id = $1
+  and exercises.user_id = $2
+  and sets.weight_in_g > 0
+  and sets.repetitions > 0;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_exercises_page_by_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/select_exercises_page_by_user_id.sql`.
 ///

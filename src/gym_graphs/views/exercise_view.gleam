@@ -1,5 +1,6 @@
 import formal/form.{type Form}
 import gleam/bool
+import gleam/float
 import gleam/int
 import gleam/list
 import gleam/option
@@ -8,6 +9,8 @@ import gleam/string
 import gleam/uri
 import gym_graphs/domains/exercise.{type Exercise}
 import gym_graphs/domains/tag.{type Tag}
+import gym_graphs/domains/user.{type WeightUnit}
+import gym_graphs/domains/weight.{type Weight}
 import gym_graphs/schemas/exercise_schema.{type CreateExerciseSchema}
 import gym_graphs/ui
 import lustre/attribute
@@ -48,13 +51,148 @@ pub fn error_page(path: String, msg: String) -> Element(a) {
   )
 }
 
-pub fn detail_page(exercise: Exercise, path: String) -> Element(a) {
+pub fn detail_page(
+  selected_exercise: Exercise,
+  facts: exercise.ExerciseFacts,
+  weight_unit: WeightUnit,
+  path: String,
+) -> Element(a) {
   page_layout(
-    html.h1([attribute.class("font-semibold text-3xl lowercase")], [
-      html.text(exercise.name.value),
+    element.fragment([
+      detail_header(selected_exercise, facts.total_sets),
+      facts_section(facts, weight_unit),
     ]),
     path,
   )
+}
+
+fn detail_header(selected_exercise: Exercise, total_sets: Int) -> Element(a) {
+  let exercise_id = int.to_string(selected_exercise.id.value)
+
+  html.header(
+    [attribute.class("grid grid-cols-[1fr_auto] gap-y-10 lg:gap-y-5")],
+    [
+      html.h1(
+        [
+          attribute.class(
+            "text-3xl font-semibold capitalize col-span-2 break-words",
+          ),
+        ],
+        [html.text(selected_exercise.name.value)],
+      ),
+      html.span([attribute.class("uppercase text-outline text-sm")], [
+        html.text("sets (" <> int.to_string(total_sets) <> ")"),
+      ]),
+      ui.link([attribute.href("/exercises/" <> exercise_id <> "/sets/new")], [
+        html.text("+ add"),
+      ]),
+    ],
+  )
+}
+
+fn facts_section(
+  facts: exercise.ExerciseFacts,
+  weight_unit: WeightUnit,
+) -> Element(a) {
+  let exercise.BestSet(weight: best_set_weight, repetitions:) = facts.best_set
+
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [html.text("facts")],
+    ),
+    html.dl(
+      [
+        attribute.class(
+          "py-7 border-b-2 border-dotted border-outline/50 grid grid-cols-2 lg:grid-cols-4 gap-2",
+        ),
+      ],
+      [
+        fact(
+          element.fragment([
+            html.text("best 1"),
+            html.abbr(
+              [
+                attribute.title("repetition maximum"),
+                attribute.class("no-underline"),
+              ],
+              [html.text("rm")],
+            ),
+          ]),
+          optional_weight(facts.best_one_rep_max, weight_unit),
+        ),
+        fact(html.text("best set"), case weight.is_zero(best_set_weight) {
+          True -> html.text("-")
+          False ->
+            element.fragment([
+              display_fact_weight(best_set_weight, weight_unit),
+              html.span([attribute.class("text-sm font-normal text-outline")], [
+                html.text(" * " <> int.to_string(repetitions)),
+              ]),
+            ])
+        }),
+        fact(
+          html.abbr(
+            [
+              attribute.title("average repetitions per set"),
+              attribute.class("no-underline"),
+            ],
+            [html.text("avg reps / set")],
+          ),
+          case facts.total_sets {
+            0 -> html.text("-")
+            _ -> html.text(format_one_decimal(facts.average_repetitions))
+          },
+        ),
+        fact(html.text("sessions"), case facts.total_sessions {
+          0 -> html.text("-")
+          count -> html.text(int.to_string(count))
+        }),
+      ],
+    ),
+  ])
+}
+
+fn fact(label: Element(a), value: Element(a)) -> Element(a) {
+  html.div([attribute.class("grid gap-1")], [
+    html.dt([attribute.class("text-outline text-xs")], [label]),
+    html.dd([attribute.class("text-xl font-semibold")], [value]),
+  ])
+}
+
+fn optional_weight(value: Weight, unit: WeightUnit) -> Element(a) {
+  case weight.is_zero(value) {
+    True -> html.text("-")
+    False -> display_fact_weight(value, unit)
+  }
+}
+
+fn display_fact_weight(value: Weight, unit: WeightUnit) -> Element(a) {
+  let weight.DisplayWeight(value: formatted, unit:) =
+    weight.display(value, unit)
+
+  element.fragment([
+    html.text(formatted <> " "),
+    html.abbr(
+      [
+        attribute.title(weight.unit_name(unit)),
+        attribute.class("text-sm font-normal text-outline no-underline"),
+      ],
+      [html.text(weight.unit_abbreviation(unit))],
+    ),
+  ])
+}
+
+fn format_one_decimal(value: Float) -> String {
+  value *. 10.0
+  |> float.round()
+  |> int.to_float()
+  |> fn(value) { value /. 10.0 }
+  |> float.to_string()
 }
 
 pub fn new_page(
