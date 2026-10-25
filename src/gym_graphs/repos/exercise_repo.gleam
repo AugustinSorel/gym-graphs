@@ -71,6 +71,27 @@ pub fn select_by_id_and_user_id(
   })
 }
 
+pub fn update_name_by_id_and_user_id(
+  db: Connection,
+  id: ExerciseId,
+  user_id: UserId,
+  name: Name,
+) {
+  sql.update_exercise_name_by_id_and_user_id(
+    db,
+    id.value,
+    user_id.value,
+    name.value,
+  )
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(exercise.ExerciseId(row.id))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
+}
+
 pub fn select_facts_by_id_and_user_id(
   db: Connection,
   id: ExerciseId,

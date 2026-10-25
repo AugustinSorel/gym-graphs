@@ -11,7 +11,9 @@ import gym_graphs/domains/exercise.{type Exercise}
 import gym_graphs/domains/tag.{type Tag}
 import gym_graphs/domains/user.{type WeightUnit}
 import gym_graphs/domains/weight.{type Weight}
-import gym_graphs/schemas/exercise_schema.{type CreateExerciseSchema}
+import gym_graphs/schemas/exercise_schema.{
+  type CreateExerciseSchema, type RenameExerciseSchema,
+}
 import gym_graphs/ui
 import lustre/attribute
 import lustre/element.{type Element}
@@ -74,6 +76,127 @@ pub fn exercise_tags(
       all_tags,
       list.map(selected_tags, fn(tag) { tag.id.value }),
     ),
+  ])
+}
+
+pub fn exercise_manage(selected_exercise: Exercise) -> Element(a) {
+  let exercise_id = int.to_string(selected_exercise.id.value)
+
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [html.text("manage")],
+    ),
+    html.div(
+      [
+        attribute.class(
+          "grid lg:grid-cols-[1fr_auto] py-7 border-b-2 border-outline/50 border-dotted gap-3",
+        ),
+      ],
+      [
+        html.dl([attribute.class("space-y-1")], [
+          html.dt([attribute.class("text-outline text-sm")], [
+            html.text("name"),
+          ]),
+          html.dd([attribute.class("capitalize break-all text-balance")], [
+            html.text(selected_exercise.name.value),
+          ]),
+        ]),
+        ui.link(
+          [
+            attribute.href("/exercises/" <> exercise_id <> "/name"),
+            attribute.class("my-auto ml-auto text-sm lg:ml-0"),
+          ],
+          [html.text("rename")],
+        ),
+      ],
+    ),
+  ])
+}
+
+pub fn rename_page(children: Element(a), path: String) -> Element(a) {
+  page_layout(
+    element.fragment([
+      html.h1([attribute.class("font-semibold text-3xl")], [
+        html.text("rename exercise"),
+      ]),
+      children,
+    ]),
+    path,
+  )
+}
+
+pub fn rename_form(
+  form: Form(RenameExerciseSchema),
+  id: exercise.ExerciseId,
+) -> Element(a) {
+  let name_error = list.first(form.field_error_messages(form, "name"))
+  let root_error = list.first(form.field_error_messages(form, "root"))
+  let detail_path = "/exercises/" <> int.to_string(id.value)
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", detail_path <> "/name"),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      html.label(
+        [attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error")],
+        [
+          html.span([attribute.class("text-outline text-sm")], [
+            html.text("exercise name"),
+          ]),
+          ui.input([
+            attribute.type_("text"),
+            attribute.name("name"),
+            attribute.value(form.field_value(form, "name")),
+            attribute.placeholder("bench press"),
+            attribute.autocomplete("off"),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(result.is_ok(name_error))),
+            ),
+            attribute.attribute("autofocus", ""),
+          ]),
+          case name_error {
+            Ok(message) ->
+              html.p(
+                [attribute.role("alert"), attribute.class("text-error text-sm")],
+                [html.text(message)],
+              )
+            Error(_) -> element.none()
+          },
+        ],
+      ),
+      case root_error {
+        Ok(message) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description([], element.text(message)),
+          ])
+        Error(_) -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href(detail_path), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
+}
+
+pub fn rename_error(message: String) -> Element(a) {
+  ui.alert(ui.AlertError, [], [
+    ui.alert_title(element.text("renaming exercise failed")),
+    ui.alert_description([], element.text(message)),
   ])
 }
 

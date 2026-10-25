@@ -310,6 +310,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       exercise_handler.update_tags(req, user, ctx, exercise_id)
     }
+    Get, ["exercises", exercise_id, "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      exercise_handler.view_rename_page(req, user, ctx, exercise_id)
+    }
+    Patch, ["exercises", exercise_id, "name"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      exercise_handler.rename(req, user, ctx, exercise_id)
+    }
     Get, ["stats"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 

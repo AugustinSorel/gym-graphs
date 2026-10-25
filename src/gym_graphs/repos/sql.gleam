@@ -2386,6 +2386,46 @@ pub fn set_transaction_repeatable_read(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `update_exercise_name_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_exercise_name_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateExerciseNameByIdAndUserIdRow {
+  UpdateExerciseNameByIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `update_exercise_name_by_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_exercise_name_by_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_exercise_name_by_id_and_user_id(
+  db: pog.Connection,
+  id: Int,
+  user_id: Int,
+  name: String,
+) -> Result(pog.Returned(UpdateExerciseNameByIdAndUserIdRow), pog.QueryError) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdateExerciseNameByIdAndUserIdRow(id:))
+  }
+
+  "update exercises
+set name = $3
+where id = $1 and user_id = $2
+returning id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(id))
+  |> pog.parameter(pog.int(user_id))
+  |> pog.parameter(pog.text(name))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `update_tag_name_by_id_and_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/update_tag_name_by_id_and_user_id.sql`.
 ///

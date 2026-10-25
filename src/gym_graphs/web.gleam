@@ -21,3 +21,10 @@ fn get_static_directory() -> String {
 
   priv_directory <> "/static"
 }
+
+pub fn require_ok(idk: Result(data, wisp.Response), n) {
+  case idk {
+    Ok(data) -> n(data)
+    Error(res) -> res
+  }
+}

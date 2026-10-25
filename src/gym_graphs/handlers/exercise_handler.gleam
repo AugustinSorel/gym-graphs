@@ -12,9 +12,11 @@ import gym_graphs/domains/user.{type User}
 import gym_graphs/repos/exercise_repo
 import gym_graphs/repos/tag_repo
 import gym_graphs/schemas/exercise_schema.{
-  type CreateExerciseSchema, type UpdateExerciseTagsSchema,
+  type CreateExerciseSchema, type RenameExerciseSchema,
+  type UpdateExerciseTagsSchema,
 }
 import gym_graphs/views/exercise_view
+import gym_graphs/web
 import lustre/element
 import pog
 import wisp.{type Request}
@@ -209,6 +211,7 @@ pub fn view_detail_page(
             all_tags,
             selected_tags,
           ),
+          exercise_view.exercise_manage(selected_exercise),
         ],
         req.path,
       )
@@ -227,6 +230,135 @@ pub fn view_detail_page(
     Error(ViewDetailPageDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       exercise_view.error_page(req.path, "Something went wrong.")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type ViewRenamePageError {
+  ViewRenamePageInvalidId
+  ViewRenamePageNotFound
+  ViewRenamePageDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_rename_page(
+  req: Request,
+  user: User,
+  ctx: Ctx,
+  exercise_id: String,
+) {
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id)
+      |> result.replace_error(ViewRenamePageInvalidId),
+    )
+    use selected_exercise_option <- result.try(
+      exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewRenamePageDatabaseFailure),
+    )
+
+    option.to_result(selected_exercise_option, ViewRenamePageNotFound)
+  }
+
+  case result {
+    Ok(selected_exercise) ->
+      exercise_schema.rename()
+      |> form.add_values([#("name", selected_exercise.name.value)])
+      |> exercise_view.rename_form(selected_exercise.id)
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(ViewRenamePageInvalidId) ->
+      exercise_view.rename_error("invalid exercise id")
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewRenamePageNotFound) ->
+      exercise_view.rename_error("exercise not found")
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(ViewRenamePageDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.rename_error("something went wrong")
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type RenameError {
+  RenameValidation(Form(RenameExerciseSchema))
+  RenameNotFound
+  RenameDatabaseFailure(pog.QueryError)
+}
+
+pub fn rename(req: Request, user: User, ctx: Ctx, exercise_id: String) {
+  use formdata <- wisp.require_form(req)
+
+  use id <- web.require_ok(
+    parse_exercise_id(exercise_id)
+    |> result.replace_error(
+      exercise_view.rename_error("invalid exercise id")
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(422),
+    ),
+  )
+
+  let result = {
+    use input <- result.try(
+      exercise_schema.rename()
+      |> form.add_values(formdata.values)
+      |> form.run()
+      |> result.map_error(RenameValidation),
+    )
+
+    exercise_repo.update_name_by_id_and_user_id(ctx.db, id, user.id, input.name)
+    |> result.map_error(RenameDatabaseFailure)
+    |> result.try(option.to_result(_, RenameNotFound))
+  }
+
+  case result {
+    Ok(id) ->
+      wisp.ok()
+      |> wisp.set_header(
+        "HX-Redirect",
+        "/exercises/" <> int.to_string(id.value),
+      )
+    Error(RenameValidation(form)) ->
+      form
+      |> form.add_values(formdata.values)
+      |> exercise_view.rename_form(id)
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(RenameNotFound) ->
+      exercise_view.rename_error("exercise not found")
+      |> exercise_view.rename_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(RenameDatabaseFailure(pog.ConstraintViolated(
+      _,
+      "exercises_user_id_name_key",
+      _,
+    ))) ->
+      exercise_schema.rename()
+      |> form.add_values(formdata.values)
+      |> form.add_error(
+        "root",
+        form.CustomError("Exercise name is already used."),
+      )
+      |> exercise_view.rename_form(id)
+      |> element.to_string()
+      |> wisp.html_response(409)
+    Error(RenameDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_schema.rename()
+      |> form.add_values(formdata.values)
+      |> form.add_error("root", form.CustomError("Something went wrong."))
+      |> exercise_view.rename_form(id)
       |> element.to_string()
       |> wisp.html_response(500)
     }

@@ -10,6 +10,7 @@ import gym_graphs/domains/user.{type User}
 import gym_graphs/repos/tag_repo
 import gym_graphs/schemas/tag_schema.{type CreateTagSchema, type RenameTagSchema}
 import gym_graphs/views/tag_view
+import gym_graphs/web
 import lustre/element
 import pog.{type QueryError}
 import wisp.{type Request}
@@ -127,29 +128,33 @@ pub fn view_rename_page(req: Request, user: User, ctx: Ctx, tag_id: String) {
 }
 
 type RenameTagError {
-  RenameTagInvalidId
-  RenameTagValidation(Form(RenameTagSchema), TagId)
-  RenameTagDatabaseFailure(QueryError, TagId)
+  RenameTagValidation(Form(RenameTagSchema))
+  RenameTagDatabaseFailure(QueryError)
 }
 
 pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
   use formdata <- wisp.require_form(req)
 
-  let result = {
-    use id <- result.try(
-      parse_tag_id(tag_id)
-      |> result.replace_error(RenameTagInvalidId),
-    )
+  use id <- web.require_ok(
+    parse_tag_id(tag_id)
+    |> result.replace_error(
+      tag_view.rename_tag_error("invalid tag id")
+      |> tag_view.rename_tag_page(req.path)
+      |> element.to_string()
+      |> wisp.html_response(422),
+    ),
+  )
 
+  let result = {
     use input <- result.try(
       tag_schema.rename()
       |> form.add_values(formdata.values)
       |> form.run()
-      |> result.map_error(RenameTagValidation(_, id)),
+      |> result.map_error(RenameTagValidation),
     )
 
     tag_repo.update_name_by_id_and_user_id(ctx.db, id, user.id, input.name)
-    |> result.map_error(RenameTagDatabaseFailure(_, id))
+    |> result.map_error(RenameTagDatabaseFailure)
     |> result.replace(Nil)
   }
 
@@ -158,14 +163,7 @@ pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
       wisp.ok()
       |> wisp.set_header("HX-Redirect", "/account")
 
-    Error(RenameTagInvalidId) -> {
-      tag_view.rename_tag_error("invalid tag id")
-      |> tag_view.rename_tag_page(req.path)
-      |> element.to_string()
-      |> wisp.html_response(422)
-    }
-
-    Error(RenameTagValidation(form, id)) -> {
+    Error(RenameTagValidation(form)) -> {
       form
       |> form.add_values(formdata.values)
       |> tag_view.rename_tag_form(id)
@@ -173,10 +171,11 @@ pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
       |> wisp.html_response(422)
     }
 
-    Error(RenameTagDatabaseFailure(
-      pog.ConstraintViolated(_, "tags_user_id_name_key", _),
-      id,
-    )) -> {
+    Error(RenameTagDatabaseFailure(pog.ConstraintViolated(
+      _,
+      "tags_user_id_name_key",
+      _,
+    ))) -> {
       tag_schema.rename()
       |> form.add_values(formdata.values)
       |> form.add_error("root", form.CustomError("Tag name is already used."))
@@ -185,7 +184,7 @@ pub fn rename(req: Request, user: User, ctx: Ctx, tag_id: String) {
       |> wisp.html_response(409)
     }
 
-    Error(RenameTagDatabaseFailure(error, id)) -> {
+    Error(RenameTagDatabaseFailure(error)) -> {
       wisp.log_error(req.path <> " " <> string.inspect(error))
       tag_schema.rename()
       |> form.add_values(formdata.values)
