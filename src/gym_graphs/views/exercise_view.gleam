@@ -153,7 +153,7 @@ fn exercise_set_row(set: ExerciseSet, sets_page: SetsPage) -> Element(a) {
   html.li(
     [
       attribute.class(
-        "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:set-list_-1] grid grid-cols-[auto_1fr] items-center gap-x-3 before:content-[counter(set-list)_'.'] before:text-outline before:text-sm",
+        "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:set-list_-1] grid grid-cols-[auto_1fr_auto] items-center gap-x-3 before:content-[counter(set-list)_'.'] before:text-outline before:text-sm",
       ),
     ],
     [
@@ -186,8 +186,68 @@ fn exercise_set_row(set: ExerciseSet, sets_page: SetsPage) -> Element(a) {
           html.text(int.to_string(set.repetitions)),
         ),
       ]),
+      set_options(sets_page.exercise_id, set.id),
     ],
   )
+}
+
+fn set_options(
+  exercise_id: exercise.ExerciseId,
+  set_id: workout_set.SetId,
+) -> Element(a) {
+  let exercise_id = int.to_string(exercise_id.value)
+  let set_id = int.to_string(set_id.value)
+  let popover_id = "set-menu-" <> set_id
+  let anchor_name = "--set-anchor-" <> set_id
+  let set_path = "/exercises/" <> exercise_id <> "/sets/" <> set_id
+
+  html.div([attribute.class("relative")], [
+    ui.button(
+      ui.ButtonGhost,
+      [
+        attribute.type_("button"),
+        attribute.class("size-8 text-outline"),
+        attribute.popovertarget(popover_id),
+        attribute.aria_label("Set options"),
+        attribute.style("anchor-name", anchor_name),
+      ],
+      [html.text("\u{22ee}")],
+    ),
+    html.div(
+      [
+        attribute.id(popover_id),
+        attribute.popover(""),
+        attribute.class(
+          "m-0 mt-0.5 bg-surface-container-low border-2 shadow-lg min-w-36 open:flex flex-col text-center text-sm",
+        ),
+        attribute.styles([
+          #("position-anchor", anchor_name),
+          #("position-area", "bottom span-left"),
+          #("position-try-fallbacks", "flip-block"),
+        ]),
+      ],
+      [
+        html.a(
+          [
+            attribute.href(set_path <> "/edit"),
+            attribute.class(
+              "underline py-2 font-semibold hover:bg-surface-container-high focus-visible:bg-surface-container-highest hover:outline-2 focus-visible:outline-2 outline-on-surface",
+            ),
+          ],
+          [html.text("edit")],
+        ),
+        html.a(
+          [
+            attribute.href(set_path <> "/confirm-delete"),
+            attribute.class(
+              "text-error underline py-2 font-semibold hover:bg-error-container/20 focus-visible:bg-error-container/20 hover:outline-2 focus-visible:outline-2 outline-on-surface",
+            ),
+          ],
+          [html.text("remove")],
+        ),
+      ],
+    ),
+  ])
 }
 
 fn set_metric(label: Element(a), value: Element(a)) -> Element(a) {

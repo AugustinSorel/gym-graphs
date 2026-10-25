@@ -11,6 +11,7 @@ import gym_graphs/handlers/sign_up_session_handler
 import gym_graphs/handlers/stats_handler
 import gym_graphs/handlers/tag_handler
 import gym_graphs/handlers/user_handler
+import gym_graphs/handlers/workout_set_handler
 import gym_graphs/middlewares/account_deletion_session_middleware
 import gym_graphs/middlewares/auth_session_middleware
 import gym_graphs/middlewares/password_reset_session_middleware
@@ -314,6 +315,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 
       exercise_handler.view_set_rows(req, user, ctx, exercise_id)
+    }
+    Get, ["exercises", exercise_id, "sets", set_id, "confirm-delete"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      workout_set_handler.view_remove_page(req, user, ctx, exercise_id, set_id)
+    }
+    Delete, ["exercises", exercise_id, "sets", set_id] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      workout_set_handler.remove(req, user, ctx, exercise_id, set_id)
     }
     Get, ["exercises", exercise_id, "name"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)

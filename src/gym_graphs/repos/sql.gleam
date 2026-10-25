@@ -1001,6 +1001,52 @@ pub fn delete_password_update_session_by_id(
   |> pog.execute(db)
 }
 
+/// A row you get from running the `delete_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type DeleteSetByIdAndExerciseIdAndUserIdRow {
+  DeleteSetByIdAndExerciseIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `delete_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/delete_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn delete_set_by_id_and_exercise_id_and_user_id(
+  db: pog.Connection,
+  sets_id: Int,
+  sets_exercise_id: Int,
+  exercises_user_id: Int,
+) -> Result(
+  pog.Returned(DeleteSetByIdAndExerciseIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(DeleteSetByIdAndExerciseIdAndUserIdRow(id:))
+  }
+
+  "delete from sets
+using exercises
+where sets.id = $1
+  and sets.exercise_id = $2
+  and exercises.id = sets.exercise_id
+  and exercises.user_id = $3
+returning sets.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(sets_id))
+  |> pog.parameter(pog.int(sets_exercise_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// Runs the `delete_sign_up_session_by_id` query
 /// defined in `./src/gym_graphs/repos/sql/delete_sign_up_session_by_id.sql`.
 ///
@@ -2041,6 +2087,64 @@ pub fn select_password_update_session_by_id(
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectSetByIdAndExerciseIdAndUserIdRow {
+  SelectSetByIdAndExerciseIdAndUserIdRow(
+    id: Int,
+    repetitions: Int,
+    weight_in_g: Int,
+    done_at: Timestamp,
+  )
+}
+
+/// Runs the `select_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_set_by_id_and_exercise_id_and_user_id(
+  db: pog.Connection,
+  sets_id: Int,
+  sets_exercise_id: Int,
+  arg_3: Int,
+) -> Result(
+  pog.Returned(SelectSetByIdAndExerciseIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use repetitions <- decode.field(1, decode.int)
+    use weight_in_g <- decode.field(2, decode.int)
+    use done_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectSetByIdAndExerciseIdAndUserIdRow(
+      id:,
+      repetitions:,
+      weight_in_g:,
+      done_at:,
+    ))
+  }
+
+  "select sets.id, sets.repetitions, sets.weight_in_g, sets.done_at
+from sets
+inner join exercises on exercises.id = sets.exercise_id
+where sets.id = $1
+  and sets.exercise_id = $2
+  and exercises.user_id = $3;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(sets_id))
+  |> pog.parameter(pog.int(sets_exercise_id))
+  |> pog.parameter(pog.int(arg_3))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

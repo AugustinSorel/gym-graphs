@@ -1,4 +1,5 @@
 import gleam/list
+import gleam/option
 import gleam/result
 import gleam/time/timestamp.{type Timestamp}
 import gym_graphs/domains/exercise.{type ExerciseId}
@@ -45,6 +46,53 @@ pub fn select_page_by_exercise_id_and_user_id(
         })
       })
   }
+}
+
+pub fn select_by_id_and_exercise_id_and_user_id(
+  db: Connection,
+  id: workout_set.SetId,
+  exercise_id: ExerciseId,
+  user_id: UserId,
+) {
+  sql.select_set_by_id_and_exercise_id_and_user_id(
+    db,
+    id.value,
+    exercise_id.value,
+    user_id.value,
+  )
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(exercise_set(
+          row.id,
+          row.repetitions,
+          row.weight_in_g,
+          row.done_at,
+        ))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
+}
+
+pub fn delete_by_id_and_exercise_id_and_user_id(
+  db: Connection,
+  id: workout_set.SetId,
+  exercise_id: ExerciseId,
+  user_id: UserId,
+) {
+  sql.delete_set_by_id_and_exercise_id_and_user_id(
+    db,
+    id.value,
+    exercise_id.value,
+    user_id.value,
+  )
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(workout_set.SetId(row.id))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
 }
 
 fn exercise_set(
