@@ -1799,6 +1799,65 @@ order by id;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `select_first_sets_page_by_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_first_sets_page_by_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectFirstSetsPageByExerciseIdAndUserIdRow {
+  SelectFirstSetsPageByExerciseIdAndUserIdRow(
+    id: Int,
+    repetitions: Int,
+    weight_in_g: Int,
+    done_at: Timestamp,
+  )
+}
+
+/// Runs the `select_first_sets_page_by_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_first_sets_page_by_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_first_sets_page_by_exercise_id_and_user_id(
+  db: pog.Connection,
+  exercises_id: Int,
+  exercises_user_id: Int,
+  arg_3: Int,
+) -> Result(
+  pog.Returned(SelectFirstSetsPageByExerciseIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use repetitions <- decode.field(1, decode.int)
+    use weight_in_g <- decode.field(2, decode.int)
+    use done_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectFirstSetsPageByExerciseIdAndUserIdRow(
+      id:,
+      repetitions:,
+      weight_in_g:,
+      done_at:,
+    ))
+  }
+
+  "select sets.id, sets.repetitions, sets.weight_in_g, sets.done_at
+from sets
+inner join exercises on exercises.id = sets.exercise_id
+where exercises.id = $1
+  and exercises.user_id = $2
+order by sets.done_at desc, sets.id desc
+limit $3;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.parameter(pog.int(arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `select_import_account_for_update` query
 /// defined in `./src/gym_graphs/repos/sql/select_import_account_for_update.sql`.
 ///
@@ -1982,6 +2041,70 @@ pub fn select_password_update_session_by_id(
 "
   |> pog.query
   |> pog.parameter(pog.int(arg_1))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
+/// A row you get from running the `select_sets_page_after_cursor_by_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_sets_page_after_cursor_by_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type SelectSetsPageAfterCursorByExerciseIdAndUserIdRow {
+  SelectSetsPageAfterCursorByExerciseIdAndUserIdRow(
+    id: Int,
+    repetitions: Int,
+    weight_in_g: Int,
+    done_at: Timestamp,
+  )
+}
+
+/// Runs the `select_sets_page_after_cursor_by_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/select_sets_page_after_cursor_by_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn select_sets_page_after_cursor_by_exercise_id_and_user_id(
+  db: pog.Connection,
+  exercises_id: Int,
+  exercises_user_id: Int,
+  arg_3: Timestamp,
+  arg_4: Int,
+  arg_5: Int,
+) -> Result(
+  pog.Returned(SelectSetsPageAfterCursorByExerciseIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    use repetitions <- decode.field(1, decode.int)
+    use weight_in_g <- decode.field(2, decode.int)
+    use done_at <- decode.field(3, pog.timestamp_decoder())
+    decode.success(SelectSetsPageAfterCursorByExerciseIdAndUserIdRow(
+      id:,
+      repetitions:,
+      weight_in_g:,
+      done_at:,
+    ))
+  }
+
+  "select sets.id, sets.repetitions, sets.weight_in_g, sets.done_at
+from sets
+inner join exercises on exercises.id = sets.exercise_id
+where exercises.id = $1
+  and exercises.user_id = $2
+  and (sets.done_at, sets.id) < ($3, $4)
+order by sets.done_at desc, sets.id desc
+limit $5;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(exercises_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.parameter(pog.timestamp(arg_3))
+  |> pog.parameter(pog.int(arg_4))
+  |> pog.parameter(pog.int(arg_5))
   |> pog.returning(decoder)
   |> pog.execute(db)
 }

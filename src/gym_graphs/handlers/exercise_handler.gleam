@@ -6,11 +6,14 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/timestamp
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/exercise.{type ExerciseId}
 import gym_graphs/domains/user.{type User}
+import gym_graphs/domains/workout_set
 import gym_graphs/repos/exercise_repo
 import gym_graphs/repos/tag_repo
+import gym_graphs/repos/workout_set_repo
 import gym_graphs/schemas/exercise_schema.{
   type CreateExerciseSchema, type RenameExerciseSchema,
   type UpdateExerciseTagsSchema,
@@ -22,6 +25,8 @@ import pog
 import wisp.{type Request}
 
 const exercises_page_size = 20
+
+const sets_page_size = 10
 
 pub fn view_page(req: Request, user: User, ctx: Ctx) {
   let filter_tag_ids = filter_tag_ids(req)
@@ -196,16 +201,21 @@ pub fn view_detail_page(
       tag_repo.select_by_exercise_id_and_user_id(ctx.db, id, user.id)
       |> result.map_error(ViewDetailPageDatabaseFailure),
     )
+    use sets_page <- result.try(
+      load_sets_page(user, id, workout_set.FirstPage, facts.total_sets, ctx)
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
 
-    Ok(#(selected_exercise, facts, all_tags, selected_tags))
+    Ok(#(selected_exercise, facts, sets_page, all_tags, selected_tags))
   }
 
   case result {
-    Ok(#(selected_exercise, facts, all_tags, selected_tags)) ->
+    Ok(#(selected_exercise, facts, sets_page, all_tags, selected_tags)) ->
       exercise_view.detail_page(
         [
           exercise_view.detail_header(selected_exercise, facts.total_sets),
           exercise_view.exercise_facts(facts, user.weight_unit),
+          exercise_view.exercise_sets(sets_page),
           exercise_view.exercise_tags(
             selected_exercise.id,
             all_tags,
@@ -234,6 +244,128 @@ pub fn view_detail_page(
       |> wisp.html_response(500)
     }
   }
+}
+
+type ViewSetRowsError {
+  ViewSetRowsInvalidExerciseId
+  ViewSetRowsInvalidCursor
+  ViewSetRowsExerciseNotFound
+  ViewSetRowsDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_set_rows(req: Request, user: User, ctx: Ctx, exercise_id: String) {
+  let result = {
+    use id <- result.try(
+      parse_exercise_id(exercise_id)
+      |> result.replace_error(ViewSetRowsInvalidExerciseId),
+    )
+    use cursor_query <- result.try(
+      wisp.get_query(req)
+      |> list.key_find("cursor")
+      |> result.replace_error(ViewSetRowsInvalidCursor),
+    )
+    use cursor <- result.try(
+      timestamp.parse_rfc3339(cursor_query)
+      |> result.replace_error(ViewSetRowsInvalidCursor),
+    )
+    use cursor_id_query <- result.try(
+      wisp.get_query(req)
+      |> list.key_find("cursor_id")
+      |> result.replace_error(ViewSetRowsInvalidCursor),
+    )
+    use cursor_id <- result.try(
+      int.parse(cursor_id_query)
+      |> result.replace_error(ViewSetRowsInvalidCursor),
+    )
+    use <- bool.guard(
+      when: cursor_id <= 0,
+      return: Error(ViewSetRowsInvalidCursor),
+    )
+    use selected_exercise <- result.try(
+      exercise_repo.select_by_id_and_user_id(ctx.db, id, user.id)
+      |> result.map_error(ViewSetRowsDatabaseFailure),
+    )
+    use _ <- result.try({
+      option.to_result(selected_exercise, ViewSetRowsExerciseNotFound)
+    })
+
+    load_sets_page(
+      user,
+      id,
+      workout_set.After(workout_set.PageCursor(
+        done_at: cursor,
+        id: workout_set.SetId(cursor_id),
+      )),
+      0,
+      ctx,
+    )
+    |> result.map_error(ViewSetRowsDatabaseFailure)
+  }
+
+  case result {
+    Ok(sets_page) ->
+      sets_page
+      |> exercise_view.exercise_set_rows()
+      |> element.to_string()
+      |> wisp.html_response(200)
+    Error(ViewSetRowsInvalidExerciseId) ->
+      exercise_view.exercise_set_rows_error("invalid exercise id")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewSetRowsInvalidCursor) ->
+      exercise_view.exercise_set_rows_error("invalid cursor")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewSetRowsExerciseNotFound) ->
+      exercise_view.exercise_set_rows_error("exercise not found")
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(ViewSetRowsDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      exercise_view.exercise_set_rows_error("something went wrong")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+fn load_sets_page(
+  user: User,
+  exercise_id: ExerciseId,
+  position: workout_set.PagePosition,
+  total_count: Int,
+  ctx: Ctx,
+) {
+  use fetched_rows <- result.try(
+    workout_set_repo.select_page_by_exercise_id_and_user_id(
+      ctx.db,
+      exercise_id,
+      user.id,
+      position,
+      sets_page_size + 1,
+    ),
+  )
+
+  let has_next_page = list.length(fetched_rows) > sets_page_size
+  let rows = list.take(fetched_rows, sets_page_size)
+
+  let next_cursor = case has_next_page, list.last(rows) {
+    True, Ok(last_set) ->
+      option.Some(workout_set.PageCursor(
+        done_at: last_set.done_at,
+        id: last_set.id,
+      ))
+    _, _ -> option.None
+  }
+
+  Ok(exercise_view.SetsPage(
+    exercise_id:,
+    rows:,
+    total_count:,
+    next_cursor:,
+    weight_unit: user.weight_unit,
+    one_rep_max_algorithm: user.one_rep_max_algorithm,
+  ))
 }
 
 type ViewRenamePageError {

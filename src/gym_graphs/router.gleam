@@ -310,6 +310,11 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       exercise_handler.update_tags(req, user, ctx, exercise_id)
     }
+    Get, ["exercises", exercise_id, "sets"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      exercise_handler.view_set_rows(req, user, ctx, exercise_id)
+    }
     Get, ["exercises", exercise_id, "name"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 

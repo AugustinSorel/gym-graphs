@@ -6,11 +6,15 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/duration
+import gleam/time/timestamp
 import gleam/uri
 import gym_graphs/domains/exercise.{type Exercise}
+import gym_graphs/domains/one_rep_max
 import gym_graphs/domains/tag.{type Tag}
-import gym_graphs/domains/user.{type WeightUnit}
+import gym_graphs/domains/user.{type OneRepMaxAlgorithm, type WeightUnit}
 import gym_graphs/domains/weight.{type Weight}
+import gym_graphs/domains/workout_set.{type ExerciseSet}
 import gym_graphs/schemas/exercise_schema.{
   type CreateExerciseSchema, type RenameExerciseSchema,
 }
@@ -24,6 +28,17 @@ pub type ExercisesPage {
     rows: List(Exercise),
     next_cursor: option.Option(exercise.ExerciseId),
     filter_tag_ids: List(Int),
+  )
+}
+
+pub type SetsPage {
+  SetsPage(
+    exercise_id: exercise.ExerciseId,
+    rows: List(ExerciseSet),
+    total_count: Int,
+    next_cursor: option.Option(workout_set.PageCursor),
+    weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -76,6 +91,172 @@ pub fn exercise_tags(
       all_tags,
       list.map(selected_tags, fn(tag) { tag.id.value }),
     ),
+  ])
+}
+
+pub fn exercise_sets(sets_page: SetsPage) -> Element(a) {
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [html.text("sets")],
+    ),
+    case sets_page.total_count {
+      0 ->
+        html.p(
+          [
+            attribute.class(
+              "py-12 border-b-2 border-dotted border-outline/50 text-center text-outline",
+            ),
+          ],
+          [html.text("no sets yet")],
+        )
+      total_count ->
+        html.ol(
+          [
+            attribute.id("sets-list"),
+            attribute.class("list-none"),
+            attribute.attribute(
+              "style",
+              "counter-reset: set-list " <> int.to_string(total_count + 1),
+            ),
+          ],
+          [exercise_set_rows(sets_page)],
+        )
+    },
+  ])
+}
+
+pub fn exercise_set_rows(sets_page: SetsPage) -> Element(a) {
+  let rows = list.map(sets_page.rows, exercise_set_row(_, sets_page))
+
+  case sets_page.next_cursor {
+    option.None -> element.fragment(rows)
+    option.Some(cursor) ->
+      element.fragment(list.append(rows, [sets_load_more(sets_page, cursor)]))
+  }
+}
+
+fn exercise_set_row(set: ExerciseSet, sets_page: SetsPage) -> Element(a) {
+  let one_rep_max =
+    one_rep_max.calculate(
+      weight.in_grams(set.weight),
+      set.repetitions,
+      sets_page.one_rep_max_algorithm,
+    )
+    |> float.round()
+    |> weight.from_grams()
+
+  html.li(
+    [
+      attribute.class(
+        "border-b-2 border-dotted border-outline/50 py-3 [counter-increment:set-list_-1] grid grid-cols-[auto_1fr] items-center gap-x-3 before:content-[counter(set-list)_'.'] before:text-outline before:text-sm",
+      ),
+    ],
+    [
+      html.dl([attribute.class("grid grid-cols-3 gap-x-6 gap-y-1 text-sm")], [
+        set_metric(
+          element.fragment([
+            html.text("1"),
+            html.abbr(
+              [
+                attribute.title("repetition maximum"),
+                attribute.class("no-underline"),
+              ],
+              [html.text("rm")],
+            ),
+          ]),
+          optional_weight(one_rep_max, sets_page.weight_unit),
+        ),
+        set_metric(
+          html.text("weight"),
+          display_fact_weight(set.weight, sets_page.weight_unit),
+        ),
+        set_metric(
+          html.abbr(
+            [
+              attribute.title("repetitions"),
+              attribute.class("no-underline"),
+            ],
+            [html.text("reps")],
+          ),
+          html.text(int.to_string(set.repetitions)),
+        ),
+      ]),
+    ],
+  )
+}
+
+fn set_metric(label: Element(a), value: Element(a)) -> Element(a) {
+  html.div([], [
+    html.dt([attribute.class("text-outline text-xs")], [label]),
+    html.dd([], [value]),
+  ])
+}
+
+fn sets_load_more(
+  sets_page: SetsPage,
+  cursor: workout_set.PageCursor,
+) -> Element(a) {
+  let workout_set.PageCursor(done_at:, id:) = cursor
+  let exercise_id = int.to_string(sets_page.exercise_id.value)
+  let cursor_time =
+    done_at
+    |> timestamp.to_rfc3339(duration.seconds(0))
+    |> uri.percent_encode()
+
+  html.li(
+    [
+      attribute.id("sets-load-more"),
+      attribute.attribute(
+        "hx-get",
+        "/exercises/"
+          <> exercise_id
+          <> "/sets?cursor="
+          <> cursor_time
+          <> "&cursor_id="
+          <> int.to_string(id.value),
+      ),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.attribute("hx-target", "#sets-load-more"),
+      attribute.attribute("hx-include", "none"),
+      attribute.class("list-none"),
+    ],
+    [
+      html.div(
+        [attribute.class("py-3 flex justify-center [.htmx-request_&]:hidden")],
+        [
+          ui.button(
+            ui.ButtonLink,
+            [attribute.class("text-outline font-normal no-underline")],
+            [html.text("load more")],
+          ),
+        ],
+      ),
+      ..list.repeat(
+        html.div(
+          [
+            attribute.class(
+              "hidden [.htmx-request_&]:block animate-pulse h-16 border-b-2 border-dotted border-outline/50",
+            ),
+          ],
+          [],
+        ),
+        times: 3,
+      )
+    ],
+  )
+}
+
+pub fn exercise_set_rows_error(message: String) -> Element(a) {
+  html.li([], [
+    ui.alert(ui.AlertError, [], [
+      ui.alert_title(html.text("loading sets failed")),
+      ui.alert_description([], html.text(message)),
+    ]),
   ])
 }
 
