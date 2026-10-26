@@ -43,6 +43,14 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
         "",
       ),
       html.script([attribute.src("/static/js/theme.js")], ""),
+      html.script([attribute.src("https://cdn.jsdelivr.net/npm/d3@7")], ""),
+      html.script(
+        [
+          attribute.src("/static/js/one-rep-max-chart.js"),
+          attribute.attribute("defer", ""),
+        ],
+        "",
+      ),
       html.title([], "Gym Graphs"),
     ]),
     html.body(

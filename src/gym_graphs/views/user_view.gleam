@@ -620,49 +620,70 @@ pub fn one_rep_max_algorithm_form(
     "wathen",
   ]
 
-  html.form(
+  html.div(
     [
-      attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
-      attribute.attribute("hx-trigger", "change"),
-      attribute.attribute("hx-swap", "outerHTML"),
       attribute.class(
-        "py-7 border-b-2 border-outline/50 border-dotted grid grid-cols-[1fr_auto] gap-y-3 items-center",
+        "py-7 border-b-2 border-outline/50 border-dotted space-y-5",
       ),
     ],
     [
-      html.label(
+      html.form(
         [
-          attribute.for("one-rep-max-algorithm"),
-          attribute.class("text-outline text-sm"),
+          attribute.attribute("hx-patch", "/account/one-rep-max-algorithm"),
+          attribute.attribute("hx-trigger", "change"),
+          attribute.attribute("hx-swap", "none"),
+          attribute.class("grid grid-cols-[1fr_auto] gap-y-3 items-center"),
         ],
-        [html.text("one rep max algorithm")],
-      ),
-      ui.select(
         [
-          attribute.id("one-rep-max-algorithm"),
-          attribute.name("one_rep_max_algorithm"),
-        ],
-        list.map(algorithms, fn(algorithm) {
-          html.option(
+          html.label(
             [
-              attribute.value(algorithm),
-              attribute.selected(
-                algorithm == form.field_value(form, "one_rep_max_algorithm"),
-              ),
+              attribute.for("one-rep-max-algorithm"),
+              attribute.class("text-outline text-sm"),
             ],
-            algorithm,
-          )
-        }),
+            [html.text("one rep max algorithm")],
+          ),
+          ui.select(
+            [
+              attribute.id("one-rep-max-algorithm"),
+              attribute.name("one_rep_max_algorithm"),
+            ],
+            list.map(algorithms, fn(algorithm) {
+              html.option(
+                [
+                  attribute.value(algorithm),
+                  attribute.selected(
+                    algorithm == form.field_value(form, "one_rep_max_algorithm"),
+                  ),
+                ],
+                algorithm,
+              )
+            }),
+          ),
+          case error {
+            Ok(message) ->
+              ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
+                ui.alert_title(element.text(
+                  "changing one rep max algorithm failed",
+                )),
+                ui.alert_description([], element.text(message)),
+              ])
+            Error(_) -> element.none()
+          },
+        ],
       ),
-      case error {
-        Ok(message) ->
-          ui.alert(ui.AlertError, [attribute.class("col-span-2")], [
-            ui.alert_title(element.text("changing one rep max algorithm failed")),
-            ui.alert_description([], element.text(message)),
-          ])
-        Error(_) -> element.none()
-      },
+      one_rep_max_chart(form.field_value(form, "one_rep_max_algorithm")),
     ],
+  )
+}
+
+fn one_rep_max_chart(selected_algorithm: String) -> Element(a) {
+  html.div(
+    [
+      attribute.id("one-rep-max-chart"),
+      attribute.class("w-full h-48"),
+      attribute.attribute("data-one-rep-max-algorithm", selected_algorithm),
+    ],
+    [],
   )
 }
 
