@@ -8,7 +8,7 @@ import gym_graphs/domains/user.{type WeightUnit}
 import gym_graphs/domains/weight
 import gym_graphs/domains/workout_set.{type SetId}
 import gym_graphs/schemas/workout_set_schema.{
-  type CreateSetRow, type CreateSetsForm,
+  type CreateSetRow, type CreateSetsForm, type EditSetForm,
 }
 import gym_graphs/ui
 import lustre/attribute
@@ -315,6 +315,159 @@ fn counter_button(name: String, increment: Bool) -> Element(a) {
     ],
     [html.text(symbol)],
   )
+}
+
+pub fn edit_page(
+  form: EditSetForm,
+  exercise_id: ExerciseId,
+  set_id: SetId,
+  weight_unit: WeightUnit,
+  path: String,
+) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(path),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [
+        html.h1([attribute.class("font-semibold text-3xl")], [
+          html.text("edit set"),
+        ]),
+        edit_form(form, exercise_id, set_id, weight_unit),
+      ],
+    ),
+  ])
+}
+
+pub fn edit_form(
+  form: EditSetForm,
+  exercise_id: ExerciseId,
+  set_id: SetId,
+  weight_unit: WeightUnit,
+) -> Element(a) {
+  let workout_set_schema.EditSetForm(
+    weight: weight_value,
+    repetitions: repetitions_value,
+    done_at:,
+    weight_error:,
+    repetitions_error:,
+    done_at_error:,
+    error:,
+  ) = form
+  let exercise_path = "/exercises/" <> int.to_string(exercise_id.value)
+  let set_path = exercise_path <> "/sets/" <> int.to_string(set_id.value)
+
+  html.form(
+    [
+      attribute.attribute("hx-patch", set_path),
+      attribute.attribute("hx-disable", "find button[type='submit']"),
+      attribute.attribute("hx-indicator", "find button[type='submit']"),
+      attribute.attribute("hx-swap", "outerHTML"),
+      attribute.class("flex flex-col gap-10"),
+    ],
+    [
+      counter_field(
+        "weight",
+        element.fragment([
+          html.text("weight ("),
+          html.abbr(
+            [
+              attribute.title(weight.unit_name(weight_unit)),
+              attribute.class("no-underline"),
+            ],
+            [html.text(weight.unit_abbreviation(weight_unit))],
+          ),
+          html.text("):"),
+        ]),
+        weight_value,
+        case weight_unit {
+          user.Kg -> "80"
+          user.Lbs -> "176"
+        },
+        weight_error,
+      ),
+      counter_field(
+        "repetitions",
+        html.text("repetitions:"),
+        repetitions_value,
+        "10",
+        repetitions_error,
+      ),
+      html.label(
+        [attribute.class("grid gap-2 has-[>[aria-invalid=true]]:text-error")],
+        [
+          html.span([attribute.class("text-outline text-sm pb-2")], [
+            html.text("done at:"),
+          ]),
+          html.input([
+            attribute.type_("datetime-local"),
+            attribute.name("done_at"),
+            attribute.value(done_at),
+            attribute.aria_invalid(
+              string.lowercase(bool.to_string(option.is_some(done_at_error))),
+            ),
+            attribute.class(
+              "border-y-2 border-dotted border-outline p-2 bg-transparent w-full focus-visible:outline-none",
+            ),
+          ]),
+          case done_at_error {
+            option.Some(message) ->
+              html.p(
+                [
+                  attribute.role("alert"),
+                  attribute.class("text-error text-sm"),
+                ],
+                [html.text(message)],
+              )
+            option.None -> element.none()
+          },
+        ],
+      ),
+      case error {
+        option.Some(message) ->
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(element.text("something went wrong")),
+            ui.alert_description([], element.text(message)),
+          ])
+        option.None -> element.none()
+      },
+      ui.button(ui.ButtonPrimary, [attribute.type_("submit")], [
+        html.text("save"),
+        ui.spinner(),
+      ]),
+      ui.link([attribute.href(exercise_path), attribute.class("ml-auto")], [
+        html.text("cancel"),
+      ]),
+    ],
+  )
+}
+
+pub fn edit_error_page(path: String, message: String) -> Element(a) {
+  ui.layout([
+    ui.nav_bar(path),
+    html.main(
+      [
+        attribute.class(
+          "flex flex-col py-10 px-5 lg:px-10 gap-10 lg:gap-20 max-w-3xl mx-auto my-10 lg:my-20",
+        ),
+      ],
+      [
+        html.h1([attribute.class("font-semibold text-3xl")], [
+          html.text("edit set"),
+        ]),
+        ui.alert(ui.AlertError, [], [
+          ui.alert_title(element.text("loading set failed")),
+          ui.alert_description([], element.text(message)),
+        ]),
+        ui.link([attribute.href("/exercises"), attribute.class("ml-auto")], [
+          html.text("back"),
+        ]),
+      ],
+    ),
+  ])
 }
 
 pub fn remove_page(children: Element(a), path: String) -> Element(a) {

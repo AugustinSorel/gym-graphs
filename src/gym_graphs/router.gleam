@@ -331,6 +331,16 @@ pub fn handle_request(req: Request, ctx: Ctx) {
 
       workout_set_handler.view_new_row(req, user, ctx, exercise_id)
     }
+    Get, ["exercises", exercise_id, "sets", set_id, "edit"] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      workout_set_handler.view_edit_page(req, user, ctx, exercise_id, set_id)
+    }
+    Patch, ["exercises", exercise_id, "sets", set_id] -> {
+      use _auth_session, user <- auth_session_middleware.require(req, ctx)
+
+      workout_set_handler.update(req, user, ctx, exercise_id, set_id)
+    }
     Get, ["exercises", exercise_id, "sets", set_id, "confirm-delete"] -> {
       use _auth_session, user <- auth_session_middleware.require(req, ctx)
 

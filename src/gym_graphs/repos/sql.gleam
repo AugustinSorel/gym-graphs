@@ -2716,6 +2716,61 @@ returning id;
   |> pog.execute(db)
 }
 
+/// A row you get from running the `update_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This type definition was generated automatically using v4.7.0 of the
+/// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub type UpdateSetByIdAndExerciseIdAndUserIdRow {
+  UpdateSetByIdAndExerciseIdAndUserIdRow(id: Int)
+}
+
+/// Runs the `update_set_by_id_and_exercise_id_and_user_id` query
+/// defined in `./src/gym_graphs/repos/sql/update_set_by_id_and_exercise_id_and_user_id.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn update_set_by_id_and_exercise_id_and_user_id(
+  db: pog.Connection,
+  sets_id: Int,
+  sets_exercise_id: Int,
+  exercises_user_id: Int,
+  arg_4: Int,
+  arg_5: Int,
+  done_at: Timestamp,
+) -> Result(
+  pog.Returned(UpdateSetByIdAndExerciseIdAndUserIdRow),
+  pog.QueryError,
+) {
+  let decoder = {
+    use id <- decode.field(0, decode.int)
+    decode.success(UpdateSetByIdAndExerciseIdAndUserIdRow(id:))
+  }
+
+  "update sets
+set repetitions = $4,
+    weight_in_g = $5,
+    done_at = $6
+from exercises
+where sets.id = $1
+  and sets.exercise_id = $2
+  and exercises.id = sets.exercise_id
+  and exercises.user_id = $3
+returning sets.id;
+"
+  |> pog.query
+  |> pog.parameter(pog.int(sets_id))
+  |> pog.parameter(pog.int(sets_exercise_id))
+  |> pog.parameter(pog.int(exercises_user_id))
+  |> pog.parameter(pog.int(arg_4))
+  |> pog.parameter(pog.int(arg_5))
+  |> pog.parameter(pog.timestamp(done_at))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `update_tag_name_by_id_and_user_id` query
 /// defined in `./src/gym_graphs/repos/sql/update_tag_name_by_id_and_user_id.sql`.
 ///

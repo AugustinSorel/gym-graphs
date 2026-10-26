@@ -4,6 +4,8 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/duration
+import gleam/time/timestamp
 import gym_graphs/ctx.{type Ctx}
 import gym_graphs/domains/exercise.{type ExerciseId}
 import gym_graphs/domains/user.{type User}
@@ -11,7 +13,9 @@ import gym_graphs/domains/weight
 import gym_graphs/domains/workout_set.{type SetId}
 import gym_graphs/repos/exercise_repo
 import gym_graphs/repos/workout_set_repo
-import gym_graphs/schemas/workout_set_schema.{type CreateSetsForm}
+import gym_graphs/schemas/workout_set_schema.{
+  type CreateSetsForm, type EditSetForm,
+}
 import gym_graphs/views/workout_set_view
 import gym_graphs/web
 import lustre/element
@@ -214,6 +218,183 @@ pub fn create(req: Request, user: User, ctx: Ctx, exercise_id: String) {
       workout_set_view.new_form(
         workout_set_schema.with_error(submitted_form, "Something went wrong."),
         id,
+        user.weight_unit,
+      )
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type ViewEditError {
+  ViewEditInvalidId
+  ViewEditNotFound
+  ViewEditDatabaseFailure(pog.QueryError)
+}
+
+pub fn view_edit_page(
+  req: Request,
+  user: User,
+  ctx: Ctx,
+  exercise_id: String,
+  set_id: String,
+) {
+  let result = {
+    use exercise_id <- result.try(
+      parse_exercise_id(exercise_id) |> result.replace_error(ViewEditInvalidId),
+    )
+    use set_id <- result.try(
+      parse_set_id(set_id) |> result.replace_error(ViewEditInvalidId),
+    )
+    use set <- result.try(
+      workout_set_repo.select_by_id_and_exercise_id_and_user_id(
+        ctx.db,
+        set_id,
+        exercise_id,
+        user.id,
+      )
+      |> result.map_error(ViewEditDatabaseFailure)
+      |> result.try(option.to_result(_, ViewEditNotFound)),
+    )
+
+    Ok(#(exercise_id, set))
+  }
+
+  case result {
+    Ok(#(exercise_id, set)) -> {
+      let weight.DisplayWeight(value:, unit: _) =
+        weight.display(set.weight, user.weight_unit)
+      let done_at =
+        set.done_at
+        |> timestamp.to_rfc3339(duration.seconds(0))
+        |> string.slice(at_index: 0, length: 16)
+      let form =
+        workout_set_schema.edit_prefilled(
+          value,
+          int.to_string(set.repetitions),
+          done_at,
+        )
+
+      workout_set_view.edit_page(
+        form,
+        exercise_id,
+        set.id,
+        user.weight_unit,
+        req.path,
+      )
+      |> element.to_string()
+      |> wisp.html_response(200)
+    }
+    Error(ViewEditInvalidId) ->
+      workout_set_view.edit_error_page(req.path, "invalid exercise or set id")
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(ViewEditNotFound) ->
+      workout_set_view.edit_error_page(req.path, "set not found")
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(ViewEditDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      workout_set_view.edit_error_page(req.path, "something went wrong")
+      |> element.to_string()
+      |> wisp.html_response(500)
+    }
+  }
+}
+
+type UpdateError {
+  UpdateInvalidId
+  UpdateValidation(EditSetForm)
+  UpdateNotFound
+  UpdateDatabaseFailure(pog.QueryError)
+}
+
+pub fn update(
+  req: Request,
+  user: User,
+  ctx: Ctx,
+  exercise_id: String,
+  set_id: String,
+) {
+  use formdata <- wisp.require_form(req)
+
+  let validation = workout_set_schema.validate_edit(formdata.values)
+  let submitted_form = case validation {
+    Ok(validated) -> validated.form
+    Error(form) -> form
+  }
+  let parsed_exercise_id = parse_exercise_id(exercise_id)
+  let parsed_set_id = parse_set_id(set_id)
+
+  let result = {
+    use exercise_id <- result.try(
+      parsed_exercise_id |> result.replace_error(UpdateInvalidId),
+    )
+    use set_id <- result.try(
+      parsed_set_id |> result.replace_error(UpdateInvalidId),
+    )
+    use validated <- result.try(
+      validation |> result.map_error(UpdateValidation),
+    )
+
+    workout_set_repo.update_by_id_and_exercise_id_and_user_id(
+      ctx.db,
+      set_id,
+      exercise_id,
+      user.id,
+      validated.set.repetitions,
+      weight.from_display_value(validated.set.weight, user.weight_unit),
+      validated.set.done_at,
+    )
+    |> result.map_error(UpdateDatabaseFailure)
+    |> result.try(option.to_result(_, UpdateNotFound))
+    |> result.replace(exercise_id)
+  }
+
+  let exercise_id = parsed_exercise_id |> result.unwrap(exercise.ExerciseId(0))
+  let set_id = parsed_set_id |> result.unwrap(workout_set.SetId(0))
+
+  case result {
+    Ok(exercise_id) ->
+      wisp.ok()
+      |> wisp.set_header(
+        "HX-Redirect",
+        "/exercises/" <> int.to_string(exercise_id.value),
+      )
+    Error(UpdateInvalidId) ->
+      workout_set_view.edit_form(
+        workout_set_schema.edit_with_error(
+          submitted_form,
+          "Invalid exercise or set id.",
+        ),
+        exercise_id,
+        set_id,
+        user.weight_unit,
+      )
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(UpdateValidation(form)) ->
+      workout_set_view.edit_form(form, exercise_id, set_id, user.weight_unit)
+      |> element.to_string()
+      |> wisp.html_response(422)
+    Error(UpdateNotFound) ->
+      workout_set_view.edit_form(
+        workout_set_schema.edit_with_error(submitted_form, "Set not found."),
+        exercise_id,
+        set_id,
+        user.weight_unit,
+      )
+      |> element.to_string()
+      |> wisp.html_response(404)
+    Error(UpdateDatabaseFailure(error)) -> {
+      wisp.log_error(req.path <> " " <> string.inspect(error))
+      workout_set_view.edit_form(
+        workout_set_schema.edit_with_error(
+          submitted_form,
+          "Something went wrong.",
+        ),
+        exercise_id,
+        set_id,
         user.weight_unit,
       )
       |> element.to_string()

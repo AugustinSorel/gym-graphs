@@ -89,6 +89,33 @@ pub fn select_by_id_and_exercise_id_and_user_id(
   })
 }
 
+pub fn update_by_id_and_exercise_id_and_user_id(
+  db: Connection,
+  id: workout_set.SetId,
+  exercise_id: ExerciseId,
+  user_id: UserId,
+  repetitions: Int,
+  weight: weight.Weight,
+  done_at: Timestamp,
+) {
+  sql.update_set_by_id_and_exercise_id_and_user_id(
+    db,
+    id.value,
+    exercise_id.value,
+    user_id.value,
+    repetitions,
+    weight.in_grams(weight),
+    done_at,
+  )
+  |> result.map(fn(result) {
+    case result {
+      pog.Returned(rows: [row, ..], count: _) ->
+        option.Some(workout_set.SetId(row.id))
+      pog.Returned(rows: [], count: _) -> option.None
+    }
+  })
+}
+
 pub fn delete_by_id_and_exercise_id_and_user_id(
   db: Connection,
   id: workout_set.SetId,

@@ -1,6 +1,8 @@
 import formal/form
 import gleam/list
 import gleam/option
+import gleam/result
+import gleam/time/timestamp.{type Timestamp}
 
 pub type CreateSet {
   CreateSet(weight: Float, repetitions: Int)
@@ -23,6 +25,26 @@ pub type ValidatedCreateSets {
   ValidatedCreateSets(sets: List(CreateSet), form: CreateSetsForm)
 }
 
+pub type EditSet {
+  EditSet(weight: Float, repetitions: Int, done_at: Timestamp)
+}
+
+pub type EditSetForm {
+  EditSetForm(
+    weight: String,
+    repetitions: String,
+    done_at: String,
+    weight_error: option.Option(String),
+    repetitions_error: option.Option(String),
+    done_at_error: option.Option(String),
+    error: option.Option(String),
+  )
+}
+
+pub type ValidatedEditSet {
+  ValidatedEditSet(set: EditSet, form: EditSetForm)
+}
+
 pub fn prefilled(weight: String, repetitions: String) -> CreateSetsForm {
   CreateSetsForm(rows: [row(weight, repetitions)], error: option.None)
 }
@@ -38,6 +60,53 @@ pub fn row(weight: String, repetitions: String) -> CreateSetRow {
 
 pub fn with_error(form: CreateSetsForm, error: String) -> CreateSetsForm {
   CreateSetsForm(..form, error: option.Some(error))
+}
+
+pub fn edit_prefilled(
+  weight: String,
+  repetitions: String,
+  done_at: String,
+) -> EditSetForm {
+  EditSetForm(
+    weight:,
+    repetitions:,
+    done_at:,
+    weight_error: option.None,
+    repetitions_error: option.None,
+    done_at_error: option.None,
+    error: option.None,
+  )
+}
+
+pub fn edit_with_error(form: EditSetForm, error: String) -> EditSetForm {
+  EditSetForm(..form, error: option.Some(error))
+}
+
+pub fn validate_edit(
+  values: List(#(String, String)),
+) -> Result(ValidatedEditSet, EditSetForm) {
+  let edit_form =
+    edit_prefilled(
+      list.key_find(values, "weight") |> result.unwrap(""),
+      list.key_find(values, "repetitions") |> result.unwrap(""),
+      list.key_find(values, "done_at") |> result.unwrap(""),
+    )
+  let formal_form =
+    new_edit_form()
+    |> form.add_values(values)
+
+  case form.run(formal_form) {
+    Ok(set) -> Ok(ValidatedEditSet(set:, form: edit_form))
+    Error(formal_form) ->
+      Error(
+        EditSetForm(
+          ..edit_form,
+          weight_error: first_error(formal_form, "weight"),
+          repetitions_error: first_error(formal_form, "repetitions"),
+          done_at_error: first_error(formal_form, "done_at"),
+        ),
+      )
+  }
 }
 
 pub fn validate(
@@ -141,4 +210,44 @@ fn new_row_form() {
   }
 
   form.new(schema)
+}
+
+fn new_edit_form() {
+  let schema = {
+    use weight <- form.field(
+      "weight",
+      form.parse_float
+        |> form.check_float_more_than(0.0)
+        |> form.check_float_less_than(1000.001),
+    )
+    use repetitions <- form.field(
+      "repetitions",
+      form.parse_int
+        |> form.check_int_more_than(0)
+        |> form.check_int_less_than(1000),
+    )
+    use done_at <- form.field("done_at", parse_local_datetime())
+
+    form.success(EditSet(weight:, repetitions:, done_at:))
+  }
+
+  form.new(schema)
+}
+
+fn parse_local_datetime() {
+  form.parse(fn(inputs) {
+    let invalid = #(
+      timestamp.from_unix_seconds(0),
+      "must be a valid date and time",
+    )
+
+    case inputs {
+      [value, ..] ->
+        case timestamp.parse_rfc3339(value <> ":00Z") {
+          Ok(value) -> Ok(value)
+          Error(_) -> Error(invalid)
+        }
+      _ -> Error(invalid)
+    }
+  })
 }
