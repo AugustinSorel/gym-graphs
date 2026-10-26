@@ -1,5 +1,7 @@
 import formal/form
+import gleam/option.{type Option}
 import gleam/string
+import gleam/time/timestamp.{type Timestamp}
 import gym_graphs/domains/weight.{type Weight}
 
 pub type ExerciseId {
@@ -8,6 +10,21 @@ pub type ExerciseId {
 
 pub type Exercise {
   Exercise(id: ExerciseId, name: Name)
+}
+
+pub type SetPerformance {
+  SetPerformance(weight: Weight, repetitions: Int)
+}
+
+pub type ExerciseSummary {
+  ExerciseSummary(
+    id: ExerciseId,
+    name: Name,
+    latest_set: Option(SetPerformance),
+    previous_set: Option(SetPerformance),
+    set_count: Int,
+    latest_set_done_at: Option(Timestamp),
+  )
 }
 
 pub type BestSet {

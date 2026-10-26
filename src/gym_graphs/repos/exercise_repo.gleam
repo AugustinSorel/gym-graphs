@@ -191,10 +191,34 @@ pub fn select_page_by_user_id(
   |> result.map(fn(result) {
     let pog.Returned(rows:, count: _) = result
     list.map(rows, fn(row) {
-      exercise.Exercise(
+      exercise.ExerciseSummary(
         id: exercise.ExerciseId(row.id),
         name: exercise.Name(row.name),
+        latest_set: performance(
+          row.latest_set_weight_in_g,
+          row.latest_set_repetitions,
+        ),
+        previous_set: performance(
+          row.previous_set_weight_in_g,
+          row.previous_set_repetitions,
+        ),
+        set_count: option.unwrap(row.set_count, 0),
+        latest_set_done_at: row.latest_set_done_at,
       )
     })
   })
+}
+
+fn performance(
+  weight_in_g: option.Option(Int),
+  repetitions: option.Option(Int),
+) {
+  case weight_in_g, repetitions {
+    option.Some(weight_in_g), option.Some(repetitions) ->
+      option.Some(exercise.SetPerformance(
+        weight: weight.from_grams(weight_in_g),
+        repetitions:,
+      ))
+    _, _ -> option.None
+  }
 }

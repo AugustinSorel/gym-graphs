@@ -4,12 +4,13 @@ import gleam/float
 import gleam/int
 import gleam/list
 import gleam/option
+import gleam/order
 import gleam/result
 import gleam/string
 import gleam/time/duration
 import gleam/time/timestamp
 import gleam/uri
-import gym_graphs/domains/exercise.{type Exercise}
+import gym_graphs/domains/exercise.{type Exercise, type ExerciseSummary}
 import gym_graphs/domains/one_rep_max
 import gym_graphs/domains/tag.{type Tag}
 import gym_graphs/domains/user.{type OneRepMaxAlgorithm, type WeightUnit}
@@ -25,9 +26,11 @@ import lustre/element/html
 
 pub type ExercisesPage {
   ExercisesPage(
-    rows: List(Exercise),
+    rows: List(ExerciseSummary),
     next_cursor: option.Option(exercise.ExerciseId),
     filter_tag_ids: List(Int),
+    weight_unit: WeightUnit,
+    one_rep_max_algorithm: OneRepMaxAlgorithm,
   )
 }
 
@@ -786,6 +789,42 @@ pub fn exercises_table(exercises_page: ExercisesPage) -> Element(a) {
             ],
             [html.text("name")],
           ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 p-4 pr-0 lg:pr-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide text-right lg:text-left w-34",
+              ),
+              attribute.scope("col"),
+            ],
+            [
+              html.text("last 1"),
+              html.abbr(
+                [
+                  attribute.title("rep maximum"),
+                  attribute.class("no-underline"),
+                ],
+                [html.text("rm")],
+              ),
+            ],
+          ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-18",
+              ),
+              attribute.scope("col"),
+            ],
+            [html.text("sets")],
+          ),
+          html.th(
+            [
+              attribute.class(
+                "h-10 pr-0 p-4 text-left align-middle font-semibold text-outline uppercase text-xs tracking-wide lg:table-cell hidden w-34",
+              ),
+              attribute.scope("col"),
+            ],
+            [html.text("last set")],
+          ),
         ]),
       ]),
       case exercises_page.rows, exercises_page.filter_tag_ids {
@@ -801,7 +840,17 @@ pub fn exercise_rows(exercises_page: ExercisesPage) -> Element(a) {
 }
 
 fn exercise_row_elements(exercises_page: ExercisesPage) -> List(Element(a)) {
-  let rows = html.tbody([], list.map(exercises_page.rows, exercise_row))
+  let rows =
+    html.tbody(
+      [],
+      list.map(exercises_page.rows, fn(exercise) {
+        exercise_row(
+          exercise,
+          exercises_page.weight_unit,
+          exercises_page.one_rep_max_algorithm,
+        )
+      }),
+    )
 
   case exercises_page.next_cursor {
     option.None -> [rows]
@@ -812,7 +861,11 @@ fn exercise_row_elements(exercises_page: ExercisesPage) -> List(Element(a)) {
   }
 }
 
-fn exercise_row(exercise: Exercise) -> Element(a) {
+fn exercise_row(
+  exercise: ExerciseSummary,
+  weight_unit: WeightUnit,
+  one_rep_max_algorithm: OneRepMaxAlgorithm,
+) -> Element(a) {
   html.tr(
     [
       attribute.class(
@@ -831,8 +884,137 @@ fn exercise_row(exercise: Exercise) -> Element(a) {
           [html.text(exercise.name.value)],
         ),
       ]),
+      latest_one_rep_max_cell(exercise, weight_unit, one_rep_max_algorithm),
+      html.td(
+        [
+          attribute.class("p-4 align-middle text-outline lg:table-cell hidden"),
+        ],
+        [
+          html.text(case exercise.set_count {
+            0 -> "-"
+            count -> int.to_string(count)
+          }),
+        ],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "pr-0 p-4 align-middle text-outline lg:table-cell hidden whitespace-nowrap",
+          ),
+        ],
+        [
+          html.text(case exercise.latest_set_done_at {
+            option.Some(done_at) -> time_ago(done_at)
+            option.None -> "-"
+          }),
+        ],
+      ),
     ],
   )
+}
+
+fn latest_one_rep_max_cell(
+  exercise: ExerciseSummary,
+  weight_unit: WeightUnit,
+  algorithm: OneRepMaxAlgorithm,
+) -> Element(a) {
+  let cell_attributes = [
+    attribute.class(
+      "p-4 pr-0 lg:pr-4 align-middle text-outline text-right lg:text-left whitespace-nowrap",
+    ),
+  ]
+
+  case exercise.latest_set {
+    option.None -> html.td(cell_attributes, [html.text("-")])
+    option.Some(latest_set) -> {
+      let latest_one_rep_max =
+        one_rep_max.calculate(
+          weight.in_grams(latest_set.weight),
+          latest_set.repetitions,
+          algorithm,
+        )
+
+      case latest_one_rep_max <=. 0.0 {
+        True -> html.td(cell_attributes, [html.text("-")])
+        False ->
+          html.td(cell_attributes, [
+            display_fact_weight(
+              weight.from_grams(float.round(latest_one_rep_max)),
+              weight_unit,
+            ),
+            one_rep_max_trend(
+              latest_one_rep_max,
+              exercise.previous_set,
+              algorithm,
+            ),
+          ])
+      }
+    }
+  }
+}
+
+fn one_rep_max_trend(
+  latest_one_rep_max: Float,
+  previous_set: option.Option(exercise.SetPerformance),
+  algorithm: OneRepMaxAlgorithm,
+) -> Element(a) {
+  case previous_set {
+    option.None -> element.none()
+    option.Some(previous_set) -> {
+      let previous_one_rep_max =
+        one_rep_max.calculate(
+          weight.in_grams(previous_set.weight),
+          previous_set.repetitions,
+          algorithm,
+        )
+      let #(label, symbol) = case
+        float.compare(latest_one_rep_max, previous_one_rep_max)
+      {
+        order.Gt -> #("up", " ↑")
+        order.Lt -> #("down", " ↓")
+        order.Eq -> #("unchanged", " -")
+      }
+
+      html.span([attribute.aria_label(label)], [html.text(symbol)])
+    }
+  }
+}
+
+fn time_ago(done_at: timestamp.Timestamp) -> String {
+  let seconds =
+    timestamp.difference(done_at, timestamp.system_time())
+    |> duration.to_seconds()
+    |> float.round()
+    |> int.max(0)
+
+  case seconds {
+    seconds if seconds < 60 -> "just now"
+    seconds if seconds < 3600 ->
+      case seconds / 60 {
+        1 -> "1 minute ago"
+        minutes -> int.to_string(minutes) <> " minutes ago"
+      }
+    seconds if seconds < 86_400 ->
+      case seconds / 3600 {
+        1 -> "1 hour ago"
+        hours -> int.to_string(hours) <> " hours ago"
+      }
+    seconds if seconds < 2_592_000 ->
+      case seconds / 86_400 {
+        1 -> "yesterday"
+        days -> int.to_string(days) <> " days ago"
+      }
+    seconds if seconds < 31_536_000 ->
+      case seconds / 2_592_000 {
+        1 -> "1 month ago"
+        months -> int.to_string(months) <> " months ago"
+      }
+    seconds ->
+      case seconds / 31_536_000 {
+        1 -> "1 year ago"
+        years -> int.to_string(years) <> " years ago"
+      }
+  }
 }
 
 fn loading_rows(exercise_id: Int, filter_tag_ids: List(Int)) -> Element(a) {
@@ -859,7 +1041,7 @@ fn loading_rows(exercise_id: Int, filter_tag_ids: List(Int)) -> Element(a) {
               "animate-pulse h-13 bg-[radial-gradient(circle,color-mix(in_srgb,var(--outline)_50%,transparent)_30%,transparent_40%)] bg-bottom bg-[size:4px_2px] bg-repeat-x",
             ),
             attribute.aria_hidden(True),
-            attribute.attribute("colspan", "1"),
+            attribute.attribute("colspan", "4"),
           ],
           [],
         ),
@@ -880,9 +1062,15 @@ fn filter_query(filter_tag_ids: List(Int)) -> String {
 fn no_filter_matches() -> Element(a) {
   html.tbody([], [
     html.tr([], [
-      html.td([attribute.class("py-12 text-center text-outline")], [
-        html.text("no exercises match these filters"),
-      ]),
+      html.td(
+        [
+          attribute.attribute("colspan", "4"),
+          attribute.class("py-12 text-center text-outline"),
+        ],
+        [
+          html.text("no exercises match these filters"),
+        ],
+      ),
     ]),
   ])
 }
@@ -890,12 +1078,18 @@ fn no_filter_matches() -> Element(a) {
 pub fn exercise_rows_error(msg: String) -> Element(a) {
   html.tbody([], [
     html.tr([], [
-      html.td([attribute.class("py-4")], [
-        ui.alert(ui.AlertError, [], [
-          ui.alert_title(html.text("loading exercises failed")),
-          ui.alert_description([], html.text(msg)),
-        ]),
-      ]),
+      html.td(
+        [
+          attribute.attribute("colspan", "4"),
+          attribute.class("py-4"),
+        ],
+        [
+          ui.alert(ui.AlertError, [], [
+            ui.alert_title(html.text("loading exercises failed")),
+            ui.alert_description([], html.text(msg)),
+          ]),
+        ],
+      ),
     ]),
   ])
 }

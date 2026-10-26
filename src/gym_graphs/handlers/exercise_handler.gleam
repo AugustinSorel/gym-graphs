@@ -138,7 +138,13 @@ fn load_exercises_page(
     _, _ -> option.None
   }
 
-  Ok(exercise_view.ExercisesPage(rows:, next_cursor:, filter_tag_ids:))
+  Ok(exercise_view.ExercisesPage(
+    rows:,
+    next_cursor:,
+    filter_tag_ids:,
+    weight_unit: user.weight_unit,
+    one_rep_max_algorithm: user.one_rep_max_algorithm,
+  ))
 }
 
 fn filter_tag_ids(req: Request) -> List(Int) {

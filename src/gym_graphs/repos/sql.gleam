@@ -1545,7 +1545,16 @@ order by tags.name, tags.id;
 /// > [squirrel package](https://github.com/giacomocavalieri/squirrel).
 ///
 pub type SelectExercisesPageByUserIdRow {
-  SelectExercisesPageByUserIdRow(id: Int, name: String)
+  SelectExercisesPageByUserIdRow(
+    id: Int,
+    name: String,
+    latest_set_repetitions: Option(Int),
+    latest_set_weight_in_g: Option(Int),
+    latest_set_done_at: Option(Timestamp),
+    previous_set_repetitions: Option(Int),
+    previous_set_weight_in_g: Option(Int),
+    set_count: Option(Int),
+  )
 }
 
 /// Runs the `select_exercises_page_by_user_id` query
@@ -1564,11 +1573,51 @@ pub fn select_exercises_page_by_user_id(
   let decoder = {
     use id <- decode.field(0, decode.int)
     use name <- decode.field(1, decode.string)
-    decode.success(SelectExercisesPageByUserIdRow(id:, name:))
+    use latest_set_repetitions <- decode.field(2, decode.optional(decode.int))
+    use latest_set_weight_in_g <- decode.field(3, decode.optional(decode.int))
+    use latest_set_done_at <- decode.field(
+      4,
+      decode.optional(pog.timestamp_decoder()),
+    )
+    use previous_set_repetitions <- decode.field(5, decode.optional(decode.int))
+    use previous_set_weight_in_g <- decode.field(6, decode.optional(decode.int))
+    use set_count <- decode.field(7, decode.optional(decode.int))
+    decode.success(SelectExercisesPageByUserIdRow(
+      id:,
+      name:,
+      latest_set_repetitions:,
+      latest_set_weight_in_g:,
+      latest_set_done_at:,
+      previous_set_repetitions:,
+      previous_set_weight_in_g:,
+      set_count:,
+    ))
   }
 
-  "select exercises.id, exercises.name
+  "select
+  exercises.id,
+  exercises.name,
+  set_summary.latest_set_repetitions,
+  set_summary.latest_set_weight_in_g,
+  set_summary.latest_set_done_at,
+  set_summary.previous_set_repetitions,
+  set_summary.previous_set_weight_in_g,
+  set_summary.set_count
 from exercises
+left join lateral (
+  select
+    sets.repetitions as latest_set_repetitions,
+    sets.weight_in_g as latest_set_weight_in_g,
+    sets.done_at as latest_set_done_at,
+    lead(sets.repetitions) over sets_by_recency as previous_set_repetitions,
+    lead(sets.weight_in_g) over sets_by_recency as previous_set_weight_in_g,
+    count(*) over ()::int as set_count
+  from sets
+  where sets.exercise_id = exercises.id
+  window sets_by_recency as (order by sets.done_at desc, sets.id desc)
+  order by sets.done_at desc, sets.id desc
+  limit 1
+) as set_summary on true
 where exercises.user_id = $1
   and ($2 = 0 or exercises.id < $2)
   and (
