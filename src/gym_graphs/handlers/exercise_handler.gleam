@@ -198,6 +198,16 @@ pub fn view_detail_page(
       )
       |> result.map_error(ViewDetailPageDatabaseFailure),
     )
+    use graph_points <- result.try(
+      exercise_repo.select_graph_points_by_id_and_user_id(
+        ctx.db,
+        id,
+        user.id,
+        user.one_rep_max_algorithm,
+        user.weight_unit,
+      )
+      |> result.map_error(ViewDetailPageDatabaseFailure),
+    )
 
     use all_tags <- result.try(
       tag_repo.select_all_by_user_id(ctx.db, user.id)
@@ -212,15 +222,30 @@ pub fn view_detail_page(
       |> result.map_error(ViewDetailPageDatabaseFailure),
     )
 
-    Ok(#(selected_exercise, facts, sets_page, all_tags, selected_tags))
+    Ok(#(
+      selected_exercise,
+      facts,
+      graph_points,
+      sets_page,
+      all_tags,
+      selected_tags,
+    ))
   }
 
   case result {
-    Ok(#(selected_exercise, facts, sets_page, all_tags, selected_tags)) ->
+    Ok(#(
+      selected_exercise,
+      facts,
+      graph_points,
+      sets_page,
+      all_tags,
+      selected_tags,
+    )) ->
       exercise_view.detail_page(
         [
           exercise_view.detail_header(selected_exercise, facts.total_sets),
           exercise_view.exercise_facts(facts, user.weight_unit),
+          exercise_view.exercise_graph(graph_points, user.weight_unit),
           exercise_view.exercise_sets(sets_page),
           exercise_view.exercise_tags(
             selected_exercise.id,

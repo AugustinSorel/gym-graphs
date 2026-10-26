@@ -51,6 +51,13 @@ pub fn layout(children: List(Element(a))) -> Element(a) {
         ],
         "",
       ),
+      html.script(
+        [
+          attribute.src("/static/js/exercise-graph.js"),
+          attribute.attribute("defer", ""),
+        ],
+        "",
+      ),
       html.title([], "Gym Graphs"),
     ]),
     html.body(

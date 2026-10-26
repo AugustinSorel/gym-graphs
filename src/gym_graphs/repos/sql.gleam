@@ -1454,6 +1454,7 @@ pub type SelectExerciseSetPerformancesByIdAndUserIdRow {
   SelectExerciseSetPerformancesByIdAndUserIdRow(
     weight_in_g: Int,
     repetitions: Int,
+    done_at: Timestamp,
   )
 }
 
@@ -1474,19 +1475,25 @@ pub fn select_exercise_set_performances_by_id_and_user_id(
   let decoder = {
     use weight_in_g <- decode.field(0, decode.int)
     use repetitions <- decode.field(1, decode.int)
+    use done_at <- decode.field(2, pog.timestamp_decoder())
     decode.success(SelectExerciseSetPerformancesByIdAndUserIdRow(
       weight_in_g:,
       repetitions:,
+      done_at:,
     ))
   }
 
-  "select sets.weight_in_g, sets.repetitions
+  "select
+  sets.weight_in_g,
+  sets.repetitions,
+  date_trunc('day', sets.done_at) as done_at
 from sets
 inner join exercises on exercises.id = sets.exercise_id
 where exercises.id = $1
   and exercises.user_id = $2
   and sets.weight_in_g > 0
-  and sets.repetitions > 0;
+  and sets.repetitions > 0
+order by done_at;
 "
   |> pog.query
   |> pog.parameter(pog.int(exercises_id))

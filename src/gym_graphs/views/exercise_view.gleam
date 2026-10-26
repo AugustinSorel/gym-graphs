@@ -2,6 +2,7 @@ import formal/form.{type Form}
 import gleam/bool
 import gleam/float
 import gleam/int
+import gleam/json
 import gleam/list
 import gleam/option
 import gleam/order
@@ -667,6 +668,65 @@ pub fn exercise_facts(
           count -> html.text(int.to_string(count))
         }),
       ],
+    ),
+  ])
+}
+
+pub fn exercise_graph(
+  points: List(exercise.ExerciseGraphPoint),
+  unit: WeightUnit,
+) -> Element(a) {
+  let data =
+    points
+    |> json.array(of: fn(point) {
+      json.object([
+        #(
+          "date",
+          point.date
+            |> timestamp.to_unix_seconds()
+            |> fn(seconds) { seconds *. 1000.0 }
+            |> float.round()
+            |> json.int(),
+        ),
+        #("oneRepMax", json.float(point.one_rep_max)),
+      ])
+    })
+    |> json.to_string()
+
+  html.section([], [
+    html.h2(
+      [
+        attribute.class(
+          "uppercase text-outline border-b-4 border-on-surface text-sm pb-2 w-full",
+        ),
+      ],
+      [
+        html.text("1 "),
+        html.abbr(
+          [
+            attribute.title("repetitions maximum"),
+            attribute.class("no-underline"),
+          ],
+          [html.text("rep max")],
+        ),
+      ],
+    ),
+    html.script(
+      [
+        attribute.id("exercise-graph-data"),
+        attribute.type_("application/json"),
+      ],
+      data,
+    ),
+    html.div(
+      [
+        attribute.id("exercise-graph"),
+        attribute.class(
+          "w-full h-72 border-b-2 border-dotted border-outline/50",
+        ),
+        attribute.attribute("data-unit", weight.unit_abbreviation(unit)),
+      ],
+      [],
     ),
   ])
 }

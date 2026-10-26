@@ -6,7 +6,9 @@ import gleam/result
 import gym_graphs/domains/exercise.{type ExerciseId, type Name}
 import gym_graphs/domains/one_rep_max
 import gym_graphs/domains/tag
-import gym_graphs/domains/user.{type OneRepMaxAlgorithm, type UserId}
+import gym_graphs/domains/user.{
+  type OneRepMaxAlgorithm, type UserId, type WeightUnit,
+}
 import gym_graphs/domains/weight
 import gym_graphs/repos/sql
 import pog.{type Connection}
@@ -149,6 +151,55 @@ pub fn select_facts_by_id_and_user_id(
       repetitions: facts.best_set_repetitions,
     ),
   ))
+}
+
+pub fn select_graph_points_by_id_and_user_id(
+  db: Connection,
+  id: ExerciseId,
+  user_id: UserId,
+  algorithm: OneRepMaxAlgorithm,
+  unit: user.WeightUnit,
+) {
+  sql.select_exercise_set_performances_by_id_and_user_id(
+    db,
+    id.value,
+    user_id.value,
+  )
+  |> result.map(fn(result) {
+    let pog.Returned(rows:, count: _) = result
+    graph_points(rows, algorithm, unit, [])
+  })
+}
+
+fn graph_points(
+  rows: List(sql.SelectExerciseSetPerformancesByIdAndUserIdRow),
+  algorithm: OneRepMaxAlgorithm,
+  unit: WeightUnit,
+  points: List(exercise.ExerciseGraphPoint),
+) -> List(exercise.ExerciseGraphPoint) {
+  case rows {
+    [] -> list.reverse(points)
+    [row, ..rest] -> {
+      let one_rep_max =
+        one_rep_max.calculate(row.weight_in_g, row.repetitions, algorithm)
+        |> weight.grams_to_display_value(unit)
+      let point = exercise.ExerciseGraphPoint(row.done_at, one_rep_max)
+
+      case points {
+        [exercise.ExerciseGraphPoint(date, current_max), ..previous]
+          if date == row.done_at
+        ->
+          graph_points(rest, algorithm, unit, [
+            exercise.ExerciseGraphPoint(
+              date,
+              float.max(current_max, one_rep_max),
+            ),
+            ..previous
+          ])
+        _ -> graph_points(rest, algorithm, unit, [point, ..points])
+      }
+    }
+  }
 }
 
 pub fn replace_tags_by_id_and_user_id(

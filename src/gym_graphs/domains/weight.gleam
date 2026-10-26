@@ -45,16 +45,20 @@ pub fn unit_name(unit: WeightUnit) -> String {
   }
 }
 
-fn convert_weight(weight: Weight, unit: WeightUnit) -> Float {
+pub fn to_display_value(weight: Weight, unit: WeightUnit) -> Float {
+  grams_to_display_value(int.to_float(weight.grams), unit)
+}
+
+pub fn grams_to_display_value(grams: Float, unit: WeightUnit) -> Float {
   case unit {
-    Kg -> int.to_float(weight.grams) /. 1000.0
-    Lbs -> int.to_float(weight.grams) *. 0.00220462
+    Kg -> grams /. 1000.0
+    Lbs -> grams *. 0.00220462
   }
 }
 
 pub fn display(weight: Weight, unit: WeightUnit) -> DisplayWeight {
   let value =
-    convert_weight(weight, unit)
+    to_display_value(weight, unit)
     |> round_to_two_decimals()
     |> float.to_string()
 

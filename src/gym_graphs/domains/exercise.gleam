@@ -41,6 +41,10 @@ pub type ExerciseFacts {
   )
 }
 
+pub type ExerciseGraphPoint {
+  ExerciseGraphPoint(date: Timestamp, one_rep_max: Float)
+}
+
 pub type Name {
   Name(value: String)
 }
