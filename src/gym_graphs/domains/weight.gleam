@@ -14,6 +14,15 @@ pub fn from_grams(grams: Int) -> Weight {
   Weight(grams)
 }
 
+pub fn from_display_value(value: Float, unit: WeightUnit) -> Weight {
+  let grams = case unit {
+    Kg -> value *. 1000.0
+    Lbs -> value /. 0.00220462
+  }
+
+  Weight(float.round(grams))
+}
+
 pub fn in_grams(weight: Weight) -> Int {
   weight.grams
 }

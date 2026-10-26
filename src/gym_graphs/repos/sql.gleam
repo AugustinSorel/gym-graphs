@@ -675,6 +675,32 @@ inner join exercises
   |> pog.execute(db)
 }
 
+/// Runs the `create_sets` query
+/// defined in `./src/gym_graphs/repos/sql/create_sets.sql`.
+///
+/// > 🐿️ This function was generated automatically using v4.7.0 of
+/// > the [squirrel package](https://github.com/giacomocavalieri/squirrel).
+///
+pub fn create_sets(
+  db: pog.Connection,
+  arg_1: Int,
+  arg_2: List(Int),
+  arg_3: List(Int),
+) -> Result(pog.Returned(Nil), pog.QueryError) {
+  let decoder = decode.map(decode.dynamic, fn(_) { Nil })
+
+  "insert into sets (exercise_id, repetitions, weight_in_g)
+select $1, source.repetitions, source.weight_in_g
+from unnest($2::integer[], $3::integer[]) as source(repetitions, weight_in_g);
+"
+  |> pog.query
+  |> pog.parameter(pog.int(arg_1))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_2))
+  |> pog.parameter(pog.array(fn(value) { pog.int(value) }, arg_3))
+  |> pog.returning(decoder)
+  |> pog.execute(db)
+}
+
 /// A row you get from running the `create_sign_up_session` query
 /// defined in `./src/gym_graphs/repos/sql/create_sign_up_session.sql`.
 ///

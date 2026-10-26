@@ -48,6 +48,21 @@ pub fn select_page_by_exercise_id_and_user_id(
   }
 }
 
+pub fn create(
+  db: Connection,
+  exercise_id: ExerciseId,
+  repetitions: List(Int),
+  weights: List(weight.Weight),
+) {
+  sql.create_sets(
+    db,
+    exercise_id.value,
+    repetitions,
+    list.map(weights, weight.in_grams),
+  )
+  |> result.replace(Nil)
+}
+
 pub fn select_by_id_and_exercise_id_and_user_id(
   db: Connection,
   id: workout_set.SetId,
