@@ -1,54 +1,41 @@
-# ─── Stage 1: build ──────────────────────────────────────────────────────────
-FROM golang:1.26.4-alpine AS builder
-
-# Add tzdata, Tailwind dependencies, and create a non-root user
-RUN apk add --no-cache tzdata libstdc++ libgcc && \
-  adduser -D -g '' appuser
+FROM node:24-alpine AS styles
 
 WORKDIR /app
 
-# Download the Tailwind CSS v4 standalone binary (architecture-aware)
-ARG TARGETARCH
-RUN ARCH=$([ "$TARGETARCH" = "amd64" ] && echo "x64" || echo "$TARGETARCH") && \
-  wget -qO /usr/local/bin/tailwindcss \
-  https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-${ARCH}-musl \
-  && chmod +x /usr/local/bin/tailwindcss
+RUN npm install @tailwindcss/cli@4.1.16 tailwindcss@4.1.16
 
-# Download dependencies (Leverage BuildKit cache mounts for speed)
-COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
-  go mod download
-
-# Copy source
-COPY . .
-
-# Compile CSS
-RUN tailwindcss -i web/styles/styles.css -o web/assets/css/styles.css --minify
-
-# Build the binary with Go build caching
-RUN --mount=type=cache,target=/go/pkg/mod \
-  --mount=type=cache,target=/root/.cache/go-build \
-  CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /gym-graphs ./cmd/api/main.go
+COPY src ./src
+RUN npx tailwindcss -i ./src/styles.css -o ./styles.css --minify
 
 
-# ─── Stage 2: minimal runtime image ──────────────────────────────────────────
-FROM scratch
+FROM ghcr.io/gleam-lang/gleam:v1.18.1-erlang-alpine AS builder
 
-# Copy CA certificates for HTTPS/TLS
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+WORKDIR /app
 
-# Copy Timezone data
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+RUN apk add --no-cache build-base
 
-# Copy the non-root user configuration
-COPY --from=builder /etc/passwd /etc/passwd
+COPY gleam.toml manifest.toml ./
+RUN gleam deps download
 
-# Copy the binary
-COPY --from=builder /gym-graphs /gym-graphs
+COPY src ./src
+COPY priv ./priv
+COPY --from=styles /app/styles.css ./priv/static/styles.css
 
-# Run as the non-root user
-USER appuser
+RUN gleam export erlang-shipment
+
+
+FROM erlang:29-alpine AS runtime
+
+RUN addgroup -S app && adduser -S -G app app
+
+WORKDIR /app
+
+COPY --from=builder --chown=app:app /app/build/erlang-shipment ./
+
+USER app
+
+ENV ENV=prod
 
 EXPOSE 8000
 
-ENTRYPOINT ["/gym-graphs"]
+CMD ["sh", "./entrypoint.sh", "run"]

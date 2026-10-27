@@ -1,14 +1,7 @@
-keys.txt
-
-*.test
-*.out
-/web/assets/css/styles.css
-
-go.work
-tmp/
-
-# Project build
-main
+*.beam
+*.ez
+/build
+erl_crash.dump
 
 # Devenv
 .devenv*
@@ -20,3 +13,5 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+
+priv/static/styles.css
