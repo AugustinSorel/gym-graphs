@@ -81,7 +81,7 @@ pub fn require_blank(req: Request, ctx: Ctx, next: fn() -> Response) {
 
   bool.guard(
     when: result.is_ok(res),
-    return: wisp.redirect("/"),
+    return: wisp.redirect("/exercises"),
     otherwise: next,
   )
 }

@@ -69,7 +69,7 @@ pub fn sign_in(req: Request, ctx: Ctx) {
   case result {
     Ok(token) -> {
       wisp.created()
-      |> wisp.set_header("HX-Redirect", "/")
+      |> wisp.set_header("HX-Redirect", "/exercises")
       |> wisp.set_cookie(
         req,
         name: cookie.auth_session().name,
